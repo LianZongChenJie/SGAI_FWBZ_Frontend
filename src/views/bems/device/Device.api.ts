@@ -10,7 +10,18 @@ enum Api {
   deleteDevice = '/bems/device/delete',
   selectDevice = '/bems/device/list',
   updateAutomation = '/bems/device/updateAutomaticAlgorithm',
+  staticDataList = '/bems/deviceStaticData/list',
+  staticDataSave = '/bems/deviceStaticData/save',
 }
+
+/**
+ * 静态数据列表
+ */
+export const staticDataList = (params) => defHttp.get({ url: Api.staticDataList, params });
+/**
+ * 静态数据保存
+ */
+export const staticDataSave = (params) => defHttp.post({ url: Api.staticDataSave, params });
 
 /**
  * 分类树

@@ -26,6 +26,7 @@
           <a-space>
             <a @click="handleEdit(record)">编辑</a>
             <a @click="handleDelete(record)">删除</a>
+            <a @click="handleDetail(record)">详情</a>
           </a-space>
         </template>
         <template v-else-if="column.key === 'automaticAlgorithm'">
@@ -54,7 +55,7 @@
     spaceTreeData: any[];
   }>();
 
-  const emit = defineEmits(['edit', 'delete', 'refresh']);
+  const emit = defineEmits(['edit', 'delete', 'refresh', 'detail']);
 
   // 搜索参数
   const searchParams = ref({
@@ -221,6 +222,10 @@
 
   const handleDelete = (record: any) => {
     emit('delete', record);
+  };
+
+  const handleDetail = (record: any) => {
+    emit('detail', record);
   };
 
   // 暴露 reload 方法给父组件

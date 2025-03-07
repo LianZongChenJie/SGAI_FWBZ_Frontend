@@ -32,11 +32,13 @@
         :space-tree-data="spaceTreeData"
         @edit="handleEdit"
         @delete="handleDelete"
+        @detail="handleDetail"
         @refresh="handleRefresh"
       />
     </div>
   </div>
   <DeviceModal @register="registerModal" @success="handleSuccess" />
+  <DetailModal ref="detailModalRef" />
 </template>
 
 <script lang="ts" setup>
@@ -45,9 +47,13 @@
   import { PlusCircleOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons-vue';
   import { useModal } from '@/components/Modal';
   import DeviceModal from './DeviceModal.vue';
+  import DetailModal from './DetailModal.vue';
+  import { Modal } from 'ant-design-vue';
+  import { deleteDevice } from '../device.api';
 
   // 添加 deviceTableRef 定义
   const deviceTableRef = ref();
+  const detailModalRef = ref();
 
   const props = defineProps<{
     treeData: any[]; // categoryTreeData
@@ -96,8 +102,27 @@
     deviceTableRef.value?.reload();
   }
 
-  const handleDelete = (record: any) => {
-    console.log('删除', record);
+  // 设备详情
+  const handleDetail = (record: any) => {
+    console.log('设备详情', record);
+    detailModalRef.value?.openModal(record.id);
+  };
+
+  const handleDelete = async (record: any) => {
+    Modal.confirm({
+      title: '确认删除',
+      content: `确定要删除设备 "${record.deviceName}" 吗？`,
+      okText: '确定',
+      okType: 'danger',
+      cancelText: '取消',
+      async onOk() {
+        try {
+          await deleteDevice({ id: record.id }, handleSuccess());
+        } catch (error) {
+          console.error('删除失败:', error);
+        }
+      },
+    });
   };
 
   const handleRefresh = (params: any) => {
