@@ -12,6 +12,7 @@ enum Api {
   updateAutomation = '/bems/device/updateAutomaticAlgorithm',
   staticDataList = '/bems/deviceStaticData/list',
   staticDataSave = '/bems/deviceStaticData/save',
+  attributeDataList = '/bems/deviceAttributeData/list',
 }
 
 /**
@@ -22,6 +23,11 @@ export const staticDataList = (params) => defHttp.get({ url: Api.staticDataList,
  * 静态数据保存
  */
 export const staticDataSave = (params) => defHttp.post({ url: Api.staticDataSave, params });
+
+/**
+ * 采集数据列表
+ */
+export const attributeDataList = (params) => defHttp.get({ url: Api.attributeDataList, params });
 
 /**
  * 分类树

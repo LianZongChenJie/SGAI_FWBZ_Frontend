@@ -22,6 +22,8 @@
                 valueFormat="YYYY-MM-DD"
                 :disabled="formDisabled"
               />
+              <!-- 仅展示 -->
+              <span v-else-if="item.valueType === 'show'">{{ item.value }}</span>
             </a-space>
           </a-form-item>
         </template>
@@ -61,9 +63,11 @@
       formDisabled?: boolean;
       formItems?: FormItem[];
       loading?: boolean;
+      showAction?: boolean;
     }>(),
     {
       formDisabled: false,
+      showAction: true,
     }
   );
 
