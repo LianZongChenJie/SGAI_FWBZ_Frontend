@@ -30,6 +30,12 @@
           style="width: 200px"
         />
       </a-form-item>
+      <a-form-item label="仪表状态">
+        <a-select v-model:value="searchParams.runState" placeholder="请选择仪表状态" style="width: 200px" allow-clear>
+          <a-select-option value="在线">在线</a-select-option>
+          <a-select-option value="离线">离线</a-select-option>
+        </a-select>
+      </a-form-item>
       <!-- 新增起始时间查询条件 -->
       <a-form-item label="起始时间">
         <a-date-picker
@@ -75,10 +81,8 @@
 
 <script lang="ts" setup>
   import { ref, onMounted, h } from 'vue';
-  import { Table, Form, Input, TreeSelect, Button, DatePicker } from 'ant-design-vue';
   import { BarChartOutlined } from '@ant-design/icons-vue';
   import { getCategoryTree, getSpaceTree, getList } from './index.api';
-  import page from '/@/router/routes/modules/demo/page';
   import Chart from './components/chart.vue';
 
   // 定义表格列
@@ -139,6 +143,11 @@
       key: 'value',
     },
     {
+      title: '运行状态',
+      dataIndex: 'runState',
+      key: 'runState',
+    },
+    {
       title: '操作',
       key: 'action',
     },
@@ -162,6 +171,7 @@
     deviceCode: '',
     categoryId: null,
     spaceId: null,
+    runState: null,
     // 获取上一天日期
     startTime: new Date(new Date().setDate(new Date().getDate() - 1)).toISOString().split('T')[0] + ' 00',
     endTime: new Date().toISOString().split('T')[0] + ' 00',
