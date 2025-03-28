@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="jeecg-basic-table jeecg-basic-table-form-container">
     <!-- 查询条件表单 -->
     <a-form layout="inline" @submit="handleSearch" :labelCol="{ span: 6 }" :wrapperCol="{ span: 18 }">
       <a-form-item label="设备名称">
@@ -10,7 +10,7 @@
       </a-form-item>
       <a-form-item label="设备类别">
         <a-tree-select
-          v-model:value="searchParams.category"
+          v-model:value="searchParams.categoryId"
           :tree-data="categoryTreeData"
           placeholder="请选择设备类别"
           :fieldNames="treeSelect"
@@ -21,7 +21,7 @@
       </a-form-item>
       <a-form-item label="空间位置">
         <a-tree-select
-          v-model:value="searchParams.space"
+          v-model:value="searchParams.spaceId"
           :tree-data="spaceTreeData"
           placeholder="请选择空间位置"
           :fieldNames="treeSelect"
@@ -32,11 +32,25 @@
       </a-form-item>
       <!-- 新增起始时间查询条件 -->
       <a-form-item label="起始时间">
-        <a-date-picker v-model:value="searchParams.startTime" placeholder="请选择起始时间" valueFormat="YYYY-MM-DD" style="width: 200px" />
+        <a-date-picker
+          v-model:value="searchParams.startTime"
+          placeholder="请选择起始时间"
+          :showTime="{ format: 'HH' }"
+          valueFormat="YYYY-MM-DD HH"
+          format="YYYY-MM-DD HH"
+          style="width: 200px"
+        />
       </a-form-item>
       <!-- 新增结束时间查询条件 -->
       <a-form-item label="结束时间">
-        <a-date-picker v-model:value="searchParams.endTime" placeholder="请选择结束时间" valueFormat="YYYY-MM-DD" style="width: 200px" />
+        <a-date-picker
+          v-model:value="searchParams.endTime"
+          placeholder="请选择结束时间"
+          :showTime="{ format: 'HH' }"
+          valueFormat="YYYY-MM-DD HH"
+          format="YYYY-MM-DD HH"
+          style="width: 200px"
+        />
       </a-form-item>
       <a-form-item>
         <a-space>
@@ -54,13 +68,18 @@
       </template>
     </a-table>
   </div>
+  <a-modal v-model:visible="chartVisible" title="设备数据图表" width="500px" :footer="null" @cancel="handleChartClose" destroyOnClose>
+    <Chart :params="chartParams" style="height: 300px" />
+  </a-modal>
 </template>
 
 <script lang="ts" setup>
   import { ref, onMounted, h } from 'vue';
   import { Table, Form, Input, TreeSelect, Button, DatePicker } from 'ant-design-vue';
   import { BarChartOutlined } from '@ant-design/icons-vue';
-  import { getCategoryTree, getSpaceTree } from './index.api';
+  import { getCategoryTree, getSpaceTree, getList } from './index.api';
+  import page from '/@/router/routes/modules/demo/page';
+  import Chart from './components/chart.vue';
 
   // 定义表格列
   const columns = [
@@ -81,10 +100,29 @@
       key: 'deviceName',
     },
     {
-      title: '计量单位',
-      dataIndex: 'unit',
-      key: 'unit',
+      title: '设备类型',
+      dataIndex: 'categoryId',
+      key: 'categoryId',
+      customRender: ({ text }) => {
+        if (!text) return '';
+        return findTreeNodeTitle(categoryTreeData.value, text) || text;
+      },
+      width: 100,
     },
+    {
+      title: '设备位置',
+      dataIndex: 'spaceId',
+      key: 'spaceId',
+      customRender: ({ text }) => {
+        if (!text) return '';
+        return findTreeNodeTitle(spaceTreeData.value, text) || text;
+      },
+    },
+    // {
+    //   title: '计量单位',
+    //   dataIndex: 'unit',
+    //   key: 'unit',
+    // },
     {
       title: '起始值',
       dataIndex: 'startValue',
@@ -107,69 +145,34 @@
   ];
 
   // 定义表格数据
-  const dataSource = ref([
-    {
-      key: '1',
-      deviceCode: 'D001',
-      deviceName: '设备1',
-      unit: '个',
-      startValue: 0,
-      endValue: 100,
-      value: 50,
-    },
-    {
-      key: '2',
-      deviceCode: 'D002',
-      deviceName: '设备2',
-      unit: '米',
-      startValue: 10,
-      endValue: 20,
-      value: 15,
-    },
-    // 可以添加更多数据
-  ]);
+  const dataSource = ref([]);
 
   const treeSelect = { children: 'children', label: 'title', value: 'key', key: 'key' };
 
-  // 查询参数
-  const searchParams = ref({
-    deviceName: '',
-    deviceCode: '',
-    category: null,
-    space: null,
-    // 新增起始时间和结束时间参数
+  const chartVisible = ref(false);
+
+  const chartParams = ref({
+    deviceId: null,
     startTime: null,
     endTime: null,
   });
 
+  const defaultSearchParams = {
+    deviceName: '',
+    deviceCode: '',
+    categoryId: null,
+    spaceId: null,
+    // 获取上一天日期
+    startTime: new Date(new Date().setDate(new Date().getDate() - 1)).toISOString().split('T')[0] + ' 00',
+    endTime: new Date().toISOString().split('T')[0] + ' 00',
+  };
+
+  // 查询参数
+  const searchParams = ref(defaultSearchParams);
+
   // 设备类别和空间位置的下拉树数据
   const categoryTreeData = ref([]);
   const spaceTreeData = ref([]);
-
-  // 处理查询
-  const handleSearch = () => {
-    // 这里可以添加实际的查询逻辑，根据 searchParams 过滤 dataSource
-    console.log('查询参数:', searchParams.value);
-  };
-
-  const handleChart = () => {
-    // 这里可以添加实际的图表逻辑
-    console.log('显示图表');
-  };
-
-  // 重置查询
-  const resetSearch = () => {
-    searchParams.value = {
-      deviceName: '',
-      deviceCode: '',
-      category: null,
-      space: null,
-      // 重置起始时间和结束时间
-      startTime: null,
-      endTime: null,
-    };
-  };
-
   // 分页配置
   const pagination = ref({
     current: 1, // 当前页码，初始为第 1 页
@@ -180,8 +183,75 @@
       // 当页码或每页记录数改变时的回调函数
       // 这里可以添加实际的分页查询逻辑
       console.log(`当前页码: ${page}, 每页记录数: ${pageSize}`);
+      pagination.value.current = page;
+      pagination.value.pageSize = pageSize;
+      loadData();
     },
   });
+
+  const loadData = async () => {
+    //分页查询
+    const params = {
+      pageNo: pagination.value.current,
+      pageSize: pagination.value.pageSize,
+      ...searchParams.value,
+      startTime: searchParams.value.startTime ? searchParams.value.startTime + ':00:00' : null,
+      endTime: searchParams.value.endTime ? searchParams.value.endTime + ':59:59' : null,
+    };
+    const res = await getList(params);
+    dataSource.value = res.records;
+    pagination.value.total = res.total;
+    pagination.value.pageSize = res.size;
+  };
+
+  // 处理查询
+  const handleSearch = () => {
+    // 这里可以添加实际的查询逻辑，根据 searchParams 过滤 dataSource
+    pagination.value.total = 1;
+    loadData();
+  };
+
+  const handleChart = (record: any) => {
+    // 这里可以添加实际的图表逻辑
+    console.log('显示图表', record);
+    chartParams.value = {
+      deviceId: record.deviceId,
+      startTime: searchParams.value.startTime ? searchParams.value.startTime + ':00:00' : null,
+      endTime: searchParams.value.endTime ? searchParams.value.endTime + ':59:59' : null,
+    };
+    chartVisible.value = true;
+  };
+
+  const handleChartClose = () => {
+    chartVisible.value = false;
+  };
+  // 查找树节点的标题
+  const findTreeNodeTitle = (treeData: any[], key: string | number): string => {
+    if (!treeData || !Array.isArray(treeData)) {
+      return '';
+    }
+
+    const find = (nodes: any[]): string => {
+      for (const node of nodes) {
+        if (String(node.key) === String(key)) {
+          return node.value;
+        }
+        if (node.children && Array.isArray(node.children)) {
+          const title = find(node.children);
+          if (title) return title;
+        }
+      }
+      return '';
+    };
+    return find(treeData);
+  };
+
+  // 重置查询
+  const resetSearch = () => {
+    searchParams.value = defaultSearchParams;
+    pagination.value.current = 1;
+    loadData();
+  };
 
   // 组件挂载时获取数据
   onMounted(async () => {
@@ -191,6 +261,7 @@
 
       const spaceRes = await getSpaceTree();
       spaceTreeData.value = spaceRes;
+      loadData();
     } catch (error) {
       console.error('获取数据失败:', error);
     }

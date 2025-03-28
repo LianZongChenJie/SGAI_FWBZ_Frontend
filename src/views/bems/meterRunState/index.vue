@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="jeecg-basic-table jeecg-basic-table-form-container">
     <a-form layout="inline" :model="queryParams" :labelCol="{ span: 6 }" :wrapperCol="{ span: 18 }">
       <a-form-item label="设备编号">
         <a-input v-model:value="queryParams.deviceCode" placeholder="请输入设备编号" allow-clear />

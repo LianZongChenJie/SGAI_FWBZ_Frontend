@@ -2,17 +2,6 @@
   <div class="device-space">
     <!-- 左侧树形结构 -->
     <div class="space-tree">
-      <a-space class="action-buttons">
-        <a-tooltip title="新建设备">
-          <a-button :icon="h(PlusCircleOutlined)" @click="handleCreate" />
-        </a-tooltip>
-        <a-tooltip title="编辑设备">
-          <a-button :icon="h(EditOutlined)" @click="handleEdit" />
-        </a-tooltip>
-        <a-tooltip title="删除设备">
-          <a-button :icon="h(DeleteOutlined)" />
-        </a-tooltip>
-      </a-space>
       <a-tree
         v-model:selectedKeys="selectedKeys"
         v-model:checkedKeys="checkedKeys"
@@ -33,6 +22,7 @@
         @edit="handleEdit"
         @delete="handleDelete"
         @detail="handleDetail"
+        @add="handleCreate"
         @refresh="handleRefresh"
       />
     </div>
@@ -47,7 +37,6 @@
   import DeviceModal from './DeviceModal.vue';
   import DetailModal from './DetailModal.vue';
   import { Modal } from 'ant-design-vue';
-  import { PlusCircleOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons-vue';
   import { useModal } from '@/components/Modal';
   import { deleteDevice } from '../device.api';
 
@@ -74,16 +63,6 @@
     console.log('checked', checkedKeys, info.checkedNodes);
   };
 
-  // 新建设备
-  function handleCreate() {
-    openModal(true, {
-      isUpdate: false,
-      showFooter: true,
-      categoryTreeData: props.categoryTreeData, // 设备类别树
-      spaceTreeData: props.spaceTreeData, // 设备位置树
-    });
-  }
-
   // 编辑设备
   const handleEdit = (record: any) => {
     openModal(true, {
@@ -98,6 +77,15 @@
   // 表单提交成功后的回调
   function handleSuccess() {
     deviceTableRef.value?.reload();
+  }
+  // 新建设备
+  function handleCreate() {
+    openModal(true, {
+      isUpdate: false,
+      showFooter: true,
+      categoryTreeData: props.categoryTreeData, // 设备类别树
+      spaceTreeData: props.spaceTreeData, // 设备位置树
+    });
   }
 
   // 设备详情

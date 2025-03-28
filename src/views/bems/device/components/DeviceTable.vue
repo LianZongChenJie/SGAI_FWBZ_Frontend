@@ -1,8 +1,17 @@
 <template>
   <div class="device-table">
     <a-row class="table-header">
-      <a-col :span="6">
-        <a-input-search v-model:value="searchParams.deviceName" placeholder="设备名称/设备编号" enter-button @search="handleSearch" />
+      <a-col :span="24">
+        <div class="search-container">
+          <a-input-search
+            v-model:value="searchParams.deviceName"
+            placeholder="设备名称/设备编号"
+            enter-button
+            @search="handleSearch"
+            style="width: 300px; margin-right: 16px"
+          />
+          <a-button type="primary" @click="handleCreated">新建</a-button>
+        </div>
       </a-col>
     </a-row>
 
@@ -45,8 +54,6 @@
 <script lang="ts" setup>
   import { ref, onMounted, watch, computed } from 'vue';
   import { selectDevice, updateAutomaticAlgorithm } from '../Device.api';
-  import DeviceModal from './DeviceModal.vue';
-  import { useModal } from '@/components/Modal';
 
   const props = defineProps<{
     categoryKeys?: string[]; // 类别树节点
@@ -228,6 +235,10 @@
     emit('detail', record);
   };
 
+  const handleCreated = () => {
+    emit('add');
+  };
+
   // 暴露 reload 方法给父组件
   defineExpose({
     reload: () => {
@@ -241,6 +252,10 @@
   .device-table {
     .table-header {
       margin-bottom: 16px;
+    }
+    .search-container {
+      display: flex;
+      align-items: center;
     }
   }
 </style>

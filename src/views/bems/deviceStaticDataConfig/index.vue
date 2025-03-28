@@ -1,5 +1,5 @@
 <template>
-  <div class="device-static-data">
+  <div class="device-static-data jeecg-basic-table jeecg-basic-table-form-container">
     <!-- 添加搜索表单 -->
     <div class="search-form">
       <a-form layout="inline" :labelCol="{ span: 6 }" :wrapperCol="{ span: 18 }">

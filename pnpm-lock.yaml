@@ -86,6 +86,9 @@ importers:
       intro.js:
         specifier: ^7.2.0
         version: 7.2.0
+      jsmind:
+        specifier: ^0.8.7
+        version: 0.8.7
       lodash-es:
         specifier: ^4.17.21
         version: 4.17.21
@@ -4224,6 +4227,9 @@ packages:
     resolution: {integrity: sha512-/sM3dO2FOzXjKQhJuo0Q173wf2KOo8t4I8vHy6lF9poUp7bKT0/NHE8fPX23PwfhnykfqnC2xRxOnVw5XuGIaA==}
     engines: {node: '>=6'}
     hasBin: true
+
+  jsmind@0.8.7:
+    resolution: {integrity: sha512-sEoYSEmugKPaPPXh0byA2/WhFZqfe4lu2iaMAHmMc4c8GoEkrER+htTmnMmXza0l9iwOPMnm31zPSqdQdcjXSw==}
 
   json-buffer@3.0.1:
     resolution: {integrity: sha512-4bV5BfR2mqfQTJm+V5tPPdf+ZpuhiIvTuAB5g8kcrXOZpTT/QwwVRWBywX1ozr6lEuPdbHxwaJlm9G6mI2sfSQ==}
@@ -10845,6 +10851,8 @@ snapshots:
       argparse: 2.0.1
 
   jsesc@3.1.0: {}
+
+  jsmind@0.8.7: {}
 
   json-buffer@3.0.1: {}
 

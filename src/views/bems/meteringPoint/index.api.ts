@@ -13,6 +13,12 @@ enum Api {
   deviceList = '/bems/device/list',
   analyticFormula = '/bems/meteringPoint/analyticFormula',
   saveFormula = '/bems/meteringPoint/saveFormula',
+  energyFlowType = '/sys/dict/getDictItems/energy_flow_type',
+  energyFlowTree = '/bems/energyFlowDiagramConfig/getTree',
+  addEnergyFlow = '/bems/energyFlowDiagramConfig/add',
+  deleteEnergyFlow = '/bems/energyFlowDiagramConfig/delete',
+  editEnergyFlow = '/bems/energyFlowDiagramConfig/edit',
+  findMeteringPointAll = '/bems/meteringPoint/listAll',
 }
 
 /**
@@ -72,3 +78,37 @@ export const analyticFormula = (params) => defHttp.post({ url: Api.analyticFormu
  * @param params
  */
 export const saveFormula = (params) => defHttp.post({ url: Api.saveFormula, params });
+
+/**
+ * 能流图分类字典获取
+ */
+export const energyFlowType = () => defHttp.get({ url: Api.energyFlowType });
+
+/**
+ * 能流图配置树获取
+ */
+export const energyFlowTree = (params) => defHttp.get({ url: Api.energyFlowTree, params });
+
+/**
+ * 新增能流图节点
+ */
+export const addEnergyFlow = (params) => defHttp.post({ url: Api.addEnergyFlow, params });
+
+/**
+ * 删除能流图节点
+ */
+export const deleteEnergyFlow = (params, handleSuccess) => {
+  return defHttp.delete({ url: Api.deleteEnergyFlow, params }, { joinParamsToUrl: true }).then(() => {
+    handleSuccess();
+  });
+};
+
+/**
+ * 编辑能流图节点
+ */
+export const editEnergyFlow = (params) => defHttp.post({ url: Api.editEnergyFlow, params });
+
+/**
+ * 所有计量点位
+ */
+export const findMeteringPointAll = () => defHttp.get({ url: Api.findMeteringPointAll });
