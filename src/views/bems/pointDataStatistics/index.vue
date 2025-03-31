@@ -13,7 +13,7 @@
     </div>
     <div class="right-content">
       <div class="chart-container">
-        <a-radio-group v-model:value="dateType" button-style="solid">
+        <a-radio-group v-model:value="dateType" button-style="solid" @change="ragioChange">
           <a-radio-button value="date">日能耗</a-radio-button>
           <a-radio-button value="month">月能耗</a-radio-button>
           <a-radio-button value="year">年能耗</a-radio-button>
@@ -53,7 +53,10 @@
   });
 
   const treeData = ref<any[]>([]);
-  const checkedKeys = ref<string[]>([]);
+  const checkedKeys = ref<{ checked: string[] | number[]; halfChecked: string[] | number[] }>({
+    checked: [],
+    halfChecked: [],
+  });
 
   // 表格列配置
   const tableColumns = ref<any[]>([]);
@@ -78,9 +81,21 @@
     findTreeData();
   };
   const findTreeData = async () => {
+    checkedKeys.value = {
+      checked: [],
+      halfChecked: [],
+    };
     if (energyFlowTreeType.value.type != '') {
       treeData.value = await energyFlowTree({ type: energyFlowTreeType.value.type });
+      if (treeData.value.length > 0) {
+        checkedKeys.value.checked.push(treeData.value[0].id);
+        findData();
+      }
     }
+  };
+
+  const ragioChange = () => {
+    findData();
   };
 
   const exportExcel = () => {
