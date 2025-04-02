@@ -88,6 +88,7 @@
           @change="handleTableChange"
           size="small"
           :scroll="{ y: 280 }"
+          :customRow="onRowDoubleClick"
         />
       </div>
     </div>
@@ -133,6 +134,14 @@
 
   // 添加一个唯一key来强制组件重新渲染
   const modalKey = ref<number>(0);
+
+  const onRowDoubleClick = (record: any) => {
+    return {
+      onDblclick: () => {
+        formulaContent.value += `[${record.pointCode}]`;
+      },
+    };
+  };
 
   // 获取点位列表数据
   const fetchDeviceList = async () => {
