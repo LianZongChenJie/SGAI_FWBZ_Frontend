@@ -38,7 +38,6 @@
   import { findDay, findMonth, findYear, energyFlowType, energyFlowTree, test } from './index.api';
   import * as echarts from 'echarts';
   import { MenuProps, message } from 'ant-design-vue';
-  import { EChartsType } from 'echarts';
 
   const date = ref<string>();
   const chartInstance = shallowRef(null);

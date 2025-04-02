@@ -1,17 +1,19 @@
 <template>
-  <a-modal
-    :title="props.isUpdate ? '编辑计量点' : '新增计量点'"
-    :visible="visible"
-    @ok="handleOk"
-    @cancel="handleCancel"
-    :confirmLoading="confirmLoading"
-  >
+  <a-modal :title="formData.id ? '编辑项目' : '新增项目'" :visible="visible" @ok="handleOk" @cancel="handleCancel" :confirmLoading="confirmLoading">
     <a-form ref="formRef" :model="formData" :rules="rules" :label-col="{ span: 6 }" :wrapper-col="{ span: 16 }">
-      <a-form-item label="项目编号" name="pointCode">
-        <a-input v-model:value="formData.pointCode" placeholder="请输入项目编号" />
+      <a-form-item label="上级节点">
+        <a-tree-select
+          v-model:value="formData.parentId"
+          :tree-data="props.ruleTree"
+          placeholder="请选择上级节点"
+          :field-names="{ label: 'nodeName', value: 'id' }"
+        />
       </a-form-item>
-      <a-form-item label="项目名称" name="pointName">
-        <a-input v-model:value="formData.pointName" placeholder="请输入项目名称" />
+      <a-form-item label="项目编号" name="nodeCode">
+        <a-input v-model:value="formData.nodeCode" placeholder="请输入项目编号" />
+      </a-form-item>
+      <a-form-item label="项目名称" name="nodeName">
+        <a-input v-model:value="formData.nodeName" placeholder="请输入项目名称" />
       </a-form-item>
       <a-form-item label="设备类别" name="categoryId">
         <a-tree-select
@@ -44,6 +46,9 @@
           </a-select-option>
         </a-select>
       </a-form-item>
+      <a-form-item label="排序" name="sort">
+        <a-input-number v-model:value="formData.sort" style="width: 100%" />
+      </a-form-item>
     </a-form>
   </a-modal>
 </template>
@@ -51,15 +56,15 @@
 <script lang="ts" setup>
   import { ref, reactive } from 'vue';
   import type { FormInstance } from 'ant-design-vue';
-  import { message } from 'ant-design-vue';
-  import { addPoint, editPoint } from '../index.api'; // 导入API
+  import { addMeasureRule, editMeasureRule } from '../index.api';
 
   const props = defineProps<{
-    isUpdate?: boolean;
     record?: any;
     categoryTree?: any[]; // 设备类别树
     spaceTree?: any[]; // 空间位置树
     unitList?: any[]; // 计量单位列表
+    ruleTree?: any[]; // 规则树
+    type: any;
   }>();
 
   const emit = defineEmits(['register', 'success']);
@@ -69,35 +74,42 @@
   const formRef = ref<FormInstance>();
 
   const formData = reactive({
-    id: '',
-    pointCode: '',
-    pointName: '',
+    id: undefined,
+    type: '',
+    parentId: undefined,
+    nodeCode: '',
+    nodeName: '',
     categoryId: undefined,
     spaceId: undefined,
-    meteringUnit: '',
+    meteringUnit: undefined,
+    sort: 0,
   });
 
   const rules = {
-    pointCode: [{ required: true, message: '请输入项目编号' }],
-    pointName: [{ required: true, message: '请输入项目名称' }],
+    nodeCode: [{ required: true, message: '请输入项目编号' }],
+    nodeName: [{ required: true, message: '请输入项目名称' }],
     categoryId: [{ required: true, message: '请选择设备类别' }],
     spaceId: [{ required: true, message: '请选择空间位置' }],
     meteringUnit: [{ required: true, message: '请输入计量单位' }],
+    sort: [{ required: true, message: '请输入排序' }],
   };
 
   // 打开弹窗
   const openModal = (data?: any) => {
-    console.log('data', data);
-    if (props.isUpdate && data) {
+    formData.type = props.type;
+    if (data && data.id) {
       // 使用解构赋值确保只复制需要的字段
-      const { id, pointCode, pointName, categoryId, spaceId, meteringUnit } = data;
+      const { id, parentId, type, nodeCode, nodeName, categoryId, spaceId, meteringUnit, sort } = data;
       Object.assign(formData, {
         id,
-        pointCode,
-        pointName,
+        parentId,
+        type,
+        nodeCode,
+        nodeName,
         categoryId,
         spaceId,
         meteringUnit,
+        sort,
       });
     }
     visible.value = true;
@@ -105,16 +117,17 @@
 
   // 关闭弹窗
   const closeModal = () => {
-    visible.value = false;
     formRef.value?.resetFields();
     Object.assign(formData, {
-      id: '',
-      pointCode: '',
-      pointName: '',
+      id: undefined,
+      parentId: undefined,
+      nodeode: '',
+      nodeName: '',
       categoryId: undefined,
       spaceId: undefined,
       meteringUnit: '',
     });
+    visible.value = false;
   };
 
   // 确定
@@ -122,7 +135,7 @@
     formRef.value?.validate().then(async () => {
       confirmLoading.value = true;
       try {
-        const api = props.isUpdate ? editPoint : addPoint;
+        const api = formData.id ? editMeasureRule : addMeasureRule;
         await api(formData);
         emit('success');
         closeModal();

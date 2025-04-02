@@ -33,7 +33,7 @@
         <div class="query-form">
           <a-form layout="inline" :model="queryParams">
             <a-form-item>
-              <a-input v-model:value="queryParams.keyword" placeholder="请输入设备名称/编号" allow-clear style="width: 200px" />
+              <a-input v-model:value="queryParams.keyword" placeholder="请输入名称/编号" allow-clear style="width: 200px" />
             </a-form-item>
             <a-form-item>
               <a-tree-select
@@ -97,7 +97,7 @@
 <script lang="ts" setup>
   import { ref } from 'vue';
   import type { TableColumnsType, TablePaginationConfig } from 'ant-design-vue';
-  import { deviceList, analyticFormula, saveFormula } from '../index.api';
+  import { pointList, analyticFormula, saveFormula } from '../index.api';
   import { message, Modal } from 'ant-design-vue';
 
   const props = defineProps<{
@@ -106,6 +106,9 @@
   }>();
 
   const emit = defineEmits(['success', 'cancel']);
+
+  const type = ref<string>(''); // 新增的 type propert
+  const parentId = ref<number | null>(null); // 新增的 parentId property
 
   const visible = ref<boolean>(false);
   const formulaContent = ref<string>('');
@@ -131,22 +134,23 @@
   // 添加一个唯一key来强制组件重新渲染
   const modalKey = ref<number>(0);
 
-  // 获取设备列表数据
+  // 获取点位列表数据
   const fetchDeviceList = async () => {
     loading.value = true;
     try {
-      const res = await deviceList({
+      const res = await pointList({
+        type: type.value,
+        parentId: parentId.value,
         pageNo: pagination.value.current,
         pageSize: pagination.value.pageSize,
-        deviceCode: queryParams.value.keyword ? '*' + queryParams.value.keyword + '*' : undefined,
-        deviceName: queryParams.value.keyword ? '*' + queryParams.value.keyword + '*' : undefined,
+        pointCode: queryParams.value.keyword ? '*' + queryParams.value.keyword + '*' : undefined,
+        pointName: queryParams.value.keyword ? '*' + queryParams.value.keyword + '*' : undefined,
         ...queryParams.value,
       });
       dataSource.value = res.records;
       total.value = res.total;
     } catch (error) {
-      console.error('获取设备列表失败', error);
-      message.error('获取设备列表失败');
+      message.error('获取数据列表失败');
     } finally {
       loading.value = false;
     }
@@ -178,15 +182,15 @@
   // 表格列定义
   const columns: TableColumnsType = [
     {
-      title: '设备编号',
-      dataIndex: 'deviceCode',
-      key: 'deviceCode',
+      title: '编号',
+      dataIndex: 'pointCode',
+      key: 'pointCode',
       width: 120,
     },
     {
-      title: '设备名称',
-      dataIndex: 'deviceName',
-      key: 'deviceName',
+      title: '名称',
+      dataIndex: 'pointName',
+      key: 'pointName',
       width: 150,
     },
     {
@@ -238,8 +242,13 @@
       currentId.value = record.id;
       formulaContent.value = record.formula || '';
       formulaDescription.value = record.description || '';
+      type.value = record.type;
+      parentId.value = record.id;
     }
-
+    // 解析公式
+    if (formulaContent.value) {
+      handleParse();
+    }
     // 重置分页并加载设备列表
     pagination.value.current = 1;
     fetchDeviceList();
@@ -266,11 +275,6 @@
 
   // 修改保存方法
   const handleSave = async () => {
-    if (!formulaContent.value) {
-      message.warning('请先输入公式内容');
-      return;
-    }
-
     try {
       // 确认保存
       Modal.confirm({
@@ -282,8 +286,10 @@
               id: currentId.value || undefined, // 如果是新增则不传id
               formula: formulaContent.value,
             });
-
             emit('success');
+            message.success('保存成功');
+            visible.value = false;
+            resetState();
           } catch (error) {
             console.error('保存公式失败', error);
             message.error('保存失败，请重试');

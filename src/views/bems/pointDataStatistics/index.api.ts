@@ -3,19 +3,13 @@ import { useMessage } from '/@/hooks/web/useMessage';
 
 const { createConfirm } = useMessage();
 enum Api {
-  pointAll = '/bems/meteringPoint/listAll',
   findDay = '/bems/meterPointData/findDay',
   findMonth = '/bems/meterPointData/findMonth',
   findYear = '/bems/meterPointData/findYear',
   energyFlowType = '/sys/dict/getDictItems/energy_flow_type',
-  energyFlowTree = '/bems/energyFlowDiagramConfig/getTree',
+  energyFlowTree = '/bems/meteringPoint/getTree',
   test = '/bems/test/test',
 }
-
-/**
- * 查询所有的计量点位
- */
-export const pointAll = () => defHttp.get({ url: Api.pointAll });
 
 /**
  * 日数据
