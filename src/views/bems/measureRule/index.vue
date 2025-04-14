@@ -1,5 +1,6 @@
 <template>
-  <a-menu v-model:selectedKeys="current" mode="horizontal" :items="items" @click="menuClick" style="justify-content: center" />
+  <a-menu v-model:selectedKeys="current" mode="horizontal" :items="items" @click="menuClick"
+    style="justify-content: center" />
   <div class="measure-rule">
     <div class="rule-tree">
       <a-button @click="showAddModal">新增</a-button>
@@ -7,31 +8,27 @@
       <a-button @click="showEditModal">编辑</a-button>
       &nbsp;
       <a-button @click="handleDelete">删除</a-button>
-      <a-tree
-        v-model:selectedKeys="selectKeys"
-        :tree-data="treeData"
-        show-icon
-        :default-expand-all="true"
-        :field-names="{ title: 'nodeName', key: 'id' }"
-        :autoExpandParent="true"
-        @select="handleSelect"
-      />
+      <a-tree v-model:selectedKeys="selectKeys" :tree-data="treeData" show-icon :default-expand-all="true"
+        :field-names="{ title: 'nodeName', key: 'id' }" :autoExpandParent="true" @select="handleSelect" />
     </div>
     <div class="rule-table">
-      <a-table
-        :columns="columns"
-        :data-source="dataSource"
-        :loading="loading"
-        :pagination="{
+      <BasicTable @register="registerTable">
+        <template #bodyCell="{ column, record }">
+          <template v-if="column.key === 'action'">
+            <a-space>
+              <a @click="handleFormula(record)">编辑公式</a>
+            </a-space>
+          </template>
+        </template>
+      </BasicTable>
+      <!-- <a-table :columns="columns" :data-source="dataSource" :loading="loading" :pagination="{
           total: total,
           current: pagination.current,
           pageSize: pagination.pageSize,
           showSizeChanger: true,
           showQuickJumper: true,
           showTotal: (total) => `共 ${total} 条`,
-        }"
-        @change="handleTableChange"
-      >
+        }" @change="handleTableChange">
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'action'">
             <a-space>
@@ -39,19 +36,13 @@
             </a-space>
           </template>
         </template>
-      </a-table>
+      </a-table> -->
     </div>
   </div>
-  <MeasureRuleModal
-    ref="ruleModalRef"
-    :category-tree="categoryTreeData"
-    :space-tree="spaceTreeData"
-    :unit-list="unitList"
-    :rule-tree="treeData"
-    :type="energyFlowTreeType.type"
-    @success="handleSuccess"
-  />
-  <FormulaModal ref="formulaModalRef" :category-tree="categoryTreeData" :space-tree="spaceTreeData" @success="findTableData" />
+  <MeasureRuleModal ref="ruleModalRef" :category-tree="categoryTreeData" :space-tree="spaceTreeData"
+    :unit-list="unitList" :rule-tree="treeData" :type="energyFlowTreeType.type" @success="handleSuccess" />
+  <FormulaModal ref="formulaModalRef" :category-tree="categoryTreeData" :space-tree="spaceTreeData"
+    @success="findTableData" />
 </template>
 
 <script lang="ts" setup>
@@ -61,6 +52,8 @@
   import { message, Modal } from 'ant-design-vue';
   import MeasureRuleModal from './components/MeasureRuleModal.vue';
   import FormulaModal from './components/FormulaModal.vue';
+  import { BasicColumn, BasicTable, FormSchema } from '/@/components/Table';
+  import { useListPage } from '/@/hooks/system/useListPage';
 
   const current = ref<string[]>([]);
   const items = ref<MenuProps['items']>([]);
@@ -80,24 +73,21 @@
 
   const ruleModalRef = ref();
 
-  const columns: TableColumnsType = [
+  const columns: TableColumnsType | BasicColumn[] = [
     {
       title: '项目编号',
       dataIndex: 'nodeCode',
       key: 'nodeCode',
-      width: 120,
     },
     {
       title: '项目名称',
       dataIndex: 'nodeName',
       key: 'nodeName',
-      width: 150,
     },
     {
       title: '设备类别',
       dataIndex: 'categoryId',
       key: 'categoryId',
-      width: 120,
       customRender: ({ text }) => {
         const node = findNodeInTree(categoryTreeData.value, text);
         return node?.title || text;
@@ -107,7 +97,6 @@
       title: '空间位置',
       dataIndex: 'spaceId',
       key: 'spaceId',
-      width: 120,
       customRender: ({ text }) => {
         const node = findNodeInTree(spaceTreeData.value, text);
         return node?.value || text;
@@ -117,7 +106,6 @@
       title: '计量单位',
       dataIndex: 'meteringUnit',
       key: 'meteringUnit',
-      width: 100,
       customRender: ({ text }) => {
         const unit = unitList.value.find((item) => item.id === text);
         return unit?.name || text;
@@ -126,7 +114,6 @@
     {
       title: '操作',
       key: 'action',
-      width: 120,
       fixed: 'right',
     },
   ];
@@ -202,6 +189,7 @@
 
   const handleSelect = () => {
     findTableData();
+    reload()
   };
 
   const findNodeInTree = (tree: any[], id: string): any => {
@@ -228,10 +216,11 @@
         type: energyFlowTreeType.value.type,
         parentId: selectKeys.value.length > 0 ? selectKeys.value[0] : null,
         pageNo: pagination.value.current,
-        pageSize: pagination.value.pageSize,
+        pageSize: 99999999,
       });
       dataSource.value = res.records;
       total.value = res.total;
+      return dataSource.value
     } catch (error) {
       console.error('获取数据失败', error);
       message.error('获取数据失败');
@@ -264,6 +253,24 @@
     }
   };
 
+  const { tableContext } = useListPage({
+  designScope: 'basic-table-demo',
+  tableProps: {
+    api: findTableData,
+    columns: columns as BasicColumn[],
+    showActionColumn: false,
+    size: 'middle',
+    pagination: {
+      current: pagination.value.current,
+      pageSize: pagination.value.pageSize,
+      pageSizeOptions: ['10', '20', '30', '50'],
+    }
+  },
+  });
+
+  // BasicTable绑定注册
+  const [registerTable, { reload }] = tableContext;
+
   const menuClick: MenuProps['onClick'] = ({ item }) => {
     const { key, label } = item.originItemValue;
     energyFlowTreeType.value = { type: key, name: label };
@@ -277,6 +284,7 @@
     () => {
       findTreeData();
       findTableData();
+      reload()
     }
   );
 </script>

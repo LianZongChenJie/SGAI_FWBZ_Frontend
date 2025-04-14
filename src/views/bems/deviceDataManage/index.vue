@@ -1,80 +1,32 @@
 <template>
   <div class="jeecg-basic-table jeecg-basic-table-form-container">
-    <!-- 查询条件表单 -->
-    <a-form layout="inline" @submit="handleSearch" :labelCol="{ span: 6 }" :wrapperCol="{ span: 18 }">
-      <a-form-item label="设备名称">
-        <a-input v-model:value="searchParams.deviceName" placeholder="请输入设备名称" allow-clear style="width: 200px" />
-      </a-form-item>
-      <a-form-item label="设备编号">
-        <a-input v-model:value="searchParams.deviceCode" placeholder="请输入设备编号" allow-clear style="width: 200px" />
-      </a-form-item>
-      <a-form-item label="设备类别">
-        <a-tree-select
-          v-model:value="searchParams.categoryId"
-          :tree-data="categoryTreeData"
-          placeholder="请选择设备类别"
-          :fieldNames="treeSelect"
-          show-search
-          allowClear
-          style="width: 200px"
-        />
-      </a-form-item>
-      <a-form-item label="空间位置">
-        <a-tree-select
-          v-model:value="searchParams.spaceId"
-          :tree-data="spaceTreeData"
-          placeholder="请选择空间位置"
-          :fieldNames="treeSelect"
-          show-search
-          allowClear
-          style="width: 200px"
-        />
-      </a-form-item>
-      <a-form-item label="仪表状态">
-        <a-select v-model:value="searchParams.runState" placeholder="请选择仪表状态" style="width: 200px" allow-clear>
+    <!-- 表格 -->
+    <BasicTable @register="registerTable">
+      <template #form-categoryId="{ model, field }">
+        <a-tree-select v-model:value="model[field]" :tree-data="categoryTreeData" placeholder="请选择设备类别"
+          :fieldNames="treeSelect" show-search allowClear />
+      </template>
+      <template #form-spaceId="{ model, field }">
+        <a-tree-select v-model:value="model[field]" :tree-data="spaceTreeData" placeholder="请选择空间位置"
+          :fieldNames="treeSelect" show-search allowClear />
+      </template>
+      <template #form-runState="{ model, field }">
+        <a-select v-model:value="model[field]" placeholder="请选择仪表状态" allow-clear>
           <a-select-option value="在线">在线</a-select-option>
           <a-select-option value="离线">离线</a-select-option>
         </a-select>
-      </a-form-item>
-      <!-- 新增起始时间查询条件 -->
-      <a-form-item label="起始时间">
-        <a-date-picker
-          v-model:value="searchParams.startTime"
-          placeholder="请选择起始时间"
-          :showTime="{ format: 'HH' }"
-          valueFormat="YYYY-MM-DD HH"
-          format="YYYY-MM-DD HH"
-          style="width: 200px"
-        />
-      </a-form-item>
-      <!-- 新增结束时间查询条件 -->
-      <a-form-item label="结束时间">
-        <a-date-picker
-          v-model:value="searchParams.endTime"
-          placeholder="请选择结束时间"
-          :showTime="{ format: 'HH' }"
-          valueFormat="YYYY-MM-DD HH"
-          format="YYYY-MM-DD HH"
-          style="width: 200px"
-        />
-      </a-form-item>
-      <a-form-item>
-        <a-space>
-          <a-button type="primary" @click="handleSearch">查询</a-button>
-          <a-button @click="resetSearch">重置</a-button>
-        </a-space>
-      </a-form-item>
-    </a-form>
-    <!-- 表格 -->
-    <a-table :columns="columns" :data-source="dataSource" :pagination="pagination">
+      </template>
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'action'">
-          <a-button :icon="h(BarChartOutlined)" @click="handleChart(record)" />
+          <template v-if="column.key === 'action'">
+            <a-button :icon="h(BarChartOutlined)" @click="handleChart(record)" />
+          </template>
         </template>
       </template>
-    </a-table>
+    </BasicTable>
   </div>
-  <a-modal v-model:visible="chartVisible" title="设备数据图表" width="500px" :footer="null" @cancel="handleChartClose" destroyOnClose>
+  <a-modal v-model:visible="chartVisible" title="设备数据图表" width="500px" :footer="null" @cancel="handleChartClose"
+    destroyOnClose>
     <Chart :params="chartParams" style="height: 300px" />
   </a-modal>
 </template>
@@ -84,9 +36,11 @@
   import { BarChartOutlined } from '@ant-design/icons-vue';
   import { getCategoryTree, getSpaceTree, getList } from './index.api';
   import Chart from './components/chart.vue';
+  import { BasicColumn, BasicTable, FormSchema } from '/@/components/Table';
+  import { useListPage } from '/@/hooks/system/useListPage';
 
   // 定义表格列
-  const columns = [
+  const columns: | BasicColumn[] = [
     {
       title: '序号',
       dataIndex: 'index',
@@ -153,6 +107,48 @@
     },
   ];
 
+  //表单搜索字段
+  const searchFormSchema: FormSchema[] = [
+    {
+    label: '设备名称', //显示label
+      field: 'deviceName', //查询字段
+      component: 'JInput', //渲染的组件
+    }, 
+    {
+      label: '设备编号',
+      field: 'deviceCode',
+      component: 'JInput',
+    },
+    {
+      label: '设备类别',
+      field: 'categoryId',
+      component: 'JDictSelectTag',
+      slot: 'categoryId',
+    },
+    {
+      label: '空间位置',
+      field: 'spaceId',
+      component: 'JDictSelectTag',
+      slot: 'spaceId',
+    },
+    {
+      label: '仪表状态',
+      field: 'runState',
+      component: 'JDictSelectTag',
+      slot: 'runState',
+    },
+    {
+      label: '起始时间',
+      field: 'startTime',
+      component: 'DatePicker',
+    },
+    {
+      label: '结束时间',
+      field: 'endTime',
+      component: 'DatePicker',
+    },
+  ];
+
   // 定义表格数据
   const dataSource = ref([]);
 
@@ -200,18 +196,22 @@
   });
 
   const loadData = async () => {
+    let { getFieldsValue } = getForm()
+    const searchData = getFieldsValue()
     //分页查询
     const params = {
       pageNo: pagination.value.current,
-      pageSize: pagination.value.pageSize,
-      ...searchParams.value,
-      startTime: searchParams.value.startTime ? searchParams.value.startTime + ':00:00' : null,
-      endTime: searchParams.value.endTime ? searchParams.value.endTime + ':59:59' : null,
+      // pageSize: pagination.value.pageSize,
+      pageSize: 999999,
+      ...searchData,
+      startTime: searchData.startTime ? searchData.startTime.split(' ')[0] + ' 00:00:00' : null,
+      endTime: searchData.endTime ? searchData.endTime.split(' ')[0] + ' 00:00:00' : null,
     };
     const res = await getList(params);
     dataSource.value = res.records;
     pagination.value.total = res.total;
     pagination.value.pageSize = res.size;
+    return dataSource.value
   };
 
   // 处理查询
@@ -219,6 +219,7 @@
     // 这里可以添加实际的查询逻辑，根据 searchParams 过滤 dataSource
     pagination.value.total = 1;
     loadData();
+    reload()
   };
 
   const handleChart = (record: any) => {
@@ -257,11 +258,43 @@
   };
 
   // 重置查询
-  const resetSearch = () => {
+  const resetSearch = async () => {
     searchParams.value = defaultSearchParams;
     pagination.value.current = 1;
-    loadData();
+    await loadData();
+    reload()
   };
+
+  const { tableContext } = useListPage({
+  designScope: 'basic-table-demo',
+  tableProps: {
+    api: loadData,
+    columns: columns as BasicColumn[],
+    showActionColumn: false,
+    size: 'middle',
+    pagination: {
+      current: pagination.value.current,
+      pageSize: pagination.value.pageSize,
+      pageSizeOptions: ['10', '20', '30', '50'],
+    },
+    formConfig: {
+      schemas: searchFormSchema,
+      submitOnReset: true,
+      //重置按钮的自定义事件
+      resetFunc: resetSearch,
+      //默认row行配置,当 layout 为 horizontal 生效
+      rowProps: { gutter: 24, justify: 'start', align: 'middle' },
+      //全局col列占比(每列显示多少位)，和schemas中的colProps属性一致
+      baseColProps: { span: 6 },
+      //row行的样式
+      baseRowStyle: { width: '100%' },
+      labelCol: { style: { width: '130px' } },
+    },
+  },
+  });
+
+  // BasicTable绑定注册
+  const [registerTable, { reload, getForm }] = tableContext;
 
   // 组件挂载时获取数据
   onMounted(async () => {

@@ -1,34 +1,17 @@
 <template>
   <div class="device-static-data jeecg-basic-table jeecg-basic-table-form-container">
-    <!-- 添加搜索表单 -->
-    <div class="search-form">
-      <a-form layout="inline" :labelCol="{ span: 6 }" :wrapperCol="{ span: 18 }">
-        <a-form-item label="类型">
-          <a-select v-model:value="searchForm.type" placeholder="请选择类型" allowClear style="width: 200px">
-            <a-select-option v-for="item in typeData" :key="item.key" :value="item.key">{{ item.label }}</a-select-option>
-          </a-select>
-        </a-form-item>
-        <a-form-item label="标签">
-          <a-input v-model:value="searchForm.label" placeholder="请输入标签" allowClear style="width: 200px" />
-        </a-form-item>
-        <a-form-item>
-          <a-space>
-            <a-button type="primary" @click="handleSearch">查询</a-button>
-            <a-button @click="handleReset">重置</a-button>
-          </a-space>
-        </a-form-item>
-      </a-form>
-    </div>
-
-    <div class="table-operations">
-      <a-button type="primary" @click="handleAdd">
-        <plus-outlined />
-        新增
-      </a-button>
-    </div>
-
     <!-- 修改表格配置，移除分页相关属性 -->
-    <a-table :columns="columns" :data-source="dataSource" :loading="loading" :pagination="false">
+    <BasicTable @register="registerTable">
+      <template #tableTitle>
+        <a-button type="primary" :icon="h(PlusOutlined)" @click="handleAdd">新增</a-button>
+      </template>
+      <template #form-type="{ model, field }">
+        <a-select v-model:value="model[field]" placeholder="请选择类型" allowClear>
+          <a-select-option v-for="item in typeData" :key="item.key" :value="item.key">
+            {{ item.label}}
+          </a-select-option>
+        </a-select>
+      </template>
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'valueType'">
           {{ getValueTypeName(record.valueType) }}
@@ -45,13 +28,15 @@
           </a-space>
         </template>
       </template>
-    </a-table>
+    </BasicTable>
 
-    <a-modal v-model:visible="modalVisible" :title="modalTitle" @ok="handleModalOk" @cancel="handleModalCancel" :confirmLoading="confirmLoading">
+    <a-modal v-model:visible="modalVisible" :title="modalTitle" @ok="handleModalOk" @cancel="handleModalCancel"
+      :confirmLoading="confirmLoading">
       <a-form ref="formRef" :model="formData" :rules="rules" :label-col="{ span: 6 }" :wrapper-col="{ span: 16 }">
         <a-form-item label="类型" name="type">
           <a-select v-model:value="formData.type" placeholder="请选择类型">
-            <a-select-option v-for="item in typeData" :key="item.key" :value="item.key">{{ item.label }}</a-select-option>
+            <a-select-option v-for="item in typeData" :key="item.key" :value="item.key">{{ item.label
+              }}</a-select-option>
           </a-select>
         </a-form-item>
         <a-form-item label="标签" name="label">
@@ -59,7 +44,8 @@
         </a-form-item>
         <a-form-item label="值类型" name="valueType">
           <a-select v-model:value="formData.valueType" placeholder="请选择值类型">
-            <a-select-option v-for="item in valueTypeData" :key="item.value" :value="item.value">{{ item.label }}</a-select-option>
+            <a-select-option v-for="item in valueTypeData" :key="item.value" :value="item.value">{{ item.label
+              }}</a-select-option>
           </a-select>
         </a-form-item>
         <a-form-item label="数据源" name="valueData" v-if="formData.valueType === 'select'">
@@ -75,12 +61,15 @@
 
 <script lang="ts" setup>
   import { ref, reactive } from 'vue';
+  import { h } from 'vue';
   import { PlusOutlined } from '@ant-design/icons-vue';
   import { message } from 'ant-design-vue';
   import { getList, saveConfig, editConfig, deleteConfig } from './index.api';
+  import { BasicColumn, BasicTable, FormSchema } from '/@/components/Table';
+  import { useListPage } from '/@/hooks/system/useListPage';
 
   // 表格列配置
-  const columns = [
+  const columns: BasicColumn[] = [
     {
       title: '类型',
       dataIndex: 'type',
@@ -109,9 +98,23 @@
     {
       title: '操作',
       key: 'action',
-      width: 150,
     },
   ];
+
+  //表单搜索字段
+  const searchFormSchema: FormSchema[] = [
+    {
+    label: '类型', //显示label
+      field: 'type', //查询字段
+      component: 'JDictSelectTag', //渲染的组件
+      slot: 'type'
+    },
+    {
+      label: '标签', //显示label
+      field: 'label', //查询字段
+      component: 'JInput', //渲染的组件
+    }
+  ]
 
   // 值类型映射
   const valueTypeMap = {
@@ -277,12 +280,15 @@
   // 修改获取数据方法，添加搜索参数
   const fetchData = async () => {
     loading.value = true;
+    let { getFieldsValue } = getForm()
+    const searchData = getFieldsValue()
     try {
       const params = {
-        ...searchForm,
+        ...searchData,
       };
       const res = await getList(params);
       dataSource.value = res;
+      return dataSource.value
     } catch (error) {
       message.error('获取数据失败');
     } finally {
@@ -297,16 +303,45 @@
   });
 
   // 添加搜索方法
-  const handleSearch = () => {
-    fetchData();
+  const handleSearch = async () => {
+    await fetchData();
+    reload()
   };
 
   // 添加重置方法
-  const handleReset = () => {
+  const handleReset = async() => {
     searchForm.type = undefined;
     searchForm.label = '';
-    fetchData();
+    await fetchData();
+    reload()
   };
+
+  const { tableContext } = useListPage({
+  designScope: 'basic-table-demo',
+  tableProps: {
+    api: fetchData,
+    columns: columns as BasicColumn[],
+    showActionColumn: false,
+    size: 'middle',
+    pagination: false,
+    formConfig: {
+      schemas: searchFormSchema,
+      submitOnReset: true,
+      //重置按钮的自定义事件
+      resetFunc: handleReset,
+      //默认row行配置,当 layout 为 horizontal 生效
+      rowProps: { gutter: 24, justify: 'start', align: 'middle' },
+      //全局col列占比(每列显示多少位)，和schemas中的colProps属性一致
+      baseColProps: { span: 6 },
+      //row行的样式
+      baseRowStyle: { width: '100%' },
+      labelCol: { style: { width: '130px' } },
+    },
+  },
+  });
+
+  // BasicTable绑定注册
+  const [registerTable, { reload, getForm }] = tableContext;
 
   // 初始化
   fetchData();

@@ -1,8 +1,5 @@
 <template>
   <div>
-    <!-- 新增按钮 -->
-    <a-button type="primary" @click="showModal" style="margin-bottom: 16px">新增</a-button>
-
     <!-- 新增表单弹窗 -->
     <a-modal v-model:visible="visible" title="新增属性" @ok="handleOk" @cancel="handleCancel">
       <a-form :model="formState" :label-col="{ span: 6 }" :wrapper-col="{ span: 16 }">
@@ -19,14 +16,19 @@
     </a-modal>
 
     <!-- 表格 -->
-    <a-table :columns="columns" :data-source="data" :pagination="false" bordered size="middle">
-      <template #action="{ record }">
-        <a-space>
-          <a @click="handleEdit(record)">编辑</a>
-          <a @click="handleDelete(record)">删除</a>
-        </a-space>
+    <BasicTable @register="registerTable">
+      <template #tableTitle>
+        <a-button type="primary" :icon="h(PlusOutlined)" @click="showModal">新增</a-button>
       </template>
-    </a-table>
+      <template #bodyCell="{ column, record }">
+        <template v-if="column.key === 'action'">
+          <a-space>
+            <a @click="handleEdit(record)">编辑</a>
+            <a @click="handleDelete(record)" style="color: red;">删除</a>
+          </a-space>
+        </template>
+      </template>
+    </BasicTable>
   </div>
 </template>
 
@@ -34,6 +36,10 @@
   import { get } from 'http';
   import { onMounted, ref } from 'vue';
   import { list, add, deleteById, update } from './index.api';
+  import { BasicTable } from '/@/components/Table';
+  import { useListPage } from '/@/hooks/system/useListPage';
+  import { h } from 'vue';
+  import { PlusOutlined } from '@ant-design/icons-vue';
 
   // 表单相关状态
   const visible = ref(false);
@@ -57,6 +63,7 @@
       await add(formState.value);
     }
     await getData();
+    reload()
     visible.value = false;
   };
 
@@ -100,8 +107,6 @@
     {
       title: '操作',
       key: 'action',
-      width: 150,
-      slots: { customRender: 'action' },
     },
   ]);
 
@@ -115,16 +120,34 @@
   const handleDelete = async (record) => {
     // 这里添加删除逻辑
     await deleteById({ id: record.id });
-    getData();
+    await getData();
+    reload()
     console.log('删除记录:', record);
   };
   const data = ref([]);
   const getData = async () => {
     const rest = await list();
     data.value = rest;
+    return data.value
   };
-  onMounted(() => {
-    getData();
+
+  const { tableContext } = useListPage({
+  designScope: 'basic-table-demo',
+  tableProps: {
+    api: getData,
+    columns: columns,
+    showActionColumn: false,
+    size: 'middle',
+    pagination: false,
+  },
+  });
+
+  // BasicTable绑定注册
+  const [registerTable, { reload }] = tableContext;
+
+  onMounted(async () => {
+    await getData();
+    reload()
   });
 </script>
 

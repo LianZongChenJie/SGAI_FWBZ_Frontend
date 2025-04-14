@@ -1,35 +1,12 @@
 <template>
   <div class="device-table">
-    <a-row class="table-header">
-      <a-col :span="24">
-        <div class="search-container">
-          <a-input-search
-            v-model:value="searchParams.deviceName"
-            placeholder="设备名称/设备编号"
-            enter-button
-            @search="handleSearch"
-            style="width: 300px; margin-right: 16px"
-          />
-          <a-button type="primary" @click="handleCreated">新建</a-button>
-        </div>
-      </a-col>
-    </a-row>
-
-    <a-table
-      :columns="columns"
-      :data-source="dataSource"
-      :scroll="{ y: 400 }"
-      :row-key="(record) => record.id"
-      :pagination="{
-        total: total,
-        current: pagination.pageNo,
-        pageSize: pagination.pageSize,
-        showSizeChanger: true,
-        showQuickJumper: true,
-        showTotal: (total) => `共 ${total} 条`,
-      }"
-      @change="handleTableChange"
-    >
+    <BasicTable @register="registerTable">
+      <template #form-name="{ model, field }">
+        <a-input v-model:value="searchParams.deviceName" placeholder="请输入设备名称/设备编号" style="width: 300px; margin-right: 16px" />
+      </template>
+      <template #tableTitle>
+        <a-button type="primary" :icon="h(PlusOutlined)" @click="handleCreated">新建</a-button>
+      </template>
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'action'">
           <a-space>
@@ -47,13 +24,17 @@
           />
         </template>
       </template>
-    </a-table>
+    </BasicTable>
   </div>
 </template>
 
 <script lang="ts" setup>
   import { ref, onMounted, watch, computed } from 'vue';
   import { selectDevice, updateAutomaticAlgorithm } from '../Device.api';
+  import { BasicColumn, BasicTable, FormSchema } from '/@/components/Table';
+  import { useListPage } from '/@/hooks/system/useListPage';
+  import { h } from 'vue';
+  import { PlusOutlined } from '@ant-design/icons-vue';
 
   const props = defineProps<{
     categoryKeys?: string[]; // 类别树节点
@@ -91,7 +72,7 @@
   };
 
   // 表格列配置
-  const columns = [
+  const columns: BasicColumn[] = [
     {
       title: '设备名称',
       dataIndex: 'deviceName',
@@ -110,7 +91,6 @@
         if (!text) return '';
         return findTreeNodeTitle(props.categoryTreeData, text) || text;
       },
-      width: 100,
     },
     {
       title: '设备位置',
@@ -125,13 +105,11 @@
       title: '倍率',
       dataIndex: 'magnification',
       key: 'magnification',
-      width: 80,
     },
     {
       title: '排序',
       dataIndex: 'sort',
       key: 'sort',
-      width: 60,
     },
     {
       title: '操作',
@@ -141,7 +119,16 @@
       title: '自动算法',
       dataIndex: 'automaticAlgorithm',
       key: 'automaticAlgorithm',
-      width: 100,
+    },
+  ];
+
+  //表单搜索字段
+  const searchFormSchema: FormSchema[] = [
+    {
+      label: '设备名称/设备编号', //显示label
+      field: 'searchParams', //查询字段
+      component: 'JInput', //渲染的组件
+      slot: 'name', //设置默认值
     },
   ];
 
@@ -154,17 +141,25 @@
   });
 
   // 搜索处理
-  const handleSearch = () => {
-    pagination.value.pageNo = 1;
-    loadData();
-  };
+  // const handleSearch = () => {
+  //   pagination.value.pageNo = 1;
+  //   setPagination({
+  //     current: pagination.value.pageNo, // 跳转到第2页
+  //     pageSize: pagination.value.pageSize, // 每页20条
+  //   });
+  //   loadData();
+  // };
 
   // 表格分页变化
-  const handleTableChange = (pag: any) => {
-    pagination.value.pageNo = pag.current;
-    pagination.value.pageSize = pag.pageSize;
-    loadData();
-  };
+  // const handleTableChange = (pag: any) => {
+  //   pagination.value.pageNo = pag.current;
+  //   pagination.value.pageSize = pag.pageSize;
+  //   setPagination({
+  //     current: pagination.value.pageNo, // 跳转到第2页
+  //     pageSize: pagination.value.pageSize, // 每页20条
+  //   });
+  //   loadData();
+  // };
 
   // 自动算法切换
   const handleAutomaticAlgorithmChange = (record: any, checked: boolean) => {
@@ -186,7 +181,7 @@
     try {
       const params = {
         pageNo: pagination.value.pageNo,
-        pageSize: pagination.value.pageSize,
+        pageSize: 9999999,
         deviceCode: searchParams.value.deviceName ? '*' + searchParams.value.deviceName + '*' : undefined,
         deviceName: searchParams.value.deviceName ? '*' + searchParams.value.deviceName + '*' : undefined,
         categoryId_MultiString: props.categoryKeys ? props.categoryKeys.join(',') : undefined,
@@ -196,10 +191,46 @@
       const res = await selectDevice(params);
       dataSource.value = res.records;
       total.value = res.total;
+      return dataSource.value;
     } catch (error) {
       console.error('加载数据失败:', error);
     }
   };
+
+  async function customResetFunc() {
+    searchParams.value.deviceName = '';
+  }
+
+  const { tableContext } = useListPage({
+    designScope: 'basic-table-demo',
+    tableProps: {
+      api: loadData,
+      columns: columns,
+      showActionColumn: false,
+      size: 'middle',
+      pagination: {
+        current: pagination.value.pageNo,
+        pageSize: pagination.value.pageSize,
+        pageSizeOptions: ['10', '20', '30', '50'],
+      },
+      formConfig: {
+        schemas: searchFormSchema,
+        submitOnReset: true,
+        //重置按钮的自定义事件
+        resetFunc: customResetFunc,
+        //默认row行配置,当 layout 为 horizontal 生效
+        rowProps: { gutter: 24, justify: 'start', align: 'middle' },
+        //全局col列占比(每列显示多少位)，和schemas中的colProps属性一致
+        baseColProps: { span: 8 },
+        //row行的样式
+        baseRowStyle: { width: '100%' },
+        labelCol: { style: { width: '130px' } },
+      },
+    },
+  });
+
+  // BasicTable绑定注册
+  const [registerTable, { reload }] = tableContext;
 
   // 监听选中节点变化
   watch(
@@ -207,6 +238,7 @@
     (newVal, oldVal) => {
       pagination.value.pageNo = 1;
       loadData();
+      reload();
     }
   );
   watch(
@@ -214,6 +246,7 @@
     (newVal, oldVal) => {
       pagination.value.pageNo = 1;
       loadData();
+      reload();
     }
   );
 
