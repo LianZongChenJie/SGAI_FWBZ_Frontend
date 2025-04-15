@@ -59,6 +59,10 @@
       display: flex;
       flex-direction: column;
 
+      .ant-tabs-nav{
+        margin-bottom: 0;
+      }
+
       .ant-tabs-content {
         flex: 1;
         height: 100%;

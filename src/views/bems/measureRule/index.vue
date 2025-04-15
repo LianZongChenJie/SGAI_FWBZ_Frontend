@@ -3,11 +3,13 @@
     style="justify-content: center" />
   <div class="measure-rule">
     <div class="rule-tree">
-      <a-button @click="showAddModal">新增</a-button>
-      &nbsp;
-      <a-button @click="showEditModal">编辑</a-button>
-      &nbsp;
-      <a-button @click="handleDelete">删除</a-button>
+      <div class="btton-box">
+        <a-button type="primary" :icon="h(PlusOutlined)" @click="showAddModal">新增</a-button>
+        &emsp;&emsp;
+        <a-button type="primary" @click="showEditModal">编辑</a-button>
+        &emsp;&emsp;
+        <a-button type="primary" @click="handleDelete">删除</a-button>
+      </div>
       <a-tree v-model:selectedKeys="selectKeys" :tree-data="treeData" show-icon :default-expand-all="true"
         :field-names="{ title: 'nodeName', key: 'id' }" :autoExpandParent="true" @select="handleSelect" />
     </div>
@@ -21,22 +23,6 @@
           </template>
         </template>
       </BasicTable>
-      <!-- <a-table :columns="columns" :data-source="dataSource" :loading="loading" :pagination="{
-          total: total,
-          current: pagination.current,
-          pageSize: pagination.pageSize,
-          showSizeChanger: true,
-          showQuickJumper: true,
-          showTotal: (total) => `共 ${total} 条`,
-        }" @change="handleTableChange">
-        <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'action'">
-            <a-space>
-              <a-button type="link" @click="handleFormula(record)">编辑公式</a-button>
-            </a-space>
-          </template>
-        </template>
-      </a-table> -->
     </div>
   </div>
   <MeasureRuleModal ref="ruleModalRef" :category-tree="categoryTreeData" :space-tree="spaceTreeData"
@@ -54,6 +40,8 @@
   import FormulaModal from './components/FormulaModal.vue';
   import { BasicColumn, BasicTable, FormSchema } from '/@/components/Table';
   import { useListPage } from '/@/hooks/system/useListPage';
+  import { h } from 'vue';
+  import { PlusOutlined } from '@ant-design/icons-vue';
 
   const current = ref<string[]>([]);
   const items = ref<MenuProps['items']>([]);
@@ -292,6 +280,7 @@
 <style lang="less" scoped>
   .measure-rule {
     display: flex;
+    
     width: 100%;
     height: 100%;
     .rule-tree {
@@ -303,6 +292,13 @@
       .ant-tree {
         height: 100%;
       }
+    }
+    .btton-box{
+      display: flex;
+      width: 100%;
+      height: 60px;
+      justify-content: center;
+      align-items: center;
     }
     .rule-table {
       flex: 4;

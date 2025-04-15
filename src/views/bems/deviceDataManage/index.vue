@@ -141,11 +141,13 @@
       label: '起始时间',
       field: 'startTime',
       component: 'DatePicker',
+      defaultValue: new Date(new Date().setDate(new Date().getDate() - 1)).toISOString().split('T')[0] + ' 00'
     },
     {
       label: '结束时间',
       field: 'endTime',
       component: 'DatePicker',
+      defaultValue: new Date().toISOString().split('T')[0] + ' 00'
     },
   ];
 
@@ -279,6 +281,7 @@
     },
     formConfig: {
       schemas: searchFormSchema,
+      showAdvancedButton: false,
       submitOnReset: true,
       //重置按钮的自定义事件
       resetFunc: resetSearch,

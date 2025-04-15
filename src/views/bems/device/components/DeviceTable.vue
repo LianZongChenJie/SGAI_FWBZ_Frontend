@@ -1,9 +1,6 @@
 <template>
   <div class="device-table">
     <BasicTable @register="registerTable">
-      <template #form-name="{ model, field }">
-        <a-input v-model:value="searchParams.deviceName" placeholder="请输入设备名称/设备编号" style="width: 300px; margin-right: 16px" />
-      </template>
       <template #tableTitle>
         <a-button type="primary" :icon="h(PlusOutlined)" @click="handleCreated">新建</a-button>
       </template>
@@ -128,7 +125,7 @@
       label: '设备名称/设备编号', //显示label
       field: 'searchParams', //查询字段
       component: 'JInput', //渲染的组件
-      slot: 'name', //设置默认值
+      // slot: 'name', //设置默认值
     },
   ];
 
@@ -282,13 +279,5 @@
 </script>
 
 <style lang="less" scoped>
-  .device-table {
-    .table-header {
-      margin-bottom: 16px;
-    }
-    .search-container {
-      display: flex;
-      align-items: center;
-    }
-  }
+
 </style>

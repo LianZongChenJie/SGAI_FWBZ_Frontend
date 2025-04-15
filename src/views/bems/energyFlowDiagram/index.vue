@@ -183,6 +183,33 @@
   };
 
   const loadingMind = () => {
+    if(jm) {
+      (jsmindContainer.value as HTMLDivElement).innerHTML = '';
+      jm = null;
+    }
+    nextTick(() => {
+      jm = new JsMind({
+        container: jsmindContainer.value, //渲染的体
+        editable: false, //是否可以编辑
+        // theme: 'red', //主题色
+        enable_drag_and_drop: false, // 禁用节点的拖拽（包括折叠功能）
+        // support_html : true,    // 是否支持节点里的HTML元素，如数据中topic 的html属性
+        view: {
+          draggable: false, // 当容器不能完全容纳思维导图时，是否允许拖动画布代替鼠标滚动
+          line_style: 'curved', /// 思维导图线条的样式，直线(straight)或者曲线(curved)
+        },
+        layout: {
+          pspace: 0, // 节点与连接线之间的水平间距（用于容纳节点收缩/展开控制器）
+        },
+        default_event_handle: {
+          select_node: (node: any) => {
+            console.log('Selected node:', node);
+            node.selected = true;
+          },
+        },
+      });
+      window.addEventListener('resize', handleResize)
+    });
     const mind = {
       meta: {
         name: 'Example',
@@ -206,29 +233,8 @@
       }
     });
     nextTick(() => {
-      jm = new JsMind({
-        container: jsmindContainer.value, //渲染的体
-        editable: false, //是否可以编辑
-        // theme: 'red', //主题色
-        enable_drag_and_drop: false, // 禁用节点的拖拽（包括折叠功能）
-        // support_html : true,    // 是否支持节点里的HTML元素，如数据中topic 的html属性
-        view: {
-          draggable: false, // 当容器不能完全容纳思维导图时，是否允许拖动画布代替鼠标滚动
-          line_style: 'curved', /// 思维导图线条的样式，直线(straight)或者曲线(curved)
-        },
-        layout: {
-          pspace: 0, // 节点与连接线之间的水平间距（用于容纳节点收缩/展开控制器）
-        },
-        default_event_handle: {
-          select_node: (node: any) => {
-            console.log('Selected node:', node);
-            node.selected = true;
-          },
-        },
-      });
       jm.show(mind);
-      window.addEventListener('resize', handleResize)
-    });
+    })
   };
 
   const handleResize = () => {
@@ -251,6 +257,7 @@
     }
     chartType.value = '1';
     date.value = new Date().toISOString().split('T')[0];
+
     await findEnergyFlowType();
     await getEnergyDiagramList();
   });

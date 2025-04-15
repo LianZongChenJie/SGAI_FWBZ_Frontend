@@ -104,7 +104,7 @@
   //表单搜索字段
   const searchFormSchema: FormSchema[] = [
     {
-    label: '类型', //显示label
+      label: '类型', //显示label
       field: 'type', //查询字段
       component: 'JDictSelectTag', //渲染的组件
       slot: 'type'
@@ -335,7 +335,6 @@
       baseColProps: { span: 6 },
       //row行的样式
       baseRowStyle: { width: '100%' },
-      labelCol: { style: { width: '130px' } },
     },
   },
   });

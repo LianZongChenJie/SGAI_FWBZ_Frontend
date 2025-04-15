@@ -135,7 +135,6 @@
 
     .space-table {
       flex: 1;
-      padding: 10px;
     }
   }
 </style>
