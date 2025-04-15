@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, onMounted } from 'vue';
+  import { ref, onMounted, nextTick } from 'vue';
   import 'jsmind/style/jsmind.css';
   import JsMind from 'jsmind';
   import { energyFlowType, findDay, findMonth, findYear } from './index.api';
@@ -205,14 +205,7 @@
         });
       }
     });
-    jm.show(mind);
-  };
-
-  onMounted(async () => {
-    if (jsmindContainer.value) {
-      console.log('jsmindContainer:', jsmindContainer.value); // Check jsmindContainer value
-
-      // Initialize jsMind
+    nextTick(() => {
       jm = new JsMind({
         container: jsmindContainer.value, //渲染的体
         editable: false, //是否可以编辑
@@ -233,6 +226,23 @@
           },
         },
       });
+      jm.show(mind);
+      window.addEventListener('resize', handleResize)
+    });
+  };
+
+  const handleResize = () => {
+    if (jm) {
+      jm.resize()
+    }
+  }
+
+  onMounted(async () => {
+    if (jsmindContainer.value) {
+      console.log('jsmindContainer:', jsmindContainer.value); // Check jsmindContainer value
+
+      // Initialize jsMind
+      
     } else {
       console.error('jsmindContainer is null'); // Log an error if jsmindContainer is null
     }
@@ -244,9 +254,10 @@
     await findEnergyFlowType();
     await getEnergyDiagramList();
   });
+
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
   .energy-flow {
     width: 100%;
     height: calc(100% - 80px);
