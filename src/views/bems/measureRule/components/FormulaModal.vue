@@ -13,6 +13,7 @@
     <div class="formula-container">
       <!-- 左侧文本块 -->
       <div class="left-panel">
+        <span style="font-size: 16px; font-weight: 600;">{{ nodeName }}</span>
         <div class="text-block">
           <div class="block-title">公式内容</div>
           <a-textarea v-model:value="formulaContent" :rows="8" placeholder="请输入公式内容" />
@@ -121,6 +122,7 @@
     current: 1,
     pageSize: 10,
   });
+  const nodeName = ref('')
 
   // 修改查询参数
   const queryParams = ref({
@@ -246,7 +248,7 @@
 
     // 重置所有状态
     resetState();
-
+    nodeName.value = record.nodeCode + '-' + record.nodeName
     if (record) {
       currentId.value = record.id;
       formulaContent.value = record.formula || '';

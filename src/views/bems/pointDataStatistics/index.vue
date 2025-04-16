@@ -1,15 +1,10 @@
 <template>
-  <a-menu v-model:selectedKeys="current" mode="horizontal" :items="items" @click="menuClick" style="justify-content: center" />
+  <a-menu v-model:selectedKeys="current" mode="horizontal" :items="items" @click="menuClick"
+    style="justify-content: center" />
   <div class="point-data-statistics">
     <div class="metering-point-tree">
-      <a-tree
-        v-model:checkedKeys="checkedKeys"
-        :tree-data="treeData"
-        checkable
-        checkStrictly
-        :default-expand-all="true"
-        :field-names="{ title: 'nodeName', key: 'id' }"
-      />
+      <a-tree v-model:checkedKeys="checkedKeys" :tree-data="treeData" checkable checkStrictly :default-expand-all="true"
+        :field-names="{ title: 'nodeName', key: 'id' }" />
     </div>
     <div class="right-content">
       <div class="chart-container">
@@ -27,7 +22,8 @@
       </div>
       <!-- 图表下方的表格 -->
       <div class="table-container">
-        <a-table :columns="tableColumns" :data-source="tableData" :pagination="false" bordered tableLayout="fixed" />
+        <a-table :columns="tableColumns" :data-source="tableData" :pagination="false" bordered tableLayout="fixed"
+          :scroll="{ x: 1500, y: 300 }" />
       </div>
     </div>
   </div>
@@ -140,6 +136,7 @@
       let width = 100;
       if (item.label === '名称') {
         width = 150;
+        item.fixed = 'left'
       }
       tableColumns.value.push({
         title: item.label,
@@ -149,6 +146,11 @@
         width: width,
       });
     });
+    tableColumns.value.forEach(item => {
+      if (item.title === '名称' || item.title === '合计') {
+        item.fixed = 'left'
+      }
+    })
   };
 
   // 初始化图表
