@@ -1,6 +1,5 @@
 <template>
-  <a-menu v-model:selectedKeys="current" mode="horizontal" :items="items" @click="menuClick"
-    style="justify-content: center" />
+  <a-menu v-model:selectedKeys="current" mode="horizontal" :items="items" @click="menuClick" style="justify-content: center" />
   <div class="measure-rule">
     <div class="rule-tree">
       <div class="btton-box">
@@ -10,17 +9,21 @@
         &emsp;&emsp;
         <a-button type="primary" @click="handleDelete">删除</a-button>
       </div>
-      <a-input-search v-model:value="searchValue" placeholder="请输入关键字" allow-clear @search="handleSearch"
-        @change="handleSearchChange" />
+      <a-input-search v-model:value="searchValue" placeholder="请输入关键字" allow-clear @search="handleSearch" @change="handleSearchChange" />
       &emsp;
       <a-spin :spinning="treeLoading">
-        <a-tree v-if="searchTreeData.length" :tree-data="filteredTreeData" :expanded-keys="expandedKeys"
-          :auto-expand-parent="autoExpandParent" @expand="handleExpand">
+        <a-tree
+          v-if="searchTreeData.length"
+          :tree-data="filteredTreeData"
+          v-model:selectedKeys="selectKeys"
+          :expanded-keys="expandedKeys"
+          :auto-expand-parent="autoExpandParent"
+          @select="handleSelect"
+          @expand="handleExpand"
+        >
           <template #title="{ title, originData }">
             <span v-html="highlightText(title)" />
-            <span v-if="originData.extra" class="node-extra">
-              ({{ originData.extra }})
-            </span>
+            <span v-if="originData.extra" class="node-extra"> ({{ originData.extra }}) </span>
           </template>
         </a-tree>
       </a-spin>
@@ -37,10 +40,16 @@
       </BasicTable>
     </div>
   </div>
-  <MeasureRuleModal ref="ruleModalRef" :category-tree="categoryTreeData" :space-tree="spaceTreeData"
-    :unit-list="unitList" :rule-tree="treeData" :type="energyFlowTreeType.type" @success="handleSuccess" />
-  <FormulaModal ref="formulaModalRef" :category-tree="categoryTreeData" :space-tree="spaceTreeData"
-    @success="findTableData" />
+  <MeasureRuleModal
+    ref="ruleModalRef"
+    :category-tree="categoryTreeData"
+    :space-tree="spaceTreeData"
+    :unit-list="unitList"
+    :rule-tree="treeData"
+    :type="energyFlowTreeType.type"
+    @success="handleSuccess"
+  />
+  <FormulaModal ref="formulaModalRef" :category-tree="categoryTreeData" :space-tree="spaceTreeData" @success="findTableData" />
 </template>
 
 <script lang="ts" setup>
@@ -54,7 +63,7 @@
   import { useListPage } from '/@/hooks/system/useListPage';
   import { h } from 'vue';
   import { PlusOutlined } from '@ant-design/icons-vue';
-import { debounce } from 'lodash-es';
+  import { debounce } from 'lodash-es';
 
   const current = ref<string[]>([]);
   const items = ref<MenuProps['items']>([]);
@@ -190,7 +199,7 @@ import { debounce } from 'lodash-es';
 
   const handleSelect = () => {
     findTableData();
-    reload()
+    reload();
   };
 
   const findNodeInTree = (tree: any[], id: string): any => {
@@ -207,11 +216,11 @@ import { debounce } from 'lodash-es';
   const findTreeData = async () => {
     if (energyFlowTreeType.value.type != '') {
       try {
-        treeLoading.value = true
+        treeLoading.value = true;
         treeData.value = await energyFlowTree({ type: energyFlowTreeType.value.type });
-        searchTreeData.value = transformTreeData(treeData.value)
+        searchTreeData.value = transformTreeData(treeData.value);
       } finally {
-        treeLoading.value = false
+        treeLoading.value = false;
       }
     }
   };
@@ -227,7 +236,7 @@ import { debounce } from 'lodash-es';
       });
       dataSource.value = res.records;
       total.value = res.total;
-      return dataSource.value
+      return dataSource.value;
     } catch (error) {
       console.error('获取数据失败', error);
       message.error('获取数据失败');
@@ -261,18 +270,18 @@ import { debounce } from 'lodash-es';
   };
 
   const { tableContext } = useListPage({
-  designScope: 'basic-table-demo',
-  tableProps: {
-    api: findTableData,
-    columns: columns as BasicColumn[],
-    showActionColumn: false,
-    size: 'middle',
-    pagination: {
-      current: pagination.value.current,
-      pageSize: pagination.value.pageSize,
-      pageSizeOptions: ['10', '20', '30', '50'],
-    }
-  },
+    designScope: 'basic-table-demo',
+    tableProps: {
+      api: findTableData,
+      columns: columns as BasicColumn[],
+      showActionColumn: false,
+      size: 'middle',
+      pagination: {
+        current: pagination.value.current,
+        pageSize: pagination.value.pageSize,
+        pageSizeOptions: ['10', '20', '30', '50'],
+      },
+    },
   });
 
   // BasicTable绑定注册
@@ -291,132 +300,127 @@ import { debounce } from 'lodash-es';
     () => {
       findTreeData();
       findTableData();
-      reload()
+      reload();
     }
   );
 
-// 转换为a-tree需要的格式
-const transformTreeData = (data, parentKey = null) => {
-  return data.map(item => {
-    const node = {
-      key: item.id.toString(),
-      title: item.nodeName,
-      originData: item, // 保留原始数据
-      parentKey: parentKey // 添加父节点key便于搜索时展开
-    };
+  // 转换为a-tree需要的格式
+  const transformTreeData = (data, parentKey = null) => {
+    return data.map((item) => {
+      const node = {
+        key: item.id.toString(),
+        title: item.nodeName,
+        originData: item, // 保留原始数据
+        parentKey: parentKey, // 添加父节点key便于搜索时展开
+      };
 
-    if (item.children && item.children.length) {
-      node.children = transformTreeData(item.children, node.key);
-    }
-    return node;
-  });
-};
-
-const searchTreeData = ref([]);
-const treeLoading = ref(false);
-const searchValue = ref('');
-const expandedKeys = ref([]);
-const autoExpandParent = ref(true);
-
-// 异步加载子节点
-const loadData = async (treeNode) => {
-  if (!treeNode.dataRef.isLeaf) {
-    const response = await api.get(`/tree-data/${treeNode.dataRef.key}/children`);
-    treeNode.dataRef.children = transformTreeData(
-      response.data,
-      treeNode.dataRef.key
-    );
-    treeData.value = [...treeData.value];
-  }
-};
-
-// 过滤树数据
-const filteredTreeData = computed(() => {
-  if (!searchValue.value) return searchTreeData.value;
-  const filterFn = (node) => {
-    const match = node.title.includes(searchValue.value);
-    if (node.children) {
-      const children = node.children.filter(filterFn);
-      if (children.length) {
-        return { ...node, children };
+      if (item.children && item.children.length) {
+        node.children = transformTreeData(item.children, node.key);
       }
-    }
-
-    return match ? node : null;
-  };
-
-  return searchTreeData.value.map(filterFn).filter(Boolean);
-});
-
-// 高亮文本
-const highlightText = (text) => {
-  if (!searchValue.value) return text;
-  const reg = new RegExp(searchValue.value, 'gi');
-  return text.replace(reg, match =>
-    `<span class="highlight" style="color: #f50;">${match}</span>`
-  );
-};
-
-// 更新展开的节点
-const updateExpandedKeys = debounce(() => {
-  if (!searchValue.value) {
-    expandedKeys.value = [];
-    return;
-  }
-
-  const keys = new Set();
-  const walkTree = (nodes) => {
-    nodes.forEach(node => {
-      if (node.title.includes(searchValue.value)) {
-        // 向上查找所有父节点
-        let parentKey = node.parentKey;
-        while (parentKey) {
-          keys.add(parentKey);
-          parentKey = getParentKey(parentKey, searchTreeData.value);
-        }
-      }
-      if (node.children) walkTree(node.children);
+      return node;
     });
   };
 
-  walkTree(searchTreeData.value);
-  expandedKeys.value = Array.from(keys);
-  autoExpandParent.value = true;
-}, 300);
+  const searchTreeData = ref([]);
+  const treeLoading = ref(false);
+  const searchValue = ref('');
+  const expandedKeys = ref([]);
+  const autoExpandParent = ref(true);
 
-// 获取父节点key
-const getParentKey = (key, tree) => {
-  for (const node of tree) {
-    if (node.key === key) return node.parentKey;
-    if (node.children) {
-      const found = getParentKey(key, node.children);
-      if (found) return found;
+  // 异步加载子节点
+  const loadData = async (treeNode) => {
+    if (!treeNode.dataRef.isLeaf) {
+      const response = await api.get(`/tree-data/${treeNode.dataRef.key}/children`);
+      treeNode.dataRef.children = transformTreeData(response.data, treeNode.dataRef.key);
+      treeData.value = [...treeData.value];
     }
-  }
-  return null;
-};
+  };
 
-// 事件处理
-const handleSearch = (value) => {
-  searchValue.value = value;
-  updateExpandedKeys();
-};
+  // 过滤树数据
+  const filteredTreeData = computed(() => {
+    if (!searchValue.value) return searchTreeData.value;
+    const filterFn = (node) => {
+      const match = node.title.includes(searchValue.value);
+      if (node.children) {
+        const children = node.children.filter(filterFn);
+        if (children.length) {
+          return { ...node, children };
+        }
+      }
 
-const handleSearchChange = (e) => {
-  searchValue.value = e.target.value;
-  updateExpandedKeys();
-};
+      return match ? node : null;
+    };
 
-const handleExpand = (keys) => {
-  expandedKeys.value = keys;
-  autoExpandParent.value = false;
-};
+    return searchTreeData.value.map(filterFn).filter(Boolean);
+  });
+
+  // 高亮文本
+  const highlightText = (text) => {
+    if (!searchValue.value) return text;
+    const reg = new RegExp(searchValue.value, 'gi');
+    return text.replace(reg, (match) => `<span class="highlight" style="color: #f50;">${match}</span>`);
+  };
+
+  // 更新展开的节点
+  const updateExpandedKeys = debounce(() => {
+    if (!searchValue.value) {
+      expandedKeys.value = [];
+      return;
+    }
+
+    const keys = new Set();
+    const walkTree = (nodes) => {
+      nodes.forEach((node) => {
+        if (node.title.includes(searchValue.value)) {
+          // 向上查找所有父节点
+          let parentKey = node.parentKey;
+          while (parentKey) {
+            keys.add(parentKey);
+            parentKey = getParentKey(parentKey, searchTreeData.value);
+          }
+        }
+        if (node.children) walkTree(node.children);
+      });
+    };
+
+    walkTree(searchTreeData.value);
+    expandedKeys.value = Array.from(keys);
+    autoExpandParent.value = true;
+  }, 300);
+
+  // 获取父节点key
+  const getParentKey = (key, tree) => {
+    for (const node of tree) {
+      if (node.key === key) return node.parentKey;
+      if (node.children) {
+        const found = getParentKey(key, node.children);
+        if (found) return found;
+      }
+    }
+    return null;
+  };
+
+  // 事件处理
+  const handleSearch = (value) => {
+    searchValue.value = value;
+    updateExpandedKeys();
+  };
+
+  const handleSearchChange = (e) => {
+    searchValue.value = e.target.value;
+    updateExpandedKeys();
+  };
+
+  const handleExpand = (keys) => {
+    expandedKeys.value = keys;
+    autoExpandParent.value = false;
+  };
 </script>
 
 <style lang="less" scoped>
   .measure-rule {
     display: flex;
-    
+
     width: 100%;
     height: 100%;
     .rule-tree {
@@ -429,7 +433,7 @@ const handleExpand = (keys) => {
         height: 100%;
       }
     }
-    .btton-box{
+    .btton-box {
       display: flex;
       width: 100%;
       height: 60px;
@@ -447,21 +451,21 @@ const handleExpand = (keys) => {
     }
   }
 
-    .tree-container {
-      padding: 12px;
-      background: #fff;
-      border-radius: 4px;
-      max-height: 600px;
-      overflow: auto;
-    }
-  
-    .node-extra {
-      color: #888;
-      font-size: 0.8em;
-      margin-left: 8px;
-    }
-  
-    :deep(.ant-tree-node-content-wrapper) {
-      white-space: nowrap;
-    }
+  .tree-container {
+    padding: 12px;
+    background: #fff;
+    border-radius: 4px;
+    max-height: 600px;
+    overflow: auto;
+  }
+
+  .node-extra {
+    color: #888;
+    font-size: 0.8em;
+    margin-left: 8px;
+  }
+
+  :deep(.ant-tree-node-content-wrapper) {
+    white-space: nowrap;
+  }
 </style>

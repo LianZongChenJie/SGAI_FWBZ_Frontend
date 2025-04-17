@@ -231,13 +231,13 @@
         mind.data.push({
           id: item.id + '',
           isroot: true,
-          topic: `${item.nodeName}<br>用电量：${item.value}kwh`,
+          topic: `${item.nodeName}<br>能耗：${item.value}${item.unit}`,
         });
       } else {
         mind.data.push({
           id: item.id + '',
           parentid: item.parentId + '',
-          topic: `${item.nodeName}<br>用电量：${item.value}kwh`,
+          topic: `${item.nodeName}<br>能耗：${item.value}${item.unit}`,
         });
       }
     });
