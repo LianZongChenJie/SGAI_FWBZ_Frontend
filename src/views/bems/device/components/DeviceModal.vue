@@ -1,8 +1,9 @@
 <template>
-  <BasicModal v-bind="$attrs" @register="registerModal" destroyOnClose :title="title" :width="800" @ok="handleSubmit">
+  <BasicModal v-bind="$attrs" @register="registerModal" destroyOnClose :title="title" :width="800" @ok="handleSubmit"
+    @visibleChange="visibleChange">
     <BasicForm v-if="!isUpdate" @register="registerForm" />
     <a-tabs v-else v-model:activeKey="activeKey">
-      <a-tab-pane key="1" tab="基本信息">
+      <a-tab-pane key="1" tab="基本信息" destroyInactiveTabPane="true">
         <BasicForm @register="registerForm" />
       </a-tab-pane>
       <a-tab-pane key="2" tab="设备属性" force-render>
@@ -348,6 +349,13 @@ const cancel = (record) => {
   }
   delete editableData[record.key];
 };
+
+const visibleChange = (value) => {
+  console.log('value---------->', value);
+  if (!value) {
+    activeKey.value = '1'
+  }
+}
 
 </script>
 

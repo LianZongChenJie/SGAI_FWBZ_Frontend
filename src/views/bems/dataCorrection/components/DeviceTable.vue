@@ -3,10 +3,10 @@
     <BasicTable @register="registerTable">
       <!-- 表格顶部按钮 -->
       <template #tableTitle>
-        <a-button v-if="hasPermission('bems:data_correction:update')" type="primary" :icon="h(EditOutlined)" @click="editFunc">
+        <a-button v-if="hasPermission('bems:device_data:amend')" type="primary" :icon="h(EditOutlined)" @click="editFunc">
           编辑
         </a-button>
-        <a-button v-if="hasPermission('bems:data_correction:save')" :icon="h(DeliveredProcedureOutlined)" style="margin-left: 8px" @click="saveFunc">
+        <a-button v-if="hasPermission('bems:device_data:amend')" :icon="h(DeliveredProcedureOutlined)" style="margin-left: 8px" @click="saveFunc">
           保存
         </a-button>
       </template>
