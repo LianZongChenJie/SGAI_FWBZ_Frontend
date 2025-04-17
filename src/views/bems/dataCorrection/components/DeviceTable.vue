@@ -206,13 +206,12 @@
         pageSize: 9999999,
         deviceCode: searchData.deviceName ? '*' + searchData.deviceName + '*' : undefined,
         deviceName: searchData.deviceName ? '*' + searchData.deviceName + '*' : undefined,
-        categoryId_MultiString: props.categoryKeys ? props.categoryKeys.join(',') : undefined,
-        spaceId_MultiString: props.spaceKeys ? props.spaceKeys.join(',') : undefined,
+        categoryId: props.categoryKeys ? props.categoryKeys.join(',') : undefined,
+        spaceId: props.spaceKeys ? props.spaceKeys.join(',') : undefined,
         date: searchData.date.split(' ')[0]
       };
       console.log('request params:', params); // 调试日志
       const res = await selectDevice(params);
-      console.log('res--------------->', res);
       dataSource.value = res.records;
       total.value = res.total;
       return dataSource.value;

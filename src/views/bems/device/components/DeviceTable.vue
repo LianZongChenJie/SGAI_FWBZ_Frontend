@@ -181,8 +181,8 @@
         pageSize: 9999999,
         deviceCode: searchParams.value.deviceName ? '*' + searchParams.value.deviceName + '*' : undefined,
         deviceName: searchParams.value.deviceName ? '*' + searchParams.value.deviceName + '*' : undefined,
-        categoryId_MultiString: props.categoryKeys ? props.categoryKeys.join(',') : undefined,
-        spaceId_MultiString: props.spaceKeys ? props.spaceKeys.join(',') : undefined,
+        categoryId: props.categoryKeys ? props.categoryKeys.join(',') : undefined,
+        spaceId: props.spaceKeys ? props.spaceKeys.join(',') : undefined,
       };
       console.log('request params:', params); // 调试日志
       const res = await selectDevice(params);
