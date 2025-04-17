@@ -3,9 +3,7 @@
     <BasicTable @register="registerTable">
       <!-- 表格顶部按钮 -->
       <template #tableTitle>
-        <a-button v-if="hasPermission('bems:device_data:amend')" type="primary" :icon="h(EditOutlined)" @click="editFunc">
-          编辑
-        </a-button>
+        <a-button v-if="hasPermission('bems:device_data:amend')" type="primary" :icon="h(EditOutlined)" @click="editFunc"> 编辑 </a-button>
         <a-button v-if="hasPermission('bems:device_data:amend')" :icon="h(DeliveredProcedureOutlined)" style="margin-left: 8px" @click="saveFunc">
           保存
         </a-button>
@@ -20,8 +18,11 @@
         </template>
         <template v-if="column.key === 'automaticAlgorithm'">
           <!-- 自动算法 -->
-          <a-switch :checked="record.automaticAlgorithm == '1'" :disabled="false"
-            @change="(checked) => handleAutomaticAlgorithmChange(record, checked)" />
+          <a-switch
+            :checked="record.automaticAlgorithm == '1'"
+            :disabled="false"
+            @change="(checked) => handleAutomaticAlgorithmChange(record, checked)"
+          />
         </template>
       </template>
     </BasicTable>
@@ -34,7 +35,7 @@
   import { BasicColumn, BasicTable, FormSchema } from '/@/components/Table';
   import { useListPage } from '/@/hooks/system/useListPage';
   import { h } from 'vue';
-  import { EditOutlined,DeliveredProcedureOutlined } from '@ant-design/icons-vue';
+  import { EditOutlined, DeliveredProcedureOutlined } from '@ant-design/icons-vue';
   import { usePermissionStore } from '/@/store/modules/permission';
 
   const props = defineProps<{
@@ -52,7 +53,7 @@
   });
 
   // 是否修改
-  const isSave = ref<boolean>(false)
+  const isSave = ref<boolean>(false);
 
   // 获取当前用户权限列表
   const store = usePermissionStore();
@@ -65,13 +66,13 @@
    */
   const hasPermission = (permission) => {
     if (!permission) return true;
-    
+
     const currentPermissions = permissionList.value;
-    
+
     if (Array.isArray(permission)) {
-      return permission.some(perm => currentPermissions.includes(perm));
+      return permission.some((perm) => currentPermissions.includes(perm));
     }
-    
+
     return currentPermissions.includes(permission);
   };
 
@@ -115,6 +116,11 @@
       dataIndex: 'deviceName',
       key: 'deviceName',
     },
+    {
+      title: '时间',
+      dataIndex: 'time',
+      key: 'time',
+    },
     // {
     //   title: '计量单位',
     //   dataIndex: 'unitName',
@@ -138,6 +144,7 @@
     {
       title: '修正值',
       key: 'updValue',
+      dataIndex: 'updValue',
     },
     {
       title: '最终值',
@@ -162,7 +169,7 @@
       label: '时间', //显示label
       field: 'date', //查询字段
       component: 'DatePicker', //渲染的组件
-      defaultValue: new Date(new Date().setDate(new Date().getDate() - 1)).toISOString().split('T')[0] + ' 00'
+      defaultValue: new Date(new Date().setDate(new Date().getDate() - 1)).toISOString().split('T')[0] + ' 00',
       // slot: 'name', //设置默认值
     },
     {
@@ -198,8 +205,8 @@
 
   // 加载数据
   const loadData = async () => {
-    let { getFieldsValue } = getForm()
-    const searchData = getFieldsValue()
+    let { getFieldsValue } = getForm();
+    const searchData = getFieldsValue();
     try {
       const params = {
         pageNo: pagination.value.pageNo,
@@ -208,7 +215,7 @@
         deviceName: searchData.deviceName ? '*' + searchData.deviceName + '*' : undefined,
         categoryId: props.categoryKeys ? props.categoryKeys.join(',') : undefined,
         spaceId: props.spaceKeys ? props.spaceKeys.join(',') : undefined,
-        date: searchData.date.split(' ')[0]
+        date: searchData.date.split(' ')[0],
       };
       console.log('request params:', params); // 调试日志
       const res = await selectDevice(params);
@@ -281,33 +288,33 @@
   // 操作方法
   const editFunc = (record: any) => {
     console.log('修改--------->');
-    isSave.value = true
+    isSave.value = true;
   };
 
   const saveFunc = async (record: any) => {
-    let params = currentPageData.value.map(item => {
+    let params = currentPageData.value.map((item) => {
       return {
         id: item.id,
-        value: item.value + ''
-      }
-    })
-    let res = await editDataValue(params)
-    isSave.value = false
+        value: item.value + '',
+      };
+    });
+    let res = await editDataValue(params);
+    isSave.value = false;
   };
 
-// 获取当前页数据
-const currentPageData = computed(() => {
-  const pagination = getPaginationRef();
-  const dataSource = getDataSource();
+  // 获取当前页数据
+  const currentPageData = computed(() => {
+    const pagination = getPaginationRef();
+    const dataSource = getDataSource();
 
-  if (!pagination || !dataSource) return [];
+    if (!pagination || !dataSource) return [];
 
-  const { current = 1, pageSize = 10 } = pagination;
-  const startIndex = (current - 1) * pageSize;
-  const endIndex = startIndex + pageSize;
+    const { current = 1, pageSize = 10 } = pagination;
+    const startIndex = (current - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
 
-  return dataSource.slice(startIndex, endIndex);
-});
+    return dataSource.slice(startIndex, endIndex);
+  });
 
   // 暴露 reload 方法给父组件
   defineExpose({
@@ -318,6 +325,4 @@ const currentPageData = computed(() => {
   });
 </script>
 
-<style lang="less" scoped>
-
-</style>
+<style lang="less" scoped></style>
