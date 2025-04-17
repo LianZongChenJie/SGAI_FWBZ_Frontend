@@ -227,17 +227,21 @@
       data: [],
     };
     data.value.forEach((item: any) => {
+      let topic = `${item.nodeName}`;
+      if (item.showType == '1') {
+        topic += `<br>${item.value}${item.unit}`;
+      }
       if (item.parentId === 0) {
         mind.data.push({
           id: item.id + '',
           isroot: true,
-          topic: `${item.nodeName}<br>能耗：${item.value}${item.unit}`,
+          topic: topic,
         });
       } else {
         mind.data.push({
           id: item.id + '',
           parentid: item.parentId + '',
-          topic: `${item.nodeName}<br>能耗：${item.value}${item.unit}`,
+          topic: topic,
         });
       }
     });
