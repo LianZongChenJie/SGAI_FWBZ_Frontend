@@ -5,6 +5,7 @@
         <a-tab-pane tab="异常日志" key="4"></a-tab-pane>
         <a-tab-pane tab="登录日志" key="1"></a-tab-pane>
         <a-tab-pane tab="操作日志" key="2"></a-tab-pane>
+        <a-tab-pane tab="修正日志" key="101"></a-tab-pane>
       </a-tabs>
     </template>
     <template #expandedRowRender="{ record }">
@@ -24,6 +25,12 @@
           <span class="error-box" style="vertical-align: middle">异常堆栈:{{ record.requestParam }}</span>
         </div>
       </div>
+      <div v-if="searchInfo.logType == 101">
+        <div style="margin-bottom: 5px">
+          <a-badge status="success" style="vertical-align: middle" />
+          <span class="error-box" style="vertical-align: middle">详情:{{ record.logContent }}</span>
+        </div>
+      </div>
     </template>
   </BasicTable>
 </template>
@@ -35,8 +42,10 @@
     columns,
     searchFormSchema,
     operationLogColumn,
+    dataAmendLogColumn,
+    dataAmendSearchFormSchema,
     operationSearchFormSchema,
-    exceptionColumns
+    exceptionColumns,
   } from './log.data';
   import { useMessage } from '/@/hooks/web/useMessage';
   import { useListPage } from '/@/hooks/system/useListPage';
@@ -73,9 +82,12 @@
     if (key == '2') {
       logColumns.value = operationLogColumn;
       searchSchema.value = operationSearchFormSchema;
-    }else if(key == '4'){
+    } else if (key == '4') {
       searchSchema.value = searchFormSchema;
       logColumns.value = exceptionColumns;
+    } else if (key == '101') {
+      searchSchema.value = dataAmendSearchFormSchema;
+      logColumns.value = dataAmendLogColumn;
     } else {
       searchSchema.value = searchFormSchema;
       logColumns.value = columns;

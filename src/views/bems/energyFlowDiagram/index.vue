@@ -170,20 +170,29 @@
     data.value.forEach((item) => {
       option.series[0].data.push({
         name: item.nodeName,
+        itemStyle: getNodeLingStyle(item),
       });
       if (item.parentId != 0) {
         option.series[0].links.push({
           source: item.parentNodeName,
           target: item.nodeName,
           value: item.value ? item.value + 1 : 1,
+          lineStyle: getNodeLingStyle(item),
         });
       }
     });
     chart?.setOption(option);
   };
 
+  const getNodeLingStyle = (node) => {
+    // 判断字符串中包含损耗
+    if (node.nodeName.includes('损')) {
+      return { color: '#F70000', opacity: 1 };
+    }
+  };
+
   const loadingMind = () => {
-    if(jm) {
+    if (jm) {
       (jsmindContainer.value as HTMLDivElement).innerHTML = '';
       jm = null;
     }
@@ -208,7 +217,7 @@
           },
         },
       });
-      window.addEventListener('resize', handleResize)
+      window.addEventListener('resize', handleResize);
     });
     const mind = {
       meta: {
@@ -234,21 +243,20 @@
     });
     nextTick(() => {
       jm.show(mind);
-    })
+    });
   };
 
   const handleResize = () => {
     if (jm) {
-      jm.resize()
+      jm.resize();
     }
-  }
+  };
 
   onMounted(async () => {
     if (jsmindContainer.value) {
       console.log('jsmindContainer:', jsmindContainer.value); // Check jsmindContainer value
 
       // Initialize jsMind
-      
     } else {
       console.error('jsmindContainer is null'); // Log an error if jsmindContainer is null
     }
@@ -261,7 +269,6 @@
     await findEnergyFlowType();
     await getEnergyDiagramList();
   });
-
 </script>
 
 <style lang="less" scoped>
