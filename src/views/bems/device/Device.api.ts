@@ -13,6 +13,11 @@ enum Api {
   staticDataList = '/bems/deviceStaticData/list',
   staticDataSave = '/bems/deviceStaticData/save',
   attributeDataList = '/bems/deviceAttributeData/list',
+  getDeviceAttribute = '/bems/deviceModel/queryByCategoryId',
+  getListByDeviceId = '/bems/deviceAttribute/queryPage',
+  saveData = '/bems/deviceAttribute/edit',
+  addDate =  '/bems/deviceAttribute/add',
+  deleteItem = '/bems/deviceAttribute/delete'
 }
 
 /**
@@ -66,3 +71,28 @@ export const selectDevice = (params) => defHttp.get({ url: Api.selectDevice, par
  * 切换自动算法
  */
 export const updateAutomaticAlgorithm = (params) => defHttp.post({ url: Api.updateAutomation, params });
+
+/**
+ * 切换自动算法
+ */
+export const getDeviceAttribute = (params) => defHttp.get({ url: Api.getDeviceAttribute, params }, { joinParamsToUrl: true }); 
+
+/**
+ * 获取表格数据
+ */
+export const getListByDeviceId = (params) => defHttp.get({ url: Api.getListByDeviceId, params }); 
+
+/**
+ * 新增编辑后的数据
+ */
+export const addData = (params) => defHttp.post({ url: Api.addDate, params });
+
+/**
+ * 保存编辑后的数据
+ */
+export const saveData = (params) => defHttp.post({ url: Api.saveData, params }); 
+
+/**
+ * 删除数据
+ */
+export const deleteItem = (params) => defHttp.delete({ url: Api.deleteItem, params }, { joinParamsToUrl: true }); 

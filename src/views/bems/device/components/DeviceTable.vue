@@ -255,10 +255,12 @@
   // 操作方法
   const handleEdit = (record: any) => {
     emit('edit', record);
+    reload();
   };
 
   const handleDelete = (record: any) => {
     emit('delete', record);
+    reload();
   };
 
   const handleDetail = (record: any) => {
@@ -267,6 +269,7 @@
 
   const handleCreated = () => {
     emit('add');
+    reload();
   };
 
   // 暴露 reload 方法给父组件
