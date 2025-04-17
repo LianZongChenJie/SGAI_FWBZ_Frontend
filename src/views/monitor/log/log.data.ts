@@ -52,6 +52,27 @@ export const operationLogColumn: BasicColumn[] = [
   },
 ];
 
+/**
+ * 数据修正日志需要操作类型
+ */
+export const dataAmendLogColumn: BasicColumn[] = [
+  ...columns,
+  {
+    title: '操作类型',
+    dataIndex: 'operateType',
+    width: 40,
+    customRender: ({ record }) => {
+      if (record.operateType == 101) {
+        return '自动修正';
+      } else if (record.operateType == 102) {
+        return '手动修正';
+      } else {
+        return '';
+      }
+    },
+  },
+];
+
 export const exceptionColumns: BasicColumn[] = [
   {
     title: '异常标题',
@@ -76,10 +97,10 @@ export const exceptionColumns: BasicColumn[] = [
     customRender: ({ record }) => {
       let pname = record.username;
       let pid = record.userid;
-      if(!pname && !pid){
-        return "";
+      if (!pname && !pid) {
+        return '';
       }
-      return pname + " (账号: "+ pid + " )";
+      return pname + ' (账号: ' + pid + ' )';
     },
   },
   {
@@ -116,6 +137,19 @@ export const searchFormSchema: FormSchema[] = [
     },
     colProps: {
       span: 6,
+    },
+  },
+];
+
+export const dataAmendSearchFormSchema: FormSchema[] = [
+  ...searchFormSchema,
+  {
+    field: 'operateType',
+    label: '操作类型',
+    component: 'JDictSelectTag',
+    colProps: { span: 4 },
+    componentProps: {
+      dictCode: 'data_amend_type',
     },
   },
 ];
