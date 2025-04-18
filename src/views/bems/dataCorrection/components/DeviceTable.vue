@@ -213,8 +213,8 @@
         pageSize: 9999999,
         deviceCode: searchData.deviceName ? '*' + searchData.deviceName + '*' : undefined,
         deviceName: searchData.deviceName ? '*' + searchData.deviceName + '*' : undefined,
-        categoryId: props.categoryKeys ? props.categoryKeys.join(',') : undefined,
-        spaceId: props.spaceKeys ? props.spaceKeys.join(',') : undefined,
+        categoryIds: props.categoryKeys ? props.categoryKeys.join(',') : undefined,
+        spaceIds: props.spaceKeys ? props.spaceKeys.join(',') : undefined,
         date: searchData.date.split(' ')[0],
       };
       console.log('request params:', params); // 调试日志
