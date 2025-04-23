@@ -13,7 +13,8 @@ enum Api {
   staticDataList = '/bems/deviceStaticData/list',
   staticDataSave = '/bems/deviceStaticData/save',
   attributeDataList = '/bems/deviceAttributeData/list',
-  editDataValue = '/bems/deviceData/hourDataAmend',
+  editDataValue = '/bems/deviceData/hourDataAmend', 
+  recalculateApi = '/bems/meterPointData/calculateValue', 
 }
 
 /**
@@ -72,3 +73,8 @@ export const updateAutomaticAlgorithm = (params) => defHttp.post({ url: Api.upda
  * 修改最终值
  */
 export const editDataValue = (params) => defHttp.post({ url: Api.editDataValue, params });
+
+/**
+ * 重新计算
+ */
+export const recalculateApi = (params) => defHttp.post({ url: Api.recalculateApi, params });

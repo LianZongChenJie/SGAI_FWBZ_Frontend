@@ -3,9 +3,15 @@
     <BasicTable @register="registerTable">
       <!-- 表格顶部按钮 -->
       <template #tableTitle>
-        <a-button v-if="hasPermission('bems:device_data:amend')" type="primary" :icon="h(EditOutlined)" @click="editFunc"> 编辑 </a-button>
-        <a-button v-if="hasPermission('bems:device_data:amend')" :icon="h(DeliveredProcedureOutlined)" style="margin-left: 8px" @click="saveFunc">
+        <a-button v-if="hasPermission('bems:device_data:amend')" type="primary" :icon="h(EditOutlined)"
+          @click="editFunc"> 编辑 </a-button>
+        <a-button v-if="hasPermission('bems:device_data:amend')" :icon="h(DeliveredProcedureOutlined)"
+          style="margin-left: 8px" @click="saveFunc">
           保存
+        </a-button>
+        <a-button v-if="hasPermission('bems:device_data:amend')" type="primary" :icon="h(DeliveredProcedureOutlined)"
+          style="margin-left: 8px" @click="recalculate">
+          重新计算
         </a-button>
       </template>
       <template #bodyCell="{ column, record }">
@@ -18,11 +24,8 @@
         </template>
         <template v-if="column.key === 'automaticAlgorithm'">
           <!-- 自动算法 -->
-          <a-switch
-            :checked="record.automaticAlgorithm == '1'"
-            :disabled="false"
-            @change="(checked) => handleAutomaticAlgorithmChange(record, checked)"
-          />
+          <a-switch :checked="record.automaticAlgorithm == '1'" :disabled="false"
+            @change="(checked) => handleAutomaticAlgorithmChange(record, checked)" />
         </template>
       </template>
     </BasicTable>
@@ -31,7 +34,7 @@
 
 <script lang="ts" setup>
   import { ref, onMounted, watch, computed } from 'vue';
-  import { selectDevice, updateAutomaticAlgorithm, editDataValue } from '../Device.api';
+  import { selectDevice, updateAutomaticAlgorithm, editDataValue, recalculateApi } from '../Device.api';
   import { BasicColumn, BasicTable, FormSchema } from '/@/components/Table';
   import { useListPage } from '/@/hooks/system/useListPage';
   import { h } from 'vue';
@@ -166,11 +169,18 @@
   //表单搜索字段
   const searchFormSchema: FormSchema[] = [
     {
-      label: '时间', //显示label
-      field: 'date', //查询字段
-      component: 'DatePicker', //渲染的组件
-      defaultValue: new Date(new Date().setDate(new Date().getDate() - 1)).toISOString().split('T')[0] + ' 00',
-      // slot: 'name', //设置默认值
+      field: 'date',
+      label: '时间',
+      component: 'DatePicker',
+      defaultValue: new Date(new Date().getTime() - 1000 * 60 * 60),
+      componentProps: {
+        showTime: {
+          format: 'HH',
+          hourStep: 1,
+        },
+        format: 'YYYY-MM-DD HH',
+        placeholder: '选择具体小时',
+      },
     },
     {
       label: '设备名称/设备编号', //显示label
@@ -215,7 +225,7 @@
         deviceName: searchData.deviceName ? '*' + searchData.deviceName + '*' : undefined,
         categoryIds: props.categoryKeys ? props.categoryKeys.join(',') : undefined,
         spaceIds: props.spaceKeys ? props.spaceKeys.join(',') : undefined,
-        date: searchData.date.split(' ')[0],
+        dateTime: searchData.date ? searchData.date : undefined,
       };
       console.log('request params:', params); // 调试日志
       const res = await selectDevice(params);
@@ -254,7 +264,7 @@
         baseColProps: { span: 6 },
         //row行的样式
         baseRowStyle: { width: '100%' },
-        labelCol: { style: { width: '130px' } },
+        labelCol: { style: { width: 'auto' } },
       },
     },
   });
@@ -315,6 +325,13 @@
 
     return dataSource.slice(startIndex, endIndex);
   });
+
+  // 重新计算
+const recalculate = async () => {
+  let { getFieldsValue } = getForm();
+  const searchData = getFieldsValue();
+  await recalculateApi({ hour: searchData.date ? searchData.date : undefined })
+}
 
   // 暴露 reload 方法给父组件
   defineExpose({
