@@ -38,7 +38,7 @@
   import DeviceModal from './DeviceModal.vue';
   import DetailModal from './DetailModal.vue';
   import { Modal } from 'ant-design-vue';
-  import { deleteDevice } from '../device.api';
+  import { deleteDevice } from '../Device.api';
 
   // 添加 deviceTableRef 定义
   const deviceTableRef = ref();

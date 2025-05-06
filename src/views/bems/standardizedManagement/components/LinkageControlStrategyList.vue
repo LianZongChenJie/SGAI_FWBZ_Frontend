@@ -5,8 +5,8 @@
       联动控制策略列表
     </div>
     <div class="info-list">
-      <a-form :model="formState" ref="formRef" layout="inline" :label-col="{ span: 6 }"
-        :wrapper-col="{ span: 18 }">
+      <a-form :model="formState" ref="formRef" layout="inline" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }"
+        :disabled="props.type === 'check'">
         <div class="list-title">
           策略基本信息
         </div>
@@ -30,7 +30,7 @@
           </a-row>
         </div>
         <div class="list-title">
-          <span>前置设备设置</span><a @click="addFrontPoint">添加</a>
+          <span>前置设备设置</span><a @click="addFrontPoint" v-if="props.type !== 'check'">添加</a>
         </div>
         <div class="list-form">
           <a-row :gutter="16" v-for="(item, index) in formState.frontPointList" :key="index">
@@ -67,7 +67,7 @@
                 </a-input-group>
               </a-form-item>
             </a-col>
-            <div class="icon-box">
+            <div class="icon-box" v-if="props.type !== 'check'">
               <a @click="deleteFrontPoint">
                 <MinusOutlined style="font-size: 20px;" />
               </a>
@@ -79,7 +79,7 @@
           </a-row>
         </div>
         <div class="list-title">
-          <span>联动设备控制</span><a @click="addRearPoint">添加</a>
+          <span>联动设备控制</span><a @click="addRearPoint" v-if="props.type !== 'check'">添加</a>
         </div>
         <div class="list-form">
           <a-row :gutter="16" v-for="(item,index) in formState.rearPointList" :key="index">
@@ -111,7 +111,7 @@
                 </a-input-group>
               </a-form-item>
             </a-col>
-            <div class="icon-box">
+            <div class="icon-box" v-if="props.type !== 'check'">
               <a @click="deleteRearPoint">
                 <MinusOutlined style="font-size: 20px;" />
               </a>
@@ -127,7 +127,7 @@
     <div class="button-box">
       <a-button @click="cancel">返回</a-button>
       &emsp;
-      <a-button type="primary" @click="onSubmit">保存</a-button>
+      <a-button type="primary" @click="onSubmit" v-if="props.type !== 'check'">保存</a-button>
     </div>
     <device-table-modal ref="deviceRef" :setDeviceName="setDeviceName" />
   </div>
@@ -350,7 +350,7 @@ const resetForm = () => {
 
 
 onMounted(async () => {
-  if (props.type === 'edit') {
+  if (props.type === 'edit' || props.type === 'check') {
     let res = await getLinkageControlDetailApi({ id: props.editItem.id })
     formState.id = props.editItem.id
     formState.strategyCode = res.strategyCode

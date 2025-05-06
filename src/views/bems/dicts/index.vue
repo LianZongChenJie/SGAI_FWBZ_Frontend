@@ -32,7 +32,7 @@
   import Space from './module/space/SpaceList.vue';
   import StandardCoalCoefficient from './module/standardCoalCoefficient/StandardCoalCoefficientList.vue';
   import CarbonEmissionFactor from './module/carbonEmissionFactor/CarbonEmissionFactorList.vue';
-  import EnergyPrice from './module/energyPrice/energyPriceList.vue';
+  import EnergyPrice from './module/energyPrice/EnergyPriceList.vue';
   import EnergyMediumManage from './module/energyMediumManage/EnergyMediumManageList.vue';
   import UnitManage from './module/unitManage/UnitManagementList.vue';
   import EnergyAttributeManage from './module/energyAttributeManage/EnergyAttributeManagementList.vue';

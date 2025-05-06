@@ -11,6 +11,9 @@ enum Api {
   getPontByDeviceIdApi = '/bems/deviceAttribute/getByDeviceId', 
   editLinkageControlApi = '/bems/linkageStrategy/edit',
   getLinkageControlDetailApi = '/bems/linkageStrategy/getDetailById',
+  deleteLinkageControlApi = '/bems/linkageStrategy/delete',
+  enableLinkageControlApi = '/bems/linkageStrategy/startStrategy',
+  disableLinkageControlApi = '/bems/linkageStrategy/stopStrategy',
 }
 
 /**
@@ -53,4 +56,22 @@ export const categoryTree = (params) => defHttp.get({ url: Api.categoryTree, par
  * 分设备下点位数据
  * @param params
  */
-export const getPontByDeviceIdApi = (params) => defHttp.get({ url: Api.getPontByDeviceIdApi, params }, { joinParamsToUrl: true });
+export const getPontByDeviceIdApi = (params) => defHttp.get({ url: Api.getPontByDeviceIdApi, params }, { joinParamsToUrl: true }); 
+
+/**
+ * 删除策略
+ * @param params
+ */
+export const deleteLinkageControlApi = (params) => defHttp.delete({ url: Api.deleteLinkageControlApi, params }, { joinParamsToUrl: true }); 
+
+/**
+ * 启用策略
+ * @param params
+ */
+export const enableLinkageControlApi = (params) => defHttp.post({ url: Api.enableLinkageControlApi, params }, { joinParamsToUrl: true }); 
+
+/**
+ * 禁用策略
+ * @param params
+ */
+export const disableLinkageControlApi = (params) => defHttp.post({ url: Api.disableLinkageControlApi, params }, { joinParamsToUrl: true }); 

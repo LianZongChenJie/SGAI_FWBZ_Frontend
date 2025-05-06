@@ -38,7 +38,7 @@
   import DetailModal from './DetailModal.vue';
   import { Modal } from 'ant-design-vue';
   import { useModal } from '@/components/Modal';
-  import { deleteDevice } from '../device.api';
+  import { deleteDevice } from '../Device.api';
 
   const props = defineProps<{
     categoryTreeData: any[];

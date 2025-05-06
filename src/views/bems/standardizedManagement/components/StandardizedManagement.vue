@@ -1,11 +1,15 @@
 <template>
   <div>
     <BasicTable v-if="!showForm" @register="registerTable">
+      <template #form-spaceId="{ model, field }">
+        <a-tree-select v-model:value="model[field]" :tree-data="spaceTreeData" placeholder="请选择空间位置"
+          :fieldNames="treeSelect" show-search allowClear />
+      </template>
       <!-- 表格顶部按钮 -->
-      <template #tableTitle>
+      <!-- <template #tableTitle>
         <a-button v-if="hasPermission('bems:device_data:amend')" type="primary" :icon="h(EditOutlined)"
           @click="addStrategy"> 新增 </a-button>
-      </template>
+      </template> -->
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'strategyName'">
           <a @click.stop="checkDetail(record)">{{ record.strategyName }}</a>
@@ -15,6 +19,7 @@
         </template>
         <template v-if="column.key === 'active'">
           <a-space>
+            <a @click.stop="handleEdit(record)">立即执行</a>
             <a-popconfirm v-if="Number(record.enabledStatus)" title="是否禁用？" ok-text="确定" cancel-text="取消" @confirm="handleDisable(record)">
               <a @click.stop style="color: red;">禁用</a>
             </a-popconfirm>
@@ -35,26 +40,30 @@
         </template>
       </template>
       <template #expandedRowRender="{ record }">
-        <div class="expand-box">前置设备：{{ record.frontDevice }} </div>
-        <div class="expand-box">联动设备：{{ record.rearDevice }} </div>
+        <div class="expand-box">策略目标：{{ record.frontDevice }} </div>
+        <div class="expand-box">建筑单体：{{ record.rearDevice }} </div>
+        <div class="expand-box">单体空间：{{ record.frontDevice }} </div>
+        <div class="expand-box">模式类型：{{ record.rearDevice }} </div>
+        <div class="expand-box">专&emsp;业&emsp;：{{ record.frontDevice }} </div>
+        <div class="expand-box">相关设备：{{ record.rearDevice }} </div>
       </template>
     </BasicTable>
     <div class="info-box" v-else>
-      <linkage-control-strategy-list ref="linkageFormRef" :closeStrategy="closeStrategy" :type="type"
+      <standardized-management-strategy-list copy ref="linkageFormRef" :closeStrategy="closeStrategy" :type="type"
         :editItem="editItem" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive, onBeforeUnmount } from 'vue'
+import { ref, computed, reactive, onMounted } from 'vue'
 import { BasicColumn, BasicTable, FormSchema } from '/@/components/Table';
 import { useListPage } from '/@/hooks/system/useListPage';
 import { h } from 'vue';
 import { EditOutlined } from '@ant-design/icons-vue';
 import { usePermissionStore } from '/@/store/modules/permission';
-import LinkageControlStrategyList from './LinkageControlStrategyList.vue'
-import { getLinkageControlListApi, deleteLinkageControlApi, enableLinkageControlApi, disableLinkageControlApi } from '../Standardized.api'
+import StandardizedManagementStrategyList from './StandardizedManagementStrategyList.vue'
+import { getLinkageControlListApi, deleteLinkageControlApi, enableLinkageControlApi, disableLinkageControlApi, spaceTree } from '../Standardized.api'
 import { message } from 'ant-design-vue';
 
 const showForm = ref<boolean>(false);
@@ -69,6 +78,10 @@ const pagination = ref({
   pageNo: 1,
   pageSize: 10,
 });
+
+// 空间位置树数据
+const spaceTreeData = ref([]);
+const treeSelect = { children: 'children', label: 'title', value: 'key', key: 'key' };
 
 // 表格列配置
 const columns: BasicColumn[] = [
@@ -90,17 +103,17 @@ const columns: BasicColumn[] = [
     key: 'strategyName',
   },
   {
-    title: '处理目标',
+    title: '应用场景',
     dataIndex: 'strategyTarget',
     key: 'strategyTarget',
   },
   {
-    title: '设置时间',
+    title: '定义时间',
     dataIndex: 'createTime',
     key: 'createTime',
   },
   {
-    title: '设置人',
+    title: '定义人',
     dataIndex: 'createBy',
     key: 'createBy',
   },
@@ -131,12 +144,35 @@ const searchFormSchema: FormSchema[] = [
     // slot: 'name', //设置默认值
   },
   {
-    label: '前置设置', 
+    label: '应用场景', 
     field: 'seting', 
     component: 'JInput', 
   },
   {
-    label: '联动设备', 
+    label: '策略目标', 
+    field: 'device', 
+    component: 'JInput', 
+  },
+  {
+      label: '空间位置',
+      field: 'spaceId',
+      component: 'JDictSelectTag',
+      slot: 'spaceId',
+  },
+  {
+    label: '模式类型', 
+    field: 'device', 
+    component: 'Select', 
+    componentProps: {
+        options: [
+          { label: '手动', value: '1' },
+          { label: '自动', value: '0' },
+          // 这里需要根据实际数据补充选项
+        ],
+      },
+  },
+  {
+    label: '专业', 
     field: 'device', 
     component: 'JInput', 
   }
@@ -174,6 +210,8 @@ const { tableContext } = useListPage({
     },
     formConfig: {
       schemas: searchFormSchema,
+      // 默认展开
+      showAdvancedButton: false,
       submitOnReset: true,
       //重置按钮的自定义事件
       resetFunc: async () => {
@@ -273,8 +311,9 @@ const onFinish = values => {
   console.log('Received values:', values);
 };
 
-onBeforeUnmount(() => {
-  showForm.value = false
+onMounted(async () => {
+  const spaceRes = await spaceTree();
+  spaceTreeData.value = spaceRes;
 })
 </script>
 

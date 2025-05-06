@@ -1,0 +1,556 @@
+<template>
+
+  <div class="linkage-ontro-sStrategy-list-box">
+    <div class="info-title">
+      联动控制策略列表
+    </div>
+    <div class="info-list">
+      <a-form
+        :model="formState"
+        ref="formRef"
+        layout="inline"
+        :label-col="{ span: 6 }"
+        :wrapper-col="{ span: 18 }"
+        :disabled="props.type === 'check'"
+      >
+        <div class="list-title">
+          策略基本信息
+        </div>
+        <div class="list-form">
+          <a-row
+            :gutter="16"
+            class="row-with-margin"
+          >
+            <a-col
+              :span="8"
+              v-if="props.type !== 'create'"
+            >
+              <a-form-item
+                label="策略编号"
+                name="strategyCode"
+              >
+                <a-input v-model:value="formState.strategyCode" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="8">
+              <a-form-item
+                label="策略名称"
+                name="strategyName"
+                :rules="[{ required: true, message: '请输入策略名称' }]"
+              >
+                <a-input v-model:value="formState.strategyName" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="8">
+              <a-form-item
+                label="应用场景"
+                name="strategyTarget"
+                :rules="[{ required: true, message: '请输入应用场景' }]"
+              >
+                <a-input v-model:value="formState.strategyTarget" />
+              </a-form-item>
+            </a-col>
+          </a-row>
+          <a-row
+            :gutter="16"
+            class="row-with-margin"
+          >
+            <a-col
+              :span="8"
+              v-if="props.type !== 'create'"
+            >
+              <a-form-item
+                label="策略目标"
+                name="strategyCode"
+                :rules="[{ required: true, message: '请输入策略目标' }]"
+              >
+                <a-input v-model:value="formState.strategyCode" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="8">
+              <a-form-item
+                label="单体空间"
+                name="strategyName"
+              >
+                <a-input v-model:value="formState.strategyName" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="8">
+              <a-form-item
+                label="分组属性"
+                name="strategyTarget"
+                :rules="[{ required: true, message: '请输入分组属性' }]"
+              >
+                <a-input v-model:value="formState.strategyTarget" />
+              </a-form-item>
+            </a-col>
+          </a-row>
+          <a-row
+            :gutter="16"
+            class="row-with-margin"
+          >
+            <a-col
+              :span="8"
+              v-if="props.type !== 'create'"
+            >
+              <a-form-item
+                label="复合专业"
+                name="strategyCode"
+                :rules="[{ required: true, message: '请输入复合专业' }]"
+              >
+                <a-input v-model:value="formState.strategyCode" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="8">
+              <a-form-item
+                label="专业"
+                name="strategyName"
+              >
+                <a-input v-model:value="formState.strategyName" />
+              </a-form-item>
+            </a-col>
+            <a-col :span="8">
+              <a-form-item
+                label="模式类型"
+                name="strategyTarget"
+                :rules="[{ required: true, message: '请输入模式类型' }]"
+              >
+                <a-input v-model:value="formState.strategyTarget" />
+              </a-form-item>
+            </a-col>
+          </a-row>
+          <a-row
+            :gutter="16"
+            class="row-with-margin"
+          >
+            <a-col
+              :span="8"
+              v-if="props.type !== 'create'"
+            >
+              <a-form-item
+                label="模式引用"
+                name="strategyCode"
+                :rules="[{ required: true, message: '请输入模式引用' }]"
+              >
+                <a-input v-model:value="formState.strategyCode" />
+              </a-form-item>
+            </a-col>
+            <div
+              class="icon-box"
+              v-if="props.type !== 'check'"
+            >
+              <a>
+                <PlusOutlined style="font-size: 20px;" />
+              </a>
+            </div>
+          </a-row>
+        </div>
+        <div class="list-title">
+          <span>执行设备类型</span><a
+            @click="addRearPoint"
+            v-if="props.type !== 'check'"
+          >添加</a>
+        </div>
+        <div class="list-form">
+          <a-row
+            :gutter="16"
+            v-for="(item,index) in formState.rearPointList"
+            :key="index"
+          >
+            <a-col :span="5">
+              <a-form-item
+                label="执行设备"
+                :name="['rearPointList', index, 'deviceName']"
+                :rules="[{ required: true, message: '请选择执行设备' }]"
+              >
+                <a-input
+                  v-model:value="item.deviceName"
+                  @click="selectDevice(1, index)"
+                />
+              </a-form-item>
+            </a-col>
+            <a-col :span="5">
+              <a-form-item
+                label="空间位置"
+                :name="['rearPointList', index, 'spaceName']"
+              >
+                <a-input
+                  v-model:value="item.spaceName"
+                  disabled
+                />
+              </a-form-item>
+            </a-col>
+            <a-col :span="5">
+              <a-form-item
+                label="点位选择"
+                :name="['rearPointList', index, 'pointId']"
+                :rules="[{ required: true, message: '请选择点位' }]"
+              >
+                <a-select
+                  v-model:value="item.pointId"
+                  :options="item.devicePointData"
+                >
+                </a-select>
+              </a-form-item>
+            </a-col>
+            <a-col :span="8">
+              <a-form-item
+                label="点位设定"
+                :name="['rearPointList', index, 'conditionValue']"
+                :rules="[{ required: true, message: '请输入数值' }]"
+              >
+                <a-input-group compact>
+                  <a-select
+                    v-model:value="item.operator"
+                    style="width: 30%"
+                    :options="operatorList"
+                    disabled
+                  >
+                  </a-select>
+                  <a-input
+                    v-model:value="item.conditionValue"
+                    style="width: 70%"
+                    placeholder="数值"
+                    type="number"
+                  />
+                </a-input-group>
+              </a-form-item>
+            </a-col>
+            <div
+              class="icon-box"
+              v-if="props.type !== 'check'"
+            >
+              <a @click="deleteRearPoint">
+                <MinusOutlined style="font-size: 20px;" />
+              </a>
+              &emsp;
+              <a>
+                <PlusOutlined style="font-size: 20px;" />
+              </a>
+            </div>
+          </a-row>
+        </div>
+      </a-form>
+    </div>
+    <div class="button-box">
+      <a-button @click="cancel">返回</a-button>
+      &emsp;
+      <a-button
+        type="primary"
+        @click="onSubmit"
+        v-if="props.type !== 'check'"
+      >保存</a-button>
+    </div>
+    <device-table-modal
+      ref="deviceRef"
+      :setDeviceName="setDeviceName"
+    />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, reactive, toRaw, createVNode, onMounted } from 'vue';
+import { PlusOutlined, MinusOutlined, ExclamationCircleOutlined } from '@ant-design/icons-vue';
+import { message } from 'ant-design-vue';
+import { Modal } from 'ant-design-vue';
+import { createLinkageControlApi, getPontByDeviceIdApi, getLinkageControlDetailApi, editLinkageControlApi } from '../Standardized.api';
+import DeviceTableModal from './DeviceTableModal.vue';
+
+const props = defineProps({
+  closeStrategy: {
+    type: Function,
+    default: () => {},
+  },
+  type: {
+    type: String,
+    default: '',
+  },
+  editItem: {
+    type: Object,
+    default: {},
+  },
+});
+
+const formRef = ref();
+const deviceRef = ref();
+
+// 表单数据
+const formState = reactive<any>({
+  id: '',
+  strategyCode: '',
+  strategyName: '',
+  strategyTarget: '',
+  frontPointList: [],
+  rearPointList: [],
+});
+
+const deviceType = ref<number>();
+const targetIndex = ref<number>(0);
+
+const operatorList = [
+  {
+    label: '<',
+    value: '<',
+  },
+  {
+    label: '<=',
+    value: '<=',
+  },
+  {
+    label: '>=',
+    value: '>=',
+  },
+  {
+    label: '>',
+    value: '>',
+  },
+  {
+    label: '=',
+    value: '=',
+  },
+  {
+    label: '!=',
+    value: '!=',
+  },
+];
+
+// 添加前置设备
+const addFrontPoint = () => {
+  let length = formState.frontPointList?.length;
+  if (
+    length &&
+    (!formState.frontPointList[length - 1]?.deviceName ||
+      !formState.frontPointList[length - 1]?.pointId ||
+      !formState.frontPointList[length - 1]?.operator ||
+      !formState.frontPointList[length - 1]?.conditionValue)
+  ) {
+    formRef.value
+      .validate()
+      .then(() => {})
+      .catch((error) => {
+        console.log('error', error);
+      });
+    return;
+  } else {
+    formState.frontPointList.push({
+      deviceId: '',
+      deviceName: '',
+      spaceName: '',
+      pointId: '',
+      pointName: '',
+      operator: '',
+      conditionValue: '',
+      devicePointData: [],
+    });
+  }
+};
+// 删除前置设备
+const deleteFrontPoint = (target) => {
+  Modal.confirm({
+    title: '提示',
+    icon: createVNode(ExclamationCircleOutlined),
+    content: '删除不可恢复，是否确定删除?',
+    onOk() {
+      formState.frontPointList.pop();
+      message.success('删除成功！');
+    },
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    onCancel() {},
+  });
+};
+
+// 添加联动设备
+const addRearPoint = () => {
+  let length = formState.rearPointList?.length;
+  if (
+    length &&
+    (!formState.rearPointList[length - 1]?.deviceName ||
+      !formState.rearPointList[length - 1]?.pointId ||
+      !formState.rearPointList[length - 1]?.operator ||
+      !formState.rearPointList[length - 1]?.conditionValue)
+  ) {
+    formRef.value
+      .validate()
+      .then(() => {})
+      .catch((error) => {
+        console.log('error', error);
+      });
+    return;
+  } else {
+    formState.rearPointList.push({
+      deviceId: '',
+      deviceName: '',
+      spaceName: '',
+      pointId: '',
+      pointName: '',
+      operator: '',
+      conditionValue: '',
+    });
+  }
+};
+// 删除联动设备
+const deleteRearPoint = (target) => {
+  Modal.confirm({
+    title: '提示',
+    icon: createVNode(ExclamationCircleOutlined),
+    content: '删除不可恢复，是否确定删除?',
+    onOk() {
+      formState.rearPointList.pop();
+      message.success('删除成功！');
+    },
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    onCancel() {},
+  });
+};
+
+// 选择设备绑定
+const selectDevice = (type: number, index: number) => {
+  deviceType.value = type;
+  targetIndex.value = index;
+  deviceRef.value.showModal();
+};
+
+// 确认设备
+const setDeviceName = async (record) => {
+  if (deviceType.value) {
+    formState.rearPointList[targetIndex.value].deviceName = record.deviceName;
+    formState.rearPointList[targetIndex.value].deviceId = record.id;
+    // let res = await getPontByDeviceIdApi({ deviceId: record.id})
+    let res = await getPontByDeviceIdApi({ deviceId: 108 });
+    formState.rearPointList[targetIndex.value].devicePointData = res.map((item) => {
+      return {
+        value: item.id,
+        label: item.attributeName,
+      };
+    });
+  } else {
+    formState.frontPointList[targetIndex.value].deviceName = record.deviceName;
+    formState.frontPointList[targetIndex.value].deviceId = record.id;
+    // let res = await getPontByDeviceIdApi({ deviceId: record.id})
+    let res = await getPontByDeviceIdApi({ deviceId: 108 });
+    formState.frontPointList[targetIndex.value].devicePointData = res.map((item) => {
+      return {
+        value: item.id,
+        label: item.attributeName,
+      };
+    });
+  }
+  deviceRef.value.closeModal();
+};
+
+// 提交表单
+const onSubmit = async () => {
+  if (!formState.frontPointList.length || !formState.rearPointList.length) {
+    message.error('请添加设备');
+    return;
+  }
+  formRef.value
+    .validate()
+    .then(async () => {
+      if (props.type === 'create') {
+        await createLinkageControlApi(toRaw(formState));
+        message.success('创建成功！');
+      } else {
+        await editLinkageControlApi(toRaw(formState));
+        message.success('修改成功！');
+      }
+      resetForm();
+      props.closeStrategy();
+    })
+    .catch((error) => {
+      console.log('error', error);
+    });
+};
+
+// 返回
+const cancel = () => {
+  resetForm();
+  props.closeStrategy();
+};
+
+// 重置表单
+const resetForm = () => {
+  formRef.value.resetFields();
+};
+
+onMounted(async () => {
+  if (props.type === 'edit' || props.type === 'check') {
+    let res = await getLinkageControlDetailApi({ id: props.editItem.id });
+    formState.id = props.editItem.id;
+    formState.strategyCode = res.strategyCode;
+    formState.strategyName = res.strategyName;
+    formState.strategyTarget = res.strategyTarget;
+    if (!Array.isArray(res.rearPointList)) {
+      formState.rearPointList = [];
+    } else {
+      deviceType.value = 1;
+      formState.rearPointList = res.rearPointList;
+      formState.rearPointList.forEach((item) => {
+        setDeviceName(item);
+      });
+    }
+    if (!Array.isArray(res.frontPointList)) {
+      formState.frontPointList = [];
+    } else {
+      deviceType.value = 0;
+      formState.frontPointList = res.frontPointList;
+      formState.frontPointList.forEach((item) => {
+        setDeviceName(item);
+      });
+    }
+  }
+});
+</script>
+
+<style scoped lang="less">
+.linkage-ontro-sStrategy-list-box {
+  .info-title {
+    height: 40px;
+    display: flex;
+    align-items: center;
+    padding-left: 16px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    background-color: #374352;
+    border-radius: 5px 5px 0 0;
+  }
+
+  .info-list {
+    padding: 0 16px 16px 16px;
+    border: 1px solid #d4d0d0;
+
+    .list-title {
+      width: 100%;
+      height: 40px;
+      padding-left: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #d4d0d0;
+      margin-top: 10px;
+    }
+
+    .list-form {
+      width: 100%;
+      margin-top: 16px;
+      margin-bottom: 10px;
+      .icon-box {
+        display: flex;
+        align-items: center;
+      }
+
+      .row-with-margin {
+        margin-bottom: 16px;
+      }
+    }
+  }
+
+  .button-box {
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+</style>

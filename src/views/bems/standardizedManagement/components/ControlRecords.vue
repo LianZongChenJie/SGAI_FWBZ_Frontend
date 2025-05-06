@@ -1,53 +1,23 @@
 <template>
   <div>
-    <BasicTable v-if="!showForm" @register="registerTable">
-      <!-- 表格顶部按钮 -->
-      <template #tableTitle>
-        <a-button v-if="hasPermission('bems:device_data:amend')" type="primary" :icon="h(EditOutlined)"
-          @click="addStrategy"> 新增 </a-button>
-      </template>
+    <BasicTable @register="registerTable">
       <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'strategyName'">
-          <a @click.stop="checkDetail(record)">{{ record.strategyName }}</a>
-        </template>
         <template v-if="column.key === 'enabledStatus'">
           {{ Number(record.enabledStatus) ? '已启用' : '已禁用' }}
         </template>
         <template v-if="column.key === 'active'">
           <a-space>
-            <a-popconfirm v-if="Number(record.enabledStatus)" title="是否禁用？" ok-text="确定" cancel-text="取消" @confirm="handleDisable(record)">
-              <a @click.stop style="color: red;">禁用</a>
-            </a-popconfirm>
-            <a-popconfirm v-else title="是否启用？" ok-text="确定" cancel-text="取消" @confirm="handleEnable(record)">
-              <a @click.stop>启用</a>
-            </a-popconfirm>
-            <a @click.stop="handleEdit(record)">编辑</a>
-            <a-popconfirm title="删除不可恢复，是否删除？" ok-text="确定" cancel-text="取消" @confirm="handleDelete(record)">
-              <a @click.stop style="color: red;">删除</a>
-            </a-popconfirm>
+            <a @click.stop="checkDetail(record)">查看</a>
           </a-space>
         </template>
-        <template v-if="column.key === 'name'">
-          <a @click="handleview(record)">{{ record.name }}</a>
-        </template>
-        <template v-if="column.key === 'history'">
-          <a @click="handleview(record)">查看</a>
-        </template>
-      </template>
-      <template #expandedRowRender="{ record }">
-        <div class="expand-box">前置设备：{{ record.frontDevice }} </div>
-        <div class="expand-box">联动设备：{{ record.rearDevice }} </div>
       </template>
     </BasicTable>
-    <div class="info-box" v-else>
-      <linkage-control-strategy-list ref="linkageFormRef" :closeStrategy="closeStrategy" :type="type"
-        :editItem="editItem" />
-    </div>
+    <control-records-modal ref="detailRef" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive, onBeforeUnmount } from 'vue'
+import { ref, computed, reactive } from 'vue'
 import { BasicColumn, BasicTable, FormSchema } from '/@/components/Table';
 import { useListPage } from '/@/hooks/system/useListPage';
 import { h } from 'vue';
@@ -56,10 +26,11 @@ import { usePermissionStore } from '/@/store/modules/permission';
 import LinkageControlStrategyList from './LinkageControlStrategyList.vue'
 import { getLinkageControlListApi, deleteLinkageControlApi, enableLinkageControlApi, disableLinkageControlApi } from '../Standardized.api'
 import { message } from 'ant-design-vue';
+import ControlRecordsModal from './ControlRecordsModal.vue'
 
 const showForm = ref<boolean>(false);
 
-const linkageFormRef = ref()
+const detailRef = ref()
 
 // 打开类型
 const type = ref('')
@@ -80,45 +51,21 @@ const columns: BasicColumn[] = [
     customRender: ({ index }) => index + 1, // 显示序号，从 1 开始
   },
   {
-    title: '策略编号',
+    title: '策略名称',
     dataIndex: 'strategyCode',
     key: 'strategyCode',
   },
   {
-    title: '策略名称',
+    title: '执行状态',
     dataIndex: 'strategyName',
     key: 'strategyName',
+    width: '120px'
   },
   {
-    title: '处理目标',
-    dataIndex: 'strategyTarget',
-    key: 'strategyTarget',
-  },
-  {
-    title: '设置时间',
-    dataIndex: 'createTime',
-    key: 'createTime',
-  },
-  {
-    title: '设置人',
-    dataIndex: 'createBy',
-    key: 'createBy',
-  },
-  {
-    title: '策略状态',
-    dataIndex: 'enabledStatus',
-    key: 'enabledStatus',
-  },
-  {
-    title: '执行历史',
-    key: 'history',
-    dataIndex: 'history',
-    width: '80px',
-  },
-  {
-    title: '操作',
+    title: '执行详情',
     dataIndex: 'active',
     key: 'active',
+    width: '120px'
   }
 ];
 
@@ -131,15 +78,17 @@ const searchFormSchema: FormSchema[] = [
     // slot: 'name', //设置默认值
   },
   {
-    label: '前置设置', 
-    field: 'seting', 
-    component: 'JInput', 
+    label: '执行时间', //显示label
+    field: 'name', //查询字段
+    component: 'RangePicker', //渲染的组件
+    // slot: 'name', //设置默认值
+    componentProps: {
+      placeholder: ['开始时间', '结束时间'],
+      showTime: true,
+      format: 'YYYY-MM-DD HH:mm:ss',
+      valueFormat: 'YYYY-MM-DD HH:mm:ss',
+    },
   },
-  {
-    label: '联动设备', 
-    field: 'device', 
-    component: 'JInput', 
-  }
 ];
 
 // 获取表格数据
@@ -165,7 +114,6 @@ const { tableContext } = useListPage({
     columns: columns,
     showActionColumn: false,
     size: 'middle',
-    expandRowByClick: true,
     rowKey: 'id',
     pagination: {
       current: pagination.value.pageNo,
@@ -212,70 +160,11 @@ const hasPermission = (permission:string) => {
   return currentPermissions.includes(permission);
 };
 
-// 新增
-const addStrategy = () => {
-  showForm.value = true
-  type.value = 'create'
-}
-
-// 关闭form表单
-const closeStrategy = () => {
-  showForm.value = false
-}
-
-// 启用
-const handleEnable = async (record) => {
-  await enableLinkageControlApi({ id: record.id })
-  message.success('启用成功！');
-  reload()
-}
-
-// 禁用
-const handleDisable = async (record) => {
-  await disableLinkageControlApi({ id: record.id })
-  message.success('禁用成功！');
-  reload()
-}
-
-// 编辑
-const handleEdit = (record) => {
-  editItem.value = record
-  type.value = 'edit'
-  showForm.value = true
-}
-
 // 查看
 const checkDetail = (record) => {
-  editItem.value = record
-  type.value = 'check'
-  showForm.value = true
+  detailRef.value.showModal()
 }
 
-// 删除
-const handleDelete = async (record) => {
-  await deleteLinkageControlApi({id: record.id})
-  message.success('删除成功！');
-  // 刷新表格
-  reload();
-}
-
-// 表单数据
-const formState = reactive({
-  name: '',
-  age: undefined,
-  email: '',
-  phone: '',
-  address: ''
-});
-
-// 提交表单
-const onFinish = values => {
-  console.log('Received values:', values);
-};
-
-onBeforeUnmount(() => {
-  showForm.value = false
-})
 </script>
 
 <style scoped lang="less">
