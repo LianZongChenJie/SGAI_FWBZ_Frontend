@@ -209,6 +209,12 @@
       startTime: searchData.startTime ? searchData.startTime.split(' ')[0] + ' 00:00:00' : null,
       endTime: searchData.endTime ? searchData.endTime.split(' ')[0] + ' 00:00:00' : null,
     };
+    if(searchData.deviceName) {
+      params.deviceName = searchData.deviceName.split('*')[1]
+    }
+    if(searchData.deviceCode) {
+      params.deviceCode = searchData.deviceCode.split('*')[1]
+    }
     const res = await getList(params);
     dataSource.value = res.records;
     pagination.value.total = res.total;
