@@ -5,11 +5,15 @@
         <a-tree-select v-model:value="model[field]" :tree-data="spaceTreeData" placeholder="请选择空间位置"
           :fieldNames="treeSelect" show-search allowClear />
       </template>
+      <template #form-professionalId="{ model, field }">
+        <a-tree-select v-model:value="model[field]" :tree-data="categoryTreeData" placeholder="请选择专业"
+          :fieldNames="treeSelect" show-search allowClear />
+      </template>
       <!-- 表格顶部按钮 -->
-      <!-- <template #tableTitle>
+      <template #tableTitle>
         <a-button v-if="hasPermission('bems:device_data:amend')" type="primary" :icon="h(EditOutlined)"
           @click="addStrategy"> 新增 </a-button>
-      </template> -->
+      </template>
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'strategyName'">
           <a @click.stop="checkDetail(record)">{{ record.strategyName }}</a>
@@ -19,13 +23,13 @@
         </template>
         <template v-if="column.key === 'active'">
           <a-space>
-            <a @click.stop="handleEdit(record)">立即执行</a>
+            <a-popconfirm title="是否立即执行？" ok-text="确定" cancel-text="取消" @confirm="handleExecute(record)">
+              <a @click.stop>立即执行</a>
+            </a-popconfirm>
             <a-popconfirm v-if="Number(record.enabledStatus)" title="是否禁用？" ok-text="确定" cancel-text="取消" @confirm="handleDisable(record)">
               <a @click.stop style="color: red;">禁用</a>
             </a-popconfirm>
-            <a-popconfirm v-else title="是否启用？" ok-text="确定" cancel-text="取消" @confirm="handleEnable(record)">
-              <a @click.stop>启用</a>
-            </a-popconfirm>
+            <a @click.stop="handleEnable(record)">启用</a>
             <a @click.stop="handleEdit(record)">编辑</a>
             <a-popconfirm title="删除不可恢复，是否删除？" ok-text="确定" cancel-text="取消" @confirm="handleDelete(record)">
               <a @click.stop style="color: red;">删除</a>
@@ -40,18 +44,18 @@
         </template>
       </template>
       <template #expandedRowRender="{ record }">
-        <div class="expand-box">策略目标：{{ record.frontDevice }} </div>
-        <div class="expand-box">建筑单体：{{ record.rearDevice }} </div>
-        <div class="expand-box">单体空间：{{ record.frontDevice }} </div>
-        <div class="expand-box">模式类型：{{ record.rearDevice }} </div>
-        <div class="expand-box">专&emsp;业&emsp;：{{ record.frontDevice }} </div>
-        <div class="expand-box">相关设备：{{ record.rearDevice }} </div>
+        <div class="expand-box">策略目标：{{ record.strategyTarget }} </div>
+        <div class="expand-box">单体空间：{{ record.spaceName }} </div>
+        <div class="expand-box">模式类型：{{ record.modelType }} </div>
+        <div class="expand-box">专&emsp;业&emsp;：{{ record.professionalName }} </div>
+        <div class="expand-box">相关设备：{{ record.executeDevice }} </div>
       </template>
     </BasicTable>
     <div class="info-box" v-else>
       <standardized-management-strategy-list copy ref="linkageFormRef" :closeStrategy="closeStrategy" :type="type"
         :editItem="editItem" />
     </div>
+    <enable-modal ref="enableModalRef" :reload="reload"/>
   </div>
 </template>
 
@@ -63,12 +67,21 @@ import { h } from 'vue';
 import { EditOutlined } from '@ant-design/icons-vue';
 import { usePermissionStore } from '/@/store/modules/permission';
 import StandardizedManagementStrategyList from './StandardizedManagementStrategyList.vue'
-import { getLinkageControlListApi, deleteLinkageControlApi, enableLinkageControlApi, disableLinkageControlApi, spaceTree } from '../Standardized.api'
+import EnableModal from './EnableModal.vue'
+import { getStandardizedManagementtApi, deleteStandardizedManagemenApi, disableStandardizedManagemenApi, executeStandardizedManagemenApi, spaceTree, categoryTree } from '../Standardized.api'
 import { message } from 'ant-design-vue';
+
+const props = defineProps({
+  checkControlRecords: {
+    type: Function,
+    default: () => {}
+  }
+})
 
 const showForm = ref<boolean>(false);
 
 const linkageFormRef = ref()
+const enableModalRef = ref()
 
 // 打开类型
 const type = ref('')
@@ -82,6 +95,9 @@ const pagination = ref({
 // 空间位置树数据
 const spaceTreeData = ref([]);
 const treeSelect = { children: 'children', label: 'title', value: 'key', key: 'key' };
+
+const categoryTreeData = ref([]);
+
 
 // 表格列配置
 const columns: BasicColumn[] = [
@@ -104,8 +120,8 @@ const columns: BasicColumn[] = [
   },
   {
     title: '应用场景',
-    dataIndex: 'strategyTarget',
-    key: 'strategyTarget',
+    dataIndex: 'strategyScene',
+    key: 'strategyScene',
   },
   {
     title: '定义时间',
@@ -139,18 +155,18 @@ const columns: BasicColumn[] = [
 const searchFormSchema: FormSchema[] = [
   {
     label: '策略名称', //显示label
-    field: 'name', //查询字段
+    field: 'strategyName', //查询字段
     component: 'JInput', //渲染的组件
     // slot: 'name', //设置默认值
   },
   {
     label: '应用场景', 
-    field: 'seting', 
+    field: 'strategyScene', 
     component: 'JInput', 
   },
   {
     label: '策略目标', 
-    field: 'device', 
+    field: 'strategyTarget', 
     component: 'JInput', 
   },
   {
@@ -161,43 +177,46 @@ const searchFormSchema: FormSchema[] = [
   },
   {
     label: '模式类型', 
-    field: 'device', 
+    field: 'modelType', 
     component: 'Select', 
     componentProps: {
         options: [
-          { label: '手动', value: '1' },
-          { label: '自动', value: '0' },
+          { label: '手动', value: '手动' },
+          { label: '自动', value: '自动' },
           // 这里需要根据实际数据补充选项
         ],
       },
   },
   {
     label: '专业', 
-    field: 'device', 
-    component: 'JInput', 
+    field: 'professionalId', 
+    component: 'JDictSelectTag',
+    slot: 'professionalId',
   }
 ];
 
 // 获取表格数据
-const getLinkageControlList = async () => {
+const getStandardizedManagementt = async () => {
   let { getFieldsValue } = getForm();
   const searchData = getFieldsValue();
   let params = {
     // pageNo: '',
     pageSize: 999999999,
-    strategyName: searchData.strategyName ? searchData.strategyName : undefined,
-    frontDevice: searchData.frontDevice ? searchData.frontDevice : undefined,
-    rearDevice: searchData.rearDevice ? searchData.rearDevice : undefined,
+    strategyName: searchData.strategyName ? searchData.strategyName.split('*')[1] : undefined,
+    strategyScene: searchData.strategyScene ? searchData.strategyScene.split('*')[1] : undefined,
+    strategyTarget: searchData.strategyTarget ? searchData.strategyTarget.split('*')[1] : undefined,
+    spaceId: searchData.spaceId ? searchData.spaceId : undefined,
+    modelType: searchData.modelType ? searchData.modelType : undefined,
+    professionalId: searchData.professionalId ? searchData.professionalId : undefined,
   }
-  let res = await getLinkageControlListApi(params)
+  let res = await getStandardizedManagementtApi(params)
   return res.records
 }
 
 const { tableContext } = useListPage({
   designScope: 'basic-table-demo',
   tableProps: {
-    // dataSource: dataSource.value,
-    api: getLinkageControlList,
+    api: getStandardizedManagementt,
     columns: columns,
     showActionColumn: false,
     size: 'middle',
@@ -250,12 +269,6 @@ const hasPermission = (permission:string) => {
   return currentPermissions.includes(permission);
 };
 
-// 新增
-const addStrategy = () => {
-  showForm.value = true
-  type.value = 'create'
-}
-
 // 关闭form表单
 const closeStrategy = () => {
   showForm.value = false
@@ -263,16 +276,23 @@ const closeStrategy = () => {
 
 // 启用
 const handleEnable = async (record) => {
-  await enableLinkageControlApi({ id: record.id })
-  message.success('启用成功！');
-  reload()
+  enableModalRef.value.openModal(record.id)
+  // await enableStandardizedManagemenApi({ id: record.id })
+  // message.success('启用成功！');
+  // reload()
 }
 
 // 禁用
 const handleDisable = async (record) => {
-  await disableLinkageControlApi({ id: record.id })
+  await disableStandardizedManagemenApi({ id: record.id })
   message.success('禁用成功！');
   reload()
+}
+
+// 新增
+const addStrategy = () => {
+  type.value = 'create'
+  showForm.value = true
 }
 
 // 编辑
@@ -289,9 +309,22 @@ const checkDetail = (record) => {
   showForm.value = true
 }
 
+// 跳转到控制记录
+const handleview = (record) => {
+  props.checkControlRecords(record)
+}
+
+// 立即执行
+const handleExecute = async (record) => {
+  await executeStandardizedManagemenApi({id: record.id})
+  message.success('删除成功！');
+  // 刷新表格
+  reload();
+}
+
 // 删除
 const handleDelete = async (record) => {
-  await deleteLinkageControlApi({id: record.id})
+  await deleteStandardizedManagemenApi({id: record.id})
   message.success('删除成功！');
   // 刷新表格
   reload();
@@ -306,14 +339,13 @@ const formState = reactive({
   address: ''
 });
 
-// 提交表单
-const onFinish = values => {
-  console.log('Received values:', values);
-};
-
 onMounted(async () => {
   const spaceRes = await spaceTree();
   spaceTreeData.value = spaceRes;
+
+  const categoryRes = await categoryTree({});
+  categoryTreeData.value = categoryRes;
+  
 })
 </script>
 

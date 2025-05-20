@@ -1,37 +1,9 @@
 <template>
   <div class="device-box-modal">
-    <a-modal v-model:open="open" title="设备绑定" @ok="handleOk" @cancel="closeModal" width="1000px">
-      <div class="form-box">
-        <a-form :model="formState" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }" autocomplete="off"
-          @finish="onFinish" @finishFailed="onFinishFailed" layout="horizontal">
-          <a-row :gutter="8">
-            <a-col :span="6">
-              <a-form-item label="名称" name="deviceName">
-                <a-input v-model:value="formState.deviceName" />
-              </a-form-item>
-            </a-col>
-            <a-col :span="6">
-              <a-form-item label="位置" name="spaceId">
-                <a-cascader v-model:value="formState.spaceId" :options="spaceOptions" />
-              </a-form-item>
-            </a-col>
-            <a-col :span="6">
-              <a-form-item label="专业" name="categoryId">
-                <a-cascader v-model:value="formState.categoryId" :options="categoryOptions" />
-              </a-form-item>
-            </a-col>
-            <a-col :span="6">
-              <a-form-item>
-                <div class='button-box'>
-                  <a-button html-type="submit">清空</a-button>
-                  &emsp;
-                  <a-button type="primary" html-type="submit" @click="loadData">查询</a-button>
-                </div>
-              </a-form-item>
-            </a-col>
-          </a-row>
-        </a-form>
-      </div>
+    <a-modal v-model:open="open" :title="props.targetItem.name + '执行详情'" width="1000px">
+      <template #footer>
+        <a-button key="back" @click="closeModal">关闭</a-button>
+      </template>
       <div class="table-box">
         <a-table class="custom-hover-table" :dataSource="dataSource" :columns="columns" :pagination="pagination"
           size="middle" bordered :customRow="rowClick">
@@ -55,9 +27,11 @@ import { ref, reactive, computed, onMounted } from 'vue';
 import { selectDevice, spaceTree, categoryTree } from '../Standardized.api'
 
 const props = defineProps({
-  setDeviceName: {
-    type: Function,
-    default: () => {}
+  targetItem: {
+    type: Object,
+    default: {
+      name: '测试name'
+    }
   }
 })
 
@@ -80,6 +54,7 @@ const columns = [
     title: '序号',
     dataIndex: 'idex',
     key: 'idex',
+    width:'80px',
     slots: { customRender: 'index' }
   },
   {
@@ -88,16 +63,26 @@ const columns = [
     key: 'deviceName',
   },
   {
-    title: '设备专业',
+    title: '点位名称',
     dataIndex: 'categoryId',
     key: 'categoryId',
-    slots: { customRender: 'categoryId' }
+    width: '120px',
   },
   {
-    title: '设备位置',
+    title: '点位路径',
     dataIndex: 'spaceId',
     key: 'spaceId',
-    slots: { customRender: 'spaceId' }
+  },
+  {
+    title: '执行时间',
+    dataIndex: 'spaceId',
+    key: 'spaceId',
+  },
+  {
+    title: '执行状态',
+    dataIndex: 'spaceId',
+    key: 'spaceId',
+    width: '120px',
   },
 ]
 
@@ -219,7 +204,7 @@ const rowClick = (record) => {
     // 双击事件
     ondblclick: (event) => {
       console.log('双击行:', record);
-      props.setDeviceName(1, record)
+      props.setDeviceName(record)
       // 在这里处理双击逻辑
     },
   };

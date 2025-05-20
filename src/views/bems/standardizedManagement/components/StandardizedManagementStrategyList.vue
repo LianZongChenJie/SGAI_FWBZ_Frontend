@@ -2,7 +2,7 @@
 
   <div class="linkage-ontro-sStrategy-list-box">
     <div class="info-title">
-      联动控制策略列表
+      策略定义
     </div>
     <div class="info-list">
       <a-form
@@ -14,22 +14,21 @@
         :disabled="props.type === 'check'"
       >
         <div class="list-title">
-          策略基本信息
+          <span>
+            <ProfileOutlined />&ensp;策略基本信息
+          </span>
         </div>
         <div class="list-form">
           <a-row
             :gutter="16"
             class="row-with-margin"
           >
-            <a-col
-              :span="8"
-              v-if="props.type !== 'create'"
-            >
+            <a-col :span="8">
               <a-form-item
                 label="策略编号"
                 name="strategyCode"
               >
-                <a-input v-model:value="formState.strategyCode" />
+                <a-input v-model:value="formState.strategyCode" disabled/>
               </a-form-item>
             </a-col>
             <a-col :span="8">
@@ -44,10 +43,10 @@
             <a-col :span="8">
               <a-form-item
                 label="应用场景"
-                name="strategyTarget"
+                name="strategyScene"
                 :rules="[{ required: true, message: '请输入应用场景' }]"
               >
-                <a-input v-model:value="formState.strategyTarget" />
+                <a-input v-model:value="formState.strategyScene" />
               </a-form-item>
             </a-col>
           </a-row>
@@ -55,33 +54,44 @@
             :gutter="16"
             class="row-with-margin"
           >
-            <a-col
-              :span="8"
-              v-if="props.type !== 'create'"
-            >
+            <a-col :span="8">
               <a-form-item
                 label="策略目标"
-                name="strategyCode"
+                name="strategyTarget"
                 :rules="[{ required: true, message: '请输入策略目标' }]"
               >
-                <a-input v-model:value="formState.strategyCode" />
+                <a-input v-model:value="formState.strategyTarget" />
               </a-form-item>
             </a-col>
             <a-col :span="8">
               <a-form-item
                 label="单体空间"
-                name="strategyName"
+                name="spaceId"
               >
-                <a-input v-model:value="formState.strategyName" />
+                <a-tree-select
+                  v-model:value="formState.spaceId"
+                  :tree-data="spaceTreeData"
+                  placeholder="请选择空间位置"
+                  :fieldNames="treeSelect"
+                  show-search
+                  allowClear
+                />
               </a-form-item>
             </a-col>
             <a-col :span="8">
               <a-form-item
                 label="分组属性"
-                name="strategyTarget"
-                :rules="[{ required: true, message: '请输入分组属性' }]"
+                name="groupId"
               >
-                <a-input v-model:value="formState.strategyTarget" />
+                <!-- <a-tree-select
+                  v-model:value="formState.groupId"
+                  :tree-data="spaceTreeData"
+                  placeholder="请选择空间位置"
+                  :fieldNames="treeSelect"
+                  show-search
+                  allowClear
+                /> -->
+                <a-input v-model:value="formState.groupId" />
               </a-form-item>
             </a-col>
           </a-row>
@@ -89,78 +99,97 @@
             :gutter="16"
             class="row-with-margin"
           >
-            <a-col
-              :span="8"
-              v-if="props.type !== 'create'"
-            >
+            <a-col :span="8">
               <a-form-item
                 label="复合专业"
-                name="strategyCode"
+                name="compositeSpecialtyFlag"
                 :rules="[{ required: true, message: '请输入复合专业' }]"
               >
-                <a-input v-model:value="formState.strategyCode" />
+                <a-select v-model:value="formState.compositeSpecialtyFlag">
+                  <a-select-option :value="1">是</a-select-option>
+                  <a-select-option :value="0">否</a-select-option>
+                </a-select>
               </a-form-item>
             </a-col>
             <a-col :span="8">
               <a-form-item
                 label="专业"
-                name="strategyName"
+                name="professionalId"
               >
-                <a-input v-model:value="formState.strategyName" />
+                <a-select
+                  v-model:value="formState.professionalId"
+                  :disabled="!formState.compositeSpecialtyFlag"
+                  :options="groupOptions"
+                >
+                </a-select>
               </a-form-item>
             </a-col>
             <a-col :span="8">
               <a-form-item
                 label="模式类型"
-                name="strategyTarget"
+                name="modelType"
                 :rules="[{ required: true, message: '请输入模式类型' }]"
               >
-                <a-input v-model:value="formState.strategyTarget" />
+                <a-select v-model:value="formState.modelType">
+                  <a-select-option value="自动">自动</a-select-option>
+                  <a-select-option value="手动">手动</a-select-option>
+                </a-select>
               </a-form-item>
             </a-col>
           </a-row>
           <a-row
             :gutter="16"
             class="row-with-margin"
+            v-for="(item,index) in formState.patterningRelatedList"
+            :key="index"
           >
-            <a-col
-              :span="8"
-              v-if="props.type !== 'create'"
-            >
+            <a-col :span="8">
               <a-form-item
                 label="模式引用"
-                name="strategyCode"
-                :rules="[{ required: true, message: '请输入模式引用' }]"
+                :name="['patterningRelatedList', index, 'postAssociationId']"
               >
-                <a-input v-model:value="formState.strategyCode" />
+                <div class="arr-list-box">
+                  <a-input v-model:value="item.postAssociationName" @click="selectPatternReference(index)" />
+                  &emsp;
+                  <div
+                    class="icon-box"
+                    v-if="props.type !== 'check'"
+                  >
+                    <a>
+                      <PlusOutlined
+                        v-if="index === 0"
+                        style="font-size: 20px;"
+                        @click="addPatterningRelated"
+                      />
+                      <DeleteOutlined
+                        v-else
+                        style="font-size: 20px;"
+                        @click="deletePatterningRelated"
+                      />
+                    </a>
+                  </div>
+                </div>
               </a-form-item>
             </a-col>
-            <div
-              class="icon-box"
-              v-if="props.type !== 'check'"
-            >
-              <a>
-                <PlusOutlined style="font-size: 20px;" />
-              </a>
-            </div>
+
           </a-row>
         </div>
         <div class="list-title">
           <span>执行设备类型</span><a
-            @click="addRearPoint"
+            @click="addPatterningPoint"
             v-if="props.type !== 'check'"
           >添加</a>
         </div>
         <div class="list-form">
           <a-row
             :gutter="16"
-            v-for="(item,index) in formState.rearPointList"
+            v-for="(item,index) in formState.patterningPointList"
             :key="index"
           >
             <a-col :span="5">
               <a-form-item
                 label="执行设备"
-                :name="['rearPointList', index, 'deviceName']"
+                :name="['patterningPointList', index, 'deviceName']"
                 :rules="[{ required: true, message: '请选择执行设备' }]"
               >
                 <a-input
@@ -172,7 +201,7 @@
             <a-col :span="5">
               <a-form-item
                 label="空间位置"
-                :name="['rearPointList', index, 'spaceName']"
+                :name="['patterningPointList', index, 'spaceName']"
               >
                 <a-input
                   v-model:value="item.spaceName"
@@ -183,7 +212,7 @@
             <a-col :span="5">
               <a-form-item
                 label="点位选择"
-                :name="['rearPointList', index, 'pointId']"
+                :name="['patterningPointList', index, 'pointId']"
                 :rules="[{ required: true, message: '请选择点位' }]"
               >
                 <a-select
@@ -196,38 +225,42 @@
             <a-col :span="8">
               <a-form-item
                 label="点位设定"
-                :name="['rearPointList', index, 'conditionValue']"
+                :name="['patterningPointList', index, 'conditionValue']"
                 :rules="[{ required: true, message: '请输入数值' }]"
               >
-                <a-input-group compact>
-                  <a-select
-                    v-model:value="item.operator"
-                    style="width: 30%"
-                    :options="operatorList"
-                    disabled
+                <div class="arr-list-box">
+                  <a-input-group compact>
+                    <a-select
+                      v-model:value="item.pointName"
+                      style="width: 30%"
+                      :options="operatorList"
+                      disabled
+                    >
+                    </a-select>
+                    <a-input
+                      v-model:value="item.conditionValue"
+                      style="width: 70%"
+                      placeholder="数值"
+                      type="number"
+                    />
+                  </a-input-group>
+                  &emsp;
+                  <div
+                    class="icon-box"
+                    v-if="props.type !== 'check'"
                   >
-                  </a-select>
-                  <a-input
-                    v-model:value="item.conditionValue"
-                    style="width: 70%"
-                    placeholder="数值"
-                    type="number"
-                  />
-                </a-input-group>
+                    <a @click="deleteRearPoint">
+                      <MinusOutlined style="font-size: 20px;" />
+                    </a>
+                    &emsp;
+                    <a @click="addPatterningPoint">
+                      <PlusOutlined style="font-size: 20px;" />
+                    </a>
+                  </div>
+                </div>
               </a-form-item>
             </a-col>
-            <div
-              class="icon-box"
-              v-if="props.type !== 'check'"
-            >
-              <a @click="deleteRearPoint">
-                <MinusOutlined style="font-size: 20px;" />
-              </a>
-              &emsp;
-              <a>
-                <PlusOutlined style="font-size: 20px;" />
-              </a>
-            </div>
+
           </a-row>
         </div>
       </a-form>
@@ -245,16 +278,18 @@
       ref="deviceRef"
       :setDeviceName="setDeviceName"
     />
+    <pattern-reference-table-modal ref="referenceRef" :setReferenceName="setReferenceName"/>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, toRaw, createVNode, onMounted } from 'vue';
-import { PlusOutlined, MinusOutlined, ExclamationCircleOutlined } from '@ant-design/icons-vue';
+import { ref, reactive, toRaw, createVNode, onMounted, nextTick } from 'vue';
+import { DeleteOutlined, PlusOutlined, MinusOutlined, ExclamationCircleOutlined, ProfileOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
 import { Modal } from 'ant-design-vue';
-import { createLinkageControlApi, getPontByDeviceIdApi, getLinkageControlDetailApi, editLinkageControlApi } from '../Standardized.api';
+import { createStandardizedManagementtlApi, getPontByDeviceIdApi, getStandardizedManagemenDetailApi, editStandardizedManagemenApi, spaceTree } from '../Standardized.api';
 import DeviceTableModal from './DeviceTableModal.vue';
+import PatternReferenceTableModal from './PatternReferenceTableModal.vue';
 
 const props = defineProps({
   closeStrategy: {
@@ -273,6 +308,12 @@ const props = defineProps({
 
 const formRef = ref();
 const deviceRef = ref();
+const referenceRef = ref();
+
+const spaceTreeData = ref([]);
+const treeSelect = { children: 'children', label: 'title', value: 'key', key: 'key' };
+
+const groupOptions = ref([]);
 
 // 表单数据
 const formState = reactive<any>({
@@ -280,11 +321,22 @@ const formState = reactive<any>({
   strategyCode: '',
   strategyName: '',
   strategyTarget: '',
-  frontPointList: [],
-  rearPointList: [],
+  spaceId: '',
+  spaceName: '',
+  groupId: '',
+  groupName: '',
+  compositeSpecialtyFlag: '',
+  professionalId: '',
+  modelType: '',
+  patterningRelatedList: [
+    {
+      postAssociationId: '',
+      postAssociationName: '',
+    },
+  ],
+  patterningPointList: [],
 });
 
-const deviceType = ref<number>();
 const targetIndex = ref<number>(0);
 
 const operatorList = [
@@ -314,44 +366,40 @@ const operatorList = [
   },
 ];
 
-// 添加前置设备
-const addFrontPoint = () => {
-  let length = formState.frontPointList?.length;
-  if (
-    length &&
-    (!formState.frontPointList[length - 1]?.deviceName ||
-      !formState.frontPointList[length - 1]?.pointId ||
-      !formState.frontPointList[length - 1]?.operator ||
-      !formState.frontPointList[length - 1]?.conditionValue)
-  ) {
+// 添加模式引用
+const addPatterningRelated = () => {
+  let length = formState.patterningRelatedList?.length;
+  if (length && !formState.patterningRelatedList[length - 1]?.postAssociationId) {
+    formRef.value;
+    // .validate()
+    // .then(() => {})
+    // .catch((error) => {
+    //   console.log('error', error);
+    // });
     formRef.value
-      .validate()
-      .then(() => {})
-      .catch((error) => {
-        console.log('error', error);
+      .validateFields([['patterningRelatedList', formState.patterningRelatedList.length - 1, 'postAssociationId']])
+      .then((values) => {
+        console.log('校验通过:', values.postAssociationId);
+      })
+      .catch((err) => {
+        console.log('校验失败:', err);
       });
     return;
   } else {
-    formState.frontPointList.push({
-      deviceId: '',
-      deviceName: '',
-      spaceName: '',
-      pointId: '',
-      pointName: '',
-      operator: '',
-      conditionValue: '',
-      devicePointData: [],
+    formState.patterningRelatedList.push({
+      postAssociationId: '',
+      postAssociationName: '',
     });
   }
 };
-// 删除前置设备
-const deleteFrontPoint = (target) => {
+// 删除模式引用
+const deletePatterningRelated = (target) => {
   Modal.confirm({
     title: '提示',
     icon: createVNode(ExclamationCircleOutlined),
     content: '删除不可恢复，是否确定删除?',
     onOk() {
-      formState.frontPointList.pop();
+      formState.patterningRelatedList.pop();
       message.success('删除成功！');
     },
     // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -359,36 +407,40 @@ const deleteFrontPoint = (target) => {
   });
 };
 
-// 添加联动设备
-const addRearPoint = () => {
-  let length = formState.rearPointList?.length;
+// 添加执行设备
+const addPatterningPoint = () => {
+  let length = formState.patterningPointList?.length;
   if (
     length &&
-    (!formState.rearPointList[length - 1]?.deviceName ||
-      !formState.rearPointList[length - 1]?.pointId ||
-      !formState.rearPointList[length - 1]?.operator ||
-      !formState.rearPointList[length - 1]?.conditionValue)
+    (!formState.patterningPointList[length - 1]?.deviceName ||
+      !formState.patterningPointList[length - 1]?.pointId ||
+      !formState.patterningPointList[length - 1]?.operator ||
+      !formState.patterningPointList[length - 1]?.conditionValue)
   ) {
     formRef.value
-      .validate()
+      .validateFields([
+        ['patterningPointList', formState.patterningPointList.length - 1, 'deviceName'],
+        ['patterningPointList', formState.patterningPointList.length - 1, 'pointId'],
+        ['patterningPointList', formState.patterningPointList.length - 1, 'conditionValue'],
+      ])
       .then(() => {})
       .catch((error) => {
         console.log('error', error);
       });
     return;
   } else {
-    formState.rearPointList.push({
+    formState.patterningPointList.push({
       deviceId: '',
       deviceName: '',
+      spaceId: '',
       spaceName: '',
       pointId: '',
-      pointName: '',
-      operator: '',
+      pointName: '=',
       conditionValue: '',
     });
   }
 };
-// 删除联动设备
+// 删除执行设备
 const deleteRearPoint = (target) => {
   Modal.confirm({
     title: '提示',
@@ -403,55 +455,51 @@ const deleteRearPoint = (target) => {
   });
 };
 
+// 选择模式引用
+const selectPatternReference = (index) => {
+  targetIndex.value = index;
+  referenceRef.value.showModal();
+}
+
+//确认引用
+const setReferenceName = (record) => {
+  formState.patterningRelatedList[targetIndex.value].postAssociationId = record.id
+  formState.patterningRelatedList[targetIndex.value].postAssociationName = record.strategyName
+  referenceRef.value.closeModal();
+}
+
 // 选择设备绑定
 const selectDevice = (type: number, index: number) => {
-  deviceType.value = type;
   targetIndex.value = index;
   deviceRef.value.showModal();
 };
 
 // 确认设备
 const setDeviceName = async (record) => {
-  if (deviceType.value) {
-    formState.rearPointList[targetIndex.value].deviceName = record.deviceName;
-    formState.rearPointList[targetIndex.value].deviceId = record.id;
+    formState.patterningPointList[targetIndex.value].deviceName = record.deviceName;
+    formState.patterningPointList[targetIndex.value].deviceId = record.id;
     // let res = await getPontByDeviceIdApi({ deviceId: record.id})
     let res = await getPontByDeviceIdApi({ deviceId: 108 });
-    formState.rearPointList[targetIndex.value].devicePointData = res.map((item) => {
+    formState.patterningPointList[targetIndex.value].devicePointData = res.map((item) => {
       return {
         value: item.id,
         label: item.attributeName,
       };
     });
-  } else {
-    formState.frontPointList[targetIndex.value].deviceName = record.deviceName;
-    formState.frontPointList[targetIndex.value].deviceId = record.id;
-    // let res = await getPontByDeviceIdApi({ deviceId: record.id})
-    let res = await getPontByDeviceIdApi({ deviceId: 108 });
-    formState.frontPointList[targetIndex.value].devicePointData = res.map((item) => {
-      return {
-        value: item.id,
-        label: item.attributeName,
-      };
-    });
-  }
+  
   deviceRef.value.closeModal();
 };
 
 // 提交表单
 const onSubmit = async () => {
-  if (!formState.frontPointList.length || !formState.rearPointList.length) {
-    message.error('请添加设备');
-    return;
-  }
   formRef.value
     .validate()
     .then(async () => {
       if (props.type === 'create') {
-        await createLinkageControlApi(toRaw(formState));
+        await createStandardizedManagementtlApi(toRaw(formState));
         message.success('创建成功！');
       } else {
-        await editLinkageControlApi(toRaw(formState));
+        await editStandardizedManagemenApi(toRaw(formState));
         message.success('修改成功！');
       }
       resetForm();
@@ -474,32 +522,45 @@ const resetForm = () => {
 };
 
 onMounted(async () => {
+  nextTick(async () => {
+  const spaceRes = await spaceTree();
+  spaceTreeData.value = spaceRes;
   if (props.type === 'edit' || props.type === 'check') {
-    let res = await getLinkageControlDetailApi({ id: props.editItem.id });
+    let res = await getStandardizedManagemenDetailApi({ id: props.editItem.id });
     formState.id = props.editItem.id;
     formState.strategyCode = res.strategyCode;
     formState.strategyName = res.strategyName;
     formState.strategyTarget = res.strategyTarget;
-    if (!Array.isArray(res.rearPointList)) {
-      formState.rearPointList = [];
+    formState.spaceId = res.spaceId;
+    formState.spaceName = res.spaceName;
+    formState.groupId = res.groupId;
+    formState.groupName = res.groupName;
+    formState.compositeSpecialtyFlag = Number(res.compositeSpecialtyFlag);
+    formState.modelType = res.modelType;
+    formState.professionalId = res.professionalId;
+    formState.strategyScene = res.strategyScene;
+    if (!Array.isArray(res.patterningPointList)) {
+      formState.patterningPointList = [];
     } else {
-      deviceType.value = 1;
-      formState.rearPointList = res.rearPointList;
-      formState.rearPointList.forEach((item) => {
+      formState.patterningPointList = res.patterningPointList;
+      formState.patterningPointList.forEach((item) => {
         setDeviceName(item);
       });
     }
-    if (!Array.isArray(res.frontPointList)) {
-      formState.frontPointList = [];
+    if (!Array.isArray(res.patterningRelatedList)) {
+      formState.patterningRelatedList = [
+        {
+          postAssociationId: '',
+          postAssociationName: '',
+        }
+      ];
     } else {
-      deviceType.value = 0;
-      formState.frontPointList = res.frontPointList;
-      formState.frontPointList.forEach((item) => {
-        setDeviceName(item);
-      });
+      formState.patterningRelatedList = res.patterningRelatedList;
     }
   }
+  })
 });
+
 </script>
 
 <style scoped lang="less">
@@ -524,6 +585,7 @@ onMounted(async () => {
       width: 100%;
       height: 40px;
       padding-left: 10px;
+      color: #275fba;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -542,6 +604,11 @@ onMounted(async () => {
 
       .row-with-margin {
         margin-bottom: 16px;
+      }
+
+      .arr-list-box {
+        display: flex;
+        align-items: center;
       }
     }
   }

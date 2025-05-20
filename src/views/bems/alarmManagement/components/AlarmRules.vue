@@ -1,73 +1,64 @@
 <template>
   <div>
-    <BasicTable v-if="!showForm" @register="registerTable">
+    <BasicTable @register="registerTable">
+      <template #form-spaceId="{ model, field }">
+        <a-tree-select v-model:value="model[field]" :tree-data="spaceTreeData" placeholder="请选择空间位置"
+          :fieldNames="treeSelect" show-search allowClear />
+      </template>
       <!-- 表格顶部按钮 -->
       <template #tableTitle>
         <a-button v-if="hasPermission('bems:device_data:amend')" type="primary" :icon="h(EditOutlined)"
           @click="addStrategy"> 新增 </a-button>
       </template>
       <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'strategyName'">
+        <template v-if="column.key === 'device'">
           <a @click.stop="checkDetail(record)">{{ record.strategyName }}</a>
         </template>
-        <template v-if="column.key === 'enabledStatus'">
+        
+        <template v-if="column.key === 'frequency'">
+          {{ getFrequency(record) }}
+        </template>
+        <template v-if="column.key === 'status'">
           {{ Number(record.enabledStatus) ? '已启用' : '已禁用' }}
         </template>
-        <template v-if="column.key === 'active'">
+        <template v-else-if="column.key === 'automaticAlgorithm'">
+          <!-- 自动算法 -->
+          <a-switch
+            :checked="record.enabledStatus == '1'"
+            :disabled="false"
+            @change="(checked) => handleAutomaticAlgorithmChange(record, checked)"
+          />
+        </template>
+        <template v-if="column.key === 'action'">
           <a-space>
-            <a-popconfirm v-if="Number(record.enabledStatus)" title="是否禁用？" ok-text="确定" cancel-text="取消" @confirm="handleDisable(record)">
-              <a @click.stop style="color: red;">禁用</a>
-            </a-popconfirm>
-            <a-popconfirm v-else title="是否启用？" ok-text="确定" cancel-text="取消" @confirm="handleEnable(record)">
-              <a @click.stop>启用</a>
-            </a-popconfirm>
-            <a @click.stop="handleEdit(record)">编辑</a>
-            <a-popconfirm title="删除不可恢复，是否删除？" ok-text="确定" cancel-text="取消" @confirm="handleDelete(record)">
-              <a @click.stop style="color: red;">删除</a>
-            </a-popconfirm>
+            <a @click="handleEdit(record)">编辑</a>
+            <a @click="checkDetail(record)">详情</a>
+            
+            <a-popconfirm title="确认删除该条数据？" ok-text="确定" cancel-text="取消" @confirm="confirmDelete(record)">
+              <a style="color: red;" >删除</a>
+                </a-popconfirm>
           </a-space>
         </template>
-        <template v-if="column.key === 'name'">
-          <a @click.stop="handleview(record)">{{ record.name }}</a>
-        </template>
-        <template v-if="column.key === 'history'">
-          <a @click.stop="handleview(record)">查看</a>
-        </template>
-      </template>
-      <template #expandedRowRender="{ record }">
-        <div class="expand-box">前置设备：{{ record.frontDevice }} </div>
-        <div class="expand-box">联动设备：{{ record.rearDevice }} </div>
       </template>
     </BasicTable>
-    <div class="info-box" v-else>
-      <linkage-control-strategy-list ref="linkageFormRef" :closeStrategy="closeStrategy" :type="type"
-        :editItem="editItem" />
-    </div>
+    <alarm-rules-modal ref="deviceRef" :type="type" :editItem="editItem" :closeModal="closeModal"/>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive, onBeforeUnmount } from 'vue'
+import { ref, computed, reactive, onMounted } from 'vue'
 import { BasicColumn, BasicTable, FormSchema } from '/@/components/Table';
 import { useListPage } from '/@/hooks/system/useListPage';
 import { h } from 'vue';
 import { EditOutlined } from '@ant-design/icons-vue';
 import { usePermissionStore } from '/@/store/modules/permission';
-import LinkageControlStrategyList from './LinkageControlStrategyList.vue'
-import { getLinkageControlListApi, deleteLinkageControlApi, enableLinkageControlApi, disableLinkageControlApi } from '../Standardized.api'
+import AlarmRulesModal from './AlarmRulesModal.vue'
+import { getAlarmRulesListApi, getAlarmLevelListApi, getAlarmCategoryListApi, enableAlarmRuleslApi, disableAlarmRuleslApi, deleteAlarmRulesApi } from '../Standardized.api'
 import { message } from 'ant-design-vue';
-import { log } from 'console';
-
-const props = defineProps({
-  checkControlRecords: {
-    type: Function,
-    default: () => {}
-  }
-})
 
 const showForm = ref<boolean>(false);
 
-const linkageFormRef = ref()
+const deviceRef = ref()
 
 // 打开类型
 const type = ref('')
@@ -78,76 +69,88 @@ const pagination = ref({
   pageSize: 10,
 });
 
+// 空间位置树数据
+const spaceTreeData = ref([]);
+const treeSelect = { children: 'children', label: 'title', value: 'key', key: 'key' };
+
 // 表格列配置
 const columns: BasicColumn[] = [
   {
-    title: '序号',
+    title: '编号',
     dataIndex: 'index',
     key: 'index',
     width: '80px',
     customRender: ({ index }) => index + 1, // 显示序号，从 1 开始
   },
   {
-    title: '策略编号',
-    dataIndex: 'strategyCode',
-    key: 'strategyCode',
+    title: '规则编号',
+    dataIndex: 'ruleCode',
+    key: 'ruleCode',
   },
   {
-    title: '策略名称',
-    dataIndex: 'strategyName',
-    key: 'strategyName',
+    title: '规则名称',
+    dataIndex: 'ruleName',
+    key: 'ruleName',
   },
   {
-    title: '处理目标',
-    dataIndex: 'strategyTarget',
-    key: 'strategyTarget',
+    title: '报警类型',
+    dataIndex: 'alarmCategoryName',
+    key: 'alarmCategoryName',
   },
   {
-    title: '设置时间',
-    dataIndex: 'createTime',
-    key: 'createTime',
+    title: '报警等级',
+    dataIndex: 'alarmLevelName',
+    key: 'alarmLevelName',
   },
   {
-    title: '设置人',
-    dataIndex: 'createBy',
-    key: 'createBy',
+    title: '报警频率',
+    dataIndex: 'frequency',
+    key: 'frequency',
   },
   {
-    title: '策略状态',
-    dataIndex: 'enabledStatus',
-    key: 'enabledStatus',
-  },
-  {
-    title: '执行历史',
-    key: 'history',
-    dataIndex: 'history',
-    width: '80px',
+    title: '状态',
+    key: 'automaticAlgorithm',
+    dataIndex: 'automaticAlgorithm',
   },
   {
     title: '操作',
-    dataIndex: 'active',
-    key: 'active',
+    key: 'action',
+    dataIndex: 'action',
   }
 ];
 
 //表单搜索字段
 const searchFormSchema: FormSchema[] = [
   {
-    label: '策略名称', //显示label
-    field: 'strategyName', //查询字段
+    label: '规则信息', //显示label
+    field: 'ruleInfo', //查询字段
     component: 'JInput', //渲染的组件
     // slot: 'name', //设置默认值
   },
   {
-    label: '前置设置', 
-    field: 'frontDevice', 
-    component: 'JInput', 
+    label: '报警类型', 
+    field: 'alarmCategoryId', 
+    component: 'ApiSelect', 
+    componentProps: {
+      api: getAlarmCategoryListApi,
+      labelField: 'alarmCategoryName',
+      valueField: 'id',
+      immediate: true,
+      resultField: 'records',
+    },
   },
   {
-    label: '联动设备', 
-    field: 'rearDevice', 
-    component: 'JInput', 
-  }
+    label: '报警等级', 
+    field: 'alarmLevelId', 
+    component: 'ApiSelect', 
+    componentProps: {
+      api: getAlarmLevelListApi,
+      labelField: 'alarmLevelName',
+      valueField: 'id',
+      immediate: true,
+      resultField: 'records',
+    }, 
+  },
 ];
 
 // 获取表格数据
@@ -157,11 +160,12 @@ const getLinkageControlList = async () => {
   let params = {
     // pageNo: '',
     pageSize: 999999999,
-    strategyName: searchData.strategyName ? searchData.strategyName.split('*')[1] : undefined,
-    frontDevice: searchData.frontDevice ? searchData.frontDevice.split('*')[1] : undefined,
-    rearDevice: searchData.rearDevice ? searchData.rearDevice.split('*')[1] : undefined,
+    ruleCode: searchData.ruleInfo ? searchData.ruleInfo.split('*')[1] : undefined,
+    ruleName: searchData.ruleInfo ? searchData.ruleInfo.split('*')[1] : undefined,
+    alarmCategoryId: searchData.alarmCategoryId ? searchData.alarmCategoryId : undefined,
+    alarmLevelId: searchData.alarmLevelId ? searchData.alarmLevelId : undefined,
   }
-  let res = await getLinkageControlListApi(params)
+  let res = await getAlarmRulesListApi(params)
   return res.records
 }
 
@@ -173,7 +177,6 @@ const { tableContext } = useListPage({
     columns: columns,
     showActionColumn: false,
     size: 'middle',
-    expandRowByClick: true,
     rowKey: 'id',
     pagination: {
       current: pagination.value.pageNo,
@@ -182,6 +185,8 @@ const { tableContext } = useListPage({
     },
     formConfig: {
       schemas: searchFormSchema,
+      // 默认展开
+      showAdvancedButton: false,
       submitOnReset: true,
       //重置按钮的自定义事件
       resetFunc: async () => {
@@ -222,25 +227,54 @@ const hasPermission = (permission:string) => {
 
 // 新增
 const addStrategy = () => {
-  showForm.value = true
   type.value = 'create'
+  deviceRef.value.showModal()
 }
 
-// 关闭form表单
-const closeStrategy = () => {
-  showForm.value = false
+// 频率单位数据
+const unitOption = [
+  {
+    label: '秒',
+    value: 's',
+  },
+  {
+    label: '分',
+    value: 'm',
+  },
+  {
+    label: '时',
+    value: 'h',
+  },
+  {
+    label: '天',
+    value: 'd',
+  },
+];
+const getFrequency = (record) => {
+  return record.frequency  + '' + unitOption.find(item => record.frequencyUnit === item.value)?.label
+}
+
+// 禁用、启用控制
+const handleAutomaticAlgorithmChange = async (record, checked) => {
+  if(checked) {
+    await handleEnable(record)
+  } else {
+    await handleDisable(record)
+  }
+  // 刷新表格
+  reload();
 }
 
 // 启用
 const handleEnable = async (record) => {
-  await enableLinkageControlApi({ id: record.id })
+  await enableAlarmRuleslApi({ id: record.id })
   message.success('启用成功！');
   reload()
 }
 
 // 禁用
 const handleDisable = async (record) => {
-  await disableLinkageControlApi({ id: record.id })
+  await disableAlarmRuleslApi({ id: record.id })
   message.success('禁用成功！');
   reload()
 }
@@ -249,27 +283,31 @@ const handleDisable = async (record) => {
 const handleEdit = (record) => {
   editItem.value = record
   type.value = 'edit'
-  showForm.value = true
+  deviceRef.value.showModal()
 }
 
 // 查看
 const checkDetail = (record) => {
   editItem.value = record
   type.value = 'check'
-  showForm.value = true
+  deviceRef.value.showModal()
 }
 
-// 跳转到控制记录
-const handleview = (record) => {
-  props.checkControlRecords(record)
+// 关闭弹框
+const closeModal = () => {
+  reload()
+}
+
+const confirmDelete = async (record) => {
+  await deleteAlarmRulesApi({id: record.id})
+  message.success('删除成功！');
+  // 刷新表格
+  reload();
 }
 
 // 删除
 const handleDelete = async (record) => {
-  await deleteLinkageControlApi({id: record.id})
-  message.success('删除成功！');
-  // 刷新表格
-  reload();
+  
 }
 
 // 表单数据
@@ -286,8 +324,8 @@ const onFinish = values => {
   console.log('Received values:', values);
 };
 
-onBeforeUnmount(() => {
-  showForm.value = false
+onMounted(async () => {
+  
 })
 </script>
 

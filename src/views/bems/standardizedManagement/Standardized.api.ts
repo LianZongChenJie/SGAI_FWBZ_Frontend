@@ -13,7 +13,17 @@ enum Api {
   getLinkageControlDetailApi = '/bems/linkageStrategy/getDetailById',
   deleteLinkageControlApi = '/bems/linkageStrategy/delete',
   enableLinkageControlApi = '/bems/linkageStrategy/startStrategy',
-  disableLinkageControlApi = '/bems/linkageStrategy/stopStrategy',
+  disableLinkageControlApi = '/bems/linkageStrategy/stopStrategy', 
+  getStandardizedManagementtApi = '/bems/patterningStrategy/listPage', 
+  createStandardizedManagementtlApi = '/bems/patterningStrategy/add',
+  getStandardizedManagemenDetailApi = '/bems/patterningStrategy/getDetailById',
+  editStandardizedManagemenApi = '/bems/patterningStrategy/edit',
+  deleteStandardizedManagemenApi = '/bems/patterningStrategy/delete',
+  enableStandardizedManagemenApi = '/bems/patterningStrategy/startStrategy',
+  disableStandardizedManagemenApi = '/bems/patterningStrategy/stopStrategy',
+  executeStandardizedManagemenApi = '/bems/patterningStrategy/executionNow', 
+  getControlRecordsListApi = '/bems/strategyExecuteRecord/listPage',
+  getControlRecordsDetailApi = '/bems/pointExecuteRecord/getByStrategyExecuteId',
 }
 
 /**
@@ -75,3 +85,59 @@ export const enableLinkageControlApi = (params) => defHttp.post({ url: Api.enabl
  * @param params
  */
 export const disableLinkageControlApi = (params) => defHttp.post({ url: Api.disableLinkageControlApi, params }, { joinParamsToUrl: true }); 
+
+
+/**
+ * 获取场景控制表格数据
+ */
+export const getStandardizedManagementtApi = (params) => defHttp.get({ url: Api.getStandardizedManagementtApi, params });
+
+/**
+ * 创建模式化管理
+ */
+export const createStandardizedManagementtlApi = (params) => defHttp.post({ url: Api.createStandardizedManagementtlApi, params });
+
+/**
+ * 编辑模式化获取数据详情
+ */
+export const getStandardizedManagemenDetailApi = (params) => defHttp.get({ url: Api.getStandardizedManagemenDetailApi, params }, { joinParamsToUrl: true });
+
+/**
+ * 编辑模式化
+ */
+export const editStandardizedManagemenApi = (params) => defHttp.post({ url: Api.editStandardizedManagemenApi, params }); 
+
+/**
+ * 删除模式化
+ * @param params
+ */
+export const deleteStandardizedManagemenApi = (params) => defHttp.delete({ url: Api.deleteStandardizedManagemenApi, params }, { joinParamsToUrl: true }); 
+
+/**
+ * 启用模式化
+ * @param params
+ */
+export const enableStandardizedManagemenApi = (params) => defHttp.post({ url: Api.enableStandardizedManagemenApi, params }, { joinParamsToUrl: true }); 
+
+/**
+ * 禁用模式化
+ * @param params
+ */
+export const disableStandardizedManagemenApi = (params) => defHttp.post({ url: Api.disableStandardizedManagemenApi, params }, { joinParamsToUrl: true }); 
+
+
+/**
+ * 禁用模式化
+ * @param params
+ */
+export const executeStandardizedManagemenApi = (params) => defHttp.post({ url: Api.executeStandardizedManagemenApi, params }, { joinParamsToUrl: true });
+
+/**
+ * 获取控制记录数据
+ */
+export const getControlRecordsListApi = (params) => defHttp.get({ url: Api.getControlRecordsListApi, params }); 
+
+/**
+ * 获取控制记录详情数据
+ */
+export const getControlRecordsDetailApi = (params) => defHttp.get({ url: Api.getControlRecordsDetailApi, params }); 

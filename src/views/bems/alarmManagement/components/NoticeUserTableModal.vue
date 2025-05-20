@@ -1,23 +1,13 @@
 <template>
   <div class="device-box-modal">
-    <a-modal v-model:open="open" title="设备绑定" @ok="handleOk" @cancel="closeModal" width="1000px">
+    <a-modal v-model:open="open" title="通知对象选择" @ok="handleOk" @cancel="closeModal" width="1000px">
       <div class="form-box">
-        <a-form :model="formState" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }" autocomplete="off"
+        <a-form :model="formState" :label-col="{ span: 8 }" :wrapper-col="{ span: 16 }" autocomplete="off"
           @finish="onFinish" @finishFailed="onFinishFailed" layout="horizontal">
           <a-row :gutter="8">
             <a-col :span="6">
-              <a-form-item label="名称" name="deviceName">
-                <a-input v-model:value="formState.deviceName" />
-              </a-form-item>
-            </a-col>
-            <a-col :span="6">
-              <a-form-item label="位置" name="spaceId">
-                <a-cascader v-model:value="formState.spaceId" :options="spaceOptions" />
-              </a-form-item>
-            </a-col>
-            <a-col :span="6">
-              <a-form-item label="专业" name="categoryId">
-                <a-cascader v-model:value="formState.categoryId" :options="categoryOptions" />
+              <a-form-item label="用户名称" name="userName">
+                <a-input v-model:value="formState.userName" />
               </a-form-item>
             </a-col>
             <a-col :span="6">
@@ -34,15 +24,9 @@
       </div>
       <div class="table-box">
         <a-table class="custom-hover-table" :dataSource="dataSource" :columns="columns" :pagination="pagination"
-          size="middle" bordered :customRow="rowClick">
+          size="middle" bordered :row-selection="{ selectedRowKeys: state.selectedRowKeys, onChange: onSelectChange }">
           <template #index="{ text, record, index }">
             {{ index + 1 }}
-          </template>
-          <template #spaceId="{ text, record, index }">
-            {{ findTreeNodeTitle(spaceTreeData, record.spaceId) }}
-          </template>
-          <template #categoryId="{ text, record, index }">
-            {{ findTreeNodeTitle(categoryTreeData, record.categoryId) }}
           </template>
         </a-table>
       </div>
@@ -52,10 +36,10 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue';
-import { selectDevice, spaceTree, categoryTree } from '../Standardized.api'
+import { userList, spaceTree, categoryTree } from '../Standardized.api'
 
 const props = defineProps({
-  setDeviceName: {
+  setNoticeUser: {
     type: Function,
     default: () => {}
   }
@@ -64,15 +48,12 @@ const props = defineProps({
 const open = ref<boolean>(false);
 
 interface FormState {
-  deviceName: string;
-  spaceId: Array<String>; 
-  categoryId: Array<String>; 
+  userName: string;
+ 
 }
 
 const formState = reactive<FormState>({
-  deviceName: '',
-  spaceId: [],
-  categoryId: []
+  userName: '',
 });
 
 const columns = [
@@ -83,21 +64,20 @@ const columns = [
     slots: { customRender: 'index' }
   },
   {
-    title: '设备名称',
-    dataIndex: 'deviceName',
-    key: 'deviceName',
+    title: '用户账号',
+    dataIndex: 'username',
+    key: 'username',
   },
   {
-    title: '设备专业',
-    dataIndex: 'categoryId',
-    key: 'categoryId',
-    slots: { customRender: 'categoryId' }
+    title: '用户姓名',
+    dataIndex: 'realname',
+    key: 'realname',
   },
   {
-    title: '设备位置',
-    dataIndex: 'spaceId',
-    key: 'spaceId',
-    slots: { customRender: 'spaceId' }
+    title: '状态',
+    dataIndex: 'status_dictText',
+    key: 'status_dictText',
+    width: 80,
   },
 ]
 
@@ -124,18 +104,28 @@ const showModal = async () => {
   open.value = true
 }
 
+type Key = string | number;
+const state = reactive<{
+  selectedRowKeys: Key[];
+  loading: boolean;
+}>({
+  selectedRowKeys: [], 
+  loading: false,
+});
+
+const onSelectChange = (selectedRowKeys: Key[]) => {
+  state.selectedRowKeys = selectedRowKeys;
+};
+
 const handleOk = (e: MouseEvent) => {
   console.log(e);
-  formState.deviceName = ''
-  formState.spaceId = []
-  formState.categoryId = []
+  props.setNoticeUser(state.selectedRowKeys)
+  formState.userName = ''
   open.value = false;
 };
 
 const closeModal = () => {
-  formState.deviceName = ''
-  formState.spaceId = []
-  formState.categoryId = []
+  formState.userName = ''
   open.value = false;
 }
 
@@ -145,13 +135,14 @@ const loadData = async () => {
     const params = {
       pageNo: pagination.pageNo,
       pageSize: 9999999,
-      deviceName: formState.deviceName ? '*' + formState.deviceName + '*' : undefined,
-      spaceId: formState.spaceId ? formState.spaceId.join(',') : undefined,
-      categoryId: formState.categoryId ? formState.categoryId.join(',') : undefined,
+      userName: formState.userName ? '*' + formState.userName + '*' : undefined,
     };
     console.log('request params:', params); // 调试日志
-    const res = await selectDevice(params);
+    const res = await userList(params);
     dataSource.value = res.records;
+    dataSource.value.forEach(item => {
+      item.key = item.id
+    })
     pagination.total = res.total;
   } catch (error) {
     console.error('加载数据失败:', error);
@@ -192,38 +183,6 @@ const transformToCascaderFormat = (treeData) => {
     return cascaderItem
   })
 }
-
-// 查找树节点的标题
-const findTreeNodeTitle = (treeData: any[], key: string | number): string => {
-  if (!treeData || !Array.isArray(treeData)) {
-    return '';
-  }
-
-  const find = (nodes: any[]): string => {
-    for (const node of nodes) {
-      if (String(node.key) === String(key)) {
-        return node.value;
-      }
-      if (node.children && Array.isArray(node.children)) {
-        const title = find(node.children);
-        if (title) return title;
-      }
-    }
-    return '';
-  };
-  return find(treeData);
-};
-
-const rowClick = (record) => {
-  return {
-    // 双击事件
-    ondblclick: (event) => {
-      console.log('双击行:', record);
-      props.setDeviceName(1, record)
-      // 在这里处理双击逻辑
-    },
-  };
-};
 
 const onFinish = (values: any) => {
   console.log('Success:', values);
