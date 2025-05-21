@@ -113,12 +113,11 @@ const handleOk = (e: MouseEvent) => {
         props.reload()
       }
       formRef.value.resetFields();
+      open.value = false;
     })
     .catch(error => {
       console.log('error', error);
     });
-  
-  open.value = false;
 };
 
 const closeModal = () => {
