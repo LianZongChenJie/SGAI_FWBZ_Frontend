@@ -3,7 +3,7 @@ import { useMessage } from '/@/hooks/web/useMessage';
 
 const { createConfirm } = useMessage();
 enum Api {
-  categoryTree = '/bems/equipmentCategory/getTree',
+  categoryTree = '/bems/equipmentCategory/measuring/getTree',
   spaceTree = '/bems/space/getTree',
   unitList = '/bems/unitManagement/findAll',
   analyticFormula = '/bems/meteringPoint/analyticFormula',

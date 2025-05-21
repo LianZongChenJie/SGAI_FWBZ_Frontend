@@ -19,17 +19,15 @@ enum Api {
   enableAlarmCategoryApi = '/bems/alarm/category/startCategory',
   disableAlarmCategoryApi = '/bems/alarm/category/stopCategory',
 
-  addAlarmRulesApi = '/bems/alarm/rule/add', 
-  editAlarmRulesApi = '/bems/alarm/rule/edit',  
-  deleteAlarmRulesApi = '/bems/alarm/rule/delete',  
+  addAlarmRulesApi = '/bems/alarm/rule/add',
+  editAlarmRulesApi = '/bems/alarm/rule/edit',
+  deleteAlarmRulesApi = '/bems/alarm/rule/delete',
   getAlarmRulesListApi = '/bems/alarm/rule/listPage',
   enableAlarmRuleslApi = '/bems/alarm/rule/startRule',
-  disableAlarmRuleslApi = '/bems/alarm/rule/stopRule', 
-  getAlarmRulesDetailApi = '/bems/alarm/rule/getDetailById', 
+  disableAlarmRuleslApi = '/bems/alarm/rule/stopRule',
+  getAlarmRulesDetailApi = '/bems/alarm/rule/getDetailById',
   userList = '/sys/user/list',
-  getPontByDeviceIdApi = '/bems/deviceAttribute/getByDeviceId', 
-
- 
+  getPontByDeviceIdApi = '/bems/deviceAttribute/getByDeviceId',
 
   getAlarmRecordsListApi = '/bems/alarm/record/listPage',
   getAlarmRecordsStatisticsApi = '/bems/alarm/record/levelStatistics',
@@ -43,47 +41,45 @@ enum Api {
 /**
  * 获取告警等级数据
  */
-export const getAlarmLevelListApi = () => defHttp.get({ url: Api.getAlarmLevelListApi }); 
+export const getAlarmLevelListApi = () => defHttp.get({ url: Api.getAlarmLevelListApi });
 
 /**
  * 获取告警等级分页数据
  */
-export const getAlarmLevelPageListApi = (params) => defHttp.get({ url: Api.getAlarmLevelPageListApi, params }); 
+export const getAlarmLevelPageListApi = (params) => defHttp.get({ url: Api.getAlarmLevelPageListApi, params });
 
 /**
  * 新增告警级别
  */
-export const addAlarmLevelApi = (params) => defHttp.post({ url: Api.addAlarmLevelApi, params }); 
+export const addAlarmLevelApi = (params) => defHttp.post({ url: Api.addAlarmLevelApi, params });
 
 /**
  * 编辑告警级别
  */
-export const editAlarmLevelApi = (params) => defHttp.post({ url: Api.editAlarmLevelApi, params }, { joinParamsToUrl: true }); 
+export const editAlarmLevelApi = (params) => defHttp.post({ url: Api.editAlarmLevelApi, params }, { joinParamsToUrl: true });
 
 /**
  * 删除告警级别
  * @param params
  */
-export const deleteAlarmLevelApi = (params) => defHttp.delete({ url: Api.deleteAlarmLevelApi, params }, { joinParamsToUrl: true }); 
+export const deleteAlarmLevelApi = (params) => defHttp.delete({ url: Api.deleteAlarmLevelApi, params }, { joinParamsToUrl: true });
 
 /**
  * 启用告警级别
  * @param params
  */
-export const enableAlarmLevelApi = (params) => defHttp.post({ url: Api.enableAlarmLevelApi, params }, { joinParamsToUrl: true }); 
+export const enableAlarmLevelApi = (params) => defHttp.post({ url: Api.enableAlarmLevelApi, params }, { joinParamsToUrl: true });
 
 /**
  * 禁用告警级别
  * @param params
  */
-export const disableAlarmLevelApi = (params) => defHttp.post({ url: Api.disableAlarmLevelApi, params }, { joinParamsToUrl: true }); 
-
-
+export const disableAlarmLevelApi = (params) => defHttp.post({ url: Api.disableAlarmLevelApi, params }, { joinParamsToUrl: true });
 
 /**
  * 获取告警类别数据
  */
-export const getAlarmCategoryListApi = () => defHttp.get({ url: Api.getAlarmCategoryListApi }); 
+export const getAlarmCategoryListApi = () => defHttp.get({ url: Api.getAlarmCategoryListApi });
 
 /**
  * 获取告警等级分页数据
@@ -116,9 +112,7 @@ export const enableAlarmCategoryApi = (params) => defHttp.post({ url: Api.enable
  * 禁用告警级别
  * @param params
  */
-export const disableAlarmCategoryApi = (params) => defHttp.post({ url: Api.disableAlarmCategoryApi, params }, { joinParamsToUrl: true }); 
-
-
+export const disableAlarmCategoryApi = (params) => defHttp.post({ url: Api.disableAlarmCategoryApi, params }, { joinParamsToUrl: true });
 
 /**
  * 新增告警规则
@@ -128,12 +122,12 @@ export const addAlarmRulesApi = (params) => defHttp.post({ url: Api.addAlarmRule
 /**
  * 编辑告警规则
  */
-export const editAlarmRulesApi = (params) => defHttp.post({ url: Api.editAlarmRulesApi, params }); 
+export const editAlarmRulesApi = (params) => defHttp.post({ url: Api.editAlarmRulesApi, params });
 
 /**
  * 获取告警规则表格数据
  */
-export const getAlarmRulesListApi = (params) => defHttp.get({ url: Api.getAlarmRulesListApi, params }); 
+export const getAlarmRulesListApi = (params) => defHttp.get({ url: Api.getAlarmRulesListApi, params });
 
 /**
  * 启用告警规则
@@ -145,18 +139,18 @@ export const enableAlarmRuleslApi = (params) => defHttp.post({ url: Api.enableAl
  * 禁用告警规则
  * @param params
  */
-export const disableAlarmRuleslApi = (params) => defHttp.post({ url: Api.disableAlarmRuleslApi, params }, { joinParamsToUrl: true }); 
+export const disableAlarmRuleslApi = (params) => defHttp.post({ url: Api.disableAlarmRuleslApi, params }, { joinParamsToUrl: true });
 
 /**
  * 编辑告警规则获取数据详情
  */
-export const getAlarmRulesDetailApi = (params) => defHttp.get({ url: Api.getAlarmRulesDetailApi, params }, { joinParamsToUrl: true }); 
+export const getAlarmRulesDetailApi = (params) => defHttp.get({ url: Api.getAlarmRulesDetailApi, params }, { joinParamsToUrl: true });
 
 /**
  * 删除告警规则
  * @param params
  */
-export const deleteAlarmRulesApi = (params) => defHttp.delete({ url: Api.deleteAlarmRulesApi, params }, { joinParamsToUrl: true }); 
+export const deleteAlarmRulesApi = (params) => defHttp.delete({ url: Api.deleteAlarmRulesApi, params }, { joinParamsToUrl: true });
 
 /**
  * 列表接口(查询用户，通过租户隔离)
@@ -164,29 +158,26 @@ export const deleteAlarmRulesApi = (params) => defHttp.delete({ url: Api.deleteA
  */
 export const userList = (params) => defHttp.get({ url: Api.userList, params });
 
-
-
-
 /**
  * 分设备下点位数据
  * @param params
  */
-export const getPontByDeviceIdApi = (params) => defHttp.get({ url: Api.getPontByDeviceIdApi, params }, { joinParamsToUrl: true }); 
+export const getPontByDeviceIdApi = (params) => defHttp.get({ url: Api.getPontByDeviceIdApi, params }, { joinParamsToUrl: true });
 
 /**
  * 获取告警记录分页数据
  */
-export const getAlarmRecordsListApi = (params) => defHttp.get({ url: Api.getAlarmRecordsListApi, params }); 
+export const getAlarmRecordsListApi = (params) => defHttp.get({ url: Api.getAlarmRecordsListApi, params });
 
 /**
  * 获取告警记录分页数据
  */
-export const getAlarmRecordsStatisticsApi = (params) => defHttp.get({ url: Api.getAlarmRecordsStatisticsApi, params }); 
+export const getAlarmRecordsStatisticsApi = (params) => defHttp.get({ url: Api.getAlarmRecordsStatisticsApi, params });
 
 /**
  * 消除告警记录
  */
-export const eliminateAlarmRecordsApi = (params) => defHttp.post({ url: Api.eliminateAlarmRecordsApi, params }, { joinParamsToUrl: true }); 
+export const eliminateAlarmRecordsApi = (params) => defHttp.post({ url: Api.eliminateAlarmRecordsApi, params }, { joinParamsToUrl: true });
 
 /**
  * 查询设备

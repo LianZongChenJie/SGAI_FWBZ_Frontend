@@ -4,13 +4,13 @@ import { useMessage } from '/@/hooks/web/useMessage';
 const { createConfirm } = useMessage();
 
 enum Api {
-  list = '/bems/equipmentCategory/rootList',
-  save = '/bems/equipmentCategory/add',
+  list = '/bems/equipmentCategory/measuring/rootList',
+  save = '/bems/equipmentCategory/measuring/add',
   edit = '/bems/equipmentCategory/edit',
   deleteEquipmentCategory = '/bems/equipmentCategory/delete',
   importExcel = '/bems/equipmentCategory/importExcel',
   exportXls = '/bems/equipmentCategory/exportXls',
-  loadTreeData = '/bems/equipmentCategory/loadTreeRoot',
+  loadTreeData = '/bems/equipmentCategory/measuring/loadTreeRoot',
   getChildList = '/bems/equipmentCategory/childList',
   getChildListBatch = '/bems/equipmentCategory/getChildListBatch',
 }

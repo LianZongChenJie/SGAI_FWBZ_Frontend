@@ -10,7 +10,9 @@
     >
       <!--插槽:table标题-->
       <template #tableTitle>
-        <a-button type="primary" v-auth="'bems:equipment_category:add'" @click="handleCreate" preIcon="ant-design:plus-outlined"> 新增</a-button>
+        <a-button type="primary" v-auth="'bems:equipment_category:measuring:add'" @click="handleCreate" preIcon="ant-design:plus-outlined">
+          新增</a-button
+        >
         <!-- <a-button type="primary" v-auth="'bems:equipment_category:exportXls'" preIcon="ant-design:export-outlined" @click="onExportXls">
           导出</a-button
         >
