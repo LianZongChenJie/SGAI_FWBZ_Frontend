@@ -123,7 +123,7 @@
   const searchFormSchema: FormSchema[] = [
     {
       label: '设备名称/设备编号', //显示label
-      field: 'searchParams', //查询字段
+      field: 'deviceName', //查询字段
       component: 'JInput', //渲染的组件
       // slot: 'name', //设置默认值
     },
@@ -176,13 +176,14 @@
   // 加载数据
   const loadData = async () => {
     try {
+      let { getFieldsValue } = getForm();
+      const searchData = getFieldsValue();
       const params = {
         pageNo: pagination.value.pageNo,
         pageSize: 9999999,
-        deviceCode: searchParams.value.deviceName ? '*' + searchParams.value.deviceName + '*' : undefined,
-        deviceName: searchParams.value.deviceName ? '*' + searchParams.value.deviceName + '*' : undefined,
-        categoryId_Multistring: props.categoryKeys ? props.categoryKeys.join(',') : undefined,
-        spaceId_Multistring: props.spaceKeys ? props.spaceKeys.join(',') : undefined,
+        nameOrCode: searchData.deviceName ? searchData.deviceName.split('*')[1] : undefined,
+        categoryIds: props.categoryKeys ? props.categoryKeys.join(',') : undefined,
+        spaceIds: props.spaceKeys ? props.spaceKeys.join(',') : undefined,
       };
       console.log('request params:', params); // 调试日志
       const res = await selectDevice(params);
@@ -227,7 +228,7 @@
   });
 
   // BasicTable绑定注册
-  const [registerTable, { reload }] = tableContext;
+  const [registerTable, { reload, getForm }] = tableContext;
 
   // 监听选中节点变化
   watch(

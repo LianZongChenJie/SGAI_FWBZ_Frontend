@@ -130,9 +130,9 @@ const loadData = async () => {
     const params = {
       pageNo: pagination.pageNo,
       pageSize: 9999999,
-      deviceName: formState.deviceName ? '*' + formState.deviceName + '*' : undefined,
-      spaceId: formState.spaceId ? formState.spaceId.join(',') : undefined,
-      categoryId: formState.categoryId ? formState.categoryId.join(',') : undefined,
+      deviceName: formState.deviceName ? formState.deviceName : undefined,
+      spaceId: formState.spaceId ? formState.spaceId : undefined,
+      categoryId: formState.categoryId ? formState.categoryId : undefined,
     };
     console.log('request params:', params); // 调试日志
     const res = await selectDevice(params);

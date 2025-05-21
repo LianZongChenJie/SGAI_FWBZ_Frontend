@@ -12,12 +12,26 @@
             </a-col>
             <a-col :span="6">
               <a-form-item label="位置" name="spaceId">
-                <a-cascader v-model:value="formState.spaceId" :options="spaceOptions" />
+                <a-tree-select
+                  v-model:value="formState.spaceId"
+                  :tree-data="spaceTreeData"
+                  placeholder="请选择位置"
+                  :fieldNames="treeSelect"
+                  show-search
+                  allowClear
+                />
               </a-form-item>
             </a-col>
             <a-col :span="6">
               <a-form-item label="专业" name="categoryId">
-                <a-cascader v-model:value="formState.categoryId" :options="categoryOptions" />
+                <a-tree-select
+                  v-model:value="formState.categoryId"
+                  :tree-data="categoryTreeData"
+                  placeholder="请选择位置"
+                  :fieldNames="treeSelect"
+                  show-search
+                  allowClear
+                />
               </a-form-item>
             </a-col>
             <a-col :span="6">
@@ -109,14 +123,11 @@ const pagination = reactive({
   total: 10,
 })
 
-let spaceTreeData = reactive([])
-const spaceOptions = computed(() => {
-  return transformToCascaderFormat(spaceTreeData)
-});
-let categoryTreeData = reactive([])
-const categoryOptions = computed(() => {
-  return transformToCascaderFormat(categoryTreeData)
-});
+// 空间位置树数据
+const spaceTreeData = ref([]);
+const treeSelect = { children: 'children', label: 'title', value: 'key', key: 'key' };
+
+const categoryTreeData = ref([]);
 
 // 打开弹框
 const showModal = async () => {
@@ -145,9 +156,9 @@ const loadData = async () => {
     const params = {
       pageNo: pagination.pageNo,
       pageSize: 9999999,
-      deviceName: formState.deviceName ? '*' + formState.deviceName + '*' : undefined,
-      spaceId: formState.spaceId ? formState.spaceId.join(',') : undefined,
-      categoryId: formState.categoryId ? formState.categoryId.join(',') : undefined,
+      deviceName: formState.deviceName ? formState.deviceName : undefined,
+      spaceIds: formState.spaceId ? formState.spaceId : undefined,
+      categoryIds: formState.categoryId ? formState.categoryId : undefined,
     };
     console.log('request params:', params); // 调试日志
     const res = await selectDevice(params);
@@ -162,7 +173,7 @@ const loadData = async () => {
 const getSpaceTree = async () => {
   try {
     const res = await spaceTree({});
-    spaceTreeData = res;
+    spaceTreeData.value = res;
   } catch (error) {
     console.error('获取设备位置失败:', error);
   }
@@ -172,7 +183,7 @@ const getSpaceTree = async () => {
 const getCategoryTree = async () => {
   try {
     const res = await categoryTree({});
-    categoryTreeData = res;
+    categoryTreeData.value = res;
   } catch (error) {
     console.error('获取设备类别失败:', error);
   }

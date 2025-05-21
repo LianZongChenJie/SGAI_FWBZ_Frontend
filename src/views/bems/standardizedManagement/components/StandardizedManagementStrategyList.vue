@@ -116,12 +116,21 @@
                 label="专业"
                 name="professionalId"
               >
-                <a-select
+                <!-- <a-select
                   v-model:value="formState.professionalId"
-                  :disabled="!formState.compositeSpecialtyFlag"
-                  :options="groupOptions"
+                  :disabled="formState.compositeSpecialtyFlag"
+                  :options="categoryOption"
                 >
-                </a-select>
+                </a-select> -->
+                <a-tree-select
+                  v-model:value="formState.professionalId"
+                  :tree-data="categoryOption"
+                  placeholder="请选择专业"
+                  :disabled="formState.compositeSpecialtyFlag"
+                  :fieldNames="treeSelect"
+                  show-search
+                  allowClear
+                />
               </a-form-item>
             </a-col>
             <a-col :span="8">
@@ -287,7 +296,7 @@ import { ref, reactive, toRaw, createVNode, onMounted, nextTick } from 'vue';
 import { DeleteOutlined, PlusOutlined, MinusOutlined, ExclamationCircleOutlined, ProfileOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
 import { Modal } from 'ant-design-vue';
-import { createStandardizedManagementtlApi, getPontByDeviceIdApi, getStandardizedManagemenDetailApi, editStandardizedManagemenApi, spaceTree } from '../Standardized.api';
+import { createStandardizedManagementtlApi, getPontByDeviceIdApi, getStandardizedManagemenDetailApi, editStandardizedManagemenApi, spaceTree, deviceCategoryTree } from '../Standardized.api';
 import DeviceTableModal from './DeviceTableModal.vue';
 import PatternReferenceTableModal from './PatternReferenceTableModal.vue';
 
@@ -313,7 +322,7 @@ const referenceRef = ref();
 const spaceTreeData = ref([]);
 const treeSelect = { children: 'children', label: 'title', value: 'key', key: 'key' };
 
-const groupOptions = ref([]);
+const categoryOption = ref([]);
 
 // 表单数据
 const formState = reactive<any>({
@@ -414,7 +423,6 @@ const addPatterningPoint = () => {
     length &&
     (!formState.patterningPointList[length - 1]?.deviceName ||
       !formState.patterningPointList[length - 1]?.pointId ||
-      !formState.patterningPointList[length - 1]?.operator ||
       !formState.patterningPointList[length - 1]?.conditionValue)
   ) {
     formRef.value
@@ -447,7 +455,7 @@ const deleteRearPoint = (target) => {
     icon: createVNode(ExclamationCircleOutlined),
     content: '删除不可恢复，是否确定删除?',
     onOk() {
-      formState.rearPointList.pop();
+      formState.patterningPointList.pop();
       message.success('删除成功！');
     },
     // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -524,7 +532,11 @@ const resetForm = () => {
 onMounted(async () => {
   nextTick(async () => {
   const spaceRes = await spaceTree();
+  const categoryRes = await deviceCategoryTree({});
+  console.log('deviceCategoryTree-------------->', categoryRes);
+  
   spaceTreeData.value = spaceRes;
+  categoryOption.value = categoryRes;
   if (props.type === 'edit' || props.type === 'check') {
     let res = await getStandardizedManagemenDetailApi({ id: props.editItem.id });
     formState.id = props.editItem.id;

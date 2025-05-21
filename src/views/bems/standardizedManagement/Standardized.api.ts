@@ -8,6 +8,7 @@ enum Api {
   selectDevice = '/bems/device/measuring/list',
   spaceTree = '/bems/space/getTree',
   categoryTree = '/bems/equipmentCategory/measuring/getTree',
+  deviceCategoryTree = '/bems/equipmentCategory/equipment/getTree',
   getPontByDeviceIdApi = '/bems/deviceAttribute/getByDeviceId',
   editLinkageControlApi = '/bems/linkageStrategy/edit',
   getLinkageControlDetailApi = '/bems/linkageStrategy/getDetailById',
@@ -61,6 +62,12 @@ export const spaceTree = () => defHttp.get({ url: Api.spaceTree });
  * @param params
  */
 export const categoryTree = (params) => defHttp.get({ url: Api.categoryTree, params });
+
+/**
+ * 分类树
+ * @param params
+ */
+export const deviceCategoryTree = (params) => defHttp.get({ url: Api.deviceCategoryTree, params }); 
 
 /**
  * 分设备下点位数据

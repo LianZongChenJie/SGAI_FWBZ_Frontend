@@ -221,8 +221,7 @@
       const params = {
         pageNo: pagination.value.pageNo,
         pageSize: 9999999,
-        deviceCode: searchData.deviceName ? '*' + searchData.deviceName + '*' : undefined,
-        deviceName: searchData.deviceName ? '*' + searchData.deviceName + '*' : undefined,
+        nameOrCode: searchData.deviceName ? searchData.deviceName.split('*')[1] : undefined,
         categoryIds: props.categoryKeys ? props.categoryKeys.join(',') : undefined,
         spaceIds: props.spaceKeys ? props.spaceKeys.join(',') : undefined,
         dateTime: searchData.date ? searchData.date : undefined,

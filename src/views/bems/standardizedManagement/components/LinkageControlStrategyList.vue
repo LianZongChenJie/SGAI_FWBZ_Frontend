@@ -375,7 +375,6 @@ const addRearPoint = () => {
     length &&
     (!formState.rearPointList[length - 1]?.deviceName ||
       !formState.rearPointList[length - 1]?.pointId ||
-      !formState.rearPointList[length - 1]?.operator ||
       !formState.rearPointList[length - 1]?.conditionValue)
   ) {
     formRef.value

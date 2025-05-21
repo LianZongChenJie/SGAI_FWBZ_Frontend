@@ -154,8 +154,8 @@
         parentId: parentId.value,
         pageNo: pagination.value.current,
         pageSize: pagination.value.pageSize,
-        pointCode: queryParams.value.keyword ? '*' + queryParams.value.keyword + '*' : undefined,
-        pointName: queryParams.value.keyword ? '*' + queryParams.value.keyword + '*' : undefined,
+        pointCode: queryParams.value.keyword ? queryParams.value.keyword : undefined,
+        pointName: queryParams.value.keyword ? queryParams.value.keyword : undefined,
         ...queryParams.value,
       });
       dataSource.value = res.records;
