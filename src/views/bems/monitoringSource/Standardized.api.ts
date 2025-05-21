@@ -1,0 +1,51 @@
+import { defHttp } from '/@/utils/http/axios';
+import { useMessage } from '/@/hooks/web/useMessage';
+
+const { createConfirm } = useMessage();
+enum Api {
+  getAlarmLevelListApi = '/bems/alarm/level/list',
+  getAlarmLevelPageListApi = '/bems/alarm/level/listPage',
+  addAlarmLevelApi = '/bems/alarm/level/add',
+  editAlarmLevelApi = '/bems/alarm/level/edit',
+  deleteAlarmLevelApi = '/bems/alarm/level/delete',
+  enableAlarmLevelApi = '/bems/alarm/level/startLevel',
+  disableAlarmLevelApi = '/bems/alarm/level/stopLevel',
+}
+
+/**
+ * 获取告警等级数据
+ */
+export const getAlarmLevelListApi = () => defHttp.get({ url: Api.getAlarmLevelListApi }); 
+
+/**
+ * 获取告警等级分页数据
+ */
+export const getAlarmLevelPageListApi = (params) => defHttp.get({ url: Api.getAlarmLevelPageListApi, params }); 
+
+/**
+ * 新增告警级别
+ */
+export const addAlarmLevelApi = (params) => defHttp.post({ url: Api.addAlarmLevelApi, params }); 
+
+/**
+ * 编辑告警级别
+ */
+export const editAlarmLevelApi = (params) => defHttp.post({ url: Api.editAlarmLevelApi, params }, { joinParamsToUrl: true }); 
+
+/**
+ * 删除告警级别
+ * @param params
+ */
+export const deleteAlarmLevelApi = (params) => defHttp.delete({ url: Api.deleteAlarmLevelApi, params }, { joinParamsToUrl: true }); 
+
+/**
+ * 启用告警级别
+ * @param params
+ */
+export const enableAlarmLevelApi = (params) => defHttp.post({ url: Api.enableAlarmLevelApi, params }, { joinParamsToUrl: true }); 
+
+/**
+ * 禁用告警级别
+ * @param params
+ */
+export const disableAlarmLevelApi = (params) => defHttp.post({ url: Api.disableAlarmLevelApi, params }, { joinParamsToUrl: true }); 
