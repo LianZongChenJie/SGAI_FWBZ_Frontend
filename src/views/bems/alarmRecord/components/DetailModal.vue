@@ -10,8 +10,8 @@
           <a-descriptions-item label="报警位置">{{alarmDetail.spaceName}}</a-descriptions-item>
           <a-descriptions-item label="报警类型">{{alarmDetail.alarmCategoryName}}</a-descriptions-item>
           <a-descriptions-item label="报警级别">{{alarmDetail.alarmLevelName}}</a-descriptions-item>
-          <a-descriptions-item label="报警阈值">{{alarmDetail.deviceName}}</a-descriptions-item>
-          <a-descriptions-item label="报警值">{{alarmDetail.deviceName}}</a-descriptions-item>
+          <a-descriptions-item label="报警阈值">{{alarmDetail.conditionValue}}</a-descriptions-item>
+          <a-descriptions-item label="报警值">{{alarmDetail.value}}</a-descriptions-item>
         </a-descriptions>
       </div>
     </a-modal>
