@@ -1,0 +1,391 @@
+{
+  "modified": "Wed May 28 2025 20:40:29 GMT+0800 (中国标准时间)",
+  "dataBindings": [],
+  "gridThickColor": "rgb(255,0,0)",
+  "gridAngle": 2.0944,
+  "gridRotation": 0.5236,
+  "width": 100,
+  "height": 100,
+  "comps": [
+    {
+      "type": "border",
+      "color": "rgb(255,0,0)",
+      "width": 0.5,
+      "rect": [
+        31.63842,
+        16.92655,
+        36.31555,
+        9.96611
+      ]
+    },
+    {
+      "type": "border",
+      "color": "rgb(255,0,0)",
+      "width": 0.5,
+      "rect": [
+        31.63842,
+        26.89266,
+        36.31555,
+        63.09889
+      ]
+    },
+    {
+      "type": "text",
+      "text": "#变压器",
+      "color": "rgb(245,0,0)",
+      "font": "6px arial, sans-serif",
+      "rect": [
+        37.4705,
+        20.65236,
+        23.59165,
+        4.25462
+      ]
+    },
+    {
+      "type": "text",
+      "text": "P:",
+      "color": "rgb(252,0,0)",
+      "font": {
+        "func": "attr@pValue",
+        "value": "6px arial, sans-serif"
+      },
+      "rect": [
+        31.63842,
+        30.13183,
+        6.24159,
+        4.30455
+      ]
+    },
+    {
+      "type": "storage/components/pValueTest.json",
+      "displayName": "pValueTest",
+      "rect": [
+        37.88001,
+        28.83569,
+        26.42938,
+        6.89683
+      ],
+      "value": {
+        "func": "attr@PValue"
+      },
+      "valueFont": "6px arial"
+    },
+    {
+      "type": "text",
+      "text": "Ua:",
+      "color": "rgb(252,0,0)",
+      "font": {
+        "func": "attr@pValue",
+        "value": "6px arial, sans-serif"
+      },
+      "rect": [
+        31.63842,
+        35.73252,
+        6.24159,
+        4.30455
+      ]
+    },
+    {
+      "type": "text",
+      "text": "Uc:",
+      "color": "rgb(252,0,0)",
+      "font": {
+        "func": "attr@pValue",
+        "value": "6px arial, sans-serif"
+      },
+      "rect": [
+        31.63842,
+        46.45095,
+        6.24159,
+        4.30455
+      ]
+    },
+    {
+      "type": "text",
+      "text": "Ub:",
+      "color": "rgb(252,0,0)",
+      "font": {
+        "func": "attr@pValue",
+        "value": "6px arial, sans-serif"
+      },
+      "rect": [
+        31.63842,
+        41.01639,
+        6.24159,
+        4.30455
+      ]
+    },
+    {
+      "type": "text",
+      "text": "Ia:",
+      "color": "rgb(252,0,0)",
+      "font": {
+        "func": "attr@pValue",
+        "value": "6px arial, sans-serif"
+      },
+      "rect": [
+        31.63842,
+        51.77464,
+        6.24159,
+        4.30455
+      ]
+    },
+    {
+      "type": "text",
+      "text": "Ib:",
+      "color": "rgb(252,0,0)",
+      "font": {
+        "func": "attr@pValue",
+        "value": "6px arial, sans-serif"
+      },
+      "rect": [
+        31.63842,
+        56.96524,
+        6.24159,
+        4.30455
+      ]
+    },
+    {
+      "type": "text",
+      "text": "Ic:",
+      "color": "rgb(252,0,0)",
+      "font": {
+        "func": "attr@pValue",
+        "value": "6px arial, sans-serif"
+      },
+      "rect": [
+        31.63842,
+        62.21102,
+        6.24159,
+        4.30455
+      ]
+    },
+    {
+      "type": "text",
+      "text": "PF:",
+      "color": "rgb(252,0,0)",
+      "font": {
+        "func": "attr@pValue",
+        "value": "6px arial, sans-serif"
+      },
+      "rect": [
+        31.63842,
+        67.54152,
+        6.24159,
+        4.30455
+      ]
+    },
+    {
+      "type": "text",
+      "text": "F:",
+      "color": "rgb(252,0,0)",
+      "font": {
+        "func": "attr@pValue",
+        "value": "6px arial, sans-serif"
+      },
+      "rect": [
+        31.63842,
+        72.72406,
+        6.24159,
+        4.30455
+      ]
+    },
+    {
+      "type": "text",
+      "text": "EP:",
+      "color": "rgb(252,0,0)",
+      "font": {
+        "func": "attr@pValue",
+        "value": "6px arial, sans-serif"
+      },
+      "rect": [
+        31.63842,
+        78.01457,
+        6.24159,
+        4.30455
+      ]
+    },
+    {
+      "type": "text",
+      "text": "LF:",
+      "color": "rgb(252,0,0)",
+      "font": {
+        "func": "attr@pValue",
+        "value": "6px arial, sans-serif"
+      },
+      "rect": [
+        31.63842,
+        83.19711,
+        6.24159,
+        4.30455
+      ]
+    },
+    {
+      "type": "storage/components/pValueTest.json",
+      "displayName": "pValueTest",
+      "rect": [
+        42.01538,
+        34.43638,
+        26.42938,
+        6.89683
+      ],
+      "value": {
+        "func": "attr@UaValue"
+      },
+      "valueFont": "6px arial"
+    },
+    {
+      "type": "storage/components/pValueTest.json",
+      "displayName": "pValueTest",
+      "rect": [
+        42.01538,
+        40.03707,
+        26.42938,
+        6.89683
+      ],
+      "value": {
+        "func": "attr@UbValue"
+      },
+      "valueFont": "6px arial"
+    },
+    {
+      "type": "storage/components/pValueTest.json",
+      "displayName": "pValueTest",
+      "rect": [
+        42.01538,
+        45.32094,
+        26.42938,
+        6.89683
+      ],
+      "value": {
+        "func": "attr@UcValue"
+      },
+      "valueFont": "6px arial"
+    },
+    {
+      "type": "storage/components/pValueTest.json",
+      "displayName": "pValueTest",
+      "rect": [
+        39.74802,
+        50.7555,
+        26.42938,
+        6.89683
+      ],
+      "value": {
+        "func": "attr@IaValue"
+      },
+      "valueFont": "6px arial"
+    },
+    {
+      "type": "storage/components/pValueTest.json",
+      "displayName": "pValueTest",
+      "rect": [
+        39.74802,
+        55.6691,
+        26.42938,
+        6.89683
+      ],
+      "value": {
+        "func": "attr@IbValue"
+      },
+      "valueFont": "6px arial"
+    },
+    {
+      "type": "storage/components/pValueTest.json",
+      "displayName": "pValueTest",
+      "rect": [
+        39.74802,
+        60.64469,
+        26.42938,
+        6.89683
+      ],
+      "value": {
+        "func": "attr@IcValue"
+      },
+      "valueFont": "6px arial"
+    },
+    {
+      "type": "storage/components/pValueTest.json",
+      "displayName": "pValueTest",
+      "rect": [
+        42.01538,
+        65.82723,
+        26.42938,
+        6.89683
+      ],
+      "value": {
+        "func": "attr@PFValue"
+      },
+      "valueFont": "6px arial"
+    },
+    {
+      "type": "storage/components/pValueTest.json",
+      "displayName": "pValueTest",
+      "rect": [
+        38.58071,
+        71.11774,
+        26.42938,
+        6.89683
+      ],
+      "value": {
+        "func": "attr@FValue"
+      },
+      "valueFont": "6px arial"
+    },
+    {
+      "type": "storage/components/pValueTest.json",
+      "displayName": "pValueTest",
+      "rect": [
+        42.66976,
+        76.71843,
+        26.42938,
+        6.89683
+      ],
+      "value": {
+        "func": "attr@EPValue"
+      },
+      "valueFont": "6px arial"
+    },
+    {
+      "type": "storage/components/pValueTest.json",
+      "displayName": "pValueTest",
+      "rect": [
+        41.52459,
+        81.90097,
+        26.42938,
+        6.89683
+      ],
+      "value": {
+        "func": "attr@LFValue"
+      },
+      "valueFont": "6px arial"
+    },
+    {
+      "type": "storage/components/pValueTest.json",
+      "displayName": "pValueTest",
+      "rect": [
+        41.52459,
+        81.90097,
+        26.42938,
+        6.89683
+      ],
+      "value": {
+        "func": "attr@LFValue"
+      },
+      "valueFont": "6px arial"
+    },
+    {
+      "type": "storage/components/byqCode.json",
+      "displayName": "byqCode",
+      "rect": [
+        33.03555,
+        19.58747,
+        5.54516,
+        6.3844
+      ],
+      "value": {
+        "func": "attr@byqCode"
+      }
+    }
+  ]
+}

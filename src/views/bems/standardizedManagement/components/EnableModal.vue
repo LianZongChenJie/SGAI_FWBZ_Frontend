@@ -18,7 +18,7 @@
         name="date"
         :rules="[{ required: true, message: '请选择周期范围' }]"
       >
-        <a-range-picker v-model:value="formState.date" style="width: 100%;" />
+        <a-range-picker v-model:value="formState.date" style="width: 100%;" format="YYYY-MM-DD" value-format="YYYY-MM-DD" />
       </a-form-item>
       <a-form-item
         label="执行日期"
@@ -44,8 +44,9 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
-import { enableStandardizedManagemenApi } from '../Standardized.api'
+import { enableStandardizedManagemenApi, getPatterningExecutionTimeApi } from '../Standardized.api'
 import { message } from 'ant-design-vue';
+// import moment from 'moment';
 
 const props = defineProps({
   reload: {
@@ -57,15 +58,17 @@ const props = defineProps({
 const open = ref(false);
 const formRef = ref()
 interface FormState {
-  date: string;
+  date: Array<any>;
   weeks: Array<string>;
   time: string;
+  id: string;
 }
 
 const formState = reactive<FormState>({
-  date: '',
+  date: [],
   weeks: [],
   time: '',
+  id: '',
 });
 
 const targetId = ref()
@@ -82,7 +85,14 @@ const targetId = ref()
   ];
 
 // 打开弹框
-const openModal = (id: string) => {
+const openModal = async (id: string) => {
+  let res = await getPatterningExecutionTimeApi({patterningId: id})
+  if(res.id) {
+    formState.id = res.id
+    formState.date = [res.beginDate, res.endDate]
+    formState.time = res.beginTime
+    formState.weeks = res.enabledWeek.split(',')
+  }
   targetId.value = id
   open.value = true;
 };
@@ -94,6 +104,7 @@ const handleOk = (e: MouseEvent) => {
     .then(async () => {
       const params = {
         patterningId: targetId.value,
+        id: formState.id,
         beginDate: convertTime(new Date(formState.date[0])),
         endDate: convertTime(new Date(formState.date[1])),
         enabledWeek: formState.weeks.join(','),
@@ -111,6 +122,7 @@ const handleOk = (e: MouseEvent) => {
 
 // 取消
 const closeModal = () => {
+  formRef.value.resetFields();
   open.value = false;
 }
 

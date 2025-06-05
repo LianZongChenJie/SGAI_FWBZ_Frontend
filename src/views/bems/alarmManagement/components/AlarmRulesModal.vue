@@ -246,7 +246,7 @@
                     <MinusOutlined style="font-size: 20px;" />
                   </a>
                   &emsp;
-                  <a>
+                  <a @click="addRearPoint">
                     <PlusOutlined style="font-size: 20px;" />
                   </a>
                 </div>

@@ -227,29 +227,29 @@ const formSchema: any = [
       },
     },
   },
-  {
-    label: '倍率',
-    field: 'magnification',
-    component: 'InputNumber',
-    required: true,
-    componentProps: {
-      min: 0,
-      precision: 2,
-    },
-  },
-  {
-    label: '自动算法',
-    field: 'automaticAlgorithm',
-    component: 'Select',
-    required: true,
-    componentProps: {
-      options: [
-        { label: '开', value: '1' },
-        { label: '关', value: '0' },
-        // 这里需要根据实际数据补充选项
-      ],
-    },
-  },
+  // {
+  //   label: '倍率',
+  //   field: 'magnification',
+  //   component: 'InputNumber',
+  //   required: true,
+  //   componentProps: {
+  //     min: 0,
+  //     precision: 2,
+  //   },
+  // },
+  // {
+  //   label: '自动算法',
+  //   field: 'automaticAlgorithm',
+  //   component: 'Select',
+  //   required: true,
+  //   componentProps: {
+  //     options: [
+  //       { label: '开', value: '1' },
+  //       { label: '关', value: '0' },
+  //       // 这里需要根据实际数据补充选项
+  //     ],
+  //   },
+  // },
   {
     label: '设备模型',
     field: 'modelId',

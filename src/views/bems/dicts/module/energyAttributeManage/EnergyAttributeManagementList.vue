@@ -25,7 +25,21 @@
       </template>
        <!--操作栏-->
       <template #action="{ record }">
-        <TableAction :actions="getTableAction(record)" :dropDownActions="getDropDownAction(record)"/>
+        <!-- <TableAction :actions="getTableAction(record)" :dropDownActions="getDropDownAction(record)"/> -->
+        <div>
+          <a @click="handleEdit(record)">编辑</a>
+          &nbsp;
+          <a @click="handleDetail(record)">详情</a>
+          &nbsp;
+          <a-popconfirm
+            title="确认删除该条数据？"
+            ok-text="确定"
+            cancel-text="取消"
+            @confirm="handleDelete(record)"
+          >
+            <a style="color: red;">删除</a>
+          </a-popconfirm>
+        </div>
       </template>
       <!--字段回显插槽-->
       <template v-slot:bodyCell="{ column, record, index, text }">
@@ -69,8 +83,9 @@
               ],
             },
            actionColumn: {
-               width: 120,
-               fixed:'right'
+              title: '操作',
+              width: 160,
+              fixed:'right'
             },
             beforeFetch: (params) => {
               return Object.assign(params, queryParam);

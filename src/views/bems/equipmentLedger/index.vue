@@ -1,6 +1,6 @@
 <template>
   <div class="device_index">
-    <a-tabs v-model:activeKey="activeKey" centered class="full-height-tabs">
+    <a-tabs v-model:activeKey="activeKey" type="card" class="full-height-tabs">
       <a-tab-pane key="1" tab="设备类别">
         <DeviceCategory :tree-data="categoryTreeData" :space-tree-data="spaceTreeData" />
       </a-tab-pane>

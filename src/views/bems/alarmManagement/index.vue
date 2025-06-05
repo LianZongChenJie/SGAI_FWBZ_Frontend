@@ -4,9 +4,9 @@
       <a-tab-pane key="1" tab="报警规则">
         <alarm-rules />
       </a-tab-pane>
-      <a-tab-pane key="2" tab="报警记录">
+      <!-- <a-tab-pane key="2" tab="报警记录">
         <alarm-records />
-      </a-tab-pane>
+      </a-tab-pane> -->
       <a-tab-pane key="3" tab="报警级别">
         <alarm-leve />
       </a-tab-pane>

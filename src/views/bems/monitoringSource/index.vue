@@ -1,45 +1,27 @@
 <template>
-  <div
-    class="standardized-management-main-box"
-    id="testBox"
-  >
-    监控源
-  </div>
+  <div class="monitoring-source-main-box">
+    <a-tabs v-model:activeKey="activeKey" centered class="full-height-tabs" :destroyInactiveTabPane="true">
+      <a-tab-pane key="1" tab="环境监控">
+        模式化
+      </a-tab-pane>
+      <a-tab-pane key="2" tab="变配电监控">
+        <substation-and-distribution />
+      </a-tab-pane>
+      <a-tab-pane key="3" tab="照明监控">
+        模式化
+      </a-tab-pane>
+    </a-tabs>
+  </div>  
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import SubstationAndDistribution from './components/SubstationAndDistribution.vue'
+import { ref } from 'vue';
 
-const gv = ref();
-
-const dm = ref();
-
-onMounted(() => {
-  const ht = (window as any).ht;
-  gv.value = new ht.graph.GraphView();
-  dm.value = gv.value.getDataModel();
-  gv.value.addToDOM(document.getElementById('testBox'));
-  console.log('gv.value------------->', gv.value);
-  
-  initEvent();
-});
-
-const initEvent = () => {
-  gv.value.isMovable =  () => false; // 禁止移动
-  gv.value.getSelectWidth =  () => 0; // 禁止选中
-  gv.value.deserialize('displays/tukuzujian/baojingxitong.json', function (json, dm, gv, data) {
-    gv.fitContent(); // 适配内容
-  });
-};
+const activeKey = ref('2');
 </script>
 
 <style scoped lang="less">
-.standardized-management-main-box {
-  margin: 16px;
-  height: 500px;
-  border: 1px solid red;
-  .full-height-tabs {
-    background-color: #fff !important;
-  }
+.monitoring-source-main-box{
 }
 </style>

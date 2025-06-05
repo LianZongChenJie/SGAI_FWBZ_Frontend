@@ -1,6 +1,12 @@
 <template>
 
   <div class="linkage-ontro-sStrategy-list-box">
+    <div class="step-box">
+      <a-steps
+        :current="current"
+        :items="stpesItems"
+      ></a-steps>
+    </div>
     <div class="info-title">
       联动控制策略列表
     </div>
@@ -27,7 +33,10 @@
                 name="strategyCode"
                 :rules="[{ required: true, message: '请输入策略编号' }]"
               >
-                <a-input v-model:value="formState.strategyCode" />
+                <a-input
+                  v-model:value="formState.strategyCode"
+                  :disabled="current !== 0"
+                />
               </a-form-item>
             </a-col>
             <a-col :span="8">
@@ -36,7 +45,10 @@
                 name="strategyName"
                 :rules="[{ required: true, message: '请输入策略名称' }]"
               >
-                <a-input v-model:value="formState.strategyName" />
+                <a-input
+                  v-model:value="formState.strategyName"
+                  :disabled="current !== 0"
+                />
               </a-form-item>
             </a-col>
             <a-col :span="8">
@@ -45,22 +57,32 @@
                 name="strategyTarget"
                 :rules="[{ required: true, message: '请输入策略目标' }]"
               >
-                <a-input v-model:value="formState.strategyTarget" />
+                <a-input
+                  v-model:value="formState.strategyTarget"
+                  :disabled="current !== 0"
+                />
               </a-form-item>
             </a-col>
           </a-row>
         </div>
-        <div class="list-title">
+        <div
+          class="list-title"
+          v-show="current > 0"
+        >
           <span>前置设备设置</span><a
             @click="addFrontPoint"
-            v-if="props.type !== 'check'"
+            v-if="props.type !== 'check' && current === 1"
           >添加</a>
         </div>
-        <div class="list-form">
+        <div
+          class="list-form"
+          v-show="current > 0"
+        >
           <a-row
             :gutter="16"
             v-for="(item, index) in formState.frontPointList"
             :key="index"
+            style="margin-bottom: 10px;"
           >
             <a-col :span="5">
               <a-form-item
@@ -71,6 +93,7 @@
                 <a-input
                   v-model:value="item.deviceName"
                   @click="selectDevice(0, index)"
+                  :disabled="current !== 1"
                 />
               </a-form-item>
             </a-col>
@@ -94,6 +117,7 @@
                 <a-select
                   v-model:value="item.pointId"
                   :options="item.devicePointData"
+                  :disabled="current !== 1"
                 >
                 </a-select>
               </a-form-item>
@@ -111,6 +135,7 @@
                         v-model:value="item.operator"
                         style="width: 30%"
                         :options="operatorList"
+                        :disabled="current !== 1"
                       >
                       </a-select>
                     </a-form-item>
@@ -124,19 +149,20 @@
                         style="width: 70%"
                         placeholder="数值"
                         type="number"
+                        :disabled="current !== 1"
                       />
                     </a-form-item>
                   </a-input-group>
                   &emsp;
                   <div
                     class="icon-box"
-                    v-if="props.type !== 'check'"
+                    v-if="props.type !== 'check' && current === 1"
                   >
-                    <a @click="deleteFrontPoint">
+                    <a @click="deleteFrontPoint(index)">
                       <MinusOutlined style="font-size: 20px;" />
                     </a>
                     &emsp;
-                    <a @click="addFrontPoint">
+                    <a @click="addFrontPoint" v-show="index === (formState.frontPointList.length - 1)">
                       <PlusOutlined style="font-size: 20px;" />
                     </a>
                   </div>
@@ -146,17 +172,24 @@
 
           </a-row>
         </div>
-        <div class="list-title">
+        <div
+          class="list-title"
+          v-show="current > 1"
+        >
           <span>联动设备控制</span><a
             @click="addRearPoint"
             v-if="props.type !== 'check'"
           >添加</a>
         </div>
-        <div class="list-form">
+        <div
+          class="list-form"
+          v-show="current > 1"
+        >
           <a-row
             :gutter="16"
             v-for="(item,index) in formState.rearPointList"
             :key="index"
+            style="margin-bottom: 10px;"
           >
             <a-col :span="5">
               <a-form-item
@@ -167,6 +200,7 @@
                 <a-input
                   v-model:value="item.deviceName"
                   @click="selectDevice(1, index)"
+                  :disabled="current !== 2"
                 />
               </a-form-item>
             </a-col>
@@ -190,6 +224,7 @@
                 <a-select
                   v-model:value="item.pointId"
                   :options="item.devicePointData"
+                  :disabled="current !== 2"
                 >
                 </a-select>
               </a-form-item>
@@ -214,18 +249,19 @@
                       style="width: 70%"
                       placeholder="数值"
                       type="number"
+                      :disabled="current !== 2"
                     />
                   </a-input-group>
                   &emsp;
                   <div
                     class="icon-box"
-                    v-if="props.type !== 'check'"
+                    v-if="props.type !== 'check' && current === 2"
                   >
-                    <a @click="deleteRearPoint">
+                    <a @click="deleteRearPoint(index)">
                       <MinusOutlined style="font-size: 20px;" />
                     </a>
                     &emsp;
-                    <a @click="addRearPoint">
+                    <a @click="addRearPoint" v-show="index === (formState.rearPointList.length - 1)">
                       <PlusOutlined style="font-size: 20px;" />
                     </a>
                   </div>
@@ -237,13 +273,27 @@
       </a-form>
     </div>
     <div class="button-box">
-      <a-button @click="cancel">返回</a-button>
-      &emsp;
+      <a-button
+        @click="previousStep"
+        v-show="current !== 0"
+        style="margin-right: 18px;"
+      >上一步</a-button>
+      <a-button
+        type="primary"
+        @click="nextStep"
+        v-show="current !== 3"
+        style="margin-right: 18px;"
+      >下一步</a-button>
+      <a-button
+        @click="cancel"
+        style="margin-right: 18px;"
+      >返回</a-button>
       <a-button
         type="primary"
         @click="onSubmit"
-        v-if="props.type !== 'check'"
+        v-if="props.type !== 'check' && current === 3"
       >保存</a-button>
+
     </div>
     <device-table-modal
       ref="deviceRef"
@@ -274,6 +324,28 @@ const props = defineProps({
     default: {},
   },
 });
+
+const current = ref<number>(0);
+
+const steps = [
+  {
+    title: '策略基本信息填写',
+    content: 'First-content',
+  },
+  {
+    title: '前置设备设置',
+    content: 'Second-content',
+  },
+  {
+    title: '联动设备控制',
+    content: 'Last-content',
+  },
+  {
+    title: '确认',
+    content: 'Last-content',
+  },
+];
+const stpesItems = steps.map((item) => ({ key: item.title, title: item.title }));
 
 const formRef = ref();
 const deviceRef = ref();
@@ -354,13 +426,13 @@ const addFrontPoint = () => {
   }
 };
 // 删除前置设备
-const deleteFrontPoint = (target) => {
+const deleteFrontPoint = (index) => {
   Modal.confirm({
     title: '提示',
     icon: createVNode(ExclamationCircleOutlined),
     content: '删除不可恢复，是否确定删除?',
     onOk() {
-      formState.frontPointList.pop();
+      formState.frontPointList.splice(index,1);
       message.success('删除成功！');
     },
     // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -401,13 +473,13 @@ const addRearPoint = () => {
   }
 };
 // 删除联动设备
-const deleteRearPoint = (target) => {
+const deleteRearPoint = (index) => {
   Modal.confirm({
     title: '提示',
     icon: createVNode(ExclamationCircleOutlined),
     content: '删除不可恢复，是否确定删除?',
     onOk() {
-      formState.rearPointList.pop();
+      formState.rearPointList.splice(index,1);
       message.success('删除成功！');
     },
     // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -426,15 +498,15 @@ const selectDevice = (type: number, index: number) => {
 const setDeviceName = async (type, record) => {
   if (deviceType.value) {
     formState.rearPointList[targetIndex.value].deviceName = record.deviceName;
-    let deviceId = ''
-    if(type) {
+    let deviceId = '';
+    if (type) {
       formState.rearPointList[targetIndex.value].deviceId = record.id;
-      deviceId = record.id
+      deviceId = record.id;
     } else {
       formState.rearPointList[targetIndex.value].deviceId = record.deviceId;
-      deviceId = record.deviceId
+      deviceId = record.deviceId;
     }
-    let res = await getPontByDeviceIdApi({ deviceId: deviceId})
+    let res = await getPontByDeviceIdApi({ deviceId: deviceId });
     // let res = await getPontByDeviceIdApi({ deviceId: 108 });
     formState.rearPointList[targetIndex.value].devicePointData = res.map((item) => {
       return {
@@ -444,15 +516,15 @@ const setDeviceName = async (type, record) => {
     });
   } else {
     formState.frontPointList[targetIndex.value].deviceName = record.deviceName;
-    let deviceId = ''
-    if(type) {
+    let deviceId = '';
+    if (type) {
       formState.frontPointList[targetIndex.value].deviceId = record.id;
-      deviceId = record.id
+      deviceId = record.id;
     } else {
       formState.frontPointList[targetIndex.value].deviceId = record.deviceId;
-      deviceId = record.deviceId
+      deviceId = record.deviceId;
     }
-    let res = await getPontByDeviceIdApi({ deviceId: deviceId})
+    let res = await getPontByDeviceIdApi({ deviceId: deviceId });
     // let res = await getPontByDeviceIdApi({ deviceId: 108 });
     formState.frontPointList[targetIndex.value].devicePointData = res.map((item) => {
       return {
@@ -499,6 +571,62 @@ const resetForm = () => {
   formRef.value.resetFields();
 };
 
+const nextStep = () => {
+  switch (current.value) {
+    case 0:
+    formRef.value
+        .validateFields([
+        'strategyName',
+        'strategyTarget',
+        ])
+        .then(() => {
+          current.value++;
+        })
+        .catch((error) => {
+          console.log('error', error);
+        });
+      break;
+    case 1:
+      let frontPointListLength = formState.frontPointList?.length;
+      formRef.value
+        .validateFields([
+          ['frontPointList', frontPointListLength - 1, 'deviceName'],
+          ['frontPointList', frontPointListLength - 1, 'pointId'],
+          ['frontPointList', frontPointListLength - 1, 'conditionValue'],
+        ])
+        .then(() => {
+          current.value++;
+        })
+        .catch((error) => {
+          console.log('error', error);
+        });
+      break;
+    case 2:
+      let rearPointListLength = formState.rearPointList?.length;
+      formRef.value
+        .validateFields([
+          ['rearPointList', rearPointListLength - 1, 'deviceName'],
+          ['rearPointList', rearPointListLength - 1, 'pointId'],
+          ['rearPointList', rearPointListLength - 1, 'conditionValue'],
+        ])
+        .then(() => {
+          current.value++;
+        })
+        .catch((error) => {
+          console.log('error', error);
+        });
+      break;
+    case 3:
+      current.value++;
+      break;
+  }
+};
+
+const previousStep = () => {
+  console.log('上一步---------->');
+  current.value--;
+};
+
 onMounted(async () => {
   if (props.type === 'edit' || props.type === 'check') {
     let res = await getLinkageControlDetailApi({ id: props.editItem.id });
@@ -530,6 +658,10 @@ onMounted(async () => {
 
 <style scoped lang="less">
 .linkage-ontro-sStrategy-list-box {
+  .step-box {
+    padding: 24px;
+    margin-bottom: 12px;
+  }
   .info-title {
     height: 40px;
     display: flex;

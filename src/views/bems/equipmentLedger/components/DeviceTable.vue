@@ -8,8 +8,8 @@
         <template v-if="column.key === 'action'">
           <a-space>
             <a @click="handleEdit(record)">编辑</a>
-            <a @click="handleDelete(record)">删除</a>
             <a @click="handleDetail(record)">详情</a>
+            <a @click="handleDelete(record)" style="color: red;">删除</a>
           </a-space>
         </template>
         <template v-else-if="column.key === 'automaticAlgorithm'">
@@ -98,11 +98,11 @@
         return findTreeNodeTitle(props.spaceTreeData, text) || text;
       },
     },
-    {
-      title: '倍率',
-      dataIndex: 'magnification',
-      key: 'magnification',
-    },
+    // {
+    //   title: '倍率',
+    //   dataIndex: 'magnification',
+    //   key: 'magnification',
+    // },
     {
       title: '排序',
       dataIndex: 'sort',
@@ -112,11 +112,11 @@
       title: '操作',
       key: 'action',
     },
-    {
-      title: '自动算法',
-      dataIndex: 'automaticAlgorithm',
-      key: 'automaticAlgorithm',
-    },
+    // {
+    //   title: '自动算法',
+    //   dataIndex: 'automaticAlgorithm',
+    //   key: 'automaticAlgorithm',
+    // },
   ];
 
   //表单搜索字段

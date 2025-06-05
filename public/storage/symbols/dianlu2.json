@@ -1,0 +1,377 @@
+{
+  "modified": "Wed May 28 2025 14:30:39 GMT+0800 (中国标准时间)",
+  "width": 100,
+  "height": 100,
+  "comps": [
+    {
+      "type": "rect",
+      "background": "rgb(255,0,0)",
+      "borderWidth": 1,
+      "borderColor": "rgb(255,0,0)",
+      "pixelPerfect": true,
+      "rect": [
+        45.86898,
+        0,
+        0.33996,
+        17.59902
+      ]
+    },
+    {
+      "type": "border",
+      "color": "rgb(255,0,0)",
+      "width": 1,
+      "rect": [
+        38.1264,
+        14.30136,
+        15.82512,
+        21.69864
+      ]
+    },
+    {
+      "type": "circle",
+      "background": "rgba(255,255,255,0)",
+      "borderWidth": 0.5,
+      "borderColor": "rgb(255,0,0)",
+      "rect": [
+        41.78578,
+        18,
+        8.42844,
+        8.67633
+      ]
+    },
+    {
+      "type": "circle",
+      "background": "rgba(255,255,255,0)",
+      "borderWidth": 0.5,
+      "borderColor": "rgb(255,0,0)",
+      "rect": [
+        41.78578,
+        24,
+        8.42844,
+        10
+      ]
+    },
+    {
+      "type": "triangle",
+      "background": "rgba(250,250,250,0)",
+      "borderWidth": 0.5,
+      "borderColor": "rgb(250,0,0)",
+      "rect": [
+        43.84215,
+        19.39631,
+        4.05367,
+        4.60369
+      ]
+    },
+    {
+      "type": "text",
+      "text": "Y。",
+      "color": "rgb(255,0,0)",
+      "font": "4px arial, sans-serif",
+      "rect": [
+        42.05544,
+        28.34418,
+        2.89582,
+        3.31164
+      ]
+    },
+    {
+      "type": "rect",
+      "background": "rgb(255,0,0)",
+      "borderWidth": 1,
+      "borderColor": "rgb(255,0,0)",
+      "pixelPerfect": true,
+      "rect": [
+        46.03896,
+        34,
+        0.33996,
+        7.59902
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/assets/wc/shouchedaozha.png",
+      "displayName": "shouchedaozha",
+      "anchorY": 0.44264,
+      "rect": [
+        41.01418,
+        40.68604,
+        10.38952,
+        6.31396
+      ]
+    },
+    {
+      "type": "rect",
+      "background": "rgb(255,0,0)",
+      "borderWidth": 1,
+      "borderColor": "rgb(255,0,0)",
+      "pixelPerfect": true,
+      "rect": [
+        46.12395,
+        44.74781,
+        0.16998,
+        7.59902
+      ]
+    },
+    {
+      "type": "rect",
+      "background": "rgb(255,0,0)",
+      "borderWidth": 1,
+      "borderColor": "rgb(255,0,0)",
+      "pixelPerfect": true,
+      "rotation": 1.5708,
+      "rect": [
+        29.15691,
+        16.02115,
+        0.33996,
+        18.59902
+      ]
+    },
+    {
+      "type": "rect",
+      "background": "rgb(255,0,0)",
+      "borderWidth": 1,
+      "borderColor": "rgb(255,0,0)",
+      "pixelPerfect": true,
+      "rotation": 1.5708,
+      "rect": [
+        31.03051,
+        18.37047,
+        0.33996,
+        23.59902
+      ]
+    },
+    {
+      "type": "rect",
+      "background": "rgb(255,0,0)",
+      "borderWidth": 1,
+      "borderColor": "rgb(255,0,0)",
+      "pixelPerfect": true,
+      "rect": [
+        19.40098,
+        25.15068,
+        0.33996,
+        17.59902
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/assets/wc/jiedi.png",
+      "displayName": "jiedi",
+      "rect": [
+        1.77846,
+        28.34418,
+        35.58499,
+        29.69815
+      ]
+    },
+    {
+      "type": "rect",
+      "background": "rgb(255,0,0)",
+      "borderWidth": 1,
+      "borderColor": "rgb(255,0,0)",
+      "pixelPerfect": true,
+      "rect": [
+        46.12395,
+        58.38364,
+        0.33996,
+        9.59902
+      ]
+    },
+    {
+      "type": "rect",
+      "background": "rgb(255,0,0)",
+      "borderWidth": 1,
+      "borderColor": "rgb(255,0,0)",
+      "pixelPerfect": true,
+      "rotation": 5.68703,
+      "rect": [
+        44.17407,
+        51.39231,
+        0.16998,
+        7.59902
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/assets/wc/shouchedaozha.png",
+      "displayName": "shouchedaozha",
+      "anchorY": 0.44264,
+      "rotation": 3.14159,
+      "rect": [
+        41.01418,
+        66.56731,
+        10.38952,
+        6.31396
+      ]
+    },
+    {
+      "type": "rect",
+      "background": "rgb(255,0,0)",
+      "borderWidth": 1,
+      "borderColor": "rgb(255,0,0)",
+      "pixelPerfect": true,
+      "rect": [
+        46.12395,
+        71.40098,
+        0.33996,
+        10.59902
+      ]
+    },
+    {
+      "type": "circle",
+      "background": "rgba(255,255,255,0)",
+      "borderWidth": 0.5,
+      "borderColor": "rgb(255,0,0)",
+      "rect": [
+        42.87628,
+        73,
+        7.00528,
+        7
+      ]
+    },
+    {
+      "type": "rect",
+      "background": "rgb(255,0,0)",
+      "borderWidth": 1,
+      "borderColor": "rgb(255,0,0)",
+      "pixelPerfect": true,
+      "rotation": 1.5708,
+      "rect": [
+        53.231,
+        73.37047,
+        0.33996,
+        6.59902
+      ]
+    },
+    {
+      "type": "rect",
+      "background": "rgb(255,0,0)",
+      "borderWidth": 1,
+      "borderColor": "rgb(255,0,0)",
+      "pixelPerfect": true,
+      "rotation": 0.39727,
+      "rect": [
+        54.83966,
+        74.54045,
+        0.03998,
+        4.59902
+      ]
+    },
+    {
+      "type": "rect",
+      "background": "rgb(255,0,0)",
+      "borderWidth": 1,
+      "borderColor": "rgb(255,0,0)",
+      "pixelPerfect": true,
+      "rotation": 0.39727,
+      "rect": [
+        52.10941,
+        74.54045,
+        0.03998,
+        4.59902
+      ]
+    },
+    {
+      "type": "rect",
+      "background": "rgb(255,0,0)",
+      "borderWidth": 1,
+      "borderColor": "rgb(255,0,0)",
+      "pixelPerfect": true,
+      "rotation": 1.5708,
+      "rect": [
+        59.75348,
+        68.37047,
+        0.33996,
+        27.59902
+      ]
+    },
+    {
+      "type": "rect",
+      "background": "rgb(255,0,0)",
+      "borderWidth": 1,
+      "borderColor": "rgb(255,0,0)",
+      "pixelPerfect": true,
+      "rect": [
+        73.38301,
+        41.769,
+        0.33996,
+        40.59902
+      ]
+    },
+    {
+      "type": "rect",
+      "background": "rgb(255,0,0)",
+      "borderWidth": 1,
+      "borderColor": "rgb(255,0,0)",
+      "pixelPerfect": true,
+      "rotation": 1.5708,
+      "rect": [
+        68.55299,
+        32.62953,
+        0.33996,
+        17.59902
+      ]
+    },
+    {
+      "type": "rect",
+      "background": "rgb(255,0,0)",
+      "borderWidth": 1,
+      "borderColor": "rgb(255,0,0)",
+      "pixelPerfect": true,
+      "rect": [
+        64.07602,
+        42.08413,
+        0.33996,
+        10.59902
+      ]
+    },
+    {
+      "type": "text",
+      "text": "低压出线",
+      "color": "rgb(255,0,0)",
+      "font": "6px arial, sans-serif",
+      "rect": [
+        58.15717,
+        33.95019,
+        24.98254,
+        6.33341
+      ]
+    },
+    {
+      "type": "rect",
+      "background": "rgb(255,0,0)",
+      "borderWidth": 1,
+      "borderColor": "rgb(255,0,0)",
+      "pixelPerfect": true,
+      "rect": [
+        64.07602,
+        60.70671,
+        0.33996,
+        5.59902
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/assets/wc/jiedi.png",
+      "displayName": "jiedi",
+      "rect": [
+        53.83099,
+        59.84358,
+        20.83002,
+        13.65698
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/assets/wc/bileiqi.png",
+      "displayName": "bileiqi",
+      "rect": [
+        54.34392,
+        50,
+        19.80416,
+        13.50622
+      ]
+    }
+  ]
+}

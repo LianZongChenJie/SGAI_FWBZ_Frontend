@@ -25,6 +25,7 @@ enum Api {
   executeStandardizedManagemenApi = '/bems/patterningStrategy/executionNow',
   getControlRecordsListApi = '/bems/strategyExecuteRecord/listPage',
   getControlRecordsDetailApi = '/bems/pointExecuteRecord/getByStrategyExecuteId',
+  getPatterningExecutionTimeApi = '/bems/patterningExecutionTime/getById'
 }
 
 /**
@@ -151,3 +152,9 @@ export const getControlRecordsListApi = (params) => defHttp.get({ url: Api.getCo
  * 获取控制记录详情数据
  */
 export const getControlRecordsDetailApi = (params) => defHttp.get({ url: Api.getControlRecordsDetailApi, params });
+
+/**
+ * 获取联动设备启用信息
+ * @param params
+ */
+export const getPatterningExecutionTimeApi = (params) => defHttp.get({ url: Api.getPatterningExecutionTimeApi, params }, { joinParamsToUrl: true }); 

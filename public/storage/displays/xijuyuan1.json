@@ -1,0 +1,266 @@
+{
+  "v": "7.2.4-dev1",
+  "p": {
+    "autoAdjustIndex": true,
+    "hierarchicalRendering": true
+  },
+  "a": {},
+  "d": [
+    {
+      "c": "ht.Node",
+      "i": 1069,
+      "p": {
+        "position": {
+          "x": 115.16769,
+          "y": 153.15379
+        },
+        "width": 2,
+        "height": 92.37847,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(255,0,0)",
+        "shape.border.width": 1,
+        "shape.border.color": "rgb(255,0,0)"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1070,
+      "p": {
+        "position": {
+          "x": 45.7831,
+          "y": 105.96455
+        },
+        "width": 193.26549,
+        "height": 2
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(255,0,0)",
+        "shape.border.width": 1,
+        "shape.border.color": "rgb(255,0,0)"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1071,
+      "p": {
+        "position": {
+          "x": 117.29635,
+          "y": 158.62357
+        },
+        "width": 0,
+        "height": 88.73196
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(255,0,0)",
+        "shape.border.width": 1,
+        "shape.border.color": "#979797"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1072,
+      "p": {
+        "position": {
+          "x": 155.28092,
+          "y": 198.34302
+        },
+        "width": 75.96914,
+        "height": 2
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(255,0,0)",
+        "shape.border.width": 1,
+        "shape.border.color": "rgb(255,0,0)"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1073,
+      "p": {
+        "position": {
+          "x": 195.69651,
+          "y": 153.15379
+        },
+        "width": 2,
+        "height": 92.37847,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(255,0,0)",
+        "shape.border.width": 1,
+        "shape.border.color": "rgb(255,0,0)"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1074,
+      "p": {
+        "position": {
+          "x": 576.1882,
+          "y": 104.96455
+        },
+        "width": 816.59016,
+        "height": 2
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(255,0,0)",
+        "shape.border.width": 1,
+        "shape.border.color": "rgb(255,0,0)"
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 1075,
+      "p": {
+        "position": {
+          "x": 18.5417,
+          "y": 124.58939
+        },
+        "width": 98.45601,
+        "height": 35.24968
+      },
+      "s": {
+        "text": "10kV进线",
+        "text.font": "22px arial, sans-serif",
+        "text.shadow.color": "rgb(255,255,255)",
+        "text.color": "rgb(255,0,0)"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1076,
+      "p": {
+        "displayName": "dianlu2",
+        "image": "storage/symbols/dianlu2.json",
+        "position": {
+          "x": 283.30286,
+          "y": 232.48445
+        },
+        "width": 209.34755,
+        "height": 253.0398
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1077,
+      "p": {
+        "displayName": "dianlu2",
+        "image": "storage/symbols/dianlu2.json",
+        "position": {
+          "x": 654.12964,
+          "y": 233.98445
+        },
+        "width": 227.51616,
+        "height": 252.0398,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1078,
+      "p": {
+        "displayName": "dianlu",
+        "image": "storage/symbols/dianlu.json",
+        "position": {
+          "x": 477.20105,
+          "y": 231.98445
+        },
+        "width": 217.11901,
+        "height": 254.0398
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1079,
+      "p": {
+        "displayName": "dianlu",
+        "image": "storage/symbols/dianlu.json",
+        "position": {
+          "x": 848.57662,
+          "y": 234.98445
+        },
+        "width": 217.11901,
+        "height": 254.0398,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 24586,
+      "p": {
+        "displayName": "bianyaqi1",
+        "tag": "byq1Tag",
+        "image": "storage/symbols/bianyaqi1.json",
+        "position": {
+          "x": 266.37771,
+          "y": 453.2381
+        },
+        "width": 441.18921,
+        "height": 403.56756
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 24949,
+      "p": {
+        "displayName": "bianyaqi1",
+        "tag": "byq2Tag",
+        "image": "storage/symbols/bianyaqi1.json",
+        "position": {
+          "x": 455.2102,
+          "y": 453.2381
+        },
+        "width": 441.18921,
+        "height": 403.56756,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 25002,
+      "p": {
+        "displayName": "bianyaqi1",
+        "tag": "byq3Tag",
+        "image": "storage/symbols/bianyaqi1.json",
+        "position": {
+          "x": 654.12964,
+          "y": 453.2381
+        },
+        "width": 441.18921,
+        "height": 403.56756,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 25073,
+      "p": {
+        "displayName": "bianyaqi1",
+        "tag": "byq4Tag",
+        "image": "storage/symbols/bianyaqi1.json",
+        "position": {
+          "x": 837.16464,
+          "y": 453.2381
+        },
+        "width": 441.18921,
+        "height": 403.56756,
+        "tall": 20
+      }
+    }
+  ],
+  "modified": "Wed May 28 2025 20:43:02 GMT+0800 (中国标准时间)",
+  "contentRect": {
+    "x": -52.34965,
+    "y": 102.46455,
+    "width": 1110.10889,
+    "height": 552.55732
+  }
+}

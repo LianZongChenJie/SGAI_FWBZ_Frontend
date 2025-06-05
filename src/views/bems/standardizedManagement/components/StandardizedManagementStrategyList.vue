@@ -1,6 +1,12 @@
 <template>
 
   <div class="linkage-ontro-sStrategy-list-box">
+    <div class="step-box">
+      <a-steps
+        :current="current"
+        :items="stpesItems"
+      ></a-steps>
+    </div>
     <div class="info-title">
       策略定义
     </div>
@@ -37,7 +43,7 @@
                 name="strategyName"
                 :rules="[{ required: true, message: '请输入策略名称' }]"
               >
-                <a-input v-model:value="formState.strategyName" />
+                <a-input v-model:value="formState.strategyName" :disabled="current !== 0"/>
               </a-form-item>
             </a-col>
             <a-col :span="8">
@@ -46,7 +52,7 @@
                 name="strategyScene"
                 :rules="[{ required: true, message: '请输入应用场景' }]"
               >
-                <a-input v-model:value="formState.strategyScene" />
+                <a-input v-model:value="formState.strategyScene" :disabled="current !== 0"/>
               </a-form-item>
             </a-col>
           </a-row>
@@ -60,7 +66,7 @@
                 name="strategyTarget"
                 :rules="[{ required: true, message: '请输入策略目标' }]"
               >
-                <a-input v-model:value="formState.strategyTarget" />
+                <a-input v-model:value="formState.strategyTarget" :disabled="current !== 0"/>
               </a-form-item>
             </a-col>
             <a-col :span="8">
@@ -75,6 +81,7 @@
                   :fieldNames="treeSelect"
                   show-search
                   allowClear
+                  :disabled="current !== 0"
                 />
               </a-form-item>
             </a-col>
@@ -91,7 +98,7 @@
                   show-search
                   allowClear
                 /> -->
-                <a-input v-model:value="formState.groupId" />
+                <a-input v-model:value="formState.groupId" :disabled="current !== 0"/>
               </a-form-item>
             </a-col>
           </a-row>
@@ -105,7 +112,7 @@
                 name="compositeSpecialtyFlag"
                 :rules="[{ required: true, message: '请输入复合专业' }]"
               >
-                <a-select v-model:value="formState.compositeSpecialtyFlag">
+                <a-select v-model:value="formState.compositeSpecialtyFlag" :disabled="current !== 0">
                   <a-select-option :value="1">是</a-select-option>
                   <a-select-option :value="0">否</a-select-option>
                 </a-select>
@@ -126,7 +133,7 @@
                   v-model:value="formState.professionalId"
                   :tree-data="categoryOption"
                   placeholder="请选择专业"
-                  :disabled="formState.compositeSpecialtyFlag"
+                  :disabled="formState.compositeSpecialtyFlag || current !== 0"
                   :fieldNames="treeSelect"
                   show-search
                   allowClear
@@ -139,7 +146,7 @@
                 name="modelType"
                 :rules="[{ required: true, message: '请输入模式类型' }]"
               >
-                <a-select v-model:value="formState.modelType">
+                <a-select v-model:value="formState.modelType" :disabled="current !== 0">
                   <a-select-option value="自动">自动</a-select-option>
                   <a-select-option value="手动">手动</a-select-option>
                 </a-select>
@@ -158,20 +165,20 @@
                 :name="['patterningRelatedList', index, 'postAssociationId']"
               >
                 <div class="arr-list-box">
-                  <a-input v-model:value="item.postAssociationName" @click="selectPatternReference(index)" />
+                  <a-input v-model:value="item.postAssociationName" @click="selectPatternReference(index)" :disabled="current !== 0"/>
                   &emsp;
                   <div
                     class="icon-box"
-                    v-if="props.type !== 'check'"
+                    v-if="props.type !== 'check' || current !== 0"
                   >
                     <a>
                       <PlusOutlined
-                        v-if="index === 0"
+                        v-if="index === 0 && current === 0"
                         style="font-size: 20px;"
                         @click="addPatterningRelated"
                       />
                       <DeleteOutlined
-                        v-else
+                        v-else-if="current === 0"
                         style="font-size: 20px;"
                         @click="deletePatterningRelated"
                       />
@@ -183,17 +190,18 @@
 
           </a-row>
         </div>
-        <div class="list-title">
+        <div class="list-title" v-show="current > 0">
           <span>执行设备类型</span><a
             @click="addPatterningPoint"
             v-if="props.type !== 'check'"
           >添加</a>
         </div>
-        <div class="list-form">
+        <div class="list-form" v-show="current > 0">
           <a-row
             :gutter="16"
             v-for="(item,index) in formState.patterningPointList"
             :key="index"
+            style="margin-bottom: 10px;"
           >
             <a-col :span="5">
               <a-form-item
@@ -204,6 +212,7 @@
                 <a-input
                   v-model:value="item.deviceName"
                   @click="selectDevice(1, index)"
+                  :disabled="current !== 1"
                 />
               </a-form-item>
             </a-col>
@@ -227,6 +236,7 @@
                 <a-select
                   v-model:value="item.pointId"
                   :options="item.devicePointData"
+                  :disabled="current !== 1"
                 >
                 </a-select>
               </a-form-item>
@@ -251,12 +261,13 @@
                       style="width: 70%"
                       placeholder="数值"
                       type="number"
+                      :disabled="current !== 1"
                     />
                   </a-input-group>
                   &emsp;
                   <div
                     class="icon-box"
-                    v-if="props.type !== 'check'"
+                    v-if="props.type !== 'check' || current !== 1"
                   >
                     <a @click="deleteRearPoint">
                       <MinusOutlined style="font-size: 20px;" />
@@ -275,8 +286,18 @@
       </a-form>
     </div>
     <div class="button-box">
-      <a-button @click="cancel">返回</a-button>
-      &emsp;
+      <a-button
+        @click="previousStep"
+        v-show="current !== 0"
+        style="margin-right: 18px;"
+      >上一步</a-button>
+      <a-button
+        type="primary"
+        @click="nextStep"
+        v-show="current !== 2"
+        style="margin-right: 18px;"
+      >下一步</a-button>
+      <a-button @click="cancel" style="margin-right: 18px;">返回</a-button>
       <a-button
         type="primary"
         @click="onSubmit"
@@ -318,6 +339,23 @@ const props = defineProps({
 const formRef = ref();
 const deviceRef = ref();
 const referenceRef = ref();
+
+const current = ref<number>(0);
+const steps = [
+  {
+    title: '策略基本信息填写',
+    content: 'First-content',
+  },
+  {
+    title: '执行设备类型',
+    content: 'Second-content',
+  },
+  {
+    title: '确认',
+    content: 'Last-content',
+  },
+];
+const stpesItems = steps.map((item) => ({ key: item.title, title: item.title }));
 
 const spaceTreeData = ref([]);
 const treeSelect = { children: 'children', label: 'title', value: 'key', key: 'key' };
@@ -483,11 +521,17 @@ const selectDevice = (type: number, index: number) => {
 };
 
 // 确认设备
-const setDeviceName = async (record) => {
+const setDeviceName = async (type,record) => {
+  let deviceId =''
+  if (type) {
+      formState.patterningPointList[targetIndex.value].deviceId = record.id;
+      deviceId = record.id;
+    } else {
+      formState.patterningPointList[targetIndex.value].deviceId = record.deviceId;
+      deviceId = record.deviceId;
+    }
     formState.patterningPointList[targetIndex.value].deviceName = record.deviceName;
-    formState.patterningPointList[targetIndex.value].deviceId = record.id;
-    // let res = await getPontByDeviceIdApi({ deviceId: record.id})
-    let res = await getPontByDeviceIdApi({ deviceId: 108 });
+    let res = await getPontByDeviceIdApi({ deviceId: deviceId})
     formState.patterningPointList[targetIndex.value].devicePointData = res.map((item) => {
       return {
         value: item.id,
@@ -516,6 +560,49 @@ const onSubmit = async () => {
     .catch((error) => {
       console.log('error', error);
     });
+};
+
+const nextStep = () => {
+  switch (current.value) {
+    case 0:
+    formRef.value
+        .validateFields([
+        'strategyName',
+        'strategyTarget',
+        'strategyScene',
+        'compositeSpecialtyFlag',
+        'modelType'
+        ])
+        .then(() => {
+          current.value++;
+        })
+        .catch((error) => {
+          console.log('error', error);
+        });
+      break;
+    case 1:
+      let patterningPointListLength = formState.patterningPointList?.length;
+      formRef.value
+        .validateFields([
+          ['patterningPointList', patterningPointListLength - 1, 'deviceName'],
+          ['patterningPointList', patterningPointListLength - 1, 'pointId'],
+          ['patterningPointList', patterningPointListLength - 1, 'conditionValue'],
+        ])
+        .then(() => {
+          current.value++;
+        })
+        .catch((error) => {
+          console.log('error', error);
+        });
+      break;
+    case 2:
+        current.value++;
+      break;
+  }
+};
+
+const previousStep = () => {
+  current.value--;
 };
 
 // 返回
@@ -577,6 +664,10 @@ onMounted(async () => {
 
 <style scoped lang="less">
 .linkage-ontro-sStrategy-list-box {
+  .step-box {
+    padding: 24px;
+    margin-bottom: 12px;
+  }
   .info-title {
     height: 40px;
     display: flex;

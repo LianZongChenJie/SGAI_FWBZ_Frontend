@@ -7,6 +7,11 @@
       </div>
     </div>
     <BasicTable @register="registerTable">
+      <template #tableTitle>
+        <a-button type="primary">近三天</a-button>&ensp;
+      <a-button type="primary">近一周</a-button>&ensp;
+      <a-button type="primary">近一月</a-button>&ensp;
+      </template>
       <template #form-deviceIds="{ model, field }">
         <a-input
           placeholder="请选择设备"
@@ -61,16 +66,10 @@
 import { ref, computed, reactive, onMounted } from 'vue';
 import { BasicColumn, BasicTable, FormSchema } from '/@/components/Table';
 import { useListPage } from '/@/hooks/system/useListPage';
-import { h } from 'vue';
-import { EditOutlined } from '@ant-design/icons-vue';
 import { usePermissionStore } from '/@/store/modules/permission';
-import LinkageControlStrategyList from './LinkageControlStrategyList.vue';
 import { getAlarmRecordsListApi, eliminateAlarmRecordsApi, spaceTree, getAlarmLevelListApi, getAlarmCategoryListApi, getAlarmRecordsStatisticsApi } from '../Standardized.api';
 import { message } from 'ant-design-vue';
 import DeviceTableModal from './DeviceTableModal.vue';
-import { AnyARecord } from 'dns';
-
-const showForm = ref<boolean>(false);
 
 const deviceRef = ref();
 
@@ -400,5 +399,10 @@ onMounted(async () => {
   .general {
     background-color: #fadb2f;
   }
+}
+.button-box{
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
 }
 </style>

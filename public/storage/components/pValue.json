@@ -1,0 +1,12 @@
+{
+  "modified": "Wed May 28 2025 17:47:52 GMT+0800 (中国标准时间)",
+  "width": 10,
+  "height": 5,
+  "func": "__ht__function(){}",
+  "properties": {
+    "pValue": {
+      "valueType": "String",
+      "defaultValue": "10"
+    }
+  }
+}
