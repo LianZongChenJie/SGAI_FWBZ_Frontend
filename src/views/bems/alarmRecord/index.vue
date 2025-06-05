@@ -264,6 +264,7 @@ const handleChange = (e, value) => {
   } else {
     searchTime.value.startTime = formatDate(getFirstDayOfMonth())
   }
+  getAlarmRecordsStatistics()
   reload();
 };
 
@@ -288,9 +289,6 @@ const getLinkageControlList = async () => {
   if (searchTime.value.startTime) {
     params.startDateTime = searchTime.value.startTime + ' 00:00:00';
     params.endDateTime = searchTime.value.endTime + ' 23:59:59';
-    // setSearchFormValues({
-    //   time: [searchTime.value.startTime, searchTime.value.endTime]
-    // })
     searchTime.value.startTime = '';
     searchTime.value.endTime = '';
   }
@@ -409,6 +407,7 @@ const getOptionsData = async () => {
 const getAlarmRecordsStatistics = async () => {
   let { getFieldsValue } = getForm();
   const searchData = getFieldsValue();
+  
   let params = {
     pageNo: 1,
     pageSize: 999999999,
@@ -416,12 +415,17 @@ const getAlarmRecordsStatistics = async () => {
     alarmLevelId: searchData.alarmLevelId ? searchData.alarmLevelId : undefined,
     alarmCategoryId: searchData.alarmCategoryId ? searchData.alarmCategoryId : undefined,
     deviceIds: searchData.deviceIds ? searchData.deviceIds.split('*')[1] : undefined,
-    startDate: searchData.time ? searchData.time.split(',')[0] : undefined,
-    endDate: searchData.time ? searchData.time.split(',')[1] : undefined,
+    startDateTime: searchData.time ? searchData.time.split(',')[0] + ' 00:00:00' : formatDate(getFirstDayOfMonth()) + ' 00:00:00',
+    endDateTime: searchData.time ? searchData.time.split(',')[1] + ' 23:59:59' : formatDate(getToday()) + ' 23:59:59',
   };
+  if (searchTime.value.startTime) {
+    params.startDateTime = searchTime.value.startTime + ' 00:00:00';
+    params.endDateTime = searchTime.value.endTime + ' 23:59:59';
+  }
+  console.log('searchData------------->', params);
   statisticsData.value = await getAlarmRecordsStatisticsApi(params);
   statisticsData.value.reverse();
-  console.log('getAlarmRecordsStatisticsApi------------->', statisticsData.value);
+  
 };
 
 onMounted(async () => {
