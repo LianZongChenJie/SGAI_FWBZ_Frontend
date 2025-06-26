@@ -1,7 +1,7 @@
 <template>
 
   <div class="linkage-ontro-sStrategy-list-box">
-    <div class="step-box">
+    <div class="step-box" v-if="props.type === 'create'">
       <a-steps
         :current="current"
         :items="stpesItems"
@@ -29,7 +29,7 @@
             :gutter="16"
             class="row-with-margin"
           >
-            <a-col :span="8">
+            <a-col :span="5">
               <a-form-item
                 label="策略编号"
                 name="strategyCode"
@@ -37,22 +37,31 @@
                 <a-input v-model:value="formState.strategyCode" disabled/>
               </a-form-item>
             </a-col>
-            <a-col :span="8">
+            <a-col :span="5">
               <a-form-item
                 label="策略名称"
                 name="strategyName"
                 :rules="[{ required: true, message: '请输入策略名称' }]"
               >
-                <a-input v-model:value="formState.strategyName" :disabled="current !== 0"/>
+                <a-input v-model:value="formState.strategyName" :disabled="current !== 0 && props.type !== 'edit'"/>
               </a-form-item>
             </a-col>
-            <a-col :span="8">
+            <a-col :span="5">
               <a-form-item
                 label="应用场景"
                 name="strategyScene"
                 :rules="[{ required: true, message: '请输入应用场景' }]"
               >
-                <a-input v-model:value="formState.strategyScene" :disabled="current !== 0"/>
+                <a-input v-model:value="formState.strategyScene" :disabled="current !== 0 && props.type !== 'edit'"/>
+              </a-form-item>
+            </a-col>
+            <a-col :span="5">
+              <a-form-item
+                label="策略目标"
+                name="strategyTarget"
+                :rules="[{ required: true, message: '请输入策略目标' }]"
+              >
+                <a-input v-model:value="formState.strategyTarget" :disabled="current !== 0 && props.type !== 'edit'"/>
               </a-form-item>
             </a-col>
           </a-row>
@@ -60,16 +69,7 @@
             :gutter="16"
             class="row-with-margin"
           >
-            <a-col :span="8">
-              <a-form-item
-                label="策略目标"
-                name="strategyTarget"
-                :rules="[{ required: true, message: '请输入策略目标' }]"
-              >
-                <a-input v-model:value="formState.strategyTarget" :disabled="current !== 0"/>
-              </a-form-item>
-            </a-col>
-            <a-col :span="8">
+            <a-col :span="5">
               <a-form-item
                 label="单体空间"
                 name="spaceId"
@@ -81,11 +81,11 @@
                   :fieldNames="treeSelect"
                   show-search
                   allowClear
-                  :disabled="current !== 0"
+                  :disabled="current !== 0 && props.type !== 'edit'"
                 />
               </a-form-item>
             </a-col>
-            <a-col :span="8">
+            <a-col :span="5">
               <a-form-item
                 label="分组属性"
                 name="groupId"
@@ -97,28 +97,23 @@
                   :fieldNames="treeSelect"
                   show-search
                   allowClear
-                /> -->
-                <a-input v-model:value="formState.groupId" :disabled="current !== 0"/>
+                /> --> 
+                <a-input v-model:value="formState.groupId" :disabled="current !== 0 && props.type !== 'edit'"/>
               </a-form-item>
             </a-col>
-          </a-row>
-          <a-row
-            :gutter="16"
-            class="row-with-margin"
-          >
-            <a-col :span="8">
+            <a-col :span="5">
               <a-form-item
                 label="复合专业"
                 name="compositeSpecialtyFlag"
                 :rules="[{ required: true, message: '请输入复合专业' }]"
               >
-                <a-select v-model:value="formState.compositeSpecialtyFlag" :disabled="current !== 0">
+                <a-select v-model:value="formState.compositeSpecialtyFlag" :disabled="current !== 0 && props.type !== 'edit'">
                   <a-select-option :value="1">是</a-select-option>
                   <a-select-option :value="0">否</a-select-option>
                 </a-select>
               </a-form-item>
             </a-col>
-            <a-col :span="8">
+            <a-col :span="5">
               <a-form-item
                 label="专业"
                 name="professionalId"
@@ -133,20 +128,26 @@
                   v-model:value="formState.professionalId"
                   :tree-data="categoryOption"
                   placeholder="请选择专业"
-                  :disabled="formState.compositeSpecialtyFlag || current !== 0"
+                  :disabled="formState.compositeSpecialtyFlag || (current !== 0 && props.type !== 'edit') "
                   :fieldNames="treeSelect"
                   show-search
                   allowClear
                 />
               </a-form-item>
             </a-col>
-            <a-col :span="8">
+          </a-row>
+          <a-row
+            :gutter="16"
+            class="row-with-margin"
+          >
+            
+            <a-col :span="5">
               <a-form-item
                 label="模式类型"
                 name="modelType"
                 :rules="[{ required: true, message: '请输入模式类型' }]"
               >
-                <a-select v-model:value="formState.modelType" :disabled="current !== 0">
+                <a-select v-model:value="formState.modelType" :disabled="current !== 0 && props.type !== 'edit'">
                   <a-select-option value="自动">自动</a-select-option>
                   <a-select-option value="手动">手动</a-select-option>
                 </a-select>
@@ -159,13 +160,13 @@
             v-for="(item,index) in formState.patterningRelatedList"
             :key="index"
           >
-            <a-col :span="8">
+            <a-col :span="5">
               <a-form-item
                 label="模式引用"
                 :name="['patterningRelatedList', index, 'postAssociationId']"
               >
                 <div class="arr-list-box">
-                  <a-input v-model:value="item.postAssociationName" @click="selectPatternReference(index)" :disabled="current !== 0"/>
+                  <a-input v-model:value="item.postAssociationName" @click="selectPatternReference(index)" :disabled="current !== 0 && props.type !== 'edit'"/>
                   &emsp;
                   <div
                     class="icon-box"
@@ -173,14 +174,14 @@
                   >
                     <a>
                       <PlusOutlined
-                        v-if="index === 0 && current === 0"
+                        v-if="(index === (formState.patterningRelatedList.length - 1)) && (current === 0 || props.type === 'edit')"
                         style="font-size: 20px;"
                         @click="addPatterningRelated"
                       />
                       <DeleteOutlined
-                        v-else-if="current === 0"
+                        v-else-if="current === 0 || props.type === 'edit'"
                         style="font-size: 20px;"
-                        @click="deletePatterningRelated"
+                        @click="deletePatterningRelated(index)"
                       />
                     </a>
                   </div>
@@ -190,13 +191,13 @@
 
           </a-row>
         </div>
-        <div class="list-title" v-show="current > 0">
+        <div class="list-title" v-show="current > 0 || props.type === 'edit'">
           <span>执行设备类型</span><a
             @click="addPatterningPoint"
-            v-if="props.type !== 'check'"
+            v-if="props.type !== 'check' && current === 1 || props.type === 'edit'"
           >添加</a>
         </div>
-        <div class="list-form" v-show="current > 0">
+        <div class="list-form" v-show="current > 0 || props.type === 'edit'">
           <a-row
             :gutter="16"
             v-for="(item,index) in formState.patterningPointList"
@@ -212,7 +213,7 @@
                 <a-input
                   v-model:value="item.deviceName"
                   @click="selectDevice(1, index)"
-                  :disabled="current !== 1"
+                  :disabled="current !== 1 && props.type !== 'edit'"
                 />
               </a-form-item>
             </a-col>
@@ -236,7 +237,7 @@
                 <a-select
                   v-model:value="item.pointId"
                   :options="item.devicePointData"
-                  :disabled="current !== 1"
+                  :disabled="current !== 1 && props.type !== 'edit'"
                 >
                 </a-select>
               </a-form-item>
@@ -261,20 +262,20 @@
                       style="width: 70%"
                       placeholder="数值"
                       type="number"
-                      :disabled="current !== 1"
+                      :disabled="current !== 1 && props.type !== 'edit'"
                     />
                   </a-input-group>
                   &emsp;
                   <div
                     class="icon-box"
-                    v-if="props.type !== 'check' || current !== 1"
+                    v-if="props.type !== 'check' && (current !== 1 || props.type !== 'edit')"
                   >
-                    <a @click="deleteRearPoint">
+                    <a @click="(index)">
                       <MinusOutlined style="font-size: 20px;" />
                     </a>
                     &emsp;
                     <a @click="addPatterningPoint">
-                      <PlusOutlined style="font-size: 20px;" />
+                      <PlusOutlined style="font-size: 20px;" v-show="index === (formState.patterningPointList.length - 1)"/>
                     </a>
                   </div>
                 </div>
@@ -288,20 +289,20 @@
     <div class="button-box">
       <a-button
         @click="previousStep"
-        v-show="current !== 0"
+        v-show="current !== 0 && props.type === 'create'"
         style="margin-right: 18px;"
       >上一步</a-button>
       <a-button
         type="primary"
         @click="nextStep"
-        v-show="current !== 2"
+        v-show="current !== 2 && props.type === 'create'"
         style="margin-right: 18px;"
       >下一步</a-button>
       <a-button @click="cancel" style="margin-right: 18px;">返回</a-button>
       <a-button
         type="primary"
         @click="onSubmit"
-        v-if="props.type !== 'check'"
+        v-if="props.type !== 'check' && current === 3 || props.type === 'edit'"
       >保存</a-button>
     </div>
     <device-table-modal
@@ -440,17 +441,19 @@ const addPatterningRelated = () => {
   }
 };
 // 删除模式引用
-const deletePatterningRelated = (target) => {
+const deletePatterningRelated = (index) => {
   Modal.confirm({
     title: '提示',
     icon: createVNode(ExclamationCircleOutlined),
     content: '删除不可恢复，是否确定删除?',
     onOk() {
-      formState.patterningRelatedList.pop();
+      formState.patterningRelatedList.splice(index,1);
       message.success('删除成功！');
     },
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    onCancel() {},
+    onCancel() {
+      
+    },
   });
 };
 
@@ -487,13 +490,13 @@ const addPatterningPoint = () => {
   }
 };
 // 删除执行设备
-const deleteRearPoint = (target) => {
+const deleteRearPoint = (index) => {
   Modal.confirm({
     title: '提示',
     icon: createVNode(ExclamationCircleOutlined),
     content: '删除不可恢复，是否确定删除?',
     onOk() {
-      formState.patterningPointList.pop();
+      formState.patterningPointList.splice(index,1);
       message.success('删除成功！');
     },
     // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -620,8 +623,6 @@ onMounted(async () => {
   nextTick(async () => {
   const spaceRes = await spaceTree();
   const categoryRes = await deviceCategoryTree({});
-  console.log('deviceCategoryTree-------------->', categoryRes);
-  
   spaceTreeData.value = spaceRes;
   categoryOption.value = categoryRes;
   if (props.type === 'edit' || props.type === 'check') {
@@ -643,18 +644,8 @@ onMounted(async () => {
     } else {
       formState.patterningPointList = res.patterningPointList;
       formState.patterningPointList.forEach((item) => {
-        setDeviceName(item);
+        setDeviceName(0,item);
       });
-    }
-    if (!Array.isArray(res.patterningRelatedList)) {
-      formState.patterningRelatedList = [
-        {
-          postAssociationId: '',
-          postAssociationName: '',
-        }
-      ];
-    } else {
-      formState.patterningRelatedList = res.patterningRelatedList;
     }
   }
   })
@@ -665,7 +656,7 @@ onMounted(async () => {
 <style scoped lang="less">
 .linkage-ontro-sStrategy-list-box {
   .step-box {
-    padding: 24px;
+    padding: 24px 20%;
     margin-bottom: 12px;
   }
   .info-title {

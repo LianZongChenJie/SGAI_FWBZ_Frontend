@@ -1,7 +1,7 @@
 <template>
 
   <div class="linkage-ontro-sStrategy-list-box">
-    <div class="step-box">
+    <div class="step-box" v-if="props.type === 'create'">
       <a-steps
         :current="current"
         :items="stpesItems"
@@ -25,7 +25,7 @@
         <div class="list-form">
           <a-row :gutter="16">
             <a-col
-              :span="8"
+              :span="5"
               v-if="props.type !== 'create'"
             >
               <a-form-item
@@ -39,7 +39,7 @@
                 />
               </a-form-item>
             </a-col>
-            <a-col :span="8">
+            <a-col :span="5">
               <a-form-item
                 label="策略名称"
                 name="strategyName"
@@ -51,7 +51,7 @@
                 />
               </a-form-item>
             </a-col>
-            <a-col :span="8">
+            <a-col :span="5">
               <a-form-item
                 label="策略目标"
                 name="strategyTarget"
@@ -67,16 +67,16 @@
         </div>
         <div
           class="list-title"
-          v-show="current > 0"
+          v-show="current > 0 || props.type === 'edit'"
         >
           <span>前置设备设置</span><a
             @click="addFrontPoint"
-            v-if="props.type !== 'check' && current === 1"
+            v-if="props.type !== 'check' && current === 1 || props.type === 'edit'"
           >添加</a>
         </div>
         <div
           class="list-form"
-          v-show="current > 0"
+          v-show="current > 0 || props.type === 'edit'"
         >
           <a-row
             :gutter="16"
@@ -93,7 +93,7 @@
                 <a-input
                   v-model:value="item.deviceName"
                   @click="selectDevice(0, index)"
-                  :disabled="current !== 1"
+                  :disabled="current !== 1  && props.type !== 'edit'"
                 />
               </a-form-item>
             </a-col>
@@ -117,7 +117,7 @@
                 <a-select
                   v-model:value="item.pointId"
                   :options="item.devicePointData"
-                  :disabled="current !== 1"
+                  :disabled="current !== 1 && props.type !== 'edit'"
                 >
                 </a-select>
               </a-form-item>
@@ -135,7 +135,7 @@
                         v-model:value="item.operator"
                         style="width: 30%"
                         :options="operatorList"
-                        :disabled="current !== 1"
+                        :disabled="current !== 1 && props.type !== 'edit'"
                       >
                       </a-select>
                     </a-form-item>
@@ -149,14 +149,14 @@
                         style="width: 70%"
                         placeholder="数值"
                         type="number"
-                        :disabled="current !== 1"
+                        :disabled="current !== 1 && props.type !== 'edit'"
                       />
                     </a-form-item>
                   </a-input-group>
                   &emsp;
                   <div
                     class="icon-box"
-                    v-if="props.type !== 'check' && current === 1"
+                    v-if="props.type !== 'check' && current === 1 && props.type !== 'edit'"
                   >
                     <a @click="deleteFrontPoint(index)">
                       <MinusOutlined style="font-size: 20px;" />
@@ -174,7 +174,7 @@
         </div>
         <div
           class="list-title"
-          v-show="current > 1"
+          v-show="current > 1 || props.type === 'edit'"
         >
           <span>联动设备控制</span><a
             @click="addRearPoint"
@@ -183,7 +183,7 @@
         </div>
         <div
           class="list-form"
-          v-show="current > 1"
+          v-show="current > 1 || props.type === 'edit'"
         >
           <a-row
             :gutter="16"
@@ -200,7 +200,7 @@
                 <a-input
                   v-model:value="item.deviceName"
                   @click="selectDevice(1, index)"
-                  :disabled="current !== 2"
+                  :disabled="current !== 2  && props.type !== 'edit'"
                 />
               </a-form-item>
             </a-col>
@@ -224,7 +224,7 @@
                 <a-select
                   v-model:value="item.pointId"
                   :options="item.devicePointData"
-                  :disabled="current !== 2"
+                  :disabled="current !== 2 && props.type !== 'edit'"
                 >
                 </a-select>
               </a-form-item>
@@ -249,13 +249,13 @@
                       style="width: 70%"
                       placeholder="数值"
                       type="number"
-                      :disabled="current !== 2"
+                      :disabled="current !== 2 && props.type !== 'edit'"
                     />
                   </a-input-group>
                   &emsp;
                   <div
                     class="icon-box"
-                    v-if="props.type !== 'check' && current === 2"
+                    v-if="props.type !== 'check' && (current === 2 || props.type === 'edit')"
                   >
                     <a @click="deleteRearPoint(index)">
                       <MinusOutlined style="font-size: 20px;" />
@@ -275,13 +275,13 @@
     <div class="button-box">
       <a-button
         @click="previousStep"
-        v-show="current !== 0"
+        v-show="current !== 0 && props.type === 'create'"
         style="margin-right: 18px;"
       >上一步</a-button>
       <a-button
         type="primary"
         @click="nextStep"
-        v-show="current !== 3"
+        v-show="current !== 3 && props.type === 'create'"
         style="margin-right: 18px;"
       >下一步</a-button>
       <a-button
@@ -291,7 +291,7 @@
       <a-button
         type="primary"
         @click="onSubmit"
-        v-if="props.type !== 'check' && current === 3"
+        v-if="props.type !== 'check' && current === 3 || props.type === 'edit'"
       >保存</a-button>
 
     </div>
@@ -623,7 +623,6 @@ const nextStep = () => {
 };
 
 const previousStep = () => {
-  console.log('上一步---------->');
   current.value--;
 };
 
@@ -659,7 +658,7 @@ onMounted(async () => {
 <style scoped lang="less">
 .linkage-ontro-sStrategy-list-box {
   .step-box {
-    padding: 24px;
+    padding: 24px 15%;
     margin-bottom: 12px;
   }
   .info-title {

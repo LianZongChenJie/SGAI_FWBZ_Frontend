@@ -353,7 +353,6 @@ const getAlarmRecordsStatistics = async () => {
   }
   statisticsData.value =  await getAlarmRecordsStatisticsApi(params)
   statisticsData.value.reverse()
-  console.log('getAlarmRecordsStatisticsApi------------->', statisticsData.value);
 }
 
 onMounted(async () => {

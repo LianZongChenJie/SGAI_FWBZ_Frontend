@@ -17,11 +17,9 @@
         </a-select>
       </template>
       <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'action'">
           <template v-if="column.key === 'action'">
             <a-button :icon="h(BarChartOutlined)" @click="handleChart(record)" />
           </template>
-        </template>
       </template>
     </BasicTable>
   </div>

@@ -1,16 +1,5 @@
 <template>
   <div class="">
-    <div class="card-box">
-      <div
-        v-for="(item,index) in statisticsData"
-        :key="index"
-        class="card-item"
-        :style="getStyle(index)"
-      >
-        <div>{{item.alarmLevelName}}</div>
-        <div class="number-box">{{ item.quantity }}</div>
-      </div>
-    </div>
     <BasicTable @register="registerTable">
       <template #tableTitle>
         <div class="checked-box">
@@ -58,6 +47,9 @@
         </a-select>
       </template>
       <template #bodyCell="{ column, record }">
+        <template v-if="column.key === 'alarmLevelName'">
+          <p :style="record.backgroundColor">{{ record.alarmLevelName }}</p>
+        </template>
         <template v-if="column.key === 'alarmStatus'">
           {{ record.alarmStatus === '1' ? '未处理' : '已消除' }}
         </template>
@@ -73,7 +65,7 @@
       </template>
     </BasicTable>
     <device-table-modal ref="deviceRef" />
-    <detail-modal ref="detailRef"/>
+    <detail-modal ref="detailRef" />
   </div>
 </template>
 
@@ -108,6 +100,9 @@ const editItem = ref<any>();
 const levelOption = ref([]);
 // 类别数据
 const categoryOption = ref([]);
+
+// 颜色
+const backgroundColorArr = ref<any>([]);
 
 const pagination = ref({
   pageNo: 1,
@@ -203,7 +198,7 @@ const searchFormSchema: FormSchema[] = [
       showTime: true,
       format: 'YYYY-MM-DD',
       valueFormat: 'YYYY-MM-DD',
-      defaultValue: [formatDate(getFirstDayOfMonth()), formatDate(getToday())],
+      // defaultValue: [formatDate(getFirstDayOfMonth()), formatDate(getToday())],
     },
   },
   {
@@ -245,26 +240,26 @@ const searchTime = ref({
 const selectedValue = ref<string | null>(null);
 const handleChange = (e, value) => {
   selectedValue.value = e.target.checked ? value : null;
-   const endDate = new Date();
+  const endDate = new Date();
   const startDate = new Date();
   searchTime.value.endTime = formatDate(endDate);
-  if(selectedValue.value) {
+  if (selectedValue.value) {
     switch (selectedValue.value) {
-    case '1':
-      startDate.setDate(endDate.getDate() - 2);
-      break;
-    case '2':
-      startDate.setDate(endDate.getDate() - 6);
-      break;
-    case '3':
-      startDate.setMonth(endDate.getMonth() - 1);
-      break;
-  }
-  searchTime.value.startTime = formatDate(startDate);
+      case '1':
+        startDate.setDate(endDate.getDate() - 2);
+        break;
+      case '2':
+        startDate.setDate(endDate.getDate() - 6);
+        break;
+      case '3':
+        startDate.setMonth(endDate.getMonth() - 1);
+        break;
+    }
+    searchTime.value.startTime = formatDate(startDate);
   } else {
-    searchTime.value.startTime = formatDate(getFirstDayOfMonth())
+    searchTime.value.startTime = formatDate(getFirstDayOfMonth());
   }
-  getAlarmRecordsStatistics()
+  getAlarmRecordsStatistics();
   reload();
 };
 
@@ -274,6 +269,7 @@ const treeSelect = { children: 'children', label: 'title', value: 'key', key: 'k
 
 // 获取表格数据
 const getLinkageControlList = async () => {
+  await getOptionsData();
   let { getFieldsValue } = getForm();
   const searchData = getFieldsValue();
   let params = {
@@ -291,8 +287,24 @@ const getLinkageControlList = async () => {
     params.endDateTime = searchTime.value.endTime + ' 23:59:59';
     searchTime.value.startTime = '';
     searchTime.value.endTime = '';
+  } else if (!searchData.time) {
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(endDate.getDate() - 2);
+    params.startDateTime = formatDate(startDate) + ' 00:00:00';
+    params.endDateTime = formatDate(endDate) + ' 23:59:59';
   }
   let res = await getAlarmRecordsListApi(params);
+  res.records.forEach((item, index) => {
+    let colorArr = backgroundColorArr.value.filter((user, index, self) => index === self.findIndex((u) => u.level === user.level))
+    for(let i = 0; i < colorArr.length; i++) {
+      if(colorArr[i].level === item.alarmLevelName) {
+        item['backgroundColor'] = colorArr[i].color
+        break
+      }
+    }
+  });
+  console.log('res.records------------->', res.records);
   return res.records;
 };
 
@@ -356,6 +368,7 @@ const getStyle = (index) => {
   const hue = (50 * index) / Math.max(1, statisticsData.value.length - 1);
   return {
     background: `hsl(${hue}, 100%, 50%)`,
+    color: '#FFF'
   };
 };
 
@@ -366,7 +379,7 @@ const selectDevice = (type: number, index: number) => {
 
 // 详情
 const handelDetail = (record) => {
-  detailRef.value.showModal(record)
+  detailRef.value.showModal(record);
 };
 
 // 消除
@@ -388,12 +401,17 @@ const transferAlarmRecords = async (record) => {
 // 获取下拉框数据源
 const getOptionsData = async () => {
   let res1 = await getAlarmLevelListApi();
-  levelOption.value = res1.map((item) => {
+  levelOption.value = res1.map((item, index) => {
+    backgroundColorArr.value.push({
+      level: item.alarmLevelName,
+      color: getStyle(index),
+    });
     return {
       label: item.alarmLevelName,
       value: item.id,
     };
   });
+
   let res2 = await getAlarmCategoryListApi();
   categoryOption.value = res2.map((item) => {
     return {
@@ -407,7 +425,7 @@ const getOptionsData = async () => {
 const getAlarmRecordsStatistics = async () => {
   let { getFieldsValue } = getForm();
   const searchData = getFieldsValue();
-  
+
   let params = {
     pageNo: 1,
     pageSize: 999999999,
@@ -422,14 +440,12 @@ const getAlarmRecordsStatistics = async () => {
     params.startDateTime = searchTime.value.startTime + ' 00:00:00';
     params.endDateTime = searchTime.value.endTime + ' 23:59:59';
   }
-  console.log('searchData------------->', params);
   statisticsData.value = await getAlarmRecordsStatisticsApi(params);
   statisticsData.value.reverse();
-  
 };
 
 onMounted(async () => {
-  await getOptionsData();
+  // await getOptionsData();
   await getAlarmRecordsStatistics();
   const spaceRes = await spaceTree();
   spaceTreeData.value = spaceRes;
@@ -437,41 +453,6 @@ onMounted(async () => {
 </script>
 
 <style scoped lang="less">
-.card-box {
-  padding: 0 15px;
-  display: flex;
-
-  .card-item {
-    display: flex;
-    justify-content: center;
-    color: #fff;
-    align-content: center;
-    font-weight: 600;
-    flex-wrap: wrap;
-    width: 200px;
-    border-radius: 10px;
-    height: 80px;
-    > div {
-      width: 60%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 30px;
-    }
-    .number-box {
-      font-size: 20px;
-    }
-  }
-  .very-urgent {
-    background-color: #fa121f;
-  }
-  .emergency {
-    background-color: #fa9b2f;
-  }
-  .general {
-    background-color: #fadb2f;
-  }
-}
 .checked-box {
   display: flex;
   justify-content: flex-start;
