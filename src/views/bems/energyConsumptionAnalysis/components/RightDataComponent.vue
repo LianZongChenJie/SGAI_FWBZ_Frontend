@@ -44,7 +44,7 @@
             <a-range-picker
               v-model:value="formState.analysisTime"
               style="width: 100%"
-              :picker="(activeKey === '1' ? 'year' : (activeKey === '2' ? 'month' : ''))"
+              :picker="(activeKey === '1' ? 'year' : (activeKey === '2' ? 'month' : 'date'))"
               valueFormat="YYYY-MM-DD"
               @change="handleAnalysisTimeChange"
               :allowClear="false"

@@ -25,8 +25,11 @@ enum Api {
   getTrendForecastDayMonth = '/bems/carbonEmission/getCarbonEmissionForMonth',
   getTrendForecastDayQuarter = '/bems/carbonEmission/getCarbonEmissionForQuarter',
   getTrendForecastDayYear = '/bems/carbonEmission/getCarbonEmissionForYear',
-
+  // 碳流图
+  getCarbonFlowChart = '/bems/carbonEmission/getCarbonFlowChart',
 }
+
+export const getCarbonFlowChartApi = () => defHttp.get({ url: Api.getCarbonFlowChart });
 
 /**
  * 获取总览数据
@@ -92,7 +95,6 @@ export const getScenarioizationMonthDataApi = (params) => defHttp.get({ url: Api
  * 获取对象图数据年
  */
 export const getScenarioizationYearDataApi = (params) => defHttp.get({ url: Api.getScenarioizationYearDataApi, params }, { joinParamsToUrl: true });
-
 
 /**
  * 获取本日趋势统计数据

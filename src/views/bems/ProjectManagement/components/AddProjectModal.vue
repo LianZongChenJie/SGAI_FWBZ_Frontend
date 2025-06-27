@@ -14,6 +14,19 @@
         :labelWidth="100"
         :showActionButtonGroup="false"
       >
+      <!--  添加input的插槽  -->
+    <template #projectCycle="{ model, field }">
+      <a-input v-model:value="model[field]" type="number" placeholder="请输入项目周期">
+      </a-input>
+    </template>
+    <template #projectBudget="{ model, field }">
+      <a-input v-model:value="model[field]" type="number" placeholder="请输入项目预算">
+      </a-input>
+    </template>
+    <template #incomeCycle="{ model, field }">
+      <a-input v-model:value="model[field]" type="number" placeholder="请输入收益周期">
+      </a-input>
+    </template>
       </BasicForm>
       <div class="button-box">
         <a-button @click="handleReset ">取消</a-button>
@@ -86,6 +99,7 @@ const formSchemas: FormSchema[] = [
     colProps: {
       span: 8, // 24/3=8
     },
+    slot: 'projectCycle'
   },
   {
     field: 'projectBudget',
@@ -96,6 +110,7 @@ const formSchemas: FormSchema[] = [
     colProps: {
       span: 8, // 24/3=8
     },
+    slot: 'projectBudget'
   },
   {
     field: 'projectSubject',
@@ -119,6 +134,7 @@ const formSchemas: FormSchema[] = [
     colProps: {
       span: 8, // 24/3=8
     },
+    slot: 'incomeCycle'
   },
   {
     field: 'projectFiles',
