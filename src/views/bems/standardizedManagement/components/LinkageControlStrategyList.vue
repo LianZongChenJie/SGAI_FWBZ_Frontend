@@ -123,7 +123,7 @@
               </a-form-item>
             </a-col>
             <a-col :span="8">
-              <a-form-item label="点位设定">
+              <a-form-item label="点位设定" :name="['frontPointList', index, 'operator']" :rules="[{ required: true, message: '请设置点位' }]">
                 <div class="arr-list-box">
                   <a-input-group compact>
                     <a-form-item

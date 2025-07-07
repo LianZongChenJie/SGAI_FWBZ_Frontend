@@ -18,13 +18,16 @@
     <a-tab-pane key="5" tab="能源价格" v-if="hasPermission('bems:energyPriceList')">
       <EnergyPrice />
     </a-tab-pane>
-    <a-tab-pane key="6" tab="能介" v-if="hasPermission('bems:energyMediumManageList')">
+    <a-tab-pane key="6" tab="能源价格-新" v-if="hasPermission('bems:energyPriceList')">
+      <EnergyPriceNew />
+    </a-tab-pane>
+    <a-tab-pane key="7" tab="能介" v-if="hasPermission('bems:energyMediumManageList')">
       <EnergyMediumManage />
     </a-tab-pane>
-    <a-tab-pane key="7" tab="计量单位" v-if="hasPermission('bems:unitManagementList')">
+    <a-tab-pane key="8" tab="计量单位" v-if="hasPermission('bems:unitManagementList')">
       <UnitManage />
     </a-tab-pane>
-    <a-tab-pane key="8" tab="能源属性" v-if="hasPermission('bems:energyAttributeManage')">
+    <a-tab-pane key="9" tab="能源属性" v-if="hasPermission('bems:energyAttributeManage')">
       <EnergyAttributeManage />
     </a-tab-pane>
     
@@ -38,6 +41,7 @@
   import StandardCoalCoefficient from './module/standardCoalCoefficient/StandardCoalCoefficientList.vue';
   import CarbonEmissionFactor from './module/carbonEmissionFactor/CarbonEmissionFactorList.vue';
   import EnergyPrice from './module/energyPrice/EnergyPriceList.vue';
+  import EnergyPriceNew from './module/energyPriceNew/EnergyPriceList.vue';
   import EnergyMediumManage from './module/energyMediumManage/EnergyMediumManageList.vue';
   import UnitManage from './module/unitManage/UnitManagementList.vue';
   import EnergyAttributeManage from './module/energyAttributeManage/EnergyAttributeManagementList.vue';

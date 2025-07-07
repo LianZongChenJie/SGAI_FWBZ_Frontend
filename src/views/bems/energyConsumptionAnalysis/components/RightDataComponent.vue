@@ -61,7 +61,7 @@
             <a-range-picker
               v-model:value="formState.referenceTime"
               style="width: 100%"
-              :picker="(activeKey === '1' ? 'year' : (activeKey === '2' ? 'month' : ''))"
+              :picker="(activeKey === '1' ? 'year' : (activeKey === '2' ? 'month' : 'date'))"
               valueFormat="YYYY-MM-DD"
               :disabled="(formState.compare === '自定义时间区段' && formState.analysisTime.length) ? false : true"
               :disabled-date="disabledDateReferenceTime"

@@ -9,14 +9,14 @@
       key="1"
       tab="成本分析"
     >
-    <CostAnalysis />
-  </a-tab-pane>
+      <CostAnalysis />
+    </a-tab-pane>
     <a-tab-pane
       key="2"
       tab="绩效分析"
     >
-  <PerformanceAnalysis />
-  </a-tab-pane>
+      <PerformanceAnalysis />
+    </a-tab-pane>
     <!-- <a-tab-pane
       key="3"
       tab="能效分析"
@@ -26,8 +26,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import CostAnalysis from './components/CostAnalysis.vue'
-import PerformanceAnalysis from './components/PerformanceAnalysis.vue'
+import CostAnalysis from './components/CostAnalysis.vue';
+import PerformanceAnalysis from './components/PerformanceAnalysis.vue';
 
 const activeKey = ref('1');
 </script>
