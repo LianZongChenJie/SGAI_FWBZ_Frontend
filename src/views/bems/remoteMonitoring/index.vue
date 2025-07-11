@@ -146,20 +146,23 @@ const spaceTreeData = ref([]);
 const treeSelect = { children: 'children', label: 'title', value: 'key', key: 'key' };
 
 // 获取表格数据
-const getData = async () => {
+const getData = async (pageParams) => {
+  const { pageNo, pageSize } = pageParams;
   let { getFieldsValue } = getForm();
   const searchData = getFieldsValue();
   let params = {
-    pageNo: 1,
-    pageSize: 999999999,
+    pageNo: pageNo,
+    pageSize: pageSize,
     name: searchData.spaceId ? searchData.spaceId : undefined,
     num: searchData.alarmLevelId ? searchData.alarmLevelId : undefined,
     space: searchData.alarmCategoryId ? searchData.alarmCategoryId : undefined,
     status: searchData.deviceIds ? searchData.deviceIds.split('*')[1] : undefined,
   };
   let res = await getCircuitListApi(params);
-  console.log('res.records------------->', res.records);
-  return res.records;
+  return {
+    records: res.records, // 当前页数据
+    total: res.total, // 总记录数
+  };
 };
 
 const { tableContext } = useListPage({
@@ -174,9 +177,8 @@ const { tableContext } = useListPage({
     //定义rowSelection的类型，默认是checkbox多选，可以设置成radio单选
     rowSelection: { type: 'checkbox' },
     pagination: {
-      current: pagination.value.pageNo,
-      pageSize: pagination.value.pageSize,
-      pageSizeOptions: ['10', '20', '30', '50'],
+      pageSize: 10,
+      showSizeChanger: true,
     },
     formConfig: {
       schemas: searchFormSchema,
@@ -264,16 +266,16 @@ const addConfig = () => {
 
 // 开启/关闭
 const handleCircuitChange = async (record) => {
-  let res
-  if(record.status !== '1') {
-    res = await startCircuitApi({id: record.id})
-    if(!res) message.success('开启成功！')
+  let res;
+  if (record.status !== '1') {
+    res = await startCircuitApi({ id: record.id });
+    if (!res) message.success('开启成功！');
   } else {
-    res = await closeCircuitApi({id: record.id})
-    if(!res) message.success('关闭成功！')
+    res = await closeCircuitApi({ id: record.id });
+    if (!res) message.success('关闭成功！');
   }
-  reload()
-}
+  reload();
+};
 
 // 详情
 const handelDetail = (record) => {

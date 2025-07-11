@@ -84,8 +84,8 @@ import {
   getPlanControlListApi,
   deletePlanControlByIdApi,
   batchDeleteCircuitApi,
-  startSituationalApi,
-  closeSituationalApi,
+  startPlanControlApi,
+  closePlanControlApi,
 } from './Standardized.api';
 import { message } from 'ant-design-vue';
 import AddModal from './components/AddModal.vue';
@@ -169,17 +169,21 @@ const spaceTreeData = ref([]);
 const treeSelect = { children: 'children', label: 'title', value: 'key', key: 'key' };
 
 // 获取表格数据
-const getData = async () => {
+const getData = async (pageParams) => {
+  const { pageNo, pageSize } = pageParams;
   let { getFieldsValue } = getForm();
   const searchData = getFieldsValue();
   let params = {
-    pageNo: 1,
-    pageSize: 999999999,
+    pageNo: pageNo,
+    pageSize: pageSize,
     spaceName: searchData.spaceName ? searchData.spaceName.split('*')[1] : undefined,
     planName: searchData.planName ? searchData.planName.split('*')[1] : undefined,
   };
   let res = await getPlanControlListApi(params);
-  return res.records;
+  return {
+    records: res.records, // 当前页数据
+    total: res.total, // 总记录数
+  };
 };
 
 const { tableContext } = useListPage({
@@ -194,9 +198,8 @@ const { tableContext } = useListPage({
     //定义rowSelection的类型，默认是checkbox多选，可以设置成radio单选
     rowSelection: { type: 'checkbox' },
     pagination: {
-      current: pagination.value.pageNo,
-      pageSize: pagination.value.pageSize,
-      pageSizeOptions: ['10', '20', '30', '50'],
+      pageSize: 10,
+      showSizeChanger: true,
     },
     formConfig: {
       schemas: searchFormSchema,
@@ -266,10 +269,10 @@ const addConfig = () => {
 const handleCircuitChange = async (record) => {
   let res;
   if (record.status !== '1') {
-    res = await startSituationalApi({ id: record.id });
+    res = await startPlanControlApi({ id: record.id });
     if (!res) message.success('开启成功！');
   } else {
-    res = await closeSituationalApi({ id: record.id });
+    res = await closePlanControlApi({ id: record.id });
     if (!res) message.success('关闭成功！');
   }
   reload();

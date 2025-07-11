@@ -1,10 +1,17 @@
 <template>
   <div>
-    <BasicTable v-if="!showForm" @register="registerTable">
+    <BasicTable
+      v-if="!showForm"
+      @register="registerTable"
+    >
       <!-- 表格顶部按钮 -->
       <template #tableTitle>
-        <a-button v-if="hasPermission('bems:device_data:amend')" type="primary" :icon="h(EditOutlined)"
-          @click="addStrategy"> 新增 </a-button>
+        <a-button
+          v-if="hasPermission('bems:device_data:amend')"
+          type="primary"
+          :icon="h(EditOutlined)"
+          @click="addStrategy"
+        > 新增 </a-button>
       </template>
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'strategyName'">
@@ -15,15 +22,38 @@
         </template>
         <template v-if="column.key === 'active'">
           <a-space>
-            <a-popconfirm v-if="Number(record.enabledStatus)" title="是否禁用？" ok-text="确定" cancel-text="取消" @confirm="handleDisable(record)">
-              <a @click.stop style="color: red;">禁用</a>
+            <a-popconfirm
+              v-if="Number(record.enabledStatus)"
+              title="是否禁用？"
+              ok-text="确定"
+              cancel-text="取消"
+              @confirm="handleDisable(record)"
+            >
+              <a
+                @click.stop
+                style="color: red;"
+              >禁用</a>
             </a-popconfirm>
-            <a-popconfirm v-else title="是否启用？" ok-text="确定" cancel-text="取消" @confirm="handleEnable(record)">
+            <a-popconfirm
+              v-else
+              title="是否启用？"
+              ok-text="确定"
+              cancel-text="取消"
+              @confirm="handleEnable(record)"
+            >
               <a @click.stop>启用</a>
             </a-popconfirm>
             <a @click.stop="handleEdit(record)">编辑</a>
-            <a-popconfirm title="删除不可恢复，是否删除？" ok-text="确定" cancel-text="取消" @confirm="handleDelete(record)">
-              <a @click.stop style="color: red;">删除</a>
+            <a-popconfirm
+              title="删除不可恢复，是否删除？"
+              ok-text="确定"
+              cancel-text="取消"
+              @confirm="handleDelete(record)"
+            >
+              <a
+                @click.stop
+                style="color: red;"
+              >删除</a>
             </a-popconfirm>
           </a-space>
         </template>
@@ -39,39 +69,46 @@
         <div class="expand-box">联动设备：{{ record.rearDevice }} </div>
       </template>
     </BasicTable>
-    <div class="info-box" v-else>
-      <linkage-control-strategy-list ref="linkageFormRef" :closeStrategy="closeStrategy" :type="type"
-        :editItem="editItem" />
+    <div
+      class="info-box"
+      v-else
+    >
+      <linkage-control-strategy-list
+        ref="linkageFormRef"
+        :closeStrategy="closeStrategy"
+        :type="type"
+        :editItem="editItem"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive, onBeforeUnmount } from 'vue'
+import { ref, computed, reactive, onBeforeUnmount } from 'vue';
 import { BasicColumn, BasicTable, FormSchema } from '/@/components/Table';
 import { useListPage } from '/@/hooks/system/useListPage';
 import { h } from 'vue';
 import { EditOutlined } from '@ant-design/icons-vue';
 import { usePermissionStore } from '/@/store/modules/permission';
-import LinkageControlStrategyList from './LinkageControlStrategyList.vue'
-import { getLinkageControlListApi, deleteLinkageControlApi, enableLinkageControlApi, disableLinkageControlApi } from '../Standardized.api'
+import LinkageControlStrategyList from './LinkageControlStrategyList.vue';
+import { getLinkageControlListApi, deleteLinkageControlApi, enableLinkageControlApi, disableLinkageControlApi } from '../Standardized.api';
 import { message } from 'ant-design-vue';
 import { log } from 'console';
 
 const props = defineProps({
   checkControlRecords: {
     type: Function,
-    default: () => {}
-  }
-})
+    default: () => {},
+  },
+});
 
 const showForm = ref<boolean>(false);
 
-const linkageFormRef = ref()
+const linkageFormRef = ref();
 
 // 打开类型
-const type = ref('')
-const editItem = ref<any>()
+const type = ref('');
+const editItem = ref<any>();
 
 const pagination = ref({
   pageNo: 1,
@@ -127,7 +164,7 @@ const columns: BasicColumn[] = [
     title: '操作',
     dataIndex: 'active',
     key: 'active',
-  }
+  },
 ];
 
 //表单搜索字段
@@ -139,31 +176,35 @@ const searchFormSchema: FormSchema[] = [
     // slot: 'name', //设置默认值
   },
   {
-    label: '前置设置', 
-    field: 'frontDevice', 
-    component: 'JInput', 
+    label: '前置设置',
+    field: 'frontDevice',
+    component: 'JInput',
   },
   {
-    label: '联动设备', 
-    field: 'rearDevice', 
-    component: 'JInput', 
-  }
+    label: '联动设备',
+    field: 'rearDevice',
+    component: 'JInput',
+  },
 ];
 
 // 获取表格数据
-const getLinkageControlList = async () => {
+const getLinkageControlList = async (pageParams) => {
+  const { pageNo, pageSize } = pageParams;
   let { getFieldsValue } = getForm();
   const searchData = getFieldsValue();
   let params = {
-    // pageNo: '',
-    pageSize: 999999999,
+    pageNo: pageNo,
+    pageSize: pageSize,
     strategyName: searchData.strategyName ? searchData.strategyName.split('*')[1] : undefined,
     frontDevice: searchData.frontDevice ? searchData.frontDevice.split('*')[1] : undefined,
     rearDevice: searchData.rearDevice ? searchData.rearDevice.split('*')[1] : undefined,
-  }
-  let res = await getLinkageControlListApi(params)
-  return res.records
-}
+  };
+  let res = await getLinkageControlListApi(params);
+  return {
+    records: res.records, // 当前页数据
+    total: res.total, // 总记录数
+  };
+};
 
 const { tableContext } = useListPage({
   designScope: 'basic-table-demo',
@@ -176,9 +217,8 @@ const { tableContext } = useListPage({
     expandRowByClick: true,
     rowKey: 'id',
     pagination: {
-      current: pagination.value.pageNo,
-      pageSize: pagination.value.pageSize,
-      pageSizeOptions: ['10', '20', '30', '50'],
+      pageSize: 10,
+      showSizeChanger: true,
     },
     formConfig: {
       schemas: searchFormSchema,
@@ -208,7 +248,7 @@ const [registerTable, { reload, getForm, getPaginationRef, getDataSource }] = ta
  */
 const store = usePermissionStore();
 const permissionList = computed(() => store.$state.permCodeList || []);
-const hasPermission = (permission:string) => {
+const hasPermission = (permission: string) => {
   if (!permission) return true;
 
   const currentPermissions = permissionList.value;
@@ -222,55 +262,55 @@ const hasPermission = (permission:string) => {
 
 // 新增
 const addStrategy = () => {
-  showForm.value = true
-  type.value = 'create'
-}
+  showForm.value = true;
+  type.value = 'create';
+};
 
 // 关闭form表单
 const closeStrategy = () => {
-  showForm.value = false
-}
+  showForm.value = false;
+};
 
 // 启用
 const handleEnable = async (record) => {
-  await enableLinkageControlApi({ id: record.id })
+  await enableLinkageControlApi({ id: record.id });
   message.success('启用成功！');
-  reload()
-}
+  reload();
+};
 
 // 禁用
 const handleDisable = async (record) => {
-  await disableLinkageControlApi({ id: record.id })
+  await disableLinkageControlApi({ id: record.id });
   message.success('禁用成功！');
-  reload()
-}
+  reload();
+};
 
 // 编辑
 const handleEdit = (record) => {
-  editItem.value = record
-  type.value = 'edit'
-  showForm.value = true
-}
+  editItem.value = record;
+  type.value = 'edit';
+  showForm.value = true;
+};
 
 // 查看
 const checkDetail = (record) => {
-  editItem.value = record
-  type.value = 'check'
-  showForm.value = true
-}
+  editItem.value = record;
+  type.value = 'check';
+  showForm.value = true;
+};
 
 // 跳转到控制记录
 const handleview = (record) => {
-  props.checkControlRecords(record)
-}
+  props.checkControlRecords(record);
+};
 
 // 删除
 const handleDelete = async (record) => {
-  await deleteLinkageControlApi({id: record.id})
+  await deleteLinkageControlApi({ id: record.id });
   message.success('删除成功！');
   // 刷新表格
   reload();
-}
+};
 
 // 表单数据
 const formState = reactive({
@@ -278,26 +318,26 @@ const formState = reactive({
   age: undefined,
   email: '',
   phone: '',
-  address: ''
+  address: '',
 });
 
 // 提交表单
-const onFinish = values => {
+const onFinish = (values) => {
   console.log('Received values:', values);
 };
 
 onBeforeUnmount(() => {
-  showForm.value = false
-})
+  showForm.value = false;
+});
 </script>
 
 <style scoped lang="less">
-.expand-box{
+.expand-box {
   margin-left: 10px;
   font-size: 16px;
 }
-.info-box{
-  .info-title{
+.info-box {
+  .info-title {
     height: 40px;
     display: flex;
     align-items: center;
@@ -308,9 +348,9 @@ onBeforeUnmount(() => {
     background-color: #374352;
     border-radius: 5px 5px 0 0;
   }
-  .info-list{
+  .info-list {
     padding: 16px;
-    .list-title{
+    .list-title {
       width: 100%;
       height: 40px;
       padding-left: 10px;
@@ -318,7 +358,7 @@ onBeforeUnmount(() => {
       align-items: center;
       border-bottom: 1px solid #d4d0d0;
     }
-    .list-form{
+    .list-form {
       width: 100%;
       margin-top: 16px;
     }

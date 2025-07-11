@@ -1,8 +1,6 @@
 <template>
   <div class="">
-    <BasicTable
-      @register="registerTable"
-    >
+    <BasicTable @register="registerTable">
       <template #form-spaceId="{ model, field }">
         <a-tree-select
           v-model:value="model[field]"
@@ -51,7 +49,7 @@ const columns: BasicColumn[] = [
     title: '控制类型',
     dataIndex: 'controlType',
     key: 'controlType',
-    width: 120
+    width: 120,
   },
   {
     title: '名称',
@@ -62,19 +60,19 @@ const columns: BasicColumn[] = [
     title: '开关类型',
     dataIndex: 'switchType',
     key: 'switchType',
-    width: 240
+    width: 240,
   },
   {
     title: '操作人姓名',
     dataIndex: 'createBy',
     key: 'createBy',
-    width: 120
+    width: 120,
   },
   {
     title: '控制时间',
     dataIndex: 'createTime',
     key: 'createTime',
-    width: 240
+    width: 240,
   },
 ];
 
@@ -101,7 +99,7 @@ const searchFormSchema: FormSchema[] = [
   },
   {
     field: 'date',
-    label: '立项时间',
+    label: '开始结束日期',
     //自动触发检验，布尔类型
     component: 'RangePicker', //渲染的组件
     // slot: 'name', //设置默认值
@@ -120,21 +118,24 @@ const spaceTreeData = ref([]);
 const treeSelect = { children: 'children', label: 'title', value: 'key', key: 'key' };
 
 // 获取表格数据
-const getData = async () => {
+const getData = async (pageParams) => {
+  const { pageNo, pageSize } = pageParams;
   let { getFieldsValue } = getForm();
   const searchData = getFieldsValue();
   console.log('searchData------------->', searchData);
   let params = {
-    pageNo: 1,
-    pageSize: 999999999,
+    pageNo: pageNo,
+    pageSize: pageSize,
     theName: searchData.theName ? searchData.theName.split('*')[1] : undefined,
     controlType: searchData.controlType ? searchData.controlType : undefined,
     startDate: searchData.date ? searchData.date.split(',')[0] : undefined,
     endDate: searchData.date ? searchData.date.split(',')[1] : undefined,
   };
   let res = await getOperationLogListApi(params);
-  console.log('res.records------------->', params, res.records);
-  return res.records;
+  return {
+    records: res.records, // 当前页数据
+    total: res.total, // 总记录数
+  };
 };
 
 const { tableContext } = useListPage({
@@ -147,9 +148,8 @@ const { tableContext } = useListPage({
     size: 'middle',
     rowKey: 'id',
     pagination: {
-      current: pagination.value.pageNo,
-      pageSize: pagination.value.pageSize,
-      pageSizeOptions: ['10', '20', '30', '50'],
+      pageSize: 10,
+      showSizeChanger: true,
     },
     formConfig: {
       schemas: searchFormSchema,

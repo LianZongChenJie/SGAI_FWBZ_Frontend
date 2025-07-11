@@ -17,31 +17,31 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive } from 'vue'
+import { ref, computed, reactive } from 'vue';
 import { BasicColumn, BasicTable, FormSchema } from '/@/components/Table';
 import { useListPage } from '/@/hooks/system/useListPage';
 import { h } from 'vue';
 import { EditOutlined } from '@ant-design/icons-vue';
 import { usePermissionStore } from '/@/store/modules/permission';
-import LinkageControlStrategyList from './LinkageControlStrategyList.vue'
-import { getControlRecordsListApi } from '../Standardized.api'
+import LinkageControlStrategyList from './LinkageControlStrategyList.vue';
+import { getControlRecordsListApi } from '../Standardized.api';
 import { message } from 'ant-design-vue';
-import ControlRecordsModal from './ControlRecordsModal.vue'
+import ControlRecordsModal from './ControlRecordsModal.vue';
 
 const props = defineProps({
   targetName: {
     type: String,
-    default: ''
-  }
-})
+    default: '',
+  },
+});
 
 const showForm = ref<boolean>(false);
 
-const detailRef = ref()
+const detailRef = ref();
 
 // 打开类型
-const type = ref('')
-const editItem = ref<any>()
+const type = ref('');
+const editItem = ref<any>();
 
 const pagination = ref({
   pageNo: 1,
@@ -66,14 +66,14 @@ const columns: BasicColumn[] = [
     title: '执行状态',
     dataIndex: 'successFlag',
     key: 'successFlag',
-    width: '120px'
+    width: '120px',
   },
   {
     title: '执行详情',
     dataIndex: 'active',
     key: 'active',
-    width: '120px'
-  }
+    width: '120px',
+  },
 ];
 
 //表单搜索字段
@@ -82,7 +82,7 @@ const searchFormSchema: FormSchema[] = [
     label: '策略名称', //显示label
     field: 'strategyName', //查询字段
     component: 'JInput', //渲染的组件
-    defaultValue: props.targetName ? props.targetName : ''
+    defaultValue: props.targetName ? props.targetName : '',
   },
   {
     label: '执行时间', //显示label
@@ -98,18 +98,23 @@ const searchFormSchema: FormSchema[] = [
 ];
 
 // 获取表格数据
-const getLinkageControlList = async () => {
+const getLinkageControlList = async (pageParams) => {
+  const { pageNo, pageSize } = pageParams;
   let { getFieldsValue } = getForm();
   const searchData = getFieldsValue();
   let params = {
-    pageSize: 999999999,
-    strategyName: searchData.strategyName ? searchData.strategyName : (props.targetName ? props.targetName : undefined),
+    pageNo: pageNo,
+    pageSize: pageSize,
+    strategyName: searchData.strategyName ? searchData.strategyName : props.targetName ? props.targetName : undefined,
     startTime: searchData.time ? searchData.time.split(',')[0] : undefined,
     endTime: searchData.time ? searchData.time.split(',')[1] : undefined,
-  }
-  let res = await getControlRecordsListApi(params)
-  return res.records
-}
+  };
+  let res = await getControlRecordsListApi(params);
+  return {
+    records: res.records, // 当前页数据
+    total: res.total, // 总记录数
+  };
+};
 
 const { tableContext } = useListPage({
   designScope: 'basic-table-demo',
@@ -121,9 +126,8 @@ const { tableContext } = useListPage({
     size: 'middle',
     rowKey: 'id',
     pagination: {
-      current: pagination.value.pageNo,
-      pageSize: pagination.value.pageSize,
-      pageSizeOptions: ['10', '20', '30', '50'],
+      pageSize: 10,
+      showSizeChanger: true,
     },
     formConfig: {
       schemas: searchFormSchema,
@@ -153,7 +157,7 @@ const [registerTable, { reload, getForm, getPaginationRef, getDataSource }] = ta
  */
 const store = usePermissionStore();
 const permissionList = computed(() => store.$state.permCodeList || []);
-const hasPermission = (permission:string) => {
+const hasPermission = (permission: string) => {
   if (!permission) return true;
 
   const currentPermissions = permissionList.value;
@@ -167,18 +171,17 @@ const hasPermission = (permission:string) => {
 
 // 查看
 const checkDetail = (record) => {
-  detailRef.value.showModal(record)
-}
-
+  detailRef.value.showModal(record);
+};
 </script>
 
 <style scoped lang="less">
-.expand-box{
+.expand-box {
   margin-left: 10px;
   font-size: 16px;
 }
-.info-box{
-  .info-title{
+.info-box {
+  .info-title {
     height: 40px;
     display: flex;
     align-items: center;
@@ -189,9 +192,9 @@ const checkDetail = (record) => {
     background-color: #374352;
     border-radius: 5px 5px 0 0;
   }
-  .info-list{
+  .info-list {
     padding: 16px;
-    .list-title{
+    .list-title {
       width: 100%;
       height: 40px;
       padding-left: 10px;
@@ -199,7 +202,7 @@ const checkDetail = (record) => {
       align-items: center;
       border-bottom: 1px solid #d4d0d0;
     }
-    .list-form{
+    .list-form {
       width: 100%;
       margin-top: 16px;
     }

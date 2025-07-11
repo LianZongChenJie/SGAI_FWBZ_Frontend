@@ -158,15 +158,19 @@ const levelOption = ref([
 ]);
 
 // 获取表格数据
-const getData = async () => {
+const getData = async (pageParams) => {
+  const { pageNo, pageSize } = pageParams;
   let params = {
     modelId: targetModel.id,
-    pageNo: pagination.value.pageNo,
-    pageSize: 999999,
+    pageNo: pageNo,
+    pageSize: pageSize,
   };
   let res = await getDeviceModelAttribute(params);
   dataSource.value = res.records;
-  return dataSource.value;
+  return {
+    records: res.records, // 当前页数据
+    total: res.total, // 总记录数
+  };
 };
 
 // 表格数据
@@ -186,9 +190,8 @@ const { tableContext } = useListPage({
     showActionColumn: false,
     size: 'middle',
     pagination: {
-      current: pagination.value.pageNo,
-      pageSize: pagination.value.pageSize,
-      pageSizeOptions: ['10', '20', '30', '50'],
+      pageSize: 10,
+      showSizeChanger: true,
     },
   },
 });

@@ -3,20 +3,44 @@
     <BasicTable @register="registerTable">
       <!-- 表格顶部按钮 -->
       <template #tableTitle>
-        <a-button v-if="hasPermission('bems:device_data:amend')" type="primary" :icon="h(EditOutlined)"
-          @click="addAlarmLevel"> 新增 </a-button>
+        <a-button
+          v-if="hasPermission('bems:device_data:amend')"
+          type="primary"
+          :icon="h(EditOutlined)"
+          @click="addAlarmLevel"
+        > 新增 </a-button>
       </template>
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'active'">
           <a-space>
             <a @click.stop="handleEdit(record)">编辑</a>
-            <a-popconfirm v-if="!Number(record.status)" title="是否启用？" ok-text="确定" cancel-text="取消" @confirm="handleEnable(record)">
+            <a-popconfirm
+              v-if="!Number(record.status)"
+              title="是否启用？"
+              ok-text="确定"
+              cancel-text="取消"
+              @confirm="handleEnable(record)"
+            >
               <a @click.stop>启用</a>
             </a-popconfirm>
-            <a-popconfirm v-else title="是否停用？" ok-text="确定" cancel-text="取消" @confirm="handleDisable(record)">
-              <a @click.stop style="color: red;">停用</a>
+            <a-popconfirm
+              v-else
+              title="是否停用？"
+              ok-text="确定"
+              cancel-text="取消"
+              @confirm="handleDisable(record)"
+            >
+              <a
+                @click.stop
+                style="color: red;"
+              >停用</a>
             </a-popconfirm>
-            <a-popconfirm title="是否删除？" ok-text="确定" cancel-text="取消" @confirm="handleDelete(record)">
+            <a-popconfirm
+              title="是否删除？"
+              ok-text="确定"
+              cancel-text="取消"
+              @confirm="handleDelete(record)"
+            >
               <a style="color: red;">删除</a>
             </a-popconfirm>
           </a-space>
@@ -24,29 +48,32 @@
       </template>
     </BasicTable>
     <div class="info-box">
-      <add-alarm-level-modal ref="levelModalRef" :reload="reload"/>
+      <add-alarm-level-modal
+        ref="levelModalRef"
+        :reload="reload"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive, onBeforeUnmount } from 'vue'
+import { ref, computed, reactive, onBeforeUnmount } from 'vue';
 import { BasicColumn, BasicTable, FormSchema } from '/@/components/Table';
 import { useListPage } from '/@/hooks/system/useListPage';
 import { h } from 'vue';
 import { EditOutlined } from '@ant-design/icons-vue';
 import { usePermissionStore } from '/@/store/modules/permission';
-import AddAlarmLevelModal from './AddAlarmLevelModal.vue'
-import { getAlarmLevelPageListApi, deleteAlarmLevelApi, editAlarmLevelApi, enableAlarmLevelApi, disableAlarmLevelApi } from '../Standardized.api'
+import AddAlarmLevelModal from './AddAlarmLevelModal.vue';
+import { getAlarmLevelPageListApi, deleteAlarmLevelApi, editAlarmLevelApi, enableAlarmLevelApi, disableAlarmLevelApi } from '../Standardized.api';
 import { message } from 'ant-design-vue';
 
 const showForm = ref<boolean>(false);
 
-const levelModalRef = ref()
+const levelModalRef = ref();
 
 // 打开类型
-const type = ref('')
-const editItem = ref<any>()
+const type = ref('');
+const editItem = ref<any>();
 
 const pagination = ref({
   pageNo: 1,
@@ -86,7 +113,7 @@ const columns: BasicColumn[] = [
     title: '操作',
     dataIndex: 'active',
     key: 'active',
-  }
+  },
 ];
 
 //表单搜索字段
@@ -100,19 +127,23 @@ const searchFormSchema: FormSchema[] = [
 ];
 
 // 获取表格数据
-const getLinkageControlList = async () => {
+const getLinkageControlList = async (pageParams) => {
+  const { pageNo, pageSize } = pageParams;
   let { getFieldsValue } = getForm();
   const searchData = getFieldsValue();
   let params = {
-    // pageNo: '',
-    pageSize: 999999999,
+    pageNo: pageNo,
+    pageSize: pageSize,
     strategyName: searchData.strategyName ? searchData.strategyName : undefined,
     frontDevice: searchData.frontDevice ? searchData.frontDevice : undefined,
     rearDevice: searchData.rearDevice ? searchData.rearDevice : undefined,
-  }
-  let res = await getAlarmLevelPageListApi(params)
-  return res.records
-}
+  };
+  let res = await getAlarmLevelPageListApi(params);
+  return {
+    records: res.records, // 当前页数据
+    total: res.total, // 总记录数
+  };
+};
 
 const { tableContext } = useListPage({
   designScope: 'basic-table-demo',
@@ -124,9 +155,8 @@ const { tableContext } = useListPage({
     size: 'middle',
     rowKey: 'id',
     pagination: {
-      current: pagination.value.pageNo,
-      pageSize: pagination.value.pageSize,
-      pageSizeOptions: ['10', '20', '30', '50'],
+      pageSize: 10,
+      showSizeChanger: true,
     },
     formConfig: {
       schemas: searchFormSchema,
@@ -156,7 +186,7 @@ const [registerTable, { reload, getForm, getPaginationRef, getDataSource }] = ta
  */
 const store = usePermissionStore();
 const permissionList = computed(() => store.$state.permCodeList || []);
-const hasPermission = (permission:string) => {
+const hasPermission = (permission: string) => {
   if (!permission) return true;
 
   const currentPermissions = permissionList.value;
@@ -170,48 +200,48 @@ const hasPermission = (permission:string) => {
 
 // 新增
 const addAlarmLevel = () => {
-  levelModalRef.value.showModal('create')
-}
+  levelModalRef.value.showModal('create');
+};
 
 // 编辑
 const handleEdit = (record) => {
   console.log('editAlarmLevel--------->', record);
-  levelModalRef.value.showModal('edit', record)
-}
+  levelModalRef.value.showModal('edit', record);
+};
 
 // 关闭form表单
 const closeStrategy = () => {
-  showForm.value = false
-}
+  showForm.value = false;
+};
 
 // 启用
 const handleEnable = async (record) => {
-  await enableAlarmLevelApi({ id: record.id })
+  await enableAlarmLevelApi({ id: record.id });
   message.success('启用成功！');
-  reload()
-}
+  reload();
+};
 
 // 停用
 const handleDisable = async (record) => {
-  await disableAlarmLevelApi({ id: record.id })
+  await disableAlarmLevelApi({ id: record.id });
   message.success('停用成功！');
-  reload()
-}
+  reload();
+};
 
 // 查看
 const checkDetail = (record) => {
-  editItem.value = record
-  type.value = 'check'
-  showForm.value = true
-}
+  editItem.value = record;
+  type.value = 'check';
+  showForm.value = true;
+};
 
 // 删除
 const handleDelete = async (record) => {
-  await deleteAlarmLevelApi({id: record.id})
+  await deleteAlarmLevelApi({ id: record.id });
   message.success('删除成功！');
   // 刷新表格
   reload();
-}
+};
 
 // 表单数据
 const formState = reactive({
@@ -219,27 +249,27 @@ const formState = reactive({
   age: undefined,
   email: '',
   phone: '',
-  address: ''
+  address: '',
 });
 
 // 提交表单
-const reloadTable = values => {
+const reloadTable = (values) => {
   // 刷新表格
   reload();
 };
 
 onBeforeUnmount(() => {
-  showForm.value = false
-})
+  showForm.value = false;
+});
 </script>
 
 <style scoped lang="less">
-.expand-box{
+.expand-box {
   margin-left: 10px;
   font-size: 16px;
 }
-.info-box{
-  .info-title{
+.info-box {
+  .info-title {
     height: 40px;
     display: flex;
     align-items: center;
@@ -250,9 +280,9 @@ onBeforeUnmount(() => {
     background-color: #374352;
     border-radius: 5px 5px 0 0;
   }
-  .info-list{
+  .info-list {
     padding: 16px;
-    .list-title{
+    .list-title {
       width: 100%;
       height: 40px;
       padding-left: 10px;
@@ -260,7 +290,7 @@ onBeforeUnmount(() => {
       align-items: center;
       border-bottom: 1px solid #d4d0d0;
     }
-    .list-form{
+    .list-form {
       width: 100%;
       margin-top: 16px;
     }

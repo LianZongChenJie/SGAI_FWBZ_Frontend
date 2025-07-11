@@ -1,6 +1,6 @@
 <template>
   <div class="device-table">
-    <BasicTable @register="registerTable">
+    <BasicTable @register="registerTable" :pagination="pagination">
       <template #tableTitle>
         <a-button type="primary" :icon="h(PlusOutlined)" @click="handleCreated">新建</a-button>
       </template>
@@ -132,31 +132,6 @@
   // 表格数据
   const dataSource = ref([]);
   const total = ref<number>(0);
-  const pagination = ref({
-    pageNo: 1,
-    pageSize: 10,
-  });
-
-  // 搜索处理
-  // const handleSearch = () => {
-  //   pagination.value.pageNo = 1;
-  //   setPagination({
-  //     current: pagination.value.pageNo, // 跳转到第2页
-  //     pageSize: pagination.value.pageSize, // 每页20条
-  //   });
-  //   loadData();
-  // };
-
-  // 表格分页变化
-  // const handleTableChange = (pag: any) => {
-  //   pagination.value.pageNo = pag.current;
-  //   pagination.value.pageSize = pag.pageSize;
-  //   setPagination({
-  //     current: pagination.value.pageNo, // 跳转到第2页
-  //     pageSize: pagination.value.pageSize, // 每页20条
-  //   });
-  //   loadData();
-  // };
 
   // 自动算法切换
   const handleAutomaticAlgorithmChange = (record: any, checked: boolean) => {
@@ -174,22 +149,25 @@
   };
 
   // 加载数据
-  const loadData = async () => {
+  const loadData = async (pageParams) => {
+    const { pageNo, pageSize } = pageParams;
     try {
       let { getFieldsValue } = getForm();
       const searchData = getFieldsValue();
       const params = {
-        pageNo: pagination.value.pageNo,
-        pageSize: 9999999,
+        pageNo: pageNo,
+        pageSize: pageSize,
         nameOrCode: searchData.deviceName ? searchData.deviceName.split('*')[1] : undefined,
         categoryIds: props.categoryKeys ? props.categoryKeys.join(',') : undefined,
         spaceIds: props.spaceKeys ? props.spaceKeys.join(',') : undefined,
       };
-      console.log('request params:', params); // 调试日志
       const res = await selectDevice(params);
-      dataSource.value = res.records;
-      total.value = res.total;
-      return dataSource.value;
+      // 返回格式必须包含records和total
+      return {
+        records: res.records, // 当前页数据
+        total: res.total, // 总记录数
+      };
+      // return dataSource.value;
     } catch (error) {
       console.error('加载数据失败:', error);
     }
@@ -207,9 +185,8 @@
       showActionColumn: false,
       size: 'middle',
       pagination: {
-        current: pagination.value.pageNo,
-        pageSize: pagination.value.pageSize,
-        pageSizeOptions: ['10', '20', '30', '50'],
+        pageSize: 10,
+        showSizeChanger: true,
       },
       formConfig: {
         schemas: searchFormSchema,
@@ -234,16 +211,12 @@
   watch(
     () => props.categoryKeys,
     (newVal, oldVal) => {
-      pagination.value.pageNo = 1;
-      loadData();
       reload();
     }
   );
   watch(
     () => props.spaceKeys,
     (newVal, oldVal) => {
-      pagination.value.pageNo = 1;
-      loadData();
       reload();
     }
   );
@@ -276,7 +249,6 @@
   // 暴露 reload 方法给父组件
   defineExpose({
     reload: () => {
-      pagination.value.pageNo = 1;
       loadData();
     },
   });

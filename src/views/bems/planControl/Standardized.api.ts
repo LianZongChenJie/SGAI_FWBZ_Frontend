@@ -13,8 +13,8 @@ enum Api {
   getNotConfiguredListApi = '/bems/lighting/circuit/listPage',
   savePlanControlRelApi = '/bems/lighting/planControlRel/save',
 
-  startSituationalApi = '/bems/lighting/scenarios/enable',
-  closeSituationalApi = '/bems/lighting/scenarios/disable',
+  startPlanControlApi = '/bems/lighting/planControl/enable',
+  closePlanControlApi = '/bems/lighting/planControl/enable',
 
   spaceTree = '/bems/space/getTree',
   categoryTree = '/bems/equipmentCategory/getTree',
@@ -67,16 +67,16 @@ export const savePlanControlRelApi = (params) => defHttp.post({ url: Api.savePla
 
 
 /**
- * 开启情景
+ * 开启计划
  * @param params
  */
-export const startSituationalApi = (params) => defHttp.post({ url: Api.startSituationalApi, params }, { joinParamsToUrl: true });
+export const startPlanControlApi = (params) => defHttp.post({ url: Api.startPlanControlApi, params }, { joinParamsToUrl: true });
 
 /**
- * 关闭情景
+ * 关闭计划
  * @param params
  */
-export const closeSituationalApi = (params) => defHttp.post({ url: Api.closeSituationalApi, params }, { joinParamsToUrl: true });
+export const closePlanControlApi = (params) => defHttp.post({ url: Api.closePlanControlApi, params }, { joinParamsToUrl: true });
 
 /**
  * 获取空间树

@@ -55,7 +55,7 @@
             <a @click="downloadFile(record.projectFiles, record.projectFiles)">{{ record.projectFiles }}</a>
           </template>
           <template v-if="column.key === 'projectResultAttachments'">
-            <a  @click="downloadFile(record.projectResultAttachments, record.projectResultAttachments)">{{ record.projectResultAttachments }}</a>
+            <a @click="downloadFile(record.projectResultAttachments, record.projectResultAttachments)">{{ record.projectResultAttachments }}</a>
           </template>
         </template>
       </BasicTable>
@@ -75,7 +75,13 @@ import { h } from 'vue';
 import { PlusOutlined } from '@ant-design/icons-vue';
 import { getProjectStatisticsApi } from './Standardized.api';
 import AddProjectModal from './components/AddProjectModal.vue';
-import { getProjectManagementListApi, deleteProjectApi, getProjectByIdApi,  getProjectStatusApi, getProjectProjectSubjectApi, } from './Standardized.api';
+import {
+  getProjectManagementListApi,
+  deleteProjectApi,
+  getProjectByIdApi,
+  getProjectStatusApi,
+  getProjectProjectSubjectApi,
+} from './Standardized.api';
 
 const statusOptions = ref<any>([]);
 const subjectOptions = ref<any>([]);
@@ -190,20 +196,24 @@ const getProjectStatisticsApi = async () => {
 };
 
 // 获取表格数据
-const getProjectlList = async () => {
-  await getStatusAndSubjecData()
+const getProjectlList = async (pageParams) => {
+  const { pageNo, pageSize } = pageParams;
+  await getStatusAndSubjecData();
   let { getFieldsValue } = getForm();
   const searchData = getFieldsValue();
   let params = {
-    pageNo: '1',
-    pageSize: 999999999,
+    pageNo: pageNo,
+    pageSize: pageSize,
     projectStatus: searchData.projectStatus ? searchData.projectStatus : undefined,
     projectName: searchData.projectName ? searchData.projectName.split('*')[1] : undefined,
     startDate: searchData.time ? searchData.time.split(',')[0] + ' 00:00:00' : undefined,
     endDate: searchData.time ? searchData.time.split(',')[1] + ' 23:59:59' : undefined,
   };
   let res = await getProjectManagementListApi(params);
-  return res.records;
+  return {
+    records: res.records, // 当前页数据
+    total: res.total, // 总记录数
+  };
 };
 
 const { tableContext } = useListPage({
@@ -216,9 +226,8 @@ const { tableContext } = useListPage({
     size: 'middle',
     rowKey: 'id',
     pagination: {
-      current: pagination.value.pageNo,
-      pageSize: pagination.value.pageSize,
-      pageSizeOptions: ['10', '20', '30', '50'],
+      pageSize: 10,
+      showSizeChanger: true,
     },
     formConfig: {
       schemas: searchFormSchema,
@@ -245,19 +254,19 @@ const [registerTable, { reload, getForm, getPaginationRef, getDataSource }] = ta
 
 // 获取状态及主体数据
 const getStatusAndSubjecData = async () => {
- let statusRes = await getProjectStatusApi()
- let subjectRes = await getProjectProjectSubjectApi()
- statusOptions.value = [...statusRes]
- subjectOptions.value = [...subjectRes]
-}
+  let statusRes = await getProjectStatusApi();
+  let subjectRes = await getProjectProjectSubjectApi();
+  statusOptions.value = [...statusRes];
+  subjectOptions.value = [...subjectRes];
+};
 
 const getSatus = (record) => {
-  return statusOptions.value.find(item => item.value === record.projectStatus).label
-}
+  return statusOptions.value.find((item) => item.value === record.projectStatus).label;
+};
 
 const getSubject = (record) => {
-  return subjectOptions.value.find(item => item.value === record.projectSubject).label
-}
+  return subjectOptions.value.find((item) => item.value === record.projectSubject).label;
+};
 
 // 下载文件
 function downloadFile(url, filename) {
@@ -287,8 +296,8 @@ const handleDelete = async (record) => {
 };
 
 onMounted(async () => {
-  await getStatusAndSubjecData()
-})
+  await getStatusAndSubjecData();
+});
 </script>
 
 <style lang="less" scoped>
