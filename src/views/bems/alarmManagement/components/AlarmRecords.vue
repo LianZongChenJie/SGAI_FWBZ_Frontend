@@ -1,7 +1,12 @@
 <template>
   <div>
     <div class="card-box">
-      <div v-for="(item,index) in statisticsData" :key="index" class="card-item" :style="getStyle(index)">
+      <div
+        v-for="(item,index) in statisticsData"
+        :key="index"
+        class="card-item"
+        :style="getStyle(index)"
+      >
         <div>{{item.alarmLevelName}}</div>
         <div class="number-box">{{ item.quantity }}</div>
       </div>
@@ -9,8 +14,8 @@
     <BasicTable @register="registerTable">
       <template #tableTitle>
         <a-button type="primary">近三天</a-button>&ensp;
-      <a-button type="primary">近一周</a-button>&ensp;
-      <a-button type="primary">近一月</a-button>&ensp;
+        <a-button type="primary">近一周</a-button>&ensp;
+        <a-button type="primary">近一月</a-button>&ensp;
       </template>
       <template #form-deviceIds="{ model, field }">
         <a-input
@@ -67,13 +72,20 @@ import { ref, computed, reactive, onMounted } from 'vue';
 import { BasicColumn, BasicTable, FormSchema } from '/@/components/Table';
 import { useListPage } from '/@/hooks/system/useListPage';
 import { usePermissionStore } from '/@/store/modules/permission';
-import { getAlarmRecordsListApi, eliminateAlarmRecordsApi, spaceTree, getAlarmLevelListApi, getAlarmCategoryListApi, getAlarmRecordsStatisticsApi } from '../Standardized.api';
+import {
+  getAlarmRecordsListApi,
+  eliminateAlarmRecordsApi,
+  spaceTree,
+  getAlarmLevelListApi,
+  getAlarmCategoryListApi,
+  getAlarmRecordsStatisticsApi,
+} from '../Standardized.api';
 import { message } from 'ant-design-vue';
 import DeviceTableModal from './DeviceTableModal.vue';
 
 const deviceRef = ref();
 
-const statisticsData = ref<any>([])
+const statisticsData = ref<any>([]);
 
 // 打开类型
 const type = ref('');
@@ -176,7 +188,7 @@ const searchFormSchema: FormSchema[] = [
       showTime: true,
       format: 'YYYY-MM-DD',
       valueFormat: 'YYYY-MM-DD',
-      defaultValue: [formatDate(getFirstDayOfMonth()), formatDate(getToday())]
+      defaultValue: [formatDate(getFirstDayOfMonth()), formatDate(getToday())],
     },
   },
   {
@@ -205,28 +217,30 @@ const searchFormSchema: FormSchema[] = [
   },
 ];
 
-
-
 // 空间位置树数据
 const spaceTreeData = ref([]);
 const treeSelect = { children: 'children', label: 'title', value: 'key', key: 'key' };
 
 // 获取表格数据
-const getLinkageControlList = async () => {
+const getLinkageControlList = async (pageParams) => {
+  const { pageNo, pageSize } = pageParams;
   let { getFieldsValue } = getForm();
   const searchData = getFieldsValue();
   let params = {
-    // pageNo: '',
-    pageSize: 999999999,
+    pageNo: pageNo,
+    pageSize: pageSize,
     spaceId: searchData.spaceId ? searchData.spaceId : undefined,
     alarmLevelId: searchData.alarmLevelId ? searchData.alarmLevelId : undefined,
     alarmCategoryId: searchData.alarmCategoryId ? searchData.alarmCategoryId : undefined,
     deviceIds: searchData.deviceIds ? searchData.deviceIds.split('*')[1] : undefined,
-    startDate: searchData.time ? (searchData.time.split(',')[0] + ' 00:00:00') : (formatDate(getFirstDayOfMonth()) + ' 00:00:00'),
-    endDate: searchData.time ? (searchData.time.split(',')[1] + ' 23:59:59') : (formatDate(getToday()) + ' 23:59:59'),
+    startDate: searchData.time ? searchData.time.split(',')[0] + ' 00:00:00' : formatDate(getFirstDayOfMonth()) + ' 00:00:00',
+    endDate: searchData.time ? searchData.time.split(',')[1] + ' 23:59:59' : formatDate(getToday()) + ' 23:59:59',
   };
   let res = await getAlarmRecordsListApi(params);
-  return res.records;
+  return {
+    records: res.records, // 当前页数据
+    total: res.total, // 总记录数
+  };
 };
 
 const { tableContext } = useListPage({
@@ -239,9 +253,8 @@ const { tableContext } = useListPage({
     size: 'middle',
     rowKey: 'id',
     pagination: {
-      current: pagination.value.pageNo,
-      pageSize: pagination.value.pageSize,
-      pageSizeOptions: ['10', '20', '30', '50'],
+      pageSize: 10,
+      showSizeChanger: true,
     },
     formConfig: {
       schemas: searchFormSchema,
@@ -288,15 +301,15 @@ const hasPermission = (permission: string) => {
 const getStyle = (index) => {
   const hue = (50 * index) / Math.max(1, statisticsData.value.length - 1);
   return {
-    background: `hsl(${hue}, 100%, 50%)`
-  }
-}
+    background: `hsl(${hue}, 100%, 50%)`,
+  };
+};
 
 const getColor = (index, total) => {
   // 红色(0度)到橙色(30度)
-  
-  return ;
-}
+
+  return;
+};
 
 // 选择设备绑定
 const selectDevice = (type: number, index: number) => {
@@ -305,11 +318,11 @@ const selectDevice = (type: number, index: number) => {
 
 // 消除
 const eliminateAlarmRecords = async (record) => {
-  await eliminateAlarmRecordsApi({id: record.id})
+  await eliminateAlarmRecordsApi({ id: record.id });
   message.success('消除成功！');
   // 刷新表格
   reload();
-}
+};
 
 // 转事件工单
 const transferAlarmRecords = async (record) => {
@@ -317,7 +330,7 @@ const transferAlarmRecords = async (record) => {
   // message.success('消除成功！');
   // 刷新表格
   reload();
-}
+};
 
 // 获取下拉框数据源
 const getOptionsData = async () => {
@@ -350,14 +363,14 @@ const getAlarmRecordsStatistics = async () => {
     deviceIds: searchData.deviceIds ? searchData.deviceIds.split('*')[1] : undefined,
     startDate: searchData.time ? searchData.time.split(',')[0] : undefined,
     endDate: searchData.time ? searchData.time.split(',')[1] : undefined,
-  }
-  statisticsData.value =  await getAlarmRecordsStatisticsApi(params)
-  statisticsData.value.reverse()
-}
+  };
+  statisticsData.value = await getAlarmRecordsStatisticsApi(params);
+  statisticsData.value.reverse();
+};
 
 onMounted(async () => {
   await getOptionsData();
-  await getAlarmRecordsStatistics()
+  await getAlarmRecordsStatistics();
   const spaceRes = await spaceTree();
   spaceTreeData.value = spaceRes;
 });
@@ -399,7 +412,7 @@ onMounted(async () => {
     background-color: #fadb2f;
   }
 }
-.button-box{
+.button-box {
   width: 100%;
   display: flex;
   justify-content: flex-start;

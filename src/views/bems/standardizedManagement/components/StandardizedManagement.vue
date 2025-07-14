@@ -1,18 +1,37 @@
 <template>
   <div>
-    <BasicTable v-if="!showForm" @register="registerTable">
+    <BasicTable
+      v-if="!showForm"
+      @register="registerTable"
+    >
       <template #form-spaceId="{ model, field }">
-        <a-tree-select v-model:value="model[field]" :tree-data="spaceTreeData" placeholder="请选择空间位置"
-          :fieldNames="treeSelect" show-search allowClear />
+        <a-tree-select
+          v-model:value="model[field]"
+          :tree-data="spaceTreeData"
+          placeholder="请选择空间位置"
+          :fieldNames="treeSelect"
+          show-search
+          allowClear
+        />
       </template>
       <template #form-professionalId="{ model, field }">
-        <a-tree-select v-model:value="model[field]" :tree-data="categoryTreeData" placeholder="请选择专业"
-          :fieldNames="treeSelect" show-search allowClear />
+        <a-tree-select
+          v-model:value="model[field]"
+          :tree-data="categoryTreeData"
+          placeholder="请选择专业"
+          :fieldNames="treeSelect"
+          show-search
+          allowClear
+        />
       </template>
       <!-- 表格顶部按钮 -->
       <template #tableTitle>
-        <a-button v-if="hasPermission('bems:device_data:amend')" type="primary" :icon="h(EditOutlined)"
-          @click="addStrategy"> 新增 </a-button>
+        <a-button
+          v-if="hasPermission('bems:device_data:amend')"
+          type="primary"
+          :icon="h(EditOutlined)"
+          @click="addStrategy"
+        > 新增 </a-button>
       </template>
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'strategyName'">
@@ -23,16 +42,38 @@
         </template>
         <template v-if="column.key === 'active'">
           <a-space>
-            <a-popconfirm title="是否立即执行？" ok-text="确定" cancel-text="取消" @confirm="handleExecute(record)">
+            <a-popconfirm
+              title="是否立即执行？"
+              ok-text="确定"
+              cancel-text="取消"
+              @confirm="handleExecute(record)"
+            >
               <a @click.stop>立即执行</a>
             </a-popconfirm>
-            <a-popconfirm v-if="Number(record.enabledStatus)" title="是否禁用？" ok-text="确定" cancel-text="取消" @confirm="handleDisable(record)">
-              <a @click.stop style="color: red;">禁用</a>
+            <a-popconfirm
+              v-if="Number(record.enabledStatus)"
+              title="是否禁用？"
+              ok-text="确定"
+              cancel-text="取消"
+              @confirm="handleDisable(record)"
+            >
+              <a
+                @click.stop
+                style="color: red;"
+              >禁用</a>
             </a-popconfirm>
             <a @click.stop="handleEnable(record)">启用</a>
             <a @click.stop="handleEdit(record)">编辑</a>
-            <a-popconfirm title="删除不可恢复，是否删除？" ok-text="确定" cancel-text="取消" @confirm="handleDelete(record)">
-              <a @click.stop style="color: red;">删除</a>
+            <a-popconfirm
+              title="删除不可恢复，是否删除？"
+              ok-text="确定"
+              cancel-text="取消"
+              @confirm="handleDelete(record)"
+            >
+              <a
+                @click.stop
+                style="color: red;"
+              >删除</a>
             </a-popconfirm>
           </a-space>
         </template>
@@ -51,41 +92,59 @@
         <div class="expand-box">相关设备：{{ record.executeDevice }} </div>
       </template>
     </BasicTable>
-    <div class="info-box" v-else>
-      <standardized-management-strategy-list copy ref="linkageFormRef" :closeStrategy="closeStrategy" :type="type"
-        :editItem="editItem" />
+    <div
+      class="info-box"
+      v-else
+    >
+      <standardized-management-strategy-list
+        copy
+        ref="linkageFormRef"
+        :closeStrategy="closeStrategy"
+        :type="type"
+        :editItem="editItem"
+      />
     </div>
-    <enable-modal ref="enableModalRef" :reload="reload"/>
+    <enable-modal
+      ref="enableModalRef"
+      :reload="reload"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive, onMounted } from 'vue'
+import { ref, computed, reactive, onMounted } from 'vue';
 import { BasicColumn, BasicTable, FormSchema } from '/@/components/Table';
 import { useListPage } from '/@/hooks/system/useListPage';
 import { h } from 'vue';
 import { EditOutlined } from '@ant-design/icons-vue';
 import { usePermissionStore } from '/@/store/modules/permission';
-import StandardizedManagementStrategyList from './StandardizedManagementStrategyList.vue'
-import EnableModal from './EnableModal.vue'
-import { getStandardizedManagementtApi, deleteStandardizedManagemenApi, disableStandardizedManagemenApi, executeStandardizedManagemenApi, spaceTree, categoryTree } from '../Standardized.api'
+import StandardizedManagementStrategyList from './StandardizedManagementStrategyList.vue';
+import EnableModal from './EnableModal.vue';
+import {
+  getStandardizedManagementtApi,
+  deleteStandardizedManagemenApi,
+  disableStandardizedManagemenApi,
+  executeStandardizedManagemenApi,
+  spaceTree,
+  categoryTree,
+} from '../Standardized.api';
 import { message } from 'ant-design-vue';
 
 const props = defineProps({
   checkControlRecords: {
     type: Function,
-    default: () => {}
-  }
-})
+    default: () => {},
+  },
+});
 
 const showForm = ref<boolean>(false);
 
-const linkageFormRef = ref()
-const enableModalRef = ref()
+const linkageFormRef = ref();
+const enableModalRef = ref();
 
 // 打开类型
-const type = ref('')
-const editItem = ref<any>()
+const type = ref('');
+const editItem = ref<any>();
 
 const pagination = ref({
   pageNo: 1,
@@ -97,7 +156,6 @@ const spaceTreeData = ref([]);
 const treeSelect = { children: 'children', label: 'title', value: 'key', key: 'key' };
 
 const categoryTreeData = ref([]);
-
 
 // 表格列配置
 const columns: BasicColumn[] = [
@@ -148,7 +206,7 @@ const columns: BasicColumn[] = [
     title: '操作',
     dataIndex: 'active',
     key: 'active',
-  }
+  },
 ];
 
 //表单搜索字段
@@ -160,58 +218,62 @@ const searchFormSchema: FormSchema[] = [
     // slot: 'name', //设置默认值
   },
   {
-    label: '应用场景', 
-    field: 'strategyScene', 
-    component: 'JInput', 
+    label: '应用场景',
+    field: 'strategyScene',
+    component: 'JInput',
   },
   {
-    label: '策略目标', 
-    field: 'strategyTarget', 
-    component: 'JInput', 
+    label: '策略目标',
+    field: 'strategyTarget',
+    component: 'JInput',
   },
   {
-      label: '空间位置',
-      field: 'spaceId',
-      component: 'JDictSelectTag',
-      slot: 'spaceId',
+    label: '空间位置',
+    field: 'spaceId',
+    component: 'JDictSelectTag',
+    slot: 'spaceId',
   },
   {
-    label: '模式类型', 
-    field: 'modelType', 
-    component: 'Select', 
+    label: '模式类型',
+    field: 'modelType',
+    component: 'Select',
     componentProps: {
-        options: [
-          { label: '手动', value: '手动' },
-          { label: '自动', value: '自动' },
-          // 这里需要根据实际数据补充选项
-        ],
-      },
+      options: [
+        { label: '手动', value: '手动' },
+        { label: '自动', value: '自动' },
+        // 这里需要根据实际数据补充选项
+      ],
+    },
   },
   {
-    label: '专业', 
-    field: 'professionalId', 
+    label: '专业',
+    field: 'professionalId',
     component: 'JDictSelectTag',
     slot: 'professionalId',
-  }
+  },
 ];
 
 // 获取表格数据
-const getStandardizedManagementt = async () => {
+const getStandardizedManagementt = async (pageParams) => {
+  const { pageNo, pageSize } = pageParams;
   let { getFieldsValue } = getForm();
   const searchData = getFieldsValue();
   let params = {
-    // pageNo: '',
-    pageSize: 999999999,
+    pageNo: pageNo,
+    pageSize: pageSize,
     strategyName: searchData.strategyName ? searchData.strategyName.split('*')[1] : undefined,
     strategyScene: searchData.strategyScene ? searchData.strategyScene.split('*')[1] : undefined,
     strategyTarget: searchData.strategyTarget ? searchData.strategyTarget.split('*')[1] : undefined,
     spaceId: searchData.spaceId ? searchData.spaceId : undefined,
     modelType: searchData.modelType ? searchData.modelType : undefined,
     professionalId: searchData.professionalId ? searchData.professionalId : undefined,
-  }
-  let res = await getStandardizedManagementtApi(params)
-  return res.records
-}
+  };
+  let res = await getStandardizedManagementtApi(params);
+  return {
+    records: res.records, // 当前页数据
+    total: res.total, // 总记录数
+  };
+};
 
 const { tableContext } = useListPage({
   designScope: 'basic-table-demo',
@@ -223,9 +285,8 @@ const { tableContext } = useListPage({
     expandRowByClick: true,
     rowKey: 'id',
     pagination: {
-      current: pagination.value.pageNo,
-      pageSize: pagination.value.pageSize,
-      pageSizeOptions: ['10', '20', '30', '50'],
+      pageSize: 10,
+      showSizeChanger: true,
     },
     formConfig: {
       schemas: searchFormSchema,
@@ -257,7 +318,7 @@ const [registerTable, { reload, getForm, getPaginationRef, getDataSource }] = ta
  */
 const store = usePermissionStore();
 const permissionList = computed(() => store.$state.permCodeList || []);
-const hasPermission = (permission:string) => {
+const hasPermission = (permission: string) => {
   if (!permission) return true;
 
   const currentPermissions = permissionList.value;
@@ -271,64 +332,64 @@ const hasPermission = (permission:string) => {
 
 // 关闭form表单
 const closeStrategy = () => {
-  showForm.value = false
-}
+  showForm.value = false;
+};
 
 // 启用
 const handleEnable = async (record) => {
-  enableModalRef.value.openModal(record.id)
+  enableModalRef.value.openModal(record.id);
   // await enableStandardizedManagemenApi({ id: record.id })
   // message.success('启用成功！');
   // reload()
-}
+};
 
 // 禁用
 const handleDisable = async (record) => {
-  await disableStandardizedManagemenApi({ id: record.id })
+  await disableStandardizedManagemenApi({ id: record.id });
   message.success('禁用成功！');
-  reload()
-}
+  reload();
+};
 
 // 新增
 const addStrategy = () => {
-  type.value = 'create'
-  showForm.value = true
-}
+  type.value = 'create';
+  showForm.value = true;
+};
 
 // 编辑
 const handleEdit = (record) => {
-  editItem.value = record
-  type.value = 'edit'
-  showForm.value = true
-}
+  editItem.value = record;
+  type.value = 'edit';
+  showForm.value = true;
+};
 
 // 查看
 const checkDetail = (record) => {
-  editItem.value = record
-  type.value = 'check'
-  showForm.value = true
-}
+  editItem.value = record;
+  type.value = 'check';
+  showForm.value = true;
+};
 
 // 跳转到控制记录
 const handleview = (record) => {
-  props.checkControlRecords(record)
-}
+  props.checkControlRecords(record);
+};
 
 // 立即执行
 const handleExecute = async (record) => {
-  await executeStandardizedManagemenApi({id: record.id})
+  await executeStandardizedManagemenApi({ id: record.id });
   message.success('删除成功！');
   // 刷新表格
   reload();
-}
+};
 
 // 删除
 const handleDelete = async (record) => {
-  await deleteStandardizedManagemenApi({id: record.id})
+  await deleteStandardizedManagemenApi({ id: record.id });
   message.success('删除成功！');
   // 刷新表格
   reload();
-}
+};
 
 // 表单数据
 const formState = reactive({
@@ -336,7 +397,7 @@ const formState = reactive({
   age: undefined,
   email: '',
   phone: '',
-  address: ''
+  address: '',
 });
 
 onMounted(async () => {
@@ -345,17 +406,16 @@ onMounted(async () => {
 
   const categoryRes = await categoryTree({});
   categoryTreeData.value = categoryRes;
-  
-})
+});
 </script>
 
 <style scoped lang="less">
-.expand-box{
+.expand-box {
   margin-left: 10px;
   font-size: 16px;
 }
-.info-box{
-  .info-title{
+.info-box {
+  .info-title {
     height: 40px;
     display: flex;
     align-items: center;
@@ -366,9 +426,9 @@ onMounted(async () => {
     background-color: #374352;
     border-radius: 5px 5px 0 0;
   }
-  .info-list{
+  .info-list {
     padding: 16px;
-    .list-title{
+    .list-title {
       width: 100%;
       height: 40px;
       padding-left: 10px;
@@ -376,7 +436,7 @@ onMounted(async () => {
       align-items: center;
       border-bottom: 1px solid #d4d0d0;
     }
-    .list-form{
+    .list-form {
       width: 100%;
       margin-top: 16px;
     }

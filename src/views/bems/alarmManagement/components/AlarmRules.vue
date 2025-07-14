@@ -154,12 +154,13 @@ const searchFormSchema: FormSchema[] = [
 ];
 
 // 获取表格数据
-const getLinkageControlList = async () => {
+const getLinkageControlList = async (pageParams) => {
+  const { pageNo, pageSize } = pageParams;
   let { getFieldsValue } = getForm();
   const searchData = getFieldsValue();
   let params = {
-    // pageNo: '',
-    pageSize: 999999999,
+    pageNo: pageNo,
+        pageSize: pageSize,
     ruleCode: searchData.ruleInfo ? searchData.ruleInfo.split('*')[1] : undefined,
     ruleName: searchData.ruleInfo ? searchData.ruleInfo.split('*')[1] : undefined,
     alarmCategoryId: searchData.alarmCategoryId ? searchData.alarmCategoryId : undefined,
@@ -179,10 +180,9 @@ const { tableContext } = useListPage({
     size: 'middle',
     rowKey: 'id',
     pagination: {
-      current: pagination.value.pageNo,
-      pageSize: pagination.value.pageSize,
-      pageSizeOptions: ['10', '20', '30', '50'],
-    },
+        pageSize: 10,
+        showSizeChanger: true,
+      },
     formConfig: {
       schemas: searchFormSchema,
       // 默认展开

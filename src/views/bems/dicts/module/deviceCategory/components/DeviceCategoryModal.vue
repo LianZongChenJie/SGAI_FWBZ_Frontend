@@ -1,6 +1,17 @@
 <template>
   <BasicModal v-bind="$attrs" @register="registerModal" destroyOnClose :width="800" :title="getTitle" @ok="handleSubmit">
-    <BasicForm @register="registerForm" name="EquipmentCategoryForm" />
+    <BasicForm @register="registerForm" name="EquipmentCategoryForm" >
+      <template #pid="{ model, field }">
+        <a-tree-select
+          v-model:value="model[field]"
+          :tree-data="treeData"
+          placeholder="请选择位置"
+          :fieldNames="treeSelect"
+          show-search
+          allowClear
+        />
+      </template>
+    </BasicForm>
   </BasicModal>
 </template>
 <script lang="ts" setup>
@@ -105,6 +116,8 @@
       setModalProps({ confirmLoading: false });
     }
   }
+  // 空间位置树数据
+const treeSelect = { children: 'children', label: 'title', value: 'key', key: 'key' };
 </script>
 <style lang="less" scoped>
   /** 时间和数字输入框样式 */

@@ -4,7 +4,7 @@
     @register="registerModal"
     destroyOnClose
     :title="title"
-    :width="800"
+    :width="1000"
     @ok="handleSubmit"
     @visibleChange="visibleChange"
   >
@@ -53,55 +53,126 @@
           :icon="h(PlusOutlined)"
           @click="addItem"
         >新增</a-button>
-        <a-table
-          :dataSource="dataSource"
-          :columns="columns"
-          bordered
-          size="middle"
-        >
-          <template #bodyCell="{ column, text, record }">
-            <template v-if="['sort', 'readwriteLevel', 'attributeCode', 'unit', 'attributeName'].includes(column.dataIndex)">
-              <div>
-                <a-input
-                  v-if="editableData[record.key]"
-                  v-model:value="editableData[record.key][column.dataIndex]"
-                  style="margin: -5px 0"
-                />
-                <template v-else>
-                  {{ text }}
-                </template>
-              </div>
+        <div style="height: 300px;">
+          <a-table
+            :dataSource="dataSource"
+            :columns="columns"
+            bordered
+            :scroll="{ y: 400 }"
+            size="middle"
+          >
+            <template #bodyCell="{ column, text, record }">
+              <template v-if="['sort', 'readwriteLevel', 'attributeCode', 'unit', 'attributeName'].includes(column.dataIndex)">
+                <div>
+                  <a-input
+                    v-if="editableData[record.key]"
+                    v-model:value="editableData[record.key][column.dataIndex]"
+                    style="margin: -5px 0"
+                  />
+                  <template v-else>
+                    {{ text }}
+                  </template>
+                </div>
+              </template>
+              <template v-else-if="column.dataIndex === 'operation'">
+                <div class="editable-row-operations">
+                  <span v-if="editableData[record.key]">
+                    <a-typography-link @click="save(record.key)"><a>保存</a></a-typography-link>
+                    &ensp;
+                    <a-popconfirm
+                      title="确认取消?"
+                      @confirm="cancel(record)"
+                    >
+                      <a>取消</a>
+                    </a-popconfirm>
+                  </span>
+                  <span v-else>
+                    <a @click="edit(record.key)">编辑</a>&ensp;
+                    <a-popconfirm
+                      title="确认删除该条数据？"
+                      ok-text="确定"
+                      cancel-text="取消"
+                      @confirm="confirmDelete(record)"
+                    >
+                      <a style="color: red;">删除</a>
+                    </a-popconfirm>&ensp;
+                    <a @click="showDrawer(record)">绑定点位</a>
+                  </span>
+                </div>
+              </template>
             </template>
-            <template v-else-if="column.dataIndex === 'operation'">
-              <div class="editable-row-operations">
-                <span v-if="editableData[record.key]">
-                  <a-typography-link @click="save(record.key)"><a>保存</a></a-typography-link>
-                  &ensp;
-                  <a-popconfirm
-                    title="确认取消?"
-                    @confirm="cancel(record)"
-                  >
-                    <a>取消</a>
-                  </a-popconfirm>
-                </span>
-                <span v-else>
-                  <a @click="edit(record.key)">编辑</a>&ensp;
-                  <a-popconfirm
-                    title="确认删除该条数据？"
-                    ok-text="确定"
-                    cancel-text="取消"
-                    @confirm="confirmDelete(record)"
-                  >
-                    <a style="color: red;">删除</a>
-                  </a-popconfirm>
-
-                </span>
-              </div>
-            </template>
-          </template>
-        </a-table>
+          </a-table>
+        </div>
       </a-tab-pane>
     </a-tabs>
+    <a-drawer
+      v-model:open="open"
+      class="custom-class"
+      root-class-name="root-class-name"
+      :root-style="{ color: 'blue' }"
+      style="color: red"
+      title="点位列表"
+      placement="right"
+      size="large"
+    >
+      <div class="form-box">
+        <a-form
+          :model="formState"
+          :label-col="{ span: 6 }"
+          :wrapper-col="{ span: 16 }"
+          autocomplete="off"
+        >
+          <a-row>
+            <a-col :span="9">
+              <a-form-item
+                label="网关地址"
+                name="gatewayAdr"
+              >
+                <a-input
+                  v-model:value="formState.gatewayAdr"
+                  :allowClear="true"
+                />
+              </a-form-item>
+            </a-col>
+            <a-col :span="9">
+              <a-form-item
+                label="通信地址"
+                name="bacnetAdr"
+              >
+                <a-input
+                  v-model:value="formState.bacnetAdr"
+                  :allowClear="true"
+                />
+              </a-form-item>
+            </a-col>
+            <a-col :span="6">
+              <a-form-item>
+                <a-button
+                  type="primary"
+                  @click="getBuildingControlPointList()"
+                >搜索</a-button>
+              </a-form-item>
+            </a-col>
+          </a-row>
+
+        </a-form>
+      </div>
+      <div class="table-box">
+        <a-table
+          class="custom-hover-table"
+          :dataSource="pointData"
+          :columns="pointColumns"
+          :pagination="pagination"
+          size="middle"
+          bordered
+          :customRow="rowClick"
+        >
+          <template #index="{ text, record, index }">
+            {{ index + 1 }}
+          </template>
+        </a-table>
+      </div>
+    </a-drawer>
   </BasicModal>
 </template>
 
@@ -111,45 +182,65 @@ import { BasicModal, useModalInner } from '/@/components/Modal';
 import { BasicForm, useForm } from '/@/components/Form/index';
 import { PlusOutlined } from '@ant-design/icons-vue';
 import { TreeSelect } from 'ant-design-vue';
-import { saveOrUpdate, getDeviceAttribute, getListByDeviceId, saveData, addData, deleteItem } from '../Device.api';
+import {
+  saveOrUpdate,
+  getDeviceAttribute,
+  getListByDeviceId,
+  saveData,
+  addData,
+  deleteItem,
+  getBuildingControlPointListApi,
+  bindPointLocationApi,
+} from '../Device.api';
 import { cloneDeep } from 'lodash-es';
 import { message } from 'ant-design-vue';
 import type { UnwrapRef } from 'vue';
 
 const emit = defineEmits(['register', 'success']);
 const isUpdate = ref(true);
-const activeKey = ref('1');
+const activeKey = ref('2');
 const dataSource = ref();
 const columns = [
   {
     title: '属性名称',
     dataIndex: 'attributeName',
     key: 'attributeName',
+    width: 80,
   },
   {
     title: '属性单位',
     dataIndex: 'unit',
     key: 'unit',
+    width: 80,
   },
   {
     title: '属性编码',
     dataIndex: 'attributeCode',
     key: 'attributeCode',
+    width: 120,
   },
   {
     title: '读写级别',
     dataIndex: 'readwriteLevel',
     key: 'readwriteLevel',
+    width: 80,
   },
   {
     title: '排序',
     dataIndex: 'sort',
     key: 'sort',
+    width: 80,
+  },
+  {
+    title: '点位编号',
+    dataIndex: 'acquisitionCoding',
+    key: 'acquisitionCoding',
   },
   {
     title: '操作',
     dataIndex: 'operation',
     key: 'operation',
+    width: 180,
   },
 ];
 
@@ -414,10 +505,153 @@ const visibleChange = (value) => {
     activeKey.value = '1';
   }
 };
+
+const open = ref<boolean>(false);
+
+const targetId = ref('');
+
+// 打开抽屉
+const showDrawer = async (record) => {
+  targetId.value = record.id;
+  await getBuildingControlPointList();
+  open.value = true;
+};
+
+interface FormState {
+  gatewayAdr: string;
+  bacnetAdr: string;
+}
+
+const formState = reactive<FormState>({
+  gatewayAdr: '',
+  bacnetAdr: '',
+});
+
+const pagination = reactive({
+  pageNo: 1,
+  pageSize: 10,
+  total: 10,
+});
+
+const pointColumns = [
+  {
+    title: 'ID',
+    dataIndex: 'id',
+    key: 'id',
+    width: 120,
+  },
+  {
+    title: '网关地址',
+    dataIndex: 'gatewayAdr',
+    key: 'gatewayAdr',
+  },
+  {
+    title: '通信地址',
+    dataIndex: 'bacnetAdr',
+    key: 'bacnetAdr',
+  },
+  {
+    title: '值',
+    dataIndex: 'value',
+    key: 'value',
+    width: 120,
+  },
+  {
+    title: '采集时间',
+    dataIndex: 'collectionTime',
+    key: 'collectionTime',
+    width: 240,
+  },
+];
+
+const pointData = ref([
+  {
+    deviceName: '点位名称1',
+    categoryId: '点位id1',
+    spaceId: '点位路径1',
+  },
+  {
+    deviceName: '点位名称2',
+    categoryId: '点位id2',
+    spaceId: '点位路径2',
+  },
+  {
+    deviceName: '点位名称3',
+    categoryId: '点位id3',
+    spaceId: '点位路径3',
+  },
+  {
+    deviceName: '点位名称4',
+    categoryId: '点位id4',
+    spaceId: '点位路径4',
+  },
+  {
+    deviceName: '点位名称5',
+    categoryId: '点位id5',
+    spaceId: '点位路径5',
+  },
+]);
+
+// 获取表格数据
+const getBuildingControlPointList = async () => {
+  let params = {
+    pageNo: pagination.pageNo,
+    pageSize: pagination.pageSize,
+    gatewayAdr: formState.gatewayAdr ? formState.gatewayAdr : undefined,
+    bacnetAdr: formState.bacnetAdr ? formState.bacnetAdr : undefined,
+  };
+  let res = await getBuildingControlPointListApi(params);
+  pointData.value = [...res.records];
+  pagination.total = res.total;
+};
+
+// 行双击事件
+const rowClick = (record) => {
+  return {
+    // 双击事件
+    ondblclick: (event) => {
+      // 在这里处理双击逻辑
+      bindPointLocation(record);
+    },
+  };
+};
+
+// 绑定点位
+const bindPointLocation = async (record) => {
+  let params = {
+    pointId: targetId.value,
+    gatewayAdr: record.gatewayAdr,
+    bacnetAdr: record.bacnetAdr,
+  };
+  let res = await bindPointLocationApi(params);
+  if (!res) message.success('绑定成功！');
+  await getData(id.value);
+  open.value = false;
+};
 </script>
 
 <style lang="less" scoped>
 :deep(.ant-input-number) {
   width: 100%;
+}
+
+.custom-hover-table {
+  --hover-bg-color: #f0f9ff;
+  --active-bg-color: #e6f7ff;
+}
+
+/* 行 hover 效果 */
+.custom-hover-table :deep(.ant-table-tbody > tr:hover > td) {
+  background: var(--hover-bg-color) !important;
+}
+
+/* 行点击效果 */
+.custom-hover-table :deep(.ant-table-tbody > tr:active > td) {
+  background: var(--active-bg-color) !important;
+}
+
+/* 过渡动画 */
+.custom-hover-table :deep(.ant-table-tbody > tr > td) {
+  transition: background-color 0.2s ease;
 }
 </style>

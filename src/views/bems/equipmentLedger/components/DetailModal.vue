@@ -12,6 +12,7 @@
 
   const visible = ref(false);
   const handleCancel = () => {
+    current.value = ['base']
     visible.value = false;
   };
   const handleClick = (item: any) => {

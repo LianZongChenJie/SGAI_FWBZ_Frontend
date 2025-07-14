@@ -3,14 +3,32 @@
     <div class="title-box">
       <DatabaseFilled style="font-size: 18px; color: #000;" />&ensp;设备模型
     </div>
-    <BasicTable @register="registerTable" :rowSelection="rowSelection" @row-click="selectTargetModel">
+    <BasicTable
+      @register="registerTable"
+      :rowSelection="rowSelection"
+      @row-click="selectTargetModel"
+    >
       <!-- 表格顶部按钮 -->
       <template #tableTitle>
-        <a-button type="primary" :icon="h(PlusOutlined)" @click="handleAdd">
+        <a-button
+          type="primary"
+          :icon="h(PlusOutlined)"
+          @click="handleAdd"
+        >
           新增
         </a-button>
-        <a-popconfirm title="确认删除选中数据？" ok-text="确定" cancel-text="取消" @confirm="confirmDeleteBatc()">
-          <a-button type="primary" danger style="margin-left: 8px" :icon="h(DeleteOutlined)">
+        <a-popconfirm
+          title="确认删除选中数据？"
+          ok-text="确定"
+          cancel-text="取消"
+          @confirm="confirmDeleteBatc()"
+        >
+          <a-button
+            type="primary"
+            danger
+            style="margin-left: 8px"
+            :icon="h(DeleteOutlined)"
+          >
             批量删除
           </a-button>
         </a-popconfirm>
@@ -21,7 +39,12 @@
             <a @click="handleedit(record)">
               <EditOutlined />编辑
             </a>
-            <a-popconfirm title="确认删除该条数据？" ok-text="确定" cancel-text="取消" @confirm="confirmDelete(record)">
+            <a-popconfirm
+              title="确认删除该条数据？"
+              ok-text="确定"
+              cancel-text="取消"
+              @confirm="confirmDelete(record)"
+            >
               <a style="color: red;">
                 <DeleteOutlined style="color: red;" />删除
               </a>
@@ -34,21 +57,46 @@
         </template>
       </template>
     </BasicTable>
-    <a-modal v-model:visible="modalVisible" :title="isUpdate ? '编辑模型' : '新增模型'" width="600px" @ok="handleSubmit"
-      @cancel="handleCancel">
+    <a-modal
+      v-model:visible="modalVisible"
+      :title="isUpdate ? '编辑模型' : '新增模型'"
+      width="600px"
+      @ok="handleSubmit"
+      @cancel="handleCancel"
+    >
       <div style="padding: 10px;">
-        <a-form :model="formState" :label-col="{ span: 8 }" :wrapper-col="{ span: 16 }" layout="inline">
+        <a-form
+          :model="formState"
+          :label-col="{ span: 8 }"
+          :wrapper-col="{ span: 16 }"
+          layout="inline"
+        >
           <!-- 输入框 -->
           <a-col :span="12">
-            <a-form-item label="名称" name="modelName" :rules="[{ required: true, message: '请输入名称' }]">
-              <a-input v-model:value="formState.modelName" placeholder="请输入名称" />
+            <a-form-item
+              label="名称"
+              name="modelName"
+              :rules="[{ required: true, message: '请输入名称' }]"
+            >
+              <a-input
+                v-model:value="formState.modelName"
+                placeholder="请输入名称"
+              />
             </a-form-item>
           </a-col>
 
           <!-- 下拉选择框 -->
           <a-col :span="12">
-            <a-form-item label="专业" name="categoryId" :rules="[{ required: true, message: '请选择专业' }]">
-              <a-select v-model:value="formState.categoryId" placeholder="请选择专业" :options="categoryList" />
+            <a-form-item
+              label="专业"
+              name="categoryId"
+              :rules="[{ required: true, message: '请选择专业' }]"
+            >
+              <a-select
+                v-model:value="formState.categoryId"
+                placeholder="请选择专业"
+                :options="categoryList"
+              />
             </a-form-item>
           </a-col>
         </a-form>
@@ -58,7 +106,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref } from 'vue';
 import { getCategoryDataList, getDeviceModelList, addModel, updateModel, deleteModel, deleteBatchModel } from './Model.api';
 import { DatabaseFilled } from '@ant-design/icons-vue';
 import { BasicColumn, BasicTable, FormSchema } from '/@/components/Table';
@@ -89,10 +137,10 @@ const columns: BasicColumn[] = [
     title: '操作',
     dataIndex: 'active',
     key: 'active',
-  }
+  },
 ];
 
-const categoryList = ref<[{ label: string, value: string }]>([{label:'',value: ''}])
+const categoryList = ref<[{ label: string; value: string }]>([{ label: '', value: '' }]);
 //表单搜索字段
 let searchFormSchema: FormSchema[] = [
   {
@@ -116,18 +164,22 @@ let searchFormSchema: FormSchema[] = [
 ];
 
 // 获取表格数据
-const getData = async() => {
-  let { getFieldsValue } = getForm()
+const getData = async (pageParams) => {
+  const { pageNo, pageSize } = pageParams;
+  let { getFieldsValue } = getForm();
   let params = {
-    pageNo: pagination.value.pageNo,
-    pageSize: 999999,
-    modelName: (getFieldsValue().modelName && getFieldsValue().modelName !== '**') ? getFieldsValue().modelName : undefined,
+    pageNo: pageNo,
+    pageSize: pageSize,
+    modelName: getFieldsValue().modelName && getFieldsValue().modelName !== '**' ? getFieldsValue().modelName : undefined,
     categoryId: getFieldsValue().categoryId ? getFieldsValue().categoryId : undefined,
-  }
-  let res = await getDeviceModelList(params)
-  dataSource.value = res.records
-  return dataSource.value
-}
+  };
+  let res = await getDeviceModelList(params);
+  dataSource.value = res.records;
+  return {
+    records: res.records, // 当前页数据
+    total: res.total, // 总记录数
+  };
+};
 
 // 表格数据
 const dataSource = ref([]);
@@ -138,9 +190,7 @@ const pagination = ref({
   pageSize: 10,
 });
 
-const customResetFunc = async() => {
-    
-}
+const customResetFunc = async () => {};
 
 const { tableContext } = useListPage({
   designScope: 'basic-table-demo',
@@ -150,12 +200,11 @@ const { tableContext } = useListPage({
     showActionColumn: false,
     size: 'middle',
     pagination: {
-      current: pagination.value.pageNo,
-      pageSize: pagination.value.pageSize,
-      pageSizeOptions: ['10', '20', '30', '50'],
+      pageSize: 10,
+      showSizeChanger: true,
     },
-    rowkey: "id",
-    //定义rowSelection的类型，默认是checkbox多选，可以设置成radio单选 
+    rowkey: 'id',
+    //定义rowSelection的类型，默认是checkbox多选，可以设置成radio单选
     rowSelection: { type: 'checkbox' },
     formConfig: {
       schemas: searchFormSchema,
@@ -173,29 +222,29 @@ const { tableContext } = useListPage({
   },
 });
 // 获取专业列表
-const getCategoryList = async() => {
-  let res = await getCategoryDataList()
-  categoryList.value = res.map(item => {
+const getCategoryList = async () => {
+  let res = await getCategoryDataList();
+  categoryList.value = res.map((item) => {
     return {
       label: item.title,
-      value: item.key
-    }
-  })
-}
+      value: item.key,
+    };
+  });
+};
 // 获取数据列表
 const getCategory = (record) => {
-  let targetItem = categoryList.value.find(item => {
-    return record.categoryId.toString() === item.value
-  })
-  return targetItem?.label
-}
+  let targetItem = categoryList.value.find((item) => {
+    return record.categoryId.toString() === item.value;
+  });
+  return targetItem?.label;
+};
 
 // BasicTable绑定注册
 const [registerTable, { reload, getForm }, { rowSelection, selectedRows, selectedRowKeys }] = tableContext;
 
-const modalVisible= ref<boolean>(false)
-const isUpdate = ref<boolean>(false)
-const modelId = ref<number>()
+const modalVisible = ref<boolean>(false);
+const isUpdate = ref<boolean>(false);
+const modelId = ref<number>();
 // 表单数据
 const formState = reactive({
   modelName: '',
@@ -203,23 +252,23 @@ const formState = reactive({
 });
 // 打开新增弹框
 const handleAdd = () => {
-  isUpdate.value = false
+  isUpdate.value = false;
   modalVisible.value = true;
 };
 
 // 打开编辑弹框
 const handleedit = (record) => {
-  formState.categoryId = record.categoryId + ''
-  formState.modelName = record.modelName
-  modelId.value = record.id
-  isUpdate.value = true
+  formState.categoryId = record.categoryId + '';
+  formState.modelName = record.modelName;
+  modelId.value = record.id;
+  isUpdate.value = true;
   modalVisible.value = true;
 };
 
 // 提交表单
 const handleSubmit = async () => {
-  if(isUpdate.value) {
-    await updateModel({ id: modelId.value,...formState})
+  if (isUpdate.value) {
+    await updateModel({ id: modelId.value, ...formState });
   } else {
     await addModel(formState);
   }
@@ -236,13 +285,13 @@ const handleCancel = () => {
   modalVisible.value = false;
 };
 
-// 确认删除 
+// 确认删除
 const confirmDelete = async (record) => {
-  await deleteModel({ id: record.id.toString() })
+  await deleteModel({ id: record.id.toString() });
   message.success('删除成功！');
   // 刷新表格
   reload();
-}
+};
 
 // 重置表单
 const resetForm = () => {
@@ -255,28 +304,28 @@ const confirmDeleteBatc = async () => {
   if (!selectedRowKeys.value.length) {
     message.error('未选择任何数据！');
   } else {
-    let ids = selectedRowKeys.value.reduce((ids,item) => {
-      return item + ',' + ids
-    })
-    await deleteBatchModel({ ids: ids })
+    let ids = selectedRowKeys.value.reduce((ids, item) => {
+      return item + ',' + ids;
+    });
+    await deleteBatchModel({ ids: ids });
     message.success('删除成功！');
     // 刷新表格
     reload();
   }
-}
+};
 
 // 选择某个行
 const selectTargetModel = (record) => {
-  props.getTargetModel(record)
-}
+  props.getTargetModel(record);
+};
 
 onMounted(async () => {
-  await getCategoryList()
-  await getData()
+  await getCategoryList();
+  await getData();
   nextTick(() => {
-    selectTargetModel(dataSource.value[0])
-  })
-})
+    selectTargetModel(dataSource.value[0]);
+  });
+});
 </script>
 
 <style scoped lang="less">

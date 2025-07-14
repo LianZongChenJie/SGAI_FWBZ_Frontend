@@ -28,7 +28,7 @@
   import ConfigurationModal from './ConfigurationModal.vue';
 </script>
 
-<style lang="scss" scoped>
+<style lang="less" scoped>
   .cost-analysis {
     display: flex;
     flex-wrap: wrap;

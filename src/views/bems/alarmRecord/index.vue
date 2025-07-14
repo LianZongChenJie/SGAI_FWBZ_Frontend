@@ -268,13 +268,14 @@ const spaceTreeData = ref([]);
 const treeSelect = { children: 'children', label: 'title', value: 'key', key: 'key' };
 
 // 获取表格数据
-const getLinkageControlList = async () => {
+const getLinkageControlList = async (pageParams) => {
+  const { pageNo, pageSize } = pageParams;
   await getOptionsData();
   let { getFieldsValue } = getForm();
   const searchData = getFieldsValue();
   let params = {
-    pageNo: 1,
-    pageSize: 999999999,
+    pageNo: pageNo,
+    pageSize: pageSize,
     spaceId: searchData.spaceId ? searchData.spaceId : undefined,
     alarmLevelId: searchData.alarmLevelId ? searchData.alarmLevelId : undefined,
     alarmCategoryId: searchData.alarmCategoryId ? searchData.alarmCategoryId : undefined,
@@ -296,16 +297,19 @@ const getLinkageControlList = async () => {
   }
   let res = await getAlarmRecordsListApi(params);
   res.records.forEach((item, index) => {
-    let colorArr = backgroundColorArr.value.filter((user, index, self) => index === self.findIndex((u) => u.level === user.level))
-    for(let i = 0; i < colorArr.length; i++) {
-      if(colorArr[i].level === item.alarmLevelName) {
-        item['backgroundColor'] = colorArr[i].color
-        break
+    let colorArr = backgroundColorArr.value.filter((user, index, self) => index === self.findIndex((u) => u.level === user.level));
+    for (let i = 0; i < colorArr.length; i++) {
+      if (colorArr[i].level === item.alarmLevelName) {
+        item['backgroundColor'] = colorArr[i].color;
+        break;
       }
     }
   });
   console.log('res.records------------->', res.records);
-  return res.records;
+  return {
+    records: res.records, // 当前页数据
+    total: res.total, // 总记录数
+  };
 };
 
 const { tableContext } = useListPage({
@@ -318,9 +322,8 @@ const { tableContext } = useListPage({
     size: 'middle',
     rowKey: 'id',
     pagination: {
-      current: pagination.value.pageNo,
-      pageSize: pagination.value.pageSize,
-      pageSizeOptions: ['10', '20', '30', '50'],
+      pageSize: 10,
+      showSizeChanger: true,
     },
     formConfig: {
       schemas: searchFormSchema,
@@ -368,7 +371,7 @@ const getStyle = (index) => {
   const hue = (50 * index) / Math.max(1, statisticsData.value.length - 1);
   return {
     background: `hsl(${hue}, 100%, 50%)`,
-    color: '#FFF'
+    color: '#FFF',
   };
 };
 
