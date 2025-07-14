@@ -238,7 +238,8 @@ const loadData = async (pageParams) => {
     const params = {
       pageNo: pageNo,
       pageSize: pageSize,
-      nameOrCode: searchData.deviceName ? searchData.deviceName.split('*')[1] : undefined,
+      deviceName: searchData.deviceName ? searchData.deviceName.split('*')[1] : undefined,
+      deviceCode: searchData.deviceName ? searchData.deviceName.split('*')[1] : undefined,
       categoryIds: props.categoryKeys ? props.categoryKeys.join(',') : undefined,
       spaceIds: props.spaceKeys ? props.spaceKeys.join(',') : undefined,
       dateTime: searchData.date ? searchData.date : undefined,

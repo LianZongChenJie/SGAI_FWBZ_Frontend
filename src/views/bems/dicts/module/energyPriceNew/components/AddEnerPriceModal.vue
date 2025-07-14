@@ -34,7 +34,6 @@
                 </a-col>
                 <a-col
                   :span="12"
-                  v-if="formState.categoryId"
                 >
                   <a-form-item
                     label="计费方式"
@@ -610,8 +609,8 @@ const timeOptions = [
     value: '5:00',
   },
   {
-    label: '600',
-    value: '600',
+    label: '6:00',
+    value: '6:00',
   },
   {
     label: '7:00',
@@ -721,6 +720,8 @@ const showModal = async (type, record:any = {}) => {
       formState.value[key] = record[key]
     }
     formState.value.categoryId += ''
+    formState.value.applyMonths1 = formState.value.applyMonths1.split(',')
+    formState.value.applyMonths2 = formState.value.applyMonths2.split(',')
     console.log('formState.value------------>', formState.value);
   } else {
     console.log('新增------------>', type, record);

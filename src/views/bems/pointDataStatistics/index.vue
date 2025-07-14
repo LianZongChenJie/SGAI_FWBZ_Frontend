@@ -23,7 +23,7 @@
       <!-- 图表下方的表格 -->
       <div class="table-container">
         <a-table :columns="tableColumns" :data-source="tableData" :pagination="false" bordered tableLayout="fixed"
-          :scroll="{ x: 1500, y: 220 }"/>
+          :scroll="{ x: 1500, y: 170 }"/>
       </div>
     </div>
   </div>

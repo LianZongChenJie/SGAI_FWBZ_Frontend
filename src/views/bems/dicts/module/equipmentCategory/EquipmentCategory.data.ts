@@ -40,6 +40,7 @@ export const formSchema: FormSchema[] = [
       pidValue: '0',
       hasChildField: 'has_child',
     },
+    slot: 'pid'
   },
   {
     label: '类别名称',
