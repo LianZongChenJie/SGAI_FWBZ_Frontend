@@ -286,7 +286,6 @@ const resetForm = () => {
 const setTargetModel = async (target) => {
   tableTitle.value = target.modelName;
   targetModel = { ...target };
-  await getData();
   reload();
 };
 

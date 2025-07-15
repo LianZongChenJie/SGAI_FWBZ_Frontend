@@ -21,7 +21,10 @@
                 name="name"
                 :rules="[{ required: true, message: '请输入回路名称!' }]"
               >
-                <a-input v-model:value="formState.name" />
+                <a-input
+                  placeholder="请输入回路名称"
+                  v-model:value="formState.name"
+                />
               </a-form-item>
             </a-col>
             <a-col :span="24">
@@ -30,7 +33,10 @@
                 name="num"
                 :rules="[{ required: true, message: '请输入回路编号!' }]"
               >
-                <a-input v-model:value="formState.num" />
+                <a-input
+                  placeholder="请输入回路编号"
+                  v-model:value="formState.num"
+                />
               </a-form-item>
             </a-col>
             <a-col :span="24">
@@ -54,7 +60,7 @@
                 label="安装位置"
                 name="position"
               >
-                <a-input v-model:value="formState.position" />
+                <a-input placeholder="请输入安装位置" v-model:value="formState.position" />
               </a-form-item>
             </a-col>
           </a-row>
@@ -100,22 +106,22 @@ const open = ref<boolean>(false);
 const formSateRef = ref();
 
 interface FormState {
-  id: string;
-  name: string;
-  spaceId: string;
-  num: string;
-  position: string;
+  id: string | null;
+  name: string | null;
+  spaceId: string | null;
+  num: string | null;
+  position: string | null;
 }
 
 // 弹框类型
 const type = ref('create');
 
 const formState = ref<FormState>({
-  id: '',
-  name: '',
-  spaceId: '',
-  num: '',
-  position: '',
+  id: null,
+  name: null,
+  spaceId: null,
+  num: null,
+  position: null,
 });
 
 // 空间位置树数据
@@ -158,7 +164,11 @@ const onSubmit = () => {
 
 // 重置
 const reset = () => {
-  formState.value.position = '';
+  formState.value.id = null;
+  formState.value.name = null;
+  formState.value.spaceId = null;
+  formState.value.num = null;
+  formState.value.position = null;
   formSateRef.value.resetFields();
 };
 

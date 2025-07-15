@@ -34,7 +34,7 @@
       </template>
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'status'">
-          {{ record.status ? '开启' : '关闭' }}
+          {{ record.status === '1' ? '开启' : '关闭' }}
         </template>
         <template v-if="column.key === 'active'">
           <a-space>

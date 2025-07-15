@@ -183,12 +183,6 @@ const getData = async (pageParams) => {
 
 // 表格数据
 const dataSource = ref([]);
-const total = ref<number>(0);
-
-const pagination = ref({
-  pageNo: 1,
-  pageSize: 10,
-});
 
 const customResetFunc = async () => {};
 
@@ -321,7 +315,6 @@ const selectTargetModel = (record) => {
 
 onMounted(async () => {
   await getCategoryList();
-  await getData();
   nextTick(() => {
     selectTargetModel(dataSource.value[0]);
   });

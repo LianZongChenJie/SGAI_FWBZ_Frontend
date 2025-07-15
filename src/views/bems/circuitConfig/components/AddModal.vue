@@ -1,17 +1,17 @@
 <template>
   <div class="device-box-modal">
-    <a-modal v-model:open="open" :title="type === 'create' ? '新建' : '编辑'" :footer="null" width="500px">
+    <a-modal v-model:open="open" :title="type === 'create' ? '新建' : '编辑'" :footer="null" width="500px" @cancel="reset" :destroyOnClose="true">
       <div class="form-box">
-        <a-form ref="formSateRef" :model="formState" :label-col="{ span: 4 }" :wrapper-col="{ span: 18 }" autocomplete="off">
+        <a-form ref="formSateRef" :model="formState" :label-col="{ span: 4 }" :wrapper-col="{ span: 18 }" autocomplete="off" v-if="open">
           <a-row :gutter="8">
             <a-col :span="24">
               <a-form-item label="回路名称" name="name" :rules="[{ required: true, message: '请输入回路名称!' }]">
-                <a-input v-model:value="formState.name" />
+                <a-input placeholder="请输入回路名称" v-model:value="formState.name" />
               </a-form-item>
             </a-col>
             <a-col :span="24">
               <a-form-item label="回路编号" name="num" :rules="[{ required: true, message: '请输入回路编号!' }]">
-                <a-input v-model:value="formState.num" />
+                <a-input placeholder="请输入回路编号" v-model:value="formState.num" />
               </a-form-item>
             </a-col>
             <a-col :span="24">
@@ -26,11 +26,11 @@
                 />
               </a-form-item>
             </a-col>
-            <a-col :span="24">
+            <!-- <a-col :span="24">
               <a-form-item label="安装位置" name="position">
                 <a-input v-model:value="formState.position" />
               </a-form-item>
-            </a-col>
+            </a-col> -->
           </a-row>
         </a-form>
         <div class="button-box">
@@ -68,11 +68,11 @@ const open = ref<boolean>(false);
 const formSateRef = ref()
 
 interface FormState {
-  id: string;
-  name: string;
-  spaceId: string; 
-  num: string; 
-  position: string; 
+  id: string | null;
+  name: string | null;
+  spaceId: string | null; 
+  num: string | null; 
+  position: string | null; 
 }
 
 // 弹框类型
@@ -137,8 +137,12 @@ const onSubmit = () => {
 
 // 重置
 const reset = () => {
-  formState.value.position=''
   formSateRef.value.resetFields();
+  formState.value.id = null
+  formState.value.name = null
+  formState.value.spaceId = null
+  formState.value.num = null
+  formState.value.position = null
 }
 
 const closeModal = () => {

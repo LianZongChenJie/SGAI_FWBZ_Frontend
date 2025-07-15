@@ -68,11 +68,11 @@ const open = ref<boolean>(false);
 const formSateRef = ref()
 
 interface FormState {
-  id: string;
-  name: string;
-  spaceId: string; 
-  num: string; 
-  position: string; 
+  id: string | null;
+  name: string | null;
+  spaceId: string | null; 
+  num: string | null; 
+  position: string | null; 
 }
 
 // 弹框类型
@@ -130,8 +130,12 @@ const onSubmit = () => {
 
 // 重置
 const reset = () => {
-  formState.value.position=''
   formSateRef.value.resetFields();
+  formState.value.id = null
+  formState.value.name = null
+  formState.value.spaceId = null
+  formState.value.num = null
+  formState.value.position = null
 }
 
 const closeModal = () => {

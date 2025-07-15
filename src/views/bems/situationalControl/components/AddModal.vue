@@ -5,6 +5,8 @@
       :title="type === 'create' ? '新建' : '编辑'"
       :footer="null"
       width="500px"
+      @cancel="reset"
+      :destroyOnClose="true"
     >
       <div class="form-box">
         <a-form
@@ -21,7 +23,7 @@
                 name="spaceName"
                 :rules="[{ required: true, message: '请输入空间名称!' }]"
               >
-                <a-input v-model:value="formState.spaceName" />
+                <a-input placeholder="请输入空间名称" v-model:value="formState.spaceName" />
               </a-form-item>
             </a-col>
             <a-col :span="24">
@@ -30,7 +32,7 @@
                 name="groupName"
                 :rules="[{ required: true, message: '请输入节目名称!' }]"
               >
-                <a-input v-model:value="formState.groupName" />
+                <a-input placeholder="请输入节目名称" v-model:value="formState.groupName" />
               </a-form-item>
             </a-col>
             <a-col :span="24">
@@ -39,7 +41,7 @@
                 name="relType"
                 :rules="[{ required: true, message: '请选择关联类型!' }]"
               >
-                <a-select v-model:value="formState.relType">
+                <a-select placeholder="请选择关联类型" v-model:value="formState.relType">
                   <a-select-option value="1">总控系统</a-select-option>
                   <a-select-option value="2"> 回路</a-select-option>
                 </a-select>
@@ -51,7 +53,7 @@
                 name="groupId"
                 :rules="[{ required: true, message: '请选择关总控系统节目!' }]"
               >
-                <a-input v-model:value="formState.groupId" />
+                <a-input placeholder="请输入节目ID" v-model:value="formState.groupId" />
               </a-form-item>
             </a-col>
           </a-row>
@@ -97,22 +99,22 @@ const open = ref<boolean>(false);
 const formSateRef = ref();
 
 interface FormState {
-  id: string;
-  spaceName: string;
-  groupName: string;
-  relType: string;
-  groupId: string;
+  id: string | null;
+  spaceName: string | null;
+  groupName: string | null;
+  relType: string | null;
+  groupId: string | null;
 }
 
 // 弹框类型
 const type = ref('create');
 
 const formState = ref<FormState>({
-  id: '',
-  spaceName: '',
-  groupName: '',
-  relType: '',
-  groupId: '',
+  id: null,
+  spaceName: null,
+  groupName: null,
+  relType: null,
+  groupId: null,
 });
 
 const categoryTreeData = ref([]);
@@ -162,6 +164,11 @@ const onSubmit = () => {
 // 重置
 const reset = () => {
   formSateRef.value.resetFields();
+  formState.value.id = null
+  formState.value.spaceName = null
+  formState.value.groupName = null
+  formState.value.relType = null
+  formState.value.groupId = null
 };
 
 const closeModal = () => {

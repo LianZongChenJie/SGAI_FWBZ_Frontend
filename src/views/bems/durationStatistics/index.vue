@@ -94,12 +94,12 @@ const columns: BasicColumn[] = [
 const searchFormSchema: FormSchema[] = [
   {
     label: '回路名称', //显示label
-    field: 'deviceIds', //查询字段
+    field: 'name', //查询字段
     component: 'JInput', //渲染的组件
   },
   {
     label: '回路编号',
-    field: 'alarmCategoryId',
+    field: 'num',
     component: 'JInput',
   },
   {
@@ -128,10 +128,9 @@ const getData = async (pageParams) => {
   let params = {
     pageNo: pageNo,
     pageSize: pageSize,
-    name: searchData.spaceId ? searchData.spaceId : undefined,
-    num: searchData.alarmLevelId ? searchData.alarmLevelId : undefined,
-    space: searchData.alarmCategoryId ? searchData.alarmCategoryId : undefined,
-    status: searchData.deviceIds ? searchData.deviceIds.split('*')[1] : undefined,
+    name: searchData.name ? searchData.name.split('*')[1] : undefined,
+    num: searchData.num ? searchData.num.split('*')[1] : undefined,
+    space: searchData.spaceId ? searchData.spaceId : undefined,
   };
   let res = await getDurationStatisticsListApi(params);
   return {

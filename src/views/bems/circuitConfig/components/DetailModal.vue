@@ -38,7 +38,7 @@
               />
             </a-form-item>
           </a-col>
-          <a-col :span="6">
+          <!-- <a-col :span="6">
             <a-form-item
               label="安装位置"
               name="position"
@@ -49,19 +49,27 @@
                 disabled
               />
             </a-form-item>
-          </a-col>
+          </a-col> -->
           <a-col :span="6">
             <a-form-item
               label="所在区域"
               name="spaceId"
             >
-              <a-tree-select
+              <!-- <a-tree-select
                 v-model:value="formState.spaceId"
                 :tree-data="spaceTreeData"
                 placeholder="请选择所在区域"
                 :fieldNames="treeSelect"
+                @change="searchData"
                 show-search
                 allowClear
+                :bordered="false"
+                disabled
+              /> -->
+              <a-input
+                v-model:value="formState.spaceName"
+                :bordered="false"
+                disabled
               />
             </a-form-item>
           </a-col>
@@ -99,17 +107,19 @@ const open = ref<boolean>(false);
 const formSateRef = ref();
 
 interface FormState {
-  id: string;
-  name: string;
-  spaceId: string;
-  num: string;
-  position: string;
+  id: string | null;
+  name: string | null;
+  spaceId: string | null;
+  spaceName: string | null;
+  num: string | null;
+  position: string | null;
 }
 
 const formState = ref<FormState>({
   id: '',
   name: '',
-  spaceId: '',
+  spaceId: null,
+  spaceName: null,
   num: '',
   position: '',
 });
@@ -143,11 +153,6 @@ const columns = [
     key: 'categoryId',
   },
   {
-    title: '安装位置',
-    dataIndex: 'position',
-    key: 'position',
-  },
-  {
     title: '所在区域',
     dataIndex: 'spaceId',
     key: 'spaceId',
@@ -163,13 +168,15 @@ const showModal = async (record) => {
   formState.value.name = record.name;
   formState.value.num = record.num;
   formState.value.position = record.position;
+  formState.value.spaceId = record.spaceId;
+  formState.value.spaceName = findTreeNodeTitle(spaceTreeData.value, record.spaceId);
   await getDetailTableData()
   open.value = true;
 };
 
 // 获取表格数据
 const getDetailTableData = async () => {
-  let res = await getCircuitDetailApi({ id: formState.value.id });
+  let res = await getCircuitDetailApi({ id: formState.value.id, spaceId: formState.value.spaceId ? formState.value.spaceId : undefined });
   dataSource.value = [...res.devices]
 }
 
@@ -231,6 +238,12 @@ const findTreeNodeTitle = (treeData: any[], key: string | number): string => {
   };
   return find(treeData);
 };
+
+// 筛选数据
+const searchData = (value) => {
+  getDetailTableData()
+  
+}
 
 onMounted(async () => {
   await getCategoryTree();

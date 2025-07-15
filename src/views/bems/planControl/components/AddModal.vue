@@ -4,7 +4,8 @@
       v-model:open="open"
       :title="type === 'create' ? '新建' : '编辑'"
       :footer="null"
-      
+      @cancel="reset"
+      :destroyOnClose="true"
       width="500px"
     >
       <div class="form-box">
@@ -23,7 +24,7 @@
                 name="spaceName"
                 :rules="[{ required: true, message: '请输入空间名称!' }]"
               >
-                <a-input v-model:value="formState.spaceName" />
+                <a-input placeholder="请输入空间名称" v-model:value="formState.spaceName" />
               </a-form-item>
             </a-col>
             <a-col :span="24">
@@ -32,14 +33,14 @@
                 name="planName"
                 :rules="[{ required: true, message: '请输入节目名称!' }]"
               >
-                <a-input v-model:value="formState.planName" />
+                <a-input placeholder="请输入场景名称" v-model:value="formState.planName" />
               </a-form-item>
             </a-col>
             <a-col :span="24">
               <a-form-item
                 label="执行日期"
                 name="exeDate"
-                :rules="[{ required: true, message: '请选择关联类型!' }]"
+                :rules="[{ required: true, message: '请选择执行日期!' }]"
               >
                 <a-date-picker
                   v-model:value="formState.exeDate"
@@ -241,6 +242,12 @@ const onSubmit = () => {
 // 重置
 const reset = () => {
   formSateRef.value.resetFields();
+  formState.value.id = null
+  formState.value.spaceName = null
+  formState.value.planName = null
+  formState.value.exeDate = null
+  formState.value.exeTime = null
+  formState.value.stopTime = null
 };
 
 const closeModal = () => {
