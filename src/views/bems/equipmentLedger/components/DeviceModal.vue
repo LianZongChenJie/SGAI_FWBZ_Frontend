@@ -170,6 +170,16 @@
           <template #index="{ text, record, index }">
             {{ index + 1 }}
           </template>
+          <template #bodyCell="{ column, text, record }">
+            <template v-if="column.dataIndex === 'content'">
+              <a-popover>
+                <template #content>
+                  <p>{{ record.content }}</p>
+                </template>
+                <div class="content-box">{{ record.content }}</div>
+              </a-popover>
+            </template>
+          </template>
         </a-table>
       </div>
     </a-drawer>
@@ -562,6 +572,12 @@ const pointColumns = [
     key: 'collectionTime',
     width: 240,
   },
+  {
+    title: '内容',
+    dataIndex: 'content',
+    key: 'content',
+    width: 120,
+  },
 ];
 
 const pointData = ref([
@@ -653,5 +669,12 @@ const bindPointLocation = async (record) => {
 /* 过渡动画 */
 .custom-hover-table :deep(.ant-table-tbody > tr > td) {
   transition: background-color 0.2s ease;
+}
+
+.content-box{
+  white-space: nowrap;      /* 禁止换行 */
+  overflow: hidden;         /* 隐藏溢出内容 */
+  text-overflow: ellipsis;  /* 显示省略号 */
+  width: 80px; 
 }
 </style>
