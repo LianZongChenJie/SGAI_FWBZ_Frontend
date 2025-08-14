@@ -40,7 +40,10 @@
                   :wrapper-col="{ span: 18 }"
                   autocomplete="off"
                 >
-                  <a-row :gutter="16">
+                  <a-row
+                    :gutter="16"
+                    style="margin-top: 16px;"
+                  >
                     <a-col :span="24">
                       <a-form-item
                         label="用户名："
@@ -54,7 +57,10 @@
                       </a-form-item>
                     </a-col>
                   </a-row>
-                  <a-row :gutter="16">
+                  <a-row
+                    :gutter="16"
+                    style="margin-top: 16px;"
+                  >
                     <a-col :span="24">
                       <a-form-item
                         label="密码："
@@ -65,6 +71,42 @@
                           v-model:value="formData.password"
                           style="height: 40px;"
                         />
+                      </a-form-item>
+                    </a-col>
+                  </a-row>
+                  <a-row
+                    :gutter="16"
+                    style="margin-top: 16px;"
+                  >
+                    <a-col :span="24">
+                      <a-form-item
+                        label="密码："
+                        :rules="[{ required: true, message: 'Please input your password!' }]"
+                      >
+                        <div class="aui-inputClear">
+                        <i class="icon icon-code"></i>
+                        <a-form-item>
+                          <a-input
+                            class="fix-auto-fill"
+                            type="text"
+                            :placeholder="t('sys.login.inputCode')"
+                            v-model:value="formData.inputCode"
+                          />
+                        </a-form-item>
+                        <div class="aui-code">
+                          <img
+                            v-if="randCodeData.requestCodeSuccess"
+                            :src="randCodeData.randCodeImage"
+                            @click="handleChangeCheckCode"
+                          />
+                          <img
+                            v-else
+                            style="margin-top: 2px; max-width: initial"
+                            :src="codeImg"
+                            @click="handleChangeCheckCode"
+                          />
+                        </div>
+                      </div>
                       </a-form-item>
                     </a-col>
                   </a-row>
