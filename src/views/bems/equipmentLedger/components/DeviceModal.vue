@@ -388,7 +388,7 @@ const [registerModal, { setModalProps, closeModal }] = useModalInner(async (data
   resetFields();
   setModalProps({ confirmLoading: false });
   isUpdate.value = !!data?.isUpdate;
-
+  await selectCategoryId(data.record.categoryId)
   if (unref(isUpdate)) {
     id.value = data.record.id;
     getData(data.record.id);
