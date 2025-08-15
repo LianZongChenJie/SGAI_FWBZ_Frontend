@@ -208,7 +208,7 @@ import type { UnwrapRef } from 'vue';
 
 const emit = defineEmits(['register', 'success']);
 const isUpdate = ref(true);
-const activeKey = ref('2');
+const activeKey = ref('1');
 const dataSource = ref();
 const columns = [
   {

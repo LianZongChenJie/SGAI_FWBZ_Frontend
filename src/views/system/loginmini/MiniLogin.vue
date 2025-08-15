@@ -42,82 +42,100 @@
                 >
                   <a-row
                     :gutter="16"
-                    style="margin-top: 16px;"
+                    style="margin-bottom: 46px;"
                   >
                     <a-col :span="24">
                       <a-form-item
-                        label="用户名："
                         name="username"
-                        :rules="[{ required: true, message: 'Please input your username!' }]"
+                        :rules="[{ required: true, message: '请输入用户名' }]"
+                        :colon="false"
                       >
+                        <template #label>
+                          <span class="label-style">
+                            用户名：
+                          </span>
+                        </template>
                         <a-input
                           v-model:value="formData.username"
-                          style="height: 40px;"
+                          style="height: 50px;padding-left: 10px;"
                         />
                       </a-form-item>
                     </a-col>
                   </a-row>
                   <a-row
                     :gutter="16"
-                    style="margin-top: 16px;"
+                    style="margin-bottom: 46px;"
                   >
                     <a-col :span="24">
                       <a-form-item
-                        label="密码："
                         name="password"
-                        :rules="[{ required: true, message: 'Please input your password!' }]"
+                        :rules="[{ required: true, message: '请输入密码!' }]"
+                        :colon="false"
                       >
+                      <template #label>
+                          <span class="label-style">
+                            密码：
+                          </span>
+                        </template>
                         <a-input-password
                           v-model:value="formData.password"
-                          style="height: 40px;"
+                          style="height: 50px;"
                         />
                       </a-form-item>
                     </a-col>
                   </a-row>
-                  <a-row
-                    :gutter="16"
-                    style="margin-top: 16px;"
-                  >
+                  <a-row :gutter="16">
                     <a-col :span="24">
                       <a-form-item
-                        label="密码："
-                        :rules="[{ required: true, message: 'Please input your password!' }]"
+                        :rules="[{ required: true, message: '请输入验证码!' }]"
+                        :colon="false"
                       >
-                        <div class="aui-inputClear">
-                        <i class="icon icon-code"></i>
-                        <a-form-item>
-                          <a-input
-                            class="fix-auto-fill"
-                            type="text"
-                            :placeholder="t('sys.login.inputCode')"
-                            v-model:value="formData.inputCode"
-                          />
-                        </a-form-item>
-                        <div class="aui-code">
-                          <img
-                            v-if="randCodeData.requestCodeSuccess"
-                            :src="randCodeData.randCodeImage"
-                            @click="handleChangeCheckCode"
-                          />
-                          <img
-                            v-else
-                            style="margin-top: 2px; max-width: initial"
-                            :src="codeImg"
-                            @click="handleChangeCheckCode"
-                          />
+                      <template #label>
+                          <div class="label-style">
+                            验证码：
+                          </div>
+                        </template>
+                        <div class="input-code-box">
+                          <i class="icon icon-code" style="margin-right: 5px;"></i>
+                          <a-form-item>
+                            <a-input
+                              type="text"
+                              style="height: 50px;border: none;"
+                              :placeholder="t('sys.login.inputCode')"
+                              v-model:value="formData.inputCode"
+                            />
+                          </a-form-item>
+                          <div class="aui-code">
+                            <img
+                              v-if="randCodeData.requestCodeSuccess"
+                              :src="randCodeData.randCodeImage"
+                              @click="handleChangeCheckCode"
+                            />
+                            <img
+                              v-else
+                              style="margin-top: 2px; max-width: initial"
+                              :src="codeImg"
+                              @click="handleChangeCheckCode"
+                            />
+                          </div>
                         </div>
-                      </div>
                       </a-form-item>
                     </a-col>
                   </a-row>
                 </a-form>
               </div>
               <div class="button-box">
-                <div class="login-box">
+                <div class="login-box" @click="login">
                   登录
                 </div>
                 &emsp;
-                <div class="clean-box">
+                &emsp;
+                &emsp;
+                &emsp;
+                &emsp;
+                &emsp;
+                &emsp;
+                <div class="clean-box" @click="handleClean">
                   清除
                 </div>
               </div>
@@ -442,6 +460,17 @@ function codeHandleClick() {
   }, 300);
 }
 
+// 登录
+const login = () => {
+  loginHandleClick()
+}
+// 清除
+const handleClean = () => {
+  formData.inputCode = null
+  formData.username = null
+  formData.password = null
+}
+
 onMounted(() => {
   //加载验证码
   handleChangeCheckCode();
@@ -600,11 +629,12 @@ html[data-theme='dark'] {
   .aui-container {
     display: flex;
     align-items: center;
+    justify-content: center;
     width: 100%;
     height: 100%;
     .form-box {
-      width: 100%;
-      height: 60%;
+      width: 85%;
+      height: 50%;
 
       .login-title {
         background-color: #f9fbfdd7;
@@ -620,11 +650,32 @@ html[data-theme='dark'] {
 
       .user-info {
         height: 80%;
-        background-color: #dadada65;
+        background-color: #9190905b;
         .user-form {
           height: 75%;
           width: 100%;
-          border: 1px solid red;
+          padding-top: 18px;
+
+          .input-code-box {
+            display: flex;
+            align-items: center;
+            background-color: #fff;
+            padding-left: 10px;
+            border-radius: 5px;
+          }
+
+          .ant-form-item {
+            width: 100%;
+          }
+
+          .label-style{
+            height: 50px;
+            display: flex;
+            align-items: flex-end;
+            font-size: 26px;
+            color: #fff;
+            font-weight: 600;
+          }
         }
         .button-box {
           display: flex;
@@ -640,6 +691,10 @@ html[data-theme='dark'] {
             justify-content: center;
             font-size: 24px;
             border-radius: 5px;
+
+            &:hover {
+              cursor: pointer;
+            }
           }
           .login-box {
             background-color: #4a5569;
