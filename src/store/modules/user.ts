@@ -162,6 +162,14 @@ export const useUserStore = defineStore({
       }
     },
     /**
+    * 自动跳转登录事件
+    */
+    transferJump(token) {
+      // save token
+      this.setToken(token);
+      return this.afterLoginAction(true, {});
+    },
+    /**
      * 扫码登录事件
      */
     async qrCodeLogin(token): Promise<GetUserInfoModel | null> {

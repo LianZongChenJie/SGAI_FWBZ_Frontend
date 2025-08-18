@@ -39,6 +39,15 @@ export const LoginRoute: AppRouteRecordRaw = {
   },
 };
 
+export const transferJump: AppRouteRecordRaw = {
+  path: '/transferJump',
+  name: 'transferJump',
+  component: () => import('@/views/bems/transferJump/index.vue'),
+  meta: {
+    title: t('transferJump'),
+  },
+};
+
 //update-begin---author:wangshuai ---date:20220629  for：auth2登录页面路由------------
 export const Oauth2LoginRoute: AppRouteRecordRaw = {
   path: '/oauth2-app/login',
@@ -65,4 +74,4 @@ export const TokenLoginRoute: AppRouteRecordRaw = {
   },
 };
 // Basic routing without permission
-export const basicRoutes = [LoginRoute, RootRoute, ...mainOutRoutes, REDIRECT_ROUTE, PAGE_NOT_FOUND_ROUTE, TokenLoginRoute, Oauth2LoginRoute];
+export const basicRoutes = [LoginRoute, RootRoute, ...mainOutRoutes, REDIRECT_ROUTE, PAGE_NOT_FOUND_ROUTE, TokenLoginRoute, Oauth2LoginRoute, transferJump];

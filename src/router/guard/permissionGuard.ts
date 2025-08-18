@@ -95,7 +95,9 @@ export function createPermissionGuard(router: Router) {
         next();
         return;
       }
-
+      if (to.path === '/transferJump') {
+        next()
+      }
       //update-begin---author:wangshuai ---date:20220629  for：[issues/I5BG1I]vue3 Auth2未实现------------
       let path = LOGIN_PATH;
       if (whitePathList.includes(to.path as PageEnum)) {
