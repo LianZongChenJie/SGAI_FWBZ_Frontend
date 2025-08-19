@@ -17,8 +17,8 @@ const userStore = useUserStore();
 
 onMounted(async () => {
   // 获取查询参数
-  const username = route.query.username 
-  let res = await transferJumpLoginApi({ username });
+  const token = route.query.token 
+  let res = await transferJumpLoginApi({ token });
   if (res) {
     userStore.transferJump(res)
     // router.replace('/dashboard/analysis');
