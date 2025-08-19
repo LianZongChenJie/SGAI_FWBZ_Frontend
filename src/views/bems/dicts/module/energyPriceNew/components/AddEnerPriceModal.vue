@@ -3,6 +3,7 @@
     v-model:open="open"
     :title="modalType ? '编辑能源价格' : '新增能源价格'"
     width="800px"
+    @cancel="closeModal"
     :footer="null"
   >
     <div style="padding-bottom: 6px;">
@@ -494,6 +495,7 @@ import { ref } from 'vue';
 import { message } from 'ant-design-vue';
 import { categoryTree, addEnergyPriceApi, editEnergyPriceApi } from '../EnergyPrice.api';
 import { AnyARecord } from 'node:dns';
+import { close } from 'node:fs';
 
 const props = defineProps({
   reload: {
@@ -720,11 +722,9 @@ const showModal = async (type, record:any = {}) => {
       formState.value[key] = record[key]
     }
     formState.value.categoryId += ''
-    formState.value.applyMonths1 = formState.value.applyMonths1.split(',')
-    formState.value.applyMonths2 = formState.value.applyMonths2.split(',')
-    console.log('formState.value------------>', formState.value);
+    formState.value.applyMonths1 = formState.value.applyMonths1 ? formState.value.applyMonths1.split(',') : ''
+    formState.value.applyMonths2 = formState.value.applyMonths2 ? formState.value.applyMonths2.split(',') : ''
   } else {
-    console.log('新增------------>', type, record);
   }
   open.value = true;
 };
@@ -809,6 +809,36 @@ const onSubmit = () => {
       console.log('error', error);
     });
 };
+
+const closeModal = () => {
+  formState.value = {
+  id: null,
+  categoryId: null,
+  billingWay: '1',
+  fixedUnitPrice: null,
+  step1Max: null,
+  step1UnitPrice: null,
+  step2Min: null,
+  step2Max: null,
+  step2UnitPrice: null,
+  step3Min: null,
+  step3UnitPrice: null,
+  tipPrice: null,
+  peakPrice: null,
+  flatPrice: null,
+  valleyPrice: null,
+  applyMonths1: [],
+  tipTimeSlot1: [],
+  peakTimeSlot1: [],
+  flatTimeSlot1: [],
+  valleyTimeSlot1: [],
+  applyMonths2: [],
+  tipTimeSlot2: [],
+  peakTimeSlot2: [],
+  flatTimeSlot2: [],
+  valleyTimeSlot2: [],
+}
+}
 
 defineExpose({
   showModal,
