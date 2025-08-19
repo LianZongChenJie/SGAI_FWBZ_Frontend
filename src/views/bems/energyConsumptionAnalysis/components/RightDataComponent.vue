@@ -7,7 +7,7 @@
       <div class="info-box">
         <!-- <p>总能耗</p> -->
         <p
-          v-for="(item,index) in exceptionPrompt"
+          v-for="(item,index) in props.errorMessageArr"
           :key="index"
         >{{ index + 1 }}.{{ item }}</p>
       </div>
@@ -115,6 +115,10 @@ const props = defineProps({
   point: {
     type: Number,
     default: 5
+  },
+  errorMessageArr: {
+    type: Array,
+    default: []
   }
 });
 
@@ -172,6 +176,7 @@ const getExceptionPromptData = async () => {
     increase: formState.value.increase ? formState.value.increase : '0.1',
     increaseContent:formState.value.increaseContent ? formState.value.increase : '{0}较基准超过10%',
   };
+  console.log('getBarChartDataApi---------aaa-------->', props.point)
   let res = await getBarChartDataApi(params);
   exceptionPrompt.value = res.errorMessage;
 };
@@ -255,7 +260,9 @@ const msToDays = (ms) => {
 }
 
 onMounted(async () => {
-  await getExceptionPromptData();
+  // await getExceptionPromptData();
+  console.log('errorMessageArr------------->', props.errorMessageArr);
+  
 });
 
 // 组件卸载时清除定时器

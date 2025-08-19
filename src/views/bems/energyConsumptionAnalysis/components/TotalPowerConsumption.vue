@@ -25,6 +25,10 @@ const props = defineProps({
   formData: {
     type: Object,
     default: {}
+  },
+  pushErrorMessage: {
+    type: Function,
+    default: () => {}
   }
 })
 

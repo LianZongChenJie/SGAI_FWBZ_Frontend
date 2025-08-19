@@ -25,6 +25,10 @@ const props = defineProps({
   formData: {
     type: Object,
     default: {}
+  },
+  pushErrorMessage: {
+    type: Function,
+    default: () => {}
   }
 })
 
@@ -53,7 +57,6 @@ const getData = async () => {
   let res = await getPieChartDataApi(params);
   let parentArr = res.seriesData.filter((item) => !item.parentName);
   let childrenArr = res.seriesData.filter((item) => item.parentName);
-
   return {
     categories: parentArr.map((item) => {
       return {

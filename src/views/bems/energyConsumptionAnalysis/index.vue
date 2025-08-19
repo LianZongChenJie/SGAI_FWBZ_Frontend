@@ -14,10 +14,10 @@
       <div class="energy-consumption-analysis">
         <div class="charts-box">
           <div :class="(index % 2) === 0 ? 'left-echart-item' : 'right-echart-item'"  v-for="(item,index) in chartsList" :key="index">
-            <ElectricEnergyChart v-if="item.chartType === 'pie'" :title="item.chartName" :point="item.pointId" :formData="formData"/>
-            <TotalPowerConsumption v-else-if="item.chartType === 'bar'" :title="item.chartName" :point="item.pointId" :formData="formData"/>
-            <LightingSocket v-else-if="item.chartType === 'line'" :title="item.chartName" :point="item.pointId" :formData="formData"/>
-            <HVACSubItems v-else-if="item.chartType === 'stackedColumn'" :title="item.chartName" :point="item.pointId" :formData="formData"/>
+            <ElectricEnergyChart v-if="item.chartType === 'pie'" :title="item.chartName" :point="item.pointId" :formData="formData" :pushErrorMessage="pushErrorMessage" />
+            <TotalPowerConsumption v-else-if="item.chartType === 'bar'" :title="item.chartName" :point="item.pointId" :formData="formData" :pushErrorMessage="pushErrorMessage" />
+            <LightingSocket v-else-if="item.chartType === 'line'" :title="item.chartName" :point="item.pointId" :formData="formData" :pushErrorMessage="pushErrorMessage" />
+            <HVACSubItems v-else-if="item.chartType === 'stackedColumn'" :title="item.chartName" :point="item.pointId" :formData="formData" :pushErrorMessage="pushErrorMessage" />
           </div>
           <!-- <div class="right-echart-item">
             <TotalPowerConsumption />
@@ -36,7 +36,7 @@
           </div> -->
         </div>
         <div class="data-box">
-          <RightDataComponent :benchmarkOptions="benchmarkOptions" :searchChartData="searchChartData" :point="rightPoint" />
+          <RightDataComponent :benchmarkOptions="benchmarkOptions" :searchChartData="searchChartData" :point="rightPoint" :errorMessageArr="errorMessageArr"/>
         </div>
       </div>
     </a-tab-pane>
@@ -76,6 +76,9 @@ const formData = ref<any>({})
 const activeKey = ref(1);
 
 const rightPoint = ref()
+
+// 异常信息
+const errorMessageArr:any = ref([])
 
 onMounted(async () => {
   await getTabsList();
@@ -120,6 +123,11 @@ const searchChartData = (form) => {
     formData.value.referenceTime[0] = formData.value.referenceTime[0].split('-')[0] + '-01-01'
     formData.value.referenceTime[1] = formData.value.referenceTime[1].split('-')[0] + '-01-01'
   }
+}
+
+// 统计异常信息
+const pushErrorMessage = (info) => {
+  errorMessageArr.value.push(info)
 }
 </script>
 

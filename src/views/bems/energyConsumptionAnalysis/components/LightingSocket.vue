@@ -22,6 +22,10 @@ const props = defineProps({
   formData: {
     type: Object,
     default: {}
+  },
+  pushErrorMessage: {
+    type: Function,
+    default: () => {}
   }
 })
 
@@ -63,6 +67,11 @@ const maxValue2 = ref(0)
     increaseContent:props.formData.increaseContent ? props.formData.increase : '{0}较基准超过10%',
   }
   let res = await getLineChartDataApi(params)
+  if(res.errorMessage.length) {
+    res.errorMessage.forEach(item => {
+      props.pushErrorMessage(item)
+    })
+  }
   months.value = res.xaxis
   actualData.value = res.chatSeriesList.find(item => item.name === '实际').data
   benchmarkData.value = res.chatSeriesList.find(item => item.name === '基准').data
