@@ -58,6 +58,7 @@
                         <a-input
                           v-model:value="formData.username"
                           style="height: 50px;padding-left: 10px;"
+                          @keyup.enter="login"
                         />
                       </a-form-item>
                     </a-col>
@@ -80,6 +81,7 @@
                         <a-input-password
                           v-model:value="formData.password"
                           style="height: 50px;"
+                          @keyup.enter="login"
                         />
                       </a-form-item>
                     </a-col>
@@ -103,6 +105,7 @@
                               style="height: 50px;border: none;"
                               :placeholder="t('sys.login.inputCode')"
                               v-model:value="formData.inputCode"
+                              @keyup.enter="login"
                             />
                           </a-form-item>
                           <div class="aui-code">
