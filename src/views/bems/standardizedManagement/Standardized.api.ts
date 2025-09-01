@@ -5,10 +5,10 @@ const { createConfirm } = useMessage();
 enum Api {
   getLinkageControlListApi = '/bems/linkageStrategy/listPage',
   createLinkageControlApi = '/bems/linkageStrategy/add',
-  selectDevice = '/bems/device/measuring/list',
+  selectDevice = '/bems/device/list',
   spaceTree = '/bems/space/getTree',
-  categoryTree = '/bems/equipmentCategory/measuring/getTree',
-  deviceCategoryTree = '/bems/equipmentCategory/equipment/getTree',
+  categoryTree = '/bems/equipmentCategory/getTree',
+  deviceCategoryTree = '/bems/equipmentCategory/getTree',
   getPontByDeviceIdApi = '/bems/deviceAttribute/getByDeviceId',
   editLinkageControlApi = '/bems/linkageStrategy/edit',
   getLinkageControlDetailApi = '/bems/linkageStrategy/getDetailById',

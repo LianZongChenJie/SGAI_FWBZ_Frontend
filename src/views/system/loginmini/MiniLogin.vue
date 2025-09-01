@@ -36,8 +36,8 @@
                 <a-form
                   :model="formData"
                   name="basic"
-                  :label-col="{ span: 4 }"
-                  :wrapper-col="{ span: 18 }"
+                  :label-col="{ span: 6 }"
+                  :wrapper-col="{ span: 14 }"
                   autocomplete="off"
                 >
                   <a-row
@@ -57,7 +57,7 @@
                         </template>
                         <a-input
                           v-model:value="formData.username"
-                          style="height: 50px;padding-left: 10px;"
+                          style="height: 40px;padding-left: 10px;"
                           @keyup.enter="login"
                         />
                       </a-form-item>
@@ -80,7 +80,7 @@
                         </template>
                         <a-input-password
                           v-model:value="formData.password"
-                          style="height: 50px;"
+                          style="height: 40px;"
                           @keyup.enter="login"
                         />
                       </a-form-item>
@@ -102,7 +102,7 @@
                           <a-form-item>
                             <a-input
                               type="text"
-                              style="height: 50px;border: none;"
+                              style="height: 40px;border: none;"
                               :placeholder="t('sys.login.inputCode')"
                               v-model:value="formData.inputCode"
                               @keyup.enter="login"
@@ -636,8 +636,8 @@ html[data-theme='dark'] {
     width: 100%;
     height: 100%;
     .form-box {
-      width: 85%;
-      height: 50%;
+      width: 70%;
+      height: 45%;
 
       .login-title {
         background-color: #f9fbfdd7;
@@ -646,7 +646,7 @@ html[data-theme='dark'] {
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 50px;
+        font-size: 40px;
         color: #000;
         font-weight: 600;
       }
@@ -672,7 +672,7 @@ html[data-theme='dark'] {
           }
 
           .label-style{
-            height: 50px;
+            height: 40px;
             display: flex;
             align-items: flex-end;
             font-size: 26px;

@@ -51,7 +51,7 @@
                 <a-tree-select
                   v-model:value="formState.categoryId"
                   :tree-data="categoryTreeData"
-                  placeholder="请选择位置"
+                  placeholder="请选择专业"
                   :fieldNames="treeSelect"
                   show-search
                   allowClear

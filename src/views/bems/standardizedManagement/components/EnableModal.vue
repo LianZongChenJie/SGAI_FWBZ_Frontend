@@ -87,7 +87,7 @@ const targetId = ref()
 // 打开弹框
 const openModal = async (id: string) => {
   let res = await getPatterningExecutionTimeApi({patterningId: id})
-  if(res.id) {
+  if(res && res.id) {
     formState.id = res.id
     formState.date = [res.beginDate, res.endDate]
     formState.time = res.beginTime

@@ -62,7 +62,7 @@
                 style="color: red;"
               >禁用</a>
             </a-popconfirm>
-            <a @click.stop="handleEnable(record)">启用</a>
+            <a v-else @click.stop="handleEnable(record)">启用</a>
             <a @click.stop="handleEdit(record)">编辑</a>
             <a-popconfirm
               title="删除不可恢复，是否删除？"
@@ -378,7 +378,7 @@ const handleview = (record) => {
 // 立即执行
 const handleExecute = async (record) => {
   await executeStandardizedManagemenApi({ id: record.id });
-  message.success('删除成功！');
+  message.success('执行成功！');
   // 刷新表格
   reload();
 };

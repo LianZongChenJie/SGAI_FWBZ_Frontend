@@ -58,8 +58,10 @@
             :dataSource="dataSource"
             :columns="columns"
             bordered
-            :scroll="{ y: 400 }"
+            :scroll="{ y: 200 }"
             size="middle"
+            :pagination="devicePagination"
+            @change="handleDeviceTableChange"
           >
             <template #bodyCell="{ column, text, record }">
               <template v-if="['sort', 'readwriteLevel', 'attributeCode', 'unit', 'attributeName'].includes(column.dataIndex)">
@@ -145,11 +147,22 @@
                 />
               </a-form-item>
             </a-col>
+            <a-col :span="9">
+              <a-form-item
+                label="内容"
+                name="content"
+              >
+                <a-input
+                  v-model:value="formState.content"
+                  :allowClear="true"
+                />
+              </a-form-item>
+            </a-col>
             <a-col :span="6">
               <a-form-item>
                 <a-button
                   type="primary"
-                  @click="getBuildingControlPointList()"
+                  @click="searchData"
                 >搜索</a-button>
               </a-form-item>
             </a-col>
@@ -163,6 +176,7 @@
           :dataSource="pointData"
           :columns="pointColumns"
           :pagination="pagination"
+          @change="handleTableChange"
           size="middle"
           bordered
           :customRow="rowClick"
@@ -187,7 +201,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, unref, h, reactive } from 'vue';
+import { ref, computed, unref, h, reactive, watch } from 'vue';
 import { BasicModal, useModalInner } from '/@/components/Modal';
 import { BasicForm, useForm } from '/@/components/Form/index';
 import { PlusOutlined } from '@ant-design/icons-vue';
@@ -205,6 +219,16 @@ import {
 import { cloneDeep } from 'lodash-es';
 import { message } from 'ant-design-vue';
 import type { UnwrapRef } from 'vue';
+import { log } from 'console';
+
+const devicePagination = ref({
+  pageNo: 1,
+  pageSize: 10,
+  total: 10,
+  showSizeChanger: true,
+  pageSizeOptions: ['5', '10', '20', '50'],
+  showTotal: total => `共${total}条`
+});
 
 const emit = defineEmits(['register', 'success']);
 const isUpdate = ref(true);
@@ -385,6 +409,16 @@ const [registerForm, { resetFields, setFieldsValue, validate, updateSchema }] = 
 });
 
 const [registerModal, { setModalProps, closeModal }] = useModalInner(async (data) => {
+  // 设置树形数据
+  const { categoryTreeData, spaceTreeData } = data;
+  formSchema.forEach((schema) => {
+    if (schema.field === 'categoryId') {
+      schema.componentProps.treeData = categoryTreeData;
+    }
+    if (schema.field === 'spaceId') {
+      schema.componentProps.treeData = spaceTreeData;
+    }
+  });
   resetFields();
   setModalProps({ confirmLoading: false });
   isUpdate.value = !!data?.isUpdate;
@@ -397,23 +431,13 @@ const [registerModal, { setModalProps, closeModal }] = useModalInner(async (data
       id: data.record.id, // 确保 id 被设置
     });
   }
-
-  // 设置树形数据
-  const { categoryTreeData, spaceTreeData } = data;
-  formSchema.forEach((schema) => {
-    if (schema.field === 'categoryId') {
-      schema.componentProps.treeData = categoryTreeData;
-    }
-    if (schema.field === 'spaceId') {
-      schema.componentProps.treeData = spaceTreeData;
-    }
-  });
 });
 
 const title = computed(() => (!unref(isUpdate) ? '新增设备' : '编辑设备'));
 
 async function handleSubmit() {
-  try {
+  if(activeKey.value === '1') {
+    try {
     const values = await validate();
     setModalProps({ confirmLoading: true });
     await saveOrUpdate(values, unref(isUpdate));
@@ -424,10 +448,18 @@ async function handleSubmit() {
   } finally {
     setModalProps({ confirmLoading: false });
   }
+  } else {
+    closeModal();
+  }
 }
 
 const getData = async (id) => {
-  let res = await getListByDeviceId({ deviceId: id });
+  let res = await getListByDeviceId({ 
+    pageNo: devicePagination.value.pageNo,
+    pageSize: devicePagination.value.pageSize,
+    deviceId: id,
+   });
+   devicePagination.value.total = res.total
   dataSource.value = res.records;
   dataSource.value.forEach((item, index) => {
     item.key = index;
@@ -510,11 +542,15 @@ const cancel = (record) => {
 };
 
 const visibleChange = (value) => {
-  console.log('value---------->', value);
   if (!value) {
     activeKey.value = '1';
   }
 };
+
+const handleDeviceTableChange = async (pagination) => {
+  devicePagination.value.pageNo = pagination.current
+  await getData(id.value)
+}
 
 const open = ref<boolean>(false);
 
@@ -530,17 +566,22 @@ const showDrawer = async (record) => {
 interface FormState {
   gatewayAdr: string;
   bacnetAdr: string;
+  content: string;
 }
 
 const formState = reactive<FormState>({
   gatewayAdr: '',
   bacnetAdr: '',
+  content: '',
 });
 
-const pagination = reactive({
+const pagination = ref({
   pageNo: 1,
   pageSize: 10,
   total: 10,
+  showSizeChanger: true,
+  pageSizeOptions: ['5', '10', '20', '50'],
+  showTotal: total => `共${total}条`
 });
 
 const pointColumns = [
@@ -611,15 +652,21 @@ const pointData = ref([
 // 获取表格数据
 const getBuildingControlPointList = async () => {
   let params = {
-    pageNo: pagination.pageNo,
-    pageSize: pagination.pageSize,
+    pageNo: pagination.value.pageNo,
+    pageSize: pagination.value.pageSize,
     gatewayAdr: formState.gatewayAdr ? formState.gatewayAdr : undefined,
     bacnetAdr: formState.bacnetAdr ? formState.bacnetAdr : undefined,
+    content: formState.content ? formState.content : undefined,
   };
   let res = await getBuildingControlPointListApi(params);
   pointData.value = [...res.records];
-  pagination.total = res.total;
+  pagination.value.total = res.total;
 };
+
+const handleTableChange = async (page) => {
+  pagination.value.pageNo = page.current
+  await getBuildingControlPointList()
+}
 
 // 行双击事件
 const rowClick = (record) => {
@@ -644,6 +691,11 @@ const bindPointLocation = async (record) => {
   await getData(id.value);
   open.value = false;
 };
+
+const searchData = () => {
+  pagination.value.pageNo = 1
+  getBuildingControlPointList()
+}
 </script>
 
 <style lang="less" scoped>
@@ -671,10 +723,10 @@ const bindPointLocation = async (record) => {
   transition: background-color 0.2s ease;
 }
 
-.content-box{
-  white-space: nowrap;      /* 禁止换行 */
-  overflow: hidden;         /* 隐藏溢出内容 */
-  text-overflow: ellipsis;  /* 显示省略号 */
-  width: 80px; 
+.content-box {
+  white-space: nowrap; /* 禁止换行 */
+  overflow: hidden; /* 隐藏溢出内容 */
+  text-overflow: ellipsis; /* 显示省略号 */
+  width: 80px;
 }
 </style>
