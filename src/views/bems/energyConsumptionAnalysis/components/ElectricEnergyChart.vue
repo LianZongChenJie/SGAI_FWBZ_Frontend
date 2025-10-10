@@ -25,10 +25,6 @@ const props = defineProps({
   formData: {
     type: Object,
     default: {}
-  },
-  pushErrorMessage: {
-    type: Function,
-    default: () => {}
   }
 })
 
@@ -175,7 +171,7 @@ const initChart = async () => {
   // 准备图例数据
   const categoryLegendData = data.categories.map((item) => item.name);
   const deviceLegendData = data.devices.map((device) => `${device.category}-${device.name}`);
-
+    
   // 图表配置
   const option = {
     title: {
@@ -241,12 +237,15 @@ const initChart = async () => {
         orient: 'vertical',
         right: 'right',
         top: 'center',
+        type: 'scroll',
+        height: '80%',
         data: deviceLegendData,
         formatter: function (name) {
           const parts = name.split('-');
           const device = data.devices.find((d) => d.name === parts[1] && d.category === parts[0]);
           // return `${parts[1]}: ${device.value}%`;
-          return `${parts[1]}`;
+          return parts[1].length > 8 ? parts[1].substring(0, 8) + '...' : parts[1];
+          // return `${parts[1]}`;
         },
         textStyle: {
           fontSize: 12,

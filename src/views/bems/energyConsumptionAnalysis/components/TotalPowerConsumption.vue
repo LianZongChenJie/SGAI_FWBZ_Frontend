@@ -25,10 +25,6 @@ const props = defineProps({
   formData: {
     type: Object,
     default: {}
-  },
-  pushErrorMessage: {
-    type: Function,
-    default: () => {}
   }
 })
 
@@ -56,14 +52,14 @@ const getData = async () => {
     startDate: props.formData.analysisTime ? props.formData.analysisTime[0] : '2025-04-11',
     endDate: props.formData.analysisTime ? props.formData.analysisTime[1] : '2025-04-15',
     increase: props.formData.increase ? props.formData.increase : '0.1',
-    increaseContent:props.formData.increaseContent ? props.formData.increase : '{0}较基准超过10%',
+    increaseContent:props.formData.increaseContent ? props.formData.increaseContent : '{0}较基准超过10%',
   }
   let res = await getBarChartDataApi(params)
   return {
     months: res.xaxis,
     actualData: res.chatSeriesList.find(item => item.name === '实际').data   ,
     benchmarkData: res.chatSeriesList.find(item => item.name === '基准').data,
-    notes: '备注：点击对应年份的时候，切换到该年每个月视角；点击对应月份时，切换到对应月份下的日视角',
+    // notes: '备注：点击对应年份的时候，切换到该年每个月视角；点击对应月份时，切换到对应月份下的日视角',
   };
 };
 
@@ -208,7 +204,7 @@ const initChart = async () => {
         left: 'center',
         bottom: 20,
         style: {
-          text: data.notes,
+          // text: data.notes,
           fill: '#666',
           fontSize: 12,
           fontWeight: 'normal',

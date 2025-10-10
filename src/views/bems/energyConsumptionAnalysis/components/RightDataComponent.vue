@@ -7,7 +7,7 @@
       <div class="info-box">
         <!-- <p>总能耗</p> -->
         <p
-          v-for="(item,index) in props.errorMessageArr"
+          v-for="(item,index) in exceptionPrompt"
           :key="index"
         >{{ index + 1 }}.{{ item }}</p>
       </div>
@@ -40,7 +40,11 @@
           :model="formState"
           ref="formRef"
         >
-          <a-form-item name="analysisTime" label="分析起止时间：" :rules="[{ required: true, message: '请选择分析起止时间' }]">
+          <a-form-item
+            name="analysisTime"
+            label="分析起止时间："
+            :rules="[{ required: true, message: '请选择分析起止时间' }]"
+          >
             <a-range-picker
               v-model:value="formState.analysisTime"
               style="width: 100%"
@@ -50,14 +54,22 @@
               :allowClear="false"
             />
           </a-form-item>
-          <a-form-item name="compare" label="对比基准类型：" :rules="[{ required: true, message: '请选择对比基准类型' }]">
+          <a-form-item
+            name="compare"
+            label="对比基准类型："
+            :rules="[{ required: true, message: '请选择对比基准类型' }]"
+          >
             <a-select
               v-model:value="formState.compare"
               style="width: 100%"
               :options="options2"
             ></a-select>
           </a-form-item>
-          <a-form-item name="referenceTime" label="基准起止时间：" :rules="[{ required: true, message: '请选择基准起止时间' }]">
+          <a-form-item
+            name="referenceTime"
+            label="基准起止时间："
+            :rules="[{ required: true, message: '请选择基准起止时间' }]"
+          >
             <a-range-picker
               v-model:value="formState.referenceTime"
               style="width: 100%"
@@ -69,7 +81,11 @@
               :allowClear="false"
             />
           </a-form-item>
-          <a-form-item name="abnormal" label="较基准异常条件配置：" :rules="[{ required: true, message: '请选择较基准异常条件配置' }]">
+          <a-form-item
+            name="abnormal"
+            label="较基准异常条件配置："
+            :rules="[{ required: true, message: '请选择较基准异常条件配置' }]"
+          >
             <a-select
               v-model:value="formState.abnormal"
               style="width: 100%"
@@ -98,7 +114,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive, onMounted, onUnmounted } from 'vue';
+import { ref, watch, reactive, onMounted, onUnmounted } from 'vue';
 import { getBarChartDataApi } from '../Standardized.api';
 import { message } from 'ant-design-vue';
 import type { UnwrapRef } from 'vue';
@@ -110,24 +126,20 @@ const props = defineProps({
   },
   searchChartData: {
     type: Function,
-    default: () => {}
+    default: () => {},
   },
   point: {
     type: Number,
-    default: 5
+    default: 5,
   },
-  errorMessageArr: {
-    type: Array,
-    default: []
-  }
 });
 
-const activeKey = ref('1');
+const activeKey = ref('2');
 
-const formRef = ref()
+const formRef = ref();
 const exceptionPrompt = ref([]);
 
-const formState = ref({
+const formState = ref<any>({
   analysisTime: [],
   referenceTime: [],
   compare: '自定义时间区段',
@@ -157,6 +169,14 @@ const options2 = ref([
   },
 ]);
 
+// 获取格式化后的日期（YYYY-MM-DD）
+function getFormattedDate(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 // 获取选中的时间
 const changeReferenceTime = (value) => {
   firstTime.value = value;
@@ -174,9 +194,8 @@ const getExceptionPromptData = async () => {
     startDate: formState.value.analysisTime[0] ? formState.value.analysisTime[0] : '2025-04-11',
     endDate: formState.value.analysisTime[0] ? formState.value.analysisTime[1] : '2025-04-15',
     increase: formState.value.increase ? formState.value.increase : '0.1',
-    increaseContent:formState.value.increaseContent ? formState.value.increase : '{0}较基准超过10%',
+    increaseContent: formState.value.increaseContent ? formState.value.increase : '{0}较基准超过10%',
   };
-  console.log('getBarChartDataApi---------aaa-------->', props.point)
   let res = await getBarChartDataApi(params);
   exceptionPrompt.value = res.errorMessage;
 };
@@ -205,28 +224,28 @@ const handleAnalysisTimeChange = (dates) => {
 };
 
 const disabledDateReferenceTime = (current) => {
-    if (!dayDiff.value) return false;
-    // 获取第二个选择器当前已选日期
-    const selectedDates = firstTime.value;
-    if (selectedDates.length === 0) {
-      // 如果还没选任何日期，不禁用
-      return false;
-    } else if (selectedDates[0] || selectedDates[1]) {
-      // 如果已选一个日期，禁用不符合天数差的日期
-      let startDate = '';
-      let endDate = '';
-      const currentNumber = msToDays(new Date(current).getTime())
-      if (selectedDates[0]) {
-        startDate = selectedDates[0];
-        const startNumber = msToDays(new Date(startDate).getTime());
-        return (currentNumber < startNumber) ? (startNumber - currentNumber >= dayDiff.value) : (currentNumber - startNumber >= dayDiff.value)
-      } else {
-        endDate = selectedDates[1];
-        const endNumber = msToDays(new Date(endDate).getTime());
-        return (currentNumber < endNumber) ? (endNumber - currentNumber >= dayDiff.value) : (currentNumber - endNumber >= dayDiff.value)
-      }
-    }
+  if (!dayDiff.value) return false;
+  // 获取第二个选择器当前已选日期
+  const selectedDates = firstTime.value;
+  if (selectedDates.length === 0) {
+    // 如果还没选任何日期，不禁用
     return false;
+  } else if (selectedDates[0] || selectedDates[1]) {
+    // 如果已选一个日期，禁用不符合天数差的日期
+    let startDate = '';
+    let endDate = '';
+    const currentNumber = msToDays(new Date(current).getTime());
+    if (selectedDates[0]) {
+      startDate = selectedDates[0];
+      const startNumber = msToDays(new Date(startDate).getTime());
+      return currentNumber < startNumber ? startNumber - currentNumber >= dayDiff.value : currentNumber - startNumber >= dayDiff.value;
+    } else {
+      endDate = selectedDates[1];
+      const endNumber = msToDays(new Date(endDate).getTime());
+      return currentNumber < endNumber ? endNumber - currentNumber >= dayDiff.value : currentNumber - endNumber >= dayDiff.value;
+    }
+  }
+  return false;
 };
 
 // 选择异常基准
@@ -241,15 +260,16 @@ const onSubmit = () => {
   formRef.value
     .validate()
     .then(async () => {
-      if(activeKey.value === '1') {
-        formState.value.dateType = 'year'
-      } else if(activeKey.value === '2') {
-        formState.value.dateType = 'month'
+      if (activeKey.value === '1') {
+        formState.value.dateType = 'year';
+      } else if (activeKey.value === '2') {
+        formState.value.dateType = 'month';
       } else {
-        formState.value.dateType = 'day'
+        formState.value.dateType = 'day';
       }
-      props.searchChartData(formState.value)
-    }).catch((error) => {
+      props.searchChartData(formState.value);
+    })
+    .catch((error) => {
       console.log('error', error);
     });
 };
@@ -257,12 +277,22 @@ const onSubmit = () => {
 // 将毫秒数转换为天数
 const msToDays = (ms) => {
   return ms / (1000 * 60 * 60 * 24);
-}
+};
 
 onMounted(async () => {
+  const today = new Date();
+
+  // 本月1号
+  const firstDayOfCurrentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+  // 下月1号
+  const firstDayOfNextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+
+  // 上月1号
+  const firstDayOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+  formState.value.analysisTime = [getFormattedDate(firstDayOfCurrentMonth), getFormattedDate(firstDayOfNextMonth)];
+  formState.value.referenceTime = [getFormattedDate(firstDayOfLastMonth), getFormattedDate(firstDayOfCurrentMonth)];
   // await getExceptionPromptData();
-  console.log('errorMessageArr------------->', props.errorMessageArr);
-  
 });
 
 // 组件卸载时清除定时器
@@ -270,6 +300,17 @@ onUnmounted(() => {
   if (timeout) {
     clearTimeout(timeout);
   }
+});
+
+watch(
+  () => props.point,
+  (newVal, oldVal) => {
+    getExceptionPromptData();
+  }
+);
+
+defineExpose({
+  getExceptionPromptData,
 });
 </script>
 

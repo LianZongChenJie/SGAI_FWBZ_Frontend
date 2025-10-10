@@ -25,10 +25,6 @@ const props = defineProps({
   formData: {
     type: Object,
     default: {}
-  },
-  pushErrorMessage: {
-    type: Function,
-    default: () => {}
   }
 })
 
@@ -68,14 +64,9 @@ const getHVACSubItemsData = async () => {
     startDate: props.formData.analysisTime ? props.formData.analysisTime[0] : '2025-04-11',
     endDate: props.formData.analysisTime ? props.formData.analysisTime[1] : '2025-04-15',
     increase: props.formData.increase ? props.formData.increase : '0.1',
-    increaseContent:props.formData.increaseContent ? props.formData.increase : '{0}较基准超过10%',
+    increaseContent:props.formData.increaseContent ? props.formData.increaseContent : '{0}较基准超过10%',
   };
   let res = await getStackingChartDataApi(params);
-  if(res.errorMessage.length) {
-    res.errorMessage.forEach(item => {
-      props.pushErrorMessage(item)
-    })
-  }
   legend.value = res.chatSeriesList.map((item) => item.name);
   res.chatSeriesList.forEach((item, index) => {
     series.value.push({
