@@ -292,6 +292,7 @@ onMounted(async () => {
   const firstDayOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
   formState.value.analysisTime = [getFormattedDate(firstDayOfCurrentMonth), getFormattedDate(firstDayOfNextMonth)];
   formState.value.referenceTime = [getFormattedDate(firstDayOfLastMonth), getFormattedDate(firstDayOfCurrentMonth)];
+  props.searchChartData(formState.value);
   // await getExceptionPromptData();
 });
 
