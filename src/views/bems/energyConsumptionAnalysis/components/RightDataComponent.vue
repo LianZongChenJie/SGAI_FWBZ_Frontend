@@ -292,6 +292,13 @@ onMounted(async () => {
   const firstDayOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
   formState.value.analysisTime = [getFormattedDate(firstDayOfCurrentMonth), getFormattedDate(firstDayOfNextMonth)];
   formState.value.referenceTime = [getFormattedDate(firstDayOfLastMonth), getFormattedDate(firstDayOfCurrentMonth)];
+  if (activeKey.value === '1') {
+    formState.value.dateType = 'year';
+  } else if (activeKey.value === '2') {
+    formState.value.dateType = 'month';
+  } else {
+    formState.value.dateType = 'day';
+  }
   props.searchChartData(formState.value);
   // await getExceptionPromptData();
 });
@@ -307,6 +314,13 @@ watch(
   () => props.point,
   (newVal, oldVal) => {
     getExceptionPromptData();
+  }
+);
+
+watch(
+  () => props.benchmarkOptions,
+  (newVal, oldVal) => {
+    formState.value.abnormal = props.benchmarkOptions[0] ? props.benchmarkOptions[0].id : null
   }
 );
 
