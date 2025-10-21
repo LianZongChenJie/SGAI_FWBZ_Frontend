@@ -11,7 +11,7 @@
       </div>
       <div>
         <div class="title-box">已收收益(万元)</div>
-        <div class="number-box">{{ statisticsData.completedCount }}</div>
+        <div class="number-box">{{ statisticsData.profit }}</div>
       </div>
     </div>
     <div class="table-box">
@@ -36,6 +36,33 @@
             <a-space>
               <a @click.stop="handleEdit(record)">编辑</a>
               <a-popconfirm
+              v-if="record.projectStatus !== '3' && record.projectStatus === '2'"
+                title="是否启动？"
+                ok-text="确定"
+                cancel-text="取消"
+                @confirm="handleStart(record)"
+              >
+                <a>启动</a>
+              </a-popconfirm>
+              <a-popconfirm
+                v-if="record.projectStatus === '1' && record.projectStatus !== '3' "
+                title="是否暂停？"
+                ok-text="确定"
+                cancel-text="取消"
+                @confirm="handleStop(record)"
+              >
+                <a style="color: red;">暂停</a>
+              </a-popconfirm>
+              <a-popconfirm
+                v-if="record.projectStatus === '2' || record.projectStatus === '1'  && record.projectStatus !== '3'"
+                title="是否结项？"
+                ok-text="确定"
+                cancel-text="取消"
+                @confirm="handleEnd(record)"
+              >
+                 <a style="color: red;">结项</a>
+              </a-popconfirm>
+              <a-popconfirm
                 title="是否删除？"
                 ok-text="确定"
                 cancel-text="取消"
@@ -43,6 +70,7 @@
               >
                 <a style="color: red;">删除</a>
               </a-popconfirm>
+              <a @click.stop="handleProjectEvaluation(record)">项目评价</a>
             </a-space>
           </template>
           <template v-if="column.key === 'projectStatus'">
@@ -54,6 +82,9 @@
           <template v-if="column.key === 'projectFiles'">
             <a @click="downloadFile(record.projectFiles, record.projectFiles)">{{ record.projectFiles }}</a>
           </template>
+          <template v-if="column.key === 'projectType'">
+            {{ getType(record.projectType) }}
+          </template>
           <template v-if="column.key === 'projectResultAttachments'">
             <a @click="downloadFile(record.projectResultAttachments, record.projectResultAttachments)">{{ record.projectResultAttachments }}</a>
           </template>
@@ -64,6 +95,7 @@
       ref="addProjectModalRef"
       :reload="reload"
     />
+    <ProjectEvaluationModal ref="projectEvaluationModalRef" />
   </div>
 </template>
 
@@ -73,14 +105,20 @@ import { BasicColumn, BasicTable, FormSchema } from '/@/components/Table';
 import { useListPage } from '/@/hooks/system/useListPage';
 import { h } from 'vue';
 import { PlusOutlined } from '@ant-design/icons-vue';
+import { message } from 'ant-design-vue';
 import { getProjectStatisticsApi } from './Standardized.api';
 import AddProjectModal from './components/AddProjectModal.vue';
+import ProjectEvaluationModal from './components/ProjectEvaluationModal.vue';
 import {
   getProjectManagementListApi,
   deleteProjectApi,
   getProjectByIdApi,
   getProjectStatusApi,
   getProjectProjectSubjectApi,
+  startProjectApi,
+  pauseProjectApi,
+  completedProjectApi,
+  getProjectTypeApi,
 } from './Standardized.api';
 
 const statusOptions = ref<any>([]);
@@ -92,6 +130,7 @@ const statisticsData = ref({
   investmentAmountCount: 0,
   totalCount: 0,
   finishCount: 0,
+  profit: 0,
 });
 
 // 表格列配置
@@ -110,6 +149,7 @@ const columns: BasicColumn[] = [
     title: '项目周期(月)',
     dataIndex: 'projectCycle',
     key: 'projectCycle',
+    width: '100px'
   },
   {
     title: '项目预算(万元)',
@@ -120,11 +160,19 @@ const columns: BasicColumn[] = [
     title: '项目主体',
     dataIndex: 'projectSubject',
     key: 'projectSubject',
+    width: '80px'
+  },
+  {
+    title: '节能类型',
+    dataIndex: 'projectType',
+    key: 'projectType',
+    width: '120px'
   },
   {
     title: '收益周期(月)',
     dataIndex: 'incomeCycle',
     key: 'incomeCycle',
+    
   },
   {
     title: '项目文件',
@@ -136,16 +184,11 @@ const columns: BasicColumn[] = [
     dataIndex: 'projectGoal',
     key: 'projectGoal',
   },
-  {
-    title: '项目状态',
-    dataIndex: 'projectStatus',
-    key: 'projectStatus',
-  },
-  {
-    title: '项目成果附件',
-    dataIndex: 'projectResultAttachments',
-    key: 'projectResultAttachments',
-  },
+  // {
+  //   title: '项目成果附件',
+  //   dataIndex: 'projectResultAttachments',
+  //   key: 'projectResultAttachments',
+  // },
   {
     title: '操作',
     key: 'action',
@@ -171,12 +214,12 @@ const searchFormSchema: FormSchema[] = [
       valueFormat: 'YYYY-MM-DD',
     },
   },
-  {
-    label: '项目状态',
-    field: 'projectStatus',
-    component: 'JInput',
-    slot: 'alarmLevelId',
-  },
+  // {
+  //   label: '项目状态',
+  //   field: 'projectStatus',
+  //   component: 'JInput',
+  //   slot: 'alarmLevelId',
+  // },
   {
     label: '项目名称',
     field: 'projectName',
@@ -186,13 +229,15 @@ const searchFormSchema: FormSchema[] = [
 
 // modalRef
 const addProjectModalRef = ref();
+const projectEvaluationModalRef = ref();
 
 // 获取统计信息
-const getProjectStatisticsApi = async () => {
+const getProjectStatistics = async () => {
   let res: any = await getProjectStatisticsApi();
   statisticsData.value.completedCount = res.completedCount;
   statisticsData.value.investmentAmountCount = res.investmentAmountCount;
   statisticsData.value.totalCount = res.totalCount;
+  statisticsData.value.profit = res.profit;
 };
 
 // 获取表格数据
@@ -229,6 +274,7 @@ const { tableContext } = useListPage({
       pageSize: 10,
       showSizeChanger: true,
     },
+    showTableSetting: false,
     formConfig: {
       schemas: searchFormSchema,
       // 默认展开
@@ -261,11 +307,19 @@ const getStatusAndSubjecData = async () => {
 };
 
 const getSatus = (record) => {
-  return statusOptions.value.find((item) => item.value === record.projectStatus).label;
+  if (statusOptions.value.find((item) => item.value === record.projectStatus)) {
+    return statusOptions.value.find((item) => item.value === record.projectStatus).label;
+  } else {
+    return '无';
+  }
 };
 
 const getSubject = (record) => {
-  return subjectOptions.value.find((item) => item.value === record.projectSubject).label;
+  if (subjectOptions.value.find((item) => item.value === record.projectSubject)) {
+    return subjectOptions.value.find((item) => item.value === record.projectSubject).label;
+  } else {
+    return '无';
+  }
 };
 
 // 下载文件
@@ -295,8 +349,47 @@ const handleDelete = async (record) => {
   reload();
 };
 
+// 启动项目
+const handleStart = async (record) => {
+  let res = await startProjectApi({ id: record.id });
+  message.success('启动成功！');
+  reload();
+};
+
+// 暂停项目
+const handleStop = async (record) => {
+  let res = await pauseProjectApi({ id: record.id });
+  message.success('暂停成功！');
+  reload();
+};
+
+// 结项
+const handleEnd = async (record) => {
+  let res = await completedProjectApi({ id: record.id });
+  message.success('结项成功！');
+  reload();
+};
+
+const handleProjectEvaluation = (record) => {
+  projectEvaluationModalRef.value.showModal(record);
+};
+
+const projectType = ref<any>([])
+
+// 获取节能类型数据源
+const getProjectType = async () => {
+  let res = await getProjectTypeApi()
+  projectType.value = [...res]
+}
+
+const getType = (id) => {
+  return projectType.value.find(item => id === item.value).label
+}
+
 onMounted(async () => {
+  await getProjectType()
   await getStatusAndSubjecData();
+  await getProjectStatistics()
 });
 </script>
 

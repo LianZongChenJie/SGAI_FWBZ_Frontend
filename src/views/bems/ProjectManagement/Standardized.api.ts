@@ -3,7 +3,7 @@ import { useMessage } from '/@/hooks/web/useMessage';
 
 const { createConfirm } = useMessage();
 enum Api {
-  getProjectManagementListApi = '/bems/project/list',
+  getProjectManagementListApi = '/bems/project/queryPage',
   getProjectByIdApi = '/bems/project/queryById',
   getProjectStatisticsApi = '/bems/project/queryProjectStatistics',
   addProjectApi = '/bems/project/add',
@@ -11,7 +11,18 @@ enum Api {
   deleteProjectApi = '/bems/project/delete',
 
   getProjectStatusApi = '/sys/dict/getDictItems/project_status',
+  getProjectTypeApi = '/sys/dict/getDictItems/project_type',
   getProjectProjectSubjectApi = '/sys/dict/getDictItems/project_subject',
+
+  selectDevice = '/bems/device/measuring/list',
+
+  getMeteringPointApi = '/bems/meteringPoint/getAllTree',
+
+  getProjectEvaluationApi = '/bems/project/evaluation/getReport',
+
+  startProjectApi = '/bems/project/startProject',
+  pauseProjectApi = '/bems/project/pauseProject',
+  completedProjectApi = '/bems/project/completedProject',
 }
 
 /**
@@ -57,3 +68,43 @@ export const getProjectStatusApi = () => defHttp.get({ url: Api.getProjectStatus
  * @param params
  */
 export const getProjectProjectSubjectApi = () => defHttp.get({ url: Api.getProjectProjectSubjectApi });
+
+/**
+ * 查询设备
+ */
+export const selectDevice = (params) => defHttp.get({ url: Api.selectDevice, params });
+
+/**
+ * 获取节能类型信息
+ * @param params
+ */
+export const getProjectTypeApi = () => defHttp.get({ url: Api.getProjectTypeApi });
+
+/**
+ * 获取计量点位树
+ * @param params
+ */
+export const getMeteringPointApi = () => defHttp.get({ url: Api.getMeteringPointApi });
+
+/**
+ * 查询设备
+ */
+export const getProjectEvaluationApi = (params) => defHttp.get({ url: Api.getProjectEvaluationApi, params });
+
+/**
+ * 启动项目
+ * @param params
+ */
+export const startProjectApi = (params) => defHttp.get({ url: Api.startProjectApi, params }, { joinParamsToUrl: true });
+
+/**
+ * 暂停项目
+ * @param params
+ */
+export const pauseProjectApi = (params) => defHttp.get({ url: Api.pauseProjectApi, params }, { joinParamsToUrl: true });
+
+/**
+ * 结项项目
+ * @param params
+ */
+export const completedProjectApi = (params) => defHttp.get({ url: Api.completedProjectApi, params }, { joinParamsToUrl: true });
