@@ -3,7 +3,7 @@
     <a-tab-pane key="1" tab="仪表类别" v-if="hasPermission('bems:equipmentCategoryList')">
       <EquipmentCategory />
     </a-tab-pane>
-    <a-tab-pane key="9" tab="设备类别" v-if="hasPermission('bems:equipmentCategoryList')">
+    <a-tab-pane key="10" tab="设备类别" v-if="hasPermission('bems:equipmentCategoryList')">
       <DeviceCategory />
     </a-tab-pane>
     <a-tab-pane key="2" tab="空间位置" v-if="hasPermission('bems:spaceList')">
