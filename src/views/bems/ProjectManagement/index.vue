@@ -169,12 +169,6 @@ const columns: BasicColumn[] = [
     width: '120px'
   },
   {
-    title: '收益周期(月)',
-    dataIndex: 'incomeCycle',
-    key: 'incomeCycle',
-    
-  },
-  {
     title: '项目文件',
     dataIndex: 'projectFiles',
     key: 'projectFiles',

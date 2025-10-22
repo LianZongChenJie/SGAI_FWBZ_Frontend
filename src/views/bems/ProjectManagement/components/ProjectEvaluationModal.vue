@@ -3,6 +3,7 @@
     v-model:open="open"
     title="节能项目评价报告"
     width="60vw"
+    @cancel="closeModal"
   >
     <div class="project-mvaluation-modal">
       <div class="base-info">
@@ -416,9 +417,11 @@ let myChart: any = null;
 const millDiff = ref(0);
 
 const showModal = async (record) => {
+  console.log('showModal------------->', record.measurementTime);
+  
   formState.value.id = record.pointId;
   open.value = true;
-  setDefaultDate();
+  setDefaultDate(record.measurementTime);
   await getProjectName(record.id)
   await getProjectEvaluation();
 };
@@ -432,7 +435,7 @@ const getProjectName = async(id) => {
   projectData.value.projectName = res.projectName
 }
 
-const setDefaultDate = () => {
+const setDefaultDate = (startTime) => {
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear();
 
@@ -451,7 +454,7 @@ const setDefaultDate = () => {
   let endMinuteSelect = formattedTime.minutes;
   let endSecondSelect = formattedTime.seconds;
   formState.value.analysisTime = [
-    startDateInput + ' ' + startHourSelect + ':' + startMinuteSelect + ':' + startSecondSelect,
+    startTime,
     endDateInput + ' ' + endHourSelect + ':' + endMinuteSelect + ':' + endSecondSelect,
   ];
   getBenchmarkingMethod(formState.value.analysisTime);
@@ -958,6 +961,7 @@ const closeModal = () => {
     myChart.dispose();
     window.removeEventListener('resize', handleResize);
   }
+  openDate.value = false
 };
 
 defineExpose({
