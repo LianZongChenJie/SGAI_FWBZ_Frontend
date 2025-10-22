@@ -3,20 +3,20 @@
     <BasicTable @register="registerTable">
       <!-- 表格顶部按钮 -->
       <template #tableTitle>
-        <a-button
+        <!-- <a-button
           v-if="hasPermission('bems:device_data:amend')"
           type="primary"
           :icon="h(EditOutlined)"
           @click="editFunc"
-        > 编辑 </a-button>
-        <a-button
+        > 编辑 </a-button> -->
+        <!-- <a-button
           v-if="hasPermission('bems:device_data:amend')"
           :icon="h(DeliveredProcedureOutlined)"
           style="margin-left: 8px"
           @click="saveFunc"
         >
           保存
-        </a-button>
+        </a-button> -->
         <a-button
           v-if="hasPermission('bems:device_data:amend')"
           type="primary"
@@ -43,8 +43,12 @@
             @change="(checked) => handleAutomaticAlgorithmChange(record, checked)"
           />
         </template>
+        <template v-else-if="column.key === 'active'">
+          <a @click="updateModal(record)">编辑</a>
+        </template>
       </template>
     </BasicTable>
+    <DataCorrectionModal ref="dataCorrectionModalRef" :reload="reload" />
   </div>
 </template>
 
@@ -56,6 +60,7 @@ import { useListPage } from '/@/hooks/system/useListPage';
 import { h } from 'vue';
 import { EditOutlined, DeliveredProcedureOutlined } from '@ant-design/icons-vue';
 import { usePermissionStore } from '/@/store/modules/permission';
+import DataCorrectionModal from './components/DataCorrectionModal.vue'
 
 const props = defineProps<{
   categoryKeys?: string[]; // 类别树节点
@@ -63,6 +68,8 @@ const props = defineProps<{
   categoryTreeData: any[];
   spaceTreeData: any[];
 }>();
+
+const dataCorrectionModalRef = ref()
 
 const emit = defineEmits(['edit', 'delete', 'refresh', 'detail']);
 
@@ -180,6 +187,11 @@ const columns: BasicColumn[] = [
   //   dataIndex: 'automaticAlgorithm',
   //   key: 'automaticAlgorithm',
   // },
+  {
+    title: '编辑',
+    dataIndex: 'active',
+    key: 'active',
+  },
 ];
 
 //表单搜索字段
@@ -268,6 +280,7 @@ const { tableContext } = useListPage({
       pageSize: 10,
       showSizeChanger: true,
     },
+    showTableSetting:false,
     formConfig: {
       schemas: searchFormSchema,
       submitOnReset: true,
@@ -341,6 +354,10 @@ const recalculate = async () => {
   const searchData = getFieldsValue();
   await recalculateApi({ hour: searchData.date ? searchData.date : undefined });
 };
+
+const updateModal = (record) => {
+  dataCorrectionModalRef.value.showModal(record)
+}
 
 // 暴露 reload 方法给父组件
 defineExpose({

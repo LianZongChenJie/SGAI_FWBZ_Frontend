@@ -2,14 +2,6 @@
   <div class="">
     <BasicTable @register="registerTable">
       <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'content'">
-          <a-popover>
-                <template #content>
-                  <p>{{ record.content }}</p>
-                </template>
-                <div class="content-box">{{ record.content }}</div>
-              </a-popover>
-        </template>
         <template v-if="column.key === 'action'">
           <a @click.stop="getHistory(record)">查看历史</a>
         </template>
@@ -68,12 +60,6 @@ const columns: BasicColumn[] = [
     dataIndex: 'collectionTime',
     key: 'collectionTime',
     width: 240,
-  },
-  {
-    title: '内容',
-    dataIndex: 'content',
-    key: 'content',
-    width: 120,
   },
   {
     title: '操作',
@@ -184,12 +170,5 @@ onMounted(async () => {
   display: flex;
   justify-content: flex-start;
   align-content: center;
-}
-
-.content-box{
-  white-space: nowrap;      /* 禁止换行 */
-  overflow: hidden;         /* 隐藏溢出内容 */
-  text-overflow: ellipsis;  /* 显示省略号 */
-  width: 120px; 
 }
 </style>

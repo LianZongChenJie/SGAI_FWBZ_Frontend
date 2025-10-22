@@ -23,7 +23,7 @@
       <!-- 图表下方的表格 -->
       <div class="table-container">
         <a-table :columns="tableColumns" :data-source="tableData" :pagination="false" bordered tableLayout="fixed"
-          :scroll="{ x: 1500, y: 170 }"/>
+          :scroll="{ x: 1500, y: 220 }"/>
       </div>
     </div>
   </div>
@@ -36,7 +36,7 @@
   import { MenuProps, message } from 'ant-design-vue';
 
   const date = ref<string>();
-  const chartInstance = shallowRef(null);
+  const chartInstance:any = shallowRef(null);
 
   const dateType = ref<string>('month');
 
@@ -205,7 +205,7 @@
     const today = new Date();
     const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
     const year = lastMonth.getFullYear();
-    const month = String(lastMonth.getMonth() + 1).padStart(2, '0');
+    const month = String(lastMonth.getMonth() + 2).padStart(2, '0');
     const day = String(lastMonth.getDate()).padStart(2, '0');
     // 设置日期为上月当前日期
     // date.value = new Date().toISOString().split('T')[0];

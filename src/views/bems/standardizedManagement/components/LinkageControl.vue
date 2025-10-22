@@ -212,6 +212,7 @@ const { tableContext } = useListPage({
     // dataSource: dataSource.value,
     api: getLinkageControlList,
     columns: columns,
+    showTableSetting:false,
     showActionColumn: false,
     size: 'middle',
     expandRowByClick: true,

@@ -58,6 +58,7 @@
            api: list,
            columns,
            canResize:false,
+           showTableSetting:false,
            formConfig: {
               //labelWidth: 120,
               schemas: searchFormSchema,
@@ -157,14 +158,7 @@
            label: '编辑',
            onClick: handleEdit.bind(null, record),
            auth: 'bems:energy_attribute_management:edit'
-         }
-       ]
-   }
-     /**
-        * 下拉操作栏
-        */
-  function getDropDownAction(record){
-       return [
+         },
          {
            label: '详情',
            onClick: handleDetail.bind(null, record),
@@ -177,6 +171,14 @@
            },
            auth: 'bems:energy_attribute_management:delete'
          }
+       ]
+   }
+     /**
+        * 下拉操作栏
+        */
+  function getDropDownAction(record){
+       return [
+        
        ]
    }
 

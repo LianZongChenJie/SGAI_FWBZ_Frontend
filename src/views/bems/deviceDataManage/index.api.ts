@@ -7,10 +7,12 @@ enum Api {
   categoryTree = '/bems/equipmentCategory/getTree',
   spaceTree = '/bems/space/getTree',
   list = '/bems/deviceData/list',
-  findHourData = '/bems/deviceData/findHourData',
+  findHourData = '/bems/deviceData/findHourData', 
+  getDeviceNumberDataApi = '/bems/deviceData/statisticsRunState', 
 }
 
 export const getCategoryTree = () => defHttp.get({ url: Api.categoryTree });
 export const getSpaceTree = () => defHttp.get({ url: Api.spaceTree });
 export const getList = (params) => defHttp.get({ url: Api.list, params });
 export const findHourData = (params) => defHttp.get({ url: Api.findHourData, params });
+export const getDeviceNumberDataApi = () => defHttp.get({ url: Api.getDeviceNumberDataApi });

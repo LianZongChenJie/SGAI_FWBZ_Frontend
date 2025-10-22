@@ -106,6 +106,7 @@
       columns,
       canResize: false,
       useSearchForm: false,
+      showTableSetting:false,
       actionColumn: {
         title: '操作',
         width: 160,

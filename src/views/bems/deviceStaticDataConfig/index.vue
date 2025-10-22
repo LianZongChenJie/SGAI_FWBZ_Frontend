@@ -324,6 +324,7 @@
     showActionColumn: false,
     size: 'middle',
     pagination: false,
+    showTableSetting:false,
     formConfig: {
       schemas: searchFormSchema,
       submitOnReset: true,

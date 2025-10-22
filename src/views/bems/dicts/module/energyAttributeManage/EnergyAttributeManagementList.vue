@@ -72,6 +72,7 @@
            api: list,
            columns,
            canResize:false,
+           showTableSetting:false,
            formConfig: {
               //labelWidth: 120,
               schemas: searchFormSchema,

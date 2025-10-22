@@ -302,7 +302,7 @@
       <a-button
         type="primary"
         @click="onSubmit"
-        v-if="props.type !== 'check' && current === 2 || props.type === 'edit'"
+        v-if="props.type !== 'check' && current === 3 || props.type === 'edit'"
       >保存</a-button>
     </div>
     <device-table-modal

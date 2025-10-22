@@ -10,6 +10,7 @@ enum Api {
   getTrendsYearDataApi = '/bems/carbonEmission/getTrendComparisonForYear',
 
   getObjectListApi = '/bems/carbonEmission/spatialList',
+  getCoalObjectListApi = '/bems/carbonEmission/specialtyList',
   getObjectPieDataApi = '/bems/carbonEmission/getSpatialCarbonEmissionAnalysis',
   getObjectDayDataApi = '/bems/carbonEmission/getSpatialCarbonEmissionForDay',
   getObjectMonthDataApi = '/bems/carbonEmission/getSpatialCarbonEmissionForMonth',
@@ -55,6 +56,11 @@ export const getTrendsYearDataApi = (params) => defHttp.get({ url: Api.getTrends
  * 获取对象列表数据
  */
 export const getObjectListApi = () => defHttp.get({ url: Api.getObjectListApi });
+
+/**
+ * 获取碳排放对象列表数据
+ */
+export const getCoalObjectListApi = () => defHttp.get({ url: Api.getCoalObjectListApi });
 
 /**
  * 获取对象饼图数据

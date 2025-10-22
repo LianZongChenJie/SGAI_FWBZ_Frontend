@@ -135,6 +135,7 @@ const { prefixCls, tableContext, onExportXls, onImportXls } = useListPage({
       fieldMapToNumber: [],
       fieldMapToTime: [],
     },
+    showTableSetting:false,
     actionColumn: {
       title: '操作',
       width: 160,

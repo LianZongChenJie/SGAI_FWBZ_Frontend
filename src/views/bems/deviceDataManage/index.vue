@@ -1,5 +1,18 @@
 <template>
   <div class="jeecg-basic-table jeecg-basic-table-form-container">
+    <div class="status-data-device-status">
+      <a-button @click="filterTableData(undefined)">
+        全部({{ statusData.count }})
+      </a-button>
+      &emsp;
+      <a-button type="primary" @click="filterTableData('在线')">
+        在线({{ statusData.online }})
+      </a-button>
+      &emsp;
+      <a-button type="primary" danger @click="filterTableData('离线')">
+        离线({{ statusData.offline }})
+      </a-button>
+    </div>
     <!-- 表格 -->
     <BasicTable @register="registerTable">
       <template #form-categoryId="{ model, field }">
@@ -34,10 +47,11 @@
       </template>
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'action'">
-          <a-button
+          <!-- <a-button
             :icon="h(BarChartOutlined)"
             @click="handleChart(record)"
-          />
+          /> -->
+          <a @click="handleChart(record)">查看</a>
         </template>
       </template>
     </BasicTable>
@@ -60,7 +74,7 @@
 <script lang="ts" setup>
 import { ref, onMounted, h } from 'vue';
 import { BarChartOutlined } from '@ant-design/icons-vue';
-import { getCategoryTree, getSpaceTree, getList } from './index.api';
+import { getCategoryTree, getSpaceTree, getList, getDeviceNumberDataApi } from './index.api';
 import Chart from './components/chart.vue';
 import { BasicColumn, BasicTable, FormSchema } from '/@/components/Table';
 import { useListPage } from '/@/hooks/system/useListPage';
@@ -184,7 +198,7 @@ const treeSelect = { children: 'children', label: 'title', value: 'key', key: 'k
 
 const chartVisible = ref(false);
 
-const chartParams = ref({
+const chartParams = ref<any>({
   deviceId: null,
   startTime: null,
   endTime: null,
@@ -216,10 +230,9 @@ const pagination = ref({
   onChange: (page: number, pageSize: number) => {
     // 当页码或每页记录数改变时的回调函数
     // 这里可以添加实际的分页查询逻辑
-    console.log(`当前页码: ${page}, 每页记录数: ${pageSize}`);
     pagination.value.current = page;
     pagination.value.pageSize = pageSize;
-    loadData();
+    reload();
   },
 });
 
@@ -255,13 +268,11 @@ const loadData = async (pageParams) => {
 const handleSearch = () => {
   // 这里可以添加实际的查询逻辑，根据 searchParams 过滤 dataSource
   pagination.value.total = 1;
-  loadData();
   reload();
 };
 
 const handleChart = (record: any) => {
   // 这里可以添加实际的图表逻辑
-  console.log('显示图表', record);
   chartParams.value = {
     deviceId: record.deviceId,
     startTime: searchParams.value.startTime ? searchParams.value.startTime + ':00:00' : null,
@@ -298,7 +309,6 @@ const findTreeNodeTitle = (treeData: any[], key: string | number): string => {
 const resetSearch = async () => {
   searchParams.value = defaultSearchParams;
   pagination.value.current = 1;
-  await loadData();
   reload();
 };
 
@@ -313,6 +323,7 @@ const { tableContext } = useListPage({
       pageSize: 10,
       showSizeChanger: true,
     },
+    showTableSetting:false,
     formConfig: {
       schemas: searchFormSchema,
       showAdvancedButton: false,
@@ -333,6 +344,28 @@ const { tableContext } = useListPage({
 // BasicTable绑定注册
 const [registerTable, { reload, getForm }] = tableContext;
 
+const statusData = ref({
+  count: 0,
+  online: 0,
+  offline: 0,
+})
+
+const getDeviceNumberData = async() => {
+  let res = await getDeviceNumberDataApi()
+  statusData.value.count = res.count
+  statusData.value.online = res.online
+  statusData.value.offline = res.offline
+}
+
+const filterTableData = (status) => {
+  searchParams.value.runState = status
+  let { setFieldsValue } = getForm();
+  setFieldsValue({
+    runState: status, // 将 'fixed_value' 替换为你需要的固定值
+  });
+  reload()
+}
+
 // 组件挂载时获取数据
 onMounted(async () => {
   try {
@@ -341,13 +374,23 @@ onMounted(async () => {
 
     const spaceRes = await getSpaceTree();
     spaceTreeData.value = spaceRes;
-    loadData();
+    reload();
   } catch (error) {
     console.error('获取数据失败:', error);
   }
+  await getDeviceNumberData()
 });
 </script>
 
-<style scoped>
+<style lang="less" scoped>
 /* 可以添加自定义样式 */
+
+.status-data-device-status{
+  padding-left: 12px;
+  height: 40px;
+  margin: 4px 10px 0 10px;
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+}
 </style>

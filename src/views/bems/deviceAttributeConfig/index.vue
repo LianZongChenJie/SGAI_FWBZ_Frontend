@@ -137,6 +137,7 @@
     api: getData,
     columns: columns,
     showActionColumn: false,
+    showTableSetting:false,
     size: 'middle',
     pagination: false,
   },

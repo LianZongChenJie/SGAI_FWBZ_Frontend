@@ -84,7 +84,7 @@ import MyCarbonTitle from './MyCarbonTitle.vue';
 import { ref, onMounted } from 'vue';
 import * as echarts from 'echarts';
 import {
-  getObjectListApi,
+  getCoalObjectListApi,
   getScenarioizationPieDataApi,
   getScenarioizationDayDataApi,
   getScenarioizationMonthDataApi,
@@ -331,7 +331,7 @@ const initBarChart = () => {
 
 // 获取对象列表数据
 const getObjectList = async () => {
-  let res = await getObjectListApi()
+  let res = await getCoalObjectListApi()
   options.value = res.map(item => {
     return {
       label: item.nodeName,

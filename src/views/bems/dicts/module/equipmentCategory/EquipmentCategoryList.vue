@@ -103,6 +103,7 @@
         fieldMapToNumber: [],
         fieldMapToTime: [],
       },
+      showTableSetting:false,
       actionColumn: {
         width: 240,
         fixed: 'right',

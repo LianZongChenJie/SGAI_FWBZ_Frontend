@@ -58,7 +58,9 @@
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'action'">
             <a-space>
-              <a @click="handleFormula(record)">编辑公式</a>
+              <a @click="handleFormula(record)">编辑公式</a>&emsp;
+              <a v-if="current[0] === 'run'" @click="handleEdit(record)">编辑</a>&emsp;
+              <a v-if="current[0] === 'run'" style="color: red;" @click="handleDeleteTable(record)">删除</a>
             </a-space>
           </template>
         </template>
@@ -194,6 +196,16 @@ const handleFormula = (record: any) => {
   formulaModalRef.value?.openModal(record);
 };
 
+// 编辑
+const handleEdit = (record) => {
+  
+  ruleModalRef.value.openModal(findNodeInTree(treeData.value, record.id));
+}
+// 删除
+const handleDeleteTable = (record) => {
+  rowDelete({ id: record.id, nodeName: record.nodeName });
+}
+
 const handleSuccess = () => {
   findTreeData();
   findTableData();
@@ -309,6 +321,7 @@ const { tableContext } = useListPage({
     api: findTableData,
     columns: columns as BasicColumn[],
     showActionColumn: false,
+    showTableSetting:false,
     size: 'middle',
     pagination: {
       pageSize: 10,

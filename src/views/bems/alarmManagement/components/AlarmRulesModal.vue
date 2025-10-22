@@ -121,15 +121,15 @@
                 </a-col>
                 <a-col :span="8">
                   <a-form-item
-                    label="报警点类型"
+                    label="报警形式"
                     name="pointType"
-                    :rules="[{ required: true, message: '请选择报警点类型' }]"
+                    :rules="[{ required: true, message: '请选择报警形式' }]"
                   >
                     <a-select
                       v-model:value="formState.pointType"
                       :options="pointTypeOption"
                       @change="changePointType"
-                      placeholder="请选择报警点类型"
+                      placeholder="请选择报警形式"
                     >
                     </a-select>
                   </a-form-item>

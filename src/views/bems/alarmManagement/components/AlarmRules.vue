@@ -179,6 +179,7 @@ const { tableContext } = useListPage({
     showActionColumn: false,
     size: 'middle',
     rowKey: 'id',
+    showTableSetting:false,
     pagination: {
         pageSize: 10,
         showSizeChanger: true,

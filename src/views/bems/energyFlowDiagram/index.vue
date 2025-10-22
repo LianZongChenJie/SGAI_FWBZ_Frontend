@@ -226,15 +226,17 @@
       format: 'node_array',
       data: [],
     };
-    // 判断data中parentId === 0 的数量，当数量大于1时，增加顶级节点 id = -1
-    let top: any[] = [];
     data.value.forEach((item: any) => {
       let topic = `${item.nodeName}`;
       if (item.showType == '1') {
         topic += `<br>${item.value}${item.unit}`;
       }
       if (item.parentId === 0) {
-        top.push(item);
+        mind.data.push({
+          id: item.id + '',
+          isroot: true,
+          topic: topic,
+        });
       } else {
         mind.data.push({
           id: item.id + '',
@@ -243,28 +245,6 @@
         });
       }
     });
-    if (top.length > 1) {
-      top.forEach((item) => {
-        mind.data.push({
-          id: item.id + '',
-          parentid: '-1',
-          topic: item.nodeName,
-        });
-      });
-      mind.data.push({
-        id: '-1',
-        isroot: true,
-        topic: '能耗',
-      });
-    } else {
-      top.forEach((item) => {
-        mind.data.push({
-          id: item.id + '',
-          isroot: true,
-          topic: item.nodeName,
-        });
-      });
-    }
     nextTick(() => {
       jm.show(mind);
     });

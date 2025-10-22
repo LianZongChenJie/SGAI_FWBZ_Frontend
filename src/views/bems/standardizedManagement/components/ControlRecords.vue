@@ -123,6 +123,7 @@ const { tableContext } = useListPage({
     api: getLinkageControlList,
     columns: columns,
     showActionColumn: false,
+    showTableSetting:false,
     size: 'middle',
     rowKey: 'id',
     pagination: {

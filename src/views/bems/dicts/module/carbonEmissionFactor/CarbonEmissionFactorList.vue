@@ -84,6 +84,7 @@
         fieldMapToNumber: [],
         fieldMapToTime: [],
       },
+      showTableSetting:false,
       actionColumn: {
         title: '操作',
         width: 160,

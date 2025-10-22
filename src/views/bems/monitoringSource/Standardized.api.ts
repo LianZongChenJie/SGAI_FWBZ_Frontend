@@ -10,6 +10,8 @@ enum Api {
   deleteAlarmLevelApi = '/bems/alarm/level/delete',
   enableAlarmLevelApi = '/bems/alarm/level/startLevel',
   disableAlarmLevelApi = '/bems/alarm/level/stopLevel',
+  groundFloor = '/admin/device/account/getSpaceInfoList',
+  getPointData = '/admin/device/account/queryNewDeviceAccountList',
 }
 
 /**
@@ -49,3 +51,16 @@ export const enableAlarmLevelApi = (params) => defHttp.post({ url: Api.enableAla
  * @param params
  */
 export const disableAlarmLevelApi = (params) => defHttp.post({ url: Api.disableAlarmLevelApi, params }, { joinParamsToUrl: true }); 
+
+/**
+ * 禁用告警级别
+ * @param params
+ */
+export const groundFloor = (params) => defHttp.post({ url: Api.disableAlarmLevelApi, params }); 
+
+
+/**
+ * 禁用告警级别
+ * @param params
+ */
+export const getPointData = (params) => defHttp.get({ url: Api.getPointData, params }); 

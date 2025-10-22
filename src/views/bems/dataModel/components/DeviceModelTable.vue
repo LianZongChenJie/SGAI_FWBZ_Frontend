@@ -183,6 +183,12 @@ const getData = async (pageParams) => {
 
 // 表格数据
 const dataSource = ref([]);
+const total = ref<number>(0);
+
+const pagination = ref({
+  pageNo: 1,
+  pageSize: 10,
+});
 
 const customResetFunc = async () => {};
 
@@ -197,6 +203,7 @@ const { tableContext } = useListPage({
       pageSize: 10,
       showSizeChanger: true,
     },
+    showTableSetting:false,
     rowkey: 'id',
     //定义rowSelection的类型，默认是checkbox多选，可以设置成radio单选
     rowSelection: { type: 'checkbox' },
@@ -315,6 +322,7 @@ const selectTargetModel = (record) => {
 
 onMounted(async () => {
   await getCategoryList();
+  await getData();
   nextTick(() => {
     selectTargetModel(dataSource.value[0]);
   });

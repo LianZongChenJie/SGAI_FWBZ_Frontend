@@ -158,6 +158,7 @@ const { prefixCls, tableContext, onExportXls, onImportXls } = useListPage({
       fieldMapToNumber: [],
       fieldMapToTime: [],
     },
+    showTableSetting:false,
     actionColumn: {
       title: '操作',
       width: 160,
@@ -243,6 +244,38 @@ async function batchHandleDelete() {
  */
 function handleSuccess() {
   (selectedRowKeys.value = []) && reload();
+}
+/**
+ * 操作栏
+ */
+function getTableAction(record) {
+  return [
+    {
+      label: '编辑',
+      onClick: handleEdit.bind(null, record),
+      auth: 'bems:energy_price:edit',
+    },
+  ];
+}
+/**
+ * 下拉操作栏
+ */
+function getDropDownAction(record) {
+  return [
+    {
+      label: '详情',
+      onClick: handleDetail.bind(null, record),
+    },
+    {
+      label: '删除',
+      popConfirm: {
+        title: '是否确认删除',
+        confirm: handleDelete.bind(null, record),
+        placement: 'topLeft',
+      },
+      auth: 'bems:energy_price:delete',
+    },
+  ];
 }
 
 const categoryTreeData = ref<any>([]);

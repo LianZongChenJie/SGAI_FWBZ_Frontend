@@ -83,6 +83,7 @@
       columns,
       canResize: false,
       isTreeTable: true,
+      showTableSetting:false,
       formConfig: {
         //labelWidth: 120,
         schemas: searchFormSchema,
