@@ -23,6 +23,8 @@ enum Api {
   startProjectApi = '/bems/project/startProject',
   pauseProjectApi = '/bems/project/pauseProject',
   completedProjectApi = '/bems/project/completedProject',
+
+  getProjectNameApi = '/bems/project/queryById',
 }
 
 /**
@@ -108,3 +110,9 @@ export const pauseProjectApi = (params) => defHttp.get({ url: Api.pauseProjectAp
  * @param params
  */
 export const completedProjectApi = (params) => defHttp.get({ url: Api.completedProjectApi, params }, { joinParamsToUrl: true });
+
+/**
+ * 获取项目名称等信息
+ * @param params
+ */
+export const getProjectNameApi = (params) => defHttp.get({ url: Api.getProjectNameApi, params }, { joinParamsToUrl: true });

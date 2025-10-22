@@ -6,8 +6,8 @@
   >
     <div class="project-mvaluation-modal">
       <div class="base-info">
-        <div>项目名称：<span>{{ '照明定时群控项目' }}</span></div>
-        <div>计量对象：<span>{{ '专业用电-照明插座用电-公共照明用电' }}</span></div>
+        <div>项目名称：<span>{{ projectData.projectName }}</span></div>
+        <div>计量对象：<span>{{ projectData.pointName }}</span></div>
       </div>
       <div class="form-box">
         <div class="form-item-box">
@@ -163,7 +163,7 @@
 <script setup lang="ts">
 import { ref, nextTick, toRaw, onMounted } from 'vue';
 import { SearchOutlined } from '@ant-design/icons-vue';
-import { getProjectEvaluationApi } from '../Standardized.api';
+import { getProjectEvaluationApi,getProjectNameApi } from '../Standardized.api';
 import * as echarts from 'echarts';
 
 const props = defineProps({
@@ -175,6 +175,11 @@ const props = defineProps({
 
 const open = ref<boolean>(false);
 const openDate = ref<boolean>(false);
+
+const projectData = ref({
+  projectName: '',
+  pointName: '',
+})
 
 const formState = ref<any>({
   id: '',
@@ -414,8 +419,18 @@ const showModal = async (record) => {
   formState.value.id = record.pointId;
   open.value = true;
   setDefaultDate();
+  await getProjectName(record.id)
   await getProjectEvaluation();
 };
+
+// 获取项目名称
+const getProjectName = async(id) => {
+  let res = await getProjectNameApi({
+    id: id
+  })
+  projectData.value.pointName = res.pointName
+  projectData.value.projectName = res.projectName
+}
 
 const setDefaultDate = () => {
   const currentDate = new Date();
@@ -655,7 +670,6 @@ const millisecondsToDate = (milliseconds) => {
   const hours = String(date.getHours()).padStart(2, '0');
   const minutes = String(date.getMinutes()).padStart(2, '0');
   const seconds = String(date.getSeconds()).padStart(2, '0');
-  console.log('monthOnMonthTime------------>', month);
   if(month==='00') {
     month = '12'
     year = year - 1
