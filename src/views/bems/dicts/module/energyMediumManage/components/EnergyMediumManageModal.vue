@@ -82,7 +82,7 @@
       //表单赋值
       await setFieldsValue({
         ...data.record,
-        pid: data.record.pid || null,
+        pid: data.record.id || null,
         standardUnit: data.record.standardUnit || null,
       });
     } else {

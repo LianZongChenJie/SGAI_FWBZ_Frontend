@@ -106,7 +106,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, unref, h, reactive } from 'vue';
+import { ref, computed, unref, h, reactive, nextTick } from 'vue';
 import { BasicModal, useModalInner } from '/@/components/Modal';
 import { BasicForm, useForm } from '/@/components/Form/index';
 import { PlusOutlined } from '@ant-design/icons-vue';
@@ -287,7 +287,8 @@ const [registerModal, { setModalProps, closeModal }] = useModalInner(async (data
   resetFields();
   setModalProps({ confirmLoading: false });
   isUpdate.value = !!data?.isUpdate;
-
+  
+  await nextTick()
   if (unref(isUpdate)) {
     id.value = data.record.id;
     getData(data.record.id);
@@ -409,7 +410,6 @@ const cancel = (record) => {
 };
 
 const visibleChange = (value) => {
-  console.log('value---------->', value);
   if (!value) {
     activeKey.value = '1';
   }

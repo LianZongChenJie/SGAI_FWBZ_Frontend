@@ -46,6 +46,8 @@
   const [registerModal, {setModalProps, closeModal}] = useModalInner(async (data) => {
     //重置表单
     await resetFields();
+    //父级节点树信息
+    treeData.value = await loadTreeData({'async': false,'pcode':''});
     expandedRowKeys.value = [];
     setModalProps({confirmLoading: false, minHeight: 80 ,showOkBtn: !!!data?.hideFooter});
     isUpdate.value = !!data?.isUpdate;
@@ -55,12 +57,12 @@
       //表单赋值
       await setFieldsValue({
         ...data.record,
+        pid: data.record.id
       });
     } else {
       model = null;
     }
-    //父级节点树信息
-    treeData.value = await loadTreeData({'async': false,'pcode':''});
+    
     // 隐藏底部时禁用整个表单
     setProps({ disabled: !!data?.hideFooter })
   });
