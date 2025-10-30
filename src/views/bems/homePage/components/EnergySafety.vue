@@ -136,7 +136,7 @@ const placeList = ref([
 const total = ref({
   electricityTotal: 0,
   waterTotal: 0,
-})
+});
 
 // 获取图表DOM引用
 const electricityChartRef = ref<HTMLDivElement>();
@@ -245,14 +245,6 @@ const initElectricityChart = () => {
   electricityChart = echarts.init(useElectricityRef.value);
 
   const option = {
-    title: {
-      text: '近七日用电趋势及预测',
-      left: 'center',
-      textStyle: {
-        fontSize: 16,
-        fontWeight: 'bold',
-      },
-    },
     tooltip: {
       trigger: 'axis',
       axisPointer: {
@@ -379,14 +371,6 @@ const updateChart = () => {
   if (!waterChart) return;
 
   const option = {
-    title: {
-      text: '近七日用水趋势及预测',
-      left: 'center',
-      textStyle: {
-        fontSize: 16,
-        fontWeight: 'bold',
-      },
-    },
     tooltip: {
       trigger: 'axis',
       axisPointer: {
@@ -656,7 +640,7 @@ const getEnergyConservationStatistics = async () => {
         name: item.projectType,
       };
     });
-    total.value.electricityTotal = res.electricity.total
+    total.value.electricityTotal = res.electricity.total;
   }
   if (res.water) {
     waterEnergySavingData.value = res.water.list.map((item) => {
@@ -665,7 +649,7 @@ const getEnergyConservationStatistics = async () => {
         name: item.projectType,
       };
     });
-    total.value.waterTotal = res.water.total
+    total.value.waterTotal = res.water.total;
   }
 };
 
@@ -796,16 +780,14 @@ onMounted(async () => {
       }
 
       .title-box {
-          height: 30px;
-          font-size: 16px;
-          font-weight: 600;
-        }
+        height: 30px;
+        font-size: 16px;
+        font-weight: 600;
+      }
 
       > div {
         height: calc(100% - 30px);
         width: 50%;
-
-        
       }
     }
   }
