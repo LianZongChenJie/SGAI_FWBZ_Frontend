@@ -1,0 +1,31 @@
+{
+  "modified": "Fri Oct 24 2025 17:07:19 GMT+0800 (中国标准时间)",
+  "gridEnabled": true,
+  "width": 20,
+  "height": 20,
+  "comps": [
+    {
+      "type": "oval",
+      "background": "rgba(217,217,217,0)",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "rect": [
+        1.75994,
+        2.27518,
+        16.48012,
+        15.72482
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        10,
+        0,
+        10,
+        20
+      ]
+    }
+  ]
+}

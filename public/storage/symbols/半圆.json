@@ -1,0 +1,65 @@
+{
+  "modified": "Tue Oct 28 2025 15:27:12 GMT+0800 (中国标准时间)",
+  "width": 500,
+  "height": 500,
+  "comps": [
+    {
+      "type": "oval",
+      "background": "rgb(255,255,255)",
+      "borderWidth": 15,
+      "borderColor": "rgb(189,116,237)",
+      "rect": [
+        181.74681,
+        112.18939,
+        122.98189,
+        122.98189
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/assets/1_0竖线1.png",
+      "displayName": "1_0竖线1",
+      "rect": [
+        115.09759,
+        225.83994,
+        256,
+        170.55769
+      ]
+    },
+    {
+      "type": "rect",
+      "background": "rgb(255,255,255)",
+      "borderWidth": 1,
+      "borderColor": "rgb(255,255,255)",
+      "rect": [
+        250,
+        104.49929,
+        64.65129,
+        121.34065
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/assets/1_0横线1.png",
+      "displayName": "1_0横线1",
+      "rect": [
+        128.90241,
+        167.68033,
+        256,
+        256
+      ]
+    },
+    {
+      "type": "rect",
+      "background": "rgb(255,255,255)",
+      "borderWidth": 1,
+      "borderColor": "rgb(255,255,255)",
+      "rect": [
+        256.2669,
+        225.07899,
+        48.47277,
+        24.92101
+      ]
+    }
+  ]
+}

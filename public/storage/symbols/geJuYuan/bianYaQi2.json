@@ -1,0 +1,1090 @@
+{
+  "modified": "Mon Oct 27 2025 10:25:03 GMT+0800 (中国标准时间)",
+  "gridEnabled": true,
+  "width": 380,
+  "height": 340,
+  "comps": [
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        199.99996,
+        9.96031,
+        339.99996,
+        9.96031
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/geJuYuan/zheXian.json",
+      "displayName": "zheXian",
+      "rect": [
+        321.98763,
+        22.71031,
+        15.8305,
+        14.5
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        329.81813,
+        10.46031,
+        329.81813,
+        23.31906
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        329.81813,
+        30.24744,
+        329.73338,
+        68.66806
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/geJuYuan/zheXian.json",
+      "displayName": "zheXian",
+      "rotation": 3.14159,
+      "rect": [
+        321.81813,
+        61.71031,
+        15.8305,
+        14.5
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/geJuYuan/huLu.json",
+      "displayName": "huLu",
+      "rect": [
+        319.72855,
+        78.96031,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        329.73338,
+        74.96031,
+        329.73338,
+        79.96031
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/geJuYuan/huLu.json",
+      "displayName": "huLu",
+      "rect": [
+        339.73338,
+        78.96031,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/geJuYuan/huLu.json",
+      "displayName": "huLu",
+      "rect": [
+        299.73338,
+        78.96031,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        290,
+        125.96031,
+        369.81813,
+        125.96031
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        309.73338,
+        124.96031,
+        309.73338,
+        143.96031
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        329.73338,
+        118.96031,
+        329.73338,
+        166.96031
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/geJuYuan/huLu.json",
+      "displayName": "huLu",
+      "rect": [
+        299.81813,
+        98.96031,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/geJuYuan/huLu.json",
+      "displayName": "huLu",
+      "rect": [
+        319.72855,
+        98.96031,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/geJuYuan/huLu.json",
+      "displayName": "huLu",
+      "rect": [
+        339.81813,
+        98.96031,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        304.23338,
+        149.37152,
+        315.23338,
+        149.37152
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        304.23338,
+        144.96031,
+        315.23338,
+        144.96031
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/geJuYuan/yuanCha.json",
+      "displayName": "yuanCha",
+      "rect": [
+        299.63898,
+        158.96031,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        309.73338,
+        149.37152,
+        309.63898,
+        160.96031
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        309.63898,
+        176.37152,
+        309.63898,
+        184.96031
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        303.81813,
+        185.96031,
+        314.81813,
+        185.96031
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        306.81813,
+        189.96031,
+        311.81813,
+        189.96031
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        308.31813,
+        193.96031,
+        310.31813,
+        193.96031
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/geJuYuan/daoSanJiao.json",
+      "displayName": "daoSanJiao",
+      "rect": [
+        319.63898,
+        158.96031,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/geJuYuan/huLu.json",
+      "displayName": "huLu",
+      "rect": [
+        319.63898,
+        178.96031,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        329.63898,
+        173.66591,
+        329.63898,
+        182.25471
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        329.63898,
+        198.96031,
+        329.54457,
+        240.96031
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/geJuYuan/shuangYuan.json",
+      "displayName": "shuangYuan",
+      "rect": [
+        299.54457,
+        234.96031,
+        60,
+        100
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "points": [
+        329.81813,
+        302.96031,
+        368.81813,
+        302.96031
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "points": [
+        367.81813,
+        301.96031,
+        367.81813,
+        325.96031
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "points": [
+        362.31813,
+        325.96031,
+        373.31813,
+        325.96031
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "points": [
+        365.31813,
+        329.96031,
+        370.31813,
+        329.96031
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "points": [
+        366.81813,
+        333.96031,
+        368.81813,
+        333.96031
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        291,
+        125.96031,
+        291,
+        164.46031
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        368.81813,
+        125.96031,
+        368.81813,
+        164.46031
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/geJuYuan/biLeiQi.json",
+      "displayName": "biLeiQi",
+      "rect": [
+        281,
+        159.46031,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        291.2361,
+        175.87152,
+        291.2361,
+        184.46031
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        285.41525,
+        185.46031,
+        296.41525,
+        185.46031
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        288.41525,
+        189.46031,
+        293.41525,
+        189.46031
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        289.91525,
+        193.46031,
+        291.91525,
+        193.46031
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        368.82085,
+        163.96031,
+        368.82085,
+        183.50549
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        363,
+        184.50549,
+        374,
+        184.50549
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        366,
+        188.50549,
+        371,
+        188.50549
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        367.5,
+        192.50549,
+        369.5,
+        192.50549
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/geJuYuan/zheXian.json",
+      "displayName": "zheXian",
+      "rect": [
+        200,
+        22.96031,
+        15.8305,
+        14.5
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        207.8305,
+        10.71031,
+        207.8305,
+        23.56906
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        207.8305,
+        30.03969,
+        207.91525,
+        107.46031
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/geJuYuan/zheXian.json",
+      "displayName": "zheXian",
+      "rotation": 3.14159,
+      "rect": [
+        199.99998,
+        100.96029,
+        15.8305,
+        14.5
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/geJuYuan/huLu.json",
+      "displayName": "huLu",
+      "rect": [
+        178,
+        39.46031,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/geJuYuan/huLu.json",
+      "displayName": "huLu",
+      "rect": [
+        178,
+        59.46031,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/geJuYuan/huLu.json",
+      "displayName": "huLu",
+      "rect": [
+        218,
+        39.46031,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/geJuYuan/huLu.json",
+      "displayName": "huLu",
+      "rect": [
+        218,
+        59.46031,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        189,
+        89.46031,
+        208.91042,
+        89.46031
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/geJuYuan/biLeiQi.json",
+      "displayName": "biLeiQi",
+      "rect": [
+        180,
+        99.46031,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        190,
+        88.46031,
+        190,
+        127.46031
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/geJuYuan/zhanYongBian.json",
+      "displayName": "zhanYongBian",
+      "rect": [
+        180,
+        119.46031,
+        20,
+        40
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        208,
+        114.75,
+        208,
+        191.46031
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        208.91042,
+        126.46031,
+        229.08957,
+        126.46031
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        230.0944,
+        125.46031,
+        230.0944,
+        144.46031
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        224.5944,
+        149.87152,
+        235.5944,
+        149.87152
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        224.5944,
+        145.46031,
+        235.5944,
+        145.46031
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/geJuYuan/yuanCha.json",
+      "displayName": "yuanCha",
+      "rect": [
+        220,
+        159.46031,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        230.0944,
+        149.87152,
+        230,
+        161.46031
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        230,
+        176.87152,
+        230,
+        185.46031
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        224.17915,
+        186.46031,
+        235.17915,
+        186.46031
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        227.17915,
+        190.46031,
+        232.17915,
+        190.46031
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        228.67915,
+        194.46031,
+        230.67915,
+        194.46031
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        148.82085,
+        190.46031,
+        209,
+        190.46031
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        40,
+        9.96031,
+        160,
+        9.96031
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        150.41042,
+        9.03969,
+        149.58958,
+        191.46031
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/geJuYuan/zheXian.json",
+      "displayName": "zheXian",
+      "rect": [
+        42.16952,
+        22.96031,
+        15.8305,
+        14.5
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        50.00002,
+        10.71031,
+        50.00002,
+        23.56906
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        50.00002,
+        30.49744,
+        49.91527,
+        68.91806
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/geJuYuan/zheXian.json",
+      "displayName": "zheXian",
+      "rotation": 3.14159,
+      "rect": [
+        42.00002,
+        61.96031,
+        15.8305,
+        14.5
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        50.08477,
+        75.46031,
+        50.08477,
+        109.46031
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        10.00002,
+        109.46031,
+        90.00002,
+        109.46031
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        10,
+        108.46031,
+        10,
+        164.46031
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/geJuYuan/biLeiQi.json",
+      "displayName": "biLeiQi",
+      "rect": [
+        0,
+        159.46031,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        4.5,
+        186.46031,
+        15.5,
+        186.46031
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        7.5,
+        190.46031,
+        12.5,
+        190.46031
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        9,
+        194.46031,
+        11,
+        194.46031
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        30.09442,
+        108.46031,
+        30.09442,
+        144.46031
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        24.59442,
+        149.87152,
+        35.59442,
+        149.87152
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        24.59442,
+        145.46031,
+        35.59442,
+        145.46031
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/geJuYuan/yuanCha.json",
+      "displayName": "yuanCha",
+      "rect": [
+        20.00002,
+        159.46031,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        30.09442,
+        149.87152,
+        30.00002,
+        161.46031
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        30.00002,
+        176.87152,
+        30.00002,
+        185.46031
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        24.17917,
+        186.46031,
+        35.17917,
+        186.46031
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        27.17917,
+        190.46031,
+        32.17917,
+        190.46031
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        28.67917,
+        194.46031,
+        30.67917,
+        194.46031
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        10.00002,
+        177.16591,
+        10.00002,
+        185.7547
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        50.08477,
+        108.46031,
+        50,
+        199.46031
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/geJuYuan/daoSanJiao.json",
+      "displayName": "daoSanJiao",
+      "rotation": 3.14159,
+      "rect": [
+        39.91527,
+        159.46031,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/geJuYuan/zhanYongBian.json",
+      "displayName": "zhanYongBian",
+      "rect": [
+        80.00002,
+        159.46031,
+        20,
+        40
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/geJuYuan/biLeiQi.json",
+      "displayName": "biLeiQi",
+      "rect": [
+        80,
+        139.46031,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        90,
+        128.46031,
+        90,
+        167.46031
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/geJuYuan/zheXian.json",
+      "displayName": "zheXian",
+      "rect": [
+        82,
+        120.71031,
+        15.8305,
+        14.5
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "points": [
+        89.8305,
+        108.46031,
+        89.8305,
+        121.31906
+      ]
+    }
+  ]
+}

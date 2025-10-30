@@ -1,0 +1,2389 @@
+{
+  "v": "7.2.4-dev1",
+  "p": {
+    "autoAdjustIndex": true,
+    "hierarchicalRendering": true
+  },
+  "a": {
+    "gridEnabled": true
+  },
+  "d": [
+    {
+      "c": "ht.Node",
+      "i": 1081,
+      "p": {
+        "displayName": "paiShuiJi",
+        "image": "storage/assets/paiShuiJi.jpg",
+        "position": {
+          "x": 580,
+          "y": 596.93227
+        },
+        "width": 120,
+        "height": 52.60316,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1082,
+      "p": {
+        "displayName": "paiShuiJi",
+        "image": "storage/assets/paiShuiJi.jpg",
+        "position": {
+          "x": 580,
+          "y": 800
+        },
+        "width": 120,
+        "height": 52.60316,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 1083,
+      "p": {
+        "position": {
+          "x": -47.10019,
+          "y": 592.86066
+        },
+        "width": 124.85477,
+        "height": 64.9929
+      },
+      "s": {
+        "text": "接市政（给水）",
+        "text.font": "18px arial, sans-serif"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1084,
+      "p": {
+        "displayName": "jiShuiJi",
+        "image": "storage/assets/jiShuiJi.jpg",
+        "position": {
+          "x": 118.64825,
+          "y": 522.5336
+        },
+        "width": 49.25022,
+        "height": 58.57044
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1085,
+      "p": {
+        "displayName": "jiShuiJi",
+        "image": "storage/assets/jiShuiJi.jpg",
+        "position": {
+          "x": 118.64825,
+          "y": 653.55909
+        },
+        "width": 49.25022,
+        "height": 58.57044,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 1086,
+      "p": {
+        "position": {
+          "x": 78.10686,
+          "y": 474.6216
+        },
+        "width": 62.42739,
+        "height": 45.55522,
+        "tall": 20
+      },
+      "s": {
+        "text": "东市政",
+        "text.font": "18px arial, sans-serif"
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 1087,
+      "p": {
+        "position": {
+          "x": 76.34931,
+          "y": 705.62191
+        },
+        "width": 58.91228,
+        "height": 45.55522,
+        "tall": 20
+      },
+      "s": {
+        "text": "西市政",
+        "text.font": "18px arial, sans-serif"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1088,
+      "p": {
+        "position": {
+          "x": 143.27336,
+          "y": 474.6216
+        },
+        "width": 67.9056,
+        "height": 26.11754
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(255,255,255)",
+        "shape.border.width": 2,
+        "shape.border.color": "rgb(51,153,255)"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1089,
+      "p": {
+        "tag": "xiShiZheng",
+        "position": {
+          "x": 143.27336,
+          "y": 702.28198
+        },
+        "width": 67.9056,
+        "height": 26.11754,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(255,255,255)",
+        "shape.border.width": 2,
+        "shape.border.color": "rgb(51,153,255)"
+      }
+    },
+    {
+      "c": "ht.Shape",
+      "i": 1090,
+      "p": {
+        "position": {
+          "x": 51.86197,
+          "y": 553.69182
+        },
+        "width": 88.79963,
+        "height": 67.15939,
+        "segments": {
+          "__a": [
+            1,
+            2,
+            2,
+            2,
+            2
+          ]
+        },
+        "points": {
+          "__a": [
+            {
+              "x": 7.46215,
+              "y": 587.27152
+            },
+            {
+              "x": 22.85409,
+              "y": 552.94561
+            },
+            {
+              "x": 54.82196,
+              "y": 528.3205
+            },
+            {
+              "x": 96.26179,
+              "y": 522.35078
+            },
+            {
+              "x": 95.07779,
+              "y": 520.11213
+            }
+          ]
+        }
+      },
+      "s": {
+        "shape.background": null,
+        "shape.border.color": "rgb(51,153,255)",
+        "shape.border.width": 4
+      }
+    },
+    {
+      "c": "ht.Shape",
+      "i": 1091,
+      "p": {
+        "position": {
+          "x": 52.23508,
+          "y": 618.61256
+        },
+        "width": 89.54585,
+        "height": 61.18966,
+        "segments": {
+          "__a": [
+            1,
+            2,
+            2,
+            2,
+            2
+          ]
+        },
+        "points": {
+          "__a": [
+            {
+              "x": 7.46215,
+              "y": 588.01773
+            },
+            {
+              "x": 21.01185,
+              "y": 625.3285
+            },
+            {
+              "x": 59.30449,
+              "y": 643.98389
+            },
+            {
+              "x": 97.008,
+              "y": 649.2074
+            },
+            {
+              "x": 96.41888,
+              "y": 649.2074
+            }
+          ]
+        }
+      },
+      "s": {
+        "shape.background": null,
+        "shape.border.color": "rgb(51,153,255)",
+        "shape.border.width": 4
+      }
+    },
+    {
+      "c": "ht.Shape",
+      "i": 1092,
+      "p": {
+        "rotation": 3.14159,
+        "position": {
+          "x": 188.55863,
+          "y": 552.86566
+        },
+        "width": 90.57056,
+        "height": 53.5676,
+        "tall": 20,
+        "segments": {
+          "__a": [
+            1,
+            2,
+            2,
+            2,
+            2
+          ]
+        },
+        "points": {
+          "__a": [
+            {
+              "x": 143.27336,
+              "y": 526.08185
+            },
+            {
+              "x": 163.48349,
+              "y": 556.73432
+            },
+            {
+              "x": 198.93641,
+              "y": 574.63677
+            },
+            {
+              "x": 233.84391,
+              "y": 579.64946
+            },
+            {
+              "x": 233.29848,
+              "y": 579.64946
+            }
+          ]
+        }
+      },
+      "s": {
+        "shape.background": null,
+        "shape.border.color": "rgb(51,153,255)",
+        "shape.border.width": 4
+      }
+    },
+    {
+      "c": "ht.Shape",
+      "i": 1093,
+      "p": {
+        "rotation": 3.14159,
+        "position": {
+          "x": 189.72597,
+          "y": 630.05124
+        },
+        "width": 89.92036,
+        "height": 57.77113,
+        "tall": 20,
+        "segments": {
+          "__a": [
+            1,
+            2,
+            2,
+            2,
+            2
+          ]
+        },
+        "points": {
+          "__a": [
+            {
+              "x": 144.76579,
+              "y": 658.9368
+            },
+            {
+              "x": 164.64114,
+              "y": 631.55783
+            },
+            {
+              "x": 195.14461,
+              "y": 608.76371
+            },
+            {
+              "x": 234.68615,
+              "y": 603.23786
+            },
+            {
+              "x": 233.55639,
+              "y": 601.16567
+            }
+          ]
+        }
+      },
+      "s": {
+        "shape.background": null,
+        "shape.border.color": "rgb(51,153,255)",
+        "shape.border.width": 4
+      }
+    },
+    {
+      "c": "ht.Shape",
+      "i": 1094,
+      "p": {
+        "rotation": 5.54322,
+        "position": {
+          "x": 237.90118,
+          "y": 583.78591
+        },
+        "width": 12.17682,
+        "height": 13.45869,
+        "segments": {
+          "__a": [
+            1,
+            2,
+            2
+          ]
+        },
+        "points": {
+          "__a": [
+            {
+              "x": 231.81278,
+              "y": 577.28565
+            },
+            {
+              "x": 243.98959,
+              "y": 577.05656
+            },
+            {
+              "x": 238.32473,
+              "y": 590.51526
+            }
+          ]
+        },
+        "closePath": true
+      },
+      "s": {
+        "shape.background": "rgb(51,153,255)",
+        "shape.border.color": "rgb(51,153,255)",
+        "shape.border.width": 1,
+        "shape.gradient.color": "rgb(51,153,255)"
+      }
+    },
+    {
+      "c": "ht.Shape",
+      "i": 1095,
+      "p": {
+        "rotation": 4.06527,
+        "position": {
+          "x": 237.8953,
+          "y": 596.93227
+        },
+        "width": 12.17682,
+        "height": 13.45869,
+        "tall": 20,
+        "segments": {
+          "__a": [
+            1,
+            2,
+            2
+          ]
+        },
+        "points": {
+          "__a": [
+            {
+              "x": 231.80689,
+              "y": 590.43201
+            },
+            {
+              "x": 243.98371,
+              "y": 590.20292
+            },
+            {
+              "x": 238.31884,
+              "y": 603.66161
+            }
+          ]
+        },
+        "closePath": true
+      },
+      "s": {
+        "shape.background": "rgb(51,153,255)",
+        "shape.border.color": "rgb(51,153,255)",
+        "shape.border.width": 1,
+        "shape.gradient.color": "rgb(51,153,255)"
+      }
+    },
+    {
+      "c": "ht.Shape",
+      "i": 1096,
+      "p": {
+        "position": {
+          "x": 313.75231,
+          "y": 600
+        },
+        "width": 133.63508,
+        "height": 400,
+        "segments": {
+          "__a": [
+            1,
+            2,
+            2,
+            2
+          ]
+        },
+        "points": {
+          "__a": [
+            {
+              "x": 380.56985,
+              "y": 400
+            },
+            {
+              "x": 246.93477,
+              "y": 400
+            },
+            {
+              "x": 246.93477,
+              "y": 800
+            },
+            {
+              "x": 380.56985,
+              "y": 800
+            }
+          ]
+        }
+      },
+      "s": {
+        "shape.background": null,
+        "shape.border.color": "rgb(51,153,255)",
+        "shape.border.width": 4
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1097,
+      "p": {
+        "displayName": "jiShuiJi",
+        "image": "storage/assets/jiShuiJi.jpg",
+        "position": {
+          "x": 405.19496,
+          "y": 400
+        },
+        "width": 49.25022,
+        "height": 58.57044,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1098,
+      "p": {
+        "displayName": "jiShuiJi",
+        "image": "storage/assets/jiShuiJi.jpg",
+        "position": {
+          "x": 400,
+          "y": 800
+        },
+        "width": 49.25022,
+        "height": 58.57044,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Shape",
+      "i": 1099,
+      "p": {
+        "position": {
+          "x": 480,
+          "y": 502.5122
+        },
+        "width": 16.04959,
+        "height": 18.52764,
+        "tall": 20,
+        "segments": {
+          "__a": [
+            1,
+            2,
+            2
+          ]
+        },
+        "points": {
+          "__a": [
+            {
+              "x": 471.97521,
+              "y": 493.56374
+            },
+            {
+              "x": 488.02479,
+              "y": 493.24838
+            },
+            {
+              "x": 480.55825,
+              "y": 511.77601
+            }
+          ]
+        },
+        "closePath": true
+      },
+      "s": {
+        "shape.background": "rgb(51,153,255)",
+        "shape.border.color": "rgb(51,153,255)",
+        "shape.border.width": 1,
+        "shape.gradient.color": "rgb(51,153,255)"
+      }
+    },
+    {
+      "c": "ht.Shape",
+      "i": 1100,
+      "p": {
+        "rotation": 3.14159,
+        "position": {
+          "x": 480,
+          "y": 698.48703
+        },
+        "width": 16.04959,
+        "height": 18.52764,
+        "tall": 20,
+        "segments": {
+          "__a": [
+            1,
+            2,
+            2
+          ]
+        },
+        "points": {
+          "__a": [
+            {
+              "x": 471.97521,
+              "y": 689.53858
+            },
+            {
+              "x": 488.02479,
+              "y": 689.22321
+            },
+            {
+              "x": 480.55825,
+              "y": 707.75085
+            }
+          ]
+        },
+        "closePath": true
+      },
+      "s": {
+        "shape.background": "rgb(51,153,255)",
+        "shape.border.color": "rgb(51,153,255)",
+        "shape.border.width": 1,
+        "shape.gradient.color": "rgb(51,153,255)"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1101,
+      "p": {
+        "displayName": "paiShuiJi",
+        "image": "storage/assets/paiShuiJi.jpg",
+        "position": {
+          "x": 580,
+          "y": 400
+        },
+        "width": 120,
+        "height": 52.60316
+      }
+    },
+    {
+      "c": "ht.Shape",
+      "i": 1102,
+      "p": {
+        "position": {
+          "x": 483.92068,
+          "y": 600
+        },
+        "width": 118.64825,
+        "height": 400,
+        "segments": {
+          "__a": [
+            1,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2
+          ]
+        },
+        "points": {
+          "__a": [
+            {
+              "x": 429.82007,
+              "y": 400
+            },
+            {
+              "x": 541.00616,
+              "y": 400
+            },
+            {
+              "x": 480,
+              "y": 400
+            },
+            {
+              "x": 480,
+              "y": 600
+            },
+            {
+              "x": 541.75238,
+              "y": 600
+            },
+            {
+              "x": 480,
+              "y": 600
+            },
+            {
+              "x": 480,
+              "y": 800
+            },
+            {
+              "x": 424.59656,
+              "y": 800
+            },
+            {
+              "x": 543.24481,
+              "y": 800
+            }
+          ]
+        }
+      },
+      "s": {
+        "shape.background": null,
+        "shape.border.color": "rgb(51,153,255)",
+        "shape.border.width": 4
+      }
+    },
+    {
+      "c": "ht.Shape",
+      "i": 1103,
+      "p": {
+        "position": {
+          "x": 651.00769,
+          "y": 400
+        },
+        "width": 57.98463,
+        "height": 0,
+        "segments": {
+          "__a": [
+            1,
+            2
+          ]
+        },
+        "points": {
+          "__a": [
+            {
+              "x": 622.01537,
+              "y": 400
+            },
+            {
+              "x": 680,
+              "y": 400
+            }
+          ]
+        }
+      },
+      "s": {
+        "shape.background": null,
+        "shape.border.color": "rgb(51,153,255)",
+        "shape.border.width": 4
+      }
+    },
+    {
+      "c": "ht.Shape",
+      "i": 1104,
+      "p": {
+        "rotation": 4.71239,
+        "position": {
+          "x": 689.26382,
+          "y": 400
+        },
+        "width": 16.04959,
+        "height": 18.52764,
+        "tall": 20,
+        "segments": {
+          "__a": [
+            1,
+            2,
+            2
+          ]
+        },
+        "points": {
+          "__a": [
+            {
+              "x": 681.23902,
+              "y": 391.05155
+            },
+            {
+              "x": 697.28861,
+              "y": 390.73618
+            },
+            {
+              "x": 689.82207,
+              "y": 409.26382
+            }
+          ]
+        },
+        "closePath": true
+      },
+      "s": {
+        "shape.background": "rgb(51,153,255)",
+        "shape.border.color": "rgb(51,153,255)",
+        "shape.border.width": 1,
+        "shape.gradient.color": "rgb(51,153,255)"
+      }
+    },
+    {
+      "c": "ht.Shape",
+      "i": 1105,
+      "p": {
+        "position": {
+          "x": 651.00769,
+          "y": 600
+        },
+        "width": 57.98463,
+        "height": 0,
+        "tall": 20,
+        "segments": {
+          "__a": [
+            1,
+            2
+          ]
+        },
+        "points": {
+          "__a": [
+            {
+              "x": 622.01537,
+              "y": 600
+            },
+            {
+              "x": 680,
+              "y": 600
+            }
+          ]
+        }
+      },
+      "s": {
+        "shape.background": null,
+        "shape.border.color": "rgb(51,153,255)",
+        "shape.border.width": 4
+      }
+    },
+    {
+      "c": "ht.Shape",
+      "i": 1106,
+      "p": {
+        "position": {
+          "x": 651.00769,
+          "y": 800
+        },
+        "width": 57.98463,
+        "height": 0,
+        "tall": 20,
+        "segments": {
+          "__a": [
+            1,
+            2
+          ]
+        },
+        "points": {
+          "__a": [
+            {
+              "x": 622.01537,
+              "y": 800
+            },
+            {
+              "x": 680,
+              "y": 800
+            }
+          ]
+        }
+      },
+      "s": {
+        "shape.background": null,
+        "shape.border.color": "rgb(51,153,255)",
+        "shape.border.width": 4
+      }
+    },
+    {
+      "c": "ht.Shape",
+      "i": 1107,
+      "p": {
+        "rotation": 4.71239,
+        "position": {
+          "x": 689.26382,
+          "y": 600
+        },
+        "width": 16.04959,
+        "height": 18.52764,
+        "tall": 20,
+        "segments": {
+          "__a": [
+            1,
+            2,
+            2
+          ]
+        },
+        "points": {
+          "__a": [
+            {
+              "x": 681.23902,
+              "y": 591.05155
+            },
+            {
+              "x": 697.28861,
+              "y": 590.73618
+            },
+            {
+              "x": 689.82207,
+              "y": 609.26382
+            }
+          ]
+        },
+        "closePath": true
+      },
+      "s": {
+        "shape.background": "rgb(51,153,255)",
+        "shape.border.color": "rgb(51,153,255)",
+        "shape.border.width": 1,
+        "shape.gradient.color": "rgb(51,153,255)"
+      }
+    },
+    {
+      "c": "ht.Shape",
+      "i": 1108,
+      "p": {
+        "rotation": 4.71239,
+        "position": {
+          "x": 689.26382,
+          "y": 600
+        },
+        "width": 16.04959,
+        "height": 18.52764,
+        "tall": 20,
+        "segments": {
+          "__a": [
+            1,
+            2,
+            2
+          ]
+        },
+        "points": {
+          "__a": [
+            {
+              "x": 681.23902,
+              "y": 591.05155
+            },
+            {
+              "x": 697.28861,
+              "y": 590.73618
+            },
+            {
+              "x": 689.82207,
+              "y": 609.26382
+            }
+          ]
+        },
+        "closePath": true
+      },
+      "s": {
+        "shape.background": "rgb(51,153,255)",
+        "shape.border.color": "rgb(51,153,255)",
+        "shape.border.width": 1,
+        "shape.gradient.color": "rgb(51,153,255)"
+      }
+    },
+    {
+      "c": "ht.Shape",
+      "i": 1109,
+      "p": {
+        "rotation": 4.71239,
+        "position": {
+          "x": 689.26382,
+          "y": 800
+        },
+        "width": 16.04959,
+        "height": 18.52764,
+        "tall": 20,
+        "segments": {
+          "__a": [
+            1,
+            2,
+            2
+          ]
+        },
+        "points": {
+          "__a": [
+            {
+              "x": 681.23902,
+              "y": 791.05155
+            },
+            {
+              "x": 697.28861,
+              "y": 790.73618
+            },
+            {
+              "x": 689.82207,
+              "y": 809.26382
+            }
+          ]
+        },
+        "closePath": true
+      },
+      "s": {
+        "shape.background": "rgb(51,153,255)",
+        "shape.border.color": "rgb(51,153,255)",
+        "shape.border.width": 1,
+        "shape.gradient.color": "rgb(51,153,255)"
+      }
+    },
+    {
+      "c": "ht.Shape",
+      "i": 1110,
+      "p": {
+        "position": {
+          "x": 736.39456,
+          "y": 401.45044
+        },
+        "width": 72.78912,
+        "height": 146.34232,
+        "segments": {
+          "__a": [
+            1,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2
+          ]
+        },
+        "points": {
+          "__a": [
+            {
+              "x": 772.78912,
+              "y": 328.27928
+            },
+            {
+              "x": 700,
+              "y": 328.27928
+            },
+            {
+              "x": 700,
+              "y": 354.82103
+            },
+            {
+              "x": 772.78912,
+              "y": 354.82103
+            },
+            {
+              "x": 700,
+              "y": 354.82103
+            },
+            {
+              "x": 700,
+              "y": 385.2788
+            },
+            {
+              "x": 772.78912,
+              "y": 385.2788
+            },
+            {
+              "x": 700,
+              "y": 385.2788
+            },
+            {
+              "x": 700,
+              "y": 415.05974
+            },
+            {
+              "x": 772.78912,
+              "y": 413.70606
+            },
+            {
+              "x": 700,
+              "y": 414.3829
+            },
+            {
+              "x": 700,
+              "y": 448.27928
+            },
+            {
+              "x": 772.78912,
+              "y": 448.27928
+            },
+            {
+              "x": 700,
+              "y": 448.27928
+            },
+            {
+              "x": 700,
+              "y": 473.94476
+            },
+            {
+              "x": 772.78912,
+              "y": 474.6216
+            }
+          ]
+        }
+      },
+      "s": {
+        "shape.background": null,
+        "shape.border.color": "rgb(51,153,255)",
+        "shape.border.width": 4
+      }
+    },
+    {
+      "c": "ht.Shape",
+      "i": 1111,
+      "p": {
+        "position": {
+          "x": 736.39456,
+          "y": 601.16567
+        },
+        "width": 72.78912,
+        "height": 146.34232,
+        "tall": 20,
+        "segments": {
+          "__a": [
+            1,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2
+          ]
+        },
+        "points": {
+          "__a": [
+            {
+              "x": 772.78912,
+              "y": 527.99451
+            },
+            {
+              "x": 700,
+              "y": 527.99451
+            },
+            {
+              "x": 700,
+              "y": 554.53627
+            },
+            {
+              "x": 772.78912,
+              "y": 554.53627
+            },
+            {
+              "x": 700,
+              "y": 554.53627
+            },
+            {
+              "x": 700,
+              "y": 584.99404
+            },
+            {
+              "x": 772.78912,
+              "y": 584.99404
+            },
+            {
+              "x": 700,
+              "y": 584.99404
+            },
+            {
+              "x": 700,
+              "y": 614.77497
+            },
+            {
+              "x": 772.78912,
+              "y": 613.42129
+            },
+            {
+              "x": 700,
+              "y": 614.09813
+            },
+            {
+              "x": 700,
+              "y": 647.99451
+            },
+            {
+              "x": 772.78912,
+              "y": 647.99451
+            },
+            {
+              "x": 700,
+              "y": 647.99451
+            },
+            {
+              "x": 700,
+              "y": 673.65999
+            },
+            {
+              "x": 772.78912,
+              "y": 674.33683
+            }
+          ]
+        }
+      },
+      "s": {
+        "shape.background": null,
+        "shape.border.color": "rgb(51,153,255)",
+        "shape.border.width": 4
+      }
+    },
+    {
+      "c": "ht.Shape",
+      "i": 1112,
+      "p": {
+        "position": {
+          "x": 734.9222,
+          "y": 800
+        },
+        "width": 72.78912,
+        "height": 146.34232,
+        "tall": 20,
+        "segments": {
+          "__a": [
+            1,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2
+          ]
+        },
+        "points": {
+          "__a": [
+            {
+              "x": 771.31675,
+              "y": 726.82884
+            },
+            {
+              "x": 698.52764,
+              "y": 726.82884
+            },
+            {
+              "x": 698.52764,
+              "y": 753.37059
+            },
+            {
+              "x": 771.31675,
+              "y": 753.37059
+            },
+            {
+              "x": 698.52764,
+              "y": 753.37059
+            },
+            {
+              "x": 698.52764,
+              "y": 783.82836
+            },
+            {
+              "x": 771.31675,
+              "y": 783.82836
+            },
+            {
+              "x": 698.52764,
+              "y": 783.82836
+            },
+            {
+              "x": 698.52764,
+              "y": 813.6093
+            },
+            {
+              "x": 771.31675,
+              "y": 812.25562
+            },
+            {
+              "x": 698.52764,
+              "y": 812.93246
+            },
+            {
+              "x": 698.52764,
+              "y": 846.82884
+            },
+            {
+              "x": 771.31675,
+              "y": 846.82884
+            },
+            {
+              "x": 698.52764,
+              "y": 846.82884
+            },
+            {
+              "x": 698.52764,
+              "y": 872.49432
+            },
+            {
+              "x": 771.31675,
+              "y": 873.17116
+            }
+          ]
+        }
+      },
+      "s": {
+        "shape.background": null,
+        "shape.border.color": "rgb(51,153,255)",
+        "shape.border.width": 4
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 1113,
+      "p": {
+        "position": {
+          "x": 368.78631,
+          "y": 357.65601
+        },
+        "width": 62.42739,
+        "height": 45.55522,
+        "tall": 20
+      },
+      "s": {
+        "text": "戏剧院",
+        "text.font": "18px arial, sans-serif"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1114,
+      "p": {
+        "position": {
+          "x": 433.9528,
+          "y": 357.65601
+        },
+        "width": 67.9056,
+        "height": 26.11754,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(255,255,255)",
+        "shape.border.width": 2,
+        "shape.border.color": "rgb(51,153,255)"
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 1115,
+      "p": {
+        "position": {
+          "x": 368.78631,
+          "y": 850.39355
+        },
+        "width": 62.42739,
+        "height": 45.55522,
+        "tall": 20
+      },
+      "s": {
+        "text": "音乐厅",
+        "text.font": "18px arial, sans-serif"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1116,
+      "p": {
+        "position": {
+          "x": 433.9528,
+          "y": 849.71884
+        },
+        "width": 67.9056,
+        "height": 26.11754,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(255,255,255)",
+        "shape.border.width": 2,
+        "shape.border.color": "rgb(51,153,255)"
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 1117,
+      "p": {
+        "position": {
+          "x": 560,
+          "y": 556.87185
+        },
+        "width": 62.42739,
+        "height": 45.55522,
+        "tall": 20
+      },
+      "s": {
+        "text": "歌剧院",
+        "text.font": "18px arial, sans-serif"
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 1118,
+      "p": {
+        "position": {
+          "x": 833.42433,
+          "y": 328.27928
+        },
+        "width": 109.35624,
+        "height": 45.55522,
+        "tall": 20
+      },
+      "s": {
+        "text": "戏剧院负一层",
+        "text.font": "18px arial, sans-serif"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1119,
+      "p": {
+        "position": {
+          "x": 927.8105,
+          "y": 321.97161
+        },
+        "width": 67.9056,
+        "height": 25.81359,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(255,255,255)",
+        "shape.border.width": 2,
+        "shape.border.color": "rgb(51,153,255)"
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 1120,
+      "p": {
+        "position": {
+          "x": 839.17958,
+          "y": 357.65601
+        },
+        "width": 109.35624,
+        "height": 45.55522,
+        "tall": 20
+      },
+      "s": {
+        "text": "戏剧院一层",
+        "text.font": "18px arial, sans-serif"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1121,
+      "p": {
+        "position": {
+          "x": 927.8105,
+          "y": 352.63641
+        },
+        "width": 67.9056,
+        "height": 25.65789,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(255,255,255)",
+        "shape.border.width": 2,
+        "shape.border.color": "rgb(51,153,255)"
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 1122,
+      "p": {
+        "position": {
+          "x": 839.17958,
+          "y": 385.24719
+        },
+        "width": 109.35624,
+        "height": 45.55522,
+        "tall": 20
+      },
+      "s": {
+        "text": "戏剧院二层",
+        "text.font": "18px arial, sans-serif"
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 1123,
+      "p": {
+        "position": {
+          "x": 839.17958,
+          "y": 414.75281
+        },
+        "width": 109.35624,
+        "height": 45.55522,
+        "tall": 20
+      },
+      "s": {
+        "text": "戏剧院三层",
+        "text.font": "18px arial, sans-serif"
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 1124,
+      "p": {
+        "position": {
+          "x": 839.17958,
+          "y": 449.07919
+        },
+        "width": 109.35624,
+        "height": 45.55522,
+        "tall": 20
+      },
+      "s": {
+        "text": "戏剧院四层",
+        "text.font": "18px arial, sans-serif"
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 1125,
+      "p": {
+        "position": {
+          "x": 839.17958,
+          "y": 474.6216
+        },
+        "width": 109.35624,
+        "height": 45.55522,
+        "tall": 20
+      },
+      "s": {
+        "text": "戏剧院五层",
+        "text.font": "18px arial, sans-serif"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1126,
+      "p": {
+        "position": {
+          "x": 927.8105,
+          "y": 383.52737
+        },
+        "width": 67.9056,
+        "height": 25.65789,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(255,255,255)",
+        "shape.border.width": 2,
+        "shape.border.color": "rgb(51,153,255)"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1127,
+      "p": {
+        "position": {
+          "x": 927.8105,
+          "y": 414.75281
+        },
+        "width": 67.9056,
+        "height": 25.65789,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(255,255,255)",
+        "shape.border.width": 2,
+        "shape.border.color": "rgb(51,153,255)"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1128,
+      "p": {
+        "position": {
+          "x": 927.8105,
+          "y": 447.35937
+        },
+        "width": 67.9056,
+        "height": 25.65789,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(255,255,255)",
+        "shape.border.width": 2,
+        "shape.border.color": "rgb(51,153,255)"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1129,
+      "p": {
+        "position": {
+          "x": 927.8105,
+          "y": 478.09226
+        },
+        "width": 67.9056,
+        "height": 25.65789,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(255,255,255)",
+        "shape.border.width": 2,
+        "shape.border.color": "rgb(51,153,255)"
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 1130,
+      "p": {
+        "position": {
+          "x": 833.42433,
+          "y": 527.99451
+        },
+        "width": 109.35624,
+        "height": 45.55522,
+        "tall": 20
+      },
+      "s": {
+        "text": "歌剧院负一层",
+        "text.font": "18px arial, sans-serif"
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 1131,
+      "p": {
+        "position": {
+          "x": 833.42433,
+          "y": 725.05959
+        },
+        "width": 109.35624,
+        "height": 45.55522,
+        "tall": 20
+      },
+      "s": {
+        "text": "音乐厅负一层",
+        "text.font": "18px arial, sans-serif"
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 1132,
+      "p": {
+        "position": {
+          "x": 839.17958,
+          "y": 553.69182
+        },
+        "width": 109.35624,
+        "height": 45.55522,
+        "tall": 20
+      },
+      "s": {
+        "text": "歌剧院一层",
+        "text.font": "18px arial, sans-serif"
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 1133,
+      "p": {
+        "position": {
+          "x": 839.17958,
+          "y": 751.17713
+        },
+        "width": 109.35624,
+        "height": 45.55522,
+        "tall": 20
+      },
+      "s": {
+        "text": "音乐厅一层",
+        "text.font": "18px arial, sans-serif"
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 1134,
+      "p": {
+        "position": {
+          "x": 839.17958,
+          "y": 585.24719
+        },
+        "width": 109.35624,
+        "height": 45.55522,
+        "tall": 20
+      },
+      "s": {
+        "text": "歌剧院二层",
+        "text.font": "18px arial, sans-serif"
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 1135,
+      "p": {
+        "position": {
+          "x": 839.17958,
+          "y": 785.24719
+        },
+        "width": 109.35624,
+        "height": 45.55522,
+        "tall": 20
+      },
+      "s": {
+        "text": "音乐厅二层",
+        "text.font": "18px arial, sans-serif"
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 1136,
+      "p": {
+        "position": {
+          "x": 839.17958,
+          "y": 649.2074
+        },
+        "width": 109.35624,
+        "height": 45.55522,
+        "tall": 20
+      },
+      "s": {
+        "text": "歌剧院四层",
+        "text.font": "18px arial, sans-serif"
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 1137,
+      "p": {
+        "position": {
+          "x": 839.17958,
+          "y": 617.22239
+        },
+        "width": 109.35624,
+        "height": 45.55522,
+        "tall": 20
+      },
+      "s": {
+        "text": "歌剧院三层",
+        "text.font": "18px arial, sans-serif"
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 1138,
+      "p": {
+        "position": {
+          "x": 839.17958,
+          "y": 674.33683
+        },
+        "width": 109.35624,
+        "height": 45.55522,
+        "tall": 20
+      },
+      "s": {
+        "text": "歌剧院五层",
+        "text.font": "18px arial, sans-serif"
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 1139,
+      "p": {
+        "position": {
+          "x": 839.17958,
+          "y": 813.88246
+        },
+        "width": 109.35624,
+        "height": 45.55522,
+        "tall": 20
+      },
+      "s": {
+        "text": "音乐厅三层",
+        "text.font": "18px arial, sans-serif"
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 1140,
+      "p": {
+        "position": {
+          "x": 839.17958,
+          "y": 849.07919
+        },
+        "width": 109.35624,
+        "height": 45.55522,
+        "tall": 20
+      },
+      "s": {
+        "text": "音乐厅四层",
+        "text.font": "18px arial, sans-serif"
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 1141,
+      "p": {
+        "position": {
+          "x": 839.17958,
+          "y": 873.17116
+        },
+        "width": 109.35624,
+        "height": 45.55522,
+        "tall": 20
+      },
+      "s": {
+        "text": "音乐厅五层",
+        "text.font": "18px arial, sans-serif"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1142,
+      "p": {
+        "position": {
+          "x": 927.8105,
+          "y": 521.26529
+        },
+        "width": 67.9056,
+        "height": 25.65789,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(255,255,255)",
+        "shape.border.width": 2,
+        "shape.border.color": "rgb(51,153,255)"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1143,
+      "p": {
+        "position": {
+          "x": 927.8105,
+          "y": 720.5798
+        },
+        "width": 67.9056,
+        "height": 25.65789,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(255,255,255)",
+        "shape.border.width": 2,
+        "shape.border.color": "rgb(51,153,255)"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1144,
+      "p": {
+        "position": {
+          "x": 927.8105,
+          "y": 552.64063
+        },
+        "width": 67.9056,
+        "height": 25.65789,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(255,255,255)",
+        "shape.border.width": 2,
+        "shape.border.color": "rgb(51,153,255)"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1145,
+      "p": {
+        "position": {
+          "x": 927.8105,
+          "y": 583.03172
+        },
+        "width": 67.9056,
+        "height": 25.65789,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(255,255,255)",
+        "shape.border.width": 2,
+        "shape.border.color": "rgb(51,153,255)"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1146,
+      "p": {
+        "position": {
+          "x": 927.8105,
+          "y": 613.4049
+        },
+        "width": 67.9056,
+        "height": 25.65789,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(255,255,255)",
+        "shape.border.width": 2,
+        "shape.border.color": "rgb(51,153,255)"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1147,
+      "p": {
+        "position": {
+          "x": 927.8105,
+          "y": 644.60475
+        },
+        "width": 67.9056,
+        "height": 25.65789,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(255,255,255)",
+        "shape.border.width": 2,
+        "shape.border.color": "rgb(51,153,255)"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1148,
+      "p": {
+        "position": {
+          "x": 927.8105,
+          "y": 676.39427
+        },
+        "width": 67.9056,
+        "height": 25.65789,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(255,255,255)",
+        "shape.border.width": 2,
+        "shape.border.color": "rgb(51,153,255)"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1149,
+      "p": {
+        "position": {
+          "x": 927.8105,
+          "y": 750.17105
+        },
+        "width": 67.9056,
+        "height": 25.65789,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(255,255,255)",
+        "shape.border.width": 2,
+        "shape.border.color": "rgb(51,153,255)"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1150,
+      "p": {
+        "position": {
+          "x": 927.8105,
+          "y": 782.14626
+        },
+        "width": 67.9056,
+        "height": 25.65789,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(255,255,255)",
+        "shape.border.width": 2,
+        "shape.border.color": "rgb(51,153,255)"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1151,
+      "p": {
+        "position": {
+          "x": 927.8105,
+          "y": 812.60405
+        },
+        "width": 67.9056,
+        "height": 25.65789,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(255,255,255)",
+        "shape.border.width": 2,
+        "shape.border.color": "rgb(51,153,255)"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1152,
+      "p": {
+        "position": {
+          "x": 927.8105,
+          "y": 846.48902
+        },
+        "width": 67.9056,
+        "height": 25.65789,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(255,255,255)",
+        "shape.border.width": 2,
+        "shape.border.color": "rgb(51,153,255)"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1153,
+      "p": {
+        "position": {
+          "x": 927.8105,
+          "y": 875.60655
+        },
+        "width": 67.9056,
+        "height": 25.65789,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(255,255,255)",
+        "shape.border.width": 2,
+        "shape.border.color": "rgb(51,153,255)"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1154,
+      "p": {
+        "displayName": "valueIcon",
+        "tag": "xiJuYuanTag",
+        "image": "storage/symbols/valueIcon.json",
+        "position": {
+          "x": 435.4056,
+          "y": 357.09724
+        }
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1155,
+      "p": {
+        "displayName": "valueIcon",
+        "tag": "dongShiZhengTag",
+        "image": "storage/symbols/valueIcon.json",
+        "position": {
+          "x": 143.27336,
+          "y": 475.18037
+        },
+        "width": 65,
+        "height": 25,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1156,
+      "p": {
+        "displayName": "valueIcon",
+        "tag": "xiShiZhengTag",
+        "image": "storage/symbols/valueIcon.json",
+        "position": {
+          "x": 143.27336,
+          "y": 702.84075
+        },
+        "width": 65,
+        "height": 25,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1157,
+      "p": {
+        "displayName": "valueIcon",
+        "tag": "yinYueTingTag",
+        "image": "storage/symbols/valueIcon.json",
+        "position": {
+          "x": 435.4056,
+          "y": 849.71884
+        },
+        "width": 65,
+        "height": 25,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1158,
+      "p": {
+        "displayName": "valueIcon",
+        "tag": "XJYB1",
+        "image": "storage/symbols/valueIcon.json",
+        "position": {
+          "x": 929.2633,
+          "y": 321.56482
+        },
+        "width": 65,
+        "height": 25,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1159,
+      "p": {
+        "displayName": "valueIcon",
+        "tag": "XJYF1",
+        "image": "storage/symbols/valueIcon.json",
+        "position": {
+          "x": 929.2633,
+          "y": 351.05689
+        },
+        "width": 65,
+        "height": 25,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1160,
+      "p": {
+        "displayName": "valueIcon",
+        "tag": "XJYF2",
+        "image": "storage/symbols/valueIcon.json",
+        "position": {
+          "x": 929.2633,
+          "y": 382.09724
+        },
+        "width": 65,
+        "height": 25,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1161,
+      "p": {
+        "displayName": "valueIcon",
+        "tag": "XJYF3",
+        "image": "storage/symbols/valueIcon.json",
+        "position": {
+          "x": 929.2633,
+          "y": 412.5
+        },
+        "width": 65,
+        "height": 25,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1162,
+      "p": {
+        "displayName": "valueIcon",
+        "tag": "XJYF4",
+        "image": "storage/symbols/valueIcon.json",
+        "position": {
+          "x": 929.2633,
+          "y": 447.35937
+        },
+        "width": 65,
+        "height": 25,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1163,
+      "p": {
+        "displayName": "valueIcon",
+        "tag": "XJYF5",
+        "image": "storage/symbols/valueIcon.json",
+        "position": {
+          "x": 929.2633,
+          "y": 477.76332
+        },
+        "width": 65,
+        "height": 25,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1164,
+      "p": {
+        "displayName": "valueIcon",
+        "tag": "GJYB1",
+        "image": "storage/symbols/valueIcon.json",
+        "position": {
+          "x": 929.2633,
+          "y": 522.5336
+        },
+        "width": 65,
+        "height": 25,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1165,
+      "p": {
+        "displayName": "valueIcon",
+        "tag": "GJYF1",
+        "image": "storage/symbols/valueIcon.json",
+        "position": {
+          "x": 929.2633,
+          "y": 552.31169
+        },
+        "width": 65,
+        "height": 25,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1166,
+      "p": {
+        "displayName": "valueIcon",
+        "tag": "GJYF2",
+        "image": "storage/symbols/valueIcon.json",
+        "position": {
+          "x": 929.2633,
+          "y": 580.36066
+        },
+        "width": 65,
+        "height": 25,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1167,
+      "p": {
+        "displayName": "valueIcon",
+        "tag": "GJYF3",
+        "image": "storage/symbols/valueIcon.json",
+        "position": {
+          "x": 929.2633,
+          "y": 613.4049
+        },
+        "width": 65,
+        "height": 25,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1168,
+      "p": {
+        "displayName": "valueIcon",
+        "tag": "GJYF4",
+        "image": "storage/symbols/valueIcon.json",
+        "position": {
+          "x": 929.2633,
+          "y": 644.93369
+        },
+        "width": 65,
+        "height": 25,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1169,
+      "p": {
+        "displayName": "valueIcon",
+        "tag": "GJYF5",
+        "image": "storage/symbols/valueIcon.json",
+        "position": {
+          "x": 929.2633,
+          "y": 676.06533
+        },
+        "width": 65,
+        "height": 25,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1170,
+      "p": {
+        "displayName": "valueIcon",
+        "tag": "YYTB1",
+        "image": "storage/symbols/valueIcon.json",
+        "position": {
+          "x": 929.2633,
+          "y": 720.25087
+        },
+        "width": 65,
+        "height": 25,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1171,
+      "p": {
+        "displayName": "valueIcon",
+        "tag": "YYTF1",
+        "image": "storage/symbols/valueIcon.json",
+        "position": {
+          "x": 929.2633,
+          "y": 749.84211
+        },
+        "width": 65,
+        "height": 25,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1172,
+      "p": {
+        "displayName": "valueIcon",
+        "tag": "YYTF2",
+        "image": "storage/symbols/valueIcon.json",
+        "position": {
+          "x": 929.2633,
+          "y": 782.14626
+        },
+        "width": 65,
+        "height": 25,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1173,
+      "p": {
+        "displayName": "valueIcon",
+        "tag": "YYTF3",
+        "image": "storage/symbols/valueIcon.json",
+        "position": {
+          "x": 929.2633,
+          "y": 812.60405
+        },
+        "width": 65,
+        "height": 25,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1174,
+      "p": {
+        "displayName": "valueIcon",
+        "tag": "YYTF4",
+        "image": "storage/symbols/valueIcon.json",
+        "position": {
+          "x": 929.2633,
+          "y": 846.81796
+        },
+        "width": 65,
+        "height": 25,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1175,
+      "p": {
+        "displayName": "valueIcon",
+        "tag": "YYTF5",
+        "image": "storage/symbols/valueIcon.json",
+        "position": {
+          "x": 929.2633,
+          "y": 874.71884
+        },
+        "width": 65,
+        "height": 25,
+        "tall": 20
+      }
+    }
+  ],
+  "modified": "Fri Aug 08 2025 17:06:19 GMT+0800 (中国标准时间)",
+  "contentRect": {
+    "x": -109.52757,
+    "y": 305.50167,
+    "width": 1073.29088,
+    "height": 590.4471
+  }
+}

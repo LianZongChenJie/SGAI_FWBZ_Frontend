@@ -1,0 +1,1255 @@
+{
+  "v": "7.2.4-dev1",
+  "p": {
+    "autoAdjustIndex": true,
+    "hierarchicalRendering": true
+  },
+  "a": {
+    "gridEnabled": true
+  },
+  "d": [
+    {
+      "c": "ht.Shape",
+      "i": 95374,
+      "p": {
+        "position": {
+          "x": 586.56975,
+          "y": 620
+        },
+        "width": 773.1395,
+        "height": 680,
+        "segments": {
+          "__a": [
+            1,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2
+          ]
+        },
+        "points": {
+          "__a": [
+            {
+              "x": 973.1395,
+              "y": 302.4411
+            },
+            {
+              "x": 973.1395,
+              "y": 360
+            },
+            {
+              "x": 886.95162,
+              "y": 360
+            },
+            {
+              "x": 886.95162,
+              "y": 280
+            },
+            {
+              "x": 886.95162,
+              "y": 360
+            },
+            {
+              "x": 800,
+              "y": 360
+            },
+            {
+              "x": 800,
+              "y": 301.65757
+            },
+            {
+              "x": 800,
+              "y": 360
+            },
+            {
+              "x": 709.87471,
+              "y": 360
+            },
+            {
+              "x": 709.09118,
+              "y": 280
+            },
+            {
+              "x": 709.09118,
+              "y": 360
+            },
+            {
+              "x": 622.11978,
+              "y": 360
+            },
+            {
+              "x": 622.11978,
+              "y": 303.22463
+            },
+            {
+              "x": 621.33625,
+              "y": 360
+            },
+            {
+              "x": 534.36485,
+              "y": 360
+            },
+            {
+              "x": 534.36485,
+              "y": 280
+            },
+            {
+              "x": 534.36485,
+              "y": 360
+            },
+            {
+              "x": 447.39344,
+              "y": 360
+            },
+            {
+              "x": 447.39344,
+              "y": 303.22463
+            },
+            {
+              "x": 447.39344,
+              "y": 360
+            },
+            {
+              "x": 360,
+              "y": 360
+            },
+            {
+              "x": 360,
+              "y": 280
+            },
+            {
+              "x": 360,
+              "y": 360
+            },
+            {
+              "x": 268.74948,
+              "y": 360
+            },
+            {
+              "x": 267.96595,
+              "y": 301.65757
+            },
+            {
+              "x": 268.74948,
+              "y": 360
+            },
+            {
+              "x": 200,
+              "y": 360
+            },
+            {
+              "x": 200,
+              "y": 960
+            },
+            {
+              "x": 800,
+              "y": 960
+            },
+            {
+              "x": 800,
+              "y": 800
+            },
+            {
+              "x": 880,
+              "y": 800
+            },
+            {
+              "x": 800,
+              "y": 800
+            },
+            {
+              "x": 800,
+              "y": 680
+            },
+            {
+              "x": 880,
+              "y": 680
+            },
+            {
+              "x": 800,
+              "y": 680
+            },
+            {
+              "x": 800,
+              "y": 566.48942
+            },
+            {
+              "x": 880,
+              "y": 566.48942
+            },
+            {
+              "x": 800,
+              "y": 566.48942
+            },
+            {
+              "x": 800,
+              "y": 451.23985
+            },
+            {
+              "x": 880,
+              "y": 451.23985
+            }
+          ]
+        }
+      },
+      "s": {
+        "shape.background": null,
+        "shape.border.width": 10,
+        "shape.dash.pattern": [
+          4,
+          8
+        ],
+        "shape.dash.3d": true,
+        "shape.dash.3d.color": "rgb(247,247,247)",
+        "note.border.color": "rgb(61,61,61)",
+        "border.color": "rgb(222,38,38)",
+        "shape.border.color": "rgb(240,151,151)",
+        "shape.dash.color": "rgb(240,93,93)",
+        "border.width": 1
+      }
+    },
+    {
+      "c": "ht.Shape",
+      "i": 95376,
+      "p": {
+        "position": {
+          "x": 599.67967,
+          "y": 600
+        },
+        "width": 706.62029,
+        "height": 640,
+        "segments": {
+          "__a": [
+            1,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2
+          ]
+        },
+        "points": {
+          "__a": [
+            {
+              "x": 952.98982,
+              "y": 303.22403
+            },
+            {
+              "x": 952.98982,
+              "y": 384.44476
+            },
+            {
+              "x": 863.64703,
+              "y": 384.44476
+            },
+            {
+              "x": 863.64703,
+              "y": 280
+            },
+            {
+              "x": 863.64703,
+              "y": 384.44476
+            },
+            {
+              "x": 772.95055,
+              "y": 384.44476
+            },
+            {
+              "x": 772.95055,
+              "y": 303.22403
+            },
+            {
+              "x": 772.95055,
+              "y": 384.44476
+            },
+            {
+              "x": 686.99195,
+              "y": 385.1216
+            },
+            {
+              "x": 686.99195,
+              "y": 280
+            },
+            {
+              "x": 686.99195,
+              "y": 385.1216
+            },
+            {
+              "x": 598.15437,
+              "y": 384.44476
+            },
+            {
+              "x": 598.15437,
+              "y": 302.54719
+            },
+            {
+              "x": 598.15437,
+              "y": 384.44476
+            },
+            {
+              "x": 508.9832,
+              "y": 384.44476
+            },
+            {
+              "x": 508.9832,
+              "y": 280
+            },
+            {
+              "x": 508.9832,
+              "y": 384.44476
+            },
+            {
+              "x": 422.34776,
+              "y": 385.1216
+            },
+            {
+              "x": 422.34776,
+              "y": 303.90087
+            },
+            {
+              "x": 422.34776,
+              "y": 385.1216
+            },
+            {
+              "x": 335.71232,
+              "y": 385.1216
+            },
+            {
+              "x": 335.71232,
+              "y": 280
+            },
+            {
+              "x": 335.71232,
+              "y": 385.1216
+            },
+            {
+              "x": 247.04637,
+              "y": 385.1216
+            },
+            {
+              "x": 247.04637,
+              "y": 303.90087
+            },
+            {
+              "x": 247.04637,
+              "y": 386.5063
+            },
+            {
+              "x": 246.36953,
+              "y": 560
+            },
+            {
+              "x": 560,
+              "y": 560
+            },
+            {
+              "x": 246.36953,
+              "y": 560
+            },
+            {
+              "x": 247.04637,
+              "y": 651.79631
+            },
+            {
+              "x": 560,
+              "y": 649.76579
+            },
+            {
+              "x": 247.04637,
+              "y": 651.79631
+            },
+            {
+              "x": 247.72321,
+              "y": 739.10858
+            },
+            {
+              "x": 560,
+              "y": 739.10858
+            },
+            {
+              "x": 247.72321,
+              "y": 739.10858
+            },
+            {
+              "x": 247.72321,
+              "y": 827.0977
+            },
+            {
+              "x": 560,
+              "y": 827.0977
+            },
+            {
+              "x": 247.72321,
+              "y": 827.0977
+            },
+            {
+              "x": 247.72321,
+              "y": 920
+            },
+            {
+              "x": 560,
+              "y": 920
+            },
+            {
+              "x": 560,
+              "y": 560
+            },
+            {
+              "x": 560,
+              "y": 827.0977
+            },
+            {
+              "x": 880,
+              "y": 825.74402
+            },
+            {
+              "x": 740.46226,
+              "y": 827.0977
+            },
+            {
+              "x": 740.46226,
+              "y": 706.62029
+            },
+            {
+              "x": 880,
+              "y": 705.94345
+            },
+            {
+              "x": 740.46226,
+              "y": 706.62029
+            },
+            {
+              "x": 740.46226,
+              "y": 591.5576
+            },
+            {
+              "x": 880,
+              "y": 591.5576
+            },
+            {
+              "x": 740.46226,
+              "y": 591.5576
+            },
+            {
+              "x": 740.46226,
+              "y": 474.46439
+            },
+            {
+              "x": 880,
+              "y": 474.46439
+            }
+          ]
+        }
+      },
+      "s": {
+        "shape.background": null,
+        "shape.border.width": 10,
+        "shape.dash": true,
+        "shape.dash.pattern": [
+          4,
+          8
+        ],
+        "shape.dash.3d": true,
+        "shape.dash.3d.color": "rgb(247,247,247)",
+        "note.border.color": "rgb(61,61,61)",
+        "border.color": "rgb(235,49,49)",
+        "shape.border.color": "rgba(240,209,209,0.5)",
+        "shape.dash.color": "rgb(230,87,87)",
+        "border.width": 1
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 95361,
+      "p": {
+        "displayName": "lengQueShuiBeng",
+        "tag": "lqsbCH1",
+        "image": "storage/symbols/lengYuan/lengQueShuiBeng.json",
+        "position": {
+          "x": 397.79277,
+          "y": 565.47619
+        }
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 95362,
+      "p": {
+        "displayName": "lengQueShuiBeng",
+        "tag": "lqsbCH2",
+        "image": "storage/symbols/lengYuan/lengQueShuiBeng.json",
+        "position": {
+          "x": 397.79277,
+          "y": 655.71429
+        },
+        "width": 200,
+        "height": 100,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 95363,
+      "p": {
+        "displayName": "lengQueShuiBeng",
+        "tag": "lqsbCH3",
+        "image": "storage/symbols/lengYuan/lengQueShuiBeng.json",
+        "position": {
+          "x": 397.79277,
+          "y": 743.40633
+        },
+        "width": 200,
+        "height": 100,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 95364,
+      "p": {
+        "displayName": "lengQueShuiBeng",
+        "tag": "lqsbCH4-1",
+        "image": "storage/symbols/lengYuan/lengQueShuiBeng.json",
+        "position": {
+          "x": 397.79277,
+          "y": 830.71429
+        },
+        "width": 200,
+        "height": 100,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Shape",
+      "i": 95378,
+      "p": {
+        "position": {
+          "x": 1086.98709,
+          "y": 552.0858
+        },
+        "width": 275.03367,
+        "height": 495.82839,
+        "segments": {
+          "__a": [
+            1,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2
+          ]
+        },
+        "points": {
+          "__a": [
+            {
+              "x": 949.47026,
+              "y": 800
+            },
+            {
+              "x": 1120,
+              "y": 800
+            },
+            {
+              "x": 1120,
+              "y": 680
+            },
+            {
+              "x": 949.47026,
+              "y": 680
+            },
+            {
+              "x": 1120,
+              "y": 680
+            },
+            {
+              "x": 1120,
+              "y": 569.25575
+            },
+            {
+              "x": 950.18094,
+              "y": 567.1237
+            },
+            {
+              "x": 1120,
+              "y": 568.54506
+            },
+            {
+              "x": 1120,
+              "y": 451.99333
+            },
+            {
+              "x": 949.47026,
+              "y": 451.28264
+            },
+            {
+              "x": 1120,
+              "y": 451.99333
+            },
+            {
+              "x": 1120,
+              "y": 304.17161
+            },
+            {
+              "x": 1224.50393,
+              "y": 304.17161
+            }
+          ]
+        }
+      },
+      "s": {
+        "shape.background": null,
+        "shape.border.width": 10,
+        "shape.dash.pattern": [
+          4,
+          8
+        ],
+        "shape.dash.3d": true,
+        "shape.dash.3d.color": "rgb(247,247,247)",
+        "note.border.color": "rgb(61,61,61)",
+        "border.color": "#60ACFC",
+        "shape.border.color": "rgb(155,188,224)",
+        "shape.dash.color": "rgb(107,179,255)",
+        "border.width": 1
+      }
+    },
+    {
+      "c": "ht.Shape",
+      "i": 95380,
+      "p": {
+        "position": {
+          "x": 1274.02445,
+          "y": 592.81324
+        },
+        "width": 651.95111,
+        "height": 574.37353,
+        "segments": {
+          "__a": [
+            1,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2
+          ]
+        },
+        "points": {
+          "__a": [
+            {
+              "x": 948.75958,
+              "y": 474.02445
+            },
+            {
+              "x": 1080,
+              "y": 474.02445
+            },
+            {
+              "x": 1080,
+              "y": 591.28687
+            },
+            {
+              "x": 948.75958,
+              "y": 590.57619
+            },
+            {
+              "x": 1080,
+              "y": 591.28687
+            },
+            {
+              "x": 1080,
+              "y": 707.12792
+            },
+            {
+              "x": 948.04889,
+              "y": 705.70656
+            },
+            {
+              "x": 1080,
+              "y": 707.12792
+            },
+            {
+              "x": 1080,
+              "y": 822.96898
+            },
+            {
+              "x": 948.75958,
+              "y": 822.96898
+            },
+            {
+              "x": 1080,
+              "y": 822.96898
+            },
+            {
+              "x": 1080,
+              "y": 880
+            },
+            {
+              "x": 1320,
+              "y": 880
+            },
+            {
+              "x": 1320,
+              "y": 709.97065
+            },
+            {
+              "x": 1600,
+              "y": 709.97065
+            },
+            {
+              "x": 1320,
+              "y": 709.97065
+            },
+            {
+              "x": 1320,
+              "y": 640
+            },
+            {
+              "x": 1600,
+              "y": 640
+            },
+            {
+              "x": 1320,
+              "y": 640
+            },
+            {
+              "x": 1320,
+              "y": 573.4185
+            },
+            {
+              "x": 1600,
+              "y": 573.4185
+            },
+            {
+              "x": 1320,
+              "y": 573.4185
+            },
+            {
+              "x": 1320,
+              "y": 496.54718
+            },
+            {
+              "x": 1600,
+              "y": 496.54718
+            },
+            {
+              "x": 1320,
+              "y": 496.54718
+            },
+            {
+              "x": 1320,
+              "y": 420.01267
+            },
+            {
+              "x": 1560,
+              "y": 420.01267
+            },
+            {
+              "x": 1600,
+              "y": 420.01267
+            },
+            {
+              "x": 1600,
+              "y": 709.97065
+            },
+            {
+              "x": 1600,
+              "y": 305.62647
+            },
+            {
+              "x": 1548.2969,
+              "y": 305.62647
+            }
+          ]
+        }
+      },
+      "s": {
+        "shape.background": null,
+        "shape.border.width": 10,
+        "shape.dash": true,
+        "shape.dash.pattern": [
+          4,
+          8
+        ],
+        "shape.dash.3d": true,
+        "shape.dash.3d.color": "rgb(247,247,247)",
+        "note.border.color": "rgb(61,61,61)",
+        "border.color": "#60ACFC",
+        "shape.border.color": "rgb(155,178,201)",
+        "shape.dash.color": "#60ACFC",
+        "border.width": 1
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 93425,
+      "p": {
+        "displayName": "fenShuiQi",
+        "tag": "fenShuiQi",
+        "image": "storage/symbols/lengYuan/fenShuiQi.json",
+        "position": {
+          "x": 1253,
+          "y": 269.92156
+        }
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 94084,
+      "p": {
+        "displayName": "jiShuiQi",
+        "tag": "jiShuiQi",
+        "image": "storage/symbols/lengYuan/jiShuiQi.json",
+        "position": {
+          "x": 1503,
+          "y": 269.92156
+        }
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 94716,
+      "p": {
+        "displayName": "lengQueShuiBeng",
+        "tag": "ldsCH1",
+        "image": "storage/symbols/lengYuan/lengQueShuiBeng.json",
+        "position": {
+          "x": 1457,
+          "y": 424.28571
+        }
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 95357,
+      "p": {
+        "displayName": "lengQueShuiBeng",
+        "tag": "ldsCH2",
+        "image": "storage/symbols/lengYuan/lengQueShuiBeng.json",
+        "position": {
+          "x": 1457,
+          "y": 499.28571
+        },
+        "width": 200,
+        "height": 100,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 95358,
+      "p": {
+        "displayName": "lengQueShuiBeng",
+        "tag": "ldsCH3",
+        "image": "storage/symbols/lengYuan/lengQueShuiBeng.json",
+        "position": {
+          "x": 1457,
+          "y": 577.27267
+        },
+        "width": 200,
+        "height": 100,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 95359,
+      "p": {
+        "displayName": "lengQueShuiBeng",
+        "tag": "ldsCH4-1",
+        "image": "storage/symbols/lengYuan/lengQueShuiBeng.json",
+        "position": {
+          "x": 1457,
+          "y": 643.40633
+        },
+        "width": 200,
+        "height": 100,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 95360,
+      "p": {
+        "displayName": "lengQueShuiBeng",
+        "tag": "ldsCH4-2",
+        "image": "storage/symbols/lengYuan/lengQueShuiBeng.json",
+        "position": {
+          "x": 1457,
+          "y": 715.47619
+        },
+        "width": 200,
+        "height": 100,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 93424,
+      "p": {
+        "displayName": "zhuJi",
+        "tag": "hostCH4",
+        "image": "storage/symbols/lengYuan/zhuJi.json",
+        "position": {
+          "x": 975.56263,
+          "y": 821.81406
+        },
+        "width": 200,
+        "height": 150,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 93423,
+      "p": {
+        "displayName": "zhuJi",
+        "tag": "hostCH3",
+        "image": "storage/symbols/lengYuan/zhuJi.json",
+        "position": {
+          "x": 975.56263,
+          "y": 705.71429
+        },
+        "width": 200,
+        "height": 150,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 93422,
+      "p": {
+        "displayName": "zhuJi",
+        "tag": "hostCH2",
+        "image": "storage/symbols/lengYuan/zhuJi.json",
+        "position": {
+          "x": 975.56263,
+          "y": 590.47619
+        },
+        "width": 200,
+        "height": 150,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 92175,
+      "p": {
+        "displayName": "zhuJi",
+        "tag": "hostCH1",
+        "image": "storage/symbols/lengYuan/zhuJi.json",
+        "position": {
+          "x": 975.56263,
+          "y": 474.28571
+        }
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 92167,
+      "p": {
+        "displayName": "lengQueTa",
+        "tag": "lqt3-3",
+        "image": "storage/symbols/lengYuan/lengQueTa.json",
+        "position": {
+          "x": 963.46998,
+          "y": 253.92156
+        },
+        "width": 100,
+        "height": 100,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 92166,
+      "p": {
+        "displayName": "lengQueTa",
+        "tag": "lqt3-2",
+        "image": "storage/symbols/lengYuan/lengQueTa.json",
+        "position": {
+          "x": 870,
+          "y": 230
+        },
+        "width": 100,
+        "height": 100,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 92165,
+      "p": {
+        "displayName": "lengQueTa",
+        "tag": "lqt3-1",
+        "image": "storage/symbols/lengYuan/lengQueTa.json",
+        "position": {
+          "x": 787.53346,
+          "y": 253.92156
+        },
+        "width": 100,
+        "height": 100,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 92164,
+      "p": {
+        "displayName": "lengQueTa",
+        "tag": "lqt2-3",
+        "image": "storage/symbols/lengYuan/lengQueTa.json",
+        "position": {
+          "x": 699.61632,
+          "y": 230
+        },
+        "width": 100,
+        "height": 100,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 92163,
+      "p": {
+        "displayName": "lengQueTa",
+        "tag": "lqt2-2",
+        "image": "storage/symbols/lengYuan/lengQueTa.json",
+        "position": {
+          "x": 612.29784,
+          "y": 253.92156
+        },
+        "width": 100,
+        "height": 100,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 92162,
+      "p": {
+        "displayName": "lengQueTa",
+        "tag": "lqt2-1",
+        "image": "storage/symbols/lengYuan/lengQueTa.json",
+        "position": {
+          "x": 520,
+          "y": 230
+        },
+        "width": 100,
+        "height": 100,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 92161,
+      "p": {
+        "displayName": "lengQueTa",
+        "tag": "lqt1-3",
+        "image": "storage/symbols/lengYuan/lengQueTa.json",
+        "position": {
+          "x": 436.13201,
+          "y": 253.92156
+        },
+        "width": 100,
+        "height": 100,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 92160,
+      "p": {
+        "displayName": "lengQueTa",
+        "tag": "lqt1-2",
+        "image": "storage/symbols/lengYuan/lengQueTa.json",
+        "position": {
+          "x": 347.79277,
+          "y": 230
+        },
+        "width": 100,
+        "height": 100,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 104635,
+      "p": {
+        "displayName": "coolingWater",
+        "tag": "lqstemperature1",
+        "image": "storage/symbols/lengYuan/coolingWater.json",
+        "position": {
+          "x": 672.29784,
+          "y": 495
+        }
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 104643,
+      "p": {
+        "displayName": "coolingWater",
+        "tag": "lqstemperature1",
+        "image": "storage/symbols/lengYuan/coolingWater.json",
+        "position": {
+          "x": 870,
+          "y": 935
+        },
+        "width": 120,
+        "height": 30,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 105349,
+      "p": {
+        "displayName": "lengQueShuiBeng",
+        "tag": "lqsbCH4-2",
+        "image": "storage/symbols/lengYuan/lengQueShuiBeng.json",
+        "position": {
+          "x": 397.79277,
+          "y": 910
+        },
+        "width": 200,
+        "height": 100,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 124737,
+      "p": {
+        "displayName": "lengQueTa",
+        "tag": "lqt1-1",
+        "image": "storage/symbols/lengYuan/lengQueTa.json",
+        "position": {
+          "x": 256.96946,
+          "y": 255.62647
+        },
+        "width": 100,
+        "height": 100,
+        "tall": 20
+      }
+    }
+  ],
+  "modified": "Tue Aug 12 2025 16:46:23 GMT+0800 (中国标准时间)",
+  "contentRect": {
+    "x": 193,
+    "y": 180,
+    "width": 1435,
+    "height": 787
+  }
+}

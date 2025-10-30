@@ -1,11 +1,12 @@
 <template>
   <div class="date-item-main-box">
-    <div class="date-title">
-      {{ props.title }}
-    </div>
     <div class="date-number">
       {{ props.number }}
     </div>
+    <div class="date-title">
+      {{ props.title }}
+    </div>
+    
   </div>
 </template>
 
@@ -26,8 +27,14 @@ const props = defineProps({
 
 <style scoped lang="less">
 .date-item-main-box {
-  height: 100%;
-  width: 100%;
+  height: 70%;
+  width: 70%;
+  background-image: url('@/assets/images/kanBanBorder.png');
+  background-size: 100% 100%;
+  border-radius: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
   .date-title,.date-number{
     width: 100%;
     height: 40%;
@@ -36,10 +43,11 @@ const props = defineProps({
     align-items: center;
   }
   .date-title{
-    align-items: flex-end;
+    
     font-size: 16px;
   }
   .date-number{
+    align-items: flex-end;
     font-size: 28px;
     font-weight: bold;
   }

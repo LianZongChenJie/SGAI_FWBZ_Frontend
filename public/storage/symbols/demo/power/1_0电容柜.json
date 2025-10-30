@@ -1,0 +1,174 @@
+{
+  "modified": "Mon Oct 27 2025 14:32:37 GMT+0800 (中国标准时间)",
+  "gridEnabled": true,
+  "width": 60,
+  "height": 40,
+  "comps": [
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": {
+        "func": "attr@lineColor",
+        "value": "#60ACFC"
+      },
+      "points": [
+        30,
+        12,
+        30,
+        0
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": {
+        "func": "attr@lineColor",
+        "value": "#60ACFC"
+      },
+      "borderJoin": "miter",
+      "displayName": "1",
+      "rotation": 0.7854,
+      "points": [
+        29,
+        14,
+        39,
+        14,
+        39,
+        18,
+        39,
+        14,
+        39,
+        10
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": {
+        "func": "attr@lineColor",
+        "value": "#60ACFC"
+      },
+      "borderJoin": "miter",
+      "displayName": "1",
+      "rotation": 2.35619,
+      "points": [
+        21,
+        14,
+        31,
+        14,
+        31,
+        18,
+        31,
+        14,
+        31,
+        10
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": {
+        "func": "attr@lineColor",
+        "value": "#60ACFC"
+      },
+      "borderJoin": "miter",
+      "displayName": "1",
+      "rotation": 5.49779,
+      "points": [
+        11,
+        24.5,
+        21,
+        24.5,
+        21,
+        28.5,
+        21,
+        24.5,
+        21,
+        20.5
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": {
+        "func": "attr@lineColor",
+        "value": "#60ACFC"
+      },
+      "borderJoin": "miter",
+      "displayName": "1",
+      "rotation": 3.92699,
+      "points": [
+        39,
+        24.5,
+        49,
+        24.5,
+        49,
+        28.5,
+        49,
+        24.5,
+        49,
+        20.5
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": {
+        "func": "attr@lineColor",
+        "value": "#60ACFC"
+      },
+      "borderJoin": "miter",
+      "displayName": "1",
+      "points": [
+        12.5,
+        28,
+        27.5,
+        28,
+        27.5,
+        32,
+        27.5,
+        28,
+        27.5,
+        24
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": {
+        "func": "attr@lineColor",
+        "value": "#60ACFC"
+      },
+      "borderJoin": "miter",
+      "displayName": "1",
+      "rotation": 3.14159,
+      "points": [
+        32.5,
+        28,
+        47.5,
+        28,
+        47.5,
+        32,
+        47.5,
+        28,
+        47.5,
+        24
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": {
+        "func": "attr@lineColor",
+        "value": "#60ACFC"
+      },
+      "rotation": 0.76794,
+      "points": [
+        30,
+        11,
+        30,
+        9
+      ]
+    }
+  ]
+}

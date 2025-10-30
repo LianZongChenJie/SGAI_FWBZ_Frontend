@@ -1,0 +1,230 @@
+{
+  "modified": "Tue Aug 12 2025 10:06:37 GMT+0800 (中国标准时间)",
+  "width": 250,
+  "height": 150,
+  "comps": [
+    {
+      "type": "image",
+      "name": "storage/assets/jiShuiQi.png",
+      "displayName": "jiShuiQi",
+      "rect": [
+        77.63044,
+        67.97763,
+        94.73912,
+        65.89745
+      ]
+    },
+    {
+      "type": "text",
+      "text": "集水器",
+      "rect": [
+        106.09605,
+        133.87507,
+        37.80791,
+        12.18079
+      ]
+    },
+    {
+      "type": "text",
+      "text": "歌剧院支路",
+      "rect": [
+        5.36931,
+        61.26599,
+        59.36066,
+        13.42327
+      ]
+    },
+    {
+      "type": "text",
+      "text": "水阀开度：",
+      "rect": [
+        5.36931,
+        74.68926,
+        59.36066,
+        13.42327
+      ]
+    },
+    {
+      "type": "rect",
+      "background": "rgb(255,255,255)",
+      "borderColor": "rgb(255,250,250)",
+      "rect": [
+        64.72997,
+        74.68926,
+        24.73776,
+        23.25424
+      ]
+    },
+    {
+      "type": "rect",
+      "background": "rgb(255,255,255)",
+      "borderColor": "rgb(255,250,250)",
+      "rect": [
+        67.29117,
+        78.4581,
+        24.46017,
+        4.41407
+      ]
+    },
+    {
+      "type": "text",
+      "text": "压力：",
+      "rect": [
+        5.36931,
+        88.11252,
+        59.36066,
+        13.42327
+      ]
+    },
+    {
+      "type": "text",
+      "text": "戏剧院支路",
+      "rect": [
+        164.9655,
+        60.65655,
+        59.36066,
+        13.42327
+      ]
+    },
+    {
+      "type": "text",
+      "text": "水阀开度：",
+      "rect": [
+        164.9655,
+        74.07982,
+        59.36066,
+        13.42327
+      ]
+    },
+    {
+      "type": "text",
+      "text": "压力：",
+      "rect": [
+        164.9655,
+        87.50308,
+        59.36066,
+        13.42327
+      ]
+    },
+    {
+      "type": "text",
+      "text": "音乐厅支路",
+      "rect": [
+        95.31967,
+        16.79024,
+        59.36066,
+        13.42327
+      ]
+    },
+    {
+      "type": "text",
+      "text": "水阀开度：",
+      "rect": [
+        95.31967,
+        30.21351,
+        59.36066,
+        13.42327
+      ]
+    },
+    {
+      "type": "text",
+      "text": "压力：",
+      "rect": [
+        95.31967,
+        43.63677,
+        59.36066,
+        13.42327
+      ]
+    },
+    {
+      "type": "storage/components/lengYuan/openingDegree.json",
+      "displayName": "openingDegree",
+      "rect": [
+        61.75134,
+        67.04395,
+        60,
+        30
+      ],
+      "value": {
+        "func": "attr@JSQGJYopeningDegree"
+      }
+    },
+    {
+      "type": "storage/components/lengYuan/openingDegree.json",
+      "displayName": "openingDegree",
+      "rect": [
+        149.61914,
+        22.68435,
+        60,
+        30
+      ],
+      "value": {
+        "func": "attr@JSQYYTopeningDegree",
+        "value": "91%"
+      }
+    },
+    {
+      "type": "storage/components/lengYuan/openingDegree.json",
+      "displayName": "openingDegree",
+      "rect": [
+        220,
+        66.40089,
+        60,
+        30
+      ],
+      "value": {
+        "func": "attr@JSQXJYopeningDegree",
+        "value": "100%"
+      }
+    },
+    {
+      "type": "storage/components/lengYuan/pressure.json",
+      "displayName": "pressure",
+      "rect": [
+        37.29117,
+        80.66514,
+        60,
+        30
+      ],
+      "value": {
+        "func": "attr@JSQGJYpressureValue"
+      }
+    },
+    {
+      "type": "storage/components/lengYuan/pressure.json",
+      "displayName": "pressure",
+      "rect": [
+        126.80427,
+        35.3484,
+        60,
+        30
+      ],
+      "value": {
+        "func": "attr@JSQYYTpressureValue"
+      }
+    },
+    {
+      "type": "storage/components/lengYuan/pressure.json",
+      "displayName": "pressure",
+      "rect": [
+        196.81349,
+        79.21472,
+        60,
+        30
+      ],
+      "value": {
+        "func": "attr@JSQXJYpressureValue"
+      }
+    },
+    {
+      "type": "storage/components/lengYuan/pressure.json",
+      "displayName": "pressure",
+      "rect": [
+        126.80427,
+        35.3484,
+        60,
+        30
+      ]
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "modified": "Fri Aug 08 2025 16:21:51 GMT+0800 (中国标准时间)",
+  "width": 65,
+  "height": 25,
+  "func": "__ht__function(g, rect, comp, data, view) {var x = rect.x;\r\nvar y = rect.y;\r\nvar width = rect.width;\r\nvar height = rect.height;\r\n\r\nvar value = comp.getValue('value');\r\nvar valueVisible = comp.getValue('valueVisible');\r\nvar valueColor = comp.getColor('valueColor');\r\nvar valueFont = comp.getValue('valueFont');\r\n\r\nht.Default.drawText(g, parseInt(value), valueFont, valueColor, x, y, width, height, 'left', 'middle');}",
+  "properties": {
+    "value": {
+      "valueType": "String",
+      "defaultValue": "10",
+      "name": "数值组件"
+    },
+    "valueColor": {
+      "valueType": "Color",
+      "defaultValue": "rgb(18,17,17)",
+      "name": "数值颜色"
+    },
+    "valueFont": {
+      "valueType": "Font",
+      "defaultValue": "12px sans-serif, Arial",
+      "name": "字体字号"
+    }
+  }
+}

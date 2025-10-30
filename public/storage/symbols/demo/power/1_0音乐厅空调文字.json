@@ -1,0 +1,62 @@
+{
+  "modified": "Tue Oct 28 2025 13:24:59 GMT+0800 (中国标准时间)",
+  "width": 20,
+  "height": 60,
+  "comps": [
+    {
+      "type": "text",
+      "text": "音",
+      "align": "center",
+      "rect": [
+        0,
+        -3,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "text",
+      "text": "乐",
+      "align": "center",
+      "rect": [
+        0,
+        8,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "text",
+      "text": "厅",
+      "align": "center",
+      "rect": [
+        0,
+        19,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "text",
+      "text": "空",
+      "align": "center",
+      "rect": [
+        0,
+        30,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "text",
+      "text": "调",
+      "align": "center",
+      "rect": [
+        0,
+        41,
+        20,
+        20
+      ]
+    }
+  ]
+}

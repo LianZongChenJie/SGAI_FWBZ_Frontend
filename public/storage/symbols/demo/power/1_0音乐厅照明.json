@@ -1,0 +1,108 @@
+{
+  "modified": "Mon Oct 27 2025 15:19:16 GMT+0800 (中国标准时间)",
+  "gridEnabled": true,
+  "width": 20,
+  "height": 200,
+  "comps": [
+    {
+      "type": "image",
+      "name": "storage/symbols/demo/power/1_0竖线0.5.json",
+      "displayName": "1_0竖线0.5",
+      "rect": [
+        0,
+        10,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/demo/power/1_0手车刀闸.json",
+      "displayName": "1_0手车刀闸",
+      "rect": [
+        0,
+        20,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/demo/power/1_0竖线1.json",
+      "displayName": "1_0竖线1",
+      "rect": [
+        0,
+        40,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/demo/power/1_0手车刀闸.json",
+      "displayName": "1_0手车刀闸",
+      "rotation": 3.14159,
+      "rect": [
+        0,
+        100,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/demo/power/1_0竖线1.json",
+      "displayName": "1_0竖线1",
+      "rect": [
+        0,
+        120,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/demo/power/1_0电变压器.json",
+      "displayName": "1_0电变压器",
+      "rect": [
+        0,
+        140,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/demo/power/1_0竖线1.json",
+      "displayName": "1_0竖线1",
+      "rect": [
+        0,
+        160,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/demo/power/1_0出线.json",
+      "displayName": "1_0出线",
+      "rect": [
+        0,
+        180,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/demo/power/1_0电变压器.json",
+      "displayName": "1_0电变压器",
+      "rect": [
+        0,
+        80,
+        20,
+        20
+      ]
+    }
+  ]
+}

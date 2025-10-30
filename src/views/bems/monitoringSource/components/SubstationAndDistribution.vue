@@ -3,22 +3,22 @@
     <div class="base-info-box">
       <div class="date-box">
         <div class="date-item">
-          <date-item :title="'高压配电室(个)'" :number="'3'"/>
+          <date-item :title="'今日报警数'" :number="'6'"/>
         </div>
         <div class="date-item">
-          <date-item :title="'变压器(个)'" :number="'10'"/>
+          <date-item :title="'昨日报警数'" :number="'8'"/>
         </div>
         <div class="date-item">
-          <date-item :title="'总装机容量(kVA)'" :number="'17700'"/>
+          <date-item :title="'环比'" :number="'15%'"/>
         </div>
         <div class="date-item">
-          <date-item :title="'当前总功率(kW)'" :number="'5000'"/>
+          <date-item :title="'本月报警数'" :number="'60'"/>
         </div>
         <div class="date-item">
-          <date-item :title="'当日总耗电(kWh)'" :number="'36889'"/>
+          <date-item :title="'上月报警数'" :number="'80'"/>
         </div>
         <div class="date-item">
-          <date-item :title="'当日报警(个)'" :number="'12'"/>
+          <date-item :title="'环比'" :number="'15'"/>
         </div>
       </div>
       <div class="table-box">
@@ -58,6 +58,9 @@ import { ref } from 'vue';
       align-items: center;
       flex-wrap: wrap;
       .date-item{
+        display: flex;
+        justify-content: center;
+        align-items: center;
         width: 30%;
         height: 48%;
       }

@@ -1,0 +1,110 @@
+{
+  "modified": "Fri Oct 24 2025 18:03:01 GMT+0800 (中国标准时间)",
+  "dataBindings": [
+    {
+      "attr": "powerLevel",
+      "valueType": "PowerLevel",
+      "defaultValue": "red",
+      "name": "电压等级"
+    },
+    {
+      "attr": "powerOffColor",
+      "valueType": "Color",
+      "defaultValue": "rgb(128,128,128)",
+      "name": "失电颜色"
+    },
+    {
+      "attr": "powerOn",
+      "valueType": "Boolean",
+      "defaultValue": true,
+      "name": "是否带电"
+    }
+  ],
+  "gridBlockSize": 6,
+  "width": 20,
+  "height": 40,
+  "comps": [
+    {
+      "type": "circle",
+      "borderWidth": 2,
+      "borderColor": {
+        "func": "attr@lineColor",
+        "value": "#60ACFC"
+      },
+      "rect": [
+        2,
+        5.5,
+        16,
+        16
+      ]
+    },
+    {
+      "type": "circle",
+      "borderWidth": 2,
+      "borderColor": {
+        "func": "attr@lineColor",
+        "value": "#60ACFC"
+      },
+      "rect": [
+        2,
+        18.5,
+        16,
+        16
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "#60ACFC",
+      "displayName": "不规则图形",
+      "points": [
+        10,
+        6,
+        10,
+        0
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": {
+        "func": "attr@lineColor",
+        "value": "#60ACFC"
+      },
+      "visible": {
+        "func": "attr@state"
+      },
+      "displayName": "22222",
+      "rotation": 3.14159,
+      "points": [
+        6,
+        17.5,
+        10.01301,
+        9.5,
+        14,
+        17.5
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": {
+        "func": "attr@lineColor",
+        "value": "#60ACFC"
+      },
+      "visible": {
+        "func": "attr@state"
+      },
+      "displayName": "22222",
+      "rotation": 3.14159,
+      "points": [
+        6,
+        30.5,
+        10.01301,
+        22.5,
+        14,
+        30.5
+      ]
+    }
+  ]
+}

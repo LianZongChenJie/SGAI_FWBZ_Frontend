@@ -1,0 +1,77 @@
+{
+  "modified": "Tue Aug 12 2025 16:33:48 GMT+0800 (中国标准时间)",
+  "width": 200,
+  "height": 100,
+  "comps": [
+    {
+      "type": "image",
+      "name": "storage/symbols/Building Control Major/Cold source/paishuibeng.json",
+      "displayName": "paishuibeng",
+      "rect": [
+        128,
+        22.48813,
+        72,
+        49
+      ]
+    },
+    {
+      "type": "text",
+      "text": "实时功率：",
+      "rect": [
+        6.61941,
+        22.48813,
+        54.66774,
+        13.91803
+      ]
+    },
+    {
+      "type": "text",
+      "text": "变频频率：",
+      "rect": [
+        6.61941,
+        56.91042,
+        55.38517,
+        13.52789
+      ]
+    },
+    {
+      "type": "storage/components/lengYuan/waterPumpPower.json",
+      "displayName": "waterPumpPower",
+      "rect": [
+        61.28715,
+        14.44715,
+        60,
+        30
+      ],
+      "value": {
+        "func": "attr@waterPumpPower"
+      }
+    },
+    {
+      "type": "storage/components/lengYuan/variableFrequency.json",
+      "displayName": "variableFrequency",
+      "rect": [
+        62.00458,
+        50,
+        60,
+        30
+      ],
+      "value": {
+        "func": "attr@variableFrequency"
+      }
+    },
+    {
+      "type": "storage/components/lengYuan/waterPumpCode.json",
+      "displayName": "waterPumpCode",
+      "rect": [
+        110.22702,
+        63.67436,
+        89.77298,
+        30
+      ],
+      "code": {
+        "func": "attr@waterPumpCode"
+      }
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "modified": "Tue Aug 12 2025 16:34:43 GMT+0800 (中国标准时间)",
+  "width": 120,
+  "height": 30,
+  "comps": [
+    {
+      "type": "text",
+      "text": "冷却水温度：",
+      "rect": [
+        1.89831,
+        1.89831,
+        34.64407,
+        11.23164
+      ]
+    },
+    {
+      "type": "text",
+      "text": "压力：",
+      "rect": [
+        1.89831,
+        16.13559,
+        34.64407,
+        11.23164
+      ]
+    },
+    {
+      "type": "storage/components/lengYuan/returnWaterTemperature.json",
+      "displayName": "returnWaterTemperature",
+      "rect": [
+        70,
+        -1.29096,
+        100,
+        17.61017
+      ],
+      "value": {
+        "func": "attr@LQStemperature"
+      }
+    },
+    {
+      "type": "storage/components/lengYuan/pressure.json",
+      "displayName": "pressure",
+      "rect": [
+        33.43503,
+        7.51412,
+        60,
+        30
+      ],
+      "value": {
+        "func": "attr@LQSpressure"
+      }
+    }
+  ]
+}

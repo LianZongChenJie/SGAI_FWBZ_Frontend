@@ -1,0 +1,29 @@
+{
+  "modified": "Thu Oct 30 2025 10:48:49 GMT+0800 (中国标准时间)",
+  "dataBindings": [
+    {
+      "attr": "isShow",
+      "valueType": "Boolean",
+      "name": "是否展示弹框",
+      "defaultValue": false
+    }
+  ],
+  "gridEnabled": true,
+  "width": 50,
+  "height": 20,
+  "comps": [
+    {
+      "type": "storage/components/lengYuan/dianLuCode.json",
+      "displayName": "dianLuCode",
+      "rect": [
+        0,
+        0,
+        50,
+        20
+      ],
+      "isShow": {
+        "func": "attr@isShow"
+      }
+    }
+  ]
+}

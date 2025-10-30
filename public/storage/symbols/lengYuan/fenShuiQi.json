@@ -1,0 +1,106 @@
+{
+  "modified": "Tue Aug 12 2025 16:45:13 GMT+0800 (中国标准时间)",
+  "width": 250,
+  "height": 150,
+  "comps": [
+    {
+      "type": "image",
+      "name": "storage/assets/jiShuiQi.png",
+      "displayName": "jiShuiQi",
+      "rect": [
+        95.81733,
+        67.97762,
+        94.73912,
+        65.89745
+      ]
+    },
+    {
+      "type": "text",
+      "text": "分水器",
+      "rect": [
+        124.28293,
+        133.87507,
+        37.80791,
+        12.18079
+      ]
+    },
+    {
+      "type": "text",
+      "text": "歌剧院支路",
+      "rect": [
+        5.36931,
+        61.26599,
+        59.36066,
+        13.42327
+      ]
+    },
+    {
+      "type": "text",
+      "text": "回水温度：",
+      "rect": [
+        5.36931,
+        74.68926,
+        59.36066,
+        13.42327
+      ]
+    },
+    {
+      "type": "rect",
+      "background": "rgb(255,255,255)",
+      "borderColor": "rgb(255,250,250)",
+      "rect": [
+        82.75715,
+        75,
+        24.73776,
+        23.25424
+      ]
+    },
+    {
+      "type": "rect",
+      "background": "rgb(255,255,255)",
+      "borderColor": "rgb(255,250,250)",
+      "rect": [
+        85.06108,
+        78.4581,
+        24.46017,
+        4.41407
+      ]
+    },
+    {
+      "type": "text",
+      "text": "压力：",
+      "rect": [
+        5.36931,
+        88.11252,
+        59.36066,
+        13.42327
+      ]
+    },
+    {
+      "type": "storage/components/lengYuan/pressure.json",
+      "displayName": "pressure",
+      "rect": [
+        37.29117,
+        80.66514,
+        60,
+        30
+      ],
+      "value": {
+        "func": "attr@JSQGJYpressureValue"
+      }
+    },
+    {
+      "type": "storage/components/lengYuan/returnWaterTemperature.json",
+      "displayName": "returnWaterTemperature",
+      "rect": [
+        59.52125,
+        66.4009,
+        100,
+        30
+      ],
+      "value": {
+        "func": "attr@FSQGJYpressureValue"
+      }
+    }
+  ]
+}

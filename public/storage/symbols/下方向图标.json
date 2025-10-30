@@ -1,0 +1,19 @@
+{
+  "modified": "Tue Oct 28 2025 15:45:48 GMT+0800 (中国标准时间)",
+  "width": 500,
+  "height": 500,
+  "comps": [
+    {
+      "type": "image",
+      "name": "storage/assets/1_0手车刀闸.png",
+      "displayName": "1_0手车刀闸",
+      "rotation": 3.14159,
+      "rect": [
+        122,
+        122,
+        256,
+        256
+      ]
+    }
+  ]
+}

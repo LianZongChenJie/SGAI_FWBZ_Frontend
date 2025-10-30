@@ -1,0 +1,76 @@
+{
+  "modified": "Tue Aug 12 2025 16:46:34 GMT+0800 (中国标准时间)",
+  "width": 100,
+  "height": 100,
+  "comps": [
+    {
+      "type": "image",
+      "name": "storage/assets/lengQueTa.png",
+      "displayName": "lengQueTa",
+      "rect": [
+        22.56966,
+        35.40458,
+        53.41381,
+        64.59542
+      ]
+    },
+    {
+      "type": "text",
+      "text": "冷却塔",
+      "font": "10px arial, sans-serif",
+      "rect": [
+        33.51856,
+        25.6378,
+        32.96288,
+        11.68525
+      ]
+    },
+    {
+      "type": "text",
+      "text": "LQT_",
+      "font": "10px arial, sans-serif",
+      "rect": [
+        22.56966,
+        14.47576,
+        38.02068,
+        11.16203
+      ]
+    },
+    {
+      "type": "text",
+      "text": "实时负荷:",
+      "rect": [
+        0,
+        3.66254,
+        37.75907,
+        10.81322
+      ]
+    },
+    {
+      "type": "storage/components/lengYuan/loadValue.json",
+      "displayName": "loadValue",
+      "rect": [
+        52.6703,
+        -3.43085,
+        60,
+        25
+      ],
+      "value": {
+        "func": "attr@loadValue"
+      }
+    },
+    {
+      "type": "storage/components/lengYuan/lqtCode.json",
+      "displayName": "lqtCode",
+      "rect": [
+        46.54172,
+        5.40458,
+        60,
+        30
+      ],
+      "code": {
+        "func": "attr@lqtCode"
+      }
+    }
+  ]
+}

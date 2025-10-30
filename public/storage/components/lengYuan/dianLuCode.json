@@ -1,0 +1,18 @@
+{
+  "modified": "Thu Oct 30 2025 10:48:47 GMT+0800 (中国标准时间)",
+  "width": 50,
+  "height": 20,
+  "func": "__ht__function(g, rect, comp, data, view) {var x = rect.x;\r\nvar y = rect.y;\r\nvar width = rect.width;\r\nvar height = rect.height;\r\n\r\nvar value = comp.getValue('value');\r\nvar valueVisible = comp.getValue('valueVisible');\r\nvar valueColor = comp.getColor('valueColor');\r\nvar valueFont = comp.getValue('valueFont');\r\n\r\nht.Default.drawText(g, String(value), valueFont, valueColor, x, y, width, height, 'left', 'middle');}",
+  "properties": {
+    "value": {
+      "valueType": "String",
+      "defaultValue": "1AA16",
+      "name": "编号"
+    },
+    "isShow": {
+      "valueType": "Boolean",
+      "defaultValue": false,
+      "name": "是否展示弹框"
+    }
+  }
+}

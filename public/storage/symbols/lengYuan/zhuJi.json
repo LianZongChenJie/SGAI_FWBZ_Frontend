@@ -1,0 +1,153 @@
+{
+  "modified": "Mon Aug 11 2025 17:01:56 GMT+0800 (中国标准时间)",
+  "width": 200,
+  "height": 150,
+  "comps": [
+    {
+      "type": "image",
+      "name": "storage/assets/CHZhuJi.png",
+      "displayName": "CHZhuJi",
+      "rect": [
+        0,
+        17.76699,
+        75,
+        74.90403
+      ]
+    },
+    {
+      "type": "text",
+      "text": "实时负荷：",
+      "rect": [
+        0,
+        5.04744,
+        42.19661,
+        14.73853
+      ]
+    },
+    {
+      "type": "text",
+      "text": "送水温度：",
+      "rect": [
+        72.98102,
+        19.78597,
+        54.82019,
+        14.73853
+      ]
+    },
+    {
+      "type": "text",
+      "text": "压力：",
+      "rect": [
+        72.98102,
+        32.00078,
+        50.78223,
+        14.73853
+      ]
+    },
+    {
+      "type": "text",
+      "text": "回水温度：",
+      "rect": [
+        72.98102,
+        82.37424,
+        55.6151,
+        14.73853
+      ]
+    },
+    {
+      "type": "text",
+      "text": "压力：",
+      "rect": [
+        72.98102,
+        94.79095,
+        50.78223,
+        14.73853
+      ]
+    },
+    {
+      "type": "storage/components/lengYuan/returnWaterTemperature 2.json",
+      "displayName": "returnWaterTemperature 2",
+      "rect": [
+        130.22398,
+        74.7435,
+        100,
+        30
+      ]
+    },
+    {
+      "type": "storage/components/lengYuan/waterDeliveryTemperature.json",
+      "displayName": "waterDeliveryTemperature",
+      "rect": [
+        127.80121,
+        12.15523,
+        100,
+        30
+      ],
+      "value": {
+        "func": "attr@waterDeliveryTemperatureValue"
+      }
+    },
+    {
+      "type": "storage/components/lengYuan/waterDeliveryPressure.json",
+      "displayName": "waterDeliveryPressure",
+      "rect": [
+        104.4517,
+        24.37004,
+        100,
+        30
+      ],
+      "value": {
+        "func": "attr@waterDeliveryPressureValue"
+      }
+    },
+    {
+      "type": "storage/components/lengYuan/backwaterPressure.json",
+      "displayName": "backwaterPressure",
+      "rect": [
+        106.67258,
+        87.16021,
+        100,
+        30
+      ]
+    },
+    {
+      "type": "storage/components/lengYuan/returnWaterTemperature.json",
+      "displayName": "returnWaterTemperature",
+      "rect": [
+        127.80121,
+        75,
+        100,
+        30
+      ],
+      "value": {
+        "func": "attr@returnWaterTemperatureValue"
+      }
+    },
+    {
+      "type": "storage/components/lengYuan/returnWaterPressure.json",
+      "displayName": "returnWaterPressure",
+      "rect": [
+        104.4517,
+        87.16021,
+        100,
+        30
+      ],
+      "value": {
+        "func": "attr@returnWaterPressureValue"
+      }
+    },
+    {
+      "type": "storage/components/lengYuan/real-timeLoad.json",
+      "displayName": "real-timeLoad",
+      "rect": [
+        55.20081,
+        -2.84477,
+        60,
+        30
+      ],
+      "value": {
+        "func": "attr@realTimeLoadValue"
+      }
+    }
+  ]
+}

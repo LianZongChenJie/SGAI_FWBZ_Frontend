@@ -1,0 +1,23 @@
+{
+  "modified": "Fri Oct 24 2025 17:16:56 GMT+0800 (中国标准时间)",
+  "gridEnabled": true,
+  "width": 20,
+  "height": 20,
+  "comps": [
+    {
+      "type": "shape",
+      "background": "#60ACFC",
+      "borderWidth": 1,
+      "borderColor": "#60ACFC",
+      "closePath": true,
+      "points": [
+        3,
+        3,
+        17,
+        3,
+        10,
+        16
+      ]
+    }
+  ]
+}

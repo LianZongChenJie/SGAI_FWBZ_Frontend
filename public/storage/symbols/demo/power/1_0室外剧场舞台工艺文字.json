@@ -1,0 +1,95 @@
+{
+  "modified": "Mon Oct 27 2025 20:56:57 GMT+0800 (中国标准时间)",
+  "width": 20,
+  "height": 100,
+  "comps": [
+    {
+      "type": "text",
+      "text": "室",
+      "align": "center",
+      "rect": [
+        0,
+        -3,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "text",
+      "text": "外",
+      "align": "center",
+      "rect": [
+        0,
+        8,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "text",
+      "text": "剧",
+      "align": "center",
+      "rect": [
+        0,
+        19,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "text",
+      "text": "场",
+      "align": "center",
+      "rect": [
+        0,
+        30,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "text",
+      "text": "舞",
+      "align": "center",
+      "rect": [
+        0,
+        41,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "text",
+      "text": "台",
+      "align": "center",
+      "rect": [
+        0,
+        52,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "text",
+      "text": "工",
+      "align": "center",
+      "rect": [
+        0,
+        63,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "text",
+      "text": "艺",
+      "align": "center",
+      "rect": [
+        0,
+        74,
+        20,
+        20
+      ]
+    }
+  ]
+}

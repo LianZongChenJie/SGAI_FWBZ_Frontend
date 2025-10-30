@@ -12,6 +12,8 @@ enum Api {
   disableAlarmLevelApi = '/bems/alarm/level/stopLevel',
   groundFloor = '/admin/device/account/getSpaceInfoList',
   getPointData = '/admin/device/account/queryNewDeviceAccountList',
+
+  getEnergyUseSafetyApi = '/bems/homePage/energyUseSafety',
 }
 
 /**
@@ -64,3 +66,8 @@ export const groundFloor = (params) => defHttp.post({ url: Api.disableAlarmLevel
  * @param params
  */
 export const getPointData = (params) => defHttp.get({ url: Api.getPointData, params }); 
+
+/**
+ * 用能安全
+ */
+export const getEnergyUseSafetyApi = () => defHttp.get({ url: Api.getEnergyUseSafetyApi }); 

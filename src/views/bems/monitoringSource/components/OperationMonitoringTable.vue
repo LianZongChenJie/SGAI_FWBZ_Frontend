@@ -1,122 +1,324 @@
 <template>
   <div class="operation-monitoring-table-main-box">
-    <div class="table-title">
-      <div class="icon-box"></div>
-      <span>配电室运行监测</span>
+    <div class="load-operation-status">
+      <div class="table-title">
+        <div class="icon-box"></div>
+        <span>实时负荷运行情况</span>
+      </div>
+      <div class="place-list">
+        <div class="data-title">
+          <div>
+
+          </div>
+          <div>
+            当前负荷(kW)
+          </div>
+          <div>
+            额定负荷(kW)
+          </div>
+          <div>
+            负荷率
+          </div>
+        </div>
+        <div class="data-box">
+          <div
+            class="data-item"
+            v-for="(item,index) in placeList"
+            :key="index"
+          >
+            <div>
+              {{ item.name }}
+            </div>
+            <div>
+              {{item.ratedLoad}}
+            </div>
+            <div>
+              {{item.currentLoad}}
+            </div>
+            <div>
+              {{item.loadRate}}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="table-box">
-      <a-table
-        :columns="columns"
-        :data-source="data"
-        :pagination="pagination"
-        @change="handleTableChange"
-        size="middle"
+    <div class="alarm-handling-status">
+      <div class="table-title">
+        <div class="icon-box"></div>
+        <span>今日报警处理情况</span>
+      </div>
+      <div
+        class="alarm-chart"
+        ref="chartContainer"
       >
-      </a-table>
+
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, onMounted } from 'vue';
+import * as echarts from 'echarts';
+import { getEnergyUseSafetyApi } from '../Standardized.api';
 
-const columns = [
+const placeList = ref([
   {
-    title: '配电室',
-    dataIndex: 'name',
-    key: 'name',
+    name: '测试数据1',
+    ratedLoad: '123',
+    currentLoad: '68',
+    loadRate: '50%',
   },
-  {
-    title: '总有功电量(kWh)',
-    dataIndex: 'age',
-    key: 'age',
-  },
-  {
-    title: '总有功功率(W)',
-    dataIndex: 'address',
-    key: 'address',
-  },
-  {
-    title: '负载率 (%)',
-    dataIndex: 'tags',
-    key: 'tags',
-  },
-  {
-    title: '功率因数',
-    dataIndex: 'test1',
-    key: 'test1',
-  },
-  {
-    title: '频率(Hz)',
-    dataIndex: 'test2',
-    key: 'test2',
-  },
-];
+]);
 
-const data = [
-  {
-    key: '1',
-    name: '戏剧院1#配电室',
-    age: 5277.2,
-    address: '3000000',
-    tags: 50,
-    test1: 0.96,
-    test2: 50.1,
-  },
-  {
-    key: '2',
-    name: '歌剧院2#配电室',
-    age: 8366.18,
-    address: '4000000',
-    tags: 55,
-    test1: 0.97,
-    test2: 50.2,
-  },
-  {
-    key: '3',
-    name: '音乐厅3#配电室',
-    age: 7639.27,
-    address: '3500000',
-    tags: 60,
-    test1: 0.95,
-    test2: 50.0,
-  },
-];
+const chartContainer = ref(null); // 引用图表容器
 
-const pagination = computed(() => ({
-  total: 3,
-  current: 1,
-  pageSize: 3,
-}));
+onMounted(async () => {
+  let res = await getEnergyUseSafetyApi();
+  placeList.value = [...res];
 
-const handleTableChange = (pag,filter,sorter) => {
-  console.log('handleTableChange--------------->', pag,filter,sorter);
-}
+  initChart();
+});
+
+const initChart = () => {
+  // 初始化 ECharts 实例
+  const myChart = echarts.init(chartContainer.value);
+
+  // 模拟数据
+  const data = [
+    { value: 85, total: 120 },
+    { value: 70, total: 100 },
+    { value: 90, total: 150 },
+    { value: 60, total: 80 },
+    { value: 95, total: 130 },
+  ];
+
+  const option = {
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {
+        type: 'shadow',
+      },
+      formatter: function (params) {
+        const data = params[0].data;
+        return `
+              ${params[0].name}<br/>
+              完成度: ${data.value}%<br/>
+              总数量: ${data.total}条
+            `;
+      },
+    },
+    grid: {
+      top: '15%',
+      right: '5%',
+      bottom: '5%',
+      left: '5%',
+      containLabel: true,
+    },
+    xAxis: {
+      type: 'category',
+      data: ['1#', '2#', '3#', '4#', '5#'],
+      axisLabel: {
+        fontSize: 14,
+        fontWeight: 'bold',
+      },
+      axisLine: {
+        lineStyle: {
+          color: '#999',
+        },
+      },
+    },
+    yAxis: {
+      type: 'value',
+      name: '完成度 (%)',
+      nameTextStyle: {
+        fontSize: 12,
+        padding: [0, 0, 0, -30],
+      },
+      axisLabel: {
+        formatter: '{value}%',
+        fontSize: 12,
+      },
+      min: 0,
+      max: 100,
+      splitLine: {
+        lineStyle: {
+          type: 'dashed',
+          color: '#eee',
+        },
+      },
+    },
+    series: [
+      {
+        name: '报警处理',
+        type: 'bar',
+        data: data,
+        // 显示背景色
+        showBackground: true,
+        backgroundStyle: {
+          color: 'rgba(180, 180, 180, 0.2)',
+          borderColor: 'rgba(180, 180, 180, 0.3)',
+          borderWidth: 1,
+          borderType: 'solid',
+        },
+        // 柱子样式
+        itemStyle: {
+          color: function (params) {
+            // 根据完成度设置不同颜色
+            const value = params.data.value;
+            if (value >= 90) return '#52c41a'; // 优秀 - 绿色
+            if (value >= 80) return '#1890ff'; // 良好 - 蓝色
+            if (value >= 60) return '#faad14'; // 一般 - 黄色
+            return '#f5222d'; // 较差 - 红色
+          },
+          borderRadius: [4, 4, 0, 0],
+          borderWidth: 1,
+          borderColor: '#fff',
+        },
+        // 柱子标签配置 - 在柱子内部显示完成度
+        label: {
+          show: true,
+          position: 'insideBottom',
+          distance: 10,
+          formatter: '{c}%',
+          color: '#fff',
+          fontSize: 12,
+          fontWeight: 'bold',
+        },
+        barWidth: '40%',
+        emphasis: {
+          itemStyle: {
+            shadowBlur: 10,
+            shadowColor: 'rgba(0, 0, 0, 0.5)',
+          },
+        },
+      },
+      {
+        name: '总数量',
+        type: 'bar',
+        // 隐藏的实际柱子，只用于显示顶部的总数量标签
+        data: data.map((item) => 100), // 设置高度为100%，确保标签在顶部
+        barWidth: '40%',
+        itemStyle: {
+          color: 'transparent', // 透明柱子
+        },
+        // 在背景色顶端显示总数量
+        label: {
+          show: true,
+          position: 'top',
+          formatter: function (params) {
+            // 获取对应索引的数据
+            const index = params.dataIndex;
+            return `${data[index].total}个`;
+          },
+          color: '#333',
+          fontSize: 13,
+          fontWeight: 'bold',
+          backgroundColor: 'rgba(255, 255, 255, 0.8)',
+          borderColor: '#d9d9d9',
+          borderWidth: 1,
+          borderRadius: 4,
+          padding: [4, 8],
+          shadowBlur: 2,
+          shadowColor: 'rgba(0, 0, 0, 0.1)',
+        },
+        z: 2, // 确保这个系列在上面
+      },
+    ],
+  };
+
+  // 渲染图表
+  myChart.setOption(option);
+
+  // 可选：响应式调整图表大小
+  window.addEventListener('resize', () => {
+    myChart.resize();
+  });
+};
 </script>
 
 <style scoped lang="less">
 .operation-monitoring-table-main-box {
   height: 100%;
   width: 100%;
-  background-color: #fff;
+
   border-radius: 10px;
   padding: 0 24px;
-  .table-title {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    height: 40px;
-    .icon-box {
-      height: 20px;
-      border-left: 5px solid #8080ff;
-      margin-right: 10px;
+  display: flex;
+  justify-content: space-around;
+  .load-operation-status,
+  .alarm-handling-status {
+    height: 100%;
+    width: 48%;
+    background-color: #fff;
+    border-radius: 10px;
+
+    .table-title {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      height: 40px;
+      padding-left: 12px;
+      .icon-box {
+        height: 20px;
+        border-left: 5px solid #8080ff;
+        margin-right: 10px;
+      }
+      > span {
+        font-size: 18px;
+        color: #506f8e;
+        font-weight: 600;
+      }
     }
-    > span {
-      font-size: 18px;
-      color: #506f8e;
-      font-weight: 600;
+
+    .place-list {
+      padding: 0 24px;
+      height: calc(100% - 40px);
+      width: 100%;
+
+      .data-title {
+        height: 40px;
+        width: 100%;
+        display: flex;
+        align-items: center;
+
+        div {
+          display: flex;
+          height: 100%;
+          width: 25%;
+          align-items: center;
+          justify-content: center;
+          font-size: 16px;
+        }
+      }
+      .data-box {
+        height: calc(100% - 40px);
+        overflow: auto;
+        .data-item {
+          height: 40px;
+          width: 100%;
+          display: flex;
+          align-items: center;
+
+          div {
+            display: flex;
+            height: 100%;
+            width: 25%;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+          }
+        }
+      }
     }
   }
+  .alarm-handling-status {
+    .alarm-chart {
+      height: calc(100% - 50px);
+      width: 100%;
+    }
+  }
+
   .table-box {
     height: calc(100% - 40px);
     margin-top: 10px;

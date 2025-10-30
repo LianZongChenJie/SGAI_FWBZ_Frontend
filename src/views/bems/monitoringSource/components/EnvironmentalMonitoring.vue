@@ -556,17 +556,17 @@ const getSpaceLayerList = () => {
     spaceTypeCode: 'A04',
     clientId: 'gjdjypark',
   };
-  groundFloor(params).then((res) => {
-    if (res.code === 1001 || res.code == 1000) {
-      const data = res.data;
-      data.forEach((item) => {
-        item.fullName = item.fullName.split('-').join('.');
-      });
-      spaceLayerList.value = data;
-      searchForm.value.spaceLayer = spaceLayerList.value.find(item => item.fullName == "B1").fullName;
-      getSpaceInfo();
-    }
-  });
+  // groundFloor(params).then((res) => {
+  //   if (res.code === 1001 || res.code == 1000) {
+  //     const data = res.data;
+  //     data.forEach((item) => {
+  //       item.fullName = item.fullName.split('-').join('.');
+  //     });
+  //     spaceLayerList.value = data;
+  //     searchForm.value.spaceLayer = spaceLayerList.value.find(item => item.fullName == "B1").fullName;
+  //     getSpaceInfo();
+  //   }
+  // });
 };
 
 const getSpaceVal = (val) => {
@@ -582,15 +582,15 @@ const getRegionData = () => {
     spaceTypeCode: 'A05',
     clientId: 'gjdjypark',
   };
-  groundFloor(params)
-    .then((res) => {
-      if (res.code == 1001) {
-        regionData.value = res.data;
-      }
-    })
-    .catch((err) => {
-      loading.value = false;
-    });
+  // groundFloor(params)
+  //   .then((res) => {
+  //     if (res.code == 1001) {
+  //       regionData.value = res.data;
+  //     }
+  //   })
+  //   .catch((err) => {
+  //     loading.value = false;
+  //   });
 };
 
 const getHKrtspUrl = () => {
@@ -962,7 +962,6 @@ const getSpaceInfo = () => {
     }
   }
   getPointData(data).then((res) => {
-    console.log('getPointData-------------->', res);
     
     btnLoading.value = false;
     floorArr.value = [];

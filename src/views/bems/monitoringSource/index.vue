@@ -1,15 +1,16 @@
 <template>
   <div class="monitoring-source-main-box">
     <a-tabs v-model:activeKey="activeKey" centered class="full-height-tabs" :destroyInactiveTabPane="true">
+      <a-tab-pane key="3" tab="变配电运行监控">
+        <substationAndDistribution />
+      </a-tab-pane>
       <a-tab-pane key="1" tab="冷源监控与分析">
         <ColdSourceMonitoring />
       </a-tab-pane>
       <a-tab-pane key="2" tab="环境监控与分析">
-        <!-- <EnvironmentalMonitoring /> -->
+        <EnvironmentalMonitoring />
       </a-tab-pane>
-      <a-tab-pane key="3" tab="变配电运行监控">
-        <substationAndDistribution />
-      </a-tab-pane>
+      
       <!-- <a-tab-pane key="4" tab="照明监控">
         模式化
       </a-tab-pane> -->
@@ -23,11 +24,11 @@
 <script setup lang="ts">
 import SubstationAndDistribution from './components/SubstationAndDistribution.vue'
 import ColdSourceMonitoring from './components/ColdSourceMonitoring.vue'
-// import EnvironmentalMonitoring from './components/EnvironmentalMonitoring.vue'
+import EnvironmentalMonitoring from './components/EnvironmentalMonitoring.vue'
 import WaterSupplyAndDrainage from './components/WaterSupplyAndDrainage.vue'
 import { ref } from 'vue';
 
-const activeKey = ref('1');
+const activeKey = ref('3');
 </script>
 
 <style scoped lang="less">

@@ -1,0 +1,13 @@
+{
+  "modified": "Mon Aug 11 2025 09:45:02 GMT+0800 (中国标准时间)",
+  "width": 60,
+  "height": 30,
+  "func": "__ht__function(g, rect, comp, data, view) {var x = rect.x;\r\nvar y = rect.y;\r\nvar width = rect.width;\r\nvar height = rect.height;\r\n\r\nvar code = comp.getValue('code');\r\nvar valueVisible = comp.getValue('valueVisible');\r\nvar valueColor = comp.getColor('valueColor');\r\nvar valueFont = comp.getValue('valueFont');\r\n\r\nht.Default.drawText(g, String(code), valueFont, valueColor, x, y, width, height, 'left', 'middle');}",
+  "properties": {
+    "code": {
+      "valueType": "String",
+      "defaultValue": "1-1",
+      "name": "冷却塔编号"
+    }
+  }
+}
