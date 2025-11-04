@@ -36,6 +36,10 @@ enum Api {
   selectDevice = '/bems/device/list',
   spaceTree = '/bems/space/getTree',
   categoryTree = '/bems/equipmentCategory/getTree',
+
+  getWorkOrderDetailApi = '/bems/event/getDetail',
+  getEventSpaceApi = '/bems/event/getEventSpace',
+  transferEventApi = '/bems/alarm/record/transferEvent',
 }
 
 /**
@@ -194,3 +198,20 @@ export const spaceTree = () => defHttp.get({ url: Api.spaceTree });
  * @param params
  */
 export const categoryTree = (params) => defHttp.get({ url: Api.categoryTree, params });
+
+
+/**
+ * 获取工单详情
+ */
+export const getWorkOrderDetailApi = (params) => defHttp.get({ url: Api.getWorkOrderDetailApi, params }, { joinParamsToUrl: true });
+
+
+/**
+ * 获取详细地址树
+ */
+export const getEventSpaceApi = () => defHttp.get({ url: Api.getEventSpaceApi });
+
+/**
+ * 转工单
+ */
+export const transferEventApi = (params) => defHttp.post({ url: Api.transferEventApi, params });

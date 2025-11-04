@@ -510,8 +510,6 @@ const setDeviceName = async (type, record) => {
   }
   
   let res = await getPontByDeviceIdApi({ deviceId: deviceId})
-  console.log('setDeviceName--------------->', record, res);
-  
   // let res = await getPontByDeviceIdApi({ deviceId: 108 });
   formState.points[targetIndex.value].devicePointData = res.map((item) => {
     return {
@@ -562,7 +560,7 @@ const resetForm = () => {
 const getUserList = async () => {
   const params = {
       pageNo: 1,
-      pageSize: 9999999,
+      pageSize: 99,
       userName: formState.userName ? '*' + formState.userName + '*' : undefined,
     };
   let users = await userList(params);

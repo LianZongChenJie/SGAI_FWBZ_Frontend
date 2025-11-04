@@ -51,21 +51,27 @@
           <p :style="record.backgroundColor">{{ record.alarmLevelName }}</p>
         </template>
         <template v-if="column.key === 'alarmStatus'">
-          {{ record.alarmStatus === '1' ? '未处理' : '已消除' }}
+          {{ getStatus(record.alarmStatus) }}
         </template>
         <template v-if="column.key === 'active'">
           <a-space>
             <a @click.stop="handelDetail(record)">详情</a>
             &emsp;
-            <a @click.stop="eliminateAlarmRecords(record)">报警消除</a>
+            <a v-if="record.alarmStatus === '3' || record.alarmStatus === '4'" @click.stop="handelWorkOrderDetail(record)">工单详情</a>
+            <!-- &emsp;
+            <a @click.stop="eliminateAlarmRecords(record)">报警消除</a> -->
             &emsp;
-            <a @click.stop="transferAlarmRecords(record)">转事件工单</a>
+            <a v-if="record.alarmStatus === '1'" @click.stop="transferAlarmRecords(record)">转事件工单</a>
+            &emsp;
+            <a v-if="record.alarmStatus === '1'" @click.stop="transferAlarmRecords(record)">误报</a>
           </a-space>
         </template>
       </template>
     </BasicTable>
     <device-table-modal ref="deviceRef" />
     <detail-modal ref="detailRef" />
+    <WorkOrderModal ref="workOrderModalRef"/>
+    <TransferEventWorkOrder ref="transferEventWorkOrderRef"/>
   </div>
 </template>
 
@@ -85,12 +91,17 @@ import {
 import { message } from 'ant-design-vue';
 import DeviceTableModal from './components/DeviceTableModal.vue';
 import DetailModal from './components/DetailModal.vue';
+import WorkOrderModal from './components/WorkOrderModal.vue';
+import TransferEventWorkOrder from './components/TransferEventWorkOrder.vue';
 
 const deviceRef = ref();
 // 详情弹框
 const detailRef = ref();
+const workOrderModalRef = ref();
+const transferEventWorkOrderRef = ref();
 
 const statisticsData = ref<any>([]);
+
 
 // 打开类型
 const type = ref('');
@@ -158,12 +169,13 @@ const columns: BasicColumn[] = [
     title: '响应状态',
     dataIndex: 'alarmStatus',
     key: 'alarmStatus',
+    width: '120px'
   },
   {
     title: '操作',
     dataIndex: 'active',
     key: 'active',
-    width: '200px',
+    width: '260px',
   },
 ];
 
@@ -259,6 +271,10 @@ const handleChange = (e, value) => {
   } else {
     searchTime.value.startTime = formatDate(getFirstDayOfMonth());
   }
+  const { setFieldsValue } = getForm();
+   setFieldsValue({
+      time: [ searchTime.value.startTime, searchTime.value.endTime ]
+    });
   getAlarmRecordsStatistics();
   reload();
 };
@@ -273,6 +289,9 @@ const getLinkageControlList = async (pageParams) => {
   await getOptionsData();
   let { getFieldsValue } = getForm();
   const searchData = getFieldsValue();
+  if(!searchData.time) {
+    selectedValue.value = null
+  }
   let params = {
     pageNo: pageNo,
     pageSize: pageSize,
@@ -280,8 +299,8 @@ const getLinkageControlList = async (pageParams) => {
     alarmLevelId: searchData.alarmLevelId ? searchData.alarmLevelId : undefined,
     alarmCategoryId: searchData.alarmCategoryId ? searchData.alarmCategoryId : undefined,
     deviceIds: searchData.deviceIds ? searchData.deviceIds.split('*')[1] : undefined,
-    startDateTime: searchData.time ? searchData.time.split(',')[0] + ' 00:00:00' : formatDate(getFirstDayOfMonth()) + ' 00:00:00',
-    endDateTime: searchData.time ? searchData.time.split(',')[1] + ' 23:59:59' : formatDate(getToday()) + ' 23:59:59',
+    startDateTime: searchData.time ? searchData.time.split(',')[0] : formatDate(getFirstDayOfMonth()) + ' 00:00:00',
+    endDateTime: searchData.time ? searchData.time.split(',')[1] : formatDate(getToday()) + ' 23:59:59',
   };
   if (searchTime.value.startTime) {
     params.startDateTime = searchTime.value.startTime + ' 00:00:00';
@@ -305,7 +324,6 @@ const getLinkageControlList = async (pageParams) => {
       }
     }
   });
-  console.log('res.records------------->', res.records);
   return {
     records: res.records, // 当前页数据
     total: res.total, // 总记录数
@@ -394,12 +412,28 @@ const eliminateAlarmRecords = async (record) => {
   reload();
 };
 
+const getStatus = (statusId) => {
+  let status = ''
+  switch(statusId) {
+    case '1' :
+    status = '未处理'
+    break;
+    case '2' :
+    status = '误报'
+    break;
+    case '3' :
+    status = '已转工单'
+    break;
+    case '4' :
+    status = '已处理'
+    break;
+  }
+  return status
+}
+
 // 转事件工单
 const transferAlarmRecords = async (record) => {
-  // await eliminateAlarmRecordsApi({id: record.id})
-  // message.success('消除成功！');
-  // 刷新表格
-  reload();
+  transferEventWorkOrderRef.value.showModal(record)
 };
 
 // 获取下拉框数据源
@@ -447,6 +481,11 @@ const getAlarmRecordsStatistics = async () => {
   statisticsData.value = await getAlarmRecordsStatisticsApi(params);
   statisticsData.value.reverse();
 };
+
+// 工单详情
+const handelWorkOrderDetail = (record) => {
+ workOrderModalRef.value.showModal(record)
+}
 
 onMounted(async () => {
   // await getOptionsData();
