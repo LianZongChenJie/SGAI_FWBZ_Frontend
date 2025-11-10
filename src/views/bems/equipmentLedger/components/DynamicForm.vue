@@ -30,7 +30,7 @@
       </div>
       <a-form-item>
         <!-- 修改为靠右对齐 -->
-        <div style="text-align: right">
+        <div style="text-align: right; padding-bottom: 12px;">
           <a-button @click="resetForm">取消</a-button>
           <a-button type="primary" @click="submitForm">保存</a-button>
         </div>

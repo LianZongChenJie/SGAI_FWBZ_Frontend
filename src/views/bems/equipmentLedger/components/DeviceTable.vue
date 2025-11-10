@@ -219,7 +219,6 @@ const { tableContext } = useListPage({
       pageSize: 10,
       showSizeChanger: true,
     },
-    showTableSetting:false,
     formConfig: {
       schemas: searchFormSchema,
       submitOnReset: true,
