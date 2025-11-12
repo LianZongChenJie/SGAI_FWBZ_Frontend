@@ -519,8 +519,8 @@ const save = async (key: string) => {
     await saveData(editableData[key]);
   } else {
     await addData(editableData[key]);
-    await getData(id.value);
   }
+  await getData(id.value);
   delete editableData[key];
 };
 const confirmDelete = (record) => {
