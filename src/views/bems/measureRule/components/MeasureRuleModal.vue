@@ -10,7 +10,7 @@
         />
       </a-form-item>
       <a-form-item label="项目编号" name="nodeCode">
-        <a-input v-model:value="formData.nodeCode" placeholder="请输入项目编号" />
+        <a-input v-model:value="formData.nodeCode" placeholder="请输入项目编号" disabled/>
       </a-form-item>
       <a-form-item label="项目名称" name="nodeName">
         <a-input v-model:value="formData.nodeName" placeholder="请输入项目名称" />
@@ -86,7 +86,7 @@
   });
 
   const rules = {
-    nodeCode: [{ required: true, message: '请输入项目编号' }],
+    // nodeCode: [{ required: true, message: '请输入项目编号' }],
     nodeName: [{ required: true, message: '请输入项目名称' }],
     categoryId: [{ required: true, message: '请选择设备类别' }],
     spaceId: [{ required: true, message: '请选择空间位置' }],
