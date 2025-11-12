@@ -53,14 +53,14 @@
           :icon="h(PlusOutlined)"
           @click="addItem"
         >新增</a-button>
-        <div style="height: 300px;">
+        <div>
           <a-table
             :dataSource="dataSource"
             :columns="columns"
             bordered
-            :scroll="{ y: 200 }"
+            :scroll="{ y: 150 }"
             size="middle"
-            :pagination="devicePagination"
+            :pagination="false"
             @change="handleDeviceTableChange"
           >
             <template #bodyCell="{ column, text, record }">
@@ -239,7 +239,7 @@ const columns = [
     title: '属性名称',
     dataIndex: 'attributeName',
     key: 'attributeName',
-    width: 80,
+    width: 160,
   },
   {
     title: '属性单位',
@@ -455,8 +455,10 @@ async function handleSubmit() {
 
 const getData = async (id) => {
   let res = await getListByDeviceId({ 
-    pageNo: devicePagination.value.pageNo,
-    pageSize: devicePagination.value.pageSize,
+    // pageNo: devicePagination.value.pageNo,
+    pageNo: 1,
+    // pageSize: devicePagination.value.pageSize,
+    pageSize: 999,
     deviceId: id,
    });
    devicePagination.value.total = res.total
