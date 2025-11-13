@@ -59,8 +59,8 @@
           <template v-if="column.key === 'action'">
             <a-space>
               <a @click="handleFormula(record)">编辑公式</a>&emsp;
-              <a v-if="current[0] === 'run'" @click="handleEdit(record)">编辑</a>&emsp;
-              <a v-if="current[0] === 'run'" style="color: red;" @click="handleDeleteTable(record)">删除</a>
+              <a @click="handleEdit(record)">编辑</a>&emsp;
+              <a style="color: red;" @click="handleDeleteTable(record)">删除</a>
             </a-space>
           </template>
         </template>

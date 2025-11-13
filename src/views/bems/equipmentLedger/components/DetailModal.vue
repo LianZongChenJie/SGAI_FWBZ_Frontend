@@ -1,7 +1,7 @@
 <template>
   <a-modal :visible="visible" title="设备详情" @cancel="handleCancel" :footer="null" width="800px">
     <a-menu v-model:selectedKeys="current" mode="horizontal" :items="items" @click="handleClick" />
-    <DynamicForm :formItems="staticData" :showAction="showAction" :loading="formLoading" @save="handleSave" @cancel="visible = false" />
+    <DynamicForm :formItems="staticData" :showAction="showAction" :loading="formLoading" @save="handleSave" @cancel="handleCancel" />
   </a-modal>
 </template>
 <script lang="ts" setup>
