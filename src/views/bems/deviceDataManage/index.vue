@@ -122,6 +122,11 @@ const columns: BasicColumn[] = [
   //   key: 'unit',
   // },
   {
+    title: '起始时间',
+    dataIndex: 'startTime',
+    key: 'startTime',
+  },
+  {
     title: '起始值',
     dataIndex: 'startValue',
     key: 'startValue',
@@ -132,6 +137,11 @@ const columns: BasicColumn[] = [
     key: 'endValue',
   },
   {
+    title: '结束时间',
+    dataIndex: 'endTime',
+    key: 'endTime',
+  },
+  {
     title: '计算值',
     dataIndex: 'value',
     key: 'value',
@@ -140,10 +150,12 @@ const columns: BasicColumn[] = [
     title: '运行状态',
     dataIndex: 'runState',
     key: 'runState',
+    width: '80px'
   },
   {
     title: '操作',
     key: 'action',
+    width: '80px'
   },
 ];
 
@@ -181,13 +193,23 @@ const searchFormSchema: FormSchema[] = [
     label: '起始时间',
     field: 'startTime',
     component: 'DatePicker',
-    defaultValue: new Date(new Date().setDate(new Date().getDate() - 1)).toISOString().split('T')[0] + ' 00',
+    defaultValue: new Date(new Date().setDate(new Date().getDate() - 1)).toISOString(),
+    componentProps: {
+      showTime: true,
+      format: 'YYYY-MM-DD HH:mm:ss',
+      valueFormat: 'YYYY-MM-DD HH:mm:ss',
+    },
   },
   {
     label: '结束时间',
     field: 'endTime',
     component: 'DatePicker',
-    defaultValue: new Date().toISOString().split('T')[0] + ' 00',
+    defaultValue: new Date().toISOString(),
+    componentProps: {
+      showTime: true,
+      format: 'YYYY-MM-DD HH:mm:ss',
+      valueFormat: 'YYYY-MM-DD HH:mm:ss',
+    },
   },
 ];
 
