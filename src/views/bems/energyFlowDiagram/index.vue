@@ -236,12 +236,14 @@
           id: item.id + '',
           isroot: true,
           topic: topic,
+          expanded: false,
         });
       } else {
         mind.data.push({
           id: item.id + '',
           parentid: item.parentId + '',
           topic: topic,
+          expanded: false,
         });
       }
     });

@@ -3,10 +3,10 @@
     <div class="title">
       环境品质
       <div class="my-tabs-box">
-        <MyTabs
+        <!-- <MyTabs
           :handleSwitchDate="handleSwitchDate"
           :tabsTitle="tabsTitle"
-        />
+        /> -->
       </div>
     </div>
     <div class="charts-box">
@@ -60,7 +60,7 @@ import * as echarts from 'echarts';
 import MyTabs from './MyTabs.vue';
 
 const tabsTitle = {
-  left: '歌剧院',
+  left: '4号楼',
   middle: '音乐厅',
   right: '戏剧院',
 };

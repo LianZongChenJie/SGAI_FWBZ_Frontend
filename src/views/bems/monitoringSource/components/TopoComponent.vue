@@ -46,7 +46,7 @@ const fullScreenModalRef = ref();
 
 const treeData = ref([
   {
-    title: '歌剧院变配电',
+    title: '4号楼',
     key: '2',
     path: 'beiyi/geJuYuan.json',
     children: [
@@ -57,7 +57,7 @@ const treeData = ref([
     ],
   },
   {
-    title: '戏剧院变配电',
+    title: '5号楼(总楼)',
     key: '3',
     path: '戏剧配电室.json',
     children: [
@@ -68,7 +68,7 @@ const treeData = ref([
     ],
   },
   {
-    title: '音乐厅变配电',
+    title: '9号楼',
     key: '4',
     path: '音乐厅配电室模拟屏.json',
     children: [
