@@ -203,7 +203,7 @@
           <div class="icon-box">
 
           </div>
-          事件信记录
+          事件记录
         </div>
       </div>
       <div
@@ -226,7 +226,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue';
-import { getWorkOrderDetailApi } from '../Standardized.api';
+import { getWorkOrderDetailApi, getWorkOrderDetailInfoApi } from '../Standardized.api';
 
 const open = ref<boolean>(false);
 
@@ -265,7 +265,6 @@ const workList = ref([
 // 打开弹框
 const showModal = async (record) => {
   // workOrderDetail.value = record;
-  console.log('showModal-------------------->', record);
   await getWorkOrderDetail(record.id);
   open.value = true;
 };

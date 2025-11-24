@@ -31,7 +31,7 @@
                     style="width: 100%"
                   >
                     <a-select-option value="hour">小时</a-select-option>
-                    <a-select-option value="date">日</a-select-option>
+                    <a-select-option value="day">日</a-select-option>
                     <a-select-option value="month">月</a-select-option>
                     <a-select-option
                       value="year"
@@ -51,7 +51,7 @@
                   <a-range-picker
                     v-model:value="formState.analysisTime"
                     style="width: 100%"
-                    :picker="(formState.dateType === 'hour' ? 'date' : formState.dateType)"
+                    :picker="(formState.dateType === 'hour' ? 'day' : formState.dateType)"
                     valueFormat="YYYY-MM-DD HH:mm:ss"
                     @change="handleAnalysisTimeChange"
                     :allowClear="false"
@@ -86,7 +86,7 @@
                   <a-range-picker
                     v-model:value="formState.referenceTime"
                     style="width: 100%"
-                    :picker="(formState.dateType === 'hour' ? 'date' : formState.dateType)"
+                    :picker="(formState.dateType === 'hour' ? 'day' : formState.dateType)"
                     valueFormat="YYYY-MM-DD HH:mm:ss"
                     :disabled-date="disabledDateReferenceTime"
                     :disabled="formState.benchmarkingMethod !== '3' || formState.analysisTime.length !== 2"
@@ -186,7 +186,7 @@ const formState = ref<any>({
   id: '',
   analysisTime: [],
   referenceTime: [],
-  dateType: 'date',
+  dateType: 'day',
   benchmarkingMethod: '1',
   increase: '',
   increaseContent: '',
@@ -217,7 +217,7 @@ const options2 = ref([
     label: '小时',
   },
   {
-    value: 'date',
+    value: 'day',
     label: '日',
   },
   {
@@ -417,8 +417,6 @@ let myChart: any = null;
 const millDiff = ref(0);
 
 const showModal = async (record) => {
-  console.log('showModal------------->', record.measurementTime);
-  
   formState.value.id = record.pointId;
   open.value = true;
   setDefaultDate(record.measurementTime);

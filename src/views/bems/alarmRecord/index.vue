@@ -71,7 +71,7 @@
     <device-table-modal ref="deviceRef" />
     <detail-modal ref="detailRef" />
     <WorkOrderModal ref="workOrderModalRef"/>
-    <TransferEventWorkOrder ref="transferEventWorkOrderRef"/>
+    <TransferEventWorkOrder ref="transferEventWorkOrderRef" :reload="reload"/>
   </div>
 </template>
 
