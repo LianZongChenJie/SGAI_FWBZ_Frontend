@@ -165,11 +165,11 @@
         <a-col :span="6">
           <a-form-item
             label="创建人"
-            name="creatPeopleId"
+            name="creatPeopleName"
           >
             <a-input
               :bordered="false"
-              v-model:value="workOrderDetail.creatPeopleId"
+              v-model:value="workOrderDetail.creatPeopleName"
             />
           </a-form-item>
         </a-col>
@@ -212,7 +212,7 @@
         :key="index"
       >
         <div class="transfer-ticket-title">
-          {{item.flowCode}}
+          {{item.remarks}}
         </div>
         <div class="transfer-ticket-box">
           <div class="transfer-ticket-item">
@@ -231,41 +231,28 @@ import { getWorkOrderDetailApi, getWorkOrderDetailInfoApi } from '../Standardize
 const open = ref<boolean>(false);
 
 const workOrderDetail = ref<any>({
-  code: '20251030155919500',
-  createdTime: '2025-10-30 15:59:20',
-  contractPeople: '32',
-  contractPhone: '1888888888',
-  orderType: '报事报修',
-  spaceName: '基础物业项目部',
-  address: '石景山万达，石景山万达，E座，26层（电梯29层）',
-  isPaid: '是',
-  forCustomer: '否',
-  price: '否',
-  creatPeopleId: '1',
-  description: '1',
-  value13: '刘鹏',
-  value14: '1',
+  code: '',
+  createdTime: '',
+  contractPeople: '',
+  contractPhone: '',
+  orderType: '',
+  spaceName: '',
+  address: '',
+  isPaid: '',
+  forCustomer: '',
+  price: '',
+  creatPeopleId: '',
+  description: '',
+  value13: '',
+  value14: '',
 });
 
-const workList = ref([
-  {
-    flowCode: '转工单',
-    operatorName: '刘鹏',
-    operationTime: '2025-10-30 15:59:29',
-    operationName: '转工单',
-  },
-  {
-    flowCode: '提交事件',
-    operatorName: '刘鹏',
-    operationTime: '2025-10-30 15:59:29',
-    operationName: '转工单',
-  },
-]);
+const workList = ref([]);
 
 // 打开弹框
 const showModal = async (record) => {
   // workOrderDetail.value = record;
-  await getWorkOrderDetail(record.id);
+  await getWorkOrderDetail(record.eventId);
   open.value = true;
 };
 
@@ -274,6 +261,10 @@ const getWorkOrderDetail = async (id) => {
   let res = await getWorkOrderDetailApi({ eventId: id });
   if(res.event) workOrderDetail.value = res.event
   if(res.operateRecords.length) workList.value = res.operateRecords
+
+  workOrderDetail.value.isArea = res.event.isArea ? '是' : '否'
+  workOrderDetail.value.isPaid = res.event.isPaid ? '是' : '否'
+  workOrderDetail.value.forCustomer = res.event.forCustomer ? '是' : '否'
 };
 
 const handleOk = (e: MouseEvent) => {
