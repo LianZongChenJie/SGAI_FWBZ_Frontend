@@ -149,10 +149,11 @@ const getAreaListPage = async (pageParams) => {
   const { pageNo, pageSize } = pageParams;
   let { getFieldsValue } = getForm();
   const searchData = getFieldsValue();
+  
   let params = {
     relType: searchData.relType ? searchData.relType : undefined,
-    startTime: searchData.time ? searchData.time.split(',')[0] : undefined,
-    endTime: searchData.time ? searchData.time.split(',')[1] : undefined,
+    startTime: searchData.startTime ? searchData.startTime : undefined,
+    endTime: searchData.endTime ? searchData.endTime : undefined,
     pageNo: pageNo,
     pageSize: pageSize,
   };
@@ -210,11 +211,11 @@ const handleDelete = async (record) => {
 };
 
 const addTimingControl = () => {
-  timingControlModalRef.value.showDrawer();
+  timingControlModalRef.value.showDrawer(false);
 };
 // 工单详情
 const updatePlan = (record) => {
-  timingControlModalRef.value.showDrawer(record);
+  timingControlModalRef.value.showDrawer(true,record);
 };
 
 const handleChangeStartTime = (val) => {

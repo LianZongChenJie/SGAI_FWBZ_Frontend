@@ -204,7 +204,7 @@ const filteredColumns = computed(() => {
 let dataSource: any = ref([]);
 
 const pagination = reactive({
-  pageNo: 1,
+  current: 1,
   pageSize: 10,
   total: 0,
 });
@@ -315,14 +315,15 @@ const updateCurrentPageSelection = () => {
 };
 
 // 打开弹框
-const showDrawer = async (record?) => {
-  if (record) {
+const showDrawer = async (isUpdate,record?) => {
+  if (isUpdate) {
     id.value = record.id;
     formState.value.relType = record.relType;
     formState.value.planName = record.planName;
     ids.value = record.relIds.split(',');
     formState.value.executionTime = record.executionTime;
     formState.value.operationType = record.operationType;
+    title.value = '编辑定时控制计划'
   }
   // 清空之前的选择
   selectedRows.value.clear();
@@ -361,17 +362,19 @@ const closeModal = () => {
   formState.value.planName = '';
   formState.value.executionTime = '';
   formState.value.operationType = '';
-  pagination.pageNo = 1;
+  pagination.current = 1;
   pagination.pageSize = 10;
   ids.value = [];
   // 清空之前的选择
   selectedRows.value.clear();
   selectedRowKeys.value = [];
+  console.log('cloase----------->', pagination);
+  
   open.value = false;
 };
 
 const handleChange = async (page) => {
-  pagination.pageNo = page.current;
+  pagination.current = page.current;
   pagination.pageSize = page.pageSize;
   if (formState.value.relType === '回路') {
     await loadCircuitData();
@@ -396,7 +399,7 @@ const handleChangeRelType = async () => {
 const loadAreaData = async () => {
   try {
     const params = {
-      pageNo: pagination.pageNo,
+      pageNo: pagination.current,
       pageSize: pagination.pageSize,
     };
     const res = await getAreaListPageApi(params);
@@ -413,7 +416,7 @@ const loadAreaData = async () => {
 const loadCircuitData = async () => {
   try {
     const params = {
-      pageNo: pagination.pageNo,
+      pageNo: pagination.current,
       pageSize: pagination.pageSize,
     };
     const res = await getCircuitListPageApi(params);
