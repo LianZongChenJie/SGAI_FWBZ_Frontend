@@ -135,7 +135,7 @@
                   </a-form-item>
                 </a-col>
               </a-row>
-              <a-row
+              <!-- <a-row
                 :gutter="16"
                 class="row-with-margin"
               >
@@ -149,16 +149,9 @@
                       @click="selectNoticeUser()"
                       placeholder="请选择通知对象"
                     />
-                    <!-- <a-select
-                      v-model:value="formState.noticeUser"
-                      mode="tags"
-                      style="width: 100%"
-                      placeholder="请选择通知对象"
-                      :options="noticeUserOptions"
-                    ></a-select> -->
                   </a-form-item>
                 </a-col>
-              </a-row>
+              </a-row> -->
             </div>
             <div class="list-title">
               <span>管理设备设置</span><a

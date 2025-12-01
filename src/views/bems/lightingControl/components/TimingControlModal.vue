@@ -368,8 +368,6 @@ const closeModal = () => {
   // 清空之前的选择
   selectedRows.value.clear();
   selectedRowKeys.value = [];
-  console.log('cloase----------->', pagination);
-  
   open.value = false;
 };
 

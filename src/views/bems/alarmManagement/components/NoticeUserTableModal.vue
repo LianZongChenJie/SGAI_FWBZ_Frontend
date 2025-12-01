@@ -23,7 +23,7 @@
         </a-form>
       </div>
       <div class="table-box">
-        <a-table class="custom-hover-table" :dataSource="dataSource" :columns="columns" :pagination="pagination"
+        <a-table class="custom-hover-table" @change="handleChange" :dataSource="dataSource" :columns="columns" :pagination="pagination"
           size="middle" bordered :row-selection="{ selectedRowKeys: state.selectedRowKeys, onChange: onSelectChange }">
           <template #index="{ text, record, index }">
             {{ index + 1 }}
@@ -84,7 +84,7 @@ const columns = [
 let dataSource = ref([])
 
 const pagination = reactive({
-  pageNo: 1,
+  current: 1,
   pageSize: 10,
   total: 10,
 })
@@ -133,8 +133,8 @@ const closeModal = () => {
 const loadData = async () => {
   try {
     const params = {
-      pageNo: pagination.pageNo,
-      pageSize: 9999999,
+      pageNo: pagination.current,
+      pageSize: pagination.pageSize,
       userName: formState.userName ? '*' + formState.userName + '*' : undefined,
     };
     console.log('request params:', params); // 调试日志
@@ -147,6 +147,12 @@ const loadData = async () => {
   } catch (error) {
     console.error('加载数据失败:', error);
   }
+};
+
+const handleChange = async (page) => {
+  pagination.current = page.current;
+  pagination.pageSize = page.pageSize;
+  loadData()
 };
 
 // 获取设备位置树数据
