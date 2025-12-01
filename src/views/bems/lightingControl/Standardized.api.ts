@@ -9,34 +9,59 @@ enum Api {
   setAreaCloseApi = '/bems/lighting/area/close',
   setCircuitOpenApi = '/bems/lighting/circuit/open',
   setCircuitCloseApi = '/bems/lighting/circuit/close',
+  getLightingPlanAPi = '/bems/lighting/plan/listPage',
+  addLightingPlanAPi = '/bems/lighting/plan/add',
+  editLightingPlanAPi = '/bems/lighting/plan/edit',
+  deleteLightingPlanAPi = '/bems/lighting/plan/delete',
 }
 
 /**
- * 获取告警等级数据
+ * 获取区域数据
  */
 export const getAreaListPageApi = (params) => defHttp.get({ url: Api.getAreaListPageApi, params });
 
 /**
- * 获取告警等级分页数据
+ * 获取回路分页数据
  */
 export const getCircuitListPageApi = (params) => defHttp.get({ url: Api.getCircuitListPageApi, params }, { joinParamsToUrl: true });
 
 /**
- * 获取告警等级分页数据
+ * 开启区域
  */
 export const setAreaOpenApi = (params) => defHttp.post({ url: Api.setAreaOpenApi, params }, { joinParamsToUrl: true });
 
 /**
- * 获取告警等级分页数据
+ * 关闭区域
  */
 export const setAreaCloseApi = (params) => defHttp.post({ url: Api.setAreaCloseApi, params }, { joinParamsToUrl: true });
 
 /**
- * 获取告警等级分页数据
+ * 开启回路
  */
 export const setCircuitOpenApi = (params) => defHttp.post({ url: Api.setCircuitOpenApi, params }, { joinParamsToUrl: true });
 
 /**
- * 获取告警等级分页数据
+ * 关闭回路
  */
 export const setCircuitCloseApi = (params) => defHttp.post({ url: Api.setCircuitCloseApi, params }, { joinParamsToUrl: true });
+
+/**
+ * 获取回路分页数据
+ */
+export const getLightingPlanAPi = (params) => defHttp.get({ url: Api.getLightingPlanAPi, params }, { joinParamsToUrl: true });
+
+/**
+ * 新增定时计划
+ */
+export const addLightingPlanAPi = (params) => defHttp.post({ url: Api.addLightingPlanAPi, params });
+
+/**
+ * 编辑定时计划
+ */
+export const editLightingPlanAPi = (params) => defHttp.post({ url: Api.editLightingPlanAPi, params });
+
+
+/**
+ * 编辑定时计划
+ */
+export const deleteLightingPlanAPi = (params) => defHttp.delete({ url: Api.deleteLightingPlanAPi, params }, { joinParamsToUrl: true });

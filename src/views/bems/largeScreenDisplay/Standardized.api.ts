@@ -13,6 +13,9 @@ enum Api {
 
   spaceTree = '/bems/space/getTree',
   categoryTree = '/bems/equipmentCategory/getTree',
+
+  getSituationStatisticApi = '/bems/wd/getSituationStatistic',
+  getScreenFireControlRoomApi = '/bems/wd/getScreenFireControlRoom',
 }
 
 /**
@@ -65,3 +68,15 @@ export const spaceTree = () => defHttp.get({ url: Api.spaceTree });
  * @param params
  */
 export const categoryTree = (params) => defHttp.get({ url: Api.categoryTree, params });
+
+/**
+ * 查询火警处理及时率、异常处理及时率、异常处置情况
+ * @param params
+ */
+export const getSituationStatisticApi = () => defHttp.get({ url: Api.getSituationStatisticApi });
+
+/**
+ * 查询项目中得消控室值守人员和维保人员的统计数据和人员得取证情况
+ * @param params
+ */
+export const getScreenFireControlRoomApi = () => defHttp.get({ url: Api.getScreenFireControlRoomApi });

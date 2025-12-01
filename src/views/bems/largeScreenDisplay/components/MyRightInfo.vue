@@ -265,7 +265,7 @@ const initEventWorkOrderChart = () => {
 
   // 应用配置项
   eventWorkOrderInstance.setOption(option);
-  window.addEventListener('resize', eventWorkOrderInstance.resize);
+  window.addEventListener('resize', handleResize);
 };
 
 // 响应窗口大小变化

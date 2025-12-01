@@ -21,11 +21,13 @@
         <a-button
           type="primary"
           @click="handleOpen"
+          v-if="hasPermission('bems:areafullyopen')"
         >
           全开
         </a-button>
         &emsp;
-        <a-button @click="handleClose">
+        <a-button @click="handleClose" v-if="hasPermission('bems:areafullyclose')">
+          
           全关
         </a-button>
       </div>
@@ -45,11 +47,12 @@
           </template>
           <template #active="{ text, record, index }">
             <a-space>
-              <a @click.stop="handleCircuitOpen(record)">开启</a>
+              <a @click.stop="handleCircuitOpen(record)" v-if="hasPermission('bems:circuitopen')">开启</a>
               &emsp;
               <a
                 style="color: red;"
                 @click.stop="handleCircuitClose(record)"
+                v-if="hasPermission('bems:circuitclose')"
               >关闭</a>
             </a-space>
           </template>
@@ -63,6 +66,8 @@
 import { ref, reactive, onUnmounted, onMounted } from 'vue';
 import { message } from 'ant-design-vue';
 import { getCircuitListPageApi, setAreaOpenApi, setAreaCloseApi, setCircuitOpenApi, setCircuitCloseApi } from '../Standardized.api';
+import { usePermission } from '/@/hooks/web/usePermission';
+const { hasPermission } = usePermission();
 
 const open = ref<boolean>(false);
 

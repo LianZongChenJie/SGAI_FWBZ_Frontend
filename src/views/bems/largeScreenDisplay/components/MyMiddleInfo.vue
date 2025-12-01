@@ -10,13 +10,13 @@
       </div>
       <div class="status-info-box">
         <div class="status-item">
-          <MyHandlingStatus />
+          <MyHandlingStatus :value="rateNum.fireRate"/>
         </div>
         <div class="status-item">
-          <MyHandlingStatus :title="'异常处理及时率'" />
+          <MyHandlingStatus :title="'异常处理及时率'" :value="rateNum.exceptionRate"/>
         </div>
         <div class="status-item">
-          <MyHandlingStatus :title="'火灾处理及时率'" />
+          <MyHandlingStatus :title="'故障处理及时率'" :value="rateNum.exceptionRate"/>
         </div>
       </div>
     </div>
@@ -27,24 +27,24 @@
       <div class="people-info">
         <div class="fire-room-duty">
           <div>
-            消防室值守&ensp;<span>{{ '1000' }}</span>&ensp;人
+            消防室值守&ensp;<span>{{ peopleNum.onDuty }}</span>&ensp;人
           </div>
           <div>
-            <img src="@/assets/images/certifiedIcon.png">&ensp;持证人数&ensp;<span>{{ '900' }}</span>&ensp;人
+            <img src="@/assets/images/certifiedIcon.png">&ensp;持证人数&ensp;<span>{{ peopleNum.onDutyCertificate }}</span>&ensp;人
           </div>
           <div>
-            <img src="@/assets/images/notCertifiedIcon.png">&ensp;未持证人数&ensp;<span style="color: red;">{{ '100' }}</span>&ensp;人
+            <img src="@/assets/images/notCertifiedIcon.png">&ensp;未持证人数&ensp;<span style="color: red;">{{ peopleNum.onDutyNoCertificate }}</span>&ensp;人
           </div>
         </div>
         <div class="maintenance-personnel">
           <div>
-            维保人员&ensp;<span>{{ '1000' }}</span>&ensp;人
+            维保人员&ensp;<span>{{ peopleNum.maintenance }}</span>&ensp;人
           </div>
           <div>
-            <img src="@/assets/images/certifiedIcon.png">&ensp;持证人数&ensp;<span>{{ '900' }}</span>&ensp;人
+            <img src="@/assets/images/certifiedIcon.png">&ensp;持证人数&ensp;<span>{{ peopleNum.maintenanceCertificate }}</span>&ensp;人
           </div>
           <div>
-            <img src="@/assets/images/notCertifiedIcon.png">&ensp;未持证人数&ensp;<span style="color: red;">{{ '100' }}</span>&ensp;人
+            <img src="@/assets/images/notCertifiedIcon.png">&ensp;未持证人数&ensp;<span style="color: red;">{{ peopleNum.maintenanceNoCertificate }}</span>&ensp;人
           </div>
         </div>
       </div>
@@ -55,6 +55,47 @@
 <script setup lang="ts">
 import MyTitle from './MyTitle.vue';
 import MyHandlingStatus from './MyHandlingStatus.vue';
+import { ref, onMounted } from 'vue'
+import { 
+  getSituationStatisticApi,
+  getScreenFireControlRoomApi,
+} from '../Standardized.api'
+
+const rateNum = ref({
+  fireRate: '0',
+  faultRate: '0',
+  exceptionRate: '0',
+})
+
+const peopleNum = ref({
+  onDutyNoCertificate: '0',
+  maintenanceNoCertificate: '0',
+  maintenanceCertificate: '0',
+  onDutyCertificate: '0',
+  onDuty: '0',
+  maintenance: '0',
+})
+
+onMounted(async () => {
+ await getSituationStatistic()
+ await getScreenFireControlRoom()
+})
+
+
+const getSituationStatistic = async () => {
+ let res:any = await getSituationStatisticApi()
+  for(let key in res) {
+  rateNum.value[key] = res[key] * 100 + '%'
+ }
+}
+
+
+const getScreenFireControlRoom = async () => {
+ let res:any = await getScreenFireControlRoomApi()
+ for(let key in res) {
+  peopleNum.value[key] = res[key]
+ }
+}
 </script>
 
 <style lang="less" scoped>

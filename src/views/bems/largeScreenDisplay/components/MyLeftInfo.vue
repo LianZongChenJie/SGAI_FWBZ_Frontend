@@ -363,6 +363,7 @@ const initElectricityChart = () => {
 
   // 应用配置项
   electricityInstance.setOption(option);
+  window.addEventListener("resize", handleResize);
 };
 
 // 初始化图表
@@ -490,6 +491,7 @@ const initWaterChart = () => {
 
   // 应用配置项
   waterInstance.setOption(option);
+  window.addEventListener("resize", handleResize);
 };
 
 // 响应窗口大小变化
@@ -499,6 +501,9 @@ const handleResize = () => {
   }
   if (waterInstance) {
     waterInstance.resize();
+  }
+  if (rankingInstance) {
+    rankingInstance.resize();
   }
 };
 
@@ -571,7 +576,7 @@ const initRankingChart = () => {
   };
 
   rankingInstance.setOption(option);
-  window.addEventListener("resize", rankingInstance.resize);
+  window.addEventListener("resize", handleResize);
 };
 
 onMounted(() => {
