@@ -189,6 +189,7 @@
                     <a-select
                       v-model:value="item.pointId"
                       :options="item.devicePointData"
+                      @change="handleChangeDevicePoint"
                     >
                     </a-select>
                   </a-form-item>
@@ -259,6 +260,7 @@
         <device-table-modal
           ref="deviceRef"
           :setDeviceName="setDeviceName"
+          :isInstant="isInstant"
         />
         <notice-user-table-modal
           ref="noticeUserRef"
@@ -302,6 +304,8 @@ const props = defineProps({
 });
 
 const open = ref<boolean>(false);
+
+const isInstant = ref(false)
 
 const formRef = ref();
 const noticeUserRef = ref();
@@ -375,8 +379,9 @@ const formState = reactive<any>({
   frequencyUnit: null,
   pointType: null,
   noticeUserName: '',
-  noticeUser: [],
+  // noticeUser: [],
   points: [],
+  pointName: ''
 });
 
 const deviceType = ref<number>();
@@ -419,14 +424,23 @@ const selectLevel = (id) => {
 
 const changePointType = (value) => {
   if(value === 'instant') {
-
+    isInstant.value = true
+  } else {
+    isInstant.value = false
   }
+  formState.points = []
 }
 
 // 选择通知对象
 const selectNoticeUser = () => {
   noticeUserRef.value.showModal();
 };
+
+const handleChangeDevicePoint = (va1,val2) => {
+  console.log('handleChangeDevicePoint---------------->', va1,val2);
+  formState.pointName = val2.label
+  
+}
 
 // 添加联动设备
 const addRearPoint = () => {

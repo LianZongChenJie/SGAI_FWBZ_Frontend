@@ -47,7 +47,7 @@
         </a-form>
       </div>
       <div class="table-box">
-        <a-table class="custom-hover-table" :dataSource="dataSource" :columns="columns" :pagination="pagination"
+        <a-table class="custom-hover-table" @change="handleChange" :dataSource="dataSource" :columns="columns" :pagination="pagination"
           size="middle" bordered :customRow="rowClick">
           <template #index="{ text, record, index }">
             {{ index + 1 }}
@@ -66,12 +66,16 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue';
-import { selectDevice, spaceTree, categoryTree } from '../Standardized.api'
+import { selectDevice, spaceTree, categoryTree, selectMeasuringDevice } from '../Standardized.api'
 
 const props = defineProps({
   setDeviceName: {
     type: Function,
     default: () => {}
+  },
+  isInstant: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -118,7 +122,7 @@ const columns = [
 let dataSource = ref([])
 
 const pagination = reactive({
-  pageNo: 1,
+  current: 1,
   pageSize: 10,
   total: 10,
 })
@@ -154,19 +158,32 @@ const closeModal = () => {
 const loadData = async () => {
   try {
     const params = {
-      pageNo: pagination.pageNo,
-      pageSize: 9999999,
+      pageNo: pagination.current,
+      pageSize: pagination.pageSize,
       deviceName: formState.deviceName ? formState.deviceName : undefined,
       spaceIds: formState.spaceId ? formState.spaceId : undefined,
       categoryIds: formState.categoryId ? formState.categoryId : undefined,
     };
     console.log('request params:', params); // 调试日志
-    const res = await selectDevice(params);
+    let res:any
+    if(props.isInstant) {
+      res = await selectDevice(params);
+    } else {
+      res = await selectMeasuringDevice(params);
+      
+    }
+    
     dataSource.value = res.records;
     pagination.total = res.total;
   } catch (error) {
     console.error('加载数据失败:', error);
   }
+};
+
+const handleChange = async (page) => {
+  pagination.current = page.current;
+  pagination.pageSize = page.pageSize;
+  loadData()
 };
 
 // 获取设备位置树数据

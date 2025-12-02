@@ -34,6 +34,7 @@ enum Api {
   eliminateAlarmRecordsApi = '/bems/alarm/record/elimination',
 
   selectDevice = '/bems/device/list',
+  selectMeasuringDevice = '/bems/device/measuring/list',
   spaceTree = '/bems/space/getTree',
   categoryTree = '/bems/equipmentCategory/getTree',
 }
@@ -183,6 +184,11 @@ export const eliminateAlarmRecordsApi = (params) => defHttp.post({ url: Api.elim
  * 查询设备
  */
 export const selectDevice = (params) => defHttp.get({ url: Api.selectDevice, params });
+
+/**
+ * 查询设备
+ */
+export const selectMeasuringDevice = (params) => defHttp.get({ url: Api.selectMeasuringDevice, params });
 
 /**
  * 获取空间树
