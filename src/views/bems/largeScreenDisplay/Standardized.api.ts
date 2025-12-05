@@ -16,6 +16,12 @@ enum Api {
 
   getSituationStatisticApi = '/bems/wd/getSituationStatistic',
   getScreenFireControlRoomApi = '/bems/wd/getScreenFireControlRoom',
+
+  getPointDataForToDayApi = '/bems/dataQueue/getPointDataForToDay',
+  getPointDataForThisMonthApi = '/bems/dataQueue/getPointDataForThisMonth',
+  getPointDataForThisYearApi = '/bems/dataQueue/getPointDataForThisYear',
+  getPointDataMonthlyComparisonTrendApi = '/bems/dataQueue/getPointDataMonthlyComparisonTrend',
+  getPointDataMonthlyRankingApi = '/bems/dataQueue/getPointDataMonthlyRanking',
 }
 
 /**
@@ -80,3 +86,33 @@ export const getSituationStatisticApi = () => defHttp.get({ url: Api.getSituatio
  * @param params
  */
 export const getScreenFireControlRoomApi = () => defHttp.get({ url: Api.getScreenFireControlRoomApi });
+
+/**
+ * 获取当日点位水电数据
+ * @param params
+ */
+export const getPointDataForToDayApi = (params) => defHttp.get({ url: Api.getPointDataForToDayApi, params }, { joinParamsToUrl: true });
+
+/**
+ * 获取当月点位水电数据
+ * @param params
+ */
+export const getPointDataForThisMonthApi = (params) => defHttp.get({ url: Api.getPointDataForThisMonthApi, params }, { joinParamsToUrl: true });
+
+/**
+ * 获取当年点位水电数据
+ * @param params
+ */
+export const getPointDataForThisYearApi = (params) => defHttp.get({ url: Api.getPointDataForThisYearApi, params }, { joinParamsToUrl: true });
+
+/**
+ * 获取当月、上月、去年本月的对比趋势
+ * @param params
+ */
+export const getPointDataMonthlyComparisonTrendApi = (params) => defHttp.get({ url: Api.getPointDataMonthlyComparisonTrendApi, params }, { joinParamsToUrl: true });
+
+/**
+ * 获取月排行数据
+ * @param params
+ */
+export const getPointDataMonthlyRankingApi = (params) => defHttp.get({ url: Api.getPointDataMonthlyRankingApi, params }, { joinParamsToUrl: true });

@@ -17,6 +17,13 @@
       >
         <TimingControl />
       </a-tab-pane>
+      <a-tab-pane
+        tab="控制记录"
+        key="3"
+        forceRender
+      >
+        <ControlRecord />
+      </a-tab-pane>
     </a-tabs>
   </div>
 </template>
@@ -25,6 +32,7 @@
 import { ref, computed, reactive, onMounted } from 'vue';
 import ImmediatelyControl from './components/ImmediatelyControl.vue';
 import TimingControl from './components/TimingControl.vue';
+import ControlRecord from './components/ControlRecord.vue';
 
 
 

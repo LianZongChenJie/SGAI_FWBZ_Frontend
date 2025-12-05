@@ -13,6 +13,7 @@ enum Api {
   addLightingPlanAPi = '/bems/lighting/plan/add',
   editLightingPlanAPi = '/bems/lighting/plan/edit',
   deleteLightingPlanAPi = '/bems/lighting/plan/delete',
+  controlRecordListApi = '/bems/lighting/operationLog/listPage',
 }
 
 /**
@@ -65,3 +66,8 @@ export const editLightingPlanAPi = (params) => defHttp.post({ url: Api.editLight
  * 编辑定时计划
  */
 export const deleteLightingPlanAPi = (params) => defHttp.delete({ url: Api.deleteLightingPlanAPi, params }, { joinParamsToUrl: true });
+
+/**
+ * 控制记录列表
+ */
+export const controlRecordListApi = (params) => defHttp.get({ url: Api.controlRecordListApi, params }, { joinParamsToUrl: true });

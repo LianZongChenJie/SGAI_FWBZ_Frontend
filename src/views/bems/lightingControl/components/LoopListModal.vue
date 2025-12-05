@@ -18,18 +18,32 @@
           刷新
         </a-button>
         &emsp;
-        <a-button
-          type="primary"
-          @click="handleOpen"
-          v-if="hasPermission('bems:areafullyopen')"
+
+        <a-popconfirm
+          :title="'确认全开'+ title +'？'"
+          ok-text="确定"
+          cancel-text="取消"
+          @confirm="handleOpen()"
         >
-          全开
-        </a-button>
+          <a-button
+            type="primary"
+            v-if="hasPermission('bems:areafullyopen')"
+          >
+            全开
+          </a-button>
+        </a-popconfirm>
         &emsp;
-        <a-button @click="handleClose" v-if="hasPermission('bems:areafullyclose')">
-          
-          全关
-        </a-button>
+
+        <a-popconfirm
+          :title="'确认全关'+ title +'？'"
+          ok-text="确定"
+          cancel-text="取消"
+          @confirm="handleClose()"
+        >
+          <a-button v-if="hasPermission('bems:areafullyclose')">
+            全关
+          </a-button>
+        </a-popconfirm>
       </div>
       <div class="table-box">
         <a-table
@@ -47,13 +61,27 @@
           </template>
           <template #active="{ text, record, index }">
             <a-space>
-              <a @click.stop="handleCircuitOpen(record)" v-if="hasPermission('bems:circuitopen')">开启</a>
+              <a-popconfirm
+                :title="'确认开启'+ record.circuitName +'？'"
+                ok-text="确定"
+                cancel-text="取消"
+                @confirm="handleCircuitOpen(record)"
+              >
+                <a v-if="hasPermission('bems:circuitopen')">开启</a>
+              </a-popconfirm>
               &emsp;
-              <a
-                style="color: red;"
-                @click.stop="handleCircuitClose(record)"
-                v-if="hasPermission('bems:circuitclose')"
-              >关闭</a>
+              <a-popconfirm
+                :title="'确认关闭'+ record.circuitName +'？'"
+                ok-text="确定"
+                cancel-text="取消"
+                @confirm="handleCircuitClose(record)"
+              >
+                <a
+                  style="color: red;"
+                  v-if="hasPermission('bems:circuitclose')"
+                >关闭</a>
+              </a-popconfirm>
+
             </a-space>
           </template>
         </a-table>

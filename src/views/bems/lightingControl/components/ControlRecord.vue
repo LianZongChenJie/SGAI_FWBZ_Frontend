@@ -1,46 +1,7 @@
 <template>
   <div class="">
     <BasicTable @register="registerTable">
-      <template #toolbar>
-        <a-button
-          type="primary"
-          @click="reload()"
-        >刷新</a-button>
-      </template>
-      <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'active'">
-          <a-space>
-            <a @click.stop="showLoopList(record)">回路列表</a>
-            &emsp;
-            <a-popconfirm
-              :title="'确认全开'+ record.areaName +'？'"
-              ok-text="确定"
-              cancel-text="取消"
-              @confirm="handleOpen(record)"
-            >
-              <a v-if="hasPermission('bems:areafullyopen')">全开</a>
-            </a-popconfirm>
-            &emsp;
-
-            <a-popconfirm
-              :title="'确认全关'+ record.areaName +'？'"
-              ok-text="确定"
-              cancel-text="取消"
-              @confirm="handleClose(record)"
-            >
-              <a
-                v-if="hasPermission('bems:areafullyclose')"
-                style="color:  red;"
-              >全关</a>
-            </a-popconfirm>
-          </a-space>
-        </template>
-      </template>
     </BasicTable>
-    <LoopListModal
-      ref="loopListModalRef"
-      :reload="reload"
-    />
   </div>
 </template>
 
@@ -49,14 +10,8 @@ import { ref, computed, reactive, onMounted } from 'vue';
 import { BasicColumn, BasicTable, FormSchema } from '/@/components/Table';
 import { useListPage } from '/@/hooks/system/useListPage';
 import { usePermissionStore } from '/@/store/modules/permission';
-import { getAreaListPageApi, setAreaOpenApi, setAreaCloseApi } from '../Standardized.api';
+import { controlRecordListApi } from '../Standardized.api';
 import { message } from 'ant-design-vue';
-import LoopListModal from './LoopListModal.vue';
-import { usePermission } from '/@/hooks/web/usePermission';
-const { hasPermission } = usePermission();
-
-// 详情弹框
-const loopListModalRef = ref();
 
 // 表格列配置
 const columns: BasicColumn[] = [
@@ -68,31 +23,70 @@ const columns: BasicColumn[] = [
     customRender: ({ index }) => index + 1, // 显示序号，从 1 开始
   },
   {
-    title: '区域名称',
-    dataIndex: 'areaName',
-    key: 'areaName',
+    title: '名称',
+    dataIndex: 'name',
+    key: 'name',
+    width: '300px',
   },
   {
-    title: '状态',
-    dataIndex: 'status',
-    key: 'status',
+    title: '分类',
+    dataIndex: 'relType',
+    key: 'relType',
   },
   {
-    title: '操作',
-    dataIndex: 'active',
-    key: 'active',
-    width: '260px',
+    title: '操作类型',
+    dataIndex: 'operationType',
+    key: 'operationType',
+  },
+  {
+    title: '操作时间',
+    dataIndex: 'operationTime',
+    key: 'operationTime',
+  },
+  {
+    title: '操作人',
+    dataIndex: 'operationBy',
+    key: 'operationBy',
   },
 ];
 
+//表单搜索字段
+const searchFormSchema: FormSchema[] = [
+  {
+    label: '分类', //显示label
+    field: 'relType', //查询字段
+    component: 'JInput', //渲染的组件
+  },
+  {
+    label: '报警日期', //显示label
+    field: 'time', //查询字段
+    component: 'RangePicker', //渲染的组件
+    // slot: 'name', //设置默认值
+    componentProps: {
+      placeholder: ['开始时间', '结束时间'],
+      showTime: true,
+      format: 'YYYY-MM-DD HH:mm:ss',
+      valueFormat: 'YYYY-MM-DD HH:mm:ss',
+      // defaultValue: [formatDate(getFirstDayOfMonth()), formatDate(getToday())],
+    },
+  },
+];
+
+
 // 获取表格数据
-const getAreaListPage = async (pageParams) => {
+const controlRecordList = async (pageParams) => {
   const { pageNo, pageSize } = pageParams;
+  let { getFieldsValue } = getForm();
+  const searchData = getFieldsValue();
   let params = {
     pageNo: pageNo,
     pageSize: pageSize,
+    relType: searchData.relType ? searchData.relType.split('*')[1] : undefined,
+    startTime: searchData.time ? searchData.time.split(',')[0] : undefined,
+    endTime: searchData.time ? searchData.time.split(',')[1] : undefined,
   };
-  let res = await getAreaListPageApi(params);
+
+  let res = await controlRecordListApi(params);
   return {
     records: res.records, // 当前页数据
     total: res.total, // 总记录数
@@ -103,7 +97,7 @@ const { tableContext } = useListPage({
   designScope: 'basic-table-demo',
   tableProps: {
     // dataSource: dataSource.value,
-    api: getAreaListPage,
+    api: controlRecordList,
     columns: columns,
     showActionColumn: false,
     size: 'middle',
@@ -114,6 +108,7 @@ const { tableContext } = useListPage({
       showSizeChanger: true,
     },
     formConfig: {
+      schemas: searchFormSchema,
       // 默认展开
       showAdvancedButton: false,
       submitOnReset: true,
@@ -142,7 +137,7 @@ const [registerTable, { reload, getForm }] = tableContext;
  */
 const store = usePermissionStore();
 const permissionList = computed(() => store.$state.permCodeList || []);
-const hasPermissions = (permission: string) => {
+const hasPermission = (permission: string) => {
   if (!permission) return true;
 
   const currentPermissions = permissionList.value;
@@ -154,25 +149,23 @@ const hasPermissions = (permission: string) => {
   return currentPermissions.includes(permission);
 };
 
-const handleOpen = async (record) => {
-  await setAreaOpenApi({
-    id: record.id,
-  });
-  reload();
-  message.success('全开成功！');
-};
-
-const handleClose = async (record) => {
-  await setAreaCloseApi({
-    id: record.id,
-  });
-  reload();
-  message.success('全关成功！');
-};
-
-// 工单详情
-const showLoopList = (record) => {
-  loopListModalRef.value.showModal(record);
+const getStatus = (statusId) => {
+  let status = '';
+  switch (statusId) {
+    case '1':
+      status = '未处理';
+      break;
+    case '2':
+      status = '误报';
+      break;
+    case '3':
+      status = '已转工单';
+      break;
+    case '4':
+      status = '已处理';
+      break;
+  }
+  return status;
 };
 
 onMounted(async () => {
@@ -185,14 +178,5 @@ onMounted(async () => {
   display: flex;
   justify-content: flex-start;
   align-content: center;
-}
-
-.reload-button {
-  width: 100%;
-  height: 40%;
-  display: flex;
-  align-items: center;
-  justify-items: flex-end;
-  border: 1px solid red;
 }
 </style>

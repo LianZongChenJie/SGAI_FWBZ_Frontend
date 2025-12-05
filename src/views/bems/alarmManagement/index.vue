@@ -10,6 +10,9 @@
       <a-tab-pane key="3" tab="报警条件">
         <alarm-rules />
       </a-tab-pane>
+      <a-tab-pane key="4" tab="报警记录">
+        <AlarmRecord />
+      </a-tab-pane>
     </a-tabs>
   </div>
 </template>
@@ -19,6 +22,7 @@ import { ref } from 'vue';
 import AlarmLeve from './components/AlarmLevel.vue'
 import AlarmCategory from './components/AlarmCategory.vue'
 import AlarmRules from './components/AlarmRules.vue'
+import AlarmRecord from '../alarmRecord/index.vue'
 
 const activeKey = ref('1');
 </script>

@@ -24,7 +24,7 @@
               年累计
             </div>
             <div class="cumulative-value">
-              {{ yearValue }}
+              {{ yearElectricityValue }}
             </div>
           </div>
           <div>
@@ -32,7 +32,7 @@
               月累计
             </div>
             <div class="cumulative-value">
-              {{ yearValue }}
+              {{ monthElectricityValue }}
             </div>
           </div>
           <div>
@@ -40,7 +40,7 @@
               当日累计
             </div>
             <div class="cumulative-value">
-              {{ yearValue }}
+              {{ electricityValue }}
             </div>
           </div>
         </div>
@@ -59,7 +59,7 @@
               年累计
             </div>
             <div class="cumulative-value">
-              {{ yearValue }}
+              {{ yearWaterValue }}
             </div>
           </div>
           <div>
@@ -67,7 +67,7 @@
               月累计
             </div>
             <div class="cumulative-value">
-              {{ yearValue }}
+              {{ monthWaterValue }}
             </div>
           </div>
           <div>
@@ -75,7 +75,7 @@
               当日累计
             </div>
             <div class="cumulative-value">
-              {{ yearValue }}
+              {{ waterValue }}
             </div>
           </div>
         </div>
@@ -113,12 +113,18 @@
 import MyTitle from './MyTitle.vue';
 import * as echarts from 'echarts';
 import { ref, computed, onUnmounted, onMounted } from 'vue';
+import { getPointDataForToDayApi, getPointDataForThisMonthApi, getPointDataForThisYearApi, getPointDataMonthlyComparisonTrendApi, getPointDataMonthlyRankingApi } from '../Standardized.api'
+import { resetOptions } from 'showdown';
 
 const electricityValue = ref('1600');
 
 const waterValue = ref('43');
 
-const yearValue = ref('854600');
+const yearElectricityValue = ref('854600');
+const monthElectricityValue = ref('854600');
+
+const yearWaterValue = ref('854600');
+const monthWaterValue = ref('854600');
 
 // 用电量ref
 const electricityChartRef = ref();
@@ -129,11 +135,16 @@ let electricityInstance: any = null;
 let waterInstance: any = null;
 let rankingInstance: any = null;
 
-// 用电量数据
-const currentMonthData = ref<any>([]);
-const lastMonthData = ref<any>([]);
-const lastYearData = ref<any>([]);
-const currentDays = ref<any>(0);
+// 用电量趋势数据
+const eleCurrentMonthData = ref<any>([]);
+const eleLastMonthData = ref<any>([]);
+const eleLastYearData = ref<any>([]);
+const currentDays = ref<any>([]);
+
+// 用水量趋势数据
+const waterCurrentMonthData = ref<any>([]);
+const waterLastMonthData = ref<any>([]);
+const waterLastYearData = ref<any>([]);
 
 // 选择的目标
 const selectTarget = ref(1)
@@ -146,39 +157,26 @@ const data = ref([
   { name: "机组调节", value: 50 },
 ]);
 
-// 模拟数据生成
-const generateData = (base, variance, days) => {
-  return Array.from({ length: days }, (_, i) => {
-    // 根据日期调整数据，模拟日常用电模式
-    const dayOfWeek = new Date(new Date().getFullYear(), new Date().getMonth() + 1 - 1, i + 1).getDay();
-    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-    const dailyVariance = isWeekend ? variance * 1.5 : variance;
-
-    return Math.floor(base + (Math.random() * dailyVariance * 2 - dailyVariance));
-  });
-};
-
 // 更新数据
-const updateData = () => {
-  const year = new Date().getFullYear();
-  const month = new Date().getMonth() + 1 - 1;
+const updateData = async () => {
+
+  let resElectricity= await getPointDataMonthlyComparisonTrendApi({ configPath:'jinanqiao:electricity' })
+  let resWater = await getPointDataMonthlyComparisonTrendApi({ configPath:'jinanqiao:water' })
 
   // 获取当前月份的天数
-  currentDays.value = new Date(year, month, 0).getDate();
+  currentDays.value = resElectricity.xaxis
 
   // 生成模拟数据
-  currentMonthData.value = generateData(40, 15, currentDays.value);
+  eleCurrentMonthData.value = resElectricity.chatSeriesList[0].data;
+  waterCurrentMonthData.value = resWater.chatSeriesList[0].data;
 
   // 上月数据
-  const lastMonth = month === 1 ? 12 : month - 1;
-  const lastMonthYear = month === 1 ? year - 1 : year;
-  const lastMonthDays = new Date(lastMonthYear, lastMonth, 0).getDate();
-  lastMonthData.value = generateData(month === 1 ? 45 : 38, 12, lastMonthDays);
+  eleLastMonthData.value = resElectricity.chatSeriesList[1].data
+  waterLastMonthData.value = resWater.chatSeriesList[1].data
 
   // 去年同月数据
-  const lastYear = year - 1;
-  const lastYearDays = new Date(lastYear, month, 0).getDate();
-  lastYearData.value = generateData(35, 10, lastYearDays);
+  eleLastYearData.value = resElectricity.chatSeriesList[2].data
+  waterLastYearData.value = resWater.chatSeriesList[2].data
 };
 
 // 初始化图表
@@ -223,7 +221,7 @@ const initElectricityChart = () => {
     xAxis: {
       type: 'category',
       boundaryGap: false,
-      data: Array.from({ length: currentDays.value }, (_, i) => `${i + 1}日`),
+      data: currentDays.value,
       axisLine: {
         lineStyle: {
           color: '#ddd',
@@ -259,7 +257,7 @@ const initElectricityChart = () => {
       {
         name: '当月',
         type: 'line',
-        data: currentMonthData.value,
+        data: eleCurrentMonthData.value,
         smooth: true,
         symbol: 'circle',
         symbolSize: 6,
@@ -293,7 +291,7 @@ const initElectricityChart = () => {
       {
         name: '上月',
         type: 'line',
-        data: lastMonthData.value,
+        data: eleLastMonthData.value,
         smooth: true,
         symbol: 'circle',
         symbolSize: 6,
@@ -327,7 +325,7 @@ const initElectricityChart = () => {
       {
         name: '去年本月',
         type: 'line',
-        data: lastYearData.value,
+        data: eleLastYearData.value,
         smooth: true,
         symbol: 'circle',
         symbolSize: 6,
@@ -408,7 +406,7 @@ const initWaterChart = () => {
     xAxis: {
       type: 'category',
       boundaryGap: false,
-      data: Array.from({ length: currentDays.value }, (_, i) => `${i + 1}日`),
+      data: currentDays.value,
       axisLine: {
         lineStyle: {
           color: '#ddd',
@@ -444,7 +442,7 @@ const initWaterChart = () => {
       {
         name: '当月',
         type: 'line',
-        data: currentMonthData.value,
+        data: waterCurrentMonthData.value,
         smooth: true,
         symbol: 'circle',
         symbolSize: 6,
@@ -459,7 +457,7 @@ const initWaterChart = () => {
       {
         name: '上月',
         type: 'line',
-        data: lastMonthData.value,
+        data: waterLastMonthData.value,
         smooth: true,
         symbol: 'circle',
         symbolSize: 6,
@@ -474,7 +472,7 @@ const initWaterChart = () => {
       {
         name: '去年本月',
         type: 'line',
-        data: lastYearData.value,
+        data: waterLastYearData.value,
         smooth: true,
         symbol: 'circle',
         symbolSize: 6,
@@ -510,6 +508,12 @@ const handleResize = () => {
 // 切换排名目标
 const handleSelect = (key) => {
   selectTarget.value = key
+}
+
+// 获取排名数据
+const getPointDataMonthlyRanking = async () => {
+  let res = await getPointDataMonthlyRankingApi({ configPath: 'jinanqiao:ranking'})
+  data.value = [...res]
 }
 
 const initRankingChart = () => {
@@ -579,8 +583,22 @@ const initRankingChart = () => {
   window.addEventListener("resize", handleResize);
 };
 
-onMounted(() => {
-  updateData();
+// 获取当日点位水电数据
+const getPointData = async () => {
+  electricityValue.value = await getPointDataForToDayApi({ configPath:'jinanqiao:water' })
+  waterValue.value = await getPointDataForToDayApi({ configPath:'jinanqiao:electricity' })
+
+  monthElectricityValue.value = await getPointDataForThisMonthApi({ configPath:'jinanqiao:water' })
+  monthWaterValue.value = await getPointDataForThisMonthApi({ configPath:'jinanqiao:electricity' })
+
+  yearElectricityValue.value = await getPointDataForThisYearApi({ configPath:'jinanqiao:water' })
+  yearWaterValue.value = await getPointDataForThisYearApi({ configPath:'jinanqiao:electricity' })
+}
+
+onMounted(async () => {
+  await getPointData()
+  await updateData();
+  await getPointDataMonthlyRanking()
   initElectricityChart();
   initWaterChart();
   initRankingChart()
