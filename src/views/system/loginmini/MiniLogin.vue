@@ -232,8 +232,8 @@ const type = ref<string>('login');
 //账号登录表单字段
 const formData = reactive<any>({
   inputCode: '',
-  username: 'admin',
-  password: '123456',
+  username: '',
+  password: '',
 });
 //手机登录表单字段
 const phoneFormData = reactive<any>({

@@ -78,6 +78,13 @@ const findTreeNodeTitle = (treeData: any[], key: string | number): string => {
 // 表格列配置
 const columns: BasicColumn[] = [
   {
+    title: '序号',
+    dataIndex: 'index',
+    key: 'index',
+    width: '80px',
+    customRender: ({ index }) => index + 1, // 显示序号，从 1 开始
+  },
+  {
     title: '设备名称',
     dataIndex: 'deviceName',
     key: 'deviceName',
@@ -110,11 +117,11 @@ const columns: BasicColumn[] = [
   //   dataIndex: 'magnification',
   //   key: 'magnification',
   // },
-  {
-    title: '排序',
-    dataIndex: 'sort',
-    key: 'sort',
-  },
+  // {
+  //   title: '排序',
+  //   dataIndex: 'sort',
+  //   key: 'sort',
+  // },
   {
     title: '操作',
     key: 'action',
