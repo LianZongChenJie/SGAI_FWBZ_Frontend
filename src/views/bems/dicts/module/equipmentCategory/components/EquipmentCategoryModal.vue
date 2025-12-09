@@ -62,14 +62,20 @@ const [registerModal, { setModalProps, closeModal }] = useModalInner(async (data
   setModalProps({ confirmLoading: false, minHeight: 80, showOkBtn: !!!data?.hideFooter });
   isUpdate.value = !!data?.isUpdate;
   isDetail.value = !!data?.showFooter;
-  await nextTick()
+  await nextTick();
   if (data?.record) {
     model = data.record;
     //表单赋值
-    await setFieldsValue({
-      ...data.record,
-      pid: data.record.id
-    });
+    if (isUpdate.value) {
+      await setFieldsValue({
+        ...data.record,
+        pid: data.record.pid === 0 ? '' : data.record.pid,
+      });
+    } else {
+      await setFieldsValue({
+        pid: data.record.id,
+      });
+    }
   } else {
     model = null;
   }

@@ -55,10 +55,16 @@
     if (data?.record) {
       model = data.record;
       //表单赋值
+      if (isUpdate.value) {
       await setFieldsValue({
         ...data.record,
-        pid: data.record.id
+        pid: data.record.pid === 0 ? '' : data.record.pid,
       });
+    } else {
+      await setFieldsValue({
+        pid: data.record.id,
+      });
+    }
     } else {
       model = null;
     }
