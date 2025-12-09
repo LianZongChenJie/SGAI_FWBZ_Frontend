@@ -6,7 +6,7 @@
         id="backgroundBox"
       >
         <div class="value-box">
-          {{ props.value }}
+          {{ props.value ? parseFloat(props.value).toFixed(2) : '0.00' }}%
         </div>
         <div>
           今日
@@ -73,7 +73,7 @@ const props = defineProps({
       }
 
       .value-box {
-        font-size: 20px;
+        font-size: 18px;
         align-items: flex-end;
       }
     }

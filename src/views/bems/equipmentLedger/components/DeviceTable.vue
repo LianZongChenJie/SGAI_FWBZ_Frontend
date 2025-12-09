@@ -112,6 +112,17 @@ const columns: BasicColumn[] = [
       return findTreeNodeTitle(props.spaceTreeData, text) || text;
     },
   },
+  {
+    title: '状态',
+    dataIndex: 'runState',
+    key: 'runState',
+    width: '80px',
+  },
+  {
+    title: '最后通讯时间',
+    dataIndex: 'lastGatherTime',
+    key: 'lastGatherTime',
+  },
   // {
   //   title: '倍率',
   //   dataIndex: 'magnification',
@@ -140,6 +151,18 @@ const searchFormSchema: FormSchema[] = [
     field: 'deviceName', //查询字段
     component: 'JInput', //渲染的组件
     // slot: 'name', //设置默认值
+  },
+  {
+    label: '设备状态', //显示label
+    field: 'runState', //查询字段
+    component: 'Select',
+    componentProps: {
+      options: [
+        { label: '在线', value: '在线' },
+        { label: '离线', value: '离线' },
+        // 这里需要根据实际数据补充选项
+      ],
+    },
   },
 ];
 
@@ -197,6 +220,7 @@ const loadData = async (pageParams) => {
       pageNo: pageNo,
       pageSize: pageSize,
       nameOrCode: searchData.deviceName ? searchData.deviceName.split('*')[1] : undefined,
+      runState: searchData.runState ? searchData.runState : undefined,
       categoryIds: props.categoryKeys ? props.categoryKeys.join(',') : undefined,
       spaceIds: props.spaceKeys ? props.spaceKeys.join(',') : undefined,
     };

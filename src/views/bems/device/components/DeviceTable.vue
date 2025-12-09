@@ -55,6 +55,7 @@ const emit = defineEmits(['edit', 'delete', 'refresh', 'detail']);
 // 搜索参数
 const searchParams = ref({
   deviceName: '',
+  runState: '',
 });
 
 // 查找树节点的标题
@@ -101,6 +102,7 @@ const columns: BasicColumn[] = [
     title: '设备类型',
     dataIndex: 'categoryId',
     key: 'categoryId',
+    width: '120px',
     customRender: ({ text }) => {
       if (!text) return '';
       return findTreeNodeTitle(props.categoryTreeData, text) || text;
@@ -119,6 +121,18 @@ const columns: BasicColumn[] = [
     title: '倍率',
     dataIndex: 'magnification',
     key: 'magnification',
+    width: '80px',
+  },
+  {
+    title: '状态',
+    dataIndex: 'runState',
+    key: 'runState',
+    width: '80px',
+  },
+  {
+    title: '最后通讯时间',
+    dataIndex: 'lastGatherTime',
+    key: 'lastGatherTime',
   },
   // {
   //   title: '排序',
@@ -143,6 +157,18 @@ const searchFormSchema: FormSchema[] = [
     field: 'deviceName', //查询字段
     component: 'JInput', //渲染的组件
     // slot: 'name', //设置默认值
+  },
+  {
+    label: '设备状态', //显示label
+    field: 'runState', //查询字段
+    component: 'Select',
+    componentProps: {
+      options: [
+        { label: '在线', value: '在线' },
+        { label: '离线', value: '离线' },
+        // 这里需要根据实际数据补充选项
+      ],
+    },
   },
 ];
 
@@ -175,6 +201,7 @@ const loadData = async (pageParams) => {
       pageNo: pageNo,
       pageSize: pageSize,
       nameOrCode: searchData.deviceName ? searchData.deviceName.split('*')[1] : undefined,
+      runState: searchData.runState ? searchData.runState : undefined,
       categoryIds: props.categoryKeys ? props.categoryKeys.join(',') : undefined,
       spaceIds: props.spaceKeys ? props.spaceKeys.join(',') : undefined,
     };

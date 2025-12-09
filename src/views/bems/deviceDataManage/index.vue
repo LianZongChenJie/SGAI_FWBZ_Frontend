@@ -85,6 +85,7 @@ const columns: BasicColumn[] = [
     title: '序号',
     dataIndex: 'index',
     key: 'index',
+    width: '80px',
     customRender: ({ index }) => index + 1, // 显示序号，从 1 开始
   },
   {
@@ -130,11 +131,13 @@ const columns: BasicColumn[] = [
     title: '起始值',
     dataIndex: 'startValue',
     key: 'startValue',
+    width: '90px',
   },
   {
     title: '结束值',
     dataIndex: 'endValue',
     key: 'endValue',
+    width: '90px',
   },
   {
     title: '结束时间',
@@ -145,6 +148,7 @@ const columns: BasicColumn[] = [
     title: '计算值',
     dataIndex: 'value',
     key: 'value',
+    width: '90px',
   },
   {
     title: '运行状态',
