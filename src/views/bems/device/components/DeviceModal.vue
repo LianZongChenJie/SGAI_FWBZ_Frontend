@@ -14,7 +14,7 @@
     >
       <template #modelId="{ model, field }">
         <a-select
-          placeholder="请选择报警类别"
+          placeholder="请选择设备模型"
           v-model:value="model[field]"
           :options="categoryOption"
           :disabled="isUpdate"
@@ -34,7 +34,7 @@
         <BasicForm @register="registerForm">
           <template #modelId="{ model, field }">
             <a-select
-              placeholder="请选择报警类别"
+              placeholder="请选择设备模型"
               v-model:value="model[field]"
               :options="categoryOption"
               :disabled="isUpdate"
@@ -57,7 +57,10 @@
           :dataSource="dataSource"
           :columns="columns"
           bordered
+          :scroll="{ y: 150 }"
           size="middle"
+          :pagination="false"
+          @change="handleDeviceTableChange"
         >
           <template #bodyCell="{ column, text, record }">
             <template v-if="['sort', 'readwriteLevel', 'attributeCode', 'unit', 'attributeName'].includes(column.dataIndex)">
@@ -115,6 +118,15 @@ import { saveOrUpdate, getDeviceAttribute, getListByDeviceId, saveData, addData,
 import { cloneDeep } from 'lodash-es';
 import { message } from 'ant-design-vue';
 import type { UnwrapRef } from 'vue';
+
+const devicePagination = ref({
+  pageNo: 1,
+  pageSize: 10,
+  total: 10,
+  showSizeChanger: true,
+  pageSizeOptions: ['5', '10', '20', '50'],
+  showTotal: (total) => `共${total}条`,
+});
 
 const emit = defineEmits(['register', 'success']);
 const isUpdate = ref(true);
@@ -284,18 +296,6 @@ const [registerForm, { resetFields, setFieldsValue, validate, updateSchema }] = 
 });
 
 const [registerModal, { setModalProps, closeModal }] = useModalInner(async (data) => {
-  resetFields();
-  setModalProps({ confirmLoading: false });
-  isUpdate.value = !!data?.isUpdate;
-  await nextTick()
-  if (unref(isUpdate)) {
-    id.value = data.record.id;
-    getData(data.record.id);
-    await setFieldsValue({
-      ...data.record,
-      id: data.record.id, // 确保 id 被设置
-    });
-  }
 
   // 设置树形数据
   const { categoryTreeData, spaceTreeData } = data;
@@ -307,6 +307,21 @@ const [registerModal, { setModalProps, closeModal }] = useModalInner(async (data
       schema.componentProps.treeData = spaceTreeData;
     }
   });
+  resetFields();
+  setModalProps({ confirmLoading: false });
+  isUpdate.value = !!data?.isUpdate;
+  await selectCategoryId(data.record.categoryId);
+  await nextTick()
+  if (unref(isUpdate)) {
+    id.value = data.record.id;
+    getData(data.record.id);
+    await setFieldsValue({
+      ...data.record,
+      id: data.record.id, // 确保 id 被设置
+    });
+  }
+
+  
 });
 
 const title = computed(() => (!unref(isUpdate) ? '新增设备' : '编辑设备'));
@@ -326,7 +341,12 @@ async function handleSubmit() {
 }
 
 const getData = async (id) => {
-  let res = await getListByDeviceId({ deviceId: id });
+  let res = await getListByDeviceId({ 
+    deviceId: id,
+    pageNo: 1,
+    pageSize: 999,
+   });
+  devicePagination.value.total = res.total;
   dataSource.value = res.records;
   dataSource.value.forEach((item, index) => {
     item.key = index;
@@ -413,6 +433,11 @@ const visibleChange = (value) => {
   if (!value) {
     activeKey.value = '1';
   }
+};
+
+const handleDeviceTableChange = async (pagination) => {
+  devicePagination.value.pageNo = pagination.current;
+  await getData(id.value);
 };
 </script>
 

@@ -14,7 +14,7 @@
     >
       <template #modelId="{ model, field }">
         <a-select
-          placeholder="请选择报警类别"
+          placeholder="请选择设备模型"
           v-model:value="model[field]"
           :options="categoryOption"
           :disabled="isUpdate"
@@ -34,7 +34,7 @@
         <BasicForm @register="registerForm">
           <template #modelId="{ model, field }">
             <a-select
-              placeholder="请选择报警类别"
+              placeholder="请选择设备模型"
               v-model:value="model[field]"
               :options="categoryOption"
               :disabled="isUpdate"
@@ -219,7 +219,6 @@ import {
 import { cloneDeep } from 'lodash-es';
 import { message } from 'ant-design-vue';
 import type { UnwrapRef } from 'vue';
-import { log } from 'console';
 
 const devicePagination = ref({
   pageNo: 1,
@@ -227,7 +226,7 @@ const devicePagination = ref({
   total: 10,
   showSizeChanger: true,
   pageSizeOptions: ['5', '10', '20', '50'],
-  showTotal: total => `共${total}条`
+  showTotal: (total) => `共${total}条`,
 });
 
 const emit = defineEmits(['register', 'success']);
@@ -422,7 +421,7 @@ const [registerModal, { setModalProps, closeModal }] = useModalInner(async (data
   resetFields();
   setModalProps({ confirmLoading: false });
   isUpdate.value = !!data?.isUpdate;
-  await selectCategoryId(data.record.categoryId)
+  await selectCategoryId(data.record.categoryId);
   if (unref(isUpdate)) {
     id.value = data.record.id;
     getData(data.record.id);
@@ -436,32 +435,32 @@ const [registerModal, { setModalProps, closeModal }] = useModalInner(async (data
 const title = computed(() => (!unref(isUpdate) ? '新增设备' : '编辑设备'));
 
 async function handleSubmit() {
-  if(activeKey.value === '1') {
+  if (activeKey.value === '1') {
     try {
-    const values = await validate();
-    setModalProps({ confirmLoading: true });
-    await saveOrUpdate(values, unref(isUpdate));
-    closeModal();
-    emit('success');
-  } catch (error) {
-    console.error('保存失败:', error);
-  } finally {
-    setModalProps({ confirmLoading: false });
-  }
+      const values = await validate();
+      setModalProps({ confirmLoading: true });
+      await saveOrUpdate(values, unref(isUpdate));
+      closeModal();
+      emit('success');
+    } catch (error) {
+      console.error('保存失败:', error);
+    } finally {
+      setModalProps({ confirmLoading: false });
+    }
   } else {
     closeModal();
   }
 }
 
 const getData = async (id) => {
-  let res = await getListByDeviceId({ 
+  let res = await getListByDeviceId({
     // pageNo: devicePagination.value.pageNo,
     pageNo: 1,
     // pageSize: devicePagination.value.pageSize,
     pageSize: 999,
     deviceId: id,
-   });
-   devicePagination.value.total = res.total
+  });
+  devicePagination.value.total = res.total;
   dataSource.value = res.records;
   dataSource.value.forEach((item, index) => {
     item.key = index;
@@ -550,9 +549,9 @@ const visibleChange = (value) => {
 };
 
 const handleDeviceTableChange = async (pagination) => {
-  devicePagination.value.pageNo = pagination.current
-  await getData(id.value)
-}
+  devicePagination.value.pageNo = pagination.current;
+  await getData(id.value);
+};
 
 const open = ref<boolean>(false);
 
@@ -583,7 +582,7 @@ const pagination = ref({
   total: 10,
   showSizeChanger: true,
   pageSizeOptions: ['5', '10', '20', '50'],
-  showTotal: total => `共${total}条`
+  showTotal: (total) => `共${total}条`,
 });
 
 const pointColumns = [
@@ -666,9 +665,9 @@ const getBuildingControlPointList = async () => {
 };
 
 const handleTableChange = async (page) => {
-  pagination.value.pageNo = page.current
-  await getBuildingControlPointList()
-}
+  pagination.value.pageNo = page.current;
+  await getBuildingControlPointList();
+};
 
 // 行双击事件
 const rowClick = (record) => {
@@ -695,9 +694,9 @@ const bindPointLocation = async (record) => {
 };
 
 const searchData = () => {
-  pagination.value.pageNo = 1
-  getBuildingControlPointList()
-}
+  pagination.value.pageNo = 1;
+  getBuildingControlPointList();
+};
 </script>
 
 <style lang="less" scoped>

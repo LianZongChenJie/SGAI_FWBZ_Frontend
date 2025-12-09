@@ -88,7 +88,7 @@
         <div class="ranking-title">
           用电排名
         </div>
-        <div class="my-tab-button">
+        <!-- <div class="my-tab-button">
           <div class="button-box">
             <div :id="selectTarget === 1 ? 'selectTarget' : ''" @click="handleSelect(1)">
               专业
@@ -102,7 +102,7 @@
               商户
             </div>
           </div>
-        </div>
+        </div> -->
         <div id="rankingChart" ref="rankingChartRef"></div>
       </div>
     </div>
@@ -585,14 +585,14 @@ const initRankingChart = () => {
 
 // 获取当日点位水电数据
 const getPointData = async () => {
-  electricityValue.value = await getPointDataForToDayApi({ configPath:'jinanqiao:water' })
-  waterValue.value = await getPointDataForToDayApi({ configPath:'jinanqiao:electricity' })
+  electricityValue.value = await getPointDataForToDayApi({ configPath:'jinanqiao:electricity' })
+  waterValue.value = await getPointDataForToDayApi({ configPath:'jinanqiao:water' })
 
-  monthElectricityValue.value = await getPointDataForThisMonthApi({ configPath:'jinanqiao:water' })
-  monthWaterValue.value = await getPointDataForThisMonthApi({ configPath:'jinanqiao:electricity' })
+  monthElectricityValue.value = await getPointDataForThisMonthApi({ configPath:'jinanqiao:electricity' })
+  monthWaterValue.value = await getPointDataForThisMonthApi({ configPath:'jinanqiao:water' })
 
-  yearElectricityValue.value = await getPointDataForThisYearApi({ configPath:'jinanqiao:water' })
-  yearWaterValue.value = await getPointDataForThisYearApi({ configPath:'jinanqiao:electricity' })
+  yearElectricityValue.value = await getPointDataForThisYearApi({ configPath:'jinanqiao:electricity' })
+  yearWaterValue.value = await getPointDataForThisYearApi({ configPath:'jinanqiao:water' })
 }
 
 onMounted(async () => {
@@ -787,7 +787,7 @@ onUnmounted(() => {
       }
 
       #rankingChart{
-        height: calc(82% - 36px);
+        height: calc(82%);
         width: 92%;
       }
     }

@@ -52,6 +52,9 @@
           :scroll="{ y: 220 }"
           :customHeaderRow="customRow"
         >
+        <template #index="{ text, record, index }">
+            {{ index + 1 }}
+          </template>
           <template #bodyCell="{ column, record }">
             <template v-if="column.dataIndex === 'code'">
               <div class="content-box">{{ record.code }}</div>
@@ -76,6 +79,7 @@
 import MyTitle from './MyTitle.vue';
 import * as echarts from 'echarts';
 import { ref, computed, onUnmounted, onMounted } from 'vue';
+import { getAlarmRecordListForMonthApi } from '../Standardized.api'
 
 const deviceList = ref([
   {
@@ -134,67 +138,45 @@ let eventWorkOrderInstance: any = null;
 
 const columns = [
   {
-    title: '故障编号',
-    dataIndex: 'code',
-    key: 'code',
-    width: 120,
+    title: '序号',
+    dataIndex: 'idex',
+    key: 'idex',
+    slots: { customRender: 'index' },
+    width: '80px',
   },
   {
-    title: '告警内容',
-    dataIndex: 'content',
-    key: 'content',
+    title: '设备名称',
+    dataIndex: 'deviceName',
+    key: 'deviceName',
   },
   {
-    title: '状态',
-    dataIndex: 'status',
-    key: 'status',
-    width: 80,
+    title: '报警信息',
+    dataIndex: 'alarmCategoryName',
+    key: 'alarmCategoryName',
   },
   {
-    title: '紧急程度',
-    dataIndex: 'urgencyLevel',
-    key: 'urgencyLevel',
-    width: 90,
+    title: '报警事件',
+    dataIndex: 'alarmTime',
+    key: 'alarmTime',
   },
 ];
 
-const data = [
-  {
-    code: '20250730125638680',
-    content: '9#楼咪咕咖啡，一层女卫隔断门.',
-    status: '处理中',
-    urgencyLevel: '紧急',
-  },
-  {
-    code: '20250730125638681',
-    content: '2#楼电梯厅太热',
-    status: '已完成',
-    urgencyLevel: '一般',
-  },
-  {
-    code: '20250730125638681',
-    content: '楼电梯厅太热',
-    status: '处理中',
-    urgencyLevel: '一般',
-  },
-  {
-    code: '20250730125638681',
-    content: '楼电梯厅太热',
-    status: '处理中',
-    urgencyLevel: '一般',
-  },
-  {
-    code: '20250730125638680',
-    content: '9#楼咪咕咖啡，一层女卫隔断门.',
-    status: '处理中',
-    urgencyLevel: '紧急',
-  },
-];
+const data = ref([]);
 
 const customRow = (conlumn) => {
   conlumn.forEach((e, index) => {
     conlumn[index].color = '#000';
   });
+};
+
+// 获取报警列表数据
+const getAlarmRecordListForMonth = async () => {
+  let res = await getAlarmRecordListForMonthApi({
+    pageNo: 1,
+    pageSize: 50,
+  });
+  console.log('getAlarmRecordListForMonth---------->', res)
+  data.value = res.records;
 };
 
 // 初始化事件工单图表
@@ -275,7 +257,8 @@ const handleResize = () => {
   }
 };
 
-onMounted(() => {
+onMounted(async () => {
+  await getAlarmRecordListForMonth()
   initEventWorkOrderChart();
 });
 

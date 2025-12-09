@@ -22,6 +22,8 @@ enum Api {
   getPointDataForThisYearApi = '/bems/dataQueue/getPointDataForThisYear',
   getPointDataMonthlyComparisonTrendApi = '/bems/dataQueue/getPointDataMonthlyComparisonTrend',
   getPointDataMonthlyRankingApi = '/bems/dataQueue/getPointDataMonthlyRanking',
+
+  getAlarmRecordListForMonthApi = '/bems/homePage/alarmRecordListForMonth',
 }
 
 /**
@@ -116,3 +118,8 @@ export const getPointDataMonthlyComparisonTrendApi = (params) => defHttp.get({ u
  * @param params
  */
 export const getPointDataMonthlyRankingApi = (params) => defHttp.get({ url: Api.getPointDataMonthlyRankingApi, params }, { joinParamsToUrl: true });
+
+/**
+ * 报警信息列表
+ */
+export const getAlarmRecordListForMonthApi = (params) => defHttp.get({ url: Api.getAlarmRecordListForMonthApi, params }, { joinParamsToUrl: true }); 

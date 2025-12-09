@@ -33,6 +33,16 @@
           </a-button>
         </a-popconfirm>
       </template>
+      <template #form-categoryId="{ model, field }">
+        <a-tree-select
+          v-model:value="model[field]"
+          :tree-data="spaceTreeData"
+          placeholder="请选择位置"
+          :fieldNames="treeSelect"
+          show-search
+          allowClear
+        />
+      </template>
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'active'">
           <a-space>
@@ -52,8 +62,7 @@
           </a-space>
         </template>
         <template v-if="column.key === 'categoryId'">
-          <!-- 自动算法 -->
-          {{ getCategory(record) }}
+          {{ getNodeNameById(categoryList, record.categoryId.toString()) }}
         </template>
       </template>
     </BasicTable>
@@ -92,10 +101,13 @@
               name="categoryId"
               :rules="[{ required: true, message: '请选择专业' }]"
             >
-              <a-select
+              <a-tree-select
                 v-model:value="formState.categoryId"
-                placeholder="请选择专业"
-                :options="categoryList"
+                :tree-data="spaceTreeData"
+                placeholder="请选择位置"
+                :fieldNames="treeSelect"
+                show-search
+                allowClear
               />
             </a-form-item>
           </a-col>
@@ -152,16 +164,21 @@ let searchFormSchema: FormSchema[] = [
   {
     label: '所属专业', //显示label
     field: 'categoryId', //查询字段
-    component: 'ApiSelect', //渲染的组件
-    componentProps: {
-      api: getCategoryDataList,
-      labelField: 'title',
-      valueField: 'key',
-      immediate: true,
-      resultField: 'records',
-    },
+    component: 'Select', //渲染的组件
+    slot: 'categoryId',
+    // componentProps: {
+    //   api: getCategoryDataList,
+    //   labelField: 'title',
+    //   valueField: 'key',
+    //   immediate: true,
+    //   resultField: 'records',
+    // },
   },
 ];
+
+// 空间位置树数据
+const spaceTreeData = ref([]);
+const treeSelect = { children: 'children', label: 'title', value: 'key', key: 'key' };
 
 // 获取表格数据
 const getData = async (pageParams) => {
@@ -203,7 +220,7 @@ const { tableContext } = useListPage({
       pageSize: 10,
       showSizeChanger: true,
     },
-    showTableSetting:false,
+    showTableSetting: false,
     rowkey: 'id',
     //定义rowSelection的类型，默认是checkbox多选，可以设置成radio单选
     rowSelection: { type: 'checkbox' },
@@ -225,20 +242,39 @@ const { tableContext } = useListPage({
 // 获取专业列表
 const getCategoryList = async () => {
   let res = await getCategoryDataList();
-  categoryList.value = res.map((item) => {
-    return {
-      label: item.title,
-      value: item.key,
-    };
-  });
+  categoryList.value = res
+
+  const spaceRes = await getCategoryDataList();
+  spaceTreeData.value = spaceRes;
 };
 // 获取数据列表
 const getCategory = (record) => {
   let targetItem = categoryList.value.find((item) => {
     return record.categoryId.toString() === item.value;
   });
+  
+  console.log('record.categoryId.toString()--------------->', categoryList.value, );
+  
   return targetItem?.label;
 };
+
+function getNodeNameById(tree, targetId) {
+  for (const node of tree) {
+    // 如果当前节点就是目标节点
+    if (node.key === targetId) {
+      return node.value;
+    }
+    
+    // 如果有子节点，递归查找
+    if (node.children && node.children.length > 0) {
+      const result = getNodeNameById(node.children, targetId);
+      if (result) {
+        return result;
+      }
+    }
+  }
+  return null;
+}
 
 // BasicTable绑定注册
 const [registerTable, { reload, getForm }, { rowSelection, selectedRows, selectedRowKeys }] = tableContext;
