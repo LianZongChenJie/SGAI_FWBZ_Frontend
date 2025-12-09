@@ -315,7 +315,7 @@ const updateCurrentPageSelection = () => {
 };
 
 // 打开弹框
-const showDrawer = async (isUpdate,record?) => {
+const showDrawer = async (isUpdate, record?) => {
   if (isUpdate) {
     id.value = record.id;
     formState.value.relType = record.relType;
@@ -323,8 +323,11 @@ const showDrawer = async (isUpdate,record?) => {
     ids.value = record.relIds.split(',');
     formState.value.executionTime = record.executionTime;
     formState.value.operationType = record.operationType;
-    title.value = '编辑定时控制计划'
+    title.value = '编辑定时控制计划';
+  } else {
+    title.value = '新增定时控制计划';
   }
+
   // 清空之前的选择
   selectedRows.value.clear();
   selectedRowKeys.value = [];

@@ -1,6 +1,6 @@
 <template>
   <a-spin :spinning="loading">
-    <a-form class="deviceDynamicForm" ref="formRef" :model="formData" :label-col="{ span: 8 }" :wrapper-col="{ span: 14 }">
+    <a-form class="deviceDynamicForm" ref="formRef" :model="formData" :label-col="{ span: 12 }" :wrapper-col="{ span: 12 }">
       <!-- 修改为使用 grid 布局的容器 -->
       <div class="form-grid-container">
         <template v-for="(item, index) in formItems" :key="index">
@@ -30,7 +30,7 @@
       </div>
       <a-form-item>
         <!-- 修改为靠右对齐 -->
-        <div style="text-align: right">
+        <div class="button-box">
           <a-button @click="resetForm">取消</a-button>
           <a-button type="primary" @click="submitForm">保存</a-button>
         </div>
@@ -139,6 +139,7 @@
 
 <style lang="less">
   .deviceDynamicForm {
+    padding-top: 8px;
     .ant-space {
       display: flex;
       align-items: center;
@@ -160,5 +161,11 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr); /* 定义三列布局 */
     }
+
+    .button-box {
+      width: 200%;
+      text-align: center;
+    }
   }
+  
 </style>

@@ -402,6 +402,7 @@ const deleteData = async (record) => {
   }
 };
 const cancel = (record) => {
+  activeKey.value = '1';
   if (!record.id) {
     dataSource.value.pop();
   }
