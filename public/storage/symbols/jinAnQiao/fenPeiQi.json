@@ -1,0 +1,247 @@
+{
+  "modified": "Tue Dec 09 2025 16:22:14 GMT+0800 (中国标准时间)",
+  "gridEnabled": true,
+  "width": 120,
+  "height": 280,
+  "comps": [
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "points": [
+        40,
+        0,
+        40,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/jinAnQiao/zheXian3.json",
+      "displayName": "zheXian3",
+      "rect": [
+        30,
+        15,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "points": [
+        40,
+        53,
+        40,
+        84
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/jinAnQiao/zheXian3.json",
+      "displayName": "zheXian3",
+      "rotation": 3.14159,
+      "rect": [
+        30,
+        77,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "points": [
+        40,
+        92,
+        40,
+        260
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/jinAnQiao/huLu2.json",
+      "displayName": "huLu2",
+      "rect": [
+        30,
+        109,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/jinAnQiao/huLu2.json",
+      "displayName": "huLu2",
+      "rect": [
+        30,
+        129,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/jinAnQiao/huLu2.json",
+      "displayName": "huLu2",
+      "rect": [
+        49,
+        109,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/jinAnQiao/huLu2.json",
+      "displayName": "huLu2",
+      "rect": [
+        49,
+        129,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/jinAnQiao/huLu2.json",
+      "displayName": "huLu2",
+      "rect": [
+        11,
+        109,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/jinAnQiao/huLu2.json",
+      "displayName": "huLu2",
+      "rect": [
+        11,
+        129,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/jinAnQiao/sanJiao.json",
+      "displayName": "sanJiao",
+      "rect": [
+        30,
+        257,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "points": [
+        40,
+        42,
+        40,
+        51
+      ]
+    },
+    {
+      "type": "oval",
+      "background": "rgb(0,126,252)",
+      "borderWidth": 1,
+      "borderColor": "rgb(0,126,252)",
+      "rect": [
+        38.19278,
+        50.5,
+        3.61445,
+        4
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "points": [
+        40,
+        27.5,
+        40,
+        40
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/jinAnQiao/lianJie.json",
+      "displayName": "lianJie",
+      "rect": [
+        30,
+        35,
+        20,
+        10
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "points": [
+        41,
+        160,
+        100,
+        160,
+        100,
+        180
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "rotation": 4.71239,
+      "points": [
+        94.5,
+        186.5,
+        94.5,
+        192.69684,
+        94.5,
+        195.5
+      ]
+    },
+    {
+      "type": "oval",
+      "background": "rgb(0,126,252)",
+      "borderWidth": 1,
+      "borderColor": "rgb(0,126,252)",
+      "rect": [
+        98.19278,
+        189,
+        3.61445,
+        4
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "points": [
+        100,
+        191,
+        100,
+        212
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/jinAnQiao/sanHeng.json",
+      "displayName": "sanHeng",
+      "rect": [
+        94,
+        212,
+        12,
+        10
+      ]
+    }
+  ]
+}

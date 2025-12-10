@@ -14,16 +14,16 @@
           :key="index"
         >
           <div class="device-name">
-            {{ item.name }}
+            {{ item.categoryName }}
           </div>
           <div class="progress-box">
             <a-progress
               class="custom-progress"
-              :percent="(item.value / item.total * 100)"
+              :percent="(item.onLineNum / item.totalNum * 100)"
               size="small"
               trailColor="#fff"
               :strokeColor="item.strokeColor"
-              :format="percent => `${item.value}`"
+              :format="percent => `${item.onLineNum}`"
             />
           </div>
         </div>
@@ -52,7 +52,7 @@
           :scroll="{ y: 220 }"
           :customHeaderRow="customRow"
         >
-        <template #index="{ text, record, index }">
+          <template #index="{ text, record, index }">
             {{ index + 1 }}
           </template>
           <template #bodyCell="{ column, record }">
@@ -79,13 +79,15 @@
 import MyTitle from './MyTitle.vue';
 import * as echarts from 'echarts';
 import { ref, computed, onUnmounted, onMounted } from 'vue';
-import { getAlarmRecordListForMonthApi } from '../Standardized.api'
+import { getAlarmRecordListForMonthApi, getDeviceRunStateStatisticApi, getRunStatusStatisticApi } from '../Standardized.api';
+
+const colorList = ['#003b90', '#f7ab00', '#5eac62', '#009dff'];
 
 const deviceList = ref([
   {
-    name: '消防报警点位',
-    value: '2691',
-    total: '3000',
+    categoryName: '消防报警点位',
+    onLineNum: '2691',
+    totalNum: '3000',
     strokeColor: '#003b90',
   },
   {
@@ -155,7 +157,7 @@ const columns = [
     key: 'alarmCategoryName',
   },
   {
-    title: '报警事件',
+    title: '报警时间',
     dataIndex: 'alarmTime',
     key: 'alarmTime',
   },
@@ -175,7 +177,7 @@ const getAlarmRecordListForMonth = async () => {
     pageNo: 1,
     pageSize: 50,
   });
-  console.log('getAlarmRecordListForMonth---------->', res)
+  console.log('getAlarmRecordListForMonth---------->', res);
   data.value = res.records;
 };
 
@@ -257,8 +259,33 @@ const handleResize = () => {
   }
 };
 
+// 获取在线状态数据
+const getDeviceOnlineData = async () => {
+  const res1 = await getDeviceRunStateStatisticApi({ configPath: 'jinanqiao:device_status:measurement' });
+  const res2 = await getDeviceRunStateStatisticApi({ configPath: 'jinanqiao:device_status:power' });
+  const res3 = await getRunStatusStatisticApi();
+  const res3Map = res3.map((item) => {
+    return {
+      categoryName: item.categoryName,
+      onLineNum: item.onlineNum,
+      totalNum: item.totalNum,
+    };
+  });
+  const resList = [...res1, ...res2, ...res3Map];
+  deviceList.value = resList.map((item, index) => {
+    return {
+      categoryName: item.categoryName,
+      onLineNum: item.onLineNum,
+      totalNum: item.totalNum,
+      strokeColor: colorList[index % 5],
+    };
+  });
+  deviceList.value.push();
+};
+
 onMounted(async () => {
-  await getAlarmRecordListForMonth()
+  await getDeviceOnlineData();
+  await getAlarmRecordListForMonth();
   initEventWorkOrderChart();
 });
 
@@ -306,6 +333,7 @@ onUnmounted(() => {
       align-content: space-around;
       height: 82%;
       width: 100%;
+      overflow: auto;
 
       .device-item {
         width: 45%;
@@ -325,7 +353,7 @@ onUnmounted(() => {
           align-items: center;
           justify-content: flex-end;
           height: 50%;
-          width: 75%;
+          width: 100%;
         }
       }
     }

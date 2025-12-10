@@ -269,7 +269,7 @@
     if (sanchitou.value) {
       chart = echarts.init(sanchitou.value);
     }
-    chartType.value = '1';
+    chartType.value = '2';
     date.value = new Date().toISOString().split('T')[0];
 
     await findEnergyFlowType();

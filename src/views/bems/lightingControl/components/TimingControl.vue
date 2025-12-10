@@ -49,6 +49,28 @@
                 删除
               </a>
             </a-popconfirm>
+            &emsp;
+            <a-popconfirm
+              title="确认启用该条计划？"
+              ok-text="确定"
+              cancel-text="取消"
+              @confirm="handleEnable(record)"
+            >
+              <a>
+                启用
+              </a>
+            </a-popconfirm>
+            &emsp;
+            <a-popconfirm
+              title="确认禁用该条计划？"
+              ok-text="确定"
+              cancel-text="取消"
+              @confirm="handleDisable(record)"
+            >
+              <a style="color: red;">
+                禁用
+              </a>
+            </a-popconfirm>
           </a-space>
         </template>
       </template>
@@ -65,7 +87,7 @@ import { ref, computed, reactive, onMounted } from 'vue';
 import { BasicColumn, BasicTable, FormSchema } from '/@/components/Table';
 import { useListPage } from '/@/hooks/system/useListPage';
 import { usePermissionStore } from '/@/store/modules/permission';
-import { getAreaListPageApi, setAreaOpenApi, deleteLightingPlanAPi, getLightingPlanAPi } from '../Standardized.api';
+import { getAreaListPageApi, setAreaOpenApi, deleteLightingPlanAPi, getLightingPlanAPi, enableApi, disableApi } from '../Standardized.api';
 import { message } from 'ant-design-vue';
 import TimingControlModal from './TimingControlModal.vue';
 import { usePermission } from '/@/hooks/web/usePermission';
@@ -137,10 +159,15 @@ const columns: BasicColumn[] = [
     key: 'operationType',
   },
   {
+    title: '状态',
+    dataIndex: 'status',
+    key: 'status',
+  },
+  {
     title: '操作',
     dataIndex: 'active',
     key: 'active',
-    width: '120px',
+    width: '180px',
   },
 ];
 
@@ -208,6 +235,22 @@ const handleDelete = async (record) => {
   });
   reload();
   message.success('删除成功！');
+};
+
+const handleEnable = async (record) => {
+  await enableApi({
+    id: record.id,
+  });
+  reload();
+  message.success('启用成功！');
+};
+
+const handleDisable = async (record) => {
+  await disableApi({
+    id: record.id,
+  });
+  reload();
+  message.success('禁用成功！');
 };
 
 const addTimingControl = () => {

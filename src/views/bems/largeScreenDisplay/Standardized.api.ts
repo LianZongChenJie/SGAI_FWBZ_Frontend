@@ -24,6 +24,9 @@ enum Api {
   getPointDataMonthlyRankingApi = '/bems/dataQueue/getPointDataMonthlyRanking',
 
   getAlarmRecordListForMonthApi = '/bems/homePage/alarmRecordListForMonth',
+
+  getDeviceRunStateStatisticApi = '/bems/dataQueue/getDeviceRunStateStatistic',
+  getRunStatusStatisticApi = '/bems/lighting/dataStatistic/getRunStatusStatistic',
 }
 
 /**
@@ -123,3 +126,13 @@ export const getPointDataMonthlyRankingApi = (params) => defHttp.get({ url: Api.
  * 报警信息列表
  */
 export const getAlarmRecordListForMonthApi = (params) => defHttp.get({ url: Api.getAlarmRecordListForMonthApi, params }, { joinParamsToUrl: true }); 
+
+/**
+ * 设备运行状态
+ */
+export const getDeviceRunStateStatisticApi = (params) => defHttp.get({ url: Api.getDeviceRunStateStatisticApi, params }, { joinParamsToUrl: true }); 
+
+/**
+ * 设备状态-照明
+ */
+export const getRunStatusStatisticApi = () => defHttp.get({ url: Api.getRunStatusStatisticApi }); 

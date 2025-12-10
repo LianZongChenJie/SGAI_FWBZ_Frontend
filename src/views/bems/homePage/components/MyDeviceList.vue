@@ -26,19 +26,19 @@
         :key="index"
       >
         <div class="machine-name">
-          {{ machineItem.name }}
+          {{ machineItem.categoryName }}
         </div>
         <div class="machine-number">
           <div
             class="actual-number"
-            :style="{width: (machineItem.value2 / machineItem.value1 * 100) + '%',backgroundColor: (index % 3 === 1) ? '#f0b922' : ''}"
+            :style="{width: (machineItem.onLineNum / machineItem.totalNum * 100) + '%',backgroundColor: (index % 3 === 1) ? '#f0b922' : ''}"
           >
             <div style="position: absolute; right: 6px;">
-              {{ machineItem.value2 }}
+              {{ machineItem.onLineNum }}
             </div>
           </div>
           <div style="position: absolute; right: 6px;">
-            {{ machineItem.value1 }}
+            {{ machineItem.totalNum }}
           </div>
         </div>
       </div>
@@ -47,51 +47,52 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { HomeOutlined, BarsOutlined, WalletOutlined, UserOutlined } from '@ant-design/icons-vue';
+import { getDeviceRunStateStatisticApi, getRunStatusStatisticApi, } from '../Standardized.api';
 
 // 高亮显示index
 const isActive = ref(0);
 
 // 设备列表
 const deviceList = ref([
-  {
-    deviceName: '暖通设备',
-    list: [
-      {
-        name: '多连机',
-        value1: 12,
-        value2: 10,
-      },
-      {
-        name: '风机盘管',
-        value1: 11,
-        value2: 5,
-      },
-      {
-        name: '新风机',
-        value1: 18,
-        value2: 10,
-      },
-      {
-        name: '红外空调',
-        value1: 25,
-        value2: 20,
-      },
-      {
-        name: '屋顶机',
-        value1: 30,
-        value2: 19,
-      },
-    ],
-  },
+  // {
+  //   deviceName: '暖通设备',
+  //   list: [
+  //     {
+  //       name: '多连机',
+  //       value1: 12,
+  //       value2: 10,
+  //     },
+  //     {
+  //       name: '风机盘管',
+  //       value1: 11,
+  //       value2: 5,
+  //     },
+  //     {
+  //       name: '新风机',
+  //       value1: 18,
+  //       value2: 10,
+  //     },
+  //     {
+  //       name: '红外空调',
+  //       value1: 25,
+  //       value2: 20,
+  //     },
+  //     {
+  //       name: '屋顶机',
+  //       value1: 30,
+  //       value2: 19,
+  //     },
+  //   ],
+  // },
   {
     deviceName: '照明设备',
     list: [
       {
-        name: '多连机',
-        value1: 12,
-        value2: 8,
+        categoryName: '多连机',
+        totalNum: 12,
+        onLineNum: 8,
       },
       {
         name: '红外空调',
@@ -181,6 +182,20 @@ const deviceList = ref([
 const handleSwitch = (index) => {
   isActive.value = index;
 };
+
+// 获取在线状态数据
+const getDeviceOnlineData = async () => {
+  let res1 = await getDeviceRunStateStatisticApi({ configPath: 'jinanqiao:device_status:measurement'})
+  let res2 = await getDeviceRunStateStatisticApi({ configPath: 'jinanqiao:device_status:power'})
+  let res3 = await getRunStatusStatisticApi()
+  deviceList.value[0].list = res3
+  deviceList.value[1].list = res1
+  deviceList.value[2].list = res2
+}
+
+onMounted(async () => {
+  await getDeviceOnlineData()
+})
 </script>
 
 <style lang="less" scoped>

@@ -9,7 +9,34 @@
         /> -->
       </div>
     </div>
-    <div class="charts-box">
+    <div class="weather-box">
+      <div class="weater-title">
+        北京市
+      </div>
+      <div class="weater-info-box">
+        <div class="weater-icon">
+          <img :src="weaterImage" alt="">
+          <div>
+            {{ '2' }}
+          </div>
+        </div>
+        <!-- <div class="weater-data">
+          <div class="data-item">
+            {{ '气温' }}：<span>{{ '1' }}</span>
+          </div>
+          <div class="data-item">
+            {{ '气温' }}：<span>{{ '1' }}</span>
+          </div>
+          <div class="data-item">
+            {{ '气温' }}：<span>{{ '1' }}</span>
+          </div>
+          <div class="data-item">
+            {{ '气温' }}：<span>{{ '1' }}</span>
+          </div>
+        </div> -->
+      </div>
+    </div>
+    <!-- <div class="charts-box">
       <div
         class="dashboard-chart"
         ref="dashboardChartRef"
@@ -49,7 +76,7 @@
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
 
   </div>
 </template>
@@ -57,13 +84,9 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import * as echarts from 'echarts';
-import MyTabs from './MyTabs.vue';
+import axios from 'axios';
 
-const tabsTitle = {
-  left: '4号楼',
-  middle: '音乐厅',
-  right: '戏剧院',
-};
+const weaterImage = ref('http://app1.showapi.com/weather/icon/day/00.png');
 
 const dashboardChartRef = ref(null);
 let dashboardChartInstance: any = null;
@@ -96,7 +119,15 @@ const handleSwitchDate = (type) => {
   console.log('handleSwitchDate----------------->', type);
 };
 
-onMounted(() => {
+// const getWeaterData = async () => {
+//   console.log('getWeaterData------------->');
+//   const res = await axios.get('http://10.168.56.102/weather');
+//   console.log('getWeaterData------------->', res);
+  
+// }
+
+onMounted(async () => {
+  // await getWeaterData()
   initChart();
   initBoxplotChart();
   window.addEventListener('resize', handleResize);
@@ -436,6 +467,62 @@ const getPixelYPosition = (value) => {
           font-size: 20px;
           color: #fab113;
           font-weight: 600;
+        }
+      }
+    }
+  }
+
+  .weather-box {
+    height: calc(100% - 30px);
+    width: 100%;
+
+    .weater-title {
+      height: 30px;
+      width: 100%;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      padding-left: 16px;
+      font-size: 18px;
+    }
+    .weater-info-box {
+      height: calc(100% - 30px);
+      width: 100%;
+      display: flex;
+      justify-content: space-around;
+      align-content: center;
+      align-items: center;
+
+      .weater-icon {
+        width: 120px;
+        height: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        align-content: center;
+
+        >div {
+          height: calc(100% - 140px);
+          width: 120px;
+        }
+
+        >img {
+          height: 120px;
+          width: 120px;
+        }
+      }
+
+      .weater-data {
+        height: 100%;
+        width: calc(100% - 130px);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        align-content: space-around;
+        flex-wrap: wrap;
+
+        > div{
+          height: 30px;
+          width: 28%;
         }
       }
     }

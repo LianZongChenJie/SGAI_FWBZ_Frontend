@@ -210,6 +210,8 @@ const getAlarmRecordListForMonth = async () => {
   alarmList.value = res.records;
 };
 
+
+
 onMounted(async () => {
   tableDataSourse.value = [...deviceStatusData.value.alreadyResponded];
   await getAlarmStatistics();

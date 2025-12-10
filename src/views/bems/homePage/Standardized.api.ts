@@ -36,6 +36,8 @@ enum Api {
   getAlarmRecordListForMonthApi = '/bems/homePage/alarmRecordListForMonth',
 
   getEnergyConservationStatisticsApi = '/bems/homePage/energyConservationStatistics',
+  getDeviceRunStateStatisticApi = '/bems/dataQueue/getDeviceRunStateStatistic',
+  getRunStatusStatisticApi = '/bems/lighting/dataStatistic/getRunStatusStatistic',
 
 }
 
@@ -159,3 +161,13 @@ export const getAlarmRecordListForMonthApi = (params) => defHttp.get({ url: Api.
  * 节能统计数据获取
  */
 export const getEnergyConservationStatisticsApi = () => defHttp.get({ url: Api.getEnergyConservationStatisticsApi }); 
+
+/**
+ * 设备运行状态
+ */
+export const getDeviceRunStateStatisticApi = (params) => defHttp.get({ url: Api.getDeviceRunStateStatisticApi, params }, { joinParamsToUrl: true }); 
+
+/**
+ * 设备状态-照明
+ */
+export const getRunStatusStatisticApi = () => defHttp.get({ url: Api.getRunStatusStatisticApi }); 

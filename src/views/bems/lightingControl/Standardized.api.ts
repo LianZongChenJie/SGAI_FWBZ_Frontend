@@ -14,6 +14,8 @@ enum Api {
   editLightingPlanAPi = '/bems/lighting/plan/edit',
   deleteLightingPlanAPi = '/bems/lighting/plan/delete',
   controlRecordListApi = '/bems/lighting/operationLog/listPage',
+  enableApi = '/bems/lighting/plan/enable',
+  disableApi = '/bems/lighting/plan/disable',
 }
 
 /**
@@ -71,3 +73,13 @@ export const deleteLightingPlanAPi = (params) => defHttp.delete({ url: Api.delet
  * 控制记录列表
  */
 export const controlRecordListApi = (params) => defHttp.get({ url: Api.controlRecordListApi, params }, { joinParamsToUrl: true });
+
+/**
+ * 控制记录列表
+ */
+export const enableApi = (params) => defHttp.post({ url: Api.enableApi, params }, { joinParamsToUrl: true });
+
+/**
+ * 控制记录列表
+ */
+export const disableApi = (params) => defHttp.post({ url: Api.disableApi, params }, { joinParamsToUrl: true });

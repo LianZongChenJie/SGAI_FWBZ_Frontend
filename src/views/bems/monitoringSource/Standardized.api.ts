@@ -14,6 +14,7 @@ enum Api {
   getPointData = '/admin/device/account/queryNewDeviceAccountList',
 
   getEnergyUseSafetyApi = '/bems/homePage/energyUseSafety',
+  findDeviceAndAttributeApi = '/bems/device/findDeviceAndAttribute',
 }
 
 /**
@@ -71,3 +72,9 @@ export const getPointData = (params) => defHttp.get({ url: Api.getPointData, par
  * 用能安全
  */
 export const getEnergyUseSafetyApi = () => defHttp.get({ url: Api.getEnergyUseSafetyApi }); 
+
+/**
+ * 禁用告警级别
+ * @param params
+ */
+export const findDeviceAndAttributeApi = (params) => defHttp.get({ url: Api.findDeviceAndAttributeApi, params }, { joinParamsToUrl: true }); 

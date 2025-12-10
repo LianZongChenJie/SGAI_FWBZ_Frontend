@@ -48,7 +48,7 @@ const treeData = ref([
   {
     title: '4号楼',
     key: '2',
-    path: 'beiyi/geJuYuan.json',
+    path: 'jinAnQiao/zongPeiDian.json',
     children: [
       { title: '1#变压器', key: '2-5' },
       { title: '2#变压器', key: '2-6' },
@@ -59,7 +59,7 @@ const treeData = ref([
   {
     title: '5号楼(总楼)',
     key: '3',
-    path: '戏剧配电室.json',
+    path: 'jinAnQiao/zongPeiDian.json',
     children: [
       { title: '1#变压器', key: '3-5' },
       { title: '2#变压器', key: '3-6' },
@@ -70,7 +70,7 @@ const treeData = ref([
   {
     title: '9号楼',
     key: '4',
-    path: '音乐厅配电室模拟屏.json',
+    path: 'jinAnQiao/zongPeiDian.json',
     children: [
       { title: '1#变压器', key: '4-5' },
       { title: '2#变压器', key: '4-6' },
@@ -80,7 +80,7 @@ const treeData = ref([
 
 const checkedKeys = ref<string[]>(['2']);
 
-const topoPath = ref<any>('beiyi/geJuYuan.json');
+const topoPath = ref<any>('jinAnQiao/zongPeiDian.json');
 
 const handleSelect = (keys, e, selectedNodes) => {
   // 强制单选：数组长度最多为1
