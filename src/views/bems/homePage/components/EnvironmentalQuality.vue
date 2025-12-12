@@ -10,83 +10,70 @@
       </div>
     </div>
     <div class="weather-box">
-      <div class="weater-title">
-        北京市
-      </div>
-      <div class="weater-info-box">
-        <div class="weater-icon">
-          <img :src="weaterImage" alt="">
+      <div class="temperature-and-weather">
+        <div class="temperature-box">
+          {{ wendu }}°
+        </div>
+        <div class="weather-name-box">
+          <div class="weather-icon" :style="backgroundStyle">
+
+          </div>
           <div>
-            {{ '2' }}
+            {{ weaterData.type }}
           </div>
         </div>
-        <!-- <div class="weater-data">
-          <div class="data-item">
-            {{ '气温' }}：<span>{{ '1' }}</span>
-          </div>
-          <div class="data-item">
-            {{ '气温' }}：<span>{{ '1' }}</span>
-          </div>
-          <div class="data-item">
-            {{ '气温' }}：<span>{{ '1' }}</span>
-          </div>
-          <div class="data-item">
-            {{ '气温' }}：<span>{{ '1' }}</span>
-          </div>
-        </div> -->
+        <div class="air-quality">
+          质量：{{ quality }}
+        </div>
+      </div>
+      <div
+        class="brief-data"
+        v-if="weaterData.low"
+      >
+        今天：{{ weaterData.low.split(' ')[1] }} ~ {{ weaterData.high.split(' ')[1] }}&emsp;<img
+          src="@/assets/images/wind.png"
+          alt=""
+        >&nbsp;{{ weaterData.fx }}&nbsp;{{ weaterData.fl }}&emsp;<img
+          src="@/assets/images/humidity.png"
+          alt=""
+        >&nbsp;湿度&nbsp;{{ shidu }}
+      </div>
+      <div
+        class="brief-data"
+        v-if="weaterDataTomo.low"
+      >
+        明天：{{ weaterDataTomo.low.split(' ')[1] }} ~ {{ weaterDataTomo.high.split(' ')[1] }}&emsp;<img
+          src="@/assets/images/wind.png"
+          alt=""
+        >&nbsp;{{ weaterDataTomo.fx }}&nbsp;{{ weaterDataTomo.fl }}
+      </div>
+      <div class="brief-data">
+        {{ ganmao }}
       </div>
     </div>
-    <!-- <div class="charts-box">
-      <div
-        class="dashboard-chart"
-        ref="dashboardChartRef"
-      >
-
-      </div>
-      <div
-        class="boxplot-chart"
-        ref="boxplotChart"
-        id="boxplotChart"
-      >
-
-      </div>
-      <div class="other-info">
-        <div class="info-item">
-          <div class="icon-box" id="rhIcon">
-
-          </div>
-          <div class="data-box">
-            55%RH
-          </div>
-        </div>
-        <div class="info-item">
-          <div class="icon-box" id="wenduIcon">
-
-          </div>
-          <div class="data-box">
-            26℃
-          </div>
-        </div>
-        <div class="info-item">
-          <div class="icon-box" id="fenbeiIcon">
-
-          </div>
-          <div class="data-box">
-            35分贝
-          </div>
-        </div>
-      </div>
-    </div> -->
 
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
+import { ref, onMounted, onBeforeUnmount, watch, computed } from 'vue';
 import * as echarts from 'echarts';
 import axios from 'axios';
 
-const weaterImage = ref('http://app1.showapi.com/weather/icon/day/00.png');
+const weaterImage = ref('../../../../assets/images/00.png');
+
+const backgroundStyle = computed(() => ({
+  backgroundImage: `url(${weaterImage.value})`,
+  // 其他背景样式
+}));
+
+const weaterData = ref<any>({});
+const weaterDataTomo = ref<any>({});
+
+const wendu = ref('');
+const shidu = ref('');
+const quality = ref('');
+const ganmao = ref('');
 
 const dashboardChartRef = ref(null);
 let dashboardChartInstance: any = null;
@@ -119,15 +106,63 @@ const handleSwitchDate = (type) => {
   console.log('handleSwitchDate----------------->', type);
 };
 
-// const getWeaterData = async () => {
-//   console.log('getWeaterData------------->');
-//   const res = await axios.get('http://10.168.56.102/weather');
-//   console.log('getWeaterData------------->', res);
-  
-// }
+const getWeaterData = async () => {
+  const res = await axios.get('http://10.168.56.101/weather');
+  wendu.value = res.data.data.wendu;
+  shidu.value = res.data.data.shidu;
+  quality.value = res.data.data.quality;
+  ganmao.value = res.data.data.ganmao;
+  weaterData.value = res.data.data.forecast[0];
+  weaterDataTomo.value = res.data.data.forecast[1];
+  if (weaterData.value.type == '晴') {
+    weaterImage.value = '../../../../assets/images/00.png';
+  } else {
+    if (weaterData.value.type == '阴') {
+      weaterImage.value = '../../../../assets/images/02.png';
+    } else {
+      if (weaterData.value.type == '雾') {
+        weaterImage.value = '../../../../assets/images/18.png';
+      } else {
+        if (weaterData.value.type.indexOf('多云') != -1) {
+          weaterImage.value = '../../../../assets/images/01.png';
+        } else {
+          if (
+            weaterData.value.type.indexOf('阵雨') != -1 ||
+            weaterData.value.type.indexOf('小雨') != -1 ||
+            weaterData.value.type.indexOf('中雨') != -1 ||
+            weaterData.value.type.indexOf('大雨') != -1 ||
+            weaterData.value.type.indexOf('暴雨') != -1
+          ) {
+            weaterImage.value = '../../../../assets/images/04.png';
+          } else {
+            if (
+              weaterData.value.type.indexOf('阵雪') != -1 ||
+              weaterData.value.type.indexOf('小雪') != -1 ||
+              weaterData.value.type.indexOf('中雪') != -1 ||
+              weaterData.value.type.indexOf('大雪') != -1 ||
+              weaterData.value.type.indexOf('暴雪') != -1
+            ) {
+              weaterImage.value = '../../../../assets/images/15.png';
+            } else {
+              if (weaterData.value.type.indexOf('霾') != -1 || weaterData.value.type.indexOf('雾霾') != -1) {
+                weaterImage.value = '../../../../assets/images/53.png';
+              } else {
+                if (weaterData.value.type.indexOf('尘') != -1 || weaterData.value.type.indexOf('沙') != -1) {
+                  weaterImage.value = '../../../../assets/images/20.png';
+                } else {
+                  weaterImage.value = '../../../../assets/images/00.png';
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+};
 
 onMounted(async () => {
-  // await getWeaterData()
+  await getWeaterData();
   initChart();
   initBoxplotChart();
   window.addEventListener('resize', handleResize);
@@ -328,7 +363,7 @@ const updateBoxplotChart = () => {
 
 // 创建标注图形
 const createAnnotations = (data, unit) => {
-  const annotations:any = [];
+  const annotations: any = [];
   const positions = [
     { value: data.min, name: '最小值', color: '#91CC75' },
     { value: data.q1, name: '下四分位数(Q1)', color: '#5470C6' },
@@ -439,31 +474,31 @@ const getPixelYPosition = (value) => {
       align-items: center;
       height: 30px;
 
-      .info-item{
+      .info-item {
         display: flex;
         align-items: center;
         height: 100%;
         width: 30%;
 
-        .icon-box{
+        .icon-box {
           height: 80%;
           width: 20%;
           background-size: 100% 100%;
           margin-right: 10px;
         }
-        #rhIcon{
+        #rhIcon {
           background-image: url('@/assets/images/RHIcon.png');
         }
-        #wenduIcon{
-          background-image: url('@/assets/images//wenduIcon.png')
+        #wenduIcon {
+          background-image: url('@/assets/images//wenduIcon.png');
         }
-        #fenbeiIcon{
+        #fenbeiIcon {
           background-image: url('@/assets/images/fenbeiIcon.png');
           height: 60%;
           width: 30%;
         }
 
-        .data-box{
+        .data-box {
           font-size: 20px;
           color: #fab113;
           font-weight: 600;
@@ -475,6 +510,7 @@ const getPixelYPosition = (value) => {
   .weather-box {
     height: calc(100% - 30px);
     width: 100%;
+    padding: 0 21px;
 
     .weater-title {
       height: 30px;
@@ -500,12 +536,16 @@ const getPixelYPosition = (value) => {
         flex-wrap: wrap;
         align-content: center;
 
-        >div {
+        > div {
           height: calc(100% - 140px);
           width: 120px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          font-size: 20px;
         }
 
-        >img {
+        > img {
           height: 120px;
           width: 120px;
         }
@@ -520,10 +560,64 @@ const getPixelYPosition = (value) => {
         align-content: space-around;
         flex-wrap: wrap;
 
-        > div{
-          height: 30px;
-          width: 28%;
+        > div {
+          height: 50px;
+          width: 33%;
         }
+      }
+    }
+
+    .temperature-and-weather {
+      height: 100px;
+      width: 100%;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      > div {
+        height: 100%;
+        width: 100px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        align-content: center;
+      }
+
+      .temperature-box {
+        -webkit-text-size-adjust: 100%;
+        -webkit-tap-highlight-color: transparent;
+        margin: 0;
+        padding: 0;
+        font-weight: 400;
+        float: left;
+        font-size: 60px;
+        color: #1a1a1a;
+      }
+
+      .weather-name-box {
+        > div {
+          width: 100%;
+          text-align: center;
+        }
+        .weather-icon {
+          height: 40px;
+          width: 40px;
+          background-size: 100% 100%;
+          // background-image: url('/weatherIcon/00.png');
+        }
+      }
+    }
+    .brief-data {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      height: 30px;
+      font-size: 14px;
+      color: #1a1a1a;
+      font-weight: 400;
+      > img {
+        height: 16px;
+        width: 16px;
       }
     }
   }

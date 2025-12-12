@@ -84,6 +84,9 @@
 
             </a-space>
           </template>
+          <template #allDuration="{ text, record, index }">
+            {{ formatSeconds(record.allDuration, { showHoursAlways: true }) }}
+          </template>
         </a-table>
       </div>
     </a-modal>
@@ -140,6 +143,7 @@ const columns = [
     title: '开启总时长',
     dataIndex: 'allDuration',
     key: 'allDuration',
+    slots: { customRender: 'allDuration' },
     align: 'center',
   },
   {
@@ -248,6 +252,49 @@ const loadData = async () => {
     console.error('加载数据失败:', error);
   }
 };
+
+function formatSeconds(totalSeconds, options:any = {}) {
+  // 参数校验
+  if (typeof totalSeconds !== 'number' || totalSeconds < 0) {
+    console.warn('formatSeconds: 参数必须为非负数字');
+    return '00:00';
+  }
+  
+  // 默认配置
+  const {
+    showHoursAlways = false,
+    padZero = true,
+    separator = ':',
+    showUnit = false
+  } = options;
+  
+  // 计算时分秒
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = Math.floor(totalSeconds % 60);
+  
+  // 补零函数
+  const pad:any = (num) => padZero ? num.toString().padStart(2, '0') : num.toString();
+  
+  // 根据配置返回不同格式
+  if (showUnit) {
+    // 显示单位格式：1时02分03秒
+    const parts:any = [];
+    if (hours > 0 || showHoursAlways) {
+      parts.push(`${hours}时`);
+    }
+    parts.push(`${pad(minutes)}分`);
+    parts.push(`${pad(seconds)}秒`);
+    return parts.join('');
+  } else {
+    // 标准格式：HH:MM:SS 或 MM:SS
+    if (hours > 0 || showHoursAlways) {
+      return `${pad(hours)}${'小时'}${pad(minutes)}${'分钟'}${pad(seconds)}秒`;
+    } else {
+      return `${pad(minutes)}${separator}${pad(seconds)}`;
+    }
+  }
+}
 
 // 组件卸载时清理定时器
 onUnmounted(() => {

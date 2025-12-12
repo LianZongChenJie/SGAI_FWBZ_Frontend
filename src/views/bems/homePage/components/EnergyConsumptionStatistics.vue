@@ -62,12 +62,6 @@ const infoData = ref([
     yoy: '0.00',
     mom: '-54.35'
   },
-  {
-    name: '燃气(m³)',
-    value: '156',
-    yoy: '0.00',
-    mom: '-53.84'
-  },
 ])
 // 切换时间
 const handleSwitchDate = async(type) => {
@@ -127,10 +121,13 @@ onMounted( async () => {
     height: calc(100% - 30px);
     width: 100%;
     padding: 12px 24px;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: space-around;
 
     .info-item {
       display: flex;
-      height: 25%;
+      height: 30%;
       width: 100%;
 
       > div {

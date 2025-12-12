@@ -27,6 +27,7 @@ enum Api {
 
   getDeviceRunStateStatisticApi = '/bems/dataQueue/getDeviceRunStateStatistic',
   getRunStatusStatisticApi = '/bems/lighting/dataStatistic/getRunStatusStatistic',
+  eventDistributionApi = '/bems/event/eventDistribution',
 }
 
 /**
@@ -136,3 +137,8 @@ export const getDeviceRunStateStatisticApi = (params) => defHttp.get({ url: Api.
  * 设备状态-照明
  */
 export const getRunStatusStatisticApi = () => defHttp.get({ url: Api.getRunStatusStatisticApi }); 
+
+/**
+ * 事件分布
+ */
+export const eventDistributionApi = () => defHttp.get({ url: Api.eventDistributionApi }); 

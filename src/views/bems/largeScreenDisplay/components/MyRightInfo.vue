@@ -59,6 +59,14 @@
             <template v-if="column.dataIndex === 'code'">
               <div class="content-box">{{ record.code }}</div>
             </template>
+            <template v-if="column.dataIndex === 'deviceCategoryId'">
+              <a-tooltip
+                :title="findTreeNodeTitle(treeData, record.deviceCategoryId)"
+                placement="topLeft"
+              >
+                <div class="content-box">{{ findTreeNodeTitle(treeData, record.deviceCategoryId) }}</div>
+              </a-tooltip>
+            </template>
             <template v-if="column.dataIndex === 'content'">
               <div class="content-box">{{ record.content }}</div>
             </template>
@@ -79,7 +87,13 @@
 import MyTitle from './MyTitle.vue';
 import * as echarts from 'echarts';
 import { ref, computed, onUnmounted, onMounted } from 'vue';
-import { getAlarmRecordListForMonthApi, getDeviceRunStateStatisticApi, getRunStatusStatisticApi } from '../Standardized.api';
+import {
+  getAlarmRecordListForMonthApi,
+  getDeviceRunStateStatisticApi,
+  getRunStatusStatisticApi,
+  eventDistributionApi,
+  categoryTree,
+} from '../Standardized.api';
 
 const colorList = ['#003b90', '#f7ab00', '#5eac62', '#009dff'];
 
@@ -89,48 +103,6 @@ const deviceList = ref([
     onLineNum: '2691',
     totalNum: '3000',
     strokeColor: '#003b90',
-  },
-  {
-    name: '消防末端数量',
-    value: '109',
-    total: '150',
-    strokeColor: '#003b90',
-  },
-  {
-    name: '燃气报警设备',
-    value: '123',
-    total: '123',
-    strokeColor: '#f7ab00',
-  },
-  {
-    name: '消防水泵数量',
-    value: '23',
-    total: '30',
-    strokeColor: '#f7ab00',
-  },
-  {
-    name: '动火离人设备',
-    value: '85',
-    total: '85',
-    strokeColor: '#5eac62',
-  },
-  {
-    name: '用电监测数量',
-    value: '5',
-    total: '5',
-    strokeColor: '#5eac62',
-  },
-  {
-    name: '厨房自动灭火设备',
-    value: '60',
-    total: '60',
-    strokeColor: '#009dff',
-  },
-  {
-    name: '视频监控',
-    value: '21',
-    total: '21',
-    strokeColor: '#009dff',
   },
 ]);
 
@@ -144,12 +116,17 @@ const columns = [
     dataIndex: 'idex',
     key: 'idex',
     slots: { customRender: 'index' },
-    width: '80px',
+    width: '60px',
   },
   {
     title: '设备名称',
     dataIndex: 'deviceName',
     key: 'deviceName',
+  },
+  {
+    title: '设备分类',
+    dataIndex: 'deviceCategoryId',
+    key: 'deviceCategoryId',
   },
   {
     title: '报警信息',
@@ -163,12 +140,53 @@ const columns = [
   },
 ];
 
+const treeData = ref([]);
+
+// 获取设备类别树数据
+const getCategoryTree = async () => {
+  try {
+    const res = await categoryTree({});
+    treeData.value = res;
+  } catch (error) {
+    console.error('获取设备类别失败:', error);
+  }
+};
+
+// 查找树节点的标题
+const findTreeNodeTitle = (treeData: any[], key: string | number): string => {
+  if (!treeData || !Array.isArray(treeData)) {
+    return '';
+  }
+
+  const find = (nodes: any[]): string => {
+    for (const node of nodes) {
+      if (String(node.key) === String(key)) {
+        return node.value;
+      }
+      if (node.children && Array.isArray(node.children)) {
+        const title = find(node.children);
+        if (title) return title;
+      }
+    }
+    return '';
+  };
+  return find(treeData);
+};
+
 const data = ref([]);
+
+const echartData = ref<any>([]);
 
 const customRow = (conlumn) => {
   conlumn.forEach((e, index) => {
     conlumn[index].color = '#000';
   });
+};
+
+// 获取事件分布数据
+const eventDistribution = async () => {
+  let res = await eventDistributionApi();
+  echartData.value = [...res];
 };
 
 // 获取报警列表数据
@@ -177,7 +195,6 @@ const getAlarmRecordListForMonth = async () => {
     pageNo: 1,
     pageSize: 50,
   });
-  console.log('getAlarmRecordListForMonth---------->', res);
   data.value = res.records;
 };
 
@@ -234,15 +251,7 @@ const initEventWorkOrderChart = () => {
         // itemStyle: {
         //   borderRadius: 8,
         // },
-        data: [
-          { value: 40, name: '保洁类' },
-          { value: 70, name: '照明类' },
-          { value: 100, name: '安防类' },
-          { value: 140, name: '消费类' },
-          { value: 170, name: '环境类' },
-          { value: 160, name: '制冷站' },
-          { value: 180, name: '能源类' },
-        ],
+        data: echartData.value,
       },
     ],
   };
@@ -262,7 +271,6 @@ const handleResize = () => {
 // 获取在线状态数据
 const getDeviceOnlineData = async () => {
   const res1 = await getDeviceRunStateStatisticApi({ configPath: 'jinanqiao:device_status:measurement' });
-  const res2 = await getDeviceRunStateStatisticApi({ configPath: 'jinanqiao:device_status:power' });
   const res3 = await getRunStatusStatisticApi();
   const res3Map = res3.map((item) => {
     return {
@@ -271,7 +279,7 @@ const getDeviceOnlineData = async () => {
       totalNum: item.totalNum,
     };
   });
-  const resList = [...res1, ...res2, ...res3Map];
+  const resList = [...res1, ...res3Map];
   deviceList.value = resList.map((item, index) => {
     return {
       categoryName: item.categoryName,
@@ -284,6 +292,8 @@ const getDeviceOnlineData = async () => {
 };
 
 onMounted(async () => {
+  await getCategoryTree();
+  await eventDistribution();
   await getDeviceOnlineData();
   await getAlarmRecordListForMonth();
   initEventWorkOrderChart();
@@ -329,13 +339,15 @@ onUnmounted(() => {
     .device-list {
       display: flex;
       flex-wrap: wrap;
-      justify-content: space-around;
+      justify-content: flex-start;
       align-content: space-around;
       height: 82%;
       width: 100%;
       overflow: auto;
+      padding-left: 5%;
 
       .device-item {
+        margin-right: 5%;
         width: 45%;
         height: 20%;
         display: flex;

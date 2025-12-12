@@ -1,16 +1,32 @@
 <template>
   <div class="pressure-sensor-main-box">
-    <div class="card-item" v-for="(item,index) in deviceList" :key="index">
+    <div class="button-box">
+      <a-button
+        type="primary"
+        @click="getData"
+      >刷新</a-button>
+    </div>
+    <div
+      class="card-item"
+      v-for="(item,index) in deviceList"
+      :key="index"
+    >
       <div class="title-box">
         <div class="device-name">
           {{ item.deviceName }}
         </div>
         <div class="device-status">
           <div>
-            <div v-if="item.runState === '在线'" style="background-color: #e5f7e9;padding: 4px 12px;display: flex;align-items: center;font-size: 14px;">
+            <div
+              v-if="item.runState === '在线'"
+              style="background-color: #e5f7e9;padding: 4px 12px;display: flex;align-items: center;font-size: 14px;"
+            >
               <div style="height: 15px; width: 15px; border-radius: 15px;background-color: #00b42a;font-size: 14px;"></div>&nbsp;{{ '在线' }}
             </div>
-            <div v-else style="background-color: #e8e8e9;padding: 4px 12px;display: flex;align-items: center;font-size: 14px;" >
+            <div
+              v-else
+              style="background-color: #e8e8e9;padding: 4px 12px;display: flex;align-items: center;font-size: 14px;"
+            >
               <div style="height: 15px; width: 15px; border-radius: 15px;background-color: #000;font-size: 14px;"></div>&nbsp;{{ '离线' }}
             </div>
           </div>
@@ -20,10 +36,17 @@
         </div>
       </div>
       <div class="point-list-box">
-        <div v-if="item.runState !== '在线'" class="mask-layer">
+        <div
+          v-if="item.runState !== '在线'"
+          class="mask-layer"
+        >
 
         </div>
-        <div class="point-item" v-for="(pointItem,pointIndex) in item.attributes" :key="pointIndex">
+        <div
+          class="point-item"
+          v-for="(pointItem,pointIndex) in item.attributes"
+          :key="pointIndex"
+        >
           <div style="font-size: 22px; color: #2b8aff;">
             {{ pointItem.value }}
           </div>
@@ -42,18 +65,21 @@
 
 <script lang="ts" setup>
 import { ref, onMounted, watch, computed } from 'vue';
-import { findDeviceAndAttributeApi } from '../Standardized.api'
+import { findDeviceAndAttributeApi } from '../Standardized.api';
 
-const deviceList = ref<any[]>([])
+const deviceList = ref<any[]>([]);
+
+const getData = async () => {
+  let res = await findDeviceAndAttributeApi({
+    page: 1,
+    pageSize: 99,
+    categoryIds: '26',
+  });
+  deviceList.value = res.records;
+};
 // 初始加载
-onMounted(async() => {
- let res = await findDeviceAndAttributeApi({
-  page: 1,
-  pageSize: 99,
-  categoryIds: '26'
- })
- deviceList.value = res.records
- 
+onMounted(async () => {
+  await getData();
 });
 </script>
 
@@ -68,6 +94,15 @@ onMounted(async() => {
   background-color: #fff;
   padding-top: 12px;
   padding-left: 1.2%;
+
+  .button-box {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding-right: 1.5%;
+    margin-bottom: 16px;
+  }
 
   .card-item {
     margin-right: 1.2%;
