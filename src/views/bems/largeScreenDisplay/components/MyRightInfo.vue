@@ -117,26 +117,31 @@ const columns = [
     key: 'idex',
     slots: { customRender: 'index' },
     width: '60px',
+    align: 'center'
   },
   {
     title: '设备名称',
     dataIndex: 'deviceName',
     key: 'deviceName',
+    align: 'center'
   },
   {
     title: '设备分类',
     dataIndex: 'deviceCategoryId',
     key: 'deviceCategoryId',
+    align: 'center'
   },
   {
     title: '报警信息',
     dataIndex: 'alarmCategoryName',
     key: 'alarmCategoryName',
+    align: 'center'
   },
   {
     title: '报警时间',
     dataIndex: 'alarmTime',
     key: 'alarmTime',
+    align: 'center'
   },
 ];
 

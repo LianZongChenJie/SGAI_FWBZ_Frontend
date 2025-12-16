@@ -39,6 +39,8 @@ enum Api {
   getDeviceRunStateStatisticApi = '/bems/dataQueue/getDeviceRunStateStatistic',
   getRunStatusStatisticApi = '/bems/lighting/dataStatistic/getRunStatusStatistic',
 
+  categoryTree = '/bems/equipmentCategory/getTree',
+
 }
 
 /**
@@ -171,3 +173,9 @@ export const getDeviceRunStateStatisticApi = (params) => defHttp.get({ url: Api.
  * 设备状态-照明
  */
 export const getRunStatusStatisticApi = () => defHttp.get({ url: Api.getRunStatusStatisticApi }); 
+
+/**
+ * 分类树
+ * @param params
+ */
+export const categoryTree = (params) => defHttp.get({ url: Api.categoryTree, params });

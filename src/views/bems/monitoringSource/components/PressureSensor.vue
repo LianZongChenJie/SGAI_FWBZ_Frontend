@@ -1,6 +1,9 @@
 <template>
   <div class="pressure-sensor-main-box">
     <div class="button-box">
+      <span>
+        设备总数：{{ '12' }}&emsp;在线：{{ '12' }}&emsp;离线：{{ '10' }}
+      </span>
       <a-button
         type="primary"
         @click="getData"
@@ -98,16 +101,20 @@ onMounted(async () => {
   .button-box {
     width: 100%;
     display: flex;
-    justify-content: flex-end;
+    justify-content:space-between;
     align-items: center;
     padding-right: 1.5%;
     margin-bottom: 16px;
+
+    >span {
+      font-size: 18px;
+    }
   }
 
   .card-item {
-    margin-right: 1.2%;
-    width: 32%;
-    height: 35%;
+    margin-right: 2%;
+    width: 23%;
+    height: 28%;
     padding: 6px 12px 12px;
     background-color: #fff;
     border-radius: 10px;
@@ -147,7 +154,7 @@ onMounted(async () => {
         > div {
           width: 100%;
           display: flex;
-          justify-content: flex-start;
+          justify-content: center;
           align-items: center;
         }
       }

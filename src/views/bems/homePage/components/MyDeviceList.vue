@@ -239,6 +239,9 @@ onMounted(async () => {
     height: calc(100% - 60px);
     width: 100%;
     overflow: auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
 
     .machine-item {
       width: 100%;

@@ -18,6 +18,8 @@ enum Api {
   saveData = '/bems/deviceAttribute/edit',
   addDate = '/bems/deviceAttribute/add',
   deleteItem = '/bems/deviceAttribute/delete',
+
+  exportData = '/bems/device/export'
 }
 
 /**
@@ -96,3 +98,8 @@ export const saveData = (params) => defHttp.post({ url: Api.saveData, params });
  * 删除数据
  */
 export const deleteItem = (params) => defHttp.delete({ url: Api.deleteItem, params }, { joinParamsToUrl: true });
+
+/**
+ * 导出数据
+ */
+export const exportData = (params) => defHttp.get({ url: Api.exportData, params: params, responseType: 'blob', } ,{ isTransformResponse: false });

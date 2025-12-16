@@ -10,6 +10,11 @@
           :icon="h(PlusOutlined)"
           @click="handleCreated"
         >新建</a-button>
+        <a-button
+          type="primary"
+          :icon="h(VerticalAlignBottomOutlined )"
+          @click="handleExport"
+        >导出</a-button>
       </template>
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'action'">
@@ -37,11 +42,12 @@
 
 <script lang="ts" setup>
 import { ref, onMounted, watch, computed } from 'vue';
-import { selectDevice, updateAutomaticAlgorithm } from '../Device.api';
+import { selectDevice, updateAutomaticAlgorithm, exportData } from '../Device.api';
 import { BasicColumn, BasicTable, FormSchema } from '/@/components/Table';
 import { useListPage } from '/@/hooks/system/useListPage';
 import { h } from 'vue';
-import { PlusOutlined } from '@ant-design/icons-vue';
+import { PlusOutlined, VerticalAlignBottomOutlined   } from '@ant-design/icons-vue';
+import { useMethods } from '@/hooks/system/useMethods.ts';
 
 const props = defineProps<{
   categoryKeys?: string[]; // 类别树节点
@@ -289,6 +295,22 @@ const handleDetail = (record: any) => {
 const handleCreated = () => {
   emit('add');
   reload();
+};
+
+const handleExport = async () => {
+  let res = await exportData({});
+  let name = '导出文件';
+  let blobOptions = { type: 'application/vnd.ms-excel' };
+  let fileSuffix = '.xls';
+  let url = window.URL.createObjectURL(new Blob([res], blobOptions));
+  let link = document.createElement('a');
+  link.style.display = 'none';
+  link.href = url;
+  link.setAttribute('download', name + fileSuffix);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link); //下载完成移除元素
+  window.URL.revokeObjectURL(url); //释放掉blob对象
 };
 
 // 暴露 reload 方法给父组件

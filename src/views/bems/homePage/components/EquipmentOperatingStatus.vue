@@ -40,7 +40,7 @@
         </div>
       </div>
       <div class="alarm-item-box">
-        <div
+        <!-- <div
           class="alarm-item"
           v-for="(item,index) in alarmList"
           :key="index"
@@ -59,7 +59,41 @@
               {{ item.alarmCategoryName }}
             </div>
           </div>
-        </div>
+        </div> -->
+        <a-table
+          class="fault-alarm-table"
+          :columns="columns"
+          :data-source="data"
+          small="small"
+          :pagination="false"
+          :scroll="{ y: 110 }"
+        >
+          <template #index="{ text, record, index }">
+            {{ index + 1 }}
+          </template>
+          <template #bodyCell="{ column, record }">
+            <template v-if="column.dataIndex === 'code'">
+              <div class="content-box">{{ record.code }}</div>
+            </template>
+            <template v-if="column.dataIndex === 'deviceCategoryId'">
+              <a-tooltip
+                :title="findTreeNodeTitle(treeData, record.deviceCategoryId)"
+                placement="topLeft"
+              >
+                <div class="content-box">{{ findTreeNodeTitle(treeData, record.deviceCategoryId) }}</div>
+              </a-tooltip>
+            </template>
+            <template v-if="column.dataIndex === 'content'">
+              <div class="content-box">{{ record.content }}</div>
+            </template>
+            <template v-if="column.dataIndex === 'status'">
+              <div class="content-box"><span :style="{color: record.status === '已完成' ? '#53985e' : '#fff'}">{{ record.status }}</span></div>
+            </template>
+            <template v-if="column.dataIndex === 'urgencyLevel'">
+              <div class="content-box"><span :style="{color: record.urgencyLevel === '紧急' ? '#da0215' : '#fff'}">{{ record.urgencyLevel }}</span></div>
+            </template>
+          </template>
+        </a-table>
       </div>
     </div>
   </div>
@@ -68,7 +102,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import MyDeviceList from './MyDeviceList.vue';
-import { getAlarmStatisticsApi, getAlarmRecordListForMonthApi } from '../Standardized.api';
+import { getAlarmStatisticsApi, getAlarmRecordListForMonthApi, categoryTree } from '../Standardized.api';
 
 const alarmBaseData = ref({
   mom: '',
@@ -193,6 +227,76 @@ const alarmList = ref([
   },
 ]);
 
+const columns = [
+  {
+    title: '序号',
+    dataIndex: 'idex',
+    key: 'idex',
+    slots: { customRender: 'index' },
+    width: '60px',
+    align: 'center'
+  },
+  {
+    title: '设备名称',
+    dataIndex: 'deviceName',
+    key: 'deviceName',
+    align: 'center'
+  },
+  {
+    title: '设备分类',
+    dataIndex: 'deviceCategoryId',
+    key: 'deviceCategoryId',
+    align: 'center'
+  },
+  {
+    title: '报警信息',
+    dataIndex: 'alarmCategoryName',
+    key: 'alarmCategoryName',
+    align: 'center'
+  },
+  {
+    title: '报警时间',
+    dataIndex: 'alarmTime',
+    key: 'alarmTime',
+    align: 'center'
+  },
+];
+
+const treeData = ref([]);
+
+// 获取设备类别树数据
+const getCategoryTree = async () => {
+  try {
+    const res = await categoryTree({});
+    treeData.value = res;
+  } catch (error) {
+    console.error('获取设备类别失败:', error);
+  }
+};
+
+// 查找树节点的标题
+const findTreeNodeTitle = (treeData: any[], key: string | number): string => {
+  if (!treeData || !Array.isArray(treeData)) {
+    return '';
+  }
+
+  const find = (nodes: any[]): string => {
+    for (const node of nodes) {
+      if (String(node.key) === String(key)) {
+        return node.value;
+      }
+      if (node.children && Array.isArray(node.children)) {
+        const title = find(node.children);
+        if (title) return title;
+      }
+    }
+    return '';
+  };
+  return find(treeData);
+};
+
+const data = ref([]);
+
 // 获取告警信息
 const getAlarmStatistics = async () => {
   let res = await getAlarmStatisticsApi();
@@ -208,12 +312,14 @@ const getAlarmRecordListForMonth = async () => {
     pageSize: 50,
   });
   alarmList.value = res.records;
+  data.value = res.records;
 };
 
 
 
 onMounted(async () => {
   tableDataSourse.value = [...deviceStatusData.value.alreadyResponded];
+  await getCategoryTree()
   await getAlarmStatistics();
   await getAlarmRecordListForMonth();
 });

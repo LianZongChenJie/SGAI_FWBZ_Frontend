@@ -15,6 +15,9 @@
             </div>
             <div class="place-list">
               <div class="data-title">
+                <div style="width: 30px;">
+
+                </div>
                 <div>
 
                 </div>
@@ -34,6 +37,9 @@
                   v-for="(item,index) in placeList"
                   :key="index"
                 >
+                  <div class="icon-box">
+
+                  </div>
                   <div>
                     {{ item.name }}
                   </div>
@@ -56,20 +62,20 @@
         </div>
       </div>
       <div class="bottom-box">
-          <EnergyAndCoal />
+        <EnergyAndCoal />
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref,onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import EnergySafety from './components/EnergySafety.vue';
 import EnvironmentalQuality from './components/EnvironmentalQuality.vue';
 import EquipmentOperatingStatus from './components/EquipmentOperatingStatus.vue';
 import EnergyAndCoal from './components/EnergyAndCoal.vue';
 
-import { getEnergyUseSafetyApi } from './Standardized.api'
+import { getEnergyUseSafetyApi } from './Standardized.api';
 
 const placeList = ref([
   {
@@ -83,7 +89,7 @@ const placeList = ref([
 onMounted(async () => {
   let res = await getEnergyUseSafetyApi();
   placeList.value = [...res];
-})
+});
 </script>
 
 
@@ -154,7 +160,7 @@ onMounted(async () => {
           }
 
           .place-list {
-            padding: 0 24px;
+            padding: 0 12px;
             height: calc(100% - 40px);
             width: 100%;
 
@@ -167,7 +173,7 @@ onMounted(async () => {
               div {
                 display: flex;
                 height: 100%;
-                width: 25%;
+                width: 24%;
                 align-items: center;
                 justify-content: center;
                 font-size: 16px;
@@ -185,10 +191,17 @@ onMounted(async () => {
                 div {
                   display: flex;
                   height: 100%;
-                  width: 25%;
+                  width: 24%;
                   align-items: center;
                   justify-content: center;
                   font-size: 16px;
+                }
+
+                .icon-box {
+                  width: 30px;
+                  height: 30px;
+                  background-image: url('@/assets/images/flish.png');
+                  background-size: 100% 100%;
                 }
               }
             }

@@ -15,7 +15,7 @@
           {{ wendu }}°
         </div>
         <div class="weather-name-box">
-          <div class="weather-icon" :style="backgroundStyle">
+          <div class="weather-icon" :id="weatherId">
 
           </div>
           <div>
@@ -60,12 +60,7 @@ import { ref, onMounted, onBeforeUnmount, watch, computed } from 'vue';
 import * as echarts from 'echarts';
 import axios from 'axios';
 
-const weaterImage = ref('../../../../assets/images/00.png');
-
-const backgroundStyle = computed(() => ({
-  backgroundImage: `url(${weaterImage.value})`,
-  // 其他背景样式
-}));
+const weatherId = ref('icon1')
 
 const weaterData = ref<any>({});
 const weaterDataTomo = ref<any>({});
@@ -115,16 +110,16 @@ const getWeaterData = async () => {
   weaterData.value = res.data.data.forecast[0];
   weaterDataTomo.value = res.data.data.forecast[1];
   if (weaterData.value.type == '晴') {
-    weaterImage.value = '../../../../assets/images/00.png';
+    weatherId.value = 'icon1'
   } else {
     if (weaterData.value.type == '阴') {
-      weaterImage.value = '../../../../assets/images/02.png';
+      weatherId.value = 'icon2'
     } else {
       if (weaterData.value.type == '雾') {
-        weaterImage.value = '../../../../assets/images/18.png';
+        weatherId.value = 'icon3'
       } else {
         if (weaterData.value.type.indexOf('多云') != -1) {
-          weaterImage.value = '../../../../assets/images/01.png';
+          weatherId.value = 'icon4'
         } else {
           if (
             weaterData.value.type.indexOf('阵雨') != -1 ||
@@ -133,7 +128,7 @@ const getWeaterData = async () => {
             weaterData.value.type.indexOf('大雨') != -1 ||
             weaterData.value.type.indexOf('暴雨') != -1
           ) {
-            weaterImage.value = '../../../../assets/images/04.png';
+            weatherId.value = 'icon5'
           } else {
             if (
               weaterData.value.type.indexOf('阵雪') != -1 ||
@@ -142,15 +137,15 @@ const getWeaterData = async () => {
               weaterData.value.type.indexOf('大雪') != -1 ||
               weaterData.value.type.indexOf('暴雪') != -1
             ) {
-              weaterImage.value = '../../../../assets/images/15.png';
+              weatherId.value = 'icon6'
             } else {
               if (weaterData.value.type.indexOf('霾') != -1 || weaterData.value.type.indexOf('雾霾') != -1) {
-                weaterImage.value = '../../../../assets/images/53.png';
+                weatherId.value = 'icon7'
               } else {
                 if (weaterData.value.type.indexOf('尘') != -1 || weaterData.value.type.indexOf('沙') != -1) {
-                  weaterImage.value = '../../../../assets/images/20.png';
+                  weatherId.value = 'icon8'
                 } else {
-                  weaterImage.value = '../../../../assets/images/00.png';
+                  weatherId.value = 'icon1'
                 }
               }
             }
@@ -604,6 +599,31 @@ const getPixelYPosition = (value) => {
           width: 40px;
           background-size: 100% 100%;
           // background-image: url('/weatherIcon/00.png');
+        }
+
+        #icon1 {
+          background-image: url('@/assets/images/00.png');
+        }
+        #icon2 {
+          background-image: url('@/assets/images/02.png');
+        }
+        #icon3 {
+          background-image: url('@/assets/images/18.png');
+        }
+        #icon4 {
+          background-image: url('@/assets/images/01.png');
+        }
+        #icon5 {
+          background-image: url('@/assets/images/04.png');
+        }
+        #icon6 {
+          background-image: url('@/assets/images/15.png');
+        }
+        #icon7 {
+          background-image: url('@/assets/images/53.png');
+        }
+        #icon8 {
+          background-image: url('@/assets/images/20.png');
         }
       }
     }
