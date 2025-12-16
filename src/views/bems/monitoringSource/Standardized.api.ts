@@ -15,6 +15,7 @@ enum Api {
 
   getEnergyUseSafetyApi = '/bems/homePage/energyUseSafety',
   findDeviceAndAttributeApi = '/bems/device/findDeviceAndAttribute',
+  deviceRunStateStatisticsApi = '/bems/device/deviceRunStateStatistics',
 }
 
 /**
@@ -78,3 +79,9 @@ export const getEnergyUseSafetyApi = () => defHttp.get({ url: Api.getEnergyUseSa
  * @param params
  */
 export const findDeviceAndAttributeApi = (params) => defHttp.get({ url: Api.findDeviceAndAttributeApi, params }, { joinParamsToUrl: true }); 
+
+/**
+ * 禁用告警级别
+ * @param params
+ */
+export const deviceRunStateStatisticsApi = (params) => defHttp.get({ url: Api.deviceRunStateStatisticsApi, params }, { joinParamsToUrl: true }); 

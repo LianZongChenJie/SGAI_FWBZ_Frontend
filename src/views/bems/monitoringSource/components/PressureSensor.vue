@@ -2,7 +2,7 @@
   <div class="pressure-sensor-main-box">
     <div class="button-box">
       <span>
-        设备总数：{{ '12' }}&emsp;在线：{{ '12' }}&emsp;离线：{{ '10' }}
+        设备总数：{{ count }}&emsp;在线：{{ online }}&emsp;离线：{{ offline }}
       </span>
       <a-button
         type="primary"
@@ -68,9 +68,13 @@
 
 <script lang="ts" setup>
 import { ref, onMounted, watch, computed } from 'vue';
-import { findDeviceAndAttributeApi } from '../Standardized.api';
+import { findDeviceAndAttributeApi,deviceRunStateStatisticsApi } from '../Standardized.api';
 
 const deviceList = ref<any[]>([]);
+
+const count = ref('0')
+const online = ref('0')
+const offline = ref('0')
 
 const getData = async () => {
   let res = await findDeviceAndAttributeApi({
@@ -80,9 +84,18 @@ const getData = async () => {
   });
   deviceList.value = res.records;
 };
+
+const deviceRunStateStatistics = async () => {
+  let res = await deviceRunStateStatisticsApi({ categoryId: '26'})
+  count.value = res.count
+  online.value = res.online
+  offline.value = res.offline
+  
+}
 // 初始加载
 onMounted(async () => {
   await getData();
+  await deviceRunStateStatistics()
 });
 </script>
 
