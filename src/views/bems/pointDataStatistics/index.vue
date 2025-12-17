@@ -68,7 +68,7 @@
 
 <script lang="ts" setup>
 import { onMounted, onUnmounted, ref, shallowRef, h } from 'vue';
-import { findDay, findMonth, findYear, energyFlowType, energyFlowTree, test } from './index.api';
+import { findDay, findMonth, findYear, energyFlowType, energyFlowTree } from './index.api';
 import * as echarts from 'echarts';
 import { MenuProps, message } from 'ant-design-vue';
 import { VerticalAlignBottomOutlined } from '@ant-design/icons-vue';
@@ -129,11 +129,6 @@ const findTreeData = async () => {
 
 const ragioChange = () => {
   findData();
-};
-
-const exportExcel = () => {
-  console.log('test');
-  test();
 };
 
 const findData = async () => {
