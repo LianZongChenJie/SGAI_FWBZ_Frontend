@@ -38,6 +38,12 @@
           type="primary"
           @click="findData"
         >查询</a-button>
+        &nbsp;
+        <a-button
+          type="primary"
+          :icon="h(VerticalAlignBottomOutlined )"
+          @click="handleExport"
+        >导出</a-button>
 
         <!-- 这里放置图表组件 -->
         <div
@@ -61,10 +67,11 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, onUnmounted, ref, shallowRef } from 'vue';
+import { onMounted, onUnmounted, ref, shallowRef, h } from 'vue';
 import { findDay, findMonth, findYear, energyFlowType, energyFlowTree, test } from './index.api';
 import * as echarts from 'echarts';
 import { MenuProps, message } from 'ant-design-vue';
+import { VerticalAlignBottomOutlined } from '@ant-design/icons-vue';
 
 const date = ref<string>();
 const chartInstance: any = shallowRef(null);
@@ -226,6 +233,22 @@ const resizeChart = () => {
   if (chartInstance.value) {
     chartInstance.value.resize();
   }
+};
+
+const handleExport = async () => {
+  // let res = await exportData({});
+  // let name = '导出文件';
+  // let blobOptions = { type: 'application/vnd.ms-excel' };
+  // let fileSuffix = '.xls';
+  // let url = window.URL.createObjectURL(new Blob([res], blobOptions));
+  // let link = document.createElement('a');
+  // link.style.display = 'none';
+  // link.href = url;
+  // link.setAttribute('download', name + fileSuffix);
+  // document.body.appendChild(link);
+  // link.click();
+  // document.body.removeChild(link); //下载完成移除元素
+  // window.URL.revokeObjectURL(url); //释放掉blob对象
 };
 
 onMounted(async () => {

@@ -1,11 +1,41 @@
 <template>
   <div class="">
-    <BasicTable @register="registerTable">
+    <BasicTable
+      @register="registerTable"
+      :rowSelection="rowSelection"
+    >
       <template #toolbar>
         <a-button
           type="primary"
           @click="reload()"
         >刷新</a-button>
+        &emsp;
+        <a-popconfirm
+          title="确认全开所选区域？"
+          ok-text="确定"
+          cancel-text="取消"
+          @confirm="openAll"
+        >
+          <a-button
+            v-if="hasPermission('bems:areafullyopen')"
+            type="primary"
+          >全开</a-button>
+        </a-popconfirm>
+        &emsp;
+
+        <a-popconfirm
+          title="确认全关所选区域？"
+          ok-text="确定"
+          cancel-text="取消"
+          @confirm="closeAll"
+        >
+          <a-button
+            v-if="hasPermission('bems:areafullyclose')"
+            type="primary"
+            danger
+          >全关</a-button>
+        </a-popconfirm>
+
       </template>
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'active'">
@@ -133,7 +163,7 @@ const { tableContext } = useListPage({
 });
 
 // BasicTable绑定注册
-const [registerTable, { reload, getForm }] = tableContext;
+const [registerTable, { reload, getForm }, { rowSelection, selectedRowKeys }] = tableContext;
 
 /**
  * 检查是否有权限
@@ -152,6 +182,16 @@ const hasPermissions = (permission: string) => {
   }
 
   return currentPermissions.includes(permission);
+};
+
+// 全开
+const openAll = async () => {
+  console.log('closeAll--------------------->', selectedRowKeys.value);
+};
+
+// 全关
+const closeAll = async () => {
+  console.log('closeAll--------------------->', selectedRowKeys.value);
 };
 
 const handleOpen = async (record) => {
