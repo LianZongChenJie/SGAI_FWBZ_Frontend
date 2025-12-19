@@ -81,7 +81,7 @@
 <script lang="ts" setup>
 import { ref, onMounted, h } from 'vue';
 import { BarChartOutlined, VerticalAlignBottomOutlined } from '@ant-design/icons-vue';
-import { getCategoryTree, getSpaceTree, getList, getDeviceNumberDataApi } from './index.api';
+import { getCategoryTree, getSpaceTree, getList, getDeviceNumberDataApi, exportData } from './index.api';
 import Chart from './components/chart.vue';
 import { BasicColumn, BasicTable, FormSchema } from '/@/components/Table';
 import { useListPage } from '/@/hooks/system/useListPage';
@@ -400,19 +400,25 @@ const filterTableData = (status) => {
 }
 
 const handleExport = async () => {
-  // let res = await exportData({});
-  // let name = '导出文件';
-  // let blobOptions = { type: 'application/vnd.ms-excel' };
-  // let fileSuffix = '.xls';
-  // let url = window.URL.createObjectURL(new Blob([res], blobOptions));
-  // let link = document.createElement('a');
-  // link.style.display = 'none';
-  // link.href = url;
-  // link.setAttribute('download', name + fileSuffix);
-  // document.body.appendChild(link);
-  // link.click();
-  // document.body.removeChild(link); //下载完成移除元素
-  // window.URL.revokeObjectURL(url); //释放掉blob对象
+  let { getFieldsValue } = getForm();
+  const searchData = getFieldsValue();
+  let res = await exportData({
+    ...searchData,
+    startTime: searchData.startTime ? searchData.startTime.split(' ')[0] + ' 00:00:00' : null,
+    endTime: searchData.endTime ? searchData.endTime.split(' ')[0] + ' 00:00:00' : null,
+  });
+  let name = '状态数据';
+  let blobOptions = { type: 'application/vnd.ms-excel' };
+  let fileSuffix = '.xls';
+  let url = window.URL.createObjectURL(new Blob([res], blobOptions));
+  let link = document.createElement('a');
+  link.style.display = 'none';
+  link.href = url;
+  link.setAttribute('download', name + fileSuffix);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link); //下载完成移除元素
+  window.URL.revokeObjectURL(url); //释放掉blob对象
 };
 
 // 组件挂载时获取数据

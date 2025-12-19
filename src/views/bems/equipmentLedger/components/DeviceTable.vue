@@ -7,6 +7,11 @@
           :icon="h(PlusOutlined)"
           @click="handleCreated"
         >新建</a-button>
+        <a-button
+          type="primary"
+          :icon="h(VerticalAlignBottomOutlined )"
+          @click="handleExport"
+        >导出</a-button>
       </template>
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'action'">
@@ -33,12 +38,11 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, watch, computed } from 'vue';
-import { selectDevice, updateAutomaticAlgorithm } from '../Device.api';
+import { ref, onMounted, watch, h } from 'vue';
+import { selectDevice, updateAutomaticAlgorithm, exportData } from '../Device.api';
 import { BasicColumn, BasicTable, FormSchema } from '/@/components/Table';
 import { useListPage } from '/@/hooks/system/useListPage';
-import { h } from 'vue';
-import { PlusOutlined } from '@ant-design/icons-vue';
+import { PlusOutlined, VerticalAlignBottomOutlined } from '@ant-design/icons-vue';
 
 const props = defineProps<{
   categoryKeys?: string[]; // 类别树节点
@@ -164,6 +168,18 @@ const searchFormSchema: FormSchema[] = [
       ],
     },
   },
+  {
+    label: '是否绑定点位', //显示label
+    field: 'associatedPoint', //查询字段
+    component: 'Select',
+    componentProps: {
+      options: [
+        { label: '是', value: '1' },
+        { label: '否', value: '0' },
+        // 这里需要根据实际数据补充选项
+      ],
+    },
+  },
 ];
 
 // 表格数据
@@ -221,6 +237,7 @@ const loadData = async (pageParams) => {
       pageSize: pageSize,
       nameOrCode: searchData.deviceName ? searchData.deviceName.split('*')[1] : undefined,
       runState: searchData.runState ? searchData.runState : undefined,
+      associatedPoint: searchData.associatedPoint ? searchData.associatedPoint : undefined,
       categoryIds: props.categoryKeys ? props.categoryKeys.join(',') : undefined,
       spaceIds: props.spaceKeys ? props.spaceKeys.join(',') : undefined,
     };
@@ -284,6 +301,30 @@ watch(
     reload();
   }
 );
+
+const handleExport = async () => {
+  let { getFieldsValue } = getForm();
+    const searchData = getFieldsValue();
+  let res = await exportData({
+    nameOrCode: searchData.deviceName ? searchData.deviceName.split('*')[1] : undefined,
+      runState: searchData.runState ? searchData.runState : undefined,
+      categoryIds: props.categoryKeys ? props.categoryKeys.join(',') : undefined,
+      spaceIds: props.spaceKeys ? props.spaceKeys.join(',') : undefined,
+      deviceType: '1'
+  });
+  let name = '仪表台账';
+  let blobOptions = { type: 'application/vnd.ms-excel' };
+  let fileSuffix = '.xls';
+  let url = window.URL.createObjectURL(new Blob([res], blobOptions));
+  let link = document.createElement('a');
+  link.style.display = 'none';
+  link.href = url;
+  link.setAttribute('download', name + fileSuffix);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link); //下载完成移除元素
+  window.URL.revokeObjectURL(url); //释放掉blob对象
+};
 
 // 初始加载
 onMounted(() => {});

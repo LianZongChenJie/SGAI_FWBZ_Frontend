@@ -31,7 +31,7 @@
     </div>
     <div class="event-work-order">
       <div class="event-work-order-title">
-        事件工单分析
+        告警类别统计
       </div>
       <div
         id="eventWorkOrderChart"
@@ -92,6 +92,7 @@ import {
   getDeviceRunStateStatisticApi,
   getRunStatusStatisticApi,
   eventDistributionApi,
+  getAlarmCategoryStatisticForThisMonthApi,
   categoryTree,
 } from '../Standardized.api';
 
@@ -117,31 +118,31 @@ const columns = [
     key: 'idex',
     slots: { customRender: 'index' },
     width: '60px',
-    align: 'center'
+    align: 'center',
   },
   {
     title: '设备名称',
     dataIndex: 'deviceName',
     key: 'deviceName',
-    align: 'center'
+    align: 'center',
   },
   {
     title: '设备分类',
     dataIndex: 'deviceCategoryId',
     key: 'deviceCategoryId',
-    align: 'center'
+    align: 'center',
   },
   {
     title: '报警信息',
     dataIndex: 'alarmCategoryName',
     key: 'alarmCategoryName',
-    align: 'center'
+    align: 'center',
   },
   {
     title: '报警时间',
     dataIndex: 'alarmTime',
     key: 'alarmTime',
-    align: 'center'
+    align: 'center',
   },
 ];
 
@@ -190,8 +191,13 @@ const customRow = (conlumn) => {
 
 // 获取事件分布数据
 const eventDistribution = async () => {
-  let res = await eventDistributionApi();
-  echartData.value = [...res];
+  let res = await getAlarmCategoryStatisticForThisMonthApi();
+  echartData.value = res.map((item) => {
+    return {
+      name: item.categoryName,
+      value: item.total,
+    };
+  });
 };
 
 // 获取报警列表数据

@@ -241,7 +241,6 @@ const loadChart = (chart) => {
   console.log('option', option);
   chartInstance.value?.clear(); // 清空图表数据
   chartInstance.value?.setOption(option);
-  resizeChart()
 };
 
 // 监听窗口大小变化，调整图表大小
@@ -319,6 +318,9 @@ onUnmounted(() => {
       padding: 5px;
 
       .chart-placeholder {
+        height: 100%;
+        width: 100%;
+        border: 1px solid red;
         display: flex;
         justify-content: center;
         align-items: center;

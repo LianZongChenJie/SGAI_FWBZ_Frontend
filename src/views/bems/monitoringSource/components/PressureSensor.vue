@@ -6,7 +6,7 @@
       </span>
       <a-button
         type="primary"
-        @click="getData"
+        @click="reload"
       >刷新</a-button>
     </div>
     <div
@@ -34,17 +34,12 @@
             </div>
           </div>
           <div>
-            {{ item.createTime }}
+            {{ item.lastGatherTime }}
           </div>
         </div>
       </div>
       <div class="point-list-box">
-        <div
-          v-if="item.runState !== '在线'"
-          class="mask-layer"
-        >
-
-        </div>
+        
         <div
           class="point-item"
           v-for="(pointItem,pointIndex) in item.attributes"
@@ -61,41 +56,57 @@
           </div>
         </div>
       </div>
+      <div
+          v-if="item.runState !== '在线'"
+          class="mask-layer"
+        >
 
+        </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { ref, onMounted, watch, computed } from 'vue';
-import { findDeviceAndAttributeApi,deviceRunStateStatisticsApi } from '../Standardized.api';
+import { findDeviceAndAttributeApi, deviceRunStateStatisticsApi } from '../Standardized.api';
+
+const props = defineProps({
+  apiParams: {
+    type: String,
+    default: '26',
+  },
+});
 
 const deviceList = ref<any[]>([]);
 
-const count = ref('0')
-const online = ref('0')
-const offline = ref('0')
+const count = ref('0');
+const online = ref('0');
+const offline = ref('0');
+
+const reload = async () => {
+  await getData()
+  await deviceRunStateStatistics()
+}
 
 const getData = async () => {
   let res = await findDeviceAndAttributeApi({
     page: 1,
     pageSize: 99,
-    categoryIds: '26',
+    categoryIds: props.apiParams,
   });
   deviceList.value = res.records;
 };
 
 const deviceRunStateStatistics = async () => {
-  let res = await deviceRunStateStatisticsApi({ categoryId: '26'})
-  count.value = res.count
-  online.value = res.online
-  offline.value = res.offline
-  
-}
+  let res = await deviceRunStateStatisticsApi({ categoryId: props.apiParams });
+  count.value = res.count;
+  online.value = res.online;
+  offline.value = res.offline;
+};
 // 初始加载
 onMounted(async () => {
   await getData();
-  await deviceRunStateStatistics()
+  await deviceRunStateStatistics();
 });
 </script>
 
@@ -105,7 +116,7 @@ onMounted(async () => {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-start;
-  align-content: space-around;
+  align-content: flex-start;
   overflow: auto;
   background-color: #fff;
   padding-top: 12px;
@@ -114,12 +125,12 @@ onMounted(async () => {
   .button-box {
     width: 100%;
     display: flex;
-    justify-content:space-between;
+    justify-content: space-between;
     align-items: center;
     padding-right: 1.5%;
     margin-bottom: 16px;
 
-    >span {
+    > span {
       font-size: 18px;
     }
   }
@@ -133,6 +144,7 @@ onMounted(async () => {
     border-radius: 10px;
     margin-bottom: 20px;
     border: 1px solid #adadad;
+    position: relative;
 
     .title-box {
       display: flex;
@@ -149,20 +161,22 @@ onMounted(async () => {
     }
 
     .point-list-box {
-      position: relative;
+      
       height: calc(100% - 60px);
       width: 100%;
       padding: 6px;
       background-color: #f7f8fa;
+      overflow: auto;
 
       .point-item {
         padding: 0 20px;
-        height: 100%;
+        height: 90%;
         background-color: #fff;
         display: flex;
         align-items: center;
         flex-wrap: wrap;
         align-content: center;
+        margin-bottom: 12px;
 
         > div {
           width: 100%;
@@ -171,16 +185,15 @@ onMounted(async () => {
           align-items: center;
         }
       }
-
-      .mask-layer {
-        top: 0;
-        left: 0;
+    }
+    .mask-layer {
+        top: 70px;
+        left: 5%;
         position: absolute;
-        height: 100%;
-        width: 100%;
+        height: calc(100% - 80px);
+        width: 88%;
         background-color: #ebecec69;
       }
-    }
   }
 }
 </style>

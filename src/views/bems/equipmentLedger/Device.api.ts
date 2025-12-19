@@ -20,7 +20,9 @@ enum Api {
   deleteItem = '/bems/deviceAttribute/delete',
 
   getBuildingControlPointListApi = '/bems/bc/buildingControlPoint/listPage',
-  bindPointLocationApi = '/bems/deviceAttribute/bindingBuildingControlPoint'
+  bindPointLocationApi = '/bems/deviceAttribute/bindingBuildingControlPoint',
+
+  exportData = '/bems/device/export'
 }
 
 /**
@@ -109,3 +111,8 @@ export const getBuildingControlPointListApi = (params) => defHttp.get({ url: Api
  * 获取楼控点位列表
  */
 export const bindPointLocationApi = (params) => defHttp.post({ url: Api.bindPointLocationApi, params });
+
+/**
+ * 导出数据
+ */
+export const exportData = (params) => defHttp.get({ url: Api.exportData, params: params, responseType: 'blob', } ,{ isTransformResponse: false });

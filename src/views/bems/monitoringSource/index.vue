@@ -18,10 +18,10 @@
         <WaterSupplyAndDrainage />
       </a-tab-pane>
       <a-tab-pane key="6" tab="压力传感器">
-        <PressureSensor />
+        <PressureSensor :apiParams="'26'"/>
       </a-tab-pane>
       <a-tab-pane key="7" tab="流速传感器">
-        <PressureSensor />
+        <PressureSensor :apiParams="'36'"/>
       </a-tab-pane>
     </a-tabs>
   </div>  

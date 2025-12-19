@@ -8,7 +8,9 @@ enum Api {
   spaceTree = '/bems/space/getTree',
   list = '/bems/deviceData/list',
   findHourData = '/bems/deviceData/findHourData', 
-  getDeviceNumberDataApi = '/bems/deviceData/statisticsRunState', 
+  getDeviceNumberDataApi = '/bems/deviceData/statisticsRunState',
+
+  exportData = '/bems/deviceData/export', 
 }
 
 export const getCategoryTree = () => defHttp.get({ url: Api.categoryTree });
@@ -16,3 +18,8 @@ export const getSpaceTree = () => defHttp.get({ url: Api.spaceTree });
 export const getList = (params) => defHttp.get({ url: Api.list, params });
 export const findHourData = (params) => defHttp.get({ url: Api.findHourData, params });
 export const getDeviceNumberDataApi = () => defHttp.get({ url: Api.getDeviceNumberDataApi });
+
+/**
+ * 导出数据
+ */
+export const exportData = (params) => defHttp.get({ url: Api.exportData, params: params, responseType: 'blob', } ,{ isTransformResponse: false });

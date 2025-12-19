@@ -41,11 +41,10 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, watch, computed } from 'vue';
+import { ref, onMounted, watch, h } from 'vue';
 import { selectDevice, updateAutomaticAlgorithm, exportData } from '../Device.api';
 import { BasicColumn, BasicTable, FormSchema } from '/@/components/Table';
 import { useListPage } from '/@/hooks/system/useListPage';
-import { h } from 'vue';
 import { PlusOutlined, VerticalAlignBottomOutlined   } from '@ant-design/icons-vue';
 import { useMethods } from '@/hooks/system/useMethods.ts';
 
@@ -298,8 +297,16 @@ const handleCreated = () => {
 };
 
 const handleExport = async () => {
-  let res = await exportData({});
-  let name = '导出文件';
+  let { getFieldsValue } = getForm();
+    const searchData = getFieldsValue();
+  let res = await exportData({
+    nameOrCode: searchData.deviceName ? searchData.deviceName.split('*')[1] : undefined,
+      runState: searchData.runState ? searchData.runState : undefined,
+      categoryIds: props.categoryKeys ? props.categoryKeys.join(',') : undefined,
+      spaceIds: props.spaceKeys ? props.spaceKeys.join(',') : undefined,
+      deviceType: '1'
+  });
+  let name = '仪表台账';
   let blobOptions = { type: 'application/vnd.ms-excel' };
   let fileSuffix = '.xls';
   let url = window.URL.createObjectURL(new Blob([res], blobOptions));
