@@ -1,0 +1,68 @@
+{
+  "modified": "Fri Dec 19 2025 14:39:41 GMT+0800 (中国标准时间)",
+  "gridEnabled": true,
+  "width": 120,
+  "height": 20,
+  "comps": [
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "rotation": -1.5708,
+      "points": [
+        17.50002,
+        -7.49998,
+        17.49998,
+        27.50002
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/geJuYuan/zheXian3.json",
+      "displayName": "zheXian3",
+      "rotation": 1.57079,
+      "rect": [
+        71.00003,
+        0.00017,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "rotation": -1.5708,
+      "points": [
+        102.99992,
+        -6.99992,
+        103.00008,
+        27.00008
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/jinAnQiao/kaiguan.json",
+      "displayName": "kaiguan",
+      "rotation": 0,
+      "rect": [
+        33,
+        0.00004,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "rotation": -1.5708,
+      "points": [
+        62.49992,
+        -5.49975,
+        62.50008,
+        25.50025
+      ]
+    }
+  ]
+}

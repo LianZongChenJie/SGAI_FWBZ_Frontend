@@ -1,0 +1,421 @@
+{
+  "modified": "Fri Dec 19 2025 10:47:00 GMT+0800 (中国标准时间)",
+  "gridEnabled": true,
+  "width": 160,
+  "height": 310,
+  "comps": [
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "rotation": 0,
+      "points": [
+        79.99997,
+        23,
+        79.99995,
+        41
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/geJuYuan/zheXian3.json",
+      "displayName": "zheXian3",
+      "rotation": 0,
+      "rect": [
+        69.99997,
+        11,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "rotation": 0,
+      "points": [
+        79.99997,
+        0,
+        79.99997,
+        17
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/geJuYuan/zheXian3.json",
+      "displayName": "zheXian3",
+      "rotation": 3.14159,
+      "rect": [
+        69.99989,
+        80.00003,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "rotation": 0,
+      "points": [
+        80,
+        55,
+        79.99987,
+        87
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/jinAnQiao/lianJie.json",
+      "displayName": "lianJie",
+      "rotation": -3.14159,
+      "rect": [
+        70,
+        36,
+        20,
+        10
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/jinAnQiao/kaiguan.json",
+      "displayName": "kaiguan",
+      "rotation": 1.5708,
+      "rect": [
+        69.99992,
+        41,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "rotation": 0,
+      "points": [
+        79.99987,
+        95.00005,
+        79.99987,
+        187
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/jinAnQiao/huLu2.json",
+      "displayName": "huLu2",
+      "rect": [
+        69.99987,
+        100.00005,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/jinAnQiao/huLu2.json",
+      "displayName": "huLu2",
+      "rect": [
+        70,
+        120.00005,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/jinAnQiao/huLu2.json",
+      "displayName": "huLu2",
+      "rect": [
+        90,
+        100.00005,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/jinAnQiao/huLu2.json",
+      "displayName": "huLu2",
+      "rect": [
+        90.00013,
+        120.00005,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/jinAnQiao/huLu2.json",
+      "displayName": "huLu2",
+      "rect": [
+        50,
+        100.00005,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/jinAnQiao/huLu2.json",
+      "displayName": "huLu2",
+      "rect": [
+        50.00013,
+        120.00005,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "rotation": 0,
+      "points": [
+        149.99987,
+        164.00005,
+        9.99987,
+        164.00005
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "points": [
+        11,
+        165,
+        11,
+        186.41121
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "points": [
+        11.32085,
+        202.41121,
+        11.32085,
+        211
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "points": [
+        5.5,
+        212,
+        16.5,
+        212
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "points": [
+        8.5,
+        216,
+        13.5,
+        216
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "points": [
+        10,
+        220,
+        12,
+        220
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/jinAnQiao/biLeiQi2.json",
+      "displayName": "biLeiQi2",
+      "rect": [
+        1,
+        184.41121,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "points": [
+        148.99997,
+        163,
+        149,
+        179
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "points": [
+        145,
+        180,
+        153,
+        180
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "points": [
+        149,
+        193,
+        148.82085,
+        210.58879
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "points": [
+        143,
+        211.58879,
+        154,
+        211.58879
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "points": [
+        146,
+        215.58879,
+        151,
+        215.58879
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "points": [
+        147.5,
+        219.58879,
+        149.5,
+        219.58879
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/jinAnQiao/kaiguan.json",
+      "displayName": "kaiguan",
+      "rotation": 1.5708,
+      "rect": [
+        139,
+        179.58879,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/jinAnQiao/shuangYuan.json",
+      "displayName": "shuangYuan",
+      "rect": [
+        50.00013,
+        180,
+        59.99987,
+        100
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "rotation": 0,
+      "points": [
+        79.99987,
+        275,
+        79.99987,
+        310
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "rotation": 1.5708,
+      "points": [
+        68.7944,
+        279.2944,
+        68.7944,
+        300.7056
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "rotation": 1.5708,
+      "points": [
+        37.7944,
+        286.02646,
+        37.7944,
+        294.61525
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "rotation": 1.5708,
+      "points": [
+        27,
+        290,
+        38,
+        290
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "rotation": 1.5708,
+      "points": [
+        26,
+        290,
+        31,
+        290
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "rotation": 1.5708,
+      "points": [
+        23.5,
+        290,
+        25.5,
+        290
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/jinAnQiao/biLeiQi2.json",
+      "displayName": "biLeiQi2",
+      "rotation": 1.5708,
+      "rect": [
+        40.08879,
+        280,
+        20,
+        20
+      ]
+    }
+  ]
+}

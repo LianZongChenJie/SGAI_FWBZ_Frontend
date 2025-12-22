@@ -16,6 +16,9 @@ enum Api {
   controlRecordListApi = '/bems/lighting/operationLog/listPage',
   enableApi = '/bems/lighting/plan/enable',
   disableApi = '/bems/lighting/plan/disable',
+
+  getPlanTimeApi = '/bems/lighting/planExecutionTime/getByPlanId',
+  enablePlanApi = '/bems/lighting/plan/enable',
 }
 
 /**
@@ -83,3 +86,16 @@ export const enableApi = (params) => defHttp.post({ url: Api.enableApi, params }
  * 控制记录列表
  */
 export const disableApi = (params) => defHttp.post({ url: Api.disableApi, params }, { joinParamsToUrl: true });
+
+/**
+ * 获取控制计划启用信息
+ * @param params
+ */
+export const getPlanTimeApi = (params) => defHttp.get({ url: Api.getPlanTimeApi, params }, { joinParamsToUrl: true }); 
+
+/**
+ * 启用控制计划
+ * @param params
+ */
+export const enablePlanApi = (params) =>
+  defHttp.post({ url: Api.enablePlanApi, params }, { joinParamsToUrl: true });

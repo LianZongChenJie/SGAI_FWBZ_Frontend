@@ -50,33 +50,37 @@
               </a>
             </a-popconfirm>
             &emsp;
-            <a-popconfirm
-              title="确认启用该条计划？"
-              ok-text="确定"
-              cancel-text="取消"
-              @confirm="handleEnable(record)"
+            <a
+              v-if="record.status !== '启用'"
+              @click="handleEnable(record)"
             >
-              <a>
-                启用
-              </a>
-            </a-popconfirm>
-            &emsp;
-            <a-popconfirm
-              title="确认禁用该条计划？"
-              ok-text="确定"
-              cancel-text="取消"
-              @confirm="handleDisable(record)"
-            >
-              <a style="color: red;">
-                禁用
-              </a>
-            </a-popconfirm>
+              启用
+            </a>
+
+            <template v-else>
+              &emsp;
+              <a-popconfirm
+                title="确认禁用该条计划？"
+                ok-text="确定"
+                cancel-text="取消"
+                @confirm="handleDisable(record)"
+              >
+                <a style="color: red;">
+                  禁用
+                </a>
+              </a-popconfirm>
+            </template>
+
           </a-space>
         </template>
       </template>
     </BasicTable>
     <TimingControlModal
       ref="timingControlModalRef"
+      :reload="reload"
+    />
+    <EnableModal
+      ref="enableModalRef"
       :reload="reload"
     />
   </div>
@@ -90,11 +94,13 @@ import { usePermissionStore } from '/@/store/modules/permission';
 import { getAreaListPageApi, setAreaOpenApi, deleteLightingPlanAPi, getLightingPlanAPi, enableApi, disableApi } from '../Standardized.api';
 import { message } from 'ant-design-vue';
 import TimingControlModal from './TimingControlModal.vue';
+import EnableModal from './EnableModal.vue';
 import { usePermission } from '/@/hooks/web/usePermission';
 const { hasPermission } = usePermission();
 
 // 详情弹框
 const timingControlModalRef = ref();
+const enableModalRef = ref();
 
 const options = ref([
   {
@@ -176,7 +182,7 @@ const getAreaListPage = async (pageParams) => {
   const { pageNo, pageSize } = pageParams;
   let { getFieldsValue } = getForm();
   const searchData = getFieldsValue();
-  
+
   let params = {
     relType: searchData.relType ? searchData.relType : undefined,
     startTime: searchData.startTime ? searchData.startTime : undefined,
@@ -238,11 +244,12 @@ const handleDelete = async (record) => {
 };
 
 const handleEnable = async (record) => {
-  await enableApi({
-    id: record.id,
-  });
-  reload();
-  message.success('启用成功！');
+  enableModalRef.value.openModal(record.id);
+  // await enableApi({
+  //   id: record.id,
+  // });
+  // reload();
+  // message.success('启用成功！');
 };
 
 const handleDisable = async (record) => {
@@ -258,7 +265,7 @@ const addTimingControl = () => {
 };
 // 工单详情
 const updatePlan = (record) => {
-  timingControlModalRef.value.showDrawer(true,record);
+  timingControlModalRef.value.showDrawer(true, record);
 };
 
 const handleChangeStartTime = (val) => {

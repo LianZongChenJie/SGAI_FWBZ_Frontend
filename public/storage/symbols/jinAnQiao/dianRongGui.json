@@ -1,0 +1,229 @@
+{
+  "modified": "Fri Dec 19 2025 10:26:23 GMT+0800 (中国标准时间)",
+  "gridEnabled": true,
+  "width": 60,
+  "height": 220,
+  "comps": [
+    {
+      "type": "image",
+      "name": "storage/symbols/jinAnQiao/biLeiQi2.json",
+      "displayName": "biLeiQi2",
+      "rect": [
+        19.99997,
+        100,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "points": [
+        29.99997,
+        175,
+        29.99997,
+        185
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/jinAnQiao/biLeiQi2.json",
+      "displayName": "biLeiQi2",
+      "rect": [
+        19.99997,
+        20,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "points": [
+        29.99997,
+        20,
+        30,
+        121
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/geJuYuan/huLu2.json",
+      "displayName": "huLu2",
+      "rect": [
+        20,
+        60,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/geJuYuan/dianRong.json",
+      "displayName": "dianRong",
+      "rect": [
+        0,
+        180,
+        60,
+        40
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "points": [
+        8.49997,
+        90,
+        29,
+        90
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "points": [
+        9.49997,
+        90,
+        9.49997,
+        102
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "points": [
+        9.82082,
+        118,
+        9.82082,
+        126.58879
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "points": [
+        3.99997,
+        127.58879,
+        14.99997,
+        127.58879
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "points": [
+        6.99997,
+        131.58879,
+        11.99997,
+        131.58879
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "points": [
+        8.49997,
+        135.58879,
+        10.49997,
+        135.58879
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/jinAnQiao/kaiguan.json",
+      "displayName": "kaiguan",
+      "rotation": 1.5708,
+      "rect": [
+        20,
+        119,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/geJuYuan/huLu2.json",
+      "displayName": "huLu2",
+      "rect": [
+        39.99997,
+        60,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/geJuYuan/huLu2.json",
+      "displayName": "huLu2",
+      "rect": [
+        0,
+        60,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/jinAnQiao/biLeiQi2.json",
+      "displayName": "biLeiQi2",
+      "rect": [
+        -0.50003,
+        100,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "points": [
+        29.99997,
+        0,
+        30,
+        16
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "points": [
+        26,
+        17,
+        34,
+        17
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/jinAnQiao/diankong2.json",
+      "displayName": "diankong2",
+      "rect": [
+        10,
+        148,
+        40,
+        30
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "points": [
+        30,
+        133,
+        29.99997,
+        148
+      ]
+    }
+  ]
+}

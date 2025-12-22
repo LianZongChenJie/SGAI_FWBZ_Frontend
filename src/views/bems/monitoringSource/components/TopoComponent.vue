@@ -48,7 +48,7 @@ const treeData = ref([
   {
     title: '4号楼',
     key: '2',
-    path: 'jinAnQiao/zongPeiDian.json',
+    path: 'jinAnQiao/4haoLou.json',
     children: [
       { title: '1#变压器', key: '2-5' },
       { title: '2#变压器', key: '2-6' },

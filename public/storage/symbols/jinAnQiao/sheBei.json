@@ -1,0 +1,127 @@
+{
+  "modified": "Fri Dec 19 2025 10:31:12 GMT+0800 (中国标准时间)",
+  "gridEnabled": true,
+  "width": 200,
+  "height": 20,
+  "comps": [
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "rotation": -1.5708,
+      "points": [
+        32.00001,
+        0.99991,
+        31.99999,
+        18.99991
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/geJuYuan/zheXian3.json",
+      "displayName": "zheXian3",
+      "rotation": -1.5708,
+      "rect": [
+        11,
+        -0.00011,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "rotation": -1.5708,
+      "points": [
+        8.5,
+        1.49989,
+        8.5,
+        18.49989
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/geJuYuan/huLu2.json",
+      "displayName": "huLu2",
+      "rotation": -1.5708,
+      "rect": [
+        81,
+        -0.00013,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/geJuYuan/zheXian3.json",
+      "displayName": "zheXian3",
+      "rotation": 1.57079,
+      "rect": [
+        126.00003,
+        -0.00003,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "rotation": -1.5708,
+      "points": [
+        94.00007,
+        -29.00007,
+        93.99993,
+        48.99993
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/geJuYuan/sanJiao.json",
+      "displayName": "sanJiao",
+      "rotation": -1.5708,
+      "rect": [
+        177,
+        -0.00011,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "symbols/jinAnQiao/lianJie.json",
+      "displayName": "lianJie",
+      "rotation": 1.5708,
+      "rect": [
+        31,
+        4.99987,
+        20,
+        10
+      ]
+    },
+    {
+      "type": "image",
+      "name": "symbols/jinAnQiao/kaiguan.json",
+      "displayName": "kaiguan",
+      "rect": [
+        41,
+        -0.00005,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": "rgb(0,126,252)",
+      "rotation": -1.5708,
+      "points": [
+        162.5,
+        -11.50013,
+        162.5,
+        31.49987
+      ]
+    }
+  ]
+}
