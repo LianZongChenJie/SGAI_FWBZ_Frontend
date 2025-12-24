@@ -175,18 +175,5 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-
-  #lineIcon{
-    height: 30px;
-    width: 30px;
-    background-image: url('@/assets/images/lineIcon.png');
-    background-size: 100% 100%;
-  }
-  #barIcon{
-    height: 30px;
-    width: 30px;
-    background-image: url('@/assets/images/barIcon.png');
-    background-size: 100% 100%;
-  }
 }
 </style>
