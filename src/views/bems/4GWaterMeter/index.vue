@@ -2,6 +2,7 @@
   <div class="jeecg-basic-table jeecg-basic-table-form-container">
     <!-- 表格 -->
     <BasicTable @register="registerTable">
+      <!-- 表单区域插槽，可以自定义表单内容，包括按钮 -->
       <template #toolbar>
         <!-- 这里可以放置自定义的表单内容，如果不需要自定义整个表单，可以只添加按钮 -->
         <a-button
@@ -11,25 +12,6 @@
         >导出</a-button>
       </template>
       <!-- <template #tableTitle>
-        <a-button @click="filterTableData(undefined)">
-          全部({{ statusData.count }})
-        </a-button>
-        &emsp;
-        <a-button
-          type="primary"
-          @click="filterTableData('在线')"
-        >
-          在线({{ statusData.online }})
-        </a-button>
-        &emsp;
-        <a-button
-          type="primary"
-          danger
-          @click="filterTableData('离线')"
-        >
-          离线({{ statusData.offline }})
-        </a-button>
-        &emsp;
         <a-button
           type="primary"
           :icon="h(VerticalAlignBottomOutlined )"
@@ -165,6 +147,10 @@ const columns: BasicColumn[] = [
     title: '起始时间',
     dataIndex: 'startTime',
     key: 'startTime',
+    customRender: ({ text }) => {
+      if (!text) return '';
+      return text.split(' ')[0];
+    },
   },
   {
     title: '起始值',
@@ -182,6 +168,10 @@ const columns: BasicColumn[] = [
     title: '结束时间',
     dataIndex: 'endTime',
     key: 'endTime',
+    customRender: ({ text }) => {
+      if (!text) return '';
+      return text.split(' ')[0];
+    },
   },
   {
     title: '计算值',
@@ -215,12 +205,6 @@ const searchFormSchema: FormSchema[] = [
     component: 'JInput',
   },
   {
-    label: '设备类别',
-    field: 'categoryId',
-    component: 'JDictSelectTag',
-    slot: 'categoryId',
-  },
-  {
     label: '空间位置',
     field: 'spaceId',
     component: 'JDictSelectTag',
@@ -239,7 +223,7 @@ const searchFormSchema: FormSchema[] = [
     defaultValue: formatTime(new Date().getTime() - 24 * 60 * 60 * 1000),
     componentProps: {
       showTime: true,
-      format: 'YYYY-MM-DD HH:mm:ss',
+      format: 'YYYY-MM-DD',
       valueFormat: 'YYYY-MM-DD HH:mm:ss',
     },
   },
@@ -250,7 +234,7 @@ const searchFormSchema: FormSchema[] = [
     defaultValue: formatTime(new Date().getTime()),
     componentProps: {
       showTime: true,
-      format: 'YYYY-MM-DD HH:mm:ss',
+      format: 'YYYY-MM-DD',
       valueFormat: 'YYYY-MM-DD HH:mm:ss',
     },
   },
@@ -312,6 +296,9 @@ const loadData = async (pageParams) => {
     pageNo: pageNo,
     pageSize: pageSize,
     ...searchData,
+    startTime: searchData.startTime ? searchData.startTime.split(' ')[0] + ' 00:00:00' : null,
+    endTime: searchData.endTime ? searchData.endTime.split(' ')[0] + ' 23:59:59' : null,
+    categoryId: '29',
   };
   if (searchData.deviceName) {
     params.deviceName = searchData.deviceName.split('*')[1];
@@ -342,8 +329,8 @@ const handleChart = (record: any) => {
   // 这里可以添加实际的图表逻辑
   chartParams.value = {
     deviceId: record.deviceId,
-    startTime: searchData.startTime ? searchData.startTime : null,
-    endTime: searchData.endTime ? searchData.endTime : null,
+    startTime: searchData.startTime ? searchData.startTime.split(' ')[0] + ' 00:00:00' : null,
+    endTime: searchData.endTime ? searchData.endTime.split(' ')[0] + ' 23:59:59' : null,
   };
   chartVisible.value = true;
 };
@@ -438,8 +425,9 @@ const handleExport = async () => {
   const searchData = getFieldsValue();
   let res = await exportData({
     ...searchData,
+    categoryId: '29',
     startTime: searchData.startTime ? searchData.startTime.split(' ')[0] + ' 00:00:00' : null,
-    endTime: searchData.endTime ? searchData.endTime.split(' ')[0] + ' 00:00:00' : null,
+    endTime: searchData.endTime ? searchData.endTime.split(' ')[0] + ' 23:59:59' : null,
   });
   let name = '状态数据';
   let blobOptions = { type: 'application/vnd.ms-excel' };
