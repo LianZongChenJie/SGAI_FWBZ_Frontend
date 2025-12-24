@@ -1,21 +1,27 @@
 <template>
   <div class="jeecg-basic-table jeecg-basic-table-form-container">
-    <div class="status-data-device-status">
-      <a-button @click="filterTableData(undefined)">
-        全部({{ statusData.count }})
-      </a-button>
-      &emsp;
-      <a-button type="primary" @click="filterTableData('在线')">
-        在线({{ statusData.online }})
-      </a-button>
-      &emsp;
-      <a-button type="primary" danger @click="filterTableData('离线')">
-        离线({{ statusData.offline }})
-      </a-button>
-    </div>
     <!-- 表格 -->
     <BasicTable @register="registerTable">
       <template #tableTitle>
+        <a-button @click="filterTableData(undefined)">
+          全部({{ statusData.count }})
+        </a-button>
+        &emsp;
+        <a-button
+          type="primary"
+          @click="filterTableData('在线')"
+        >
+          在线({{ statusData.online }})
+        </a-button>
+        &emsp;
+        <a-button
+          type="primary"
+          danger
+          @click="filterTableData('离线')"
+        >
+          离线({{ statusData.offline }})
+        </a-button>
+        &emsp;
         <a-button
           type="primary"
           :icon="h(VerticalAlignBottomOutlined )"
@@ -58,7 +64,11 @@
             :icon="h(BarChartOutlined)"
             @click="handleChart(record)"
           /> -->
-          <a @click="handleChart(record)">查看</a>
+
+          <a-space>
+            <a @click="handleChart(record)">查看</a>
+            <a @click="handleHistory(record)">历史数据</a>
+          </a-space>
         </template>
       </template>
     </BasicTable>
@@ -73,9 +83,10 @@
   >
     <Chart
       :params="chartParams"
-      style="height: 300px"
+      style="height: 340px"
     />
   </a-modal>
+  <HistoryRecordsModal ref="historyRecordsModalRef"/>
 </template>
 
 <script lang="ts" setup>
@@ -83,6 +94,7 @@ import { ref, onMounted, h } from 'vue';
 import { BarChartOutlined, VerticalAlignBottomOutlined } from '@ant-design/icons-vue';
 import { getCategoryTree, getSpaceTree, getList, getDeviceNumberDataApi, exportData } from './index.api';
 import Chart from './components/chart.vue';
+import HistoryRecordsModal from './components/HistoryRecordsModal.vue'
 import { BasicColumn, BasicTable, FormSchema } from '/@/components/Table';
 import { useListPage } from '/@/hooks/system/useListPage';
 
@@ -161,12 +173,12 @@ const columns: BasicColumn[] = [
     title: '运行状态',
     dataIndex: 'runState',
     key: 'runState',
-    width: '80px'
+    width: '80px',
   },
   {
     title: '操作',
     key: 'action',
-    width: '80px'
+    width: '120px',
   },
 ];
 
@@ -269,6 +281,8 @@ const pagination = ref({
   },
 });
 
+const historyRecordsModalRef = ref()
+
 const loadData = async (pageParams) => {
   const { pageNo, pageSize } = pageParams;
   let { getFieldsValue } = getForm();
@@ -356,7 +370,7 @@ const { tableContext } = useListPage({
       pageSize: 10,
       showSizeChanger: true,
     },
-    showTableSetting:false,
+    showTableSetting: false,
     formConfig: {
       schemas: searchFormSchema,
       showAdvancedButton: false,
@@ -381,23 +395,23 @@ const statusData = ref({
   count: 0,
   online: 0,
   offline: 0,
-})
+});
 
-const getDeviceNumberData = async() => {
-  let res = await getDeviceNumberDataApi()
-  statusData.value.count = res.count
-  statusData.value.online = res.online
-  statusData.value.offline = res.offline
-}
+const getDeviceNumberData = async () => {
+  let res = await getDeviceNumberDataApi();
+  statusData.value.count = res.count;
+  statusData.value.online = res.online;
+  statusData.value.offline = res.offline;
+};
 
 const filterTableData = (status) => {
-  searchParams.value.runState = status
+  searchParams.value.runState = status;
   let { setFieldsValue } = getForm();
   setFieldsValue({
     runState: status, // 将 'fixed_value' 替换为你需要的固定值
   });
-  reload()
-}
+  reload();
+};
 
 const handleExport = async () => {
   let { getFieldsValue } = getForm();
@@ -421,6 +435,15 @@ const handleExport = async () => {
   window.URL.revokeObjectURL(url); //释放掉blob对象
 };
 
+const handleHistory = (record) => {
+  const params = {
+    deviceId: record.deviceId,
+    startTime: searchParams.value.startTime ? searchParams.value.startTime + ':00:00' : null,
+    endTime: searchParams.value.endTime ? searchParams.value.endTime + ':59:59' : null,
+  }
+  historyRecordsModalRef.value.openModal(params)
+}
+
 // 组件挂载时获取数据
 onMounted(async () => {
   try {
@@ -433,14 +456,14 @@ onMounted(async () => {
   } catch (error) {
     console.error('获取数据失败:', error);
   }
-  await getDeviceNumberData()
+  await getDeviceNumberData();
 });
 </script>
 
 <style lang="less" scoped>
 /* 可以添加自定义样式 */
 
-.status-data-device-status{
+.status-data-device-status {
   padding-left: 12px;
   height: 40px;
   margin: 4px 10px 0 10px;

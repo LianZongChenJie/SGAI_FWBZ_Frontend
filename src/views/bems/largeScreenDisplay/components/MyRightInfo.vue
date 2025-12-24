@@ -5,7 +5,7 @@
     </div>
     <div class="online-situation">
       <div class="online-situation-title">
-        设备设施在线情况
+        设备设施(在线/总数)情况
       </div>
       <div class="device-list">
         <div
@@ -23,7 +23,7 @@
               size="small"
               trailColor="#fff"
               :strokeColor="item.strokeColor"
-              :format="percent => `${item.onLineNum}`"
+              :format="percent => `${item.onLineNum + '/' + item.totalNum}`"
             />
           </div>
         </div>

@@ -36,9 +36,7 @@
                 :gutter="16"
                 class="row-with-margin"
               >
-                <a-col
-                  :span="8"
-                >
+                <a-col :span="8">
                   <a-form-item
                     label="规则编号"
                     name="ruleCode"
@@ -179,7 +177,7 @@
                 </a-col>
                 <a-col
                   :span="7"
-                  v-if="formState.pointType === 'instant'"
+                  v-if="formState.pointType === 'instant' || formState.pointType === 'virtual'"
                 >
                   <a-form-item
                     label="点位选择"
@@ -262,6 +260,11 @@
           :setDeviceName="setDeviceName"
           :isInstant="isInstant"
         />
+        <device-tree-modal
+          ref="deviceTreeRef"
+          :setDeviceName="setDeviceName"
+          :isInstant="isInstant"
+        />
         <notice-user-table-modal
           ref="noticeUserRef"
           :setNoticeUser="setNoticeUser"
@@ -286,6 +289,7 @@ import {
   userList,
 } from '../Standardized.api';
 import DeviceTableModal from './DeviceTableModal.vue';
+import DeviceTreeModal from './DeviceTreeModal.vue';
 import NoticeUserTableModal from './NoticeUserTableModal.vue';
 
 const props = defineProps({
@@ -305,11 +309,12 @@ const props = defineProps({
 
 const open = ref<boolean>(false);
 
-const isInstant = ref(false)
+const isInstant = ref(false);
 
 const formRef = ref();
 const noticeUserRef = ref();
 const deviceRef = ref();
+const deviceTreeRef = ref();
 
 // 等级数据
 const levelOption = ref([]);
@@ -344,11 +349,15 @@ const pointTypeOption = [
     label: '累计',
     value: 'accumulate',
   },
+  {
+    label: '虚拟表',
+    value: 'virtual',
+  },
 ];
 // 用户数据
-const noticeUserOptions = ref<any>([])
+const noticeUserOptions = ref<any>([]);
 const timeOptions = [
-{
+  {
     label: '小时',
     value: 'hour',
   },
@@ -363,8 +372,8 @@ const timeOptions = [
   {
     label: '年',
     value: 'year',
-  }
-]
+  },
+];
 
 // 表单数据
 const formState = reactive<any>({
@@ -381,7 +390,7 @@ const formState = reactive<any>({
   noticeUserName: '',
   // noticeUser: [],
   points: [],
-  pointName: ''
+  pointName: '',
 });
 
 const deviceType = ref<number>();
@@ -416,31 +425,30 @@ const operatorList = [
 
 // 设置Name
 const selectCategory = (id) => {
-  formState.alarmCategoryName = categoryOption.value.find(item => item.value === id).label
-}
+  formState.alarmCategoryName = categoryOption.value.find((item) => item.value === id).label;
+};
 const selectLevel = (id) => {
-  formState.alarmLevelName = levelOption.value.find(item => item.value === id).label
-}
+  formState.alarmLevelName = levelOption.value.find((item) => item.value === id).label;
+};
 
 const changePointType = (value) => {
-  if(value === 'instant') {
-    isInstant.value = true
+  if (value === 'instant') {
+    isInstant.value = true;
   } else {
-    isInstant.value = false
+    isInstant.value = false;
   }
-  formState.points = []
-}
+  formState.points = [];
+};
 
 // 选择通知对象
 const selectNoticeUser = () => {
   noticeUserRef.value.showModal();
 };
 
-const handleChangeDevicePoint = (va1,val2) => {
-  console.log('handleChangeDevicePoint---------------->', va1,val2);
-  formState.pointName = val2.label
-  
-}
+const handleChangeDevicePoint = (va1, val2) => {
+  console.log('handleChangeDevicePoint---------------->', va1, val2);
+  formState.pointName = val2.label;
+};
 
 // 添加联动设备
 const addRearPoint = () => {
@@ -489,34 +497,38 @@ const deleteRearPoint = (target) => {
 // 选择设备绑定
 const selectDevice = (index: number) => {
   targetIndex.value = index;
-  deviceRef.value.showModal();
+  if (formState.pointType === 'virtual') {
+    deviceTreeRef.value.showModal();
+  } else {
+    deviceRef.value.showModal();
+  }
 };
 
 // 选择通知用户
 const setNoticeUser = (selectedRowKeys) => {
-  formState.noticeUser = selectedRowKeys.join(',')
-  formState.noticeUserName = selectedRowKeys.reduce((total,item,index) => {
-    for(let i = 0; i < noticeUserOptions.value.length; i++) {
-      if(noticeUserOptions.value[i].value === item) {
-        return total + noticeUserOptions.value[i].label + ','
+  formState.noticeUser = selectedRowKeys.join(',');
+  formState.noticeUserName = selectedRowKeys.reduce((total, item, index) => {
+    for (let i = 0; i < noticeUserOptions.value.length; i++) {
+      if (noticeUserOptions.value[i].value === item) {
+        return total + noticeUserOptions.value[i].label + ',';
       }
     }
-  }, '')
+  }, '');
 };
 
 // 确认设备
 const setDeviceName = async (type, record) => {
   formState.points[targetIndex.value].deviceName = record.deviceName;
-  let deviceId = ''
-  if(type) {
+  let deviceId = '';
+  if (type) {
     formState.points[targetIndex.value].deviceId = record.id;
-    deviceId = record.id
+    deviceId = record.id;
   } else {
     formState.points[targetIndex.value].deviceId = record.deviceId;
-    deviceId = record.deviceId
+    deviceId = record.deviceId;
   }
-  
-  let res = await getPontByDeviceIdApi({ deviceId: deviceId})
+
+  let res = await getPontByDeviceIdApi({ deviceId: deviceId });
   // let res = await getPontByDeviceIdApi({ deviceId: 108 });
   formState.points[targetIndex.value].devicePointData = res.map((item) => {
     return {
@@ -524,6 +536,9 @@ const setDeviceName = async (type, record) => {
       label: item.attributeName,
     };
   });
+  if (!formState.points[targetIndex.value].devicePointData.length) {
+    formState.points[targetIndex.value].pointId = '';
+  }
   deviceRef.value.closeModal();
 };
 
@@ -537,15 +552,28 @@ const onSubmit = async () => {
     .validate()
     .then(async () => {
       if (props.type === 'create') {
-        await addAlarmRulesApi(toRaw(formState));
-        message.success('新增成功！');
+        let res = await addAlarmRulesApi(toRaw(formState));
+        if (!res) {
+          message.success('新增成功！');
+          resetForm();
+          props.closeModal();
+          open.value = false;
+        } else {
+          message.error('新增失败！');
+        }
       } else {
-        await editAlarmRulesApi(toRaw(formState));
-        message.success('修改成功！');
+        let res = await editAlarmRulesApi(toRaw(formState));
+        
+        if (!res) {
+          message.success('修改成功！');
+          resetForm();
+          props.closeModal();
+          open.value = false;
+        } else {
+          message.error('修改失败！');
+        }
+        // message.success('修改成功！');
       }
-      resetForm();
-      props.closeModal()
-      open.value = false
     })
     .catch((error) => {
       console.log('error', error);
@@ -566,18 +594,18 @@ const resetForm = () => {
 // 获取用户列表
 const getUserList = async () => {
   const params = {
-      pageNo: 1,
-      pageSize: 99,
-      userName: formState.userName ? '*' + formState.userName + '*' : undefined,
-    };
+    pageNo: 1,
+    pageSize: 99,
+    userName: formState.userName ? '*' + formState.userName + '*' : undefined,
+  };
   let users = await userList(params);
-  noticeUserOptions.value = users.records.map(item => {
+  noticeUserOptions.value = users.records.map((item) => {
     return {
       label: item.realname,
       value: item.id,
     };
-  })
-}
+  });
+};
 
 // 获取下拉框数据源
 const getOptionsData = async () => {
@@ -595,18 +623,17 @@ const getOptionsData = async () => {
       value: item.id,
     };
   });
-}
+};
 
 onMounted(async () => {
-  await getUserList()
-  await getOptionsData()
-  
+  await getUserList();
+  await getOptionsData();
 });
 
 // 打开弹框
 const showModal = async () => {
-  await getUserList()
-  await getOptionsData()
+  await getUserList();
+  await getOptionsData();
   if (props.type === 'edit' || props.type === 'check') {
     let res = await getAlarmRulesDetailApi({ id: props.editItem.id });
     formState.id = props.editItem.id;
@@ -639,26 +666,27 @@ const closeModal = () => {
   formState.deviceName = '';
   formState.spaceId = [];
   formState.categoryId = [];
-  resetForm()
+  resetForm();
   open.value = false;
 };
 
 const cancelModal = () => {
+  resetForm();
   formRef.value.resetFields();
   formState.id = null;
-    formState.ruleCode = null;
-    formState.ruleName = null;
-    formState.alarmCategoryId = null;
-    formState.alarmCategoryName = null;
-    formState.alarmLevelId = null;
-    formState.alarmLevelName = null;
-    formState.frequency = null;
-    formState.frequencyUnit = null;
-    formState.pointType = null;
-    formState.noticeUserName = null;
-    formState.noticeUser = null;
-    formState.points = [];
-}
+  formState.ruleCode = null;
+  formState.ruleName = null;
+  formState.alarmCategoryId = null;
+  formState.alarmCategoryName = null;
+  formState.alarmLevelId = null;
+  formState.alarmLevelName = null;
+  formState.frequency = null;
+  formState.frequencyUnit = null;
+  formState.pointType = null;
+  formState.noticeUserName = null;
+  formState.noticeUser = null;
+  formState.points = [];
+};
 
 defineExpose({
   showModal,

@@ -15,28 +15,28 @@
       <div class="alarm-statistics">
         <div class="statistics-item">
           <div class="statistics-title">
-            本月报警次数
+            本月报警次数：<span>{{ alarmBaseData.value }}</span>
           </div>
-          <div class="statistics-data">
+          <!-- <div class="statistics-data">
             {{ alarmBaseData.value }}
-          </div>
+          </div> -->
         </div>
 
         <div class="statistics-item">
           <div class="statistics-title">
-            同比
+            同比：<span>{{ alarmBaseData.yoy }}</span>
           </div>
-          <div class="statistics-data">
+          <!-- <div class="statistics-data">
             {{ alarmBaseData.yoy }}
-          </div>
+          </div> -->
         </div>
         <div class="statistics-item">
           <div class="statistics-title">
-            环比
+            环比：<span>{{ alarmBaseData.mom }}</span>
           </div>
-          <div class="statistics-data">
+          <!-- <div class="statistics-data">
             {{ alarmBaseData.mom }}
-          </div>
+          </div> -->
         </div>
       </div>
       <div class="alarm-item-box">
@@ -234,31 +234,31 @@ const columns = [
     key: 'idex',
     slots: { customRender: 'index' },
     width: '60px',
-    align: 'center'
+    align: 'center',
   },
   {
     title: '设备名称',
     dataIndex: 'deviceName',
     key: 'deviceName',
-    align: 'center'
+    align: 'center',
   },
   {
     title: '设备分类',
     dataIndex: 'deviceCategoryId',
     key: 'deviceCategoryId',
-    align: 'center'
+    align: 'center',
   },
   {
     title: '报警信息',
     dataIndex: 'alarmCategoryName',
     key: 'alarmCategoryName',
-    align: 'center'
+    align: 'center',
   },
   {
     title: '报警时间',
     dataIndex: 'alarmTime',
     key: 'alarmTime',
-    align: 'center'
+    align: 'center',
   },
 ];
 
@@ -315,11 +315,9 @@ const getAlarmRecordListForMonth = async () => {
   data.value = res.records;
 };
 
-
-
 onMounted(async () => {
   tableDataSourse.value = [...deviceStatusData.value.alreadyResponded];
-  await getCategoryTree()
+  await getCategoryTree();
   await getAlarmStatistics();
   await getAlarmRecordListForMonth();
 });
@@ -330,12 +328,13 @@ onMounted(async () => {
   height: 100%;
   width: 100%;
   padding: 6px 6px;
-  background-color: #fff;
   border-radius: 10px;
 
   .device-box {
     height: 48.5%;
     border-radius: 10px;
+    background-color: #fff;
+    padding: 6px;
 
     .title {
       height: 40px;
@@ -360,8 +359,10 @@ onMounted(async () => {
   }
 
   .alarm-info-box {
+    background-color: #fff;
+    padding: 6px;
     margin-top: 3%;
-    height: calc(48.5 - 30px);
+    height: calc(48.5% - 42px);
     width: 100%;
   }
 
@@ -382,7 +383,7 @@ onMounted(async () => {
     }
 
     .alarm-statistics {
-      height: 60px;
+      height: 30px;
       width: 100%;
       display: flex;
 
@@ -392,12 +393,18 @@ onMounted(async () => {
 
         .statistics-title,
         .statistics-data {
-          height: 25px;
+          height: 100%;
           width: 100%;
           font-size: 15px;
           display: flex;
           justify-content: center;
           align-items: center;
+
+          > span {
+            font-size: 20px;
+            font-weight: 600;
+            color: #f7c830;
+          }
         }
         .statistics-data {
           height: 35px;
@@ -409,7 +416,7 @@ onMounted(async () => {
       }
     }
     .alarm-item-box {
-      height: calc(100% - 100px);
+      height: calc(100% - 60px);
       width: 100%;
       overflow: auto;
 

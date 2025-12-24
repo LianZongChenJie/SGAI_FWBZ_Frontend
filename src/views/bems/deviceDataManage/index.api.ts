@@ -10,7 +10,11 @@ enum Api {
   findHourData = '/bems/deviceData/findHourData', 
   getDeviceNumberDataApi = '/bems/deviceData/statisticsRunState',
 
-  exportData = '/bems/deviceData/export', 
+  exportData = '/bems/deviceData/export',
+
+  getHistoryDataApi = '/bems/deviceData/real/list',
+  getChartDataDayApi = '/bems/deviceData/day/list',
+  getChartDataMonthApi = '/bems/deviceData/month/list',
 }
 
 export const getCategoryTree = () => defHttp.get({ url: Api.categoryTree });
@@ -23,3 +27,18 @@ export const getDeviceNumberDataApi = () => defHttp.get({ url: Api.getDeviceNumb
  * 导出数据
  */
 export const exportData = (params) => defHttp.get({ url: Api.exportData, params: params, responseType: 'blob', } ,{ isTransformResponse: false });
+
+/**
+ * 获取表底值
+ */
+export const getHistoryDataApi = (params) => defHttp.get({ url: Api.getHistoryDataApi, params }, { joinParamsToUrl: true });
+
+/**
+ * 获取图表数据日
+ */
+export const getChartDataDayApi = (params) => defHttp.get({ url: Api.getChartDataDayApi, params }, { joinParamsToUrl: true });
+
+/**
+ * 获取图表数据月
+ */
+export const getChartDataMonthApi = (params) => defHttp.get({ url: Api.getChartDataMonthApi, params }, { joinParamsToUrl: true });
