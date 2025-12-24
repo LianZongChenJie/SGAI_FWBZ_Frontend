@@ -292,8 +292,6 @@ const loadData = async (pageParams) => {
     pageNo: pageNo,
     pageSize: pageSize,
     ...searchData,
-    startTime: searchData.startTime ? searchData.startTime.split(' ')[0] + ' 00:00:00' : null,
-    endTime: searchData.endTime ? searchData.endTime.split(' ')[0] + ' 00:00:00' : null,
   };
   if (searchData.deviceName) {
     params.deviceName = searchData.deviceName.split('*')[1];
