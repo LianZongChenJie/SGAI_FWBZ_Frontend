@@ -148,9 +148,9 @@ const handleOk = (e: MouseEvent) => {
 };
 
 const closeModal = () => {
-  formState.deviceName = ''
-  formState.spaceId = []
-  formState.categoryId = []
+  // formState.deviceName = ''
+  // formState.spaceId = []
+  // formState.categoryId = []
   open.value = false;
 }
 

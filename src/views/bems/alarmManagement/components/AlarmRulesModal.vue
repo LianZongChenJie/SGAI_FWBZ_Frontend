@@ -10,7 +10,7 @@
       <template #footer>
         <a-button
           key="back"
-          @click="closeModal"
+          @click="cancelModal"
         >取消</a-button>
         <a-button
           key="submit"
@@ -177,7 +177,7 @@
                 </a-col>
                 <a-col
                   :span="7"
-                  v-if="formState.pointType === 'instant' || formState.pointType === 'virtual'"
+                  v-if="formState.pointType === 'instant'"
                 >
                   <a-form-item
                     label="点位选择"
@@ -686,6 +686,7 @@ const cancelModal = () => {
   formState.noticeUserName = null;
   formState.noticeUser = null;
   formState.points = [];
+  open.value = false;
 };
 
 defineExpose({
