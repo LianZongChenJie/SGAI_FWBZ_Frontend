@@ -9,6 +9,13 @@
         <a-radio-button value="day">日</a-radio-button>
         <a-radio-button value="month">月</a-radio-button>
       </a-radio-group>
+      <a-radio-group
+        v-model:value="chartType"
+        @change="changeChartType"
+      >
+        <a-radio-button value="line"><LineChartOutlined style="font-size: 18px;"/></a-radio-button>
+        <a-radio-button value="bar"><BarChartOutlined style="font-size: 18px;"/></a-radio-button>
+      </a-radio-group>
     </div>
     <div
       id="chart"
@@ -22,6 +29,7 @@
 import * as echarts from 'echarts';
 import { onMounted, ref, shallowRef } from 'vue';
 import { findHourData, getChartDataDayApi, getChartDataMonthApi } from '../index.api';
+import { LineChartOutlined, BarChartOutlined } from '@ant-design/icons-vue';
 
 const props = defineProps({
   params: {
@@ -31,6 +39,7 @@ const props = defineProps({
 });
 
 const type = ref('hour');
+const chartType = ref('line');
 
 const showEmpty = ref<boolean>(false); // 用于存储错误消息
 
@@ -56,7 +65,7 @@ const loadData = async (res) => {
     series: [
       {
         data: [],
-        type: 'line',
+        type: chartType.value,
       },
     ],
   };
@@ -71,9 +80,15 @@ const changeType = async () => {
   await getData();
 };
 
+const changeChartType = async () => {
+  await getData();
+}
+
 const getData = async () => {
   let res: any;
   if (type.value === 'hour') {
+    console.log('findHourData----------------->', props.params);
+    
     res = await findHourData(props.params);
     loadData(res)
   } else if (type.value === 'day') {
@@ -159,5 +174,19 @@ onMounted(async () => {
   padding: 0 12px;
   display: flex;
   align-items: center;
+  justify-content: space-between;
+
+  #lineIcon{
+    height: 30px;
+    width: 30px;
+    background-image: url('@/assets/images/lineIcon.png');
+    background-size: 100% 100%;
+  }
+  #barIcon{
+    height: 30px;
+    width: 30px;
+    background-image: url('@/assets/images/barIcon.png');
+    background-size: 100% 100%;
+  }
 }
 </style>

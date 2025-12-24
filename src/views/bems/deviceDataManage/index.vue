@@ -86,7 +86,7 @@
       style="height: 340px"
     />
   </a-modal>
-  <HistoryRecordsModal ref="historyRecordsModalRef"/>
+  <HistoryRecordsModal ref="historyRecordsModalRef" />
 </template>
 
 <script lang="ts" setup>
@@ -94,7 +94,7 @@ import { ref, onMounted, h } from 'vue';
 import { BarChartOutlined, VerticalAlignBottomOutlined } from '@ant-design/icons-vue';
 import { getCategoryTree, getSpaceTree, getList, getDeviceNumberDataApi, exportData } from './index.api';
 import Chart from './components/chart.vue';
-import HistoryRecordsModal from './components/HistoryRecordsModal.vue'
+import HistoryRecordsModal from './components/HistoryRecordsModal.vue';
 import { BasicColumn, BasicTable, FormSchema } from '/@/components/Table';
 import { useListPage } from '/@/hooks/system/useListPage';
 
@@ -281,7 +281,7 @@ const pagination = ref({
   },
 });
 
-const historyRecordsModalRef = ref()
+const historyRecordsModalRef = ref();
 
 const loadData = async (pageParams) => {
   const { pageNo, pageSize } = pageParams;
@@ -319,11 +319,13 @@ const handleSearch = () => {
 };
 
 const handleChart = (record: any) => {
+  let { getFieldsValue } = getForm();
+  const searchData = getFieldsValue();
   // 这里可以添加实际的图表逻辑
   chartParams.value = {
     deviceId: record.deviceId,
-    startTime: searchParams.value.startTime ? searchParams.value.startTime + ':00:00' : null,
-    endTime: searchParams.value.endTime ? searchParams.value.endTime + ':59:59' : null,
+    startTime: searchData.startTime ? searchData.startTime : null,
+    endTime: searchData.endTime ? searchData.endTime : null,
   };
   chartVisible.value = true;
 };
@@ -436,13 +438,15 @@ const handleExport = async () => {
 };
 
 const handleHistory = (record) => {
+  let { getFieldsValue } = getForm();
+  const searchData = getFieldsValue();
   const params = {
     deviceId: record.deviceId,
-    startTime: searchParams.value.startTime ? searchParams.value.startTime + ':00:00' : null,
-    endTime: searchParams.value.endTime ? searchParams.value.endTime + ':59:59' : null,
-  }
-  historyRecordsModalRef.value.openModal(params)
-}
+    startTime: searchData.startTime ? searchData.startTime : null,
+    endTime: searchData.endTime ? searchData.endTime : null,
+  };
+  historyRecordsModalRef.value.openModal(params);
+};
 
 // 组件挂载时获取数据
 onMounted(async () => {
