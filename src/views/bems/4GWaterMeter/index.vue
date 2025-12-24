@@ -448,8 +448,8 @@ const handleHistory = (record) => {
   const searchData = getFieldsValue();
   const params = {
     deviceId: record.deviceId,
-    startTime: searchData.startTime ? searchData.startTime : null,
-    endTime: searchData.endTime ? searchData.endTime : null,
+    startTime: searchData.startTime ? searchData.startTime.split(' ')[0] + ' 00:00:00' : null,
+    endTime: searchData.endTime ? searchData.endTime.split(' ')[0] + ' 23:59:59' : null,
   };
   historyRecordsModalRef.value.openModal(params);
 };
