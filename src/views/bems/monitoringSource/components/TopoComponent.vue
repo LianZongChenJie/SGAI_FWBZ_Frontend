@@ -70,7 +70,7 @@ const treeData = ref([
   {
     title: '9号楼',
     key: '4',
-    path: 'jinAnQiao/zongPeiDian.json',
+    path: '9号楼全.json',
     children: [
       { title: '1#变压器', key: '4-5' },
       { title: '2#变压器', key: '4-6' },

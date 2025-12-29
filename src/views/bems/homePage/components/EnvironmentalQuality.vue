@@ -505,7 +505,7 @@ const getPixelYPosition = (value) => {
   .weather-box {
     height: calc(100% - 30px);
     width: 100%;
-    padding: 0 21px;
+    padding: 16px 21px;
 
     .weater-title {
       height: 30px;

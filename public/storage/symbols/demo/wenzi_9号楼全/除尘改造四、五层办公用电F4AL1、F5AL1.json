@@ -1,0 +1,29 @@
+{
+  "modified": "Tue Dec 23 2025 13:12:54 GMT+0800 (中国标准时间)",
+  "width": 120,
+  "height": 20,
+  "comps": [
+    {
+      "type": "text",
+      "text": "除尘改造四、五层办公用电",
+      "font": "10px arial, sans-serif",
+      "rect": [
+        0,
+        0,
+        120,
+        10
+      ]
+    },
+    {
+      "type": "text",
+      "text": "F4AL1、F5AL1",
+      "font": "10px arial, sans-serif",
+      "rect": [
+        0,
+        10,
+        120,
+        10
+      ]
+    }
+  ]
+}

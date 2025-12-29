@@ -1,53 +1,59 @@
 <template>
   <div class="jeecg-basic-table jeecg-basic-table-form-container">
+    <a-form ref="formSateRef" :model="formState" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
+      <a-row>
+        <a-col :span="6">
+          <a-form-item label="设备名称" name="deviceName">
+            <a-input placeholder="请输入设备名称" v-model:value="formState.deviceName" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="6">
+          <a-form-item label="设备编号" name="deviceCode">
+            <a-input placeholder="请输入设备编号" v-model:value="formState.deviceCode" />
+          </a-form-item>
+        </a-col>
+        <a-col :span="6">
+          <a-form-item label="空间位置" name="spaceId">
+            <a-tree-select v-model:value="formState.spaceId" :tree-data="spaceTreeData" placeholder="请选择空间位置"
+              :fieldNames="treeSelect" show-search allowClear />
+          </a-form-item>
+        </a-col>
+        <a-col :span="6">
+          <a-form-item label="仪表状态" name="runState">
+            <a-select v-model:value="formState.runState" placeholder="请选择仪表状态" allow-clear>
+              <a-select-option value="在线">在线</a-select-option>
+              <a-select-option value="离线">离线</a-select-option>
+            </a-select>
+          </a-form-item>
+        </a-col>
+      </a-row>
+      <a-row>
+        <a-col :span="6">
+          <a-form-item label="起始时间" name="startTime">
+            <a-date-picker style="width: 100%;" placeholder="选择开始时间" valueFormat="YYYY-MM-DD HH:mm:ss"
+              v-model:value="formState.startTime"></a-date-picker>
+          </a-form-item>
+        </a-col>
+        <a-col :span="6">
+          <a-form-item label="结束时间" name="endTime">
+            <a-date-picker style="width: 100%;" placeholder="选择开始时间" valueFormat="YYYY-MM-DD HH:mm:ss"
+              v-model:value="formState.endTime"></a-date-picker>
+          </a-form-item>
+        </a-col>
+        <a-col :span="6">
+          <a-form-item>
+            &emsp;
+            <a-button type="primary" :icon="h(SearchOutlined)" @click="reload">查询</a-button>
+            &nbsp;
+            <a-button :icon="h(RedoOutlined)" @click="resetSearch">重置</a-button>
+            &nbsp;
+            <a-button type="primary" :icon="h(VerticalAlignBottomOutlined)" @click="handleExport">导出</a-button>
+          </a-form-item>
+        </a-col>
+      </a-row>
+    </a-form>
     <!-- 表格 -->
     <BasicTable @register="registerTable">
-      <!-- 表单区域插槽，可以自定义表单内容，包括按钮 -->
-      <template #toolbar>
-        <!-- 这里可以放置自定义的表单内容，如果不需要自定义整个表单，可以只添加按钮 -->
-        <a-button
-          type="primary"
-          :icon="h(VerticalAlignBottomOutlined )"
-          @click="handleExport"
-        >导出</a-button>
-      </template>
-      <!-- <template #tableTitle>
-        <a-button
-          type="primary"
-          :icon="h(VerticalAlignBottomOutlined )"
-          @click="handleExport"
-        >导出</a-button>
-      </template> -->
-      <template #form-categoryId="{ model, field }">
-        <a-tree-select
-          v-model:value="model[field]"
-          :tree-data="categoryTreeData"
-          placeholder="请选择设备类别"
-          :fieldNames="treeSelect"
-          show-search
-          allowClear
-        />
-      </template>
-      <template #form-spaceId="{ model, field }">
-        <a-tree-select
-          v-model:value="model[field]"
-          :tree-data="spaceTreeData"
-          placeholder="请选择空间位置"
-          :fieldNames="treeSelect"
-          show-search
-          allowClear
-        />
-      </template>
-      <template #form-runState="{ model, field }">
-        <a-select
-          v-model:value="model[field]"
-          placeholder="请选择仪表状态"
-          allow-clear
-        >
-          <a-select-option value="在线">在线</a-select-option>
-          <a-select-option value="离线">离线</a-select-option>
-        </a-select>
-      </template>
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'action'">
           <!-- <a-button
@@ -63,18 +69,9 @@
       </template>
     </BasicTable>
   </div>
-  <a-modal
-    v-model:visible="chartVisible"
-    title="设备数据图表"
-    width="500px"
-    :footer="null"
-    @cancel="handleChartClose"
-    destroyOnClose
-  >
-    <Chart
-      :params="chartParams"
-      style="height: 340px"
-    />
+  <a-modal v-model:visible="chartVisible" title="设备数据图表" width="500px" :footer="null" @cancel="handleChartClose"
+    destroyOnClose>
+    <Chart :params="chartParams" style="height: 340px" />
   </a-modal>
   <HistoryRecordsModal ref="historyRecordsModalRef" />
 </template>
@@ -192,6 +189,16 @@ const columns: BasicColumn[] = [
   },
 ];
 
+const formState = ref({
+  deviceName: null,
+  deviceCode: null,
+  categoryId: null,
+  spaceId: null,
+  runState: null,
+  startTime: formatTime(new Date().getTime() - 24 * 60 * 60 * 1000),
+  endTime: formatTime(new Date().getTime()),
+})
+
 //表单搜索字段
 const searchFormSchema: FormSchema[] = [
   {
@@ -289,22 +296,22 @@ const historyRecordsModalRef = ref();
 
 const loadData = async (pageParams) => {
   const { pageNo, pageSize } = pageParams;
-  let { getFieldsValue } = getForm();
-  const searchData = getFieldsValue();
+  // let { getFieldsValue } = getForm();
+  // const searchData = getFieldsValue();
   //分页查询
   const params = {
     pageNo: pageNo,
     pageSize: pageSize,
-    ...searchData,
-    startTime: searchData.startTime ? searchData.startTime.split(' ')[0] + ' 00:00:00' : null,
-    endTime: searchData.endTime ? searchData.endTime.split(' ')[0] + ' 23:59:59' : null,
+    ...formState.value,
+    startTime: formState.value.startTime ? formState.value.startTime.split(' ')[0] + ' 00:00:00' : null,
+    endTime: formState.value.endTime ? formState.value.endTime.split(' ')[0] + ' 23:59:59' : null,
     categoryId: '29',
   };
-  if (searchData.deviceName) {
-    params.deviceName = searchData.deviceName.split('*')[1];
+  if (formState.value.deviceName) {
+    params.deviceName = formState.value.deviceName.split('*')[1];
   }
-  if (searchData.deviceCode) {
-    params.deviceCode = searchData.deviceCode.split('*')[1];
+  if (formState.value.deviceCode) {
+    params.deviceCode = formState.value.deviceCode.split('*')[1];
   }
   const res = await getList(params);
   dataSource.value = res.records;
@@ -378,20 +385,20 @@ const { tableContext } = useListPage({
       showSizeChanger: true,
     },
     showTableSetting: false,
-    formConfig: {
-      schemas: searchFormSchema,
-      showAdvancedButton: false,
-      submitOnReset: true,
-      //重置按钮的自定义事件
-      resetFunc: resetSearch,
-      //默认row行配置,当 layout 为 horizontal 生效
-      rowProps: { gutter: 24, justify: 'start', align: 'middle' },
-      //全局col列占比(每列显示多少位)，和schemas中的colProps属性一致
-      baseColProps: { span: 6 },
-      //row行的样式
-      baseRowStyle: { width: '100%' },
-      labelCol: { style: { width: '130px' } },
-    },
+    // formConfig: {
+    //   schemas: searchFormSchema,
+    //   showAdvancedButton: false,
+    //   submitOnReset: true,
+    //   //重置按钮的自定义事件
+    //   resetFunc: resetSearch,
+    //   //默认row行配置,当 layout 为 horizontal 生效
+    //   rowProps: { gutter: 24, justify: 'start', align: 'middle' },
+    //   //全局col列占比(每列显示多少位)，和schemas中的colProps属性一致
+    //   baseColProps: { span: 6 },
+    //   //row行的样式
+    //   baseRowStyle: { width: '100%' },
+    //   labelCol: { style: { width: '130px' } },
+    // },
   },
 });
 

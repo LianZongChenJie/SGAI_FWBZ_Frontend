@@ -3,6 +3,7 @@ import { useMessage } from '/@/hooks/web/useMessage';
 
 const { createConfirm } = useMessage();
 enum Api {
+  findHour = '/bems/meterPointData/findMinute',
   findDay = '/bems/meterPointData/findDay',
   findMonth = '/bems/meterPointData/findMonth',
   findYear = '/bems/meterPointData/findYear',
@@ -10,6 +11,11 @@ enum Api {
   energyFlowTree = '/bems/meteringPoint/getTree',
   test = '/bems/test/test',
 }
+
+/**
+ * 小时数据
+ */
+export const findHour = (params) => defHttp.get({ url: Api.findHour, params });
 
 /**
  * 日数据

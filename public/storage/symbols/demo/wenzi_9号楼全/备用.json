@@ -1,0 +1,18 @@
+{
+  "modified": "Wed Dec 24 2025 10:42:29 GMT+0800 (中国标准时间)",
+  "width": 20,
+  "height": 20,
+  "comps": [
+    {
+      "type": "text",
+      "text": "备用",
+      "font": "10px arial, sans-serif",
+      "rect": [
+        0,
+        0,
+        20,
+        20
+      ]
+    }
+  ]
+}

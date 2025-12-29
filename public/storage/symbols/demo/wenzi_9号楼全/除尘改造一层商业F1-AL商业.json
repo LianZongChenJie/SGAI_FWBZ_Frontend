@@ -1,0 +1,18 @@
+{
+  "modified": "Thu Dec 25 2025 14:29:40 GMT+0800 (中国标准时间)",
+  "width": 120,
+  "height": 20,
+  "comps": [
+    {
+      "type": "text",
+      "text": "除尘改造一层商业F1-AL商业",
+      "font": "10px arial, sans-serif",
+      "rect": [
+        0,
+        0,
+        120,
+        10
+      ]
+    }
+  ]
+}

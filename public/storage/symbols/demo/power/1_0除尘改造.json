@@ -1,0 +1,123 @@
+{
+  "modified": "Wed Dec 24 2025 10:35:39 GMT+0800 (中国标准时间)",
+  "gridEnabled": true,
+  "width": 200,
+  "height": 20,
+  "comps": [
+    {
+      "type": "image",
+      "name": "storage/symbols/demo/power/1_0横线1.json",
+      "displayName": "1_0横线1",
+      "rect": [
+        10,
+        9,
+        10,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/demo/power/1_0手车刀闸.json",
+      "displayName": "1_0手车刀闸",
+      "rotation": 4.71239,
+      "rect": [
+        20,
+        0,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/demo/power/1_0竖线0.5X.json",
+      "displayName": "1_0竖线0.5X",
+      "rotation": 4.71239,
+      "rect": [
+        40,
+        0,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/demo/power/1_0横线1.json",
+      "displayName": "1_0横线1",
+      "rect": [
+        80,
+        9,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/demo/power/1_0电变压器.json",
+      "displayName": "1_0电变压器",
+      "rotation": 1.5708,
+      "rect": [
+        100,
+        0,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/demo/power/1_0横线1.json",
+      "displayName": "1_0横线1",
+      "rect": [
+        120,
+        9,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/demo/power/1_0手车刀闸.json",
+      "displayName": "1_0手车刀闸",
+      "rotation": 1.5708,
+      "rect": [
+        140,
+        0,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/demo/power/1_0横线1.json",
+      "displayName": "1_0横线1",
+      "rect": [
+        160,
+        9,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/demo/power/1_0出线单向.json",
+      "displayName": "1_0出线单向",
+      "rotation": 4.71239,
+      "rect": [
+        180,
+        0,
+        20,
+        20
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/demo/power/1_0横线1.json",
+      "displayName": "1_0横线1",
+      "rect": [
+        70,
+        9,
+        10,
+        20
+      ]
+    }
+  ]
+}

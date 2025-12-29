@@ -1,0 +1,77 @@
+{
+  "modified": "Tue Dec 23 2025 16:26:37 GMT+0800 (中国标准时间)",
+  "dataBindings": [
+    {
+      "attr": "powerLevel",
+      "valueType": "PowerLevel",
+      "defaultValue": "red",
+      "name": "电压等级"
+    },
+    {
+      "attr": "powerOffColor",
+      "valueType": "Color",
+      "defaultValue": "rgb(128,128,128)",
+      "name": "失电颜色"
+    },
+    {
+      "attr": "powerOn",
+      "valueType": "Boolean",
+      "defaultValue": true,
+      "name": "是否带电"
+    },
+    {
+      "attr": "enabled",
+      "valueType": "Boolean",
+      "defaultValue": true,
+      "name": "是否有效"
+    },
+    {
+      "attr": "state",
+      "valueType": "Boolean",
+      "defaultValue": true,
+      "name": "开关状态"
+    }
+  ],
+  "width": 20,
+  "height": 20,
+  "comps": [
+    {
+      "type": "circle",
+      "borderWidth": 2,
+      "borderColor": {
+        "func": "attr@lineColor",
+        "value": "#60ACFC"
+      },
+      "rect": [
+        7.5,
+        17.275,
+        5,
+        1.725
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": {
+        "func": "attr@lineColor",
+        "value": "#60ACFC"
+      },
+      "borderCap": "round",
+      "visible": {
+        "func": "attr@enabled"
+      },
+      "anchorX": 0,
+      "anchorY": 1,
+      "rotation": {
+        "func": "__ht__function(data, view) {\nif (data.a('state')) {\nreturn 0;\n} else {\nreturn Math.PI/180*30;\n}\n}",
+        "value": 6.02139
+      },
+      "points": [
+        10,
+        18.1375,
+        10,
+        4.63495
+      ]
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "modified": "Tue Dec 23 2025 13:09:34 GMT+0800 (中国标准时间)",
+  "width": 120,
+  "height": 20,
+  "comps": [
+    {
+      "type": "text",
+      "text": "主电室改造消防弱电总控室",
+      "font": "10px arial, sans-serif",
+      "rect": [
+        0,
+        0,
+        120,
+        10
+      ]
+    },
+    {
+      "type": "text",
+      "text": "-消防用电F1ATE-XFZ(主)",
+      "font": "10px arial, sans-serif",
+      "rect": [
+        0,
+        10,
+        120,
+        10
+      ]
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "modified": "Tue Dec 23 2025 13:10:52 GMT+0800 (中国标准时间)",
+  "width": 120,
+  "height": 20,
+  "comps": [
+    {
+      "type": "text",
+      "text": "景观照明预留",
+      "font": "10px arial, sans-serif",
+      "rect": [
+        0,
+        0,
+        120,
+        10
+      ]
+    }
+  ]
+}

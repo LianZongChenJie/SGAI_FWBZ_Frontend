@@ -1,0 +1,29 @@
+{
+  "modified": "Thu Dec 25 2025 17:04:06 GMT+0800 (中国标准时间)",
+  "width": 120,
+  "height": 20,
+  "comps": [
+    {
+      "type": "text",
+      "text": "主电室改造分界室用电",
+      "font": "10px arial, sans-serif",
+      "rect": [
+        0,
+        0,
+        120,
+        10
+      ]
+    },
+    {
+      "type": "text",
+      "text": "F1AL-FJ(主)",
+      "font": "10px arial, sans-serif",
+      "rect": [
+        0,
+        10,
+        120,
+        10
+      ]
+    }
+  ]
+}

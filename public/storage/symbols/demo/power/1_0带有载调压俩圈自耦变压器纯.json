@@ -1,0 +1,107 @@
+{
+  "modified": "Tue Dec 23 2025 15:46:35 GMT+0800 (中国标准时间)",
+  "dataBindings": [
+    {
+      "attr": "powerLevel",
+      "valueType": "PowerLevel",
+      "defaultValue": "red",
+      "name": "电压等级"
+    },
+    {
+      "attr": "powerOffColor",
+      "valueType": "Color",
+      "defaultValue": "rgb(128,128,128)",
+      "name": "失电颜色"
+    },
+    {
+      "attr": "powerOn",
+      "valueType": "Boolean",
+      "defaultValue": true,
+      "name": "是否带电"
+    }
+  ],
+  "width": 60,
+  "height": 100,
+  "comps": [
+    {
+      "type": "circle",
+      "borderWidth": 2,
+      "borderColor": {
+        "func": "attr@lineColor",
+        "value": "#60ACFC"
+      },
+      "rect": [
+        1,
+        1,
+        58,
+        58
+      ]
+    },
+    {
+      "type": "circle",
+      "borderWidth": 2,
+      "borderColor": {
+        "func": "attr@lineColor",
+        "value": "#60ACFC"
+      },
+      "rect": [
+        1,
+        41,
+        58,
+        58
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": {
+        "func": "attr@lineColor",
+        "value": "#60ACFC"
+      },
+      "borderCap": "round",
+      "displayName": "1",
+      "points": [
+        21,
+        59.3887,
+        30,
+        68.3692,
+        30,
+        80.6113
+      ]
+    },
+    {
+      "type": "triangle",
+      "borderWidth": 2,
+      "borderColor": {
+        "func": "attr@lineColor",
+        "value": "#60ACFC"
+      },
+      "displayName": "2",
+      "rect": [
+        21,
+        22.206,
+        18,
+        15.588
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 2,
+      "borderColor": {
+        "func": "attr@lineColor",
+        "value": "#60ACFC"
+      },
+      "borderCap": "round",
+      "displayName": "0",
+      "rotation": 3.92699,
+      "points": [
+        30,
+        59.3887,
+        39,
+        68.3692,
+        39,
+        80.6113
+      ]
+    }
+  ]
+}

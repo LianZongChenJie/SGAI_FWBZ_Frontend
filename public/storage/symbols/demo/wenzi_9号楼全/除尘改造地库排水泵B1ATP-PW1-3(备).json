@@ -1,0 +1,29 @@
+{
+  "modified": "Wed Dec 24 2025 13:10:39 GMT+0800 (中国标准时间)",
+  "width": 120,
+  "height": 20,
+  "comps": [
+    {
+      "type": "text",
+      "text": "除尘改造地库排水泵",
+      "font": "10px arial, sans-serif",
+      "rect": [
+        0,
+        0,
+        120,
+        10
+      ]
+    },
+    {
+      "type": "text",
+      "text": "B1ATP-PW1-3(备)",
+      "font": "10px arial, sans-serif",
+      "rect": [
+        0,
+        10,
+        120,
+        10
+      ]
+    }
+  ]
+}

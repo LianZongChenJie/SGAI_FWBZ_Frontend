@@ -1,0 +1,18 @@
+{
+  "modified": "Tue Dec 23 2025 13:14:12 GMT+0800 (中国标准时间)",
+  "width": 120,
+  "height": 20,
+  "comps": [
+    {
+      "type": "text",
+      "text": "除尘改造地面充电桩(8台)",
+      "font": "10px arial, sans-serif",
+      "rect": [
+        0,
+        0,
+        120,
+        10
+      ]
+    }
+  ]
+}
