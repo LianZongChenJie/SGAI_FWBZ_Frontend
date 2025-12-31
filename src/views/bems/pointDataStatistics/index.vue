@@ -67,12 +67,12 @@
           type="primary"
           @click="findData"
         >查询</a-button>
-        <!-- &nbsp;
+        &nbsp;
         <a-button
           type="primary"
           :icon="h(VerticalAlignBottomOutlined )"
           @click="handleExport"
-        >导出</a-button> -->
+        >导出</a-button>
 
         <div class="switch-box">
           <a-radio-group
@@ -119,7 +119,7 @@ import { findHour, findDay, findMonth, findYear, energyFlowType, energyFlowTree,
 import * as echarts from 'echarts';
 import { MenuProps, message } from 'ant-design-vue';
 import { VerticalAlignBottomOutlined, LineChartOutlined, BarChartOutlined } from '@ant-design/icons-vue';
-// import { exportExcel, exportTableToExcel } from '@/utils/export';
+import { exportExcel, exportTableToExcel } from '@/utils/export';
 
 const date = ref<string>();
 const time = ref<string>();
@@ -414,13 +414,13 @@ const handleTimeChange = (dates) => {
   lastTime.value = formatTime(timestamp);
 };
 
-// const handleExport = async () => {
-//   exportExcel({
-//     tableData: tableData.value,
-//     headers: tableHeaders.value,
-//     fileName: excelName.value,
-//   });
-// };
+const handleExport = async () => {
+  exportExcel({
+    tableData: tableData.value,
+    headers: tableHeaders.value,
+    fileName: excelName.value,
+  });
+};
 
 onMounted(async () => {
   const chartDom = document.getElementById('chart');
