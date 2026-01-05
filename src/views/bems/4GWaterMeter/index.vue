@@ -78,7 +78,7 @@
 
 <script lang="ts" setup>
 import { ref, onMounted, h } from 'vue';
-import { BarChartOutlined, VerticalAlignBottomOutlined } from '@ant-design/icons-vue';
+import { BarChartOutlined, VerticalAlignBottomOutlined, RedoOutlined, SearchOutlined } from '@ant-design/icons-vue';
 import { getCategoryTree, getSpaceTree, getList, getDeviceNumberDataApi, exportData } from './index.api';
 import Chart from './components/chart.vue';
 import HistoryRecordsModal from './components/HistoryRecordsModal.vue';
@@ -428,15 +428,15 @@ const filterTableData = (status) => {
 };
 
 const handleExport = async () => {
-  let { getFieldsValue } = getForm();
-  const searchData = getFieldsValue();
+  // let { getFieldsValue } = getForm();
+  // const searchData = getFieldsValue();
   let res = await exportData({
-    ...searchData,
+    ...formState.value,
     categoryId: '29',
-    startTime: searchData.startTime ? searchData.startTime.split(' ')[0] + ' 00:00:00' : null,
-    endTime: searchData.endTime ? searchData.endTime.split(' ')[0] + ' 23:59:59' : null,
+    startTime: formState.value.startTime ? formState.value.startTime.split(' ')[0] + ' 00:00:00' : null,
+    endTime: formState.value.endTime ? formState.value.endTime.split(' ')[0] + ' 23:59:59' : null,
   });
-  let name = '状态数据';
+  let name = '4G水表';
   let blobOptions = { type: 'application/vnd.ms-excel' };
   let fileSuffix = '.xls';
   let url = window.URL.createObjectURL(new Blob([res], blobOptions));

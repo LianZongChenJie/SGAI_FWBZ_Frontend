@@ -290,7 +290,8 @@ const findData = async () => {
     day: date.value,
     energyFlowDiagramIds: selectedKeys.join(','),
   };
-
+  console.log('findData------------------>', params);
+  
   var res;
   if (dateType.value === 'month') {
     res = await findMonth(params);
@@ -430,11 +431,12 @@ onMounted(async () => {
 
   const today = new Date();
   const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
-  const year = lastMonth.getFullYear();
-  const month = String(lastMonth.getMonth() + 2).padStart(2, '0');
-  const day = String(lastMonth.getDate()).padStart(2, '0');
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
   date.value = `${year}-${month}-${day}`;
-
+  console.log('findData----------->', month);
+  
   await findEnergyFlowType();
   await findTreeData();
   window.addEventListener('resize', resizeChart);

@@ -436,12 +436,12 @@ const filterTableData = (status) => {
 };
 
 const handleExport = async () => {
-  let { getFieldsValue } = getForm();
-  const searchData = getFieldsValue();
+  // let { getFieldsValue } = getForm();
+  // const searchData = getFieldsValue();
   let res = await exportData({
-    ...searchData,
-    startTime: searchData.startTime ? searchData.startTime.split(' ')[0] + ' 00:00:00' : null,
-    endTime: searchData.endTime ? searchData.endTime.split(' ')[0] + ' 00:00:00' : null,
+    ...formState.value,
+    startTime: formState.value.startTime ? formState.value.startTime.split(' ')[0] + ' 00:00:00' : null,
+    endTime: formState.value.endTime ? formState.value.endTime.split(' ')[0] + ' 00:00:00' : null,
   });
   let name = '状态数据';
   let blobOptions = { type: 'application/vnd.ms-excel' };
