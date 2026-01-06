@@ -75,9 +75,9 @@
       </template>
     </BasicTable>
   </div>
-  <a-modal v-model:visible="chartVisible" title="设备数据图表" width="500px" :footer="null" @cancel="handleChartClose"
+  <a-modal v-model:visible="chartVisible" title="设备数据图表" width="800px" :footer="null" @cancel="handleChartClose"
     destroyOnClose>
-    <Chart :params="chartParams" style="height: 340px" />
+    <Chart :params="chartParams" style="height: 540px" />
   </a-modal>
   <HistoryRecordsModal ref="historyRecordsModalRef" />
 </template>
@@ -310,12 +310,6 @@ const loadData = async (pageParams) => {
     pageSize: pageSize,
     ...formState.value,
   };
-  if (formState.value.deviceName) {
-    params.deviceName = formState.value.deviceName.split('*')[1];
-  }
-  if (formState.value.deviceCode) {
-    params.deviceCode = formState.value.deviceCode.split('*')[1];
-  }
   const res = await getList(params);
   dataSource.value = res.records;
   pagination.value.total = res.total;

@@ -21,6 +21,9 @@ import { checkIsQiankunMicro } from "/@/qiankun/micro";
 import { autoUseQiankunMicro } from "/@/qiankun/micro/qiankunMicro";
 import { useAppStoreWithOut } from "@/store/modules/app";
 
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
+
 // 注册online模块lib
 import { registerPackages } from '/@/utils/monorepo/registerPackages';
 
@@ -43,6 +46,9 @@ main();
 async function bootstrap(props?: MainAppProps) {
   // 创建应用实例
   const app = createApp(App);
+
+  app.use(ElementPlus)
+  
   // 【QQYUN-6329】
   window['JAppRootInstance'] = app;
 
