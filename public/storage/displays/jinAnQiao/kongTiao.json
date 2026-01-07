@@ -1,0 +1,1540 @@
+{
+  "v": "7.2.4-dev1",
+  "p": {
+    "autoAdjustIndex": true,
+    "hierarchicalRendering": true
+  },
+  "a": {},
+  "d": [
+    {
+      "c": "ht.Node",
+      "i": 9115,
+      "p": {
+        "displayName": "Humidity Sensor",
+        "image": "storage/symbols/Building Control Major/HVAC/Humidity Sensor.json",
+        "position": {
+          "x": 496.02074,
+          "y": 215.41983
+        },
+        "width": 186.94558,
+        "height": 135.19015,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9116,
+      "p": {
+        "displayName": "Humidity Sensor",
+        "image": "storage/symbols/Building Control Major/HVAC/Humidity Sensor.json",
+        "position": {
+          "x": 1132.59138,
+          "y": 488.29003
+        },
+        "width": 130.91724,
+        "height": 94.12323,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9117,
+      "p": {
+        "displayName": "Humidity Sensor",
+        "image": "storage/symbols/Building Control Major/HVAC/Humidity Sensor.json",
+        "position": {
+          "x": 1319.61948,
+          "y": 498.82127
+        },
+        "width": 186.94558,
+        "height": 135.19015,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9118,
+      "p": {
+        "displayName": "Humidity Sensor",
+        "image": "storage/symbols/Building Control Major/HVAC/Humidity Sensor.json",
+        "position": {
+          "x": 534.62061,
+          "y": 496.89943
+        },
+        "width": 186.94558,
+        "height": 135.19015,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9119,
+      "p": {
+        "displayName": "Humidity Sensor",
+        "image": "storage/symbols/Building Control Major/HVAC/Humidity Sensor.json",
+        "position": {
+          "x": 116.03384,
+          "y": 496.89943
+        },
+        "width": 186.94558,
+        "height": 135.19015,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9120,
+      "p": {
+        "displayName": "Wind tunnel3",
+        "image": "storage/symbols/Building Control Major/HVAC/Wind tunnel3.json",
+        "position": {
+          "x": 388.88797,
+          "y": 433.79003
+        },
+        "width": 838.3794,
+        "height": 620.79495,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9121,
+      "p": {
+        "displayName": "Wind tunnel",
+        "image": "storage/symbols/Building Control Major/HVAC/Wind tunnel.json",
+        "position": {
+          "x": 750.95033,
+          "y": 531.13691
+        },
+        "width": 1645.59661,
+        "height": 771.72618,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Shape",
+      "i": 9122,
+      "p": {
+        "position": {
+          "x": 319.989,
+          "y": 477.73759
+        },
+        "width": 0.04244,
+        "height": 29.4646,
+        "tall": 20,
+        "segments": {
+          "__a": [
+            1,
+            2
+          ]
+        },
+        "points": {
+          "__a": [
+            {
+              "x": 319.96778,
+              "y": 463.00529
+            },
+            {
+              "x": 320.01022,
+              "y": 492.46989
+            }
+          ]
+        }
+      },
+      "s": {
+        "shape.background": null,
+        "shape.border.color": "rgb(23,22,22)",
+        "shape.border.width": 1.5
+      }
+    },
+    {
+      "c": "ht.Shape",
+      "i": 9123,
+      "p": {
+        "position": {
+          "x": 449.88879,
+          "y": 477.73759
+        },
+        "width": 0.04653,
+        "height": 29.4646,
+        "tall": 20,
+        "segments": {
+          "__a": [
+            1,
+            2
+          ]
+        },
+        "points": {
+          "__a": [
+            {
+              "x": 449.86553,
+              "y": 463.00529
+            },
+            {
+              "x": 449.91206,
+              "y": 492.46989
+            }
+          ]
+        }
+      },
+      "s": {
+        "shape.background": null,
+        "shape.border.color": "rgb(23,22,22)",
+        "shape.border.width": 1.5
+      }
+    },
+    {
+      "c": "ht.Shape",
+      "i": 9124,
+      "p": {
+        "position": {
+          "x": 384.97474,
+          "y": 492.46989
+        },
+        "width": 128.36803,
+        "height": 0,
+        "tall": 20,
+        "segments": {
+          "__a": [
+            1,
+            2
+          ]
+        },
+        "points": {
+          "__a": [
+            {
+              "x": 449.15875,
+              "y": 492.46989
+            },
+            {
+              "x": 320.79073,
+              "y": 492.46989
+            }
+          ]
+        }
+      },
+      "s": {
+        "shape.background": null,
+        "shape.border.color": "rgb(240,240,241)",
+        "shape.border.width": 4
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9125,
+      "p": {
+        "displayName": "resource4",
+        "image": "storage/symbols/Building Control Major/HVAC/resource4.json",
+        "position": {
+          "x": 22.56105,
+          "y": 545.33266
+        },
+        "width": 105.72555,
+        "height": 105.72555,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9126,
+      "p": {
+        "position": {
+          "x": 97.71503,
+          "y": 523.14441
+        },
+        "width": 7.08882,
+        "height": 36.55764,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(222,213,93)",
+        "shape.border.color": "rgb(247,247,247)",
+        "shape.border.3d.color": "rgb(247,247,247)",
+        "shape.foreground.gradient.color": "rgb(247,247,247)"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9127,
+      "p": {
+        "position": {
+          "x": 131.69051,
+          "y": 509.58041
+        },
+        "width": 12.14997,
+        "height": 63.68564,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(224,215,79)",
+        "shape.border.color": "#979797"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9128,
+      "p": {
+        "displayName": "resource4",
+        "image": "storage/symbols/Building Control Major/HVAC/resource4.json",
+        "rotation": 1.62712,
+        "position": {
+          "x": 383.93264,
+          "y": 356.3362
+        },
+        "width": 105.72555,
+        "height": 122.17153,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9129,
+      "p": {
+        "position": {
+          "x": 97.71503,
+          "y": 483.93544
+        },
+        "width": 3.54441,
+        "height": 41.86031,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(227,220,220)",
+        "shape.border.color": "rgb(247,247,247)",
+        "shape.border.3d.color": "rgb(247,247,247)",
+        "shape.foreground.gradient.color": "rgb(61,61,61)"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9130,
+      "p": {
+        "position": {
+          "x": 131.69051,
+          "y": 470.37144
+        },
+        "width": 3.54441,
+        "height": 14.7323,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(227,220,220)",
+        "shape.border.color": "rgb(247,247,247)",
+        "shape.border.3d.color": "rgb(247,247,247)",
+        "shape.foreground.gradient.color": "rgb(61,61,61)"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9131,
+      "p": {
+        "displayName": "Surface cooler",
+        "image": "storage/symbols/Building Control Major/HVAC/Surface cooler.json",
+        "position": {
+          "x": 551.50582,
+          "y": 547.3428
+        },
+        "width": 109.74583,
+        "height": 109.74583,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9132,
+      "p": {
+        "displayName": "Surface cooler",
+        "image": "storage/symbols/Building Control Major/HVAC/Surface cooler.json",
+        "position": {
+          "x": 682.96632,
+          "y": 547.3428
+        },
+        "width": 109.74583,
+        "height": 109.74583,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9133,
+      "p": {
+        "position": {
+          "x": 546.55395,
+          "y": 480.89669
+        },
+        "width": 3.54441,
+        "height": 35.7828,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(227,220,220)",
+        "shape.border.color": "rgb(247,247,247)",
+        "shape.border.3d.color": "rgb(247,247,247)",
+        "shape.foreground.gradient.color": "rgb(61,61,61)"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9134,
+      "p": {
+        "displayName": "resouce2",
+        "image": "storage/symbols/Building Control Major/HVAC/resouce2.json",
+        "position": {
+          "x": 785.8919,
+          "y": 488.29003
+        },
+        "width": 109,
+        "height": 109,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9135,
+      "p": {
+        "displayName": "resource3",
+        "image": "storage/symbols/Building Control Major/HVAC/resource3.json",
+        "position": {
+          "x": 887.31613,
+          "y": 566.41635
+        },
+        "width": 128.31559,
+        "height": 147.89293,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9136,
+      "p": {
+        "displayName": "Humidity Sensor",
+        "image": "storage/symbols/Building Control Major/HVAC/Humidity Sensor.json",
+        "rotation": 3.14159,
+        "position": {
+          "x": 977.49001,
+          "y": 555.82486
+        },
+        "width": 96.72066,
+        "height": 92.4889,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9137,
+      "p": {
+        "position": {
+          "x": 979.26222,
+          "y": 619.43266
+        },
+        "width": 3.54441,
+        "height": 41.86031,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(227,220,220)",
+        "shape.border.width": 1,
+        "shape.border.color": "rgb(242,82,82)",
+        "shape.border.3d.color": "rgb(247,247,247)",
+        "shape.foreground.gradient.color": "rgb(61,61,61)"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9138,
+      "p": {
+        "displayName": "Voltage regulator",
+        "image": "storage/symbols/Building Control Major/Cold source/Voltage regulator.json",
+        "rotation": 4.71239,
+        "position": {
+          "x": 972.22259,
+          "y": 619.43266
+        },
+        "width": 22.24206,
+        "height": 22.86259,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9139,
+      "p": {
+        "displayName": "Inverter fan2",
+        "tag": "fan1",
+        "image": "storage/symbols/Building Control Major/HVAC/Inverter fan2.json",
+        "position": {
+          "x": 1131.54445,
+          "y": 545.33266
+        },
+        "width": 133.0111,
+        "height": 135.49722,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9140,
+      "p": {
+        "position": {
+          "x": 1301.74772,
+          "y": 483.93544
+        },
+        "width": 3.54441,
+        "height": 41.86031,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(227,220,220)",
+        "shape.border.color": "rgb(247,247,247)",
+        "shape.border.3d.color": "rgb(247,247,247)",
+        "shape.foreground.gradient.color": "rgb(61,61,61)"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9141,
+      "p": {
+        "position": {
+          "x": 1301.74772,
+          "y": 523.14441
+        },
+        "width": 7.08882,
+        "height": 36.55764,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(222,213,93)",
+        "shape.border.color": "rgb(247,247,247)",
+        "shape.border.3d.color": "rgb(247,247,247)",
+        "shape.foreground.gradient.color": "rgb(247,247,247)"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9142,
+      "p": {
+        "position": {
+          "x": 1344.11979,
+          "y": 470.37144
+        },
+        "width": 3.54441,
+        "height": 14.7323,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(227,220,220)",
+        "shape.border.color": "rgb(247,247,247)",
+        "shape.border.3d.color": "rgb(247,247,247)",
+        "shape.foreground.gradient.color": "rgb(61,61,61)"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9143,
+      "p": {
+        "position": {
+          "x": 1344.11979,
+          "y": 509.58041
+        },
+        "width": 12.14997,
+        "height": 63.68564,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(224,215,79)",
+        "shape.border.color": "#979797"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9144,
+      "p": {
+        "position": {
+          "x": 1029.39475,
+          "y": 489.84239
+        },
+        "width": 7.08882,
+        "height": 18.66624,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(222,213,93)",
+        "shape.border.color": "rgb(247,247,247)",
+        "shape.border.3d.color": "rgb(247,247,247)",
+        "shape.foreground.gradient.color": "rgb(247,247,247)"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9145,
+      "p": {
+        "position": {
+          "x": 1222.60228,
+          "y": 490.0361
+        },
+        "width": 7.08882,
+        "height": 18.27882,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(222,213,93)",
+        "shape.border.color": "rgb(247,247,247)",
+        "shape.border.3d.color": "rgb(247,247,247)",
+        "shape.foreground.gradient.color": "rgb(247,247,247)"
+      }
+    },
+    {
+      "c": "ht.Shape",
+      "i": 9146,
+      "p": {
+        "position": {
+          "x": 1063.99148,
+          "y": 468.03442
+        },
+        "width": 70.39129,
+        "height": 25.04306,
+        "tall": 20,
+        "segments": {
+          "__a": [
+            1,
+            2,
+            2
+          ]
+        },
+        "points": {
+          "__a": [
+            {
+              "x": 1099.18712,
+              "y": 456.86657
+            },
+            {
+              "x": 1049.10101,
+              "y": 455.51289
+            },
+            {
+              "x": 1028.79583,
+              "y": 480.55595
+            }
+          ]
+        }
+      },
+      "s": {
+        "shape.background": null,
+        "shape.border.color": "#979797",
+        "shape.border.width": 1
+      }
+    },
+    {
+      "c": "ht.Shape",
+      "i": 9147,
+      "p": {
+        "position": {
+          "x": 1189.54518,
+          "y": 467.696
+        },
+        "width": 62.94606,
+        "height": 24.36622,
+        "tall": 20,
+        "segments": {
+          "__a": [
+            1,
+            2,
+            2
+          ]
+        },
+        "points": {
+          "__a": [
+            {
+              "x": 1158.07215,
+              "y": 455.51289
+            },
+            {
+              "x": 1206.80458,
+              "y": 456.86657
+            },
+            {
+              "x": 1221.01821,
+              "y": 479.87911
+            }
+          ]
+        }
+      },
+      "s": {
+        "shape.background": null,
+        "shape.border.color": "#979797",
+        "shape.border.width": 1
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9148,
+      "p": {
+        "position": {
+          "x": 473.80759,
+          "y": 200.89904
+        },
+        "width": 3.54441,
+        "height": 41.86031,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(227,220,220)",
+        "shape.border.color": "rgb(247,247,247)",
+        "shape.border.3d.color": "rgb(247,247,247)",
+        "shape.foreground.gradient.color": "rgb(61,61,61)"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9149,
+      "p": {
+        "position": {
+          "x": 473.80759,
+          "y": 240.10801
+        },
+        "width": 7.08882,
+        "height": 36.55764,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(222,213,93)",
+        "shape.border.color": "rgb(247,247,247)",
+        "shape.border.3d.color": "rgb(247,247,247)",
+        "shape.foreground.gradient.color": "rgb(247,247,247)"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9150,
+      "p": {
+        "position": {
+          "x": 515.36318,
+          "y": 187.33504
+        },
+        "width": 3.54441,
+        "height": 14.7323,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(227,220,220)",
+        "shape.border.color": "rgb(247,247,247)",
+        "shape.border.3d.color": "rgb(247,247,247)",
+        "shape.foreground.gradient.color": "rgb(61,61,61)"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9151,
+      "p": {
+        "position": {
+          "x": 515.36318,
+          "y": 226.54401
+        },
+        "width": 12.14997,
+        "height": 63.68564,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(224,215,79)",
+        "shape.border.color": "#979797"
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 9156,
+      "p": {
+        "dataBindings": {
+          "s": {}
+        },
+        "position": {
+          "x": 62.16549,
+          "y": 405.1612
+        },
+        "width": 151.2,
+        "height": 32.55,
+        "tall": 20
+      },
+      "s": {
+        "text": "新风湿度",
+        "text.font": "bold 20px sans-serif, Arial"
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 9157,
+      "p": {
+        "dataBindings": {
+          "s": {}
+        },
+        "position": {
+          "x": 213.36549,
+          "y": 405.1612
+        },
+        "width": 151.2,
+        "height": 32.55,
+        "tall": 20
+      },
+      "s": {
+        "text": "新风温度",
+        "text.font": "bold 20px sans-serif, Arial"
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 9158,
+      "p": {
+        "dataBindings": {
+          "s": {}
+        },
+        "position": {
+          "x": 205.51831,
+          "y": 323.7862
+        },
+        "width": 151.2,
+        "height": 32.55,
+        "tall": 20
+      },
+      "s": {
+        "text": "回风阀开度",
+        "text.font": "bold 20px sans-serif, Arial"
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 9159,
+      "p": {
+        "dataBindings": {
+          "s": {}
+        },
+        "position": {
+          "x": 205.51831,
+          "y": 356.3362
+        },
+        "width": 151.2,
+        "height": 32.55,
+        "tall": 20
+      },
+      "s": {
+        "text": "回风阀反馈",
+        "text.font": "bold 20px sans-serif, Arial"
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 9160,
+      "p": {
+        "dataBindings": {
+          "s": {}
+        },
+        "position": {
+          "x": 549.40759,
+          "y": 388.8862
+        },
+        "width": 151.2,
+        "height": 32.55,
+        "tall": 20
+      },
+      "s": {
+        "text": "过滤网报警",
+        "text.font": "bold 20px sans-serif, Arial"
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 9161,
+      "p": {
+        "dataBindings": {
+          "s": {}
+        },
+        "position": {
+          "x": 813.43924,
+          "y": 388.8862
+        },
+        "width": 151.2,
+        "height": 32.55,
+        "tall": 20
+      },
+      "s": {
+        "text": "低温报警",
+        "text.font": "bold 20px sans-serif, Arial"
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 9162,
+      "p": {
+        "dataBindings": {
+          "s": {}
+        },
+        "position": {
+          "x": 420.42074,
+          "y": 107.11756
+        },
+        "width": 151.2,
+        "height": 32.55,
+        "tall": 20
+      },
+      "s": {
+        "text": "回风温度",
+        "text.font": "bold 20px sans-serif, Arial"
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 9163,
+      "p": {
+        "dataBindings": {
+          "s": {}
+        },
+        "position": {
+          "x": 607.36632,
+          "y": 107.11756
+        },
+        "width": 151.2,
+        "height": 32.55,
+        "tall": 20
+      },
+      "s": {
+        "text": "回风湿度",
+        "text.font": "bold 20px sans-serif, Arial"
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 9165,
+      "p": {
+        "dataBindings": {
+          "s": {}
+        },
+        "position": {
+          "x": 840.3919,
+          "y": 666.0862
+        },
+        "width": 151.2,
+        "height": 32.55,
+        "tall": 20
+      },
+      "s": {
+        "text": "水阀开度",
+        "text.font": "bold 20px sans-serif, Arial"
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 9166,
+      "p": {
+        "dataBindings": {
+          "s": {}
+        },
+        "position": {
+          "x": 840.3919,
+          "y": 698.6362
+        },
+        "width": 151.2,
+        "height": 32.55,
+        "tall": 20
+      },
+      "s": {
+        "text": "水阀反馈",
+        "text.font": "bold 20px sans-serif, Arial"
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 9168,
+      "p": {
+        "dataBindings": {
+          "s": {}
+        },
+        "position": {
+          "x": 1131.54445,
+          "y": 400.16686
+        },
+        "width": 84.15156,
+        "height": 32.55,
+        "tall": 20
+      },
+      "s": {
+        "text": "送风静压",
+        "text.font": "bold 20px sans-serif, Arial"
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 9169,
+      "p": {
+        "dataBindings": {
+          "s": {}
+        },
+        "position": {
+          "x": 1273.65,
+          "y": 400.16686
+        },
+        "width": 151.2,
+        "height": 32.55,
+        "tall": 20
+      },
+      "s": {
+        "text": "送风湿度",
+        "text.font": "bold 20px sans-serif, Arial"
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 9170,
+      "p": {
+        "dataBindings": {
+          "s": {}
+        },
+        "position": {
+          "x": 1413.09227,
+          "y": 400.16686
+        },
+        "width": 151.2,
+        "height": 32.55,
+        "tall": 20
+      },
+      "s": {
+        "text": "送风温度",
+        "text.font": "bold 20px sans-serif, Arial"
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 9171,
+      "p": {
+        "dataBindings": {
+          "s": {}
+        },
+        "position": {
+          "x": 25.65944,
+          "y": 630.55369
+        },
+        "width": 151.2,
+        "height": 32.55,
+        "tall": 20
+      },
+      "s": {
+        "text": "新风阀开度",
+        "text.font": "bold 20px sans-serif, Arial"
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 9172,
+      "p": {
+        "dataBindings": {
+          "s": {}
+        },
+        "position": {
+          "x": 25.65944,
+          "y": 666.0862
+        },
+        "width": 151.2,
+        "height": 32.55,
+        "tall": 20
+      },
+      "s": {
+        "text": "新风阀反馈",
+        "text.font": "bold 20px sans-serif, Arial"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9174,
+      "p": {
+        "position": {
+          "x": 384.18691,
+          "y": 131.82252
+        },
+        "width": 76.06385,
+        "height": 22.56131
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgba(217,217,217,0)",
+        "shape.border.width": 1,
+        "shape.border.color": "#979797"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9234,
+      "p": {
+        "position": {
+          "x": 572.65254,
+          "y": 131.82252
+        },
+        "width": 76.06385,
+        "height": 22.56131,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgba(217,217,217,0)",
+        "shape.border.width": 1,
+        "shape.border.color": "#979797"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9235,
+      "p": {
+        "position": {
+          "x": 271.82989,
+          "y": 325.35416
+        },
+        "width": 76.06385,
+        "height": 22.56131,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgba(217,217,217,0)",
+        "shape.border.width": 1,
+        "shape.border.color": "#979797"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9236,
+      "p": {
+        "position": {
+          "x": 271.82989,
+          "y": 357.90416
+        },
+        "width": 76.06385,
+        "height": 22.56131,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgba(217,217,217,0)",
+        "shape.border.width": 1,
+        "shape.border.color": "#979797"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9237,
+      "p": {
+        "position": {
+          "x": 25.65944,
+          "y": 429.30435
+        },
+        "width": 76.06385,
+        "height": 22.56131,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgba(217,217,217,0)",
+        "shape.border.width": 1,
+        "shape.border.color": "#979797"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9238,
+      "p": {
+        "position": {
+          "x": 178.47268,
+          "y": 429.30435
+        },
+        "width": 76.06385,
+        "height": 22.56131,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgba(217,217,217,0)",
+        "shape.border.width": 1,
+        "shape.border.color": "#979797"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9239,
+      "p": {
+        "position": {
+          "x": 95.94283,
+          "y": 632.017
+        },
+        "width": 76.06385,
+        "height": 22.56131,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgba(217,217,217,0)",
+        "shape.border.width": 1,
+        "shape.border.color": "#979797"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9240,
+      "p": {
+        "position": {
+          "x": 95.94283,
+          "y": 666.0862
+        },
+        "width": 76.06385,
+        "height": 22.56131,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgba(217,217,217,0)",
+        "shape.border.width": 1,
+        "shape.border.color": "#979797"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9241,
+      "p": {
+        "position": {
+          "x": 521.43817,
+          "y": 416.44186
+        },
+        "width": 76.06385,
+        "height": 22.56131,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgba(217,217,217,0)",
+        "shape.border.width": 1,
+        "shape.border.color": "#979797"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9242,
+      "p": {
+        "position": {
+          "x": 778.04362,
+          "y": 416.44186
+        },
+        "width": 76.06385,
+        "height": 22.56131,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgba(217,217,217,0)",
+        "shape.border.width": 1,
+        "shape.border.color": "#979797"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9243,
+      "p": {
+        "position": {
+          "x": 1238.06516,
+          "y": 423.83456
+        },
+        "width": 76.06385,
+        "height": 22.56131,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgba(217,217,217,0)",
+        "shape.border.width": 1,
+        "shape.border.color": "#979797"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9244,
+      "p": {
+        "position": {
+          "x": 1376.07673,
+          "y": 423.83456
+        },
+        "width": 76.06385,
+        "height": 22.56131,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgba(217,217,217,0)",
+        "shape.border.width": 1,
+        "shape.border.color": "#979797"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9245,
+      "p": {
+        "position": {
+          "x": 891.09763,
+          "y": 667.98543
+        },
+        "width": 76.06385,
+        "height": 22.56131,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgba(217,217,217,0)",
+        "shape.border.width": 1,
+        "shape.border.color": "#979797"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 9246,
+      "p": {
+        "position": {
+          "x": 891.09763,
+          "y": 700.1554
+        },
+        "width": 76.06385,
+        "height": 22.56131,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgba(217,217,217,0)",
+        "shape.border.width": 1,
+        "shape.border.color": "#979797"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 13792,
+      "p": {
+        "displayName": "wenDu",
+        "tag": "huiFengWenDu",
+        "image": "storage/symbols/jinAnQiao/wenDu.json",
+        "position": {
+          "x": 384.18691,
+          "y": 131.82252
+        }
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 21161,
+      "p": {
+        "displayName": "shiDu",
+        "tag": "huiFengShiDu",
+        "image": "storage/symbols/jinAnQiao/shiDu.json",
+        "position": {
+          "x": 572.65254,
+          "y": 131.82252
+        }
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 21585,
+      "p": {
+        "displayName": "wenDu",
+        "tag": "xinFengWenDu",
+        "image": "storage/symbols/jinAnQiao/wenDu.json",
+        "position": {
+          "x": 178.47268,
+          "y": 429.30435
+        },
+        "width": 70,
+        "height": 20,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 21586,
+      "p": {
+        "displayName": "shiDu",
+        "tag": "xinFengShiDu",
+        "image": "storage/symbols/jinAnQiao/shiDu.json",
+        "position": {
+          "x": 24.35735,
+          "y": 429.30435
+        },
+        "width": 70,
+        "height": 20,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 22215,
+      "p": {
+        "displayName": "wenDu",
+        "tag": "songFengWenDu",
+        "image": "storage/symbols/jinAnQiao/wenDu.json",
+        "position": {
+          "x": 1376.07673,
+          "y": 423.83456
+        },
+        "width": 70,
+        "height": 20,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 22216,
+      "p": {
+        "displayName": "shiDu",
+        "tag": "songFengShiDu",
+        "image": "storage/symbols/jinAnQiao/shiDu.json",
+        "position": {
+          "x": 1238.06516,
+          "y": 423.79003
+        },
+        "width": 70,
+        "height": 20,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 27596,
+      "p": {
+        "displayName": "kaiDu",
+        "tag": "huiFengFaKaiDu",
+        "image": "storage/symbols/jinAnQiao/kaiDu.json",
+        "position": {
+          "x": 271.82989,
+          "y": 325.35416
+        }
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 27618,
+      "p": {
+        "displayName": "fanKui",
+        "tag": "huiFengFaFanKui",
+        "image": "storage/symbols/jinAnQiao/fanKui.json",
+        "position": {
+          "x": 271.82989,
+          "y": 357.90416
+        }
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 28054,
+      "p": {
+        "displayName": "kaiDu",
+        "tag": "xinFengFaKaiDu",
+        "image": "storage/symbols/jinAnQiao/kaiDu.json",
+        "position": {
+          "x": 94.91831,
+          "y": 632.017
+        },
+        "width": 70,
+        "height": 20,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 28055,
+      "p": {
+        "displayName": "fanKui",
+        "tag": "xinFengFaFanKui",
+        "image": "storage/symbols/jinAnQiao/fanKui.json",
+        "position": {
+          "x": 94.9183,
+          "y": 666.0862
+        },
+        "width": 70,
+        "height": 20,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 28056,
+      "p": {
+        "displayName": "kaiDu",
+        "tag": "shuiFaKaiDu",
+        "image": "storage/symbols/jinAnQiao/kaiDu.json",
+        "position": {
+          "x": 891.09763,
+          "y": 667.98543
+        },
+        "width": 70,
+        "height": 20,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 28058,
+      "p": {
+        "displayName": "fanKui",
+        "tag": "shuiFaFanKui",
+        "image": "storage/symbols/jinAnQiao/fanKui.json",
+        "position": {
+          "x": 891.09763,
+          "y": 700.1554
+        },
+        "width": 70,
+        "height": 20,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 30740,
+      "p": {
+        "displayName": "baoJing",
+        "tag": "guLvWangBaoJing",
+        "image": "storage/symbols/jinAnQiao/baoJing.json",
+        "position": {
+          "x": 521.43817,
+          "y": 416.44186
+        }
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 30750,
+      "p": {
+        "displayName": "baoJing",
+        "tag": "diWenBaoJing",
+        "image": "storage/symbols/jinAnQiao/baoJing.json",
+        "position": {
+          "x": 778.04362,
+          "y": 416.44186
+        },
+        "width": 70,
+        "height": 20,
+        "tall": 20
+      }
+    }
+  ],
+  "modified": "Wed Jan 07 2026 09:58:59 GMT+0800 (中国标准时间)",
+  "contentRect": {
+    "x": -71.84798,
+    "y": 90.84256,
+    "width": 1645.59661,
+    "height": 826.15744
+  }
+}

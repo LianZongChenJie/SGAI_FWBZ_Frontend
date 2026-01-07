@@ -120,7 +120,7 @@ const columns: BasicColumn[] = [
 //表单搜索字段
 const searchFormSchema: FormSchema[] = [
   {
-    label: '等级信息', //显示label
+    label: '类别信息', //显示label
     field: 'name', //查询字段
     component: 'JInput', //渲染的组件
     // slot: 'name', //设置默认值
@@ -135,8 +135,8 @@ const getLinkageControlList = async (pageParams) => {
   let params = {
     pageNo: pageNo,
     pageSize: pageSize,
-    strategyName: searchData.strategyName ? searchData.strategyName : undefined,
-    frontDevice: searchData.frontDevice ? searchData.frontDevice : undefined,
+    alarmCategoryName: searchData.name ? searchData.name.split('*')[1] : undefined,
+    alarmCategoryCode: searchData.name ? searchData.name.split('*')[1] : undefined, 
     rearDevice: searchData.rearDevice ? searchData.rearDevice : undefined,
   };
   let res = await getAlarmCategoryPageListApi(params);
@@ -162,7 +162,7 @@ const { tableContext } = useListPage({
       showSizeChanger: true,
     },
     formConfig: {
-      schemas: searchFormSchema,
+      // schemas: searchFormSchema,
       submitOnReset: true,
       //重置按钮的自定义事件
       resetFunc: async () => {

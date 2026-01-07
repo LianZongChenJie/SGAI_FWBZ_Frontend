@@ -1,0 +1,18 @@
+{
+  "modified": "Thu Aug 19 2021 17:10:07 GMT+0800 (中国标准时间)",
+  "width": 56,
+  "height": 56,
+  "comps": [
+    {
+      "type": "image",
+      "name": "storage/assets/illumination/HVAC/resource2.svg",
+      "displayName": "resource2",
+      "rect": [
+        19.01315,
+        1.56809,
+        17.9737,
+        52.86382
+      ]
+    }
+  ]
+}

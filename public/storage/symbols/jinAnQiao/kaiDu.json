@@ -1,0 +1,20 @@
+{
+  "modified": "Wed Jan 07 2026 09:51:31 GMT+0800 (中国标准时间)",
+  "width": 70,
+  "height": 20,
+  "comps": [
+    {
+      "type": "storage/components/lengYuan/kaiDu.json",
+      "displayName": "kaiDu",
+      "rect": [
+        0,
+        0,
+        70,
+        20
+      ],
+      "value": {
+        "func": "attr@kaiDu"
+      }
+    }
+  ]
+}

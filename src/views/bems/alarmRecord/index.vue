@@ -298,7 +298,7 @@ const getLinkageControlList = async (pageParams) => {
     spaceId: searchData.spaceId ? searchData.spaceId : undefined,
     alarmLevelId: searchData.alarmLevelId ? searchData.alarmLevelId : undefined,
     alarmCategoryId: searchData.alarmCategoryId ? searchData.alarmCategoryId : undefined,
-    deviceIds: searchData.deviceIds ? searchData.deviceIds.split('*')[1] : undefined,
+    deviceIds: searchData.deviceIds ? searchData.deviceIds : undefined,
     startDateTime: searchData.time ? searchData.time.split(',')[0] : formatDate(getFirstDayOfMonth()) + ' 00:00:00',
     endDateTime: searchData.time ? searchData.time.split(',')[1] : formatDate(getToday()) + ' 23:59:59',
   };

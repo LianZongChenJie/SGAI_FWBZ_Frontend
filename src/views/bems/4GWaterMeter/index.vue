@@ -362,7 +362,12 @@ const findTreeNodeTitle = (treeData: any[], key: string | number): string => {
 
 // 重置查询
 const resetSearch = async () => {
-  searchParams.value = defaultSearchParams;
+  formState.value.deviceName = null
+  formState.value.deviceCode = null
+  formState.value.categoryId = null
+  formState.value.spaceId = null
+  formState.value.startTime = formatTime(new Date().getTime() - 24 * 60 * 60 * 1000)
+  formState.value.endTime = formatTime(new Date().getTime())
   pagination.value.current = 1;
   reload();
 };

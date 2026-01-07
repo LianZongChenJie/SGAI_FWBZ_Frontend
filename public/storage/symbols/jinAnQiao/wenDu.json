@@ -1,0 +1,20 @@
+{
+  "modified": "Wed Jan 07 2026 09:44:10 GMT+0800 (中国标准时间)",
+  "width": 70,
+  "height": 20,
+  "comps": [
+    {
+      "type": "storage/components/lengYuan/wenDu.json",
+      "displayName": "wenDu",
+      "rect": [
+        0,
+        0,
+        100,
+        20
+      ],
+      "value": {
+        "func": "attr@wenDu"
+      }
+    }
+  ]
+}
