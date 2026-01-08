@@ -1,0 +1,20 @@
+{
+  "modified": "Wed Jan 07 2026 16:13:44 GMT+0800 (中国标准时间)",
+  "width": 70,
+  "height": 20,
+  "comps": [
+    {
+      "type": "storage/components/lengYuan/pm2.5.json",
+      "displayName": "pm2.5",
+      "rect": [
+        0,
+        0,
+        70,
+        20
+      ],
+      "value": {
+        "func": "attr@pm2.5"
+      }
+    }
+  ]
+}

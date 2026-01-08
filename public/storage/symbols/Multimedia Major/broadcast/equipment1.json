@@ -1,0 +1,18 @@
+{
+  "modified": "Fri Aug 20 2021 08:59:27 GMT+0800 (中国标准时间)",
+  "width": 60,
+  "height": 48,
+  "comps": [
+    {
+      "type": "image",
+      "name": "storage/assets/fire page/equipment1.png",
+      "displayName": "equipment1",
+      "rect": [
+        0,
+        0,
+        59.90145,
+        47.79371
+      ]
+    }
+  ]
+}

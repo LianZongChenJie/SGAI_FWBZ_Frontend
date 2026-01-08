@@ -1,0 +1,25 @@
+{
+  "modified": "Thu Aug 19 2021 16:58:00 GMT+0800 (中国标准时间)",
+  "dataBindings": [
+    {
+      "attr": "filter/kj",
+      "valueType": "Boolean",
+      "name": "过滤器"
+    }
+  ],
+  "width": 60,
+  "height": 60,
+  "comps": [
+    {
+      "type": "image",
+      "name": "storage/assets/illumination/HVAC/Filter.svg",
+      "displayName": "Filter",
+      "rect": [
+        17.14427,
+        0,
+        25.71146,
+        59.33414
+      ]
+    }
+  ]
+}

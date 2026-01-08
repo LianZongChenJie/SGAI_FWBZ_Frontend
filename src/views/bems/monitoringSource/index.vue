@@ -23,20 +23,20 @@
       <a-tab-pane key="7" tab="流速传感器">
         <PressureSensor :apiParams="'36'" />
       </a-tab-pane>
-      <a-tab-pane key="8" tab="空调机组">
-        <MyTopoComponents />
+      <a-tab-pane key="8" tab="空调机组" >
+        <MyTopoComponents :path="'kongTiao.json'" />
       </a-tab-pane>
       <a-tab-pane key="9" tab="新风机组">
-        <PressureSensor :apiParams="'36'" />
+        <MyTopoComponents :path="'xinFengJi.json'" />
       </a-tab-pane>
       <a-tab-pane key="10" tab="热回收机组">
-        <PressureSensor :apiParams="'36'"/>
+        <MyTopoComponents :path="'reHuiShou.json'" />
       </a-tab-pane>
       <a-tab-pane key="11" tab="送排风机">
-        <PressureSensor :apiParams="'36'" />
+        <MyTopoComponents :path="'songPaiFengJi.json'" />
       </a-tab-pane>
       <a-tab-pane key="12" tab="集水坑">
-        <PressureSensor :apiParams="'36'" />
+        <MyTopoComponents :path="'jiShuiKeng.json'" />
       </a-tab-pane>
       
     </a-tabs>

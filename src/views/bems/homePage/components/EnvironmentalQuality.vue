@@ -103,6 +103,7 @@ const handleSwitchDate = (type) => {
 
 const getWeaterData = async () => {
   const res = await axios.get('http://10.168.56.101/weather');
+  // const res = await axios.get('/api/weather/city/101010100');
   wendu.value = res.data.data.wendu;
   shidu.value = res.data.data.shidu;
   quality.value = res.data.data.quality;
@@ -507,66 +508,11 @@ const getPixelYPosition = (value) => {
     width: 100%;
     padding: 16px 21px;
 
-    .weater-title {
-      height: 30px;
-      width: 100%;
-      display: flex;
-      justify-content: flex-start;
-      align-items: center;
-      padding-left: 16px;
-      font-size: 18px;
-    }
-    .weater-info-box {
-      height: calc(100% - 30px);
-      width: 100%;
-      display: flex;
-      justify-content: space-around;
-      align-content: center;
-      align-items: center;
-
-      .weater-icon {
-        width: 120px;
-        height: 100%;
-        display: flex;
-        flex-wrap: wrap;
-        align-content: center;
-
-        > div {
-          height: calc(100% - 140px);
-          width: 120px;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          font-size: 20px;
-        }
-
-        > img {
-          height: 120px;
-          width: 120px;
-        }
-      }
-
-      .weater-data {
-        height: 100%;
-        width: calc(100% - 130px);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        align-content: space-around;
-        flex-wrap: wrap;
-
-        > div {
-          height: 50px;
-          width: 33%;
-        }
-      }
-    }
-
     .temperature-and-weather {
       height: 100px;
       width: 100%;
       display: flex;
-      justify-content: flex-start;
+      justify-content: center;
       align-items: center;
       > div {
         height: 100%;
@@ -629,7 +575,7 @@ const getPixelYPosition = (value) => {
     }
     .brief-data {
       display: flex;
-      justify-content: flex-start;
+      justify-content: center;
       align-items: center;
       height: 30px;
       font-size: 14px;

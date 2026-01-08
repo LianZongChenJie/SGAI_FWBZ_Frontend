@@ -1,0 +1,217 @@
+{
+  "modified": "Thu Jan 08 2026 15:30:21 GMT+0800 (中国标准时间)",
+  "width": 200,
+  "height": 150,
+  "comps": [
+    {
+      "type": "rect",
+      "background": "rgba(128,128,128,0.30)",
+      "borderWidth": 0.3,
+      "borderColor": "rgb(201,201,201)",
+      "gradient": "spread.horizontal",
+      "gradientColor": "rgba(255,255,255,0.30)",
+      "rotation": -3.14159,
+      "rect": [
+        59.25081,
+        132.24565,
+        74.0187,
+        3.59669
+      ]
+    },
+    {
+      "type": "shape",
+      "background": "rgba(128,128,128,0.30)",
+      "borderWidth": 0.3,
+      "borderColor": "rgb(201,201,201)",
+      "gradient": "spread.horizontal",
+      "gradientColor": "rgba(255,255,255,0.30)",
+      "closePath": true,
+      "points": [
+        59.2508,
+        132.12198,
+        133.26951,
+        132.12198,
+        133.26951,
+        56.16595,
+        59.2508,
+        56.16595,
+        59.2508,
+        122.77166
+      ]
+    },
+    {
+      "type": "image",
+      "name": "storage/symbols/Building Control Major/Cold source/水箱液位.json",
+      "clipPercentage": {
+        "func": "attr@progress"
+      },
+      "displayName": "水箱液位",
+      "rect": [
+        58.93179,
+        58.61716,
+        75,
+        69.29808
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 4,
+      "borderColor": "#979797",
+      "points": [
+        133.26951,
+        77.34244,
+        158.93179,
+        77.34244
+      ]
+    },
+    {
+      "type": "shape",
+      "background": "rgb(150,150,150)",
+      "borderWidth": 0.5,
+      "borderColor": "#979797",
+      "borderWidthAbsolute": true,
+      "closePath": true,
+      "points": [
+        169.39184,
+        67.34244,
+        163.04263,
+        77.34244,
+        175.54263,
+        77.34244
+      ]
+    },
+    {
+      "type": "text",
+      "text": "1#泵故障",
+      "rect": [
+        146.93179,
+        52.34244,
+        50,
+        13
+      ]
+    },
+    {
+      "type": "shape",
+      "borderWidth": 4,
+      "borderColor": "#979797",
+      "points": [
+        133.26951,
+        112.84244,
+        158.93179,
+        112.84244
+      ]
+    },
+    {
+      "type": "shape",
+      "background": "rgb(150,150,150)",
+      "borderWidth": 0.5,
+      "borderColor": "#979797",
+      "borderWidthAbsolute": true,
+      "closePath": true,
+      "points": [
+        169.39184,
+        100.84244,
+        163.04263,
+        110.84244,
+        175.54263,
+        110.84244
+      ]
+    },
+    {
+      "type": "text",
+      "text": "2#泵故障",
+      "rect": [
+        146.93179,
+        87.84244,
+        50,
+        13
+      ]
+    },
+    {
+      "type": "storage/components/lengYuan/jiShuiKengCode.json",
+      "displayName": "jiShuiKengCode",
+      "rect": [
+        19.68975,
+        6.79415,
+        150,
+        30
+      ],
+      "code": {
+        "func": "attr@code",
+        "value": "集水坑PWK-D1"
+      }
+    },
+    {
+      "type": "text",
+      "text": "高液位",
+      "rect": [
+        6.29057,
+        83.94523,
+        35.62051,
+        14.52221
+      ]
+    },
+    {
+      "type": "text",
+      "text": "手自动",
+      "rect": [
+        1.87949,
+        36.79415,
+        35.62051,
+        14.52221
+      ]
+    },
+    {
+      "type": "rect",
+      "background": "rgba(217,217,217,0)",
+      "borderWidth": 1,
+      "borderColor": "#979797",
+      "pixelPerfect": true,
+      "rect": [
+        41.91108,
+        29.78113,
+        76.06385,
+        22.56131
+      ]
+    },
+    {
+      "type": "rect",
+      "background": "rgba(217,217,217,0)",
+      "borderWidth": 1,
+      "borderColor": "#979797",
+      "pixelPerfect": true,
+      "rect": [
+        0,
+        98.46744,
+        56.07942,
+        22.56131
+      ]
+    },
+    {
+      "type": "storage/components/lengYuan/baoJing.json",
+      "displayName": "baoJing",
+      "rect": [
+        44.68975,
+        31.31636,
+        100,
+        20
+      ],
+      "value": {
+        "func": "attr@shouZiDong"
+      }
+    },
+    {
+      "type": "storage/components/lengYuan/baoJing.json",
+      "displayName": "baoJing",
+      "rect": [
+        1.87949,
+        99.7481,
+        100,
+        20
+      ],
+      "value": {
+        "func": "attr@yeWei"
+      }
+    }
+  ]
+}

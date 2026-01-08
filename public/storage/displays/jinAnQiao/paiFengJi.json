@@ -1,0 +1,105 @@
+{
+  "v": "7.2.4-dev1",
+  "p": {
+    "autoAdjustIndex": true,
+    "hierarchicalRendering": true
+  },
+  "a": {},
+  "d": [
+    {
+      "c": "ht.Shape",
+      "i": 43792,
+      "p": {
+        "position": {
+          "x": 950.41,
+          "y": 385.66019
+        },
+        "width": 2286.76286,
+        "height": 0.10271,
+        "tall": 20,
+        "segments": {
+          "__a": [
+            1,
+            2
+          ]
+        },
+        "points": {
+          "__a": [
+            {
+              "x": -192.97143,
+              "y": 385.66019
+            },
+            {
+              "x": 2093.79142,
+              "y": 385.66019
+            }
+          ]
+        }
+      },
+      "s": {
+        "shape.background": null,
+        "shape.border.color": "rgb(61,61,61)",
+        "shape.border.width": 1
+      }
+    },
+    {
+      "c": "ht.Shape",
+      "i": 43793,
+      "p": {
+        "position": {
+          "x": 950.41,
+          "y": 2.05327
+        },
+        "width": 2286.76286,
+        "height": 0.10271,
+        "tall": 20,
+        "segments": {
+          "__a": [
+            1,
+            2
+          ]
+        },
+        "points": {
+          "__a": [
+            {
+              "x": -192.97143,
+              "y": 2.05327
+            },
+            {
+              "x": 2093.79142,
+              "y": 2.05327
+            }
+          ]
+        }
+      },
+      "s": {
+        "shape.background": null,
+        "shape.border.color": "rgb(61,61,61)",
+        "shape.border.width": 1
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 43794,
+      "p": {
+        "displayName": "fengJi",
+        "tag": "C1-PF-WD-01",
+        "image": "storage/symbols/jinAnQiao/fengJi.json",
+        "position": {
+          "x": 138.43317,
+          "y": 186.06407
+        },
+        "width": 608.75707,
+        "height": 313.91816,
+        "tall": 20
+      }
+    }
+  ],
+  "modified": "Thu Jan 08 2026 16:11:16 GMT+0800 (中国标准时间)",
+  "contentRect": {
+    "x": -194.47143,
+    "y": 0.50191,
+    "width": 2289.76286,
+    "height": 386.70963
+  }
+}

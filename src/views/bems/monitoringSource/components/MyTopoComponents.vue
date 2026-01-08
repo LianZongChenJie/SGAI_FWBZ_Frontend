@@ -23,6 +23,13 @@ import { ExpandOutlined, CompressOutlined } from '@ant-design/icons-vue';
 import FullScreenModal from './FullScreenModal.vue';
 import { ref, onMounted, nextTick } from 'vue';
 
+const props = defineProps({
+  path: {
+    type: String,
+    default: 'kongTiao.json'
+  }
+})
+
 const isFull = ref(0);
 
 const fullScreenModalRef = ref();
@@ -115,9 +122,9 @@ const initEvent = async () => {
   gv.value.getSelectWidth = function () {
     return 0;
   }; // 禁止选中
-  gv.value.deserialize(`storage/displays/${topoPath.value}`, function (json, dm, gv, data) {
+  gv.value.deserialize(`storage/displays/jinAnQiao/${props.path}`, function (json, dm, gv, data) {
     let targetNode = dm.getDataByTag(`xinFengFaKaiDu`);
-    targetNode.a('kaidu', '26')
+    targetNode.a('kaiDu', '50%.0')
     console.log('targetNode----------->', targetNode);
     
     // gv.mi(function (e) {

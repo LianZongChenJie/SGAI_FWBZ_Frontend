@@ -1,0 +1,127 @@
+{
+  "modified": "Thu Jan 08 2026 15:53:03 GMT+0800 (中国标准时间)",
+  "gridEnabled": true,
+  "width": 200,
+  "height": 100,
+  "comps": [
+    {
+      "type": "image",
+      "name": "storage/symbols/Building Control Major/HVAC/Inverter fan2.json",
+      "pixelPerfect": true,
+      "displayName": "Inverter fan2",
+      "rect": [
+        1.46808,
+        39,
+        60,
+        60
+      ]
+    },
+    {
+      "type": "shape",
+      "background": {
+        "func": "attr@fengJiSanJiao",
+        "value": "rgba(150,150,150,0)"
+      },
+      "borderWidth": 2,
+      "borderColor": "#979797",
+      "borderWidthAbsolute": true,
+      "closePath": true,
+      "points": [
+        29.60498,
+        21.5,
+        20.84307,
+        38.5,
+        38.09307,
+        38.5
+      ]
+    },
+    {
+      "type": "text",
+      "text": "手/自动",
+      "rect": [
+        66.46807,
+        34.28065,
+        50,
+        20
+      ]
+    },
+    {
+      "type": "text",
+      "text": "启停控制",
+      "rect": [
+        65.46807,
+        62,
+        50,
+        20
+      ]
+    },
+    {
+      "type": "rect",
+      "background": "rgba(217,217,217,0)",
+      "borderWidth": 1,
+      "borderColor": "#979797",
+      "pixelPerfect": true,
+      "rect": [
+        116.46807,
+        31.71935,
+        76.06385,
+        22.56131
+      ]
+    },
+    {
+      "type": "rect",
+      "background": "rgba(217,217,217,0)",
+      "borderWidth": 1,
+      "borderColor": "#979797",
+      "pixelPerfect": true,
+      "rect": [
+        116.46807,
+        59,
+        76.06385,
+        22.56131
+      ]
+    },
+    {
+      "type": "storage/components/lengYuan/baoJing.json",
+      "displayName": "baoJing",
+      "rect": [
+        84,
+        4,
+        100,
+        20
+      ],
+      "value": {
+        "func": "attr@fengJiCode",
+        "value": "A2-PF-F4-01"
+      }
+    },
+    {
+      "type": "storage/components/lengYuan/baoJing.json",
+      "displayName": "baoJing",
+      "rect": [
+        120,
+        33,
+        100,
+        20
+      ],
+      "value": {
+        "func": "attr@shouZiDong",
+        "value": "off"
+      }
+    },
+    {
+      "type": "storage/components/lengYuan/baoJing.json",
+      "displayName": "baoJing",
+      "rect": [
+        121,
+        60.28065,
+        100,
+        20
+      ],
+      "value": {
+        "func": "attr@qiTingKongZhi",
+        "value": "off"
+      }
+    }
+  ]
+}
