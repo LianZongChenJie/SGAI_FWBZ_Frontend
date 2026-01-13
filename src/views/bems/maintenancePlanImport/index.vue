@@ -50,7 +50,6 @@
                 <span v-else>{{ scope.row[column.field] }}</span>
               </template>
             </template>
-
           </el-table-column>
         </el-table>
       </el-main>
@@ -81,11 +80,15 @@ import { ref, onMounted } from 'vue'
 import moment from 'moment'
 import { ArrowRightBold, ArrowLeftBold, Search, RefreshRight, Upload, Download, Delete } from '@element-plus/icons-vue'
 import { constants } from 'node:buffer'
+import { getPlanListApi, importTemplateApi, exportTemplateApi } from './Standardized.api'
+import { set } from 'nprogress'
 
 const handleYear = (val) => {
   console.log('handleYear--------------->', val);
 
 }
+
+const upload = ref()
 
 const year = ref(moment().format('YYYY'))
 
@@ -96,7 +99,7 @@ const searchForm = ref({
 
 const planList = ref([])
 const dialogVisible = ref(false)
-const fileList = ref([])
+const fileList: any = ref([])
 const tableHeader: any = ref([
   {
     "field": "name",
@@ -500,65 +503,83 @@ const tableHeader: any = ref([
 const saving = ref(false)
 
 const downloadUrl = async () => {
-  this.rq({
-    baseURL: this.deviceURL,
-    url: '/admin/planModel/exportTemplate',
-    method: 'get',
-    params: { year: searchForm.value.year, labelType: '维保' },
-    headers: {
-      // 'Auth-Token': getToken(),
-    },
-    responseType: 'blob',
+  let res = await exportTemplateApi({
+    year: year.value,
+    labelType: 'maintenance',
   })
-    .then((res) => {
-      if (res.type) {
-        // 文件下载
-        const blob = new Blob([res])
+  console.log('downloadUrl----------->', res);
+  
+  if (res) {
+    let name = `${year.value}年设备维保模板`;
+    let blobOptions = { type: 'application/vnd.ms-excel' };
+    let fileSuffix = '.xls';
+    let url = window.URL.createObjectURL(new Blob([res], blobOptions));
+    let link = document.createElement('a');
+    link.style.display = 'none';
+    link.href = url;
+    link.setAttribute('download', name + fileSuffix);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link); //下载完成移除元素
+    window.URL.revokeObjectURL(url); //释放掉blob对象
+  } else {
+    // 返回json
+    // this.$message.warning(res.data.msg)
+  }
+  // this.rq({
+  //   baseURL: this.deviceURL,
+  //   url: '/admin/planModel/exportTemplate',
+  //   method: 'get',
+  //   params: { year: searchForm.value.year, labelType: '维保' },
+  //   headers: {
+  //     // 'Auth-Token': getToken(),
+  //   },
+  //   responseType: 'blob',
+  // })
+  //   .then((res) => {
+  //     if (res.type) {
+  //       // 文件下载
+  //       const blob = new Blob([res])
 
-        let link = document.createElement('a')
-        link.href = URL.createObjectURL(blob)
-        // console.log("========", blob);
-        link.setAttribute(
-          'download',
-          `${this.searchForm.year}年设备维保模板.xls`
-        )
-        link.click()
-        link = null
-        // this.btnLoading = false;
-        // this.$message.success('下载成功')
-      } else {
-        // 返回json
-        // this.$message.warning(res.data.msg)
-      }
-    })
-    .catch((err) => {
-      // this.$message.error('下载失败')
-    })
+  //       let link = document.createElement('a')
+  //       link.href = URL.createObjectURL(blob)
+  //       // console.log("========", blob);
+  //       link.setAttribute(
+  //         'download',
+  //         `${this.searchForm.year}年设备维保模板.xls`
+  //       )
+  //       link.click()
+  //       link = null
+  //       // this.btnLoading = false;
+  //       // this.$message.success('下载成功')
+  //     } else {
+  //       // 返回json
+  //       // this.$message.warning(res.data.msg)
+  //     }
+  //   })
+  //   .catch((err) => {
+  //     // this.$message.error('下载失败')
+  //   })
 }
 
 const getPlanList = async () => {
-  this.rq({
-    baseURL: this.deviceURL,
-    url: '/admin/planModel/findByYear',
-    method: 'get',
-    params: { year: searchForm.value.year, labelType: 'maintenance' },
+  let res = await getPlanListApi({
+    year: year.value,
+    labelType: 'maintenance',
   })
-    .then((res) => {
-      if (res.code === 1001) {
-        let tableHeader = res.data.tableHeader.children || []
-        tableHeader.forEach((v, idx) => {
-          const widthMap = {
-            0: 200,
-            1: 80,
-          }
-          v.columnWidth = widthMap[idx] || 120
-        })
-        tableHeader.value = tableHeader
-        planList.value = res.data.planModelList
-        // dataNull(this.planList)
+  if (res) {
+    let tableHeader = res.tableHeader.children || []
+    tableHeader.forEach((v, idx) => {
+      const widthMap = {
+        0: 200,
+        1: 80,
       }
+      v.columnWidth = widthMap[idx] || 120
     })
-    .catch()
+    tableHeader.value = tableHeader
+    planList.value = res.planModelList
+    // dataNull(this.planList)
+  }
 }
 
 const search = async () => {
@@ -580,7 +601,7 @@ const nextYear = () => {
     .format('YYYY')
 }
 const submitUpload = () => {
-  // this.$refs.upload.submit()
+  upload.value.submit()
 }
 const closeImport = () => {
   dialogVisible.value = false
@@ -597,48 +618,52 @@ const uploadSuccess = async (res) => {
   }
 }
 
+
+
 //导入计划---改
-const planUpload = () => {
+const planUpload = async () => {
   const data = new FormData()
   data.append('file', fileList.value[0].raw)
   data.append('labelType', 'maintenance')
   saving.value = true
-  this.rq({
-    headers: { 'Content-Type': 'multipart/form-data' },
-    baseURL: this.deviceURL,
-    url: '/admin/planModel/importTemplate',
-    method: 'post',
-    data: data,
-    responseType: 'blob',
-  })
-    .then(async (res) => {
-      saving.value = false
-      if (res.type === 'application/vnd.ms-excel') {
-        const blob = new Blob([res], {
-          type: 'application/vnd.ms-excel;charset=UTF-8',
-        })
-        // 文件下载
-        let link = document.createElement('a')
-        const url = URL.createObjectURL(blob)
-        link.href = url
-        link.setAttribute('download', `消防导入结果.xlsx`)
-        link.click()
-        link = null
-        window.URL.revokeObjectURL(url)
-        // $refs.upload.clearFiles()
-        dialogVisible.value = false
-        await getPlanList()
-      }
-    })
-    .catch((err) => {
-      saving.value = false
-      // this.$message.error(err)
-      console.error(err)
-    })
+  let res = await importTemplateApi(data)
+
+  // this.rq({
+  //   headers: { 'Content-Type': 'multipart/form-data' },
+  //   baseURL: this.deviceURL,
+  //   url: '/admin/planModel/importTemplate',
+  //   method: 'post',
+  //   data: data,
+  //   responseType: 'blob',
+  // })
+  //   .then(async (res) => {
+  //     saving.value = false
+  //     if (res.type === 'application/vnd.ms-excel') {
+  //       const blob = new Blob([res], {
+  //         type: 'application/vnd.ms-excel;charset=UTF-8',
+  //       })
+  //       // 文件下载
+  //       let link = document.createElement('a')
+  //       const url = URL.createObjectURL(blob)
+  //       link.href = url
+  //       link.setAttribute('download', `消防导入结果.xlsx`)
+  //       link.click()
+  //       link = null
+  //       window.URL.revokeObjectURL(url)
+  //       // $refs.upload.clearFiles()
+  //       dialogVisible.value = false
+  //       await getPlanList()
+  //     }
+  //   })
+  //   .catch((err) => {
+  //     saving.value = false
+  //     // this.$message.error(err)
+  //     console.error(err)
+  //   })
 }
-const fileChange = (file, fileList) => {
-  if (fileList.length > 0) {
-    fileList.value = [fileList[fileList.length - 1]] // 覆盖上一次的文件
+const fileChange = (file, list) => {
+  if (list.length > 0) {
+    fileList.value = [list[list.length - 1]] // 覆盖上一次的文件
   }
 }
 const deletePlanEvent = () => {
@@ -668,8 +693,8 @@ const deletePlanEvent = () => {
 }
 
 onMounted(async () => {
-  // await getPlanList()
-  // searchForm.value.year = moment().format('yyyy')
+  searchForm.value.year = moment().format('yyyy')
+  await getPlanList()
 })
 
 </script>

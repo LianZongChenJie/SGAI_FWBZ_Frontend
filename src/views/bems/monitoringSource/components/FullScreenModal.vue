@@ -74,7 +74,7 @@ const initEvent = async () => {
   gv.value.getSelectWidth = function () {
     return 0;
   }; // 禁止选中
-  gv.value.deserialize(`storage/displays/${props.path}`, function (json, dm, gv, data) {
+  gv.value.deserialize(`storage/displays/jinAnQiao/${props.path}`, function (json, dm, gv, data) {
 
     gv.mi(function (e) {
       if(e.kind === 'clickData' ) {

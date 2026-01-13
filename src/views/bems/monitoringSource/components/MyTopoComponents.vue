@@ -70,7 +70,7 @@ const treeData = ref([
 
 const checkedKeys = ref<string[]>(['2']);
 
-const topoPath = ref<any>('jinAnQiao/kongTiao.json');
+const topoPath = ref<any>('');
 
 const handleSelect = (keys, e, selectedNodes) => {
   // 强制单选：数组长度最多为1
@@ -87,6 +87,7 @@ const gv = ref();
 const dm = ref();
 
 onMounted(() => {
+  topoPath.value = props.path
   initEvent();
 });
 
@@ -123,9 +124,6 @@ const initEvent = async () => {
     return 0;
   }; // 禁止选中
   gv.value.deserialize(`storage/displays/jinAnQiao/${props.path}`, function (json, dm, gv, data) {
-    let targetNode = dm.getDataByTag(`xinFengFaKaiDu`);
-    targetNode.a('kaiDu', '50%.0')
-    console.log('targetNode----------->', targetNode);
     
     // gv.mi(function (e) {
     //   if (e.kind === 'clickData') {
