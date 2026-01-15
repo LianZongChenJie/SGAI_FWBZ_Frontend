@@ -131,21 +131,25 @@ const columns: BasicColumn[] = [
     key: 'index',
     width: '80px',
     customRender: ({ index }) => index + 1, // 显示序号，从 1 开始
+    resizable: true,
   },
   {
     title: '设备编号',
     dataIndex: 'deviceCode',
     key: 'deviceCode',
+    resizable: true,
   },
   {
     title: '设备名称',
     dataIndex: 'deviceName',
     key: 'deviceName',
+    resizable: true,
   },
   {
     title: '时间',
     dataIndex: 'time',
     key: 'time',
+    resizable: true,
   },
   // {
   //   title: '计量单位',
@@ -156,31 +160,37 @@ const columns: BasicColumn[] = [
     title: '起始值',
     dataIndex: 'startValue',
     key: 'startValue',
+    resizable: true,
   },
   {
     title: '结束值',
     dataIndex: 'endValue',
     key: 'endValue',
+    resizable: true,
   },
   {
     title: '计算值',
     dataIndex: 'computeValue',
     key: 'computeValue',
+    resizable: true,
   },
   {
     title: '修正值',
     key: 'updValue',
     dataIndex: 'updValue',
+    resizable: true,
   },
   {
     title: '最终值',
     dataIndex: 'value',
     key: 'value',
+    resizable: true,
   },
   {
     title: '修正人',
     dataIndex: 'updateBy',
     key: 'updateBy',
+    resizable: true,
   },
   // {
   //   title: '自动修正',

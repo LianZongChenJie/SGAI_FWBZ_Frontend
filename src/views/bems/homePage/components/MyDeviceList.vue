@@ -87,12 +87,17 @@ const deviceList = ref([
   //   ],
   // },
   {
-    deviceName: '照明设备',
+    deviceName: '计量设备',
     list: [
       {
-        categoryName: '多连机',
-        totalNum: 12,
-        onLineNum: 8,
+        name: '风机盘管',
+        value1: 11,
+        value2: 5,
+      },
+      {
+        name: '新风机',
+        value1: 18,
+        value2: 10,
       },
       {
         name: '红外空调',
@@ -107,17 +112,12 @@ const deviceList = ref([
     ],
   },
   {
-    deviceName: '计量设备',
+    deviceName: '照明设备',
     list: [
       {
-        name: '风机盘管',
-        value1: 11,
-        value2: 5,
-      },
-      {
-        name: '新风机',
-        value1: 18,
-        value2: 10,
+        categoryName: '多连机',
+        totalNum: 12,
+        onLineNum: 8,
       },
       {
         name: '红外空调',
@@ -188,8 +188,8 @@ const getDeviceOnlineData = async () => {
   let res1 = await getDeviceRunStateStatisticApi({ configPath: 'jinanqiao:device_status:measurement'})
   let res2 = await getDeviceRunStateStatisticApi({ configPath: 'jinanqiao:device_status:power'})
   let res3 = await getRunStatusStatisticApi()
-  deviceList.value[0].list = res3
-  deviceList.value[1].list = res1
+  deviceList.value[0].list = res1
+  deviceList.value[1].list = res3
   deviceList.value[2].list = res2
 }
 

@@ -10,7 +10,19 @@
         checkable
         @select="onSelect"
         @check="onCheck"
-      />
+      >
+       <template #title="{ title, key, dataRef }">
+          <a-popover>
+            <template #content>
+              {{ title }}
+            </template>
+            <span class="truncated-text">
+              {{ truncateText(title, 10) }}
+            </span>
+          </a-popover>
+        </template>
+
+    </a-tree>
     </div>
     <!-- 右侧表格 -->
     <div class="space-table">
@@ -19,6 +31,7 @@
         :spaceKeys="checkedKeys"
         :category-tree-data="categoryTreeData"
         :space-tree-data="spaceTreeData"
+        :categoryKeys="categoryKeys"
         @edit="handleEdit"
         @delete="handleDelete"
         @detail="handleDetail"
@@ -32,7 +45,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, h } from 'vue';
+  import { ref, h, watch, nextTick } from 'vue';
   import DeviceTable from './DeviceTable.vue';
   import DeviceModal from './DeviceModal.vue';
   import DetailModal from './DetailModal.vue';
@@ -44,6 +57,42 @@
     categoryTreeData: any[];
     spaceTreeData: any[];
   }>();
+
+  const categoryKeys = ref<string[]>([]);
+
+  // 监听 treeData 变化，当数据加载后自动勾选所有节点
+watch(() => props.categoryTreeData, (newTreeData) => {
+  if (newTreeData && newTreeData.length > 0) {
+    // 等待DOM更新后执行
+    nextTick(() => {
+      // 方法1：简单获取所有节点key
+      const allKeys = getAllNodeKeys(newTreeData);
+      categoryKeys.value = allKeys;
+    });
+  }
+}, { immediate: true, deep: true });
+
+// 递归获取所有节点的key
+const getAllNodeKeys = (treeData: any[]): string[] => {
+  const keys: string[] = [];
+
+  const traverse = (nodes: any[]) => {
+    nodes.forEach(node => {
+      if (node.key) {
+        keys.push(node.key.toString());
+      }
+      if (node.children && node.children.length > 0) {
+        traverse(node.children);
+      }
+    });
+  };
+
+  if (treeData && treeData.length > 0) {
+    traverse(treeData);
+  }
+
+  return keys;
+};
 
   const deviceTableRef = ref();
   const [registerModal, { openModal }] = useModal();
@@ -114,6 +163,15 @@
   const handleRefresh = (params: any) => {
     console.log('刷新表格', params);
   };
+
+  // 截断文本函数
+const truncateText = (text, length = 10) => {
+  const maxLength = length
+  if (!text || text.length <= maxLength) {
+    return text
+  }
+  return text.substring(0, maxLength) + '...'
+}
 </script>
 
 <style lang="less" scoped>

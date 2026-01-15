@@ -23,6 +23,7 @@ import { useAppStoreWithOut } from "@/store/modules/app";
 
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
+import zhCn from 'element-plus/es/locale/lang/zh-cn' // 引入中文语言包
 
 // 注册online模块lib
 import { registerPackages } from '/@/utils/monorepo/registerPackages';
@@ -47,7 +48,9 @@ async function bootstrap(props?: MainAppProps) {
   // 创建应用实例
   const app = createApp(App);
 
-  app.use(ElementPlus)
+  app.use(ElementPlus, {
+    locale: zhCn, // 设置语言为中文
+  })
   
   // 【QQYUN-6329】
   window['JAppRootInstance'] = app;

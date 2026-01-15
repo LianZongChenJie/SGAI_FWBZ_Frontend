@@ -507,8 +507,6 @@ const downloadUrl = async () => {
     year: year.value,
     labelType: 'maintenance',
   })
-  console.log('downloadUrl----------->', res);
-  
   if (res) {
     let name = `${year.value}年设备维保模板`;
     let blobOptions = { type: 'application/vnd.ms-excel' };

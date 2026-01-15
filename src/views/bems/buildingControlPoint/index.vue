@@ -32,34 +32,40 @@ const columns: BasicColumn[] = [
     key: 'index',
     width: '80px',
     customRender: ({ index }) => index + 1, // 显示序号，从 1 开始
+    resizable: true,
   },
   {
     title: 'ID',
     dataIndex: 'id',
     key: 'id',
     width: 120,
+    resizable: true,
   },
   {
     title: '网关地址',
     dataIndex: 'gatewayAdr',
     key: 'gatewayAdr',
+    resizable: true,
   },
   {
     title: '通信地址',
     dataIndex: 'bacnetAdr',
     key: 'bacnetAdr',
+    resizable: true,
   },
   {
     title: '值',
     dataIndex: 'value',
     key: 'value',
     width: 120,
+    resizable: true,
   },
   {
     title: '采集时间',
     dataIndex: 'collectionTime',
     key: 'collectionTime',
     width: 240,
+    resizable: true,
   },
   {
     title: '操作',

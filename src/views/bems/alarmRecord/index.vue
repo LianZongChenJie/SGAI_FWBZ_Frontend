@@ -1,49 +1,37 @@
 <template>
   <div class="">
-    <BasicTable @register="registerTable">
+    <BasicTable @register="registerTable" :rowSelection="rowSelection">
       <template #tableTitle>
         <div class="checked-box">
-          <a-checkbox
-            v-for="option in options"
-            :key="option.value"
-            :checked="selectedValue === option.value"
-            @change="(e) => handleChange(e, option.value)"
-          >
+          <a-checkbox v-for="option in options" :key="option.value" :checked="selectedValue === option.value"
+            @change="(e) => handleChange(e, option.value)">
             {{ option.label }}&emsp;
           </a-checkbox>
         </div>
+        <div>
+          <a-button type="primary" @click="eliminate">
+            误报消除
+          </a-button>
+        </div>
       </template>
       <template #form-deviceIds="{ model, field }">
-        <a-input
-          placeholder="请选择设备"
-          v-model:value="model[field]"
-        >
+        <a-input placeholder="请选择设备" v-model:value="model[field]">
         </a-input>
       </template>
       <template #form-spaceId="{ model, field }">
-        <a-tree-select
-          v-model:value="model[field]"
-          :tree-data="spaceTreeData"
-          placeholder="请选择位置"
-          :fieldNames="treeSelect"
-          show-search
-          allowClear
-        />
+        <a-tree-select v-model:value="model[field]" :tree-data="spaceTreeData" placeholder="请选择位置"
+          :fieldNames="treeSelect" show-search allowClear />
       </template>
       <template #form-alarmCategoryId="{ model, field }">
-        <a-select
-          placeholder="请选择报警类别"
-          v-model:value="model[field]"
-          :options="categoryOption"
-        >
+        <a-select placeholder="请选择报警类别" v-model:value="model[field]" :options="categoryOption">
         </a-select>
       </template>
       <template #form-alarmLevelId="{ model, field }">
-        <a-select
-          v-model:value="model[field]"
-          :options="levelOption"
-          placeholder="请选择报警等级"
-        >
+        <a-select v-model:value="model[field]" :options="levelOption" placeholder="请选择报警等级">
+        </a-select>
+      </template>
+      <template #form-alarmStatus="{ model, field }">
+        <a-select placeholder="请选择响应状态" v-model:value="model[field]" :options="alarmStatusOptions">
         </a-select>
       </template>
       <template #bodyCell="{ column, record }">
@@ -57,7 +45,8 @@
           <a-space>
             <a @click.stop="handelDetail(record)">详情</a>
             &emsp;
-            <a v-if="record.alarmStatus === '3' || record.alarmStatus === '4'" @click.stop="handelWorkOrderDetail(record)">工单详情</a>
+            <a v-if="record.alarmStatus === '3' || record.alarmStatus === '4'"
+              @click.stop="handelWorkOrderDetail(record)">工单详情</a>
             <!-- &emsp;
             <a @click.stop="eliminateAlarmRecords(record)">报警消除</a> -->
             &emsp;
@@ -70,8 +59,8 @@
     </BasicTable>
     <device-table-modal ref="deviceRef" />
     <detail-modal ref="detailRef" />
-    <WorkOrderModal ref="workOrderModalRef"/>
-    <TransferEventWorkOrder ref="transferEventWorkOrderRef" :reload="reload"/>
+    <WorkOrderModal ref="workOrderModalRef" />
+    <TransferEventWorkOrder ref="transferEventWorkOrderRef" :reload="reload" />
   </div>
 </template>
 
@@ -87,6 +76,7 @@ import {
   getAlarmLevelListApi,
   getAlarmCategoryListApi,
   getAlarmRecordsStatisticsApi,
+  eliminationsApi,
 } from './Standardized.api';
 import { message } from 'ant-design-vue';
 import DeviceTableModal from './components/DeviceTableModal.vue';
@@ -128,48 +118,59 @@ const columns: BasicColumn[] = [
     key: 'index',
     width: '80px',
     customRender: ({ index }) => index + 1, // 显示序号，从 1 开始
+    resizable: true,
   },
   {
     title: '报警信息',
     dataIndex: 'alarmContent',
     key: 'alarmContent',
     width: '300px',
+    resizable: true,
   },
   {
     title: '报警时间',
     dataIndex: 'alarmTime',
     key: 'alarmTime',
+    resizable: true,
   },
   {
     title: '报警设备',
     dataIndex: 'deviceName',
     key: 'deviceName',
+    resizable: true,
   },
   {
     title: '报警位置',
     dataIndex: 'spaceName',
     key: 'spaceName',
+    resizable: true,
   },
   {
     title: '报警类型',
     dataIndex: 'alarmCategoryName',
     key: 'alarmCategoryName',
+    resizable: true,
   },
   {
     title: '报警等级',
     dataIndex: 'alarmLevelName',
     key: 'alarmLevelName',
+    width: '100px',
+    resizable: true,
   },
   {
     title: '负责人',
     dataIndex: 'createBy',
     key: 'createBy',
+    width: '100px',
+    resizable: true,
   },
   {
     title: '响应状态',
     dataIndex: 'alarmStatus',
     key: 'alarmStatus',
-    width: '120px'
+    width: '120px',
+    resizable: true,
   },
   {
     title: '操作',
@@ -237,6 +238,12 @@ const searchFormSchema: FormSchema[] = [
     component: 'JInput', //渲染的组件
     slot: 'alarmLevelId', //设置默认值
   },
+  {
+    label: '响应状态', //显示label
+    field: 'alarmStatus', //查询字段
+    component: 'Select', //渲染的组件
+    slot: 'alarmStatus', //设置默认值
+  },
 ];
 
 // 时间快捷键
@@ -245,6 +252,15 @@ const options = [
   { value: '2', label: '近一周' },
   { value: '3', label: '近一月' },
 ];
+
+// 时间快捷键
+const alarmStatusOptions = [
+  { value: '1', label: '未处理' },
+  { value: '2', label: '误报' },
+  { value: '3', label: '已转工单' },
+  { value: '4', label: '已处理' },
+];
+
 const searchTime = ref({
   startTime: '',
   endTime: '',
@@ -272,9 +288,9 @@ const handleChange = (e, value) => {
     searchTime.value.startTime = formatDate(getFirstDayOfMonth());
   }
   const { setFieldsValue } = getForm();
-   setFieldsValue({
-      time: [ searchTime.value.startTime, searchTime.value.endTime ]
-    });
+  setFieldsValue({
+    time: [searchTime.value.startTime, searchTime.value.endTime]
+  });
   getAlarmRecordsStatistics();
   reload();
 };
@@ -289,7 +305,7 @@ const getLinkageControlList = async (pageParams) => {
   await getOptionsData();
   let { getFieldsValue } = getForm();
   const searchData = getFieldsValue();
-  if(!searchData.time) {
+  if (!searchData.time) {
     selectedValue.value = null
   }
   let params = {
@@ -299,8 +315,9 @@ const getLinkageControlList = async (pageParams) => {
     alarmLevelId: searchData.alarmLevelId ? searchData.alarmLevelId : undefined,
     alarmCategoryId: searchData.alarmCategoryId ? searchData.alarmCategoryId : undefined,
     deviceIds: searchData.deviceIds ? searchData.deviceIds : undefined,
-    startDateTime: searchData.time ? searchData.time.split(',')[0] : formatDate(getFirstDayOfMonth()) + ' 00:00:00',
-    endDateTime: searchData.time ? searchData.time.split(',')[1] : formatDate(getToday()) + ' 23:59:59',
+    alarmStatus: searchData.alarmStatus ? searchData.alarmStatus : undefined,
+    startDateTime: searchData.time ? searchData.time.split(',')[0] + ' 00:00:00' : formatDate(getFirstDayOfMonth()) + ' 00:00:00',
+    endDateTime: searchData.time ? searchData.time.split(',')[1] + ' 23:59:59' : formatDate(getToday()) + ' 23:59:59',
   };
   if (searchTime.value.startTime) {
     params.startDateTime = searchTime.value.startTime + ' 00:00:00';
@@ -338,8 +355,10 @@ const { tableContext } = useListPage({
     columns: columns,
     showActionColumn: false,
     size: 'middle',
-    showTableSetting:false,
+    showTableSetting: false,
     rowKey: 'id',
+    //定义rowSelection的类型，默认是checkbox多选，可以设置成radio单选 
+    rowSelection: { type: 'checkbox' },
     pagination: {
       pageSize: 10,
       showSizeChanger: true,
@@ -365,7 +384,7 @@ const { tableContext } = useListPage({
 });
 
 // BasicTable绑定注册
-const [registerTable, { reload, getForm }] = tableContext;
+const [registerTable, { reload, getForm }, { rowSelection, selectedRows, selectedRowKeys }] = tableContext;
 
 /**
  * 检查是否有权限
@@ -414,19 +433,19 @@ const eliminateAlarmRecords = async (record) => {
 
 const getStatus = (statusId) => {
   let status = ''
-  switch(statusId) {
-    case '1' :
-    status = '未处理'
-    break;
-    case '2' :
-    status = '误报'
-    break;
-    case '3' :
-    status = '已转工单'
-    break;
-    case '4' :
-    status = '已处理'
-    break;
+  switch (statusId) {
+    case '1':
+      status = '未处理'
+      break;
+    case '2':
+      status = '误报'
+      break;
+    case '3':
+      status = '已转工单'
+      break;
+    case '4':
+      status = '已处理'
+      break;
   }
   return status
 }
@@ -484,7 +503,19 @@ const getAlarmRecordsStatistics = async () => {
 
 // 工单详情
 const handelWorkOrderDetail = (record) => {
- workOrderModalRef.value.showModal(record)
+  workOrderModalRef.value.showModal(record)
+}
+
+// 误报消除
+const eliminate = async () => {
+  console.log('selectedRowKeys----------------->', selectedRowKeys.value);
+  let res = await eliminationsApi({ids: selectedRowKeys.value})
+  if(res === null) {
+    message.success('消除成功！')
+    reload()
+  } else{
+    message.error('消除失败！')
+  }
 }
 
 onMounted(async () => {

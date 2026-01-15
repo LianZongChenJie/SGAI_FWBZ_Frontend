@@ -10,7 +10,19 @@
         checkable
         @select="onSelect"
         @check="onCheck"
-      />
+      >
+       <template #title="{ title, key, dataRef }">
+          <a-popover>
+            <template #content>
+              {{ title }}
+            </template>
+            <span class="truncated-text">
+              {{ truncateText(title, 10) }}
+            </span>
+          </a-popover>
+        </template>
+
+    </a-tree>
     </div>
     <!-- 右侧表格 -->
     <div class="space-table">
@@ -114,6 +126,15 @@
   const handleRefresh = (params: any) => {
     console.log('刷新表格', params);
   };
+
+  // 截断文本函数
+const truncateText = (text, length = 10) => {
+  const maxLength = length
+  if (!text || text.length <= maxLength) {
+    return text
+  }
+  return text.substring(0, maxLength) + '...'
+}
 </script>
 
 <style lang="less" scoped>

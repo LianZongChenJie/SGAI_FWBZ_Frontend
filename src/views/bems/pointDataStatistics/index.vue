@@ -1,39 +1,31 @@
 <template>
-  <a-menu
-    v-model:selectedKeys="current"
-    mode="horizontal"
-    :items="items"
-    @click="menuClick"
-    style="justify-content: center"
-  />
+  <a-menu v-model:selectedKeys="current" mode="horizontal" :items="items" @click="menuClick"
+    style="justify-content: center" />
   <div class="point-data-statistics">
     <div class="metering-point-tree">
       <div class="cascade-box">
         是否级联：
-        <a-switch
-          v-model:checked="isCascade"
-          checked-children="是"
-          un-checked-children="否"
-          @change="cascadeTypeChange"
-        />
+        <a-switch v-model:checked="isCascade" checked-children="是" un-checked-children="否"
+          @change="cascadeTypeChange" />
       </div>
-      <a-tree
-        v-model:checkedKeys="checkedKeys"
-        :tree-data="treeData"
-        checkable
-        :default-expand-all="true"
-        :field-names="{ title: 'nodeName', key: 'id' }"
-        :checkStrictly="true"
-        @check="handleTreeCheck"
-      />
+      <a-tree v-model:checkedKeys="checkedKeys" :tree-data="treeData" checkable :default-expand-all="true"
+        :field-names="{ title: 'nodeName', key: 'id' }" :checkStrictly="true" @check="handleTreeCheck">
+        <template #title="{ nodeName, key, dataRef }">
+          <a-popover>
+            <template #content>
+              {{ nodeName }}
+            </template>
+            <span class="truncated-text">
+              {{ truncateText(nodeName, 10) }}
+            </span>
+          </a-popover>
+        </template>
+
+      </a-tree>
     </div>
     <div class="right-content">
       <div class="chart-container">
-        <a-radio-group
-          v-model:value="dateType"
-          button-style="solid"
-          @change="ragioChange"
-        >
+        <a-radio-group v-model:value="dateType" button-style="solid" @change="ragioChange">
           <!-- <a-radio-button value="hour">时能耗</a-radio-button> -->
           <a-radio-button value="date">日能耗</a-radio-button>
           <a-radio-button value="month">月能耗</a-radio-button>
@@ -42,43 +34,24 @@
 
         <template v-if="dateType !== 'hour'">
           &emsp;
-          日期：<a-date-picker
-            v-model:value="date"
-            :picker="dateType"
-            valueFormat="YYYY-MM-DD"
-          />
+          日期：<a-date-picker v-model:value="date" :picker="dateType" valueFormat="YYYY-MM-DD" />
         </template>
         <template v-else>
           &emsp;
           开始时间：
-          <a-date-picker
-            v-model:value="time"
-            @ok="handleTimeChange"
-            valueFormat="YYYY-MM-DD HH"
-            :showTime="showTime"
-          />
+          <a-date-picker v-model:value="time" @ok="handleTimeChange" valueFormat="YYYY-MM-DD HH" :showTime="showTime" />
           &emsp;
           ——
           &emsp;
           结束时间：{{ lastTime }}
         </template>
         &nbsp;
-        <a-button
-          type="primary"
-          @click="findData"
-        >查询</a-button>
+        <a-button type="primary" @click="findData">查询</a-button>
         &nbsp;
-        <a-button
-          type="primary"
-          :icon="h(VerticalAlignBottomOutlined )"
-          @click="handleExport"
-        >导出</a-button>
+        <a-button type="primary" :icon="h(VerticalAlignBottomOutlined)" @click="handleExport">导出</a-button>
 
         <div class="switch-box">
-          <a-radio-group
-            v-model:value="isLine"
-            @change="chartTypeChange"
-          >
+          <a-radio-group v-model:value="isLine" @change="chartTypeChange">
             <a-radio-button value="line">
               <LineChartOutlined style="font-size: 18px;" />
             </a-radio-button>
@@ -94,20 +67,11 @@
           /> -->
 
         </div>
-        <div
-          id="chart"
-          class="chart-placeholder"
-        ></div>
+        <div id="chart" class="chart-placeholder"></div>
       </div>
       <div class="table-container">
-        <a-table
-          :columns="tableColumns"
-          :data-source="tableData"
-          :pagination="false"
-          bordered
-          tableLayout="fixed"
-          :scroll="{ x: 1500, y: 180 }"
-        />
+        <a-table :columns="tableColumns" :data-source="tableData" :pagination="false" bordered tableLayout="fixed"
+          :scroll="{ x: 1500, y: 180 }" />
       </div>
     </div>
   </div>
@@ -291,7 +255,7 @@ const findData = async () => {
     energyFlowDiagramIds: selectedKeys.join(','),
   };
   console.log('findData------------------>', params);
-  
+
   var res;
   if (dateType.value === 'month') {
     res = await findMonth(params);
@@ -436,7 +400,7 @@ onMounted(async () => {
   const day = String(today.getDate()).padStart(2, '0');
   date.value = `${year}-${month}-${day}`;
   console.log('findData----------->', month);
-  
+
   await findEnergyFlowType();
   await findTreeData();
   window.addEventListener('resize', resizeChart);
@@ -498,6 +462,15 @@ const cascadeTypeChange = async () => {
   }
 };
 
+// 截断文本函数
+const truncateText = (text, length = 10) => {
+  const maxLength = length
+  if (!text || text.length <= maxLength) {
+    return text
+  }
+  return text.substring(0, maxLength) + '...'
+}
+
 // 组件卸载时移除事件监听器
 onUnmounted(() => {
   window.removeEventListener('resize', resizeChart);
@@ -515,13 +488,14 @@ onUnmounted(() => {
   display: flex;
   height: calc(100vh - 180px);
   background-color: #fff;
+
   .metering-point-tree {
-    width: 280px;
+    flex: 1;
+    padding-right: 24px !important;
     height: 100%;
     padding: 4px;
-    background-color: #f8f8f8;
     border-right: 1px solid #e8e8e8;
-    overflow: auto;
+    
 
     .cascade-box {
       display: flex;
@@ -536,7 +510,7 @@ onUnmounted(() => {
     flex: 1;
     height: 100%;
     padding: 4px;
-    width: calc(100% - 280px);
+    // width: calc(100% - 280px);
 
     .chart-container {
       height: 70%;
@@ -563,9 +537,14 @@ onUnmounted(() => {
         width: 100%;
       }
     }
+
     .table-container {
       height: 30%;
     }
   }
+}
+
+:deep(.ant-tree-node-content-wrapper) {
+  white-space: nowrap;
 }
 </style>

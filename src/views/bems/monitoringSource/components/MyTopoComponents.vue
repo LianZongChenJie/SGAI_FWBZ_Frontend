@@ -2,7 +2,18 @@
   <div class="my-topo-components-main-box">
     <div class="container-box">
       <div class="tree-box">
-        <a-tree :tree-data="treeData" v-model:checkedKeys="checkedKeys" @select="handleSelect" />
+        <a-tree :tree-data="treeData" v-model:checkedKeys="checkedKeys" @select="handleSelect">
+          <template #title="{ title, key, dataRef }">
+            <a-popover>
+              <template #content>
+                {{ title }}
+              </template>
+              <span class="truncated-text">
+                {{ truncateText(title, 10) }}
+              </span>
+            </a-popover>
+          </template>
+        </a-tree>
       </div>
       <div class="dinalu-topo-box">
         <div ref="container" id="dianLuTopo">
@@ -124,7 +135,7 @@ const initEvent = async () => {
     return 0;
   }; // 禁止选中
   gv.value.deserialize(`storage/displays/jinAnQiao/${props.path}`, function (json, dm, gv, data) {
-    
+
     // gv.mi(function (e) {
     //   if (e.kind === 'clickData') {
     //     var isShow = e.data.a('isShow');
@@ -149,6 +160,15 @@ const fullScreen = (type) => {
   } else {
   }
 };
+
+// 截断文本函数
+const truncateText = (text, length = 10) => {
+  const maxLength = length
+  if (!text || text.length <= maxLength) {
+    return text
+  }
+  return text.substring(0, maxLength) + '...'
+}
 </script>
 
 <style scoped lang="less">

@@ -39,7 +39,11 @@ enum Api {
 
   getWorkOrderDetailApi = '/bems/event/getDetail',
   getEventSpaceApi = '/bems/event/getEventSpace',
-  transferEventApi = '/bems/alarm/record/transferEvent',
+  transferEventApi = '/bems/alarm/record/transferEvent', 
+
+  eliminationsApi = '/bems/alarm/record/eliminations', 
+
+
 }
 
 /**
@@ -215,3 +219,8 @@ export const getEventSpaceApi = () => defHttp.get({ url: Api.getEventSpaceApi })
  * 转工单
  */
 export const transferEventApi = (params) => defHttp.post({ url: Api.transferEventApi, params });
+
+/**
+ * 误报消除
+ */
+export const eliminationsApi = (params) => defHttp.post({ url: Api.eliminationsApi, params });

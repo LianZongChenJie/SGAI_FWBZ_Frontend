@@ -10,7 +10,7 @@
       <a-tab-pane key="2" tab="环境监控与分析(虚拟)">
         <EnvironmentalMonitoring />
       </a-tab-pane>
-      
+
       <!-- <a-tab-pane key="4" tab="照明监控">
         模式化
       </a-tab-pane> -->
@@ -18,12 +18,12 @@
         <WaterSupplyAndDrainage />
       </a-tab-pane>
       <a-tab-pane key="6" tab="压力传感器">
-        <PressureSensor :apiParams="'26'"/>
+        <PressureSensor :apiParams="'26'" />
       </a-tab-pane>
       <a-tab-pane key="7" tab="流速传感器">
-        <PressureSensor :apiParams="'36'" />
+        <PressureSensor :apiParams="'36'" :isFilter='true' />
       </a-tab-pane>
-      <a-tab-pane key="8" tab="空调机组" >
+      <a-tab-pane key="8" tab="空调机组">
         <MyTopoComponents :path="'kongTiao.json'" />
       </a-tab-pane>
       <a-tab-pane key="9" tab="新风机组">
@@ -38,9 +38,9 @@
       <a-tab-pane key="12" tab="集水坑">
         <MyTopoComponents :path="'jiShuiKeng.json'" />
       </a-tab-pane>
-      
+
     </a-tabs>
-  </div>  
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -56,6 +56,5 @@ const activeKey = ref('3');
 </script>
 
 <style scoped lang="less">
-.monitoring-source-main-box{
-}
+.monitoring-source-main-box {}
 </style>

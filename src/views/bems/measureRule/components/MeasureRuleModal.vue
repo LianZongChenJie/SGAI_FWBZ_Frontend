@@ -57,6 +57,7 @@
   import { ref, reactive } from 'vue';
   import type { FormInstance } from 'ant-design-vue';
   import { addMeasureRule, editMeasureRule } from '../index.api';
+  import { message } from 'ant-design-vue';
 
   const props = defineProps<{
     record?: any;
@@ -136,9 +137,14 @@
       confirmLoading.value = true;
       try {
         const api = formData.id ? editMeasureRule : addMeasureRule;
-        await api(formData);
-        emit('success');
-        closeModal();
+        let res = await api(formData);
+        if(res.code === 500) {
+          message.error(res.message)
+        } else {
+          emit('success');
+          closeModal();
+        }
+        
       } catch (error) {
         console.error(error);
       } finally {

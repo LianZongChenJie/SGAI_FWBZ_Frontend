@@ -220,7 +220,7 @@ const pointTypeOption = [
     value: 'accumulate',
   },
   {
-    label: '虚拟表',
+    label: '自选表',
     value: 'virtual',
   },
 ];

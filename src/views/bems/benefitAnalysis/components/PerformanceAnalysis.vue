@@ -4,7 +4,18 @@
   <div class="point-data-statistics">
     <div class="metering-point-tree">
       <a-tree v-model:checkedKeys="checkedKeys" :tree-data="treeData" checkable checkStrictly :default-expand-all="true"
-        :field-names="{ title: 'nodeName', key: 'id' }" />
+        :field-names="{ title: 'nodeName', key: 'id' }" >
+       <template #title="{ title, key, dataRef }">
+          <a-popover>
+            <template #content>
+              {{ title }}
+            </template>
+            <span class="truncated-text">
+              {{ truncateText(title, 10) }}
+            </span>
+          </a-popover>
+        </template>
+      </a-tree>
     </div>
     <div class="right-content">
       <div class="chart-container">
@@ -215,6 +226,15 @@
     window.addEventListener('resize', resizeChart);
   });
 
+  // 截断文本函数
+const truncateText = (text, length = 10) => {
+  const maxLength = length
+  if (!text || text.length <= maxLength) {
+    return text
+  }
+  return text.substring(0, maxLength) + '...'
+}
+
   // 组件卸载时移除事件监听器
   onUnmounted(() => {
     window.removeEventListener('resize', resizeChart);
@@ -233,7 +253,8 @@
     height: calc(100vh - 180px);
     background-color: #fff;
     .metering-point-tree {
-      width: 280px;
+      flex: 1;
+      padding-right: 24px !important;
       height: 100%;
       padding: 4px;
       background-color: #f8f8f8;

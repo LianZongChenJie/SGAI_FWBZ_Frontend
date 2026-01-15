@@ -43,12 +43,22 @@
           @select="handleSelect"
           @expand="handleExpand"
         >
-          <template #title="{ title, originData }">
+          <!-- <template #title="{ title, originData }">
             <span v-html="highlightText(title)" />
             <span
               v-if="originData.extra"
               class="node-extra"
             > ({{ originData.extra }}) </span>
+          </template> -->
+          <template #title="{ title, key, dataRef }">
+            <a-popover>
+              <template #content>
+                {{ title }}
+              </template>
+              <span class="truncated-text">
+                {{ truncateText(title, 10) }}
+              </span>
+            </a-popover>
           </template>
         </a-tree>
       </a-spin>
@@ -461,6 +471,15 @@ const handleExpand = (keys) => {
   expandedKeys.value = keys;
   autoExpandParent.value = false;
 };
+
+// 截断文本函数
+const truncateText = (text, length = 10) => {
+  const maxLength = length
+  if (!text || text.length <= maxLength) {
+    return text
+  }
+  return text.substring(0, maxLength) + '...'
+}
 </script>
 
 <style lang="less" scoped>
@@ -471,6 +490,7 @@ const handleExpand = (keys) => {
   height: 100%;
   .rule-tree {
     flex: 1;
+    padding-right: 24px !important;
     padding: 3px;
     background-color: #fff;
     border-radius: 8px;

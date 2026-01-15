@@ -81,11 +81,13 @@ const columns: BasicColumn[] = [
     title: '设备名称',
     dataIndex: 'deviceName',
     key: 'deviceName',
+    resizable: true,
   },
   {
     title: '设备编号',
     dataIndex: 'deviceCode',
     key: 'deviceCode',
+    resizable: true,
   },
   {
     title: '设备类型',
@@ -95,6 +97,7 @@ const columns: BasicColumn[] = [
       if (!text) return '';
       return findTreeNodeTitle(props.categoryTreeData, text) || text;
     },
+    resizable: true,
   },
   {
     title: '设备位置',
@@ -104,16 +107,19 @@ const columns: BasicColumn[] = [
       if (!text) return '';
       return findTreeNodeTitle(props.spaceTreeData, text) || text;
     },
+    resizable: true,
   },
   {
     title: '倍率',
     dataIndex: 'magnification',
     key: 'magnification',
+    resizable: true,
   },
   {
     title: '排序',
     dataIndex: 'sort',
     key: 'sort',
+    resizable: true,
   },
   {
     title: '自动算法',

@@ -89,26 +89,31 @@ const columns: BasicColumn[] = [
     key: 'index',
     width: '80px',
     customRender: ({ index }) => index + 1, // 显示序号，从 1 开始
+    resizable: true,
   },
   {
     title: '类别编号',
     dataIndex: 'alarmCategoryCode',
     key: 'alarmCategoryCode',
+    resizable: true,
   },
   {
     title: '类别名称',
     dataIndex: 'alarmCategoryName',
     key: 'alarmCategoryName',
+    resizable: true,
   },
   {
     title: '创建人',
     dataIndex: 'createBy',
     key: 'createBy',
+    resizable: true,
   },
   {
     title: '创建时间',
     dataIndex: 'createTime',
     key: 'createTime',
+    resizable: true,
   },
   {
     title: '操作',

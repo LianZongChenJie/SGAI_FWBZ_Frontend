@@ -86,31 +86,37 @@ const columns: BasicColumn[] = [
     title: '规则编号',
     dataIndex: 'ruleCode',
     key: 'ruleCode',
+    resizable: true,
   },
   {
     title: '规则名称',
     dataIndex: 'ruleName',
     key: 'ruleName',
+    resizable: true,
   },
   {
     title: '报警类型',
     dataIndex: 'alarmCategoryName',
     key: 'alarmCategoryName',
+    resizable: true,
   },
   {
     title: '报警等级',
     dataIndex: 'alarmLevelName',
     key: 'alarmLevelName',
+    resizable: true,
   },
   {
     title: '报警频率',
     dataIndex: 'frequency',
     key: 'frequency',
+    resizable: true,
   },
   {
     title: '状态',
     key: 'automaticAlgorithm',
     dataIndex: 'automaticAlgorithm',
+    resizable: true,
   },
   {
     title: '操作',

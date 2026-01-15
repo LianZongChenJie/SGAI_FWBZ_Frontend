@@ -50,6 +50,10 @@
         >
         </a-select>
       </template>
+      <!-- <template #form-alarmStatus="{ model, field }">
+        <a-select placeholder="请选择响应状态" v-model:value="model[field]" :options="alarmStatusOptions">
+        </a-select>
+      </template> -->
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'alarmStatus'">
           {{ record.alarmStatus === '1' ? '未处理' : '已消除' }}
@@ -109,46 +113,55 @@ const columns: BasicColumn[] = [
     key: 'index',
     width: '80px',
     customRender: ({ index }) => index + 1, // 显示序号，从 1 开始
+    resizable: true,
   },
   {
     title: '报警信息',
     dataIndex: 'alarmContent',
     key: 'alarmContent',
+    resizable: true,
   },
   {
     title: '报警时间',
     dataIndex: 'alarmTime',
     key: 'alarmTime',
+    resizable: true,
   },
   {
     title: '报警设备',
     dataIndex: 'deviceName',
     key: 'deviceName',
+    resizable: true,
   },
   {
     title: '报警位置',
     dataIndex: 'spaceName',
     key: 'spaceName',
+    resizable: true,
   },
   {
     title: '报警类型',
     dataIndex: 'alarmCategoryName',
     key: 'alarmCategoryName',
+    resizable: true,
   },
   {
     title: '报警等级',
     dataIndex: 'alarmLevelName',
     key: 'alarmLevelName',
+    resizable: true,
   },
   {
     title: '负责人',
     dataIndex: 'createBy',
     key: 'createBy',
+    resizable: true,
   },
   {
     title: '响应状态',
     dataIndex: 'alarmStatus',
     key: 'alarmStatus',
+    resizable: true,
   },
   {
     title: '操作',
@@ -215,6 +228,12 @@ const searchFormSchema: FormSchema[] = [
     component: 'JInput', //渲染的组件
     slot: 'alarmLevelId', //设置默认值
   },
+  {
+    label: '响应状态', //显示label
+    field: 'alarmStatus', //查询字段
+    component: 'JInput', //渲染的组件
+    slot: 'alarmStatus', //设置默认值
+  },
 ];
 
 // 空间位置树数据
@@ -226,6 +245,8 @@ const getLinkageControlList = async (pageParams) => {
   const { pageNo, pageSize } = pageParams;
   let { getFieldsValue } = getForm();
   const searchData = getFieldsValue();
+  console.log('getLinkageControlList-------------->', searchData);
+  
   let params = {
     pageNo: pageNo,
     pageSize: pageSize,

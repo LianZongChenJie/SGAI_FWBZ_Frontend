@@ -10,7 +10,19 @@
           :tree-data="treeData"
           v-model:checkedKeys="checkedKeys"
           @select="handleSelect"
-        />
+        >
+         <template #title="{ title, key, dataRef }">
+            <a-popover>
+              <template #content>
+                {{ title }}
+              </template>
+              <span class="truncated-text">
+                {{ truncateText(title, 10) }}
+              </span>
+            </a-popover>
+          </template>
+
+      </a-tree>
       </div>
       <div class="dinalu-topo-box">
         <div
@@ -157,6 +169,15 @@ const fullScreen = (type) => {
   } else {
   }
 };
+
+// 截断文本函数
+const truncateText = (text, length = 10) => {
+  const maxLength = length
+  if (!text || text.length <= maxLength) {
+    return text
+  }
+  return text.substring(0, maxLength) + '...'
+}
 </script>
 
 <style scoped lang="less">

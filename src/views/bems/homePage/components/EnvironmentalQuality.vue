@@ -196,8 +196,8 @@ const handleSwitchDate = (type) => {
 };
 
 const getWeaterData = async () => {
-  // const res = await axios.get('http://10.168.56.101/weather');
-  const res = await axios.get('/api/weather/city/101010100');
+  const res = await axios.get('http://10.168.56.101/weather');
+  // const res = await axios.get('/api/weather/city/101010100');
 
   zuotian.value.low = res.data.data.yesterday.low
   zuotian.value.high = res.data.data.yesterday.high
@@ -207,8 +207,6 @@ const getWeaterData = async () => {
   mingtian.value.high = res.data.data.forecast[1].high
   mingtian.value.ymd = res.data.data.forecast[1].ymd
   mingtian.value.type = res.data.data.forecast[1].type
-
-  console.log('getWeaterData----------------->', res.data.data);
 
   wendu.value = res.data.data.wendu;
   shidu.value = res.data.data.shidu;

@@ -5,7 +5,7 @@
       :centered="true"
     >
       <a-tab-pane
-        tab="立即控制"
+        tab="启停控制"
         key="1"
       >
         <ImmediatelyControl />

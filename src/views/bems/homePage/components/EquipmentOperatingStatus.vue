@@ -66,7 +66,7 @@
           :data-source="data"
           small="small"
           :pagination="false"
-          :scroll="{ y: 110 }"
+          style="height: 100%;"
         >
           <template #index="{ text, record, index }">
             {{ index + 1 }}
@@ -478,4 +478,11 @@ onMounted(async () => {
     }
   }
 }
+</style>
+
+<style>
+
+  .fault-alarm-table {
+    height: 100%;
+  }
 </style>

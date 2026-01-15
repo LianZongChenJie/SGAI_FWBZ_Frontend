@@ -40,7 +40,7 @@
               v-model:value="formState.endTime"></a-date-picker>
           </a-form-item>
         </a-col>
-        <a-col :span="6">
+        <a-col :span="10">
           <a-form-item>
             &emsp;
             <a-button type="primary" :icon="h(SearchOutlined)" @click="reload">查询</a-button>
@@ -85,6 +85,14 @@ import HistoryRecordsModal from './components/HistoryRecordsModal.vue';
 import { BasicColumn, BasicTable, FormSchema } from '/@/components/Table';
 import { useListPage } from '/@/hooks/system/useListPage';
 
+
+const props = defineProps({
+  categoryId: {
+    type: String,
+    default: '29'
+  }
+})
+
 // 毫秒数转换为日期
 const formatTime = (timestamp) => {
   const date = new Date(timestamp);
@@ -103,18 +111,25 @@ const columns: BasicColumn[] = [
     title: '序号',
     dataIndex: 'index',
     key: 'index',
-    width: '80px',
+    minWidth: 80,
+    width: 120,
     customRender: ({ index }) => index + 1, // 显示序号，从 1 开始
   },
   {
     title: '设备编号',
     dataIndex: 'deviceCode',
     key: 'deviceCode',
+    minWidth: 80,
+    width: 120,
+    resizable: true,
   },
   {
     title: '设备名称',
     dataIndex: 'deviceName',
     key: 'deviceName',
+    minWidth: 80,
+    width: 120,
+    resizable: true,
   },
   {
     title: '设备类型',
@@ -124,7 +139,8 @@ const columns: BasicColumn[] = [
       if (!text) return '';
       return findTreeNodeTitle(categoryTreeData.value, text) || text;
     },
-    width: 100,
+    minWidth: 80,
+    width: 120,
   },
   {
     title: '设备位置',
@@ -134,6 +150,8 @@ const columns: BasicColumn[] = [
       if (!text) return '';
       return findTreeNodeTitle(spaceTreeData.value, text) || text;
     },
+    minWidth: 80,
+    width: 120,
   },
   // {
   //   title: '计量单位',
@@ -148,18 +166,22 @@ const columns: BasicColumn[] = [
       if (!text) return '';
       return text.split(' ')[0];
     },
+    minWidth: 80,
+    width: 120,
   },
   {
     title: '起始值',
     dataIndex: 'startValue',
     key: 'startValue',
-    width: '90px',
+    minWidth: 80,
+    width: 120,
   },
   {
     title: '结束值',
     dataIndex: 'endValue',
     key: 'endValue',
-    width: '90px',
+    minWidth: 80,
+    width: 120,
   },
   {
     title: '结束时间',
@@ -169,23 +191,29 @@ const columns: BasicColumn[] = [
       if (!text) return '';
       return text.split(' ')[0];
     },
+    minWidth: 80,
+    width: 120,
+    resizable: true,
   },
   {
     title: '计算值',
     dataIndex: 'value',
     key: 'value',
-    width: '90px',
+    minWidth: 80,
+    width: 120,
   },
   {
     title: '运行状态',
     dataIndex: 'runState',
     key: 'runState',
-    width: '80px',
+    minWidth: 80,
+    width: 120,
   },
   {
     title: '操作',
     key: 'action',
-    width: '120px',
+    minWidth: 80,
+    width: 120,
   },
 ];
 
@@ -305,7 +333,7 @@ const loadData = async (pageParams) => {
     ...formState.value,
     startTime: formState.value.startTime ? formState.value.startTime.split(' ')[0] + ' 00:00:00' : null,
     endTime: formState.value.endTime ? formState.value.endTime.split(' ')[0] + ' 23:59:59' : null,
-    categoryId: '29',
+    categoryId: props.categoryId,
   };
   const res = await getList(params);
   dataSource.value = res.records;
@@ -431,7 +459,7 @@ const handleExport = async () => {
   // const searchData = getFieldsValue();
   let res = await exportData({
     ...formState.value,
-    categoryId: '29',
+    categoryId: props.categoryId,
     startTime: formState.value.startTime ? formState.value.startTime.split(' ')[0] + ' 00:00:00' : null,
     endTime: formState.value.endTime ? formState.value.endTime.split(' ')[0] + ' 23:59:59' : null,
   });
@@ -465,7 +493,8 @@ onMounted(async () => {
   try {
     const categoryRes = await getCategoryTree();
     categoryTreeData.value = categoryRes;
-
+    console.log('getCategoryTree--------------------->', categoryTreeData.value);
+    
     const spaceRes = await getSpaceTree();
     spaceTreeData.value = spaceRes;
     reload();
