@@ -1,56 +1,37 @@
 <template>
-  <a-menu
-    v-model:selectedKeys="current"
-    mode="horizontal"
-    :items="items"
-    @click="menuClick"
-    style="justify-content: center"
-  />
+  <a-menu v-model:selectedKeys="current" mode="horizontal" :items="items" @click="menuClick"
+    style="justify-content: center" />
   <div class="measure-rule">
     <div class="rule-tree">
       <div class="btton-box">
-        <a-button
-          type="primary"
-          :icon="h(PlusOutlined)"
-          @click="showAddModal"
-        >新增</a-button>
+        <a-button type="primary" :icon="h(PlusOutlined)" @click="showAddModal">新增</a-button>
         &emsp;&emsp;
-        <a-button
-          type="primary"
-          @click="showEditModal"
-        >编辑</a-button>
+        <a-button type="primary" @click="showEditModal">编辑</a-button>
         &emsp;&emsp;
-        <a-button
-          type="primary"
-          @click="handleDelete"
-        >删除</a-button>
+        <a-button type="primary" @click="handleDelete">删除</a-button>
       </div>
-      <a-input-search
-        v-model:value="searchValue"
-        placeholder="请输入关键字"
-        allow-clear
-        @search="handleSearch"
-        @change="handleSearchChange"
-      />
+      <a-input-search v-model:value="searchValue" placeholder="请输入关键字" allow-clear @search="handleSearch"
+        @change="handleSearchChange" />
       &emsp;
       <a-spin :spinning="treeLoading">
-        <a-tree
-          v-if="searchTreeData.length"
-          :tree-data="filteredTreeData"
-          v-model:selectedKeys="selectKeys"
-          :expanded-keys="expandedKeys"
-          :auto-expand-parent="autoExpandParent"
-          @select="handleSelect"
-          @expand="handleExpand"
-        >
-          <!-- <template #title="{ title, originData }">
-            <span v-html="highlightText(title)" />
-            <span
-              v-if="originData.extra"
-              class="node-extra"
-            > ({{ originData.extra }}) </span>
-          </template> -->
-          <template #title="{ title, key, dataRef }">
+        <a-tree v-if="searchTreeData.length" :tree-data="filteredTreeData" v-model:selectedKeys="selectKeys"
+          :expanded-keys="expandedKeys" :auto-expand-parent="autoExpandParent" @select="handleSelect"
+          @expand="handleExpand">
+          <template #title="{ title, originData }">
+            <a-popover>
+              <template #content>
+                {{ title }}
+              </template>
+              <span class="truncated-text">
+                <!-- {{ truncateText(title, 10) }} -->
+                <span v-html="highlightText(title)" />
+                <span v-if="originData.extra" class="node-extra"> ({{ truncateText(originData.extra) }}) </span>
+              </span>
+
+            </a-popover>
+
+          </template>
+          <!-- <template #title="{ title, key, dataRef }">
             <a-popover>
               <template #content>
                 {{ title }}
@@ -59,7 +40,7 @@
                 {{ truncateText(title, 10) }}
               </span>
             </a-popover>
-          </template>
+          </template> -->
         </a-tree>
       </a-spin>
     </div>
@@ -77,21 +58,10 @@
       </BasicTable>
     </div>
   </div>
-  <MeasureRuleModal
-    ref="ruleModalRef"
-    :category-tree="categoryTreeData"
-    :space-tree="spaceTreeData"
-    :unit-list="unitList"
-    :rule-tree="treeData"
-    :type="energyFlowTreeType.type"
-    @success="handleSuccess"
-  />
-  <FormulaModal
-    ref="formulaModalRef"
-    :category-tree="categoryTreeData"
-    :space-tree="spaceTreeData"
-    @success="findTableData"
-  />
+  <MeasureRuleModal ref="ruleModalRef" :category-tree="categoryTreeData" :space-tree="spaceTreeData"
+    :unit-list="unitList" :rule-tree="treeData" :type="energyFlowTreeType.type" @success="handleSuccess" />
+  <FormulaModal ref="formulaModalRef" :category-tree="categoryTreeData" :space-tree="spaceTreeData"
+    @success="findTableData" />
 </template>
 
 <script lang="ts" setup>
@@ -208,7 +178,7 @@ const handleFormula = (record: any) => {
 
 // 编辑
 const handleEdit = (record) => {
-  
+
   ruleModalRef.value.openModal(findNodeInTree(treeData.value, record.id));
 }
 // 删除
@@ -331,7 +301,7 @@ const { tableContext } = useListPage({
     api: findTableData,
     columns: columns as BasicColumn[],
     showActionColumn: false,
-    showTableSetting:false,
+    showTableSetting: false,
     size: 'middle',
     pagination: {
       pageSize: 10,
@@ -412,9 +382,14 @@ const filteredTreeData = computed(() => {
 
 // 高亮文本
 const highlightText = (text) => {
-  if (!searchValue.value) return text;
+  if (!searchValue.value) return truncateText(text, 10) ;
   const reg = new RegExp(searchValue.value, 'gi');
-  return text.replace(reg, (match) => `<span class="highlight" style="color: #f50;">${match}</span>`);
+  const nameStr = text.replace(reg, (match) => `<span class="highlight" style="color: #f50;">${truncateText(match, 10)}</span>`)
+  if(nameStr.includes('...')) {
+    return nameStr
+  } else {
+    return truncateText(nameStr, 10)
+  }
 };
 
 // 更新展开的节点
@@ -488,6 +463,7 @@ const truncateText = (text, length = 10) => {
 
   width: 100%;
   height: 100%;
+
   .rule-tree {
     flex: 1;
     padding-right: 24px !important;
@@ -495,10 +471,12 @@ const truncateText = (text, length = 10) => {
     background-color: #fff;
     border-radius: 8px;
     margin-right: 5px;
+
     .ant-tree {
       height: 100%;
     }
   }
+
   .btton-box {
     display: flex;
     width: 100%;
@@ -506,11 +484,13 @@ const truncateText = (text, length = 10) => {
     justify-content: center;
     align-items: center;
   }
+
   .rule-table {
     flex: 4;
     padding: 3px;
     background-color: #fff;
     border-radius: 8px;
+
     .ant-table {
       height: 100%;
     }

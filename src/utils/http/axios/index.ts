@@ -57,7 +57,11 @@ const transform: AxiosTransform = {
     const hasSuccess = data && (blob || (Reflect.has(data, 'code') && (code === ResultEnum.SUCCESS || code === 200)));
     
     if (hasSuccess) {
-      if (!success) return data
+      if (!success) {
+        //信息成功提示
+        createMessage.error(message);
+        return data
+      }
       if (success && message && options.successMessageMode === 'success') {
         //信息成功提示
         createMessage.success(message);

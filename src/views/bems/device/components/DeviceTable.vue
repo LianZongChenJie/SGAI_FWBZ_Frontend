@@ -198,6 +198,7 @@ const handleAutomaticAlgorithmChange = (record: any, checked: boolean) => {
 
 // 加载数据
 const loadData = async (pageParams) => {
+  if(!props.categoryKeys?.length) return
   const { pageNo, pageSize } = pageParams;
   try {
     let { getFieldsValue } = getForm();

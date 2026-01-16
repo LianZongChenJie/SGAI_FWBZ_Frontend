@@ -254,7 +254,6 @@ const findData = async () => {
     day: date.value,
     energyFlowDiagramIds: selectedKeys.join(','),
   };
-  console.log('findData------------------>', params);
 
   var res;
   if (dateType.value === 'month') {
@@ -507,10 +506,10 @@ onUnmounted(() => {
   }
 
   .right-content {
-    flex: 1;
+    // flex: 1;
     height: 100%;
     padding: 4px;
-    // width: calc(100% - 280px);
+    min-width: calc(100% - 480px);
 
     .chart-container {
       height: 70%;

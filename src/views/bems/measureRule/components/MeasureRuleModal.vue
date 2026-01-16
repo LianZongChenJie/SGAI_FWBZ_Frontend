@@ -139,7 +139,7 @@
         const api = formData.id ? editMeasureRule : addMeasureRule;
         let res = await api(formData);
         if(res.code === 500) {
-          message.error(res.message)
+          // message.error(res.message)
         } else {
           emit('success');
           closeModal();

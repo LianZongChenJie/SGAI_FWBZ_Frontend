@@ -31,7 +31,7 @@
       </div>
       <div class="point-list-box">
 
-        <div class="point-item" v-for="(pointItem, pointIndex) in item.attributes" :key="pointIndex">
+        <div class="point-item" :id='(item.attributes.length === 1 ? "only" : "")' v-for="(pointItem, pointIndex) in item.attributes" :key="pointIndex">
           <div style="font-size: 22px; color: #2b8aff;">
             {{ pointItem.value }}
           </div>
@@ -191,6 +191,9 @@ onMounted(async () => {
           justify-content: center;
           align-items: center;
         }
+      }
+      #only {
+        width: 96%;
       }
     }
 
