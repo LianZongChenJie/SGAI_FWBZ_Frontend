@@ -87,18 +87,24 @@ const columns: BasicColumn[] = [
     dataIndex: 'ruleCode',
     key: 'ruleCode',
     resizable: true,
+    sorter: (a, b) => a.ruleCode.localeCompare(b.ruleCode), // 自定义排序函数
+    sortDirections: ['ascend', 'descend'],
   },
   {
     title: '规则名称',
     dataIndex: 'ruleName',
     key: 'ruleName',
     resizable: true,
+    sorter: (a, b) => a.ruleName.localeCompare(b.ruleName), // 自定义排序函数
+    sortDirections: ['ascend', 'descend'],
   },
   {
     title: '报警类型',
     dataIndex: 'alarmCategoryName',
     key: 'alarmCategoryName',
     resizable: true,
+    sorter: (a, b) => a.alarmCategoryName.localeCompare(b.alarmCategoryName), // 自定义排序函数
+    sortDirections: ['ascend', 'descend'],
   },
   {
     title: '报警等级',

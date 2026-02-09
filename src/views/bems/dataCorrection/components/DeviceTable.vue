@@ -113,16 +113,22 @@
       title: '设备编号',
       dataIndex: 'deviceCode',
       key: 'deviceCode',
+      sorter: (a, b) => a.deviceName.localeCompare(b.deviceName), // 自定义排序函数
+      sortDirections: ['ascend', 'descend'],
     },
     {
       title: '设备名称',
       dataIndex: 'deviceName',
       key: 'deviceName',
+      sorter: (a, b) => a.deviceName.localeCompare(b.deviceName), // 自定义排序函数
+      sortDirections: ['ascend', 'descend'],
     },
     {
       title: '时间',
       dataIndex: 'time',
       key: 'time',
+      sorter: (a, b) => new Date(a.time).getTime() - new Date(b.time).getTime(), // 按时间戳排序
+      sortDirections: ['ascend', 'descend'],
     },
     // {
     //   title: '计量单位',

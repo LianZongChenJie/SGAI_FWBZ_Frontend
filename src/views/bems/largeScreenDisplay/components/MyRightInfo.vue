@@ -355,11 +355,11 @@ onUnmounted(() => {
       height: 82%;
       width: 100%;
       overflow: auto;
-      padding-left: 5%;
+      padding: 0 32px;
 
       .device-item {
-        margin-right: 5%;
-        width: 45%;
+        margin-right: 10%;
+        width: 40%;
         height: 20%;
         display: flex;
         flex-wrap: wrap;
@@ -382,11 +382,11 @@ onUnmounted(() => {
     }
   }
   .event-work-order {
-    margin-top: 7px;
-    height: 33%;
+    height: calc(33% - 15px);
     width: 100%;
     background-image: url('@/assets/images/eventWorkOrder.png');
     background-size: 100% 100%;
+    margin: 12px 0;
 
     .event-work-order-title {
       display: flex;

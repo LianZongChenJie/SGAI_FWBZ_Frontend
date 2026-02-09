@@ -52,6 +52,7 @@ const props = defineProps({
     align-items: center;
     justify-content: space-around;
     letter-spacing: 5px;
+    font-size: 16px;
   }
 }
 </style>

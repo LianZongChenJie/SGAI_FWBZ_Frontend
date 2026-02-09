@@ -2,14 +2,15 @@
   <div class="my-topo-components-main-box">
     <div class="container-box">
       <div class="tree-box">
-        <a-tree :tree-data="treeData" v-model:checkedKeys="checkedKeys" @select="handleSelect">
-          <template #title="{ title, key, dataRef }">
+        <a-tree :tree-data="treeData" v-model:checkedKeys="checkedKeys"
+          :fieldNames="{ title: 'spaceName', key: 'spaceId', children: 'children' }" @select="handleSelect">
+          <template #title="{ spaceName, key, dataRef }">
             <a-popover>
               <template #content>
-                {{ title }}
+                {{ spaceName }}
               </template>
               <span class="truncated-text">
-                {{ truncateText(title, 10) }}
+                {{ truncateText(spaceName, 10) }}
               </span>
             </a-popover>
           </template>
@@ -22,10 +23,30 @@
         <div class="full-screen" @click="fullScreen(1)">
           <ExpandOutlined />&ensp;全屏查看
         </div>
+        <div v-if="isShow" class="control-div" :style="{ top: targetTop, left: targetLeft, }">
+          <div class="title-box">
+            {{ modalTitle }}:
+          </div>
+          <div class="select-box" v-if="isSelect">
+            <a-select v-model:value="selectValue" :options="selectOptions" style="width: 100%">
+              <!-- <a-select-option value="1">开</a-select-option>
+              <a-select-option value="0">关</a-select-option> -->
+            </a-select>
+          </div>
+          <div class="select-box" v-else>
+            <a-input type="number" v-model:value="deviceValue" style="width: 100%">
+            </a-input>
+          </div>
+          <div class="button-box">
+            <a-button @click="cancel">取消</a-button>
+            <a-button type="primary" @click="submitControl">确定</a-button>
+          </div>
+        </div>
         <!-- <div v-else class="full-screen" @click="fullScreen(0)"><CompressOutlined  />&ensp;返回</div> -->
       </div>
     </div>
-    <FullScreenModal :path="topoPath" ref="fullScreenModalRef" />
+    <FullScreenModal :path="topoPath" :deviceCode="deviceCode" :categoryId="props.categoryId"
+      :deviceList="props.deviceList" :isControlArr="isControlArr" ref="fullScreenModalRef" />
   </div>
 </template>
 
@@ -33,15 +54,43 @@
 import { ExpandOutlined, CompressOutlined } from '@ant-design/icons-vue';
 import FullScreenModal from './FullScreenModal.vue';
 import { ref, onMounted, nextTick } from 'vue';
+import { findSpaceDeviceByCategoryldApi, getByDeviceIdApi, controlDeviceApi } from '../Standardized.api'
+import { message } from 'ant-design-vue';
 
 const props = defineProps({
   path: {
     type: String,
     default: 'kongTiao.json'
-  }
+  },
+  categoryId: {
+    type: String,
+    default: '8'
+  },
+  deviceList: {
+    type: Array,
+    default: []
+  },
 })
 
 const isFull = ref(0);
+const isShow = ref(false);
+const isSelect = ref(true);
+const selectOptions = ref([
+  {
+    value: '1',
+    label: 'on'
+  },
+  {
+    value: '0',
+    label: 'off'
+  },
+])
+const selectValue = ref('0');
+const deviceValue = ref('');
+
+const targetTop = ref('100px')
+const targetLeft = ref('100px')
+const targetId = ref('')
 
 const fullScreenModalRef = ref();
 
@@ -79,27 +128,184 @@ const treeData = ref([
   },
 ]);
 
+const isControlArr = ref<any>([])
+const deviceDataList = ref<any>([])
+
 const checkedKeys = ref<string[]>(['2']);
 
 const topoPath = ref<any>('');
+const deviceCode = ref<string>('');
+
+const modalTitle = ref('')
 
 const handleSelect = (keys, e, selectedNodes) => {
+  if (keys[0].includes('d')) {
+    deviceCode.value = getPathByKey(keys[0]).split('/').join('-')
+    getByDeviceId(keys[0])
+  }
   // 强制单选：数组长度最多为1
   // checkedKeys.value = keys.length > 0 ? [keys[keys.length - 1]] : [];
-  if (!e.node.parent) {
-    topoPath.value = treeData.value.find((item) => item.key === keys[0])?.path;
-  }
-  initEvent();
+  // if (!e.node.parent) {
+  //   topoPath.value = treeData.value.find((item) => item.key === keys[0])?.path;
+  // }
+  // initEvent();
 };
+
+const getByDeviceId = async (id) => {
+  let res = await getByDeviceIdApi({
+    deviceId: id.split('d')[1]
+  })
+
+  deviceDataList.value = res
+  const codeArr = res.map(item => item.attributeCode)
+  isControlArr.value = props.deviceList.filter((item: any) => codeArr.includes(item.key))
+  isControlArr.value.forEach(item => {
+    for (let i = 0; i < deviceDataList.value.length; i++) {
+      if (deviceDataList.value[i].attributeCode === item.key) {
+        item.value = deviceDataList.value[i].value
+        item.unit = deviceDataList.value[i].unit
+        item.id = deviceDataList.value[i].id
+        item.readwriteLevel = deviceDataList.value[i].readwriteLevel
+        item.value = deviceDataList.value[i].value
+      }
+    }
+  })
+  initEvent();
+}
 
 const container = ref();
 
 const gv = ref();
 const dm = ref();
 
-onMounted(() => {
+const findSpaceDeviceByCategoryld = async () => {
+  let res = await findSpaceDeviceByCategoryldApi({
+    categoryId: props.categoryId
+  })
+  handleSelect(['d' + getFirstDeviceIdDFS(res).id], getFirstDeviceIdDFS(res).target, {})
+  treeData.value = mergeDevicesToChildren(res)
+  deviceCode.value = getPathByKey('d' + getFirstDeviceIdDFS(res).id).split('/').join('-')
+}
+
+function mergeDevicesToChildren(treeData) {
+  // 如果数据为空或不是数组，直接返回
+  if (!treeData || !Array.isArray(treeData)) {
+    return treeData || [];
+  }
+
+  // 递归处理每个节点
+  const processNode = (node) => {
+    // 创建新节点，保持原有结构
+    const newNode: any = {
+      spaceId: node.spaceId,
+      spaceName: node.spaceName,
+      children: [],
+      devices: []
+    };
+
+    // 如果当前节点有devices，将它们转换为children格式
+    if (node.devices && Array.isArray(node.devices) && node.devices.length > 0) {
+      // 将devices转换为children格式
+      const deviceChildren = node.devices.map(device => ({
+        spaceId: 'd' + device.id, // 使用设备的id作为spaceId
+        spaceName: device.deviceName, // 使用设备的deviceName作为spaceName
+        children: [], // 设备没有子节点
+        devices: [] // 设备没有设备子节点
+      }));
+
+      // 将设备节点添加到children中
+      newNode.children.push(...deviceChildren);
+    }
+
+    // 如果当前节点有children，递归处理并添加到children中
+    if (node.children && Array.isArray(node.children) && node.children.length > 0) {
+      // 处理子节点
+      const processedChildren = node.children.map(processNode);
+      // 将处理后的子节点添加到children中
+      newNode.children.push(...processedChildren);
+    }
+
+    return newNode;
+  };
+
+  // 处理根节点数组
+  return treeData.map(processNode);
+}
+
+function getFirstDeviceIdDFS(treeData) {
+  if (!treeData || !Array.isArray(treeData)) {
+    return null;
+  }
+
+  // 递归函数
+  const findFirstDevice = (nodes) => {
+    for (const node of nodes) {
+      // 1. 首先检查当前节点的devices数组
+      if (node.devices && Array.isArray(node.devices) && node.devices.length > 0) {
+        return {
+          id: node.devices[0].id,
+          target: node.devices[0],
+        }; // 返回第一个设备的id
+      }
+
+      // 2. 然后递归检查子节点
+      if (node.children && Array.isArray(node.children) && node.children.length > 0) {
+        const result = findFirstDevice(node.children);
+        if (result !== null) {
+          return result;
+        }
+      }
+    }
+
+    return null;
+  };
+
+  return findFirstDevice(treeData);
+}
+
+// 递归查找节点路径
+function findNodePath(tree, targetKey, path = []) {
+  for (const node of tree) {
+    // 将当前节点加入路径
+    const currentPath: any = [...path, node.spaceName];
+    // 如果找到目标节点，返回路径
+    if (node.spaceId === targetKey) {
+      return currentPath;
+    }
+
+    // 如果有子节点，递归查找
+    if (node.children && node.children.length > 0) {
+      const result = findNodePath(node.children, targetKey, currentPath);
+      if (result) {
+        return result;
+      }
+    }
+  }
+  return null;
+}
+
+// 根据ID获取路径字符串
+function getPathStringById(id) {
+  const path = findNodePath(treeData.value, id);
+
+
+  if (path) {
+    return path.join(' / ');
+  }
+  return '';
+}
+
+// 你也可以通过方法直接获取特定ID的路径
+function getPathByKey(key) {
+  const result = getPathStringById(key);
+  console.log(`ID ${key} 的路径：`, result);
+  return result;
+}
+
+onMounted(async () => {
+
   topoPath.value = props.path
-  initEvent();
+  await findSpaceDeviceByCategoryld()
 });
 
 // 清除拓扑图内容
@@ -135,19 +341,51 @@ const initEvent = async () => {
     return 0;
   }; // 禁止选中
   gv.value.deserialize(`storage/displays/jinAnQiao/${props.path}`, function (json, dm, gv, data) {
+    // let targetNode = dm.getDataByTag(`1AA16Modal`);
+    dm.getDataByTag(`deviceCode`).a('deviceCode', deviceCode.value);
+    isControlArr.value.forEach((item, index) => {
+      dm.getDataByTag(item.code).a(item.valueKey, item.value + (item.unit ? item.unit : ''))
+    })
+    gv.mi(function (e) {
+      if ((e.kind === 'clickData') && e.data && (isControlArr.value.find(item => item.code === e.data._tag).readwriteLevel === '1')) {
+        const targetItem = isControlArr.value.find(item => item.code === e.data._tag)
+        modalTitle.value = targetItem.name
+        targetId.value = targetItem.id
+        isShow.value = targetItem.value
+        isShow.value = true
+        isSelect.value = targetItem.isSelect
+        targetTop.value = (e.event.layerY) + 'px'
+        targetLeft.value = (e.event.layerX) + 'px'
+        selectValue.value = targetItem.value
+        if (targetItem.options) {
+          selectOptions.value = targetItem.options
+        } else {
+          selectOptions.value = [
+            {
+              value: '1',
+              label: 'on'
+            },
+            {
+              value: '0',
+              label: 'off'
+            },
+          ]
+        }
+      } else {
+        isShow.value = false
+      }
 
-    // gv.mi(function (e) {
-    //   if (e.kind === 'clickData') {
-    //     var isShow = e.data.a('isShow');
-    //     let targetNode = dm.getDataByTag(`1AA16Modal`);
-    //     // if (isShow) {
-    //     //   targetNode.a('touMingDu', 0);
-    //     // } else {
-    //     //   targetNode.a('touMingDu', 1);
-    //     // }
-    //     e.data.a('isShow', !isShow);
-    //   }
-    // });
+      // if (e.kind === 'clickData') {
+      // var isShow = e.data.a('isShow');
+      // let targetNode = dm.getDataByTag(`1AA16Modal`);
+      // if (isShow) {
+      //   targetNode.a('touMingDu', 0);
+      // } else {
+      //   targetNode.a('touMingDu', 1);
+      // }
+      // e.data.a('isShow', !isShow);
+      // }
+    });
 
     gv.fitContent(); // 适配内容
   });
@@ -168,6 +406,23 @@ const truncateText = (text, length = 10) => {
     return text
   }
   return text.substring(0, maxLength) + '...'
+}
+
+const submitControl = async () => {
+  if (!selectValue.value) message.error('请输入操作指令！')
+  let res = await controlDeviceApi({
+    deviceAttributeId: targetId.value,
+    value: isSelect.value ? selectValue.value : deviceValue.value,
+  })
+  if (!res) {
+    isShow.value = false
+    message.success('操作成功！')
+  }
+}
+
+const cancel = () => {
+  targetId.value = ''
+  isShow.value = false
 }
 </script>
 
@@ -231,6 +486,41 @@ const truncateText = (text, length = 10) => {
         &:hover {
           cursor: pointer;
           color: #00000085;
+        }
+      }
+
+      .control-div {
+        padding: 3px 12px;
+        top: 100px;
+        left: 100px;
+        position: absolute;
+        height: 130px;
+        width: 200px;
+        border: 2px solid #adadad;
+        background-color: #fff;
+
+        >div {
+          height: 40px;
+          width: 100%;
+        }
+
+        .title-box {
+
+          display: flex;
+          align-items: center;
+          justify-content: flex-start;
+          font-size: 16px;
+        }
+
+        .select-box {
+          height: 40px;
+          width: 100%;
+        }
+
+        .button-box {
+          display: flex;
+          align-items: center;
+          justify-content: space-around
         }
       }
     }

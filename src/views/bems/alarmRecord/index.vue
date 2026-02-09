@@ -126,18 +126,24 @@ const columns: BasicColumn[] = [
     key: 'alarmContent',
     width: '300px',
     resizable: true,
+    sorter: (a, b) => a.alarmContent.localeCompare(b.alarmContent), // 自定义排序函数
+    sortDirections: ['ascend', 'descend'],
   },
   {
     title: '报警时间',
     dataIndex: 'alarmTime',
     key: 'alarmTime',
     resizable: true,
+    sorter: (a, b) => new Date(a.alarmTime).getTime() - new Date(b.alarmTime).getTime(), // 按时间戳排序
+    sortDirections: ['ascend', 'descend'],
   },
   {
     title: '报警设备',
     dataIndex: 'deviceName',
     key: 'deviceName',
     resizable: true,
+    sorter: (a, b) => a.deviceName.localeCompare(b.deviceName), // 自定义排序函数
+    sortDirections: ['ascend', 'descend'],
   },
   {
     title: '报警位置',
@@ -150,6 +156,8 @@ const columns: BasicColumn[] = [
     dataIndex: 'alarmCategoryName',
     key: 'alarmCategoryName',
     resizable: true,
+    sorter: (a, b) => a.alarmCategoryName.localeCompare(b.alarmCategoryName), // 自定义排序函数
+    sortDirections: ['ascend', 'descend'],
   },
   {
     title: '报警等级',
@@ -171,6 +179,8 @@ const columns: BasicColumn[] = [
     key: 'alarmStatus',
     width: '120px',
     resizable: true,
+    sorter: (a, b) => a.alarmStatus.localeCompare(b.alarmStatus), // 自定义排序函数
+    sortDirections: ['ascend', 'descend'],
   },
   {
     title: '操作',

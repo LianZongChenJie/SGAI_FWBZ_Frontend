@@ -553,7 +553,8 @@ const initPieChart = () => {
           // 自定义提示框内容:cite[4]
           const data = params.data;
           const total = waterEnergySavingData.value.reduce((sum, item) => sum + item.value, 0);
-          const percentage = ((data.value / total) * 100).toFixed(2);
+          let percentage = '0'
+          if(data.value) percentage = ((data.value / total) * 100).toFixed(2);
           return `
           ${data.name}<br/>
           节能量: ${data.value} kWh<br/>
@@ -650,6 +651,7 @@ const getEnergyConservationStatistics = async () => {
       };
     });
     total.value.waterTotal = res.water.total;
+    console.log('waterEnergySavingData----------------->', total.value, waterEnergySavingData.value);
   }
 };
 

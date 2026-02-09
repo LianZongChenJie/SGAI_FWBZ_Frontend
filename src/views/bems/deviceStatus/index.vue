@@ -46,7 +46,7 @@
               v-model:value="formState.endTime"></a-date-picker>
           </a-form-item>
         </a-col> -->
-        <a-col :span="6">
+        <a-col :span="10">
           <a-form-item>
             &emsp;
             <a-button type="primary" :icon="h(SearchOutlined)" @click="reload">查询</a-button>
@@ -119,9 +119,11 @@ const columns: BasicColumn[] = [
     title: '设备编号',
     dataIndex: 'deviceCode',
     key: 'deviceCode',
-    resizable: true,
     minWidth: 80,
     width: 120,
+    resizable: true,
+    sorter: (a, b) => a.deviceCode.localeCompare(b.deviceCode), // 自定义排序函数
+    sortDirections: ['ascend', 'descend'],
   },
   {
     title: '设备名称',
@@ -130,6 +132,8 @@ const columns: BasicColumn[] = [
     minWidth: 80,
     width: 120,
     resizable: true,
+    sorter: (a, b) => a.deviceName.localeCompare(b.deviceName), // 自定义排序函数
+    sortDirections: ['ascend', 'descend'],
   },
   {
     title: '设备类型',
@@ -173,15 +177,25 @@ const columns: BasicColumn[] = [
     minWidth: 80,
     width: 120,
     resizable: true,
+    sorter: (a, b) => new Date(a.lastGatherTime).getTime() - new Date(b.lastGatherTime).getTime(), // 按时间戳排序
+    sortDirections: ['ascend', 'descend'],
   },
   {
-    title: '计算值',
-    dataIndex: 'value',
-    key: 'value',
+    title: '电池电压',
+    dataIndex: 'colVoltage',
+    key: 'colVoltage',
     minWidth: 80,
     width: 120,
     resizable: true,
   },
+  // {
+  //   title: '计算值',
+  //   dataIndex: 'value',
+  //   key: 'value',
+  //   minWidth: 80,
+  //   width: 120,
+  //   resizable: true,
+  // },
   {
     title: '运行状态',
     dataIndex: 'runState',

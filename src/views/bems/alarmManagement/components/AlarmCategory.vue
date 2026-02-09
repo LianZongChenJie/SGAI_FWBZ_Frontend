@@ -96,11 +96,15 @@ const columns: BasicColumn[] = [
     dataIndex: 'alarmCategoryCode',
     key: 'alarmCategoryCode',
     resizable: true,
+    sorter: (a, b) => a.alarmCategoryCode.localeCompare(b.alarmCategoryCode), // 自定义排序函数
+    sortDirections: ['ascend', 'descend'],
   },
   {
     title: '类别名称',
     dataIndex: 'alarmCategoryName',
     key: 'alarmCategoryName',
+    sorter: (a, b) => a.alarmCategoryName.localeCompare(b.alarmCategoryName), // 自定义排序函数
+    sortDirections: ['ascend', 'descend'],
     resizable: true,
   },
   {
@@ -114,6 +118,8 @@ const columns: BasicColumn[] = [
     dataIndex: 'createTime',
     key: 'createTime',
     resizable: true,
+    sorter: (a, b) => new Date(a.createTime).getTime() - new Date(b.createTime).getTime(), // 按时间戳排序
+    sortDirections: ['ascend', 'descend'],
   },
   {
     title: '操作',

@@ -140,19 +140,19 @@ onMounted( async () => {
         align-items: center;
 
         .icon-style {
-          height: 90%;
-          width: 56%;
+          height: 55px;
+          width: 55px;
           background-size: 100% 100%;
         }
 
         #waterIcon {
-          background-image: url('@/assets/images/waterIcon.png');
+          background-image: url('@/assets/images/waterIcon2.png');
         }
         #electricityIcon {
-          background-image: url('@/assets/images/electricityIcon.png');
+          background-image: url('@/assets/images/electricityIcon2.png');
         }
         #hotIcon {
-          background-image: url('@/assets/images/hotIcon.png');
+          background-image: url('@/assets/images/hotIcon2.png');
         }
         #gasIcon {
           background-image: url('@/assets/images/gasIcon.png');

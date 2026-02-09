@@ -163,7 +163,6 @@ const getData = async () => {
     } else {
       timeArr = getPrevious30Days();
     }
-    console.log('getData---------->', timeArr);
     res = await getChartDataDayApi({
       deviceId: props.params.deviceId,
       startTime: timeArr[0].date + ' 00:00:00',
@@ -179,7 +178,6 @@ const getData = async () => {
     } else {
       timeArr = getPrevious12Months();
     }
-    console.log('getData---------->', timeArr);
     res = await getChartDataMonthApi({
       deviceId: props.params.deviceId,
       startTime: timeArr[0].date + '-01 00:00:00',

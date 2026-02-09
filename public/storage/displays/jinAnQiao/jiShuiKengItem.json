@@ -1,0 +1,33 @@
+{
+  "v": "7.2.4-dev1",
+  "p": {
+    "autoAdjustIndex": true,
+    "hierarchicalRendering": true
+  },
+  "a": {},
+  "d": [
+    {
+      "c": "ht.Node",
+      "i": 7268,
+      "p": {
+        "displayName": "jiShuiKeng",
+        "tag": "jiSHuiKengItem",
+        "image": "storage/symbols/jinAnQiao/jiShuiKeng.json",
+        "position": {
+          "x": 533.35951,
+          "y": 334.7172
+        },
+        "width": 374.56795,
+        "height": 280.78959,
+        "tall": 20
+      }
+    }
+  ],
+  "modified": "Tue Jan 20 2026 08:09:20 GMT+0800 (中国标准时间)",
+  "contentRect": {
+    "x": 346.07554,
+    "y": 194.32241,
+    "width": 374.56795,
+    "height": 280.78959
+  }
+}

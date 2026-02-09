@@ -40,6 +40,8 @@
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'active'">
           <a-space>
+            <a @click.stop="showVideoIframeModal(record)">监控视频</a>
+            &emsp;
             <a @click.stop="showLoopList(record)">回路列表</a>
             &emsp;
             <a-popconfirm
@@ -72,6 +74,7 @@
       :reload="reload"
     />
   </div>
+  <VideoIframeModal ref="videoIframeModalRef"/>
 </template>
 
 <script setup lang="ts">
@@ -80,13 +83,15 @@ import { BasicColumn, BasicTable, FormSchema } from '/@/components/Table';
 import { useListPage } from '/@/hooks/system/useListPage';
 import { usePermissionStore } from '/@/store/modules/permission';
 import { getAreaListPageApi, setAreaOpenApi, setAreaCloseApi } from '../Standardized.api';
+import VideoIframeModal from './VideoIframeModal.vue'
 import { message } from 'ant-design-vue';
 import LoopListModal from './LoopListModal.vue';
 import { usePermission } from '/@/hooks/web/usePermission';
 const { hasPermission } = usePermission();
 
 // 详情弹框
-const loopListModalRef = ref();
+const loopListModalRef = ref(); 
+const videoIframeModalRef = ref(); 
 
 // 表格列配置
 const columns: BasicColumn[] = [
@@ -101,6 +106,8 @@ const columns: BasicColumn[] = [
     title: '区域名称',
     dataIndex: 'areaName',
     key: 'areaName',
+    sorter: (a, b) => a.areaName.localeCompare(b.areaName), // 自定义排序函数
+    sortDirections: ['ascend', 'descend'],
   },
   {
     title: '状态',
@@ -214,6 +221,10 @@ const handleClose = async (record) => {
 const showLoopList = (record) => {
   loopListModalRef.value.showModal(record);
 };
+
+const showVideoIframeModal = (record) => {
+  videoIframeModalRef.value.showModal(record.monitorAdr)
+}
 
 onMounted(async () => {
   // await getOptionsData();

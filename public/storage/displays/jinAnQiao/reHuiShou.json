@@ -8,7 +8,7 @@
   "d": [
     {
       "c": "ht.Node",
-      "i": 11467,
+      "i": 7096,
       "p": {
         "displayName": "Humidity Sensor",
         "image": "storage/symbols/Building Control Major/HVAC/Humidity Sensor.json",
@@ -24,7 +24,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11466,
+      "i": 7097,
       "p": {
         "displayName": "Humidity Sensor",
         "image": "storage/symbols/Building Control Major/HVAC/Humidity Sensor.json",
@@ -40,7 +40,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11463,
+      "i": 7098,
       "p": {
         "displayName": "Humidity Sensor",
         "image": "storage/symbols/Building Control Major/HVAC/Humidity Sensor.json",
@@ -56,7 +56,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11383,
+      "i": 7099,
       "p": {
         "displayName": "Humidity Sensor",
         "image": "storage/symbols/Building Control Major/HVAC/Humidity Sensor.json",
@@ -72,7 +72,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11384,
+      "i": 7100,
       "p": {
         "displayName": "Humidity Sensor",
         "image": "storage/symbols/Building Control Major/HVAC/Humidity Sensor.json",
@@ -87,7 +87,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11385,
+      "i": 7101,
       "p": {
         "displayName": "Humidity Sensor",
         "image": "storage/symbols/Building Control Major/HVAC/Humidity Sensor.json",
@@ -102,7 +102,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11386,
+      "i": 7102,
       "p": {
         "displayName": "Humidity Sensor",
         "image": "storage/symbols/Building Control Major/HVAC/Humidity Sensor.json",
@@ -118,7 +118,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11387,
+      "i": 7103,
       "p": {
         "displayName": "Wind tunnel",
         "image": "storage/symbols/Building Control Major/HVAC/Wind tunnel.json",
@@ -133,7 +133,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11388,
+      "i": 7104,
       "p": {
         "displayName": "resource3",
         "image": "storage/symbols/Building Control Major/HVAC/resource3.json",
@@ -148,7 +148,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11392,
+      "i": 7105,
       "p": {
         "position": {
           "x": 805.96664,
@@ -168,7 +168,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11393,
+      "i": 7106,
       "p": {
         "position": {
           "x": 688.89307,
@@ -188,7 +188,7 @@
     },
     {
       "c": "ht.Shape",
-      "i": 11394,
+      "i": 7107,
       "p": {
         "rotation": 3.14159,
         "position": {
@@ -230,7 +230,7 @@
     },
     {
       "c": "ht.Shape",
-      "i": 11395,
+      "i": 7108,
       "p": {
         "rotation": 3.14159,
         "position": {
@@ -272,7 +272,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11396,
+      "i": 7109,
       "p": {
         "displayName": "Wind tunnel",
         "image": "storage/symbols/Building Control Major/HVAC/Wind tunnel.json",
@@ -287,7 +287,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11397,
+      "i": 7110,
       "p": {
         "position": {
           "x": 186.32118,
@@ -307,7 +307,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11398,
+      "i": 7111,
       "p": {
         "position": {
           "x": 186.32118,
@@ -327,7 +327,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11399,
+      "i": 7112,
       "p": {
         "position": {
           "x": 345.75039,
@@ -345,7 +345,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11400,
+      "i": 7113,
       "p": {
         "position": {
           "x": 345.75039,
@@ -365,7 +365,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11401,
+      "i": 7114,
       "p": {
         "displayName": "Inverter fan2",
         "image": "storage/symbols/Building Control Major/HVAC/Inverter fan2.json",
@@ -380,7 +380,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11402,
+      "i": 7115,
       "p": {
         "displayName": "resource4",
         "image": "storage/symbols/Building Control Major/HVAC/resource4.json",
@@ -395,7 +395,7 @@
     },
     {
       "c": "ht.Shape",
-      "i": 11403,
+      "i": 7116,
       "p": {
         "position": {
           "x": 566.89772,
@@ -471,7 +471,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11404,
+      "i": 7117,
       "p": {
         "position": {
           "x": 595.38329,
@@ -490,7 +490,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11405,
+      "i": 7118,
       "p": {
         "position": {
           "x": -28.52952,
@@ -510,7 +510,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11406,
+      "i": 7119,
       "p": {
         "position": {
           "x": -28.52952,
@@ -530,7 +530,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11407,
+      "i": 7120,
       "p": {
         "displayName": "Inverter fan2",
         "image": "storage/symbols/Building Control Major/HVAC/Inverter fan2.json",
@@ -545,7 +545,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11409,
+      "i": 7121,
       "p": {
         "displayName": "resource4",
         "image": "storage/symbols/Building Control Major/HVAC/resource4.json",
@@ -560,7 +560,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11410,
+      "i": 7122,
       "p": {
         "displayName": "Surface cooler",
         "image": "storage/symbols/Building Control Major/HVAC/Surface cooler.json",
@@ -575,7 +575,7 @@
     },
     {
       "c": "ht.Text",
-      "i": 11413,
+      "i": 7123,
       "p": {
         "dataBindings": {
           "s": {}
@@ -595,7 +595,7 @@
     },
     {
       "c": "ht.Text",
-      "i": 11414,
+      "i": 7124,
       "p": {
         "dataBindings": {
           "s": {}
@@ -615,7 +615,7 @@
     },
     {
       "c": "ht.Text",
-      "i": 11417,
+      "i": 7125,
       "p": {
         "dataBindings": {
           "s": {}
@@ -635,7 +635,7 @@
     },
     {
       "c": "ht.Text",
-      "i": 11418,
+      "i": 7126,
       "p": {
         "dataBindings": {
           "s": {}
@@ -655,7 +655,7 @@
     },
     {
       "c": "ht.Text",
-      "i": 11419,
+      "i": 7127,
       "p": {
         "dataBindings": {
           "s": {}
@@ -675,7 +675,7 @@
     },
     {
       "c": "ht.Text",
-      "i": 11421,
+      "i": 7128,
       "p": {
         "dataBindings": {
           "s": {}
@@ -695,7 +695,7 @@
     },
     {
       "c": "ht.Text",
-      "i": 11422,
+      "i": 7129,
       "p": {
         "dataBindings": {
           "s": {}
@@ -715,7 +715,7 @@
     },
     {
       "c": "ht.Text",
-      "i": 11427,
+      "i": 7130,
       "p": {
         "dataBindings": {
           "s": {}
@@ -735,7 +735,7 @@
     },
     {
       "c": "ht.Text",
-      "i": 11428,
+      "i": 7131,
       "p": {
         "dataBindings": {
           "s": {}
@@ -755,7 +755,7 @@
     },
     {
       "c": "ht.Text",
-      "i": 11432,
+      "i": 7132,
       "p": {
         "dataBindings": {
           "s": {}
@@ -775,7 +775,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11464,
+      "i": 7133,
       "p": {
         "position": {
           "x": 108.41624,
@@ -795,7 +795,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11465,
+      "i": 7134,
       "p": {
         "position": {
           "x": 108.41624,
@@ -815,7 +815,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11468,
+      "i": 7135,
       "p": {
         "position": {
           "x": 1188.64887,
@@ -835,7 +835,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11469,
+      "i": 7136,
       "p": {
         "position": {
           "x": 1188.64887,
@@ -855,7 +855,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11470,
+      "i": 7137,
       "p": {
         "position": {
           "x": 1387.79094,
@@ -875,7 +875,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11471,
+      "i": 7138,
       "p": {
         "position": {
           "x": 1387.79094,
@@ -895,7 +895,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11472,
+      "i": 7139,
       "p": {
         "displayName": "resouce2",
         "image": "storage/symbols/Building Control Major/HVAC/resouce2.json",
@@ -911,7 +911,7 @@
     },
     {
       "c": "ht.Text",
-      "i": 11473,
+      "i": 7140,
       "p": {
         "dataBindings": {
           "s": {}
@@ -931,7 +931,7 @@
     },
     {
       "c": "ht.Text",
-      "i": 11474,
+      "i": 7141,
       "p": {
         "dataBindings": {
           "s": {}
@@ -951,7 +951,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11888,
+      "i": 7142,
       "p": {
         "position": {
           "x": 171.49254,
@@ -970,7 +970,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11889,
+      "i": 7143,
       "p": {
         "position": {
           "x": 339.6754,
@@ -989,7 +989,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11890,
+      "i": 7144,
       "p": {
         "position": {
           "x": -18.15841,
@@ -1008,7 +1008,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11891,
+      "i": 7145,
       "p": {
         "position": {
           "x": 119.3448,
@@ -1027,7 +1027,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11892,
+      "i": 7146,
       "p": {
         "position": {
           "x": 242.52574,
@@ -1046,7 +1046,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11893,
+      "i": 7147,
       "p": {
         "position": {
           "x": 395.79435,
@@ -1065,7 +1065,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11894,
+      "i": 7148,
       "p": {
         "position": {
           "x": 484.36338,
@@ -1084,7 +1084,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11895,
+      "i": 7149,
       "p": {
         "position": {
           "x": 746.51153,
@@ -1103,7 +1103,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11896,
+      "i": 7150,
       "p": {
         "position": {
           "x": 1195.03479,
@@ -1122,7 +1122,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11897,
+      "i": 7151,
       "p": {
         "position": {
           "x": 1393.48958,
@@ -1141,7 +1141,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11898,
+      "i": 7152,
       "p": {
         "position": {
           "x": 395.79435,
@@ -1160,7 +1160,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11899,
+      "i": 7153,
       "p": {
         "displayName": "wenDu",
         "tag": "songFengWenDu",
@@ -1173,7 +1173,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11900,
+      "i": 7154,
       "p": {
         "displayName": "shiDu",
         "tag": "songFengShiDu",
@@ -1186,7 +1186,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11901,
+      "i": 7155,
       "p": {
         "displayName": "wenDu",
         "tag": "huiFengWenDu",
@@ -1199,7 +1199,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11902,
+      "i": 7156,
       "p": {
         "displayName": "shiDu",
         "tag": "huiFengShiDu",
@@ -1212,7 +1212,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11903,
+      "i": 7157,
       "p": {
         "displayName": "baoJing",
         "tag": "xongFengJiYaCha",
@@ -1225,7 +1225,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11904,
+      "i": 7158,
       "p": {
         "displayName": "baoJing",
         "tag": "fangDong",
@@ -1241,7 +1241,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11905,
+      "i": 7159,
       "p": {
         "displayName": "kaiDu",
         "tag": "shuiFaKaiDuSheDinfg",
@@ -1254,7 +1254,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11906,
+      "i": 7160,
       "p": {
         "displayName": "fanKui",
         "tag": "shuiFaKaiDuFanKui",
@@ -1267,7 +1267,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11907,
+      "i": 7161,
       "p": {
         "displayName": "baoJing",
         "tag": "lvWangYaCha",
@@ -1283,7 +1283,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11908,
+      "i": 7162,
       "p": {
         "displayName": "wenDu",
         "tag": "xinFengWenDu",
@@ -1296,7 +1296,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 11909,
+      "i": 7163,
       "p": {
         "displayName": "shiDu",
         "tag": "xinFengShiDu",
@@ -1306,13 +1306,660 @@
           "y": 1314.02308
         }
       }
+    },
+    {
+      "c": "ht.Node",
+      "i": 7319,
+      "p": {
+        "displayName": "deviceCode",
+        "tag": "deviceCode",
+        "image": "storage/symbols/jinAnQiao/deviceCode.json",
+        "position": {
+          "x": 537.27088,
+          "y": 843.35678
+        },
+        "width": 471.25481,
+        "height": 115.44036,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 7770,
+      "p": {
+        "position": {
+          "x": 1273.31897,
+          "y": 1399.37667
+        },
+        "width": 608.92858,
+        "height": 36.35042,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "#D8D8D8",
+        "shape.border.width": 2,
+        "shape.border.color": "#979797"
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 7771,
+      "p": {
+        "dataBindings": {
+          "s": {}
+        },
+        "position": {
+          "x": 1056.95941,
+          "y": 1401.27688
+        },
+        "width": 151.2,
+        "height": 32.55,
+        "tall": 20
+      },
+      "s": {
+        "text": "温度设定",
+        "text.font": "bold 20px sans-serif, Arial",
+        "text.align": "center"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 7775,
+      "p": {
+        "position": {
+          "x": 1176.40721,
+          "y": 1401.27688
+        },
+        "width": 136.16044,
+        "height": 22.56131,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(247,247,247)",
+        "shape.border.width": 1,
+        "shape.border.color": "#979797"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 7779,
+      "p": {
+        "displayName": "baoJing",
+        "tag": "wdsd",
+        "image": "storage/symbols/jinAnQiao/baoJing.json",
+        "position": {
+          "x": 1148.2018,
+          "y": 1401.27688
+        },
+        "width": 70,
+        "height": 20,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 7783,
+      "p": {
+        "position": {
+          "x": 1273.31897,
+          "y": 1435.91217
+        },
+        "width": 608.92858,
+        "height": 36.35042,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "#D8D8D8",
+        "shape.border.width": 2,
+        "shape.border.color": "#979797"
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 7784,
+      "p": {
+        "dataBindings": {
+          "s": {}
+        },
+        "position": {
+          "x": 1056.95941,
+          "y": 1437.81238
+        },
+        "width": 151.2,
+        "height": 32.55,
+        "tall": 20
+      },
+      "s": {
+        "text": "机组启停",
+        "text.font": "bold 20px sans-serif, Arial",
+        "text.align": "center"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 7785,
+      "p": {
+        "position": {
+          "x": 1176.40722,
+          "y": 1437.81238
+        },
+        "width": 136.16044,
+        "height": 22.56131,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(247,247,247)",
+        "shape.border.width": 1,
+        "shape.border.color": "#979797"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 7786,
+      "p": {
+        "displayName": "baoJing",
+        "tag": "jzqt",
+        "image": "storage/symbols/jinAnQiao/baoJing.json",
+        "position": {
+          "x": 1148.20181,
+          "y": 1437.81238
+        },
+        "width": 70,
+        "height": 20,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 7787,
+      "p": {
+        "dataBindings": {
+          "s": {}
+        },
+        "position": {
+          "x": 1328.28252,
+          "y": 1437.81238
+        },
+        "width": 151.2,
+        "height": 32.55,
+        "tall": 20
+      },
+      "s": {
+        "text": "模式转换",
+        "text.font": "bold 20px sans-serif, Arial",
+        "text.align": "center"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 7788,
+      "p": {
+        "position": {
+          "x": 1447.73032,
+          "y": 1437.81238
+        },
+        "width": 136.16044,
+        "height": 22.56131,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(247,247,247)",
+        "shape.border.width": 1,
+        "shape.border.color": "#979797"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 7789,
+      "p": {
+        "displayName": "baoJing",
+        "tag": "mszh",
+        "image": "storage/symbols/jinAnQiao/baoJing.json",
+        "position": {
+          "x": 1419.52491,
+          "y": 1437.81238
+        },
+        "width": 70,
+        "height": 20,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 7790,
+      "p": {
+        "position": {
+          "x": 1273.31897,
+          "y": 1527.38253
+        },
+        "width": 608.92858,
+        "height": 146.59031,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "#D8D8D8",
+        "shape.border.width": 2,
+        "shape.border.color": "#979797"
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 7791,
+      "p": {
+        "dataBindings": {
+          "s": {}
+        },
+        "position": {
+          "x": 1132.66493,
+          "y": 1482.92952
+        },
+        "width": 151.2,
+        "height": 32.55,
+        "tall": 20
+      },
+      "s": {
+        "text": "手动/自动",
+        "text.font": "bold 20px sans-serif, Arial",
+        "text.align": "center"
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 7792,
+      "p": {
+        "dataBindings": {
+          "s": {}
+        },
+        "position": {
+          "x": 1315.73535,
+          "y": 1482.92952
+        },
+        "width": 151.2,
+        "height": 32.55,
+        "tall": 20
+      },
+      "s": {
+        "text": "停止/启动",
+        "text.font": "bold 20px sans-serif, Arial",
+        "text.align": "center"
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 7793,
+      "p": {
+        "dataBindings": {
+          "s": {}
+        },
+        "position": {
+          "x": 1487.60513,
+          "y": 1482.92952
+        },
+        "width": 151.2,
+        "height": 32.55,
+        "tall": 20
+      },
+      "s": {
+        "text": "故障信号",
+        "text.font": "bold 20px sans-serif, Arial",
+        "text.align": "center"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 7794,
+      "p": {
+        "position": {
+          "x": 1132.66493,
+          "y": 1510.48518
+        },
+        "width": 136.16044,
+        "height": 22.56131,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(247,247,247)",
+        "shape.border.width": 1,
+        "shape.border.color": "#979797"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 7795,
+      "p": {
+        "displayName": "baoJing",
+        "tag": "sfj-sdzd",
+        "image": "storage/symbols/jinAnQiao/baoJing.json",
+        "position": {
+          "x": 1104.45952,
+          "y": 1510.48518
+        },
+        "width": 70,
+        "height": 20,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 7796,
+      "p": {
+        "position": {
+          "x": 1311.56988,
+          "y": 1510.48518
+        },
+        "width": 136.16044,
+        "height": 22.56131,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(247,247,247)",
+        "shape.border.width": 1,
+        "shape.border.color": "#979797"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 7797,
+      "p": {
+        "displayName": "baoJing",
+        "tag": "sfj-tzqd",
+        "image": "storage/symbols/jinAnQiao/baoJing.json",
+        "position": {
+          "x": 1283.36447,
+          "y": 1510.48518
+        },
+        "width": 70,
+        "height": 20,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 7798,
+      "p": {
+        "position": {
+          "x": 1487.60513,
+          "y": 1510.48518
+        },
+        "width": 136.16044,
+        "height": 22.56131,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(247,247,247)",
+        "shape.border.width": 1,
+        "shape.border.color": "#979797"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 7799,
+      "p": {
+        "displayName": "baoJing",
+        "tag": "sfj-gzxh",
+        "image": "storage/symbols/jinAnQiao/baoJing.json",
+        "position": {
+          "x": 1459.39972,
+          "y": 1510.48518
+        },
+        "width": 70,
+        "height": 20,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 7800,
+      "p": {
+        "dataBindings": {
+          "s": {}
+        },
+        "position": {
+          "x": 1017.80369,
+          "y": 1510.48518
+        },
+        "width": 151.2,
+        "height": 32.55,
+        "tall": 20
+      },
+      "s": {
+        "text": "送风机",
+        "text.font": "bold 20px sans-serif, Arial",
+        "text.align": "center"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 7802,
+      "p": {
+        "position": {
+          "x": 1132.66493,
+          "y": 1543.03518
+        },
+        "width": 136.16044,
+        "height": 22.56131,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(247,247,247)",
+        "shape.border.width": 1,
+        "shape.border.color": "#979797"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 7803,
+      "p": {
+        "displayName": "baoJing",
+        "tag": "pfj-sdzd",
+        "image": "storage/symbols/jinAnQiao/baoJing.json",
+        "position": {
+          "x": 1104.45952,
+          "y": 1543.03518
+        },
+        "width": 70,
+        "height": 20,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 7804,
+      "p": {
+        "position": {
+          "x": 1311.56988,
+          "y": 1543.03518
+        },
+        "width": 136.16044,
+        "height": 22.56131,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(247,247,247)",
+        "shape.border.width": 1,
+        "shape.border.color": "#979797"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 7805,
+      "p": {
+        "displayName": "baoJing",
+        "tag": "pfj-tzqd",
+        "image": "storage/symbols/jinAnQiao/baoJing.json",
+        "position": {
+          "x": 1283.36447,
+          "y": 1543.03518
+        },
+        "width": 70,
+        "height": 20,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 7806,
+      "p": {
+        "position": {
+          "x": 1487.60513,
+          "y": 1543.03518
+        },
+        "width": 136.16044,
+        "height": 22.56131,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(247,247,247)",
+        "shape.border.width": 1,
+        "shape.border.color": "#979797"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 7807,
+      "p": {
+        "displayName": "baoJing",
+        "tag": "pfj-gzxh",
+        "image": "storage/symbols/jinAnQiao/baoJing.json",
+        "position": {
+          "x": 1459.39972,
+          "y": 1543.03518
+        },
+        "width": 70,
+        "height": 20,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 7808,
+      "p": {
+        "dataBindings": {
+          "s": {}
+        },
+        "position": {
+          "x": 1017.80369,
+          "y": 1543.03518
+        },
+        "width": 151.2,
+        "height": 32.55,
+        "tall": 20
+      },
+      "s": {
+        "text": "排风机",
+        "text.font": "bold 20px sans-serif, Arial",
+        "text.align": "center"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 7809,
+      "p": {
+        "position": {
+          "x": 1132.66493,
+          "y": 1575.58518
+        },
+        "width": 136.16044,
+        "height": 22.56131,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(247,247,247)",
+        "shape.border.width": 1,
+        "shape.border.color": "#979797"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 7810,
+      "p": {
+        "displayName": "baoJing",
+        "tag": "zl-sdzd",
+        "image": "storage/symbols/jinAnQiao/baoJing.json",
+        "position": {
+          "x": 1104.45952,
+          "y": 1575.58518
+        },
+        "width": 70,
+        "height": 20,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 7811,
+      "p": {
+        "position": {
+          "x": 1311.56988,
+          "y": 1575.58518
+        },
+        "width": 136.16044,
+        "height": 22.56131,
+        "tall": 20
+      },
+      "s": {
+        "shape": "rect",
+        "shape.background": "rgb(247,247,247)",
+        "shape.border.width": 1,
+        "shape.border.color": "#979797"
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 7812,
+      "p": {
+        "displayName": "baoJing",
+        "tag": "zl-tzqd",
+        "image": "storage/symbols/jinAnQiao/baoJing.json",
+        "position": {
+          "x": 1283.36447,
+          "y": 1575.58518
+        },
+        "width": 70,
+        "height": 20,
+        "tall": 20
+      }
+    },
+    {
+      "c": "ht.Text",
+      "i": 7815,
+      "p": {
+        "dataBindings": {
+          "s": {}
+        },
+        "position": {
+          "x": 1017.80369,
+          "y": 1575.58518
+        },
+        "width": 151.2,
+        "height": 32.55,
+        "tall": 20
+      },
+      "s": {
+        "text": "转轮",
+        "text.font": "bold 20px sans-serif, Arial",
+        "text.align": "center"
+      }
     }
   ],
-  "modified": "Thu Jan 08 2026 09:55:36 GMT+0800 (中国标准时间)",
+  "modified": "Fri Jan 23 2026 16:38:20 GMT+0800 (中国标准时间)",
   "contentRect": {
     "x": -163.79197,
     "y": 682.3612,
-    "width": 1645.59661,
-    "height": 875.00158
+    "width": 1743.57523,
+    "height": 920.31649
   }
 }

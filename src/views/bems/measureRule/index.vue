@@ -152,7 +152,7 @@ const pagination = ref<TablePaginationConfig>({
 const handleTableChange = (pag: TablePaginationConfig) => {
   pagination.value.current = pag.current;
   pagination.value.pageSize = pag.pageSize;
-  findTableData();
+  reload();
 };
 
 // 显示弹窗
@@ -188,7 +188,7 @@ const handleDeleteTable = (record) => {
 
 const handleSuccess = () => {
   findTreeData();
-  findTableData();
+  reload();
 };
 // 删除节点
 const handleDelete = () => {
@@ -214,13 +214,12 @@ const rowDelete = (record: { id: number; nodeName: string }) => {
         // 如果是当前选中节点，则清空选中节点
         selectKeys.value = [];
       }
-      findTableData();
+      reload();
     },
   });
 };
 
 const handleSelect = () => {
-  findTableData();
   reload();
 };
 
@@ -325,7 +324,6 @@ watch(
   () => energyFlowTreeType.value.type,
   () => {
     findTreeData();
-    findTableData();
     reload();
   }
 );
@@ -380,15 +378,19 @@ const filteredTreeData = computed(() => {
   return searchTreeData.value.map(filterFn).filter(Boolean);
 });
 
+// <span class="highlight" style="color: #f50;">3AA</span>7-434-1_提升泵站西侧地下一层至地上三层应急照明B1ALE1-F3ALE1(主)
+
 // 高亮文本
 const highlightText = (text) => {
-  if (!searchValue.value) return truncateText(text, 10) ;
+  let num = 10
+  current.value[0] === 'specialty' ? num = 17 : 10
+  if (!searchValue.value) return truncateText(text, num);
   const reg = new RegExp(searchValue.value, 'gi');
-  const nameStr = text.replace(reg, (match) => `<span class="highlight" style="color: #f50;">${truncateText(match, 10)}</span>`)
-  if(nameStr.includes('...')) {
-    return nameStr
+  // const nameStr = text.replace(reg, (match) => `<span class="highlight" style="color: #f50;">${truncateText(match, 10)}</span>`)
+  if (text.includes(searchValue.value)) {
+    return `<span class="highlight" style="color: #f50;">${truncateText(text, num)}</span>`
   } else {
-    return truncateText(nameStr, 10)
+    return truncateText(text, num)
   }
 };
 
@@ -471,6 +473,7 @@ const truncateText = (text, length = 10) => {
     background-color: #fff;
     border-radius: 8px;
     margin-right: 5px;
+
 
     .ant-tree {
       height: 100%;

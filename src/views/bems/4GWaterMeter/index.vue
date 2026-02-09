@@ -40,7 +40,7 @@
               v-model:value="formState.endTime"></a-date-picker>
           </a-form-item>
         </a-col>
-        <a-col :span="10">
+        <a-col :span="12">
           <a-form-item>
             &emsp;
             <a-button type="primary" :icon="h(SearchOutlined)" @click="reload">查询</a-button>
@@ -48,6 +48,12 @@
             <a-button :icon="h(RedoOutlined)" @click="resetSearch">重置</a-button>
             &nbsp;
             <a-button type="primary" :icon="h(VerticalAlignBottomOutlined)" @click="handleExport">导出</a-button>
+            &nbsp;
+            <a-button v-if="props.categoryId === '29'" type="primary" :icon="h(VerticalAlignBottomOutlined)" @click="downloadReport">报表</a-button>
+            &nbsp;
+            <a-button v-if="props.categoryId !== '29'" type="primary" :icon="h(VerticalAlignBottomOutlined)" @click="downloadReportDian('2')">报表</a-button>
+            &nbsp;
+            <a-button v-if="props.categoryId !== '29'" type="primary" :icon="h(VerticalAlignBottomOutlined)" @click="downloadReportDian('3')">配电室报表</a-button>
           </a-form-item>
         </a-col>
       </a-row>
@@ -79,7 +85,7 @@
 <script lang="ts" setup>
 import { ref, onMounted, h } from 'vue';
 import { BarChartOutlined, VerticalAlignBottomOutlined, RedoOutlined, SearchOutlined } from '@ant-design/icons-vue';
-import { getCategoryTree, getSpaceTree, getList, getDeviceNumberDataApi, exportData } from './index.api';
+import { getCategoryTree, getSpaceTree, getList, getDeviceNumberDataApi, exportData, downloadReportApi } from './index.api';
 import Chart from './components/chart.vue';
 import HistoryRecordsModal from './components/HistoryRecordsModal.vue';
 import { BasicColumn, BasicTable, FormSchema } from '/@/components/Table';
@@ -122,6 +128,8 @@ const columns: BasicColumn[] = [
     minWidth: 80,
     width: 120,
     resizable: true,
+    sorter: (a, b) => a.deviceCode.localeCompare(b.deviceCode), // 自定义排序函数
+    sortDirections: ['ascend', 'descend'],
   },
   {
     title: '设备名称',
@@ -130,6 +138,8 @@ const columns: BasicColumn[] = [
     minWidth: 80,
     width: 120,
     resizable: true,
+    sorter: (a, b) => a.deviceName.localeCompare(b.deviceName), // 自定义排序函数
+    sortDirections: ['ascend', 'descend'],
   },
   {
     title: '设备类型',
@@ -144,12 +154,14 @@ const columns: BasicColumn[] = [
   },
   {
     title: '设备位置',
-    dataIndex: 'spaceId',
-    key: 'spaceId',
-    customRender: ({ text }) => {
-      if (!text) return '';
-      return findTreeNodeTitle(spaceTreeData.value, text) || text;
-    },
+    dataIndex: 'spaceName',
+    key: 'spaceName',
+    // customRender: ({ text }) => {
+    //   if (!text) return '';
+    //   return findTreeNodeTitle(spaceTreeData.value, text) || text;
+    // },
+    sorter: (a, b) => a.spaceName.localeCompare(b.spaceName), // 自定义排序函数
+    sortDirections: ['ascend', 'descend'],
     minWidth: 80,
     width: 120,
   },
@@ -166,6 +178,8 @@ const columns: BasicColumn[] = [
       if (!text) return '';
       return text.split(' ')[0];
     },
+    sorter: (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime(), // 按时间戳排序
+    sortDirections: ['ascend', 'descend'],
     minWidth: 80,
     width: 120,
   },
@@ -191,6 +205,8 @@ const columns: BasicColumn[] = [
       if (!text) return '';
       return text.split(' ')[0];
     },
+    sorter: (a, b) => new Date(a.endTime).getTime() - new Date(b.endTime).getTime(), // 按时间戳排序
+    sortDirections: ['ascend', 'descend'],
     minWidth: 80,
     width: 120,
     resizable: true,
@@ -334,11 +350,16 @@ const loadData = async (pageParams) => {
     startTime: formState.value.startTime ? formState.value.startTime.split(' ')[0] + ' 00:00:00' : null,
     endTime: formState.value.endTime ? formState.value.endTime.split(' ')[0] + ' 23:59:59' : null,
     categoryId: props.categoryId,
+    convertInteger: props.categoryId === '29' ? '1' : undefined
   };
-  const res = await getList(params);
+  let res: any
+  res = await getList(params);
   dataSource.value = res.records;
   pagination.value.total = res.total;
   pagination.value.pageSize = res.size;
+  res.records.forEach(item => {
+    item.spaceName = findTreeNodeTitle(spaceTreeData.value, item.spaceId)
+  })
   return {
     records: res.records, // 当前页数据
     total: res.total, // 总记录数
@@ -462,6 +483,7 @@ const handleExport = async () => {
     categoryId: props.categoryId,
     startTime: formState.value.startTime ? formState.value.startTime.split(' ')[0] + ' 00:00:00' : null,
     endTime: formState.value.endTime ? formState.value.endTime.split(' ')[0] + ' 23:59:59' : null,
+    convertInteger: props.categoryId === '29' ? '1' : undefined
   });
   let name = '4G水表';
   let blobOptions = { type: 'application/vnd.ms-excel' };
@@ -477,7 +499,52 @@ const handleExport = async () => {
   window.URL.revokeObjectURL(url); //释放掉blob对象
 };
 
-const handleHistory = (record) => {
+const downloadReport = async () => {
+  let res = await downloadReportApi({
+    ...formState.value,
+    startTime: formState.value.startTime ? formState.value.startTime.split(' ')[0] + ' 00:00:00' : null,
+    endTime: formState.value.endTime ? formState.value.endTime.split(' ')[0] + ' 23:59:59' : null,
+    convertInteger: props.categoryId === '29' ? '1' : undefined,
+    templateId: props.categoryId === '29' ? '1' : '2,3'
+  });
+  let name = props.categoryId === '29' ? '4G水表报表' : '低压配电报表';
+  let blobOptions = { type: 'application/vnd.ms-excel' };
+  let fileSuffix = '.xlsx';
+  let url = window.URL.createObjectURL(new Blob([res], blobOptions));
+  let link = document.createElement('a');
+  link.style.display = 'none';
+  link.href = url;
+  link.setAttribute('download', name + fileSuffix);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link); //下载完成移除元素
+  window.URL.revokeObjectURL(url); //释放掉blob对象
+}
+
+const downloadReportDian = async (key) => {
+  let res = await downloadReportApi({
+    ...formState.value,
+    startTime: formState.value.startTime ? formState.value.startTime.split(' ')[0] + ' 00:00:00' : null,
+    endTime: formState.value.endTime ? formState.value.endTime.split(' ')[0] + ' 23:59:59' : null,
+    convertInteger: props.categoryId === '29' ? '1' : undefined,
+    templateId: key
+  });
+  let name = ''
+  key === '2' ? name = '金安科幻抄电表记录' : name = '金安科幻配电室开关抄表记录'
+  let blobOptions = { type: 'application/vnd.ms-excel' };
+  let fileSuffix = '.xlsx';
+  let url = window.URL.createObjectURL(new Blob([res], blobOptions));
+  let link = document.createElement('a');
+  link.style.display = 'none';
+  link.href = url;
+  link.setAttribute('download', name + fileSuffix);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link); //下载完成移除元素
+  window.URL.revokeObjectURL(url); //释放掉blob对象
+}
+
+ const handleHistory = (record) => {
   let { getFieldsValue } = getForm();
   const searchData = getFieldsValue();
   const params = {
@@ -494,7 +561,7 @@ onMounted(async () => {
     const categoryRes = await getCategoryTree();
     categoryTreeData.value = categoryRes;
     console.log('getCategoryTree--------------------->', categoryTreeData.value);
-    
+
     const spaceRes = await getSpaceTree();
     spaceTreeData.value = spaceRes;
     reload();

@@ -186,7 +186,8 @@ const getScreenFireControlRoom = async () => {
   }
 
   .certificate-status {
-    height: 19.5%;
+    height: calc(19.5% - 12px);
+    margin-top: 12px;
   }
 }
 </style>

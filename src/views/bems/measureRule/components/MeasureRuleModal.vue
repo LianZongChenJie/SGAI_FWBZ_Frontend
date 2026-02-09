@@ -138,9 +138,10 @@
       try {
         const api = formData.id ? editMeasureRule : addMeasureRule;
         let res = await api(formData);
-        if(res.code === 500) {
+        if(res && res.code === 500) {
           // message.error(res.message)
         } else {
+          message.success('编辑成功！')
           emit('success');
           closeModal();
         }

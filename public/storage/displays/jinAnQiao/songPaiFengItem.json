@@ -1,0 +1,30 @@
+{
+  "v": "7.2.4-dev1",
+  "p": {
+    "autoAdjustIndex": true,
+    "hierarchicalRendering": true
+  },
+  "a": {},
+  "d": [
+    {
+      "c": "ht.Node",
+      "i": 15835,
+      "p": {
+        "displayName": "fengJi",
+        "tag": "spfjItem",
+        "image": "storage/symbols/jinAnQiao/fengJi.json",
+        "position": {
+          "x": 435.99265,
+          "y": 186.35572
+        }
+      }
+    }
+  ],
+  "modified": "Fri Jan 23 2026 16:41:46 GMT+0800 (中国标准时间)",
+  "contentRect": {
+    "x": 335.99265,
+    "y": 136.35572,
+    "width": 200,
+    "height": 100
+  }
+}

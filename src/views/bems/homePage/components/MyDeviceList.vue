@@ -9,9 +9,9 @@
         @click="handleSwitch(index)"
       >
         <div class="device-icon">
-          <HomeOutlined v-if="index === 0" />
-          <BarsOutlined v-else-if="index === 1" />
-          <WalletOutlined v-else-if="index === 2" />
+          <DashboardOutlined v-if="index === 0" />
+          <BulbOutlined v-else-if="index === 1" />
+          <ToolOutlined v-else-if="index === 2" />
           <UserOutlined v-else-if="index === 3" />
         </div>
         <div class="device-name">
@@ -48,7 +48,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { HomeOutlined, BarsOutlined, WalletOutlined, UserOutlined } from '@ant-design/icons-vue';
+import { HomeOutlined, BarsOutlined, WalletOutlined, UserOutlined, DashboardOutlined, BulbOutlined, ToolOutlined } from '@ant-design/icons-vue';
 import { getDeviceRunStateStatisticApi, getRunStatusStatisticApi, } from '../Standardized.api';
 
 // 高亮显示index

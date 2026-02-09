@@ -16,6 +16,12 @@ enum Api {
   getEnergyUseSafetyApi = '/bems/homePage/energyUseSafety',
   findDeviceAndAttributeApi = '/bems/device/findDeviceAndAttribute',
   deviceRunStateStatisticsApi = '/bems/device/deviceRunStateStatistics',
+
+  findSpaceDeviceByCategoryldApi = '/bems/device/other/findSpaceDeviceByCategoryId',
+
+  getByDeviceIdApi = '/bems/deviceAttribute/getByDeviceId',
+
+  controlDeviceApi = '/bems/deviceAttribute/control',
 }
 
 /**
@@ -84,4 +90,22 @@ export const findDeviceAndAttributeApi = (params) => defHttp.get({ url: Api.find
  * 禁用告警级别
  * @param params
  */
-export const deviceRunStateStatisticsApi = (params) => defHttp.get({ url: Api.deviceRunStateStatisticsApi, params }, { joinParamsToUrl: true }); 
+export const deviceRunStateStatisticsApi = (params) => defHttp.get({ url: Api.deviceRunStateStatisticsApi, params }, { joinParamsToUrl: true });
+
+/**
+ * 禁用告警级别
+ * @param params
+ */
+export const findSpaceDeviceByCategoryldApi = (params) => defHttp.get({ url: Api.findSpaceDeviceByCategoryldApi, params }, { joinParamsToUrl: true }); 
+
+/**
+ * 获取设备下点位数据
+ * @param params
+ */
+export const getByDeviceIdApi = (params) => defHttp.get({ url: Api.getByDeviceIdApi, params }, { joinParamsToUrl: true }); 
+
+/**
+ * 设备属性控制
+ * @param params
+ */
+export const controlDeviceApi = (params) => defHttp.post({ url: Api.controlDeviceApi, params }); 

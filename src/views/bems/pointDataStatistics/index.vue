@@ -16,7 +16,7 @@
               {{ nodeName }}
             </template>
             <span class="truncated-text">
-              {{ truncateText(nodeName, 10) }}
+              {{ current[0] === 'specialty' ? truncateText(nodeName, 17) : truncateText(nodeName, 10) }}
             </span>
           </a-popover>
         </template>
@@ -283,13 +283,32 @@ const findData = async () => {
     if (item.label === '名称') {
       width = 150;
     }
-    tableColumns.value.push({
-      title: item.label,
-      dataIndex: item.field,
-      key: item.field,
-      align: 'center',
-      width: width,
-    });
+    if(isWeekend(item.field)) {
+      tableColumns.value.push({
+        title: item.label,
+        dataIndex: item.field,
+        key: item.field,
+        align: 'center',
+        width: width,
+        customCell: () => {
+          return {
+            style: {
+              'background-color': '#1890ff',
+              // 可以添加其他样式
+            }
+          };
+        },
+      });
+    } else {
+      tableColumns.value.push({
+        title: item.label,
+        dataIndex: item.field,
+        key: item.field,
+        align: 'center',
+        width: width,
+      });
+    }
+    
   });
 
   tableHeaders.value = tableColumns.value.map((item) => {
@@ -306,7 +325,14 @@ const findData = async () => {
   });
 };
 
+const isWeekend = (dateStr) => {
+  const date = new Date(dateStr)
+  const day = date.getDay()
+  return day === 0 || day === 6 // 0=周日, 6=周六
+}
+
 const chartType = ref<string>('line');
+  
 
 // 初始化图表
 const loadChart = (chart) => {
@@ -335,18 +361,18 @@ const loadChart = (chart) => {
       },
     },
     series: [],
-    dataZoom: [
-      {
-        type: 'slider',
-        show: true,
-        xAxisIndex: 0,
-        bottom: 50,
-        height: 20,
-        start: 0,
-        end: 50, // 初始显示50%数据
-        maxValueSpan: 15,
-      },
-    ],
+    // dataZoom: [
+    //   {
+    //     type: 'slider',
+    //     show: true,
+    //     xAxisIndex: 0,
+    //     bottom: 50,
+    //     height: 20,
+    //     start: 0,
+    //     end: 50, // 初始显示50%数据
+    //     maxValueSpan: 15,
+    //   },
+    // ],
   };
   option.xAxis.data = chart.xaxis;
   chart.chatSeriesList.pop();
@@ -398,11 +424,16 @@ onMounted(async () => {
   const month = String(today.getMonth() + 1).padStart(2, '0');
   const day = String(today.getDate()).padStart(2, '0');
   date.value = `${year}-${month}-${day}`;
-  console.log('findData----------->', month);
 
   await findEnergyFlowType();
   await findTreeData();
   window.addEventListener('resize', resizeChart);
+
+  // 监听目标元素
+  const targetDiv = document.getElementById('chart');
+  if (targetDiv) {
+    resizeObserver.observe(targetDiv);
+  }
 
   const now2 = new Date();
   const year2 = now2.getFullYear();
@@ -416,6 +447,23 @@ onMounted(async () => {
   const timestamp = new Date(lastTime.value.replace(/-/g, '/')).getTime() - 60 * 60 * 1000;
 
   time.value = formatTime(timestamp);
+});
+
+// 创建一个ResizeObserver实例
+const resizeObserver = new ResizeObserver((entries) => {
+  for (const entry of entries) {
+    // entry.target 是监听的目标元素
+    const { width, height } = entry.contentRect;
+    resizeChart()
+    // 获取更多尺寸信息
+    const { offsetWidth, offsetHeight, clientWidth, clientHeight } = entry.target;
+
+    // 触发自定义事件
+    const event = new CustomEvent('sizechange', {
+      detail: { width, height }
+    });
+    entry.target.dispatchEvent(event);
+  }
 });
 
 // 毫秒数转换为日期

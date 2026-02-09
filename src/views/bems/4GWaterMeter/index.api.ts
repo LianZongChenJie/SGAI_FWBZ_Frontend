@@ -6,11 +6,12 @@ enum Api {
   // list = '/bems/device/list',
   categoryTree = '/bems/equipmentCategory/getTree',
   spaceTree = '/bems/space/getTree',
-  list = '/bems/deviceData/list',
+  list = '/bems/deviceData/list1',
   findHourData = '/bems/deviceData/findHourData', 
   getDeviceNumberDataApi = '/bems/deviceData/statisticsRunState',
 
-  exportData = '/bems/deviceData/exportForWater',
+  exportData = '/bems/deviceData/export1',
+  downloadReportApi = '/bems/report/export',
 
   getHistoryDataApi = '/bems/deviceData/real/list',
   getChartDataDayApi = '/bems/deviceData/day/list',
@@ -27,6 +28,11 @@ export const getDeviceNumberDataApi = () => defHttp.get({ url: Api.getDeviceNumb
  * 导出数据
  */
 export const exportData = (params) => defHttp.get({ url: Api.exportData, params: params, responseType: 'blob', } ,{ isTransformResponse: false });
+
+/**
+ * 导出报表
+ */
+export const downloadReportApi = (params) => defHttp.get({ url: Api.downloadReportApi, params: params, responseType: 'blob', }, { isTransformResponse: false });
 
 /**
  * 获取表底值

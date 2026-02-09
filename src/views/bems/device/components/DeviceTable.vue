@@ -85,75 +85,98 @@ const findTreeNodeTitle = (treeData: any[], key: string | number): string => {
 };
 
 // 表格列配置
-const columns: BasicColumn[] = [
-  {
-    title: '序号',
-    dataIndex: 'index',
-    key: 'index',
-    width: '80px',
-    customRender: ({ index }) => index + 1, // 显示序号，从 1 开始
-  },
-  {
-    title: '设备名称',
-    dataIndex: 'deviceName',
-    key: 'deviceName',
-  },
-  {
-    title: '设备编号',
-    dataIndex: 'deviceCode',
-    key: 'deviceCode',
-  },
-  {
-    title: '设备类型',
-    dataIndex: 'categoryId',
-    key: 'categoryId',
-    width: '120px',
-    customRender: ({ text }) => {
-      if (!text) return '';
-      return findTreeNodeTitle(props.categoryTreeData, text) || text;
+const columns = ref<any[]>(
+  [
+    {
+      title: '序号',
+      dataIndex: 'index',
+      key: 'index',
+      width: '80px',
+      customRender: ({ index }) => index + 1, // 显示序号，从 1 开始
     },
-  },
-  {
-    title: '设备位置',
-    dataIndex: 'spaceId',
-    key: 'spaceId',
-    customRender: ({ text }) => {
-      if (!text) return '';
-      return findTreeNodeTitle(props.spaceTreeData, text) || text;
+    {
+      title: '设备名称',
+      dataIndex: 'deviceName',
+      key: 'deviceName',
+      minWidth: 80,
+      width: 120,
+      resizable: true,
+      sorter: (a, b) => a.deviceName.localeCompare(b.deviceName), // 自定义排序函数
+      sortDirections: ['ascend', 'descend'],
     },
-  },
-  {
-    title: '倍率',
-    dataIndex: 'magnification',
-    key: 'magnification',
-    width: '80px',
-  },
-  {
-    title: '状态',
-    dataIndex: 'runState',
-    key: 'runState',
-    width: '80px',
-  },
-  {
-    title: '最后通讯时间',
-    dataIndex: 'lastGatherTime',
-    key: 'lastGatherTime',
-  },
-  // {
-  //   title: '排序',
-  //   dataIndex: 'sort',
-  //   key: 'sort',
-  // },
-  {
-    title: '操作',
-    key: 'action',
-  },
-  {
-    title: '自动算法',
-    dataIndex: 'automaticAlgorithm',
-    key: 'automaticAlgorithm',
-  },
-];
+    {
+      title: '设备编号',
+      dataIndex: 'deviceCode',
+      key: 'deviceCode',
+      minWidth: 80,
+      width: 120,
+      resizable: true,
+      sorter: (a, b) => a.deviceCode.localeCompare(b.deviceCode), // 自定义排序函数
+      sortDirections: ['ascend', 'descend'],
+    },
+    {
+      title: '设备类型',
+      dataIndex: 'categoryId',
+      key: 'categoryId',
+      customRender: ({ text }) => {
+        if (!text) return '';
+        return findTreeNodeTitle(props.categoryTreeData, text) || text;
+      },
+      minWidth: 80,
+      width: 120,
+      resizable: true,
+    },
+    {
+      title: '设备位置',
+      dataIndex: 'spaceId',
+      key: 'spaceId',
+      customRender: ({ text }) => {
+        if (!text) return '';
+        return findTreeNodeTitle(props.spaceTreeData, text) || text;
+      },
+      minWidth: 80,
+      width: 120,
+      resizable: true,
+    },
+    {
+      title: '倍率',
+      dataIndex: 'magnification',
+      key: 'magnification',
+      minWidth: 80,
+      width: 120,
+      resizable: true,
+    },
+    {
+      title: '状态',
+      dataIndex: 'runState',
+      key: 'runState',
+      minWidth: 80,
+      width: 120,
+      resizable: true,
+    },
+    {
+      title: '最后通讯时间',
+      dataIndex: 'lastGatherTime',
+      key: 'lastGatherTime',
+      sorter: (a, b) => new Date(a.lastGatherTime).getTime() - new Date(b.lastGatherTime).getTime(), // 按时间戳排序
+      sortDirections: ['ascend', 'descend'],
+    },
+    // {
+    //   title: '排序',
+    //   dataIndex: 'sort',
+    //   key: 'sort',
+    // },
+    {
+      title: '操作',
+      key: 'action',
+    },
+    {
+      title: '自动算法',
+      dataIndex: 'automaticAlgorithm',
+      key: 'automaticAlgorithm',
+    },
+  ]
+);
 
 //表单搜索字段
 const searchFormSchema: FormSchema[] = [

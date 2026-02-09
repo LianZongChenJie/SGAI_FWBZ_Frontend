@@ -114,7 +114,7 @@ import { BasicModal, useModalInner } from '/@/components/Modal';
 import { BasicForm, useForm } from '/@/components/Form/index';
 import { PlusOutlined } from '@ant-design/icons-vue';
 import { TreeSelect } from 'ant-design-vue';
-import { saveOrUpdate, getDeviceAttribute, getListByDeviceId, saveData, addData, deleteItem } from '../Device.api';
+import { saveOrUpdate, getDeviceAttribute, getListByDeviceId, saveData, addData, deleteItem, spaceTree } from '../Device.api';
 import { cloneDeep } from 'lodash-es';
 import { message } from 'ant-design-vue';
 import type { UnwrapRef } from 'vue';
@@ -296,7 +296,7 @@ const [registerForm, { resetFields, setFieldsValue, validate, updateSchema }] = 
 });
 
 const [registerModal, { setModalProps, closeModal }] = useModalInner(async (data) => {
-
+  const res = await spaceTree({});
   // 设置树形数据
   const { categoryTreeData, spaceTreeData } = data;
   formSchema.forEach((schema) => {
@@ -304,7 +304,7 @@ const [registerModal, { setModalProps, closeModal }] = useModalInner(async (data
       schema.componentProps.treeData = categoryTreeData;
     }
     if (schema.field === 'spaceId') {
-      schema.componentProps.treeData = spaceTreeData;
+      schema.componentProps.treeData = res;
     }
   });
   resetFields();

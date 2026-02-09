@@ -118,11 +118,15 @@ const columns: BasicColumn[] = [
     title: '设备编号',
     dataIndex: 'deviceCode',
     key: 'deviceCode',
+    sorter: (a, b) => a.deviceCode.localeCompare(b.deviceCode), // 自定义排序函数
+    sortDirections: ['ascend', 'descend'],
   },
   {
     title: '设备名称',
     dataIndex: 'deviceName',
     key: 'deviceName',
+    sorter: (a, b) => a.deviceName.localeCompare(b.deviceName), // 自定义排序函数
+    sortDirections: ['ascend', 'descend'],
   },
   {
     title: '设备类型',
@@ -152,6 +156,8 @@ const columns: BasicColumn[] = [
     title: '起始时间',
     dataIndex: 'startTime',
     key: 'startTime',
+    sorter: (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime(), // 按时间戳排序
+    sortDirections: ['ascend', 'descend'],
   },
   {
     title: '起始值',
@@ -169,6 +175,8 @@ const columns: BasicColumn[] = [
     title: '结束时间',
     dataIndex: 'endTime',
     key: 'endTime',
+    sorter: (a, b) => new Date(a.endTime).getTime() - new Date(b.endTime).getTime(), // 按时间戳排序
+    sortDirections: ['ascend', 'descend'],
   },
   {
     title: '计算值',

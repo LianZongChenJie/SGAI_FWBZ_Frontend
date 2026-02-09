@@ -98,6 +98,8 @@ const columns: BasicColumn[] = [
     minWidth: 80,
     width: 120,
     resizable: true,
+    sorter: (a, b) => a.deviceCode.localeCompare(b.deviceCode), // 自定义排序函数
+    sortDirections: ['ascend', 'descend'],
   },
   {
     title: '设备名称',
@@ -106,6 +108,8 @@ const columns: BasicColumn[] = [
     minWidth: 80,
     width: 120,
     resizable: true,
+    sorter: (a, b) => a.deviceName.localeCompare(b.deviceName), // 自定义排序函数
+    sortDirections: ['ascend', 'descend'],
   },
   {
     title: '设备类型',
@@ -121,12 +125,14 @@ const columns: BasicColumn[] = [
   },
   {
     title: '设备位置',
-    dataIndex: 'spaceId',
-    key: 'spaceId',
-    customRender: ({ text }) => {
-      if (!text) return '';
-      return findTreeNodeTitle(spaceTreeData.value, text) || text;
-    },
+    dataIndex: 'spaceName',
+    key: 'spaceName',
+    // customRender: ({ text }) => {
+    //   if (!text) return '';
+    //   return findTreeNodeTitle(spaceTreeData.value, text) || text;
+    // },
+    sorter: (a, b) => a.spaceName.localeCompare(b.spaceName), // 自定义排序函数
+    sortDirections: ['ascend', 'descend'],
     minWidth: 80,
     width: 120,
     resizable: true,
@@ -138,14 +144,8 @@ const columns: BasicColumn[] = [
     minWidth: 80,
     width: 120,
     resizable: true,
-  },
-  {
-    title: '计算值',
-    dataIndex: 'value',
-    key: 'value',
-    minWidth: 80,
-    width: 120,
-    resizable: true,
+    sorter: (a, b) => new Date(a.lastGatherTime).getTime() - new Date(b.lastGatherTime).getTime(), // 按时间戳排序
+    sortDirections: ['ascend', 'descend'],
   },
   {
     title: '运行状态',
@@ -289,6 +289,9 @@ const loadData = async (pageParams) => {
   dataSource.value = res.records;
   pagination.value.total = res.total;
   pagination.value.pageSize = res.size;
+  res.records.forEach(item => {
+    item.spaceName = findTreeNodeTitle(spaceTreeData.value, item.spaceId)
+  })
   return {
     records: res.records, // 当前页数据
     total: res.total, // 总记录数

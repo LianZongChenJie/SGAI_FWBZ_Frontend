@@ -106,6 +106,7 @@ const toggleFullscreen = () => {
   width: 100%;
   background-image: url('/src/assets/images/largeScreenBackground.png');
   background-size: 100% 100%;
+  padding: 12px;
 
   .large-screen-border-box {
     height: 100%;

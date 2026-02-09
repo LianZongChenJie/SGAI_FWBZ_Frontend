@@ -88,29 +88,37 @@ const columns: BasicColumn[] = [
     title: '设备名称',
     dataIndex: 'deviceName',
     key: 'deviceName',
+    sorter: (a, b) => a.deviceName.localeCompare(b.deviceName), // 自定义排序函数
+    sortDirections: ['ascend', 'descend'],
   },
   {
     title: '设备编号',
     dataIndex: 'deviceCode',
     key: 'deviceCode',
+    sorter: (a, b) => a.deviceCode.localeCompare(b.deviceCode), // 自定义排序函数
+    sortDirections: ['ascend', 'descend'],
   },
   {
     title: '设备类型',
     dataIndex: 'categoryId',
     key: 'categoryId',
-    customRender: ({ text }) => {
-      if (!text) return '';
-      return findTreeNodeTitle(props.categoryTreeData, text) || text;
-    },
+    // customRender: ({ text }) => {
+    //   if (!text) return '';
+    //   return findTreeNodeTitle(props.categoryTreeData, text) || text;
+    // },
+    sorter: (a, b) => a.categoryId.localeCompare(b.categoryId), // 自定义排序函数
+    sortDirections: ['ascend', 'descend'],
   },
   {
     title: '设备位置',
-    dataIndex: 'spaceId',
-    key: 'spaceId',
-    customRender: ({ text }) => {
-      if (!text) return '';
-      return findTreeNodeTitle(props.spaceTreeData, text) || text;
-    },
+    dataIndex: 'spaceName',
+    key: 'spaceName',
+    // customRender: ({ text }) => {
+    //   if (!text) return '';
+    //   return findTreeNodeTitle(props.spaceTreeData, text) || text;
+    // },
+    sorter: (a, b) => a.spaceName.localeCompare(b.spaceName), // 自定义排序函数
+    sortDirections: ['ascend', 'descend'],
   },
   {
     title: '倍率',
@@ -202,6 +210,9 @@ const loadData = async (pageParams) => {
     };
     console.log('request params:', params); // 调试日志
     const res = await selectDevice(params);
+    res.records.forEach(item => {
+      item.spaceName = findTreeNodeTitle(props.categoryTreeData, item.spaceId)
+    })
     return {
       records: res.records, // 当前页数据
       total: res.total, // 总记录数

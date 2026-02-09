@@ -2,35 +2,21 @@
   <div class="device-table">
     <BasicTable @register="registerTable">
       <template #tableTitle>
-        <a-button
-          type="primary"
-          :icon="h(PlusOutlined)"
-          @click="handleCreated"
-        >新建</a-button>
-        <a-button
-          type="primary"
-          :icon="h(VerticalAlignBottomOutlined )"
-          @click="handleExport"
-        >导出</a-button>
+        <a-button type="primary" :icon="h(PlusOutlined)" @click="handleCreated">新建</a-button>
+        <a-button type="primary" :icon="h(VerticalAlignBottomOutlined)" @click="handleExport">导出</a-button>
       </template>
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'action'">
           <a-space>
             <a @click="handleEdit(record)">编辑</a>
             <a @click="handleDetail(record)">详情</a>
-            <a
-              @click="handleDelete(record)"
-              style="color: red;"
-            >删除</a>
+            <a @click="handleDelete(record)" style="color: red;">删除</a>
           </a-space>
         </template>
         <template v-else-if="column.key === 'automaticAlgorithm'">
           <!-- 自动算法 -->
-          <a-switch
-            :checked="record.automaticAlgorithm == '1'"
-            :disabled="false"
-            @change="(checked) => handleAutomaticAlgorithmChange(record, checked)"
-          />
+          <a-switch :checked="record.automaticAlgorithm == '1'" :disabled="false"
+            @change="(checked) => handleAutomaticAlgorithmChange(record, checked)" />
         </template>
       </template>
     </BasicTable>
@@ -92,29 +78,37 @@ const columns: BasicColumn[] = [
     title: '设备名称',
     dataIndex: 'deviceName',
     key: 'deviceName',
+    sorter: (a, b) => a.deviceName.localeCompare(b.deviceName), // 自定义排序函数
+    sortDirections: ['ascend', 'descend'],
   },
   {
     title: '设备编号',
     dataIndex: 'deviceCode',
     key: 'deviceCode',
+    sorter: (a, b) => a.deviceCode.localeCompare(b.deviceCode), // 自定义排序函数
+    sortDirections: ['ascend', 'descend'],
   },
   {
     title: '设备类型',
-    dataIndex: 'categoryId',
-    key: 'categoryId',
-    customRender: ({ text }) => {
-      if (!text) return '';
-      return findTreeNodeTitle(props.categoryTreeData, text) || text;
-    },
+    dataIndex: 'categoryName',
+    key: 'categoryName',
+    // customRender: ({ text }) => {
+    //   if (!text) return '';
+    //   return findTreeNodeTitle(props.categoryTreeData, text) || text;
+    // },
+    sorter: (a, b) => a.categoryName.localeCompare(b.categoryName), // 自定义排序函数
+    sortDirections: ['ascend', 'descend'],
   },
   {
     title: '设备位置',
-    dataIndex: 'spaceId',
-    key: 'spaceId',
-    customRender: ({ text }) => {
-      if (!text) return '';
-      return findTreeNodeTitle(props.spaceTreeData, text) || text;
-    },
+    dataIndex: 'spaceName',
+    key: 'spaceName',
+    // customRender: ({ text }) => {
+    //   if (!text) return '';
+    //   return findTreeNodeTitle(props.spaceTreeData, text) || text;
+    // },
+    sorter: (a, b) => a.spaceName.localeCompare(b.spaceName), // 自定义排序函数
+    sortDirections: ['ascend', 'descend'],
   },
   {
     title: '状态',
@@ -126,6 +120,8 @@ const columns: BasicColumn[] = [
     title: '最后通讯时间',
     dataIndex: 'lastGatherTime',
     key: 'lastGatherTime',
+    sorter: (a, b) => new Date(a.lastGatherTime).getTime() - new Date(b.lastGatherTime).getTime(), // 按时间戳排序
+    sortDirections: ['ascend', 'descend'],
   },
   // {
   //   title: '倍率',
@@ -243,6 +239,10 @@ const loadData = async (pageParams) => {
     };
     console.log('request params:', params); // 调试日志
     const res = await selectDevice(params);
+    res.records.forEach(item => {
+      item.categoryName = findTreeNodeTitle(props.categoryTreeData, item.categoryId)
+      item.spaceName = findTreeNodeTitle(props.spaceTreeData, item.spaceId)
+    })
     return {
       records: res.records, // 当前页数据
       total: res.total, // 总记录数
@@ -304,15 +304,15 @@ watch(
 
 const handleExport = async () => {
   let { getFieldsValue } = getForm();
-    const searchData = getFieldsValue();
+  const searchData = getFieldsValue();
   let res = await exportData({
     nameOrCode: searchData.deviceName ? searchData.deviceName.split('*')[1] : undefined,
-      runState: searchData.runState ? searchData.runState : undefined,
-      categoryIds: props.categoryKeys ? props.categoryKeys.join(',') : undefined,
-      spaceIds: props.spaceKeys ? props.spaceKeys.join(',') : undefined,
-      deviceType: '1'
+    runState: searchData.runState ? searchData.runState : undefined,
+    categoryIds: props.categoryKeys ? props.categoryKeys.join(',') : undefined,
+    spaceIds: props.spaceKeys ? props.spaceKeys.join(',') : undefined,
+    deviceType: '2'
   });
-  let name = '仪表台账';
+  let name = '楼控设备';
   let blobOptions = { type: 'application/vnd.ms-excel' };
   let fileSuffix = '.xls';
   let url = window.URL.createObjectURL(new Blob([res], blobOptions));
@@ -327,7 +327,7 @@ const handleExport = async () => {
 };
 
 // 初始加载
-onMounted(() => {});
+onMounted(() => { });
 
 // 操作方法
 const handleEdit = (record: any) => {
@@ -358,5 +358,4 @@ defineExpose({
 });
 </script>
 
-<style lang="less" scoped>
-</style>
+<style lang="less" scoped></style>

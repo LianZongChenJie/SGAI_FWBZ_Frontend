@@ -5,6 +5,7 @@ const { createConfirm } = useMessage();
 enum Api {
   categoryTree = '/bems/equipmentCategory/equipment/getTree',
   spaceTree = '/bems/space/getTree',
+  spaceTree2 = '/bems/space/getTreeByDeviceType',
   addDevice = '/bems/device/equipment/add',
   editDevice = '/bems/device/edit',
   deleteDevice = '/bems/device/delete',
@@ -49,6 +50,11 @@ export const categoryTree = (params) => defHttp.get({ url: Api.categoryTree, par
  * 空间树
  */
 export const spaceTree = () => defHttp.get({ url: Api.spaceTree });
+
+/**
+ * 空间树
+ */
+export const spaceTree2 = (params) => defHttp.get({ url: Api.spaceTree2, params }, { joinParamsToUrl: true });
 
 /**
  * 保存或者更新

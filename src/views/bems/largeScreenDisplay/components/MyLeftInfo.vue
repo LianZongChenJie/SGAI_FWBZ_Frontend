@@ -674,7 +674,8 @@ onUnmounted(() => {
   .charts-box {
     padding-left: 2%;
     width: 100%;
-    height: calc(88.5% - 40px);
+    height: calc(88.5% - 64px);
+    margin-top: 12px;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -740,51 +741,56 @@ onUnmounted(() => {
       }
     }
 
+    .water-chart-box {
+      margin-top: 12px;
+    }
+
     .electricity-ranking-box {
       background-image: url('@/assets/images/electricityRanking.png');
       margin-left: 2%;
+      margin-top: 12px;
 
-      .my-tab-button{
-        width: 100%;
-        height: 36px;
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        padding-right: 12px;
+      // .my-tab-button{
+      //   width: 100%;
+      //   height: 36px;
+      //   display: flex;
+      //   align-items: center;
+      //   justify-content: flex-end;
+      //   padding-right: 12px;
 
-        >div {
-          height: 100%;
-          width: 180px;
-          border: 1px solid #4affff;
-          border-radius: 10px;
-          display: flex;
-          justify-content: space-around;
-          align-items: center;
+      //   >div {
+      //     height: 100%;
+      //     width: 180px;
+      //     border: 1px solid #4affff;
+      //     border-radius: 10px;
+      //     display: flex;
+      //     justify-content: space-around;
+      //     align-items: center;
 
-          >div {
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            height: 70%;
+      //     >div {
+      //       color: #fff;
+      //       display: flex;
+      //       align-items: center;
+      //       justify-content: center;
+      //       font-size: 16px;
+      //       height: 70%;
 
-            &:hover {
-              cursor: pointer;
-            }
-          }
+      //       &:hover {
+      //         cursor: pointer;
+      //       }
+      //     }
 
-          #selectTarget {
-            border-bottom: 2px solid #4afefe;
-          }
+      //     #selectTarget {
+      //       border-bottom: 2px solid #4afefe;
+      //     }
 
-          .border-box{
-            height: 90%;
-            width: 0;
-            border-left: 2px solid #246b82;
-          }
-        }
-      }
+      //     .border-box{
+      //       height: 90%;
+      //       width: 0;
+      //       border-left: 2px solid #246b82;
+      //     }
+      //   }
+      // }
 
       #rankingChart{
         height: calc(82%);

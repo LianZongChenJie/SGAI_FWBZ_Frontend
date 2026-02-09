@@ -12,23 +12,45 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch, nextTick } from 'vue';
 import DeviceSpace from './components/DeviceSpace.vue';
 import DeviceCategory from './components/DeviceCategory.vue';
-import { categoryTree, spaceTree } from './Device.api';
+import { categoryTree, spaceTree, spaceTree2 } from './Device.api';
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
 
 const activeKey = ref('1');
-const categoryTreeData = ref<any>([]);
+const categoryTreeData:any = ref([]);
 const spaceTreeData = ref([]);
+
+// 递归获取所有节点的key
+const getAllNodeKeys = (treeData: any[]): string[] => {
+  const keys: string[] = [];
+
+  const traverse = (nodes: any[]) => {
+    nodes.forEach(node => {
+      if (node.key) {
+        keys.push(node.key.toString());
+      }
+      if (node.children && node.children.length > 0) {
+        traverse(node.children);
+      }
+    });
+  };
+
+  if (treeData && treeData.length > 0) {
+    traverse(treeData);
+  }
+
+  return keys;
+};
 
 // 获取设备类别树数据
 const getCategoryTree = async () => {
   try {
     const res = await categoryTree({});
-    // categoryTreeData.value = res;
+    // allCategoryKeys.value = res;
     
     const ids = route.path.split('_')[1].split('=')[1].split(',')
     ids.forEach(item => {
@@ -42,7 +64,11 @@ const getCategoryTree = async () => {
 // 获取设备位置树数据
 const getSpaceTree = async () => {
   try {
-    const res = await spaceTree({});
+    // const res = await spaceTree({});
+    const res = await spaceTree2({
+      categoryIds: getAllNodeKeys(categoryTreeData.value).join(','),
+      deviceType: 1,
+    });
     spaceTreeData.value = res;
   } catch (error) {
     console.error('获取设备位置失败:', error);
@@ -70,9 +96,9 @@ const findTreeNodeById = (tree, id) => {
   return findNode(tree)
 }
 
-onMounted(() => {
-  getCategoryTree();
-  getSpaceTree();
+onMounted(async () => {
+  await getCategoryTree();
+  await getSpaceTree();
 });
 </script>
 
