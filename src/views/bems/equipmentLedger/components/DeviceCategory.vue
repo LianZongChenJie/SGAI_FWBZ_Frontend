@@ -59,6 +59,7 @@
   const props = defineProps<{
     treeData: any[]; // categoryTreeData
     spaceTreeData: any[]; // spaceTreeData
+    getTreeData: Function;
   }>();
 
   const [registerModal, { openModal }] = useModal();
@@ -100,6 +101,7 @@
 
   // 表单提交成功后的回调
   function handleSuccess() {
+    props.getTreeData()
     deviceTableRef.value?.reload();
   }
 

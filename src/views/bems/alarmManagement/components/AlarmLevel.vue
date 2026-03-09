@@ -3,44 +3,23 @@
     <BasicTable @register="registerTable">
       <!-- 表格顶部按钮 -->
       <template #tableTitle>
-        <a-button
-          v-if="hasPermission('bems:device_data:amend')"
-          type="primary"
-          :icon="h(EditOutlined)"
-          @click="addAlarmLevel"
-        > 新增 </a-button>
+        <a-button v-if="hasPermission('bems:alarmLevel:add')" type="primary" :icon="h(EditOutlined)"
+          @click="addAlarmLevel"> 新增 </a-button>
       </template>
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'active'">
           <a-space>
-            <a @click.stop="handleEdit(record)">编辑</a>
-            <a-popconfirm
-              v-if="!Number(record.status)"
-              title="是否启用？"
-              ok-text="确定"
-              cancel-text="取消"
-              @confirm="handleEnable(record)"
-            >
+            <a v-if="hasPermission('bems:alarmLevel:edit')" @click.stop="handleEdit(record)">编辑</a>
+            <a-popconfirm v-if="!Number(record.status) && hasPermission('bems:alarmLevel:startLevel')" title="是否启用？"
+              ok-text="确定" cancel-text="取消" @confirm="handleEnable(record)">
               <a @click.stop>启用</a>
             </a-popconfirm>
-            <a-popconfirm
-              v-else
-              title="是否停用？"
-              ok-text="确定"
-              cancel-text="取消"
-              @confirm="handleDisable(record)"
-            >
-              <a
-                @click.stop
-                style="color: red;"
-              >停用</a>
+            <a-popconfirm v-if="Number(record.status) && hasPermission('bems:alarmLevel:stopLevel')" title="是否停用？"
+              ok-text="确定" cancel-text="取消" @confirm="handleDisable(record)">
+              <a @click.stop style="color: red;">停用</a>
             </a-popconfirm>
-            <a-popconfirm
-              title="是否删除？"
-              ok-text="确定"
-              cancel-text="取消"
-              @confirm="handleDelete(record)"
-            >
+            <a-popconfirm v-if="hasPermission('bems:alarmLevel:delete')" title="是否删除？" ok-text="确定" cancel-text="取消"
+              @confirm="handleDelete(record)">
               <a style="color: red;">删除</a>
             </a-popconfirm>
           </a-space>
@@ -48,10 +27,7 @@
       </template>
     </BasicTable>
     <div class="info-box">
-      <add-alarm-level-modal
-        ref="levelModalRef"
-        :reload="reload"
-      />
+      <add-alarm-level-modal ref="levelModalRef" :reload="reload" />
     </div>
   </div>
 </template>
@@ -165,7 +141,7 @@ const { tableContext } = useListPage({
     showActionColumn: false,
     size: 'middle',
     rowKey: 'id',
-    showTableSetting:false,
+    showTableSetting: false,
     pagination: {
       pageSize: 10,
       showSizeChanger: true,
@@ -280,6 +256,7 @@ onBeforeUnmount(() => {
   margin-left: 10px;
   font-size: 16px;
 }
+
 .info-box {
   .info-title {
     height: 40px;
@@ -292,8 +269,10 @@ onBeforeUnmount(() => {
     background-color: #374352;
     border-radius: 5px 5px 0 0;
   }
+
   .info-list {
     padding: 16px;
+
     .list-title {
       width: 100%;
       height: 40px;
@@ -302,6 +281,7 @@ onBeforeUnmount(() => {
       align-items: center;
       border-bottom: 1px solid #d4d0d0;
     }
+
     .list-form {
       width: 100%;
       margin-top: 16px;

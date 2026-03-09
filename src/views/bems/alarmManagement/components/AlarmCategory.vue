@@ -15,7 +15,7 @@
           <a-space>
             <a @click.stop="handleEdit(record)">编辑</a>
             <a-popconfirm
-              v-if="!Number(record.status)"
+              v-if="!Number(record.status) && hasPermission('bems:alarmCategory:startCategory')"
               title="是否启用？"
               ok-text="确定"
               cancel-text="取消"
@@ -24,7 +24,7 @@
               <a @click.stop>启用</a>
             </a-popconfirm>
             <a-popconfirm
-              v-else
+              v-if="Number(record.status) && hasPermission('bems:alarmCategory:stopCategory')"
               title="是否停用？"
               ok-text="确定"
               cancel-text="取消"
@@ -36,6 +36,7 @@
               >停用</a>
             </a-popconfirm>
             <a-popconfirm
+            v-if="hasPermission('bems:alarmCategory:delete')"
               title="是否删除？"
               ok-text="确定"
               cancel-text="取消"

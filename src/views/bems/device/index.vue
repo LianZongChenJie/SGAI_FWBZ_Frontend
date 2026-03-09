@@ -2,7 +2,7 @@
   <div class="device_index">
     <a-tabs v-model:activeKey="activeKey" centered class="full-height-tabs">
       <a-tab-pane key="1" tab="设备类别">
-        <DeviceCategory :tree-data="categoryTreeData" :space-tree-data="spaceTreeData" />
+        <DeviceCategory :tree-data="categoryTreeData" :space-tree-data="spaceTreeData" :getTreeData="getTreeData"/>
       </a-tab-pane>
       <a-tab-pane key="2" tab="空间位置">
         <DeviceSpace :category-tree-data="categoryTreeData" :space-tree-data="spaceTreeData" />
@@ -53,6 +53,7 @@ const getCategoryTree = async () => {
     // allCategoryKeys.value = res;
     
     const ids = route.path.split('_')[1].split('=')[1].split(',')
+    categoryTreeData.value = []
     ids.forEach(item => {
       categoryTreeData.value.push(findTreeNodeById(res, item))
     })
@@ -94,6 +95,11 @@ const findTreeNodeById = (tree, id) => {
   }
 
   return findNode(tree)
+}
+
+const getTreeData = async () => {
+  await getCategoryTree()
+  await getSpaceTree()
 }
 
 onMounted(async () => {

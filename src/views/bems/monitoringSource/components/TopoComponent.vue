@@ -41,7 +41,7 @@
       </div>
     </div>
     <FullScreenModal
-      :path="topoPath"
+      :path="fullScreenPath"
       ref="fullScreenModalRef"
     />
   </div>
@@ -93,6 +93,7 @@ const treeData = ref([
 const checkedKeys = ref<string[]>(['2']);
 
 const topoPath = ref<any>('jinAnQiao/zongPeiDian.json');
+const fullScreenPath = ref<any>('/zongPeiDian.json');
 
 const handleSelect = (keys, e, selectedNodes) => {
   // 强制单选：数组长度最多为1
@@ -165,6 +166,8 @@ const initEvent = async () => {
 const fullScreen = (type) => {
   isFull.value = type;
   if (type) {
+    fullScreenPath.value = topoPath.value.split('/')[1]
+
     fullScreenModalRef.value.showModal();
   } else {
   }

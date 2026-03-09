@@ -2,7 +2,7 @@
   <div class="device_index">
     <a-tabs v-model:activeKey="activeKey" type="card" class="full-height-tabs">
       <a-tab-pane key="1" tab="设备类别">
-        <DeviceCategory :tree-data="categoryTreeData" :space-tree-data="spaceTreeData" />
+        <DeviceCategory :tree-data="categoryTreeData" :space-tree-data="spaceTreeData" :getTreeData="getTreeData"/>
       </a-tab-pane>
       <a-tab-pane key="2" tab="空间位置">
         <DeviceSpace :category-tree-data="categoryTreeData" :space-tree-data="spaceTreeData" />
@@ -76,6 +76,11 @@ const getAllNodeKeys = (treeData: any[]): string[] => {
       console.error('获取设备位置失败:', error);
     }
   };
+
+  const getTreeData = async () => {
+  await getCategoryTree()
+  await getSpaceTree()
+}
 
   onMounted(async () => {
     await getCategoryTree();

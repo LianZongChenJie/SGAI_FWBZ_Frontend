@@ -43,6 +43,7 @@ const detailModalRef = ref();
 const props = defineProps<{
   treeData: any[]; // categoryTreeData
   spaceTreeData: any[]; // spaceTreeData
+  getTreeData: Function;
 }>();
 
 // 监听 treeData 变化，当数据加载后自动勾选所有节点
@@ -123,6 +124,7 @@ const handleEdit = (record: any) => {
 
 // 表单提交成功后的回调
 function handleSuccess() {
+  props.getTreeData()
   deviceTableRef.value?.reload();
 }
 

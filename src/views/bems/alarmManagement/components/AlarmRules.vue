@@ -7,7 +7,7 @@
       </template>
       <!-- 表格顶部按钮 -->
       <template #tableTitle>
-        <a-button v-if="hasPermission('bems:device_data:amend')" type="primary" :icon="h(EditOutlined)"
+        <a-button v-if="hasPermission('bems:alarmRule:add')" type="primary" :icon="h(EditOutlined)"
           @click="addStrategy"> 新增 </a-button>
       </template>
       <template #bodyCell="{ column, record }">
@@ -25,13 +25,13 @@
           <!-- 自动算法 -->
           <a-switch
             :checked="record.enabledStatus == '1'"
-            :disabled="false"
+            :disabled="(record.enabledStatus == '1') ? !hasPermission('bems:alarmRule:startRule') : !hasPermission('bems:alarmRule:stopRule')"
             @change="(checked) => handleAutomaticAlgorithmChange(record, checked)"
           />
         </template>
         <template v-if="column.key === 'action'">
           <a-space>
-            <a @click="handleEdit(record)">编辑</a>
+            <a v-if="hasPermission('bems:alarmRule:edit')" @click="handleEdit(record)">编辑</a>
             <a @click="checkDetail(record)">详情</a>
             
             <a-popconfirm title="确认删除该条数据？" ok-text="确定" cancel-text="取消" @confirm="confirmDelete(record)">
