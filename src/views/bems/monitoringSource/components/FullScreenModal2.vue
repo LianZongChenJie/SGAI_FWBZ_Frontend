@@ -111,15 +111,29 @@ const initEvent = async () => {
     console.log('isControlArr--------------------->', isControlArr.value);
 
     if (props.path === 'songPaiFengItem.json') {
-      console.log('isControlArr--------------------->', isControlArr.value.find(item => item.attributeCode === 'AUTO_MANUAL_STATUS').value);
       dm.getDataByTag('spfjItem').a('deviceCode', props.deviceCode)
-      dm.getDataByTag('spfjItem').a('szd', isControlArr.value.find(item => item.attributeCode === 'AUTO_MANUAL_STATUS').value + (isControlArr.value.find(item => item.attributeCode === 'AUTO_MANUAL_STATUS').unit ? isControlArr.value.find(item => item.attributeCode === 'AUTO_MANUAL_STATUS').unit : ''))
-      dm.getDataByTag('spfjItem').a('qtkz', isControlArr.value.find(item => item.attributeCode === 'START_STOP_CTRL').value + (isControlArr.value.find(item => item.attributeCode === 'START_STOP_CTRL').unit ? isControlArr.value.find(item => item.attributeCode === 'START_STOP_CTRL').unit : ''))
+      // dm.getDataByTag('spfjItem').a('szd', isControlArr.value.find(item => item.attributeCode === 'AUTO_MANUAL_STATUS').value + (isControlArr.value.find(item => item.attributeCode === 'AUTO_MANUAL_STATUS').unit ? isControlArr.value.find(item => item.attributeCode === 'AUTO_MANUAL_STATUS').unit : ''))
+      // dm.getDataByTag('spfjItem').a('qtkz', isControlArr.value.find(item => item.attributeCode === 'START_STOP_CTRL').value + (isControlArr.value.find(item => item.attributeCode === 'START_STOP_CTRL').unit ? isControlArr.value.find(item => item.attributeCode === 'START_STOP_CTRL').unit : ''))
+      if (isControlArr.value.find(item => item.attributeCode === 'AUTO_MANUAL_STATUS').value === '0') {
+        dm.getDataByTag('spfjItem').a('szd', '停止')
+      } else {
+        dm.getDataByTag('spfjItem').a('szd', '运行')
+      }
+      if (isControlArr.value.find(item => item.attributeCode === 'START_STOP_CTRL').value === '0') {
+        dm.getDataByTag('spfjItem').a('qtkz', '手动')
+      } else {
+        dm.getDataByTag('spfjItem').a('qtkz', '自动')
+      }
       dm.getDataByTag('spfjItem').a('yxzt', isControlArr.value.find(item => item.attributeCode === 'RUNNING_STATUS').value + (isControlArr.value.find(item => item.attributeCode === 'RUNNING_STATUS').unit ? isControlArr.value.find(item => item.attributeCode === 'RUNNING_STATUS').unit : ''))
       dm.getDataByTag('spfjItem').a('fjgz', isControlArr.value.find(item => item.attributeCode === 'FAN_FAULT_SIGNAL').value + (isControlArr.value.find(item => item.attributeCode === 'FAN_FAULT_SIGNAL').unit ? isControlArr.value.find(item => item.attributeCode === 'FAN_FAULT_SIGNAL').unit : ''))
     } else {
       dm.getDataByTag('jiSHuiKengItem').a('deviceCode', props.deviceCode)
-      dm.getDataByTag('jiSHuiKengItem').a('szd', isControlArr.value.find(item => item.attributeCode === 'HOA').value + (isControlArr.value.find(item => item.attributeCode === 'HOA').unit ? isControlArr.value.find(item => item.attributeCode === 'HOA').unit : ''))
+      // dm.getDataByTag('jiSHuiKengItem').a('szd', isControlArr.value.find(item => item.attributeCode === 'HOA').value + (isControlArr.value.find(item => item.attributeCode === 'HOA').unit ? isControlArr.value.find(item => item.attributeCode === 'HOA').unit : ''))
+      if (isControlArr.value.find(item => item.attributeCode === 'HOA').value === '0') {
+              dm.getDataByTag('jiSHuiKengItem').a('szd', '停止')
+            } else {
+              dm.getDataByTag('jiSHuiKengItem').a('szd', '运行')
+            }
       dm.getDataByTag('jiSHuiKengItem').a('gyw', isControlArr.value.find(item => item.attributeCode === 'HIGH_LEVEL_ALARM').value + (isControlArr.value.find(item => item.attributeCode === 'HIGH_LEVEL_ALARM').unit ? isControlArr.value.find(item => item.attributeCode === 'HIGH_LEVEL_ALARM').unit : ''))
       if (isControlArr.value.find(item => item.attributeCode === 'PUMP1_OVERLOAD_ALARM').value === '1') {
         dm.getDataByTag('jiSHuiKengItem').a('1#gzbj', 'rgb(242,83,75)')

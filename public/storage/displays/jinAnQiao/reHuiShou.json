@@ -4,11 +4,13 @@
     "autoAdjustIndex": true,
     "hierarchicalRendering": true
   },
-  "a": {},
+  "a": {
+    "onPostDeserialize": "__ht__function(json, dm, view, datas) {// 扇叶\r\nfunction animFans() {\r\n\tht.Default.startAnim({\r\n\t\tduration: 5000,\r\n\t\teasing: function (t) { return t  },\r\n\t\taction: function (v, t) {\r\n            var num = 0;\r\n            if(dm.getDataByTag('sfj-tzqd').a('baoJing') && dm.getDataByTag('sfj-tzqd').a('baoJing') === '停止') {\r\n                dm.getDataByTag('fan1').a('rotation', 0 );\r\n            } else{\r\n                dm.getDataByTag('fan1').a('rotation', 0 + (Math.PI * 12 - 0) * v);\r\n            }\r\n\r\n            if(dm.getDataByTag('pfj-tzqd').a('baoJing') && dm.getDataByTag('pfj-tzqd').a('baoJing') === '停止') {\r\n                dm.getDataByTag('fan2').a('rotation', 0 );\r\n            } else{\r\n                dm.getDataByTag('fan2').a('rotation', 0 + (Math.PI * 12 - 0) * v);\r\n            }\r\n\t\t},\r\n\t\tfinishFunc: function () {\r\n\t\t\tanimFans();\r\n\t\t}\r\n\t});\r\n}\r\nanimFans();}"
+  },
   "d": [
     {
       "c": "ht.Node",
-      "i": 7096,
+      "i": 14055,
       "p": {
         "displayName": "Humidity Sensor",
         "image": "storage/symbols/Building Control Major/HVAC/Humidity Sensor.json",
@@ -24,7 +26,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7097,
+      "i": 14056,
       "p": {
         "displayName": "Humidity Sensor",
         "image": "storage/symbols/Building Control Major/HVAC/Humidity Sensor.json",
@@ -40,7 +42,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7098,
+      "i": 14057,
       "p": {
         "displayName": "Humidity Sensor",
         "image": "storage/symbols/Building Control Major/HVAC/Humidity Sensor.json",
@@ -56,7 +58,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7099,
+      "i": 14058,
       "p": {
         "displayName": "Humidity Sensor",
         "image": "storage/symbols/Building Control Major/HVAC/Humidity Sensor.json",
@@ -72,7 +74,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7100,
+      "i": 14059,
       "p": {
         "displayName": "Humidity Sensor",
         "image": "storage/symbols/Building Control Major/HVAC/Humidity Sensor.json",
@@ -87,7 +89,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7101,
+      "i": 14060,
       "p": {
         "displayName": "Humidity Sensor",
         "image": "storage/symbols/Building Control Major/HVAC/Humidity Sensor.json",
@@ -102,7 +104,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7102,
+      "i": 14061,
       "p": {
         "displayName": "Humidity Sensor",
         "image": "storage/symbols/Building Control Major/HVAC/Humidity Sensor.json",
@@ -118,7 +120,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7103,
+      "i": 14062,
       "p": {
         "displayName": "Wind tunnel",
         "image": "storage/symbols/Building Control Major/HVAC/Wind tunnel.json",
@@ -133,7 +135,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7104,
+      "i": 14063,
       "p": {
         "displayName": "resource3",
         "image": "storage/symbols/Building Control Major/HVAC/resource3.json",
@@ -148,7 +150,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7105,
+      "i": 14064,
       "p": {
         "position": {
           "x": 805.96664,
@@ -168,7 +170,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7106,
+      "i": 14065,
       "p": {
         "position": {
           "x": 688.89307,
@@ -188,7 +190,7 @@
     },
     {
       "c": "ht.Shape",
-      "i": 7107,
+      "i": 14066,
       "p": {
         "rotation": 3.14159,
         "position": {
@@ -230,7 +232,7 @@
     },
     {
       "c": "ht.Shape",
-      "i": 7108,
+      "i": 14067,
       "p": {
         "rotation": 3.14159,
         "position": {
@@ -272,7 +274,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7109,
+      "i": 14068,
       "p": {
         "displayName": "Wind tunnel",
         "image": "storage/symbols/Building Control Major/HVAC/Wind tunnel.json",
@@ -287,7 +289,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7110,
+      "i": 14069,
       "p": {
         "position": {
           "x": 186.32118,
@@ -307,7 +309,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7111,
+      "i": 14070,
       "p": {
         "position": {
           "x": 186.32118,
@@ -327,7 +329,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7112,
+      "i": 14071,
       "p": {
         "position": {
           "x": 345.75039,
@@ -345,7 +347,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7113,
+      "i": 14072,
       "p": {
         "position": {
           "x": 345.75039,
@@ -365,9 +367,10 @@
     },
     {
       "c": "ht.Node",
-      "i": 7114,
+      "i": 14073,
       "p": {
         "displayName": "Inverter fan2",
+        "tag": "fan2",
         "image": "storage/symbols/Building Control Major/HVAC/Inverter fan2.json",
         "position": {
           "x": 745.46473,
@@ -380,7 +383,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7115,
+      "i": 14074,
       "p": {
         "displayName": "resource4",
         "image": "storage/symbols/Building Control Major/HVAC/resource4.json",
@@ -395,7 +398,7 @@
     },
     {
       "c": "ht.Shape",
-      "i": 7116,
+      "i": 14075,
       "p": {
         "position": {
           "x": 566.89772,
@@ -471,7 +474,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7117,
+      "i": 14076,
       "p": {
         "position": {
           "x": 595.38329,
@@ -490,7 +493,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7118,
+      "i": 14077,
       "p": {
         "position": {
           "x": -28.52952,
@@ -510,7 +513,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7119,
+      "i": 14078,
       "p": {
         "position": {
           "x": -28.52952,
@@ -530,9 +533,10 @@
     },
     {
       "c": "ht.Node",
-      "i": 7120,
+      "i": 14079,
       "p": {
         "displayName": "Inverter fan2",
+        "tag": "fan1",
         "image": "storage/symbols/Building Control Major/HVAC/Inverter fan2.json",
         "position": {
           "x": 232.5329,
@@ -545,7 +549,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7121,
+      "i": 14080,
       "p": {
         "displayName": "resource4",
         "image": "storage/symbols/Building Control Major/HVAC/resource4.json",
@@ -560,7 +564,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7122,
+      "i": 14081,
       "p": {
         "displayName": "Surface cooler",
         "image": "storage/symbols/Building Control Major/HVAC/Surface cooler.json",
@@ -575,7 +579,7 @@
     },
     {
       "c": "ht.Text",
-      "i": 7123,
+      "i": 14082,
       "p": {
         "dataBindings": {
           "s": {}
@@ -595,7 +599,7 @@
     },
     {
       "c": "ht.Text",
-      "i": 7124,
+      "i": 14083,
       "p": {
         "dataBindings": {
           "s": {}
@@ -615,7 +619,7 @@
     },
     {
       "c": "ht.Text",
-      "i": 7125,
+      "i": 14084,
       "p": {
         "dataBindings": {
           "s": {}
@@ -635,7 +639,7 @@
     },
     {
       "c": "ht.Text",
-      "i": 7126,
+      "i": 14085,
       "p": {
         "dataBindings": {
           "s": {}
@@ -655,7 +659,7 @@
     },
     {
       "c": "ht.Text",
-      "i": 7127,
+      "i": 14086,
       "p": {
         "dataBindings": {
           "s": {}
@@ -675,7 +679,7 @@
     },
     {
       "c": "ht.Text",
-      "i": 7128,
+      "i": 14087,
       "p": {
         "dataBindings": {
           "s": {}
@@ -695,7 +699,7 @@
     },
     {
       "c": "ht.Text",
-      "i": 7129,
+      "i": 14088,
       "p": {
         "dataBindings": {
           "s": {}
@@ -715,7 +719,7 @@
     },
     {
       "c": "ht.Text",
-      "i": 7130,
+      "i": 14089,
       "p": {
         "dataBindings": {
           "s": {}
@@ -735,7 +739,7 @@
     },
     {
       "c": "ht.Text",
-      "i": 7131,
+      "i": 14090,
       "p": {
         "dataBindings": {
           "s": {}
@@ -755,7 +759,7 @@
     },
     {
       "c": "ht.Text",
-      "i": 7132,
+      "i": 14091,
       "p": {
         "dataBindings": {
           "s": {}
@@ -775,7 +779,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7133,
+      "i": 14092,
       "p": {
         "position": {
           "x": 108.41624,
@@ -795,7 +799,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7134,
+      "i": 14093,
       "p": {
         "position": {
           "x": 108.41624,
@@ -815,7 +819,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7135,
+      "i": 14094,
       "p": {
         "position": {
           "x": 1188.64887,
@@ -835,7 +839,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7136,
+      "i": 14095,
       "p": {
         "position": {
           "x": 1188.64887,
@@ -855,7 +859,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7137,
+      "i": 14096,
       "p": {
         "position": {
           "x": 1387.79094,
@@ -875,7 +879,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7138,
+      "i": 14097,
       "p": {
         "position": {
           "x": 1387.79094,
@@ -895,7 +899,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7139,
+      "i": 14098,
       "p": {
         "displayName": "resouce2",
         "image": "storage/symbols/Building Control Major/HVAC/resouce2.json",
@@ -911,7 +915,7 @@
     },
     {
       "c": "ht.Text",
-      "i": 7140,
+      "i": 14099,
       "p": {
         "dataBindings": {
           "s": {}
@@ -931,7 +935,7 @@
     },
     {
       "c": "ht.Text",
-      "i": 7141,
+      "i": 14100,
       "p": {
         "dataBindings": {
           "s": {}
@@ -951,7 +955,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7142,
+      "i": 14101,
       "p": {
         "position": {
           "x": 171.49254,
@@ -970,7 +974,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7143,
+      "i": 14102,
       "p": {
         "position": {
           "x": 339.6754,
@@ -989,7 +993,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7144,
+      "i": 14103,
       "p": {
         "position": {
           "x": -18.15841,
@@ -1008,7 +1012,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7145,
+      "i": 14104,
       "p": {
         "position": {
           "x": 119.3448,
@@ -1027,7 +1031,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7146,
+      "i": 14105,
       "p": {
         "position": {
           "x": 242.52574,
@@ -1046,7 +1050,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7147,
+      "i": 14106,
       "p": {
         "position": {
           "x": 395.79435,
@@ -1065,7 +1069,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7148,
+      "i": 14107,
       "p": {
         "position": {
           "x": 484.36338,
@@ -1084,7 +1088,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7149,
+      "i": 14108,
       "p": {
         "position": {
           "x": 746.51153,
@@ -1103,7 +1107,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7150,
+      "i": 14109,
       "p": {
         "position": {
           "x": 1195.03479,
@@ -1122,7 +1126,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7151,
+      "i": 14110,
       "p": {
         "position": {
           "x": 1393.48958,
@@ -1141,7 +1145,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7152,
+      "i": 14111,
       "p": {
         "position": {
           "x": 395.79435,
@@ -1160,7 +1164,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7153,
+      "i": 14112,
       "p": {
         "displayName": "wenDu",
         "tag": "songFengWenDu",
@@ -1173,7 +1177,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7154,
+      "i": 14113,
       "p": {
         "displayName": "shiDu",
         "tag": "songFengShiDu",
@@ -1186,7 +1190,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7155,
+      "i": 14114,
       "p": {
         "displayName": "wenDu",
         "tag": "huiFengWenDu",
@@ -1199,7 +1203,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7156,
+      "i": 14115,
       "p": {
         "displayName": "shiDu",
         "tag": "huiFengShiDu",
@@ -1212,7 +1216,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7157,
+      "i": 14116,
       "p": {
         "displayName": "baoJing",
         "tag": "xongFengJiYaCha",
@@ -1225,7 +1229,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7158,
+      "i": 14117,
       "p": {
         "displayName": "baoJing",
         "tag": "fangDong",
@@ -1241,7 +1245,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7159,
+      "i": 14118,
       "p": {
         "displayName": "kaiDu",
         "tag": "shuiFaKaiDuSheDinfg",
@@ -1254,7 +1258,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7160,
+      "i": 14119,
       "p": {
         "displayName": "fanKui",
         "tag": "shuiFaKaiDuFanKui",
@@ -1267,7 +1271,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7161,
+      "i": 14120,
       "p": {
         "displayName": "baoJing",
         "tag": "lvWangYaCha",
@@ -1283,7 +1287,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7162,
+      "i": 14121,
       "p": {
         "displayName": "wenDu",
         "tag": "xinFengWenDu",
@@ -1296,7 +1300,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7163,
+      "i": 14122,
       "p": {
         "displayName": "shiDu",
         "tag": "xinFengShiDu",
@@ -1309,7 +1313,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7319,
+      "i": 14123,
       "p": {
         "displayName": "deviceCode",
         "tag": "deviceCode",
@@ -1325,7 +1329,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7770,
+      "i": 14124,
       "p": {
         "position": {
           "x": 1273.31897,
@@ -1344,7 +1348,7 @@
     },
     {
       "c": "ht.Text",
-      "i": 7771,
+      "i": 14125,
       "p": {
         "dataBindings": {
           "s": {}
@@ -1365,7 +1369,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7775,
+      "i": 14126,
       "p": {
         "position": {
           "x": 1176.40721,
@@ -1384,7 +1388,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7779,
+      "i": 14127,
       "p": {
         "displayName": "baoJing",
         "tag": "wdsd",
@@ -1400,7 +1404,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7783,
+      "i": 14128,
       "p": {
         "position": {
           "x": 1273.31897,
@@ -1419,7 +1423,7 @@
     },
     {
       "c": "ht.Text",
-      "i": 7784,
+      "i": 14129,
       "p": {
         "dataBindings": {
           "s": {}
@@ -1440,7 +1444,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7785,
+      "i": 14130,
       "p": {
         "position": {
           "x": 1176.40722,
@@ -1459,7 +1463,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7786,
+      "i": 14131,
       "p": {
         "displayName": "baoJing",
         "tag": "jzqt",
@@ -1475,7 +1479,7 @@
     },
     {
       "c": "ht.Text",
-      "i": 7787,
+      "i": 14132,
       "p": {
         "dataBindings": {
           "s": {}
@@ -1496,7 +1500,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7788,
+      "i": 14133,
       "p": {
         "position": {
           "x": 1447.73032,
@@ -1515,7 +1519,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7789,
+      "i": 14134,
       "p": {
         "displayName": "baoJing",
         "tag": "mszh",
@@ -1531,7 +1535,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7790,
+      "i": 14135,
       "p": {
         "position": {
           "x": 1273.31897,
@@ -1550,7 +1554,7 @@
     },
     {
       "c": "ht.Text",
-      "i": 7791,
+      "i": 14136,
       "p": {
         "dataBindings": {
           "s": {}
@@ -1571,7 +1575,7 @@
     },
     {
       "c": "ht.Text",
-      "i": 7792,
+      "i": 14137,
       "p": {
         "dataBindings": {
           "s": {}
@@ -1592,7 +1596,7 @@
     },
     {
       "c": "ht.Text",
-      "i": 7793,
+      "i": 14138,
       "p": {
         "dataBindings": {
           "s": {}
@@ -1613,7 +1617,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7794,
+      "i": 14139,
       "p": {
         "position": {
           "x": 1132.66493,
@@ -1632,7 +1636,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7795,
+      "i": 14140,
       "p": {
         "displayName": "baoJing",
         "tag": "sfj-sdzd",
@@ -1648,7 +1652,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7796,
+      "i": 14141,
       "p": {
         "position": {
           "x": 1311.56988,
@@ -1667,7 +1671,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7797,
+      "i": 14142,
       "p": {
         "displayName": "baoJing",
         "tag": "sfj-tzqd",
@@ -1683,7 +1687,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7798,
+      "i": 14143,
       "p": {
         "position": {
           "x": 1487.60513,
@@ -1702,7 +1706,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7799,
+      "i": 14144,
       "p": {
         "displayName": "baoJing",
         "tag": "sfj-gzxh",
@@ -1718,7 +1722,7 @@
     },
     {
       "c": "ht.Text",
-      "i": 7800,
+      "i": 14145,
       "p": {
         "dataBindings": {
           "s": {}
@@ -1739,7 +1743,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7802,
+      "i": 14146,
       "p": {
         "position": {
           "x": 1132.66493,
@@ -1758,7 +1762,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7803,
+      "i": 14147,
       "p": {
         "displayName": "baoJing",
         "tag": "pfj-sdzd",
@@ -1774,7 +1778,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7804,
+      "i": 14148,
       "p": {
         "position": {
           "x": 1311.56988,
@@ -1793,7 +1797,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7805,
+      "i": 14149,
       "p": {
         "displayName": "baoJing",
         "tag": "pfj-tzqd",
@@ -1809,7 +1813,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7806,
+      "i": 14150,
       "p": {
         "position": {
           "x": 1487.60513,
@@ -1828,7 +1832,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7807,
+      "i": 14151,
       "p": {
         "displayName": "baoJing",
         "tag": "pfj-gzxh",
@@ -1844,7 +1848,7 @@
     },
     {
       "c": "ht.Text",
-      "i": 7808,
+      "i": 14152,
       "p": {
         "dataBindings": {
           "s": {}
@@ -1865,7 +1869,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7809,
+      "i": 14153,
       "p": {
         "position": {
           "x": 1132.66493,
@@ -1884,7 +1888,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7810,
+      "i": 14154,
       "p": {
         "displayName": "baoJing",
         "tag": "zl-sdzd",
@@ -1900,7 +1904,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7811,
+      "i": 14155,
       "p": {
         "position": {
           "x": 1311.56988,
@@ -1919,7 +1923,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 7812,
+      "i": 14156,
       "p": {
         "displayName": "baoJing",
         "tag": "zl-tzqd",
@@ -1935,7 +1939,7 @@
     },
     {
       "c": "ht.Text",
-      "i": 7815,
+      "i": 14157,
       "p": {
         "dataBindings": {
           "s": {}
@@ -1955,7 +1959,7 @@
       }
     }
   ],
-  "modified": "Fri Jan 23 2026 16:38:20 GMT+0800 (中国标准时间)",
+  "modified": "Tue Mar 17 2026 14:50:30 GMT+0800 (中国标准时间)",
   "contentRect": {
     "x": -163.79197,
     "y": 682.3612,

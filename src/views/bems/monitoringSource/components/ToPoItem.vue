@@ -39,25 +39,49 @@ const songPaiFengJi = [
     key: 'AUTO_MANUAL_STATUS',
     name: "手自动",
     code: "szd",
-    valueKey: 'wenDu'
+    valueKey: 'wenDu',
+    isTransfor: true,
+    options: [
+      {
+        value: '1',
+        label: '运行',
+      },
+      {
+        value: '0',
+        label: '停止',
+      },
+    ],
   },
   {
     key: 'START_STOP_CTRL',
     name: "启停控制",
     code: "qtkz",
-    valueKey: 'wenDu'
+    valueKey: 'wenDu',
+    isTransfor: true,
+    options: [
+      {
+        value: '1',
+        label: '自动',
+      },
+      {
+        value: '0',
+        label: '手动',
+      },
+    ],
   },
   {
     key: 'RUNNING_STATUS',
     name: "运行状态",
     code: "yxzt",
-    valueKey: 'wenDu'
+    valueKey: 'wenDu',
+    isTransfor: false
   },
   {
     key: 'FAN_FAULT_SIGNAL',
     name: "风机故障",
     code: "fjgz",
-    valueKey: 'wenDu'
+    valueKey: 'wenDu',
+    isTransfor: false
   },
 ]
 const jiShuiKeng = [
@@ -65,37 +89,53 @@ const jiShuiKeng = [
     key: 'HOA',
     name: "手自动",
     code: "szd",
-    valueKey: 'wenDu'
+    valueKey: 'wenDu',
+    isTransfor: true,
+    options: [
+      {
+        value: '1',
+        label: '运行',
+      },
+      {
+        value: '0',
+        label: '停止',
+      },
+    ],
   },
   {
     key: 'HIGH_LEVEL_ALARM',
     name: "高液位",
     code: "gyw",
-    valueKey: 'wenDu'
+    valueKey: 'wenDu',
+    isTransfor: false
   },
   {
     key: 'PUMP1_OVERLOAD_ALARM',
     name: "1#泵过载报警",
     code: "1#gzbj",
-    valueKey: 'wenDu'
+    valueKey: 'wenDu',
+    isTransfor: false
   },
   {
     key: 'PUMP2_OVERLOAD_ALARM',
     name: "2#泵过载报警",
     code: "2#gzbj",
-    valueKey: 'wenDu'
+    valueKey: 'wenDu',
+    isTransfor: false
   },
   {
     key: 'PUMP1_RUNNING_STATUS',
     name: "1#泵运行状态",
     code: "1#yxzt",
-    valueKey: 'wenDu'
+    valueKey: 'wenDu',
+    isTransfor: false
   },
   {
     key: 'PUMP2_RUNNING_STATUS',
     name: "2#泵运行状态",
     code: "2#yxzt",
-    valueKey: 'wenDu'
+    valueKey: 'wenDu',
+    isTransfor: false
   },
 ]
 
@@ -138,8 +178,11 @@ const getByDeviceId = async (id) => {
   })
   deviceDataList.value = res
   const codeArr = res.map(item => item.attributeCode)
-  // console.log('codeArr------------------->', res);
-  isControlArr.value = jiShuiKeng.filter((item: any) => codeArr.includes(item.key))
+  if(props.path.includes('Feng')) {
+    isControlArr.value = songPaiFengJi.filter((item: any) => codeArr.includes(item.key))
+  } else {
+    isControlArr.value = jiShuiKeng.filter((item: any) => codeArr.includes(item.key))
+  }
   isControlArr.value.forEach(item => {
     for (let i = 0; i < deviceDataList.value.length; i++) {
       if (deviceDataList.value[i].attributeCode === item.key) {
@@ -147,10 +190,21 @@ const getByDeviceId = async (id) => {
         item.unit = deviceDataList.value[i].unit
         item.id = deviceDataList.value[i].id
         item.readwriteLevel = deviceDataList.value[i].readwriteLevel
-        item.value = deviceDataList.value[i].value
+        // item.value = deviceDataList.value[i].value
+        if (item.isTransfor) {
+          item.value = deviceDataList.value[i].value
+          for (let j = 0; j < 2; j++) {
+            if (item.value === item.options[j].value) {
+              item.value = item.options[j].label
+            }
+          }
+        } else {
+          item.value = Number(deviceDataList.value[i].value).toFixed(2)
+        }
       }
     }
   })
+  console.log('')
   initEvent();
 }
 
@@ -209,13 +263,28 @@ const initEvent = async () => {
     // let targetNode = dm.getDataByTag(`1AA16Modal`);
     if (props.path === 'songPaiFengItem.json') {
       dm.getDataByTag('spfjItem').a('deviceCode', props.deviceCode)
-      dm.getDataByTag('spfjItem').a('szd', deviceDataList.value.find(item => item.attributeCode === 'AUTO_MANUAL_STATUS').value + ((deviceDataList.value.find(item => item.attributeCode === 'AUTO_MANUAL_STATUS').unit) ? deviceDataList.value.find(item => item.attributeCode === 'AUTO_MANUAL_STATUS').unit : ''))
-      dm.getDataByTag('spfjItem').a('qtkz', deviceDataList.value.find(item => item.attributeCode === 'START_STOP_CTRL').value + (deviceDataList.value.find(item => item.attributeCode === 'START_STOP_CTRL').unit ? deviceDataList.value.find(item => item.attributeCode === 'START_STOP_CTRL').unit : ''))
+      // dm.getDataByTag('spfjItem').a('szd', deviceDataList.value.find(item => item.attributeCode === 'AUTO_MANUAL_STATUS').value + ((deviceDataList.value.find(item => item.attributeCode === 'AUTO_MANUAL_STATUS').unit) ? deviceDataList.value.find(item => item.attributeCode === 'AUTO_MANUAL_STATUS').unit : ''))
+      if(deviceDataList.value.find(item => item.attributeCode === 'AUTO_MANUAL_STATUS').value === '0') {
+        dm.getDataByTag('spfjItem').a('szd', '手动')
+      } else {
+        dm.getDataByTag('spfjItem').a('szd', '自动')
+      }
+      // dm.getDataByTag('spfjItem').a('qtkz', deviceDataList.value.find(item => item.attributeCode === 'START_STOP_CTRL').value + (deviceDataList.value.find(item => item.attributeCode === 'START_STOP_CTRL').unit ? deviceDataList.value.find(item => item.attributeCode === 'START_STOP_CTRL').unit : ''))
+      if (deviceDataList.value.find(item => item.attributeCode === 'START_STOP_CTRL').value === '0') {
+        dm.getDataByTag('spfjItem').a('qtkz', '启动')
+      } else {
+        dm.getDataByTag('spfjItem').a('qtkz', '停止')
+      }
       dm.getDataByTag('spfjItem').a('yxzt', deviceDataList.value.find(item => item.attributeCode === 'RUNNING_STATUS').value + (deviceDataList.value.find(item => item.attributeCode === 'RUNNING_STATUS').unit ? deviceDataList.value.find(item => item.attributeCode === 'RUNNING_STATUS').unit : ''))
       // dm.getDataByTag('spfjItem').a('fjgz', deviceDataList.value.find(item => item.attributeCode === 'FAN_FAULT_SIGNAL').value)
     } else {
       dm.getDataByTag('jiSHuiKengItem').a('deviceCode', props.deviceCode)
-      dm.getDataByTag('jiSHuiKengItem').a('szd', deviceDataList.value.find(item => item.attributeCode === 'HOA').value + (deviceDataList.value.find(item => item.attributeCode === 'HOA').unit ? deviceDataList.value.find(item => item.attributeCode === 'HOA').unit : ''))
+      // dm.getDataByTag('jiSHuiKengItem').a('szd', deviceDataList.value.find(item => item.attributeCode === 'HOA').value + (deviceDataList.value.find(item => item.attributeCode === 'HOA').unit ? deviceDataList.value.find(item => item.attributeCode === 'HOA').unit : ''))
+      if (deviceDataList.value.find(item => item.attributeCode === 'HOA').value === '0') {
+        dm.getDataByTag('jiSHuiKengItem').a('szd', '自动')
+      } else {
+        dm.getDataByTag('jiSHuiKengItem').a('szd', '手动')
+      }
       dm.getDataByTag('jiSHuiKengItem').a('gyw', deviceDataList.value.find(item => item.attributeCode === 'HIGH_LEVEL_ALARM').value + (deviceDataList.value.find(item => item.attributeCode === 'HIGH_LEVEL_ALARM').unit ? deviceDataList.value.find(item => item.attributeCode === 'HIGH_LEVEL_ALARM').unit : ''))
       if (deviceDataList.value.find(item => item.attributeCode === 'PUMP1_OVERLOAD_ALARM').value === '1') {
         dm.getDataByTag('jiSHuiKengItem').a('1#gzbj', 'rgb(242,83,75)')

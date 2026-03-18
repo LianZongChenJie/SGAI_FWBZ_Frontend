@@ -164,13 +164,15 @@ const initEvent = async () => {
 };
 
 const fullScreen = (type) => {
+  
+  
   isFull.value = type;
-  if (type) {
-    fullScreenPath.value = topoPath.value.split('/')[1]
-
-    fullScreenModalRef.value.showModal();
+  if (topoPath.value.includes('9号楼')) {
+    fullScreenPath.value = topoPath.value
   } else {
+    fullScreenPath.value = topoPath.value.split('/')[1]
   }
+  fullScreenModalRef.value.showModal();
 };
 
 // 截断文本函数

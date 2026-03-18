@@ -67,6 +67,12 @@
             </a-popconfirm>
           </a-space>
         </template>
+        
+        <template v-if="column.key === 'status'">
+          <img v-if="record.status === '关闭'" style="width: 20px; height: 20px;" src="@/assets/images/lightClose.png" alt="">
+          <img v-else style="width: 20px; height: 20px;" src="@/assets/images/lightOpen.png" alt="">
+          &nbsp;{{ record.status }}
+        </template>
       </template>
     </BasicTable>
     <LoopListModal
@@ -193,12 +199,28 @@ const hasPermissions = (permission: string) => {
 
 // 全开
 const openAll = async () => {
-  console.log('closeAll--------------------->', selectedRowKeys.value);
+  if(!selectedRowKeys.value.length) return message.error('请勾选区域！');
+  selectedRowKeys.value.forEach(async (item) => {
+    // handleOpen({id: item })
+    await setAreaOpenApi({
+      id: item,
+    });
+  })
+  reload();
+  message.success('操作成功！');
 };
 
 // 全关
 const closeAll = async () => {
-  console.log('closeAll--------------------->', selectedRowKeys.value);
+  if(!selectedRowKeys.value.length) return message.error('请勾选区域！');
+  selectedRowKeys.value.forEach(async (item) => {
+    // handleClose({id: item })
+    await setAreaCloseApi({
+      id: item,
+    });
+  })
+  reload();
+  message.success('操作成功！');
 };
 
 const handleOpen = async (record) => {
@@ -206,7 +228,7 @@ const handleOpen = async (record) => {
     id: record.id,
   });
   reload();
-  message.success('全开成功！');
+  message.success('操作成功！');
 };
 
 const handleClose = async (record) => {
@@ -214,7 +236,7 @@ const handleClose = async (record) => {
     id: record.id,
   });
   reload();
-  message.success('全关成功！');
+  message.success('操作成功！');
 };
 
 // 工单详情

@@ -127,7 +127,13 @@ const initEvent = async () => {
   gv.value.getSelectWidth = function () {
     return 0;
   }; // 禁止选中
-  gv.value.deserialize(`storage/displays/jinAnQiao/${props.path}`, function (json, dm, gv, data) {
+  let path = ''
+  if(props.path.includes('9号楼')) {
+    path = props.path
+  } else {
+    path = 'jinAnQiao/' + props.path
+  }
+  gv.value.deserialize(`storage/displays/${path}`, function (json, dm, gv, data) {
     dm.getDataByTag(`deviceCode`).a('deviceCode', props.deviceCode);
     props.isControlArr.forEach((item: any, index) => {
       dm.getDataByTag(item.code).a(item.valueKey, item.value + (item.unit ? item.unit : ''))

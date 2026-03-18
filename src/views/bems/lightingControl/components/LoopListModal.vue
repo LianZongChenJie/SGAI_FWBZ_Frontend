@@ -87,6 +87,12 @@
           <template #allDuration="{ text, record, index }">
             {{ formatSeconds(record.allDuration, { showHoursAlways: true }) }}
           </template>
+          <template #status="{ text, record, index }">
+            <img v-if="record.status === '关闭'" style="width: 20px; height: 20px;" src="@/assets/images/lightClose.png"
+              alt="">
+            <img v-else style="width: 20px; height: 20px;" src="@/assets/images/lightOpen.png" alt="">
+            &nbsp;{{ record.status }}
+          </template>
         </a-table>
       </div>
     </a-modal>

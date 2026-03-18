@@ -4,7 +4,9 @@
     "autoAdjustIndex": true,
     "hierarchicalRendering": true
   },
-  "a": {},
+  "a": {
+    "onPostDeserialize": "__ht__function(json, dm, view, datas) {// 扇叶\r\nfunction animFans() {\r\n\tht.Default.startAnim({\r\n\t\tduration: 5000,\r\n\t\teasing: function (t) { return t  },\r\n\t\taction: function (v, t) {\r\n            var num = 0;\r\n            if(dm.getDataByTag('tz/yx').a('baoJing') && dm.getDataByTag('tz/yx').a('baoJing') === '停止') {\r\n                dm.getDataByTag('fan1').a('rotation', 0 );\r\n            } else{\r\n                dm.getDataByTag('fan1').a('rotation', 0 + (Math.PI * 12 - 0) * v);\r\n            }\r\n\t\t},\r\n\t\tfinishFunc: function () {\r\n\t\t\tanimFans();\r\n\t\t}\r\n\t});\r\n}\r\nanimFans();}"
+  },
   "d": [
     {
       "c": "ht.Node",

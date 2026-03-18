@@ -155,18 +155,30 @@ const getByDeviceId = async (id) => {
   let res = await getByDeviceIdApi({
     deviceId: id.split('d')[1]
   })
-
+  console.log('reHUiShou-----------res---------->', res);
   deviceDataList.value = res
   const codeArr = res.map(item => item.attributeCode)
   isControlArr.value = props.deviceList.filter((item: any) => codeArr.includes(item.key))
+  console.log('reHUiShou----------isControlArr----------->', isControlArr.value);
   isControlArr.value.forEach(item => {
+    
     for (let i = 0; i < deviceDataList.value.length; i++) {
       if (deviceDataList.value[i].attributeCode === item.key) {
-        item.value = deviceDataList.value[i].value
+        // item.value = Number(deviceDataList.value[i].value).toFixed(2)
         item.unit = deviceDataList.value[i].unit
         item.id = deviceDataList.value[i].id
         item.readwriteLevel = deviceDataList.value[i].readwriteLevel
-        item.value = deviceDataList.value[i].value
+        if(item.isTransfor) {
+          item.value = deviceDataList.value[i].value
+          for(let j = 0; j < 2; j++) {
+            if(item.value === item.options[j].value) {
+              item.value = item.options[j].label
+            }
+          }
+        } else {
+          item.value = Number(deviceDataList.value[i].value).toFixed(2)
+        }
+        // item.value = deviceDataList.value[i].value
       }
     }
   })
@@ -343,8 +355,11 @@ const initEvent = async () => {
   gv.value.deserialize(`storage/displays/jinAnQiao/${props.path}`, function (json, dm, gv, data) {
     // let targetNode = dm.getDataByTag(`1AA16Modal`);
     dm.getDataByTag(`deviceCode`).a('deviceCode', deviceCode.value);
+    dm.getDataByTag(`deviceCode`).a('deviceCode', deviceCode.value);
     isControlArr.value.forEach((item, index) => {
       dm.getDataByTag(item.code).a(item.valueKey, item.value + (item.unit ? item.unit : ''))
+      // console.log('reHUiShou--------------------->', item.code, item.valueKey);
+      
     })
     gv.mi(function (e) {
       if ((e.kind === 'clickData') && e.data && (isControlArr.value.find(item => item.code === e.data._tag).readwriteLevel === '1')) {

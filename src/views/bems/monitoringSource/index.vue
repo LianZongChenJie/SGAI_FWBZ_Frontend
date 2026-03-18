@@ -30,7 +30,7 @@
         <MyTopoComponents :path="'xinFengJi.json'" :categoryId="'17'" :deviceList="xinFengJiZu" />
       </a-tab-pane>
       <a-tab-pane key="10" tab="热回收机组">
-        <MyTopoComponents :path="'reHuiShou.json'" :categoryId="'8'" :deviceList="reHuiShouJi" />
+        <MyTopoComponents :path="'reHuiShou.json'" :categoryId="'37'" :deviceList="reHuiShouJi" />
       </a-tab-pane>
       <a-tab-pane key="11" tab="送排风机">
         <MyToPoComponent2 :path="'songPaiFengItem.json'" :categoryId="'23'" :deviceList="songPaiFengJi" />
@@ -72,98 +72,112 @@ const kongTiaoDeviceList = [
     name: "回风温度",
     code: "huiFengWenDu",
     valueKey: 'wenDu',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false
   },
   {
     key: 'RA_HUMIDITY',
     name: "回风湿度",
     code: "huiFengShiDu",
     valueKey: 'shiDu',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false
   },
   {
     key: 'OA_TEMP',
     name: "新风温度",
     code: "xinFengWenDu",
     valueKey: 'wenDu',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false
   },
   {
     key: 'OA_HUMIDITY',
     name: "新风湿度",
     code: "xinFengShiDu",
     valueKey: 'shiDu',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false
   },
   {
     key: 'SA_TEMP',
     name: "送风温度",
     code: "songFengWenDu",
     valueKey: 'wenDu',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false
   },
   {
     key: 'SA_HUMIDITY',
     name: "送风湿度",
     code: "songFengShiDu",
     valueKey: 'shiDu',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false
   },
   {
     key: 'OA_DAMPER_OPENING',
     name: "新风阀开度",
     code: "xinFengFaKaiDu",
     valueKey: 'kaiDu',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false
   },
   {
     key: 'OA_DAMPER_FEEDBACK',
     name: "新风阀反馈",
     code: "xinFengFaFanKui",
     valueKey: 'fanKui',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false
   },
   {
     key: 'RA_DAMPER_OPENING',
     name: "回风阀开度",
     code: "huiFengFaKaiDu",
     valueKey: 'kaiDu',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false
   },
   {
     key: 'RA_DAMPER_FEEDBACK',
     name: "回风阀反馈",
     code: "huiFengFaFanKui",
     valueKey: 'fanKui',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false
   },
   {
     key: 'VALVE_OPENING',
     name: "水阀开度",
     code: "shuiFaKaiDu",
     valueKey: 'kaiDu',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false
   },
   {
     key: 'VALVE_FEEDBACK',
     name: "水阀反馈",
     code: "shuiFaFanKui",
     valueKey: 'fanKui',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false
   },
   {
     key: 'FILTER_ALARM',
     name: "过滤网报警",
     code: "guLvWangBaoJing",
     valueKey: 'baoJing',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false
   },
   {
     key: 'LOW_TEMP_ALARM',
     name: "低温报警",
     code: "diWenBaoJing",
     valueKey: 'baoJing',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false
   },
   {
     key: 'DXJ_MODE',
@@ -171,6 +185,7 @@ const kongTiaoDeviceList = [
     code: "dxjms",
     valueKey: 'baoJing',
     isSelect: true,
+    isTransfor: false,
     options: [
       {
         value: '1',
@@ -180,21 +195,23 @@ const kongTiaoDeviceList = [
         value: '0',
         label: 'Winter',
       },
-    ]
+    ],
   },
   {
     key: 'SA_TEMP_SETPOINT',
     name: "送风温度设定值",
     code: "sfwdsdz",
     valueKey: 'baoJing',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false
   },
   {
     key: 'RA_TEMP_SETPOINT',
     name: "回风温度设定值",
     code: "hfwdsdz",
     valueKey: 'baoJing',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false
   },
   {
     key: 'UNIT_ON_OFF',
@@ -202,34 +219,59 @@ const kongTiaoDeviceList = [
     code: "jzqt",
     valueKey: 'baoJing',
     isSelect: true,
+    isTransfor: false
   },
   {
     key: 'FREQUENCY_CTRL',
     name: "频率控制",
     code: "plkz",
     valueKey: 'baoJing',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false
   },
   {
     key: 'FREQUENCY_FEEDBACK',
     name: "频率反馈",
     code: "plfk",
     valueKey: 'baoJing',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false
   },
   {
     key: 'AUTO_MANUAL',
     name: "手动/自动",
     code: "sd/zd",
     valueKey: 'baoJing',
-    isSelect: false
+    isSelect: false,
+    isTransfor: true,
+    options: [
+      {
+        value: '1',
+        label: '手动',
+      },
+      {
+        value: '0',
+        label: '自动',
+      },
+    ],
   },
   {
     key: 'STOP_RUN',
     name: "停止/运行",
     code: "tz/yx",
     valueKey: 'baoJing',
-    isSelect: true
+    isSelect: true,
+    isTransfor: true,
+    options: [
+      {
+        value: '1',
+        label: '停止',
+      },
+      {
+        value: '0',
+        label: '运行',
+      },
+    ],
   }
   ,
   {
@@ -237,7 +279,8 @@ const kongTiaoDeviceList = [
     name: "送风静压",
     code: "sfjy",
     valueKey: 'baoJing',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false
   }
 ]
 
@@ -247,42 +290,48 @@ const xinFengJiZu = [
     name: "新风温度",
     code: "xinFengWenDu",
     valueKey: 'wenDu',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false,
   },
   {
     key: 'OA_HUMIDITY',
     name: "新风湿度",
     code: "xinFengShiDu",
     valueKey: 'shiDu',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false,
   },
   {
     key: 'SA_TEMP',
     name: "送风温度",
     code: "songFengWenDu",
     valueKey: 'wenDu',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false,
   },
   {
     key: 'SA_HUMIDITY',
     name: "送风湿度",
     code: "songFengShiDu",
     valueKey: 'shiDu',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false,
   },
   {
     key: 'VALVE_OPENING',
     name: "水阀设定",
     code: "shuiFaSheDing",
     valueKey: 'kaiDu',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false,
   },
   {
     key: 'VALVE_FEEDBACK',
     name: "水阀反馈",
     code: "shuiFaFanKui",
     valueKey: 'fanKui',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false,
   }
   ,
   {
@@ -290,21 +339,24 @@ const xinFengJiZu = [
     name: "pm2.5",
     code: "pm2.5",
     valueKey: 'pm25',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false,
   },
   {
     key: 'LOW_TEMP_ALARM',
     name: "低温报警",
     code: "diWenBaoJing",
     valueKey: 'baoJing',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false,
   },
   {
     key: 'FILTER_ALARM',
     name: "过滤网报警",
     code: "guoLvWangBaoJing",
     valueKey: 'baoJing',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false,
   },
   {
     key: 'DXJ_MODE',
@@ -312,6 +364,7 @@ const xinFengJiZu = [
     code: "dxjms",
     valueKey: 'baoJing',
     isSelect: true,
+    isTransfor: false,
     options: [
       {
         value: '1',
@@ -328,7 +381,8 @@ const xinFengJiZu = [
     name: "温度设定值",
     code: "wdsdz",
     valueKey: 'baoJing',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false,
   },
   {
     key: 'UNIT_ON_OFF',
@@ -342,21 +396,44 @@ const xinFengJiZu = [
     name: "手/自动模式",
     code: "szdms",
     valueKey: 'baoJing',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false,
+    options: [
+      {
+        value: '1',
+        label: '手动',
+      },
+      {
+        value: '0',
+        label: '自动',
+      },
+    ],
   },
   {
     key: 'FAN_FAULT',
     name: "风机故障",
     code: "fjgz",
     valueKey: 'baoJing',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false,
   },
   {
     key: 'FAN_START_STOP',
     name: "启停控制",
     code: "qtkz",
     valueKey: 'baoJing',
-    isSelect: true
+    isSelect: true,
+    isTransfor: true,
+    options: [
+      {
+        value: '1',
+        label: '启动',
+      },
+      {
+        value: '0',
+        label: '停止',
+      },
+    ],
   },
 ]
 
@@ -366,133 +443,222 @@ const reHuiShouJi = [
     name: "回风温度",
     code: "huiFengWenDu",
     valueKey: 'wenDu',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false,
   },
   {
     key: 'RA_HUMIDITY',
     name: "回风湿度",
     code: "huiFengShiDu",
     valueKey: 'shiDu',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false,
   },
   {
     key: 'OA_TEMP',
     name: "新风温度",
     code: "xinFengWenDu",
     valueKey: 'wenDu',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false,
   },
   {
     key: 'OA_HUMIDITY',
     name: "新风湿度",
     code: "xinFengShiDu",
     valueKey: 'shiDu',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false,
   },
   {
     key: 'SA_TEMP',
     name: "送风温度",
     code: "songFengWenDu",
     valueKey: 'wenDu',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false,
   },
   {
     key: 'SA_HUMIDITY',
     name: "送风湿度",
     code: "songFengShiDu",
     valueKey: 'shiDu',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false,
   },
   {
     key: 'VALVE_OPENING',
     name: "水阀开度",
     code: "shuiFaKaiDuSheDinfg",
     valueKey: 'kaiDu',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false,
   },
   {
     key: 'VALVE_FEEDBACK',
     name: "水阀反馈",
     code: "shuiFaKaiDuFanKui",
     valueKey: 'fanKui',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false,
   },
   {
     key: 'FILTER_PRESSURE_DIFF',
     name: "滤网压差",
     code: "lvWangYaCha",
     valueKey: 'baoJing',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false,
   },
   {
     key: 'FAN_PRESSURE_DIFF',
     name: "送风机压差",
     code: "xongFengJiYaCha",
     valueKey: 'baoJing',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false,
   },
   {
     key: 'ANTI_FREEZE_ALARM',
     name: "防冻",
     code: "fangDong",
     valueKey: 'baoJing',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false,
   },
   {
     key: 'UNIT_ON_OFF',
     name: "机组启停",
     code: "jzqt",
     valueKey: 'baoJing',
-    isSelect: true
+    isSelect: true,
+    isTransfor: true,
+    options: [
+      {
+        value: '1',
+        label: '启动',
+      },
+      {
+        value: '0',
+        label: '停止',
+      },
+    ],
   },
   {
     key: 'SA_FAN_AUTO_MANUAL',
     name: "送风机-手动/自动",
     code: "sfj-sdzd",
     valueKey: 'baoJing',
-    isSelect: true
+    isSelect: true,
+    isTransfor: false,
+    options: [
+      {
+        value: '1',
+        label: '手动',
+      },
+      {
+        value: '0',
+        label: '自动',
+      },
+    ],
   },
   {
     key: 'SA_FAN_STOP_START',
     name: "送风机-停止/启动",
     code: "sfj-tzqd",
     valueKey: 'baoJing',
-    isSelect: true
+    isSelect: true,
+    isTransfor: true,
+    options: [
+      {
+        value: '1',
+        label: '启动',
+      },
+      {
+        value: '0',
+        label: '停止',
+      },
+    ],
   },
   {
     key: 'EA_FAN_AUTO_MANUAL',
     name: "排风机-手动/自动",
     code: "pfj-sdzd",
     valueKey: 'baoJing',
-    isSelect: true
+    isSelect: true,
+    isTransfor: false,
+    options: [
+      {
+        value: '1',
+        label: '手动',
+      },
+      {
+        value: '0',
+        label: '自动',
+      },
+    ],
   },
   {
     key: 'EA_FAN_STOP_START',
     name: "排风机-停止/启动",
     code: "pfj-tzqd",
     valueKey: 'baoJing',
-    isSelect: true
+    isSelect: true,
+    isTransfor: true,
+    options: [
+      {
+        value: '1',
+        label: '启动',
+      },
+      {
+        value: '0',
+        label: '停止',
+      },
+    ],
   },
   {
     key: 'WHEEL_AUTO_MANUAL',
     name: "转轮-手动/自动",
     code: "zl-sdzd",
     valueKey: 'baoJing',
-    isSelect: true
+    isSelect: true,
+    isTransfor: false,
+    options: [
+      {
+        value: '1',
+        label: '手动',
+      },
+      {
+        value: '0',
+        label: '自动',
+      },
+    ],
   },
   {
     key: 'WHEEL_STOP_START',
     name: "转轮-停止/启动",
     code: "zl-tzqd",
     valueKey: 'baoJing',
-    isSelect: true
+    isSelect: true,
+    isTransfor: true,
+    options: [
+      {
+        value: '1',
+        label: '启动',
+      },
+      {
+        value: '0',
+        label: '停止',
+      },
+    ],
   },
   {
     key: 'TEMP_SETTING',
     name: "温度设定",
     code: "wdsd",
     valueKey: 'baoJing',
-    isSelect: false
+    isSelect: false,
+    isTransfor: false,
   }
   ,
   {
@@ -501,6 +667,7 @@ const reHuiShouJi = [
     code: "mszh",
     valueKey: 'baoJing',
     isSelect: true,
+    isTransfor: false,
     options: [
       {
         value: '1',
