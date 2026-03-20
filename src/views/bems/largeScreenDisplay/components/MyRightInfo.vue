@@ -20,7 +20,7 @@
             <a-progress
               class="custom-progress"
               :percent="(item.onLineNum / item.totalNum * 100)"
-              size="small"
+              :size="10"
               trailColor="#fff"
               :strokeColor="item.strokeColor"
               :format="percent => `${item.onLineNum + '/' + item.totalNum}`"
@@ -91,6 +91,7 @@ import {
   getAlarmRecordListForMonthApi,
   getDeviceRunStateStatisticApi,
   getRunStatusStatisticApi,
+  getDeviceRunStateStatisticByBuildingApi,
   eventDistributionApi,
   getAlarmCategoryStatisticForThisMonthApi,
   categoryTree,
@@ -282,7 +283,17 @@ const handleResize = () => {
 // 获取在线状态数据
 const getDeviceOnlineData = async () => {
   const res1 = await getDeviceRunStateStatisticApi({ configPath: 'jinanqiao:device_status:measurement' });
+  const res2 = await getDeviceRunStateStatisticByBuildingApi()
   const res3 = await getRunStatusStatisticApi();
+  
+  const res2Map = res2.map((item) => {
+    return {
+      categoryName: item.categoryName,
+      onLineNum: item.onLineNum,
+      totalNum: item.totalNum,
+    };
+  });
+
   const res3Map = res3.map((item) => {
     return {
       categoryName: item.categoryName,
@@ -290,7 +301,8 @@ const getDeviceOnlineData = async () => {
       totalNum: item.totalNum,
     };
   });
-  const resList = [...res1, ...res3Map];
+
+  const resList = [...res1, ...res3Map,...res2Map];
   deviceList.value = resList.map((item, index) => {
     return {
       categoryName: item.categoryName,
@@ -369,6 +381,8 @@ onUnmounted(() => {
           color: #fff;
           height: 50%;
           width: 100%;
+          font-size: 16px;
+          margin-bottom: 8px;
         }
 
         .progress-box {

@@ -12,7 +12,7 @@
 
   const visible = ref(false);
   const handleCancel = () => {
-    current.value = ['base']
+    current.value = ['point']
     visible.value = false;
   };
   const handleClick = (item: any) => {
@@ -25,20 +25,20 @@
       findStaticData(item.key, deviceId.value);
     }
   };
-  const current = ref<string[]>(['base']);
+  const current = ref<string[]>(['point']);
   const items = ref<MenuProps['items']>([
-    {
-      label: '基本信息',
-      key: 'base',
-    },
-    {
-      label: '技术参数',
-      key: 'tech',
-    },
-    {
-      label: '服务厂商',
-      key: 'vendor',
-    },
+    // {
+    //   label: '基本信息',
+    //   key: 'base',
+    // },
+    // {
+    //   label: '技术参数',
+    //   key: 'tech',
+    // },
+    // {
+    //   label: '服务厂商',
+    //   key: 'vendor',
+    // },
     {
       label: '采集点位',
       key: 'point',
@@ -95,9 +95,10 @@
 
   defineExpose({
     openModal: (id: number) => {
+      findAttributeData(id);
       visible.value = true;
       deviceId.value = id;
-      findStaticData('base', id);
+      // findStaticData('point', id);
     },
   });
 </script>

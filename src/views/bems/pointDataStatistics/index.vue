@@ -58,6 +58,9 @@
             <a-radio-button value="bar">
               <BarChartOutlined style="font-size: 18px;" />
             </a-radio-button>
+            <a-radio-button value="table">
+              <InsertRowAboveOutlined style="font-size: 18px;" />
+            </a-radio-button>
           </a-radio-group>
           <!-- <a-switch
             v-model:checked="isLine"
@@ -67,12 +70,17 @@
           /> -->
 
         </div>
-        <div id="chart" class="chart-placeholder"></div>
+        <div v-show="isLine === 'table'" class="table-box">
+          <a-table :columns="tableColumns" :data-source="tableData" :pagination="false" bordered tableLayout="fixed"
+            :scroll="{ x: 1500, y: 650 }" />
+        </div>
+        <div v-show="isLine !== 'table'" id="chart" class="chart-placeholder"></div>
+        
       </div>
-      <div class="table-container">
+      <!-- <div v-show="isLine !== 'table'" class="table-container">
         <a-table :columns="tableColumns" :data-source="tableData" :pagination="false" bordered tableLayout="fixed"
           :scroll="{ x: 1500, y: 180 }" />
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
@@ -82,7 +90,7 @@ import { onMounted, onUnmounted, ref, shallowRef, h } from 'vue';
 import { findHour, findDay, findMonth, findYear, energyFlowType, energyFlowTree, test } from './index.api';
 import * as echarts from 'echarts';
 import { MenuProps, message } from 'ant-design-vue';
-import { VerticalAlignBottomOutlined, LineChartOutlined, BarChartOutlined } from '@ant-design/icons-vue';
+import { VerticalAlignBottomOutlined, LineChartOutlined, BarChartOutlined, InsertRowAboveOutlined } from '@ant-design/icons-vue';
 import { exportExcel, exportTableToExcel } from '@/utils/export';
 
 const date = ref<string>();
@@ -278,6 +286,7 @@ const findData = async () => {
   tableColumns.value = [];
   tableData.value = res.table.tableDataList;
   res.table.tableHeaderList.forEach((item) => {
+    // console.log('sort-------tableHeaderList-------->', item, tableData.value)
     // 根据内容设置列宽
     let width = 100;
     if (item.label === '名称') {
@@ -287,6 +296,13 @@ const findData = async () => {
       tableColumns.value.push({
         title: item.label,
         dataIndex: item.field,
+        sorter: (a, b) => {
+          if (item.field === 'name') {
+            return a[item.field].localeCompare(b[item.field])
+          } else {
+            return a[item.field] - b[item.field]
+          }
+        }, // 自定义排序函数
         key: item.field,
         align: 'center',
         width: width,
@@ -303,6 +319,13 @@ const findData = async () => {
       tableColumns.value.push({
         title: item.label,
         dataIndex: item.field,
+        sorter: (a, b) => {
+          if(item.field === 'name') {
+            return a[item.field].localeCompare(b[item.field])
+          } else {
+            return a[item.field] - b[item.field]
+          }
+        }, // 自定义排序函数
         key: item.field,
         align: 'center',
         width: width,
@@ -557,10 +580,10 @@ onUnmounted(() => {
     // flex: 1;
     height: 100%;
     padding: 4px;
-    min-width: calc(100% - 480px);
+    min-width: calc(100% - 300px);
 
     .chart-container {
-      height: 70%;
+      height: 100%;
       background-color: #f8f8f8;
       border-radius: 4px;
       padding: 5px;
@@ -582,6 +605,10 @@ onUnmounted(() => {
         justify-content: flex-end;
         padding-right: 12px;
         width: 100%;
+      }
+
+      .table-box {
+        height: 90%;
       }
     }
 

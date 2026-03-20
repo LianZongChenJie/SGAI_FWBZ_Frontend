@@ -78,7 +78,7 @@ export const getPointData = (params) => defHttp.get({ url: Api.getPointData, par
 /**
  * 用能安全
  */
-export const getEnergyUseSafetyApi = () => defHttp.get({ url: Api.getEnergyUseSafetyApi }); 
+export const getEnergyUseSafetyApi = (params) => defHttp.get({ url: Api.getEnergyUseSafetyApi, params }); 
 
 /**
  * 禁用告警级别

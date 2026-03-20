@@ -1,10 +1,10 @@
 <template>
   <div class="report-management">
     <a-tabs v-model:activeKey="activeKey" centered class="full-height-tabs">
-      <a-tab-pane key="1" tab="4G水表">
+      <a-tab-pane key="1" tab="水表">
         <fourGenerationWaterMeter :categoryId="'29'" />
       </a-tab-pane>
-      <a-tab-pane key="2" tab="低压配电" >
+      <a-tab-pane key="2" tab="电表" >
         <fourGenerationWaterMeter :categoryId="'25'" />
       </a-tab-pane>
       <a-tab-pane key="3" tab="压力变送器">

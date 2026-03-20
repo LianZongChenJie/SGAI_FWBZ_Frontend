@@ -338,7 +338,13 @@ const pagination = ref({
 
 const historyRecordsModalRef = ref();
 
+const first = ref(0)
+
 const loadData = async (pageParams) => {
+  if(first.value === 0) {
+    first.value++
+    return
+  }
   const { pageNo, pageSize } = pageParams;
   // let { getFieldsValue } = getForm();
   // const searchData = getFieldsValue();
@@ -564,7 +570,7 @@ onMounted(async () => {
 
     const spaceRes = await getSpaceTree();
     spaceTreeData.value = spaceRes;
-    reload();
+    // reload();
   } catch (error) {
     console.error('获取数据失败:', error);
   }

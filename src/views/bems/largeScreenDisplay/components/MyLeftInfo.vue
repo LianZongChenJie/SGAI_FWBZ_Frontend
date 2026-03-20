@@ -86,7 +86,7 @@
       </div>
       <div class="electricity-ranking-box">
         <div class="ranking-title">
-          用电排名
+          本月用电排名
         </div>
         <!-- <div class="my-tab-button">
           <div class="button-box">
@@ -384,7 +384,7 @@ const initWaterChart = () => {
       formatter: function (params) {
         let result = `${params[0].axisValue}<br/>`;
         for (let i = 0; i < params.length; i++) {
-          result += `${params[i].marker}${params[i].seriesName}: <b>${params[i].value} kWh</b><br/>`;
+          result += `${params[i].marker}${params[i].seriesName}: <b>${params[i].value} t</b><br/>`;
         }
         return result;
       },
@@ -418,7 +418,7 @@ const initWaterChart = () => {
     },
     yAxis: {
       type: 'value',
-      name: '用水量 (kWh)',
+      name: '用水量 (t)',
       nameTextStyle: {
         color: '#fff',
       },

@@ -3,7 +3,7 @@
     <div class="load-operation-status">
       <div class="table-title">
         <div class="icon-box"></div>
-        <span>实时负荷运行情况</span>
+        <span>总配电实时负荷运行情况</span>
       </div>
       <div class="place-list">
         <div class="data-title">
@@ -20,7 +20,7 @@
             负荷率
           </div>
         </div>
-        <div class="data-box">
+        <div class="data-box small-magrin">
           <div
             class="data-item"
             v-for="(item,index) in placeList"
@@ -42,7 +42,83 @@
         </div>
       </div>
     </div>
-    <div class="alarm-handling-status">
+    <div class="load-operation-status">
+      <div class="table-title">
+        <div class="icon-box"></div>
+        <span>4号楼实时负荷运行情况</span>
+      </div>
+      <div class="place-list">
+        <div class="data-title">
+          <div>
+
+          </div>
+          <div>
+            当前负荷(kW)
+          </div>
+          <div>
+            额定负荷(kW)
+          </div>
+          <div>
+            负荷率
+          </div>
+        </div>
+        <div class="data-box">
+          <div class="data-item" v-for="(item, index) in placeList4" :key="index">
+            <div>
+              {{ item.name }}
+            </div>
+            <div>
+              {{ item.ratedLoad }}
+            </div>
+            <div>
+              {{ item.currentLoad }}
+            </div>
+            <div>
+              {{ item.loadRate }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="load-operation-status">
+      <div class="table-title">
+        <div class="icon-box"></div>
+        <span>9号楼实时负荷运行情况</span>
+      </div>
+      <div class="place-list">
+        <div class="data-title">
+          <div>
+
+          </div>
+          <div>
+            当前负荷(kW)
+          </div>
+          <div>
+            额定负荷(kW)
+          </div>
+          <div>
+            负荷率
+          </div>
+        </div>
+        <div class="data-box">
+          <div class="data-item" v-for="(item, index) in placeList9" :key="index">
+            <div>
+              {{ item.name }}
+            </div>
+            <div>
+              {{ item.ratedLoad }}
+            </div>
+            <div>
+              {{ item.currentLoad }}
+            </div>
+            <div>
+              {{ item.loadRate }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- <div class="alarm-handling-status">
       <div class="table-title">
         <div class="icon-box"></div>
         <span>今日报警处理情况</span>
@@ -53,7 +129,7 @@
       >
 
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -71,13 +147,35 @@ const placeList = ref([
   },
 ]);
 
+const placeList4 = ref([
+  {
+    name: '测试数据1',
+    ratedLoad: '123',
+    currentLoad: '68',
+    loadRate: '50%',
+  },
+]);
+
+const placeList9 = ref([
+  {
+    name: '测试数据1',
+    ratedLoad: '123',
+    currentLoad: '68',
+    loadRate: '50%',
+  },
+]);
+
 const chartContainer = ref(null); // 引用图表容器
 
 onMounted(async () => {
-  let res = await getEnergyUseSafetyApi();
-  placeList.value = [...res];
+  let res1 = await getEnergyUseSafetyApi({});
+  let res2 = await getEnergyUseSafetyApi({ configKey: 'by:energyUseSafety:4'});
+  let res3 = await getEnergyUseSafetyApi({ configKey: 'by:energyUseSafety:9' });
+  placeList.value = [...res1];
+  placeList4.value = [...res2];
+  placeList9.value = [...res3];
 
-  initChart();
+  // initChart();
 });
 
 const initChart = () => {
@@ -243,13 +341,13 @@ const initChart = () => {
   width: 100%;
 
   border-radius: 10px;
-  padding: 0 24px;
+  padding: 0 12px;
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   .load-operation-status,
   .alarm-handling-status {
     height: 100%;
-    width: 48%;
+    width: 32%;
     background-color: #fff;
     border-radius: 10px;
 
@@ -308,6 +406,13 @@ const initChart = () => {
             justify-content: center;
             font-size: 16px;
           }
+        }
+      }
+
+      .small-magrin {
+        
+        .data-item {
+          height: 37px;
         }
       }
     }

@@ -61,11 +61,11 @@ const songPaiFengJi = [
     options: [
       {
         value: '1',
-        label: '自动',
+        label: '启动',
       },
       {
         value: '0',
-        label: '手动',
+        label: '停止',
       },
     ],
   },
@@ -177,6 +177,7 @@ const getByDeviceId = async (id) => {
     deviceId: id
   })
   deviceDataList.value = res
+  
   const codeArr = res.map(item => item.attributeCode)
   if(props.path.includes('Feng')) {
     isControlArr.value = songPaiFengJi.filter((item: any) => codeArr.includes(item.key))
@@ -204,7 +205,6 @@ const getByDeviceId = async (id) => {
       }
     }
   })
-  console.log('')
   initEvent();
 }
 

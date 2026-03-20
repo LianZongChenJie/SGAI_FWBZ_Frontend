@@ -1,7 +1,7 @@
 <template>
   <div class="substation-distribution-main-box">
     <div class="base-info-box">
-      <div class="date-box">
+      <!-- <div class="date-box">
         <div class="date-item">
           <date-item :title="'今日报警数'" :number="'6'"/>
         </div>
@@ -20,10 +20,10 @@
         <div class="date-item">
           <date-item :title="'环比'" :number="'15'"/>
         </div>
-      </div>
-      <div class="table-box">
+      </div> -->
+      <!-- <div class="table-box"> -->
         <operation-monitoring-table />
-      </div>
+      <!-- </div> -->
     </div>
     <div class="topo-box">
       <topo-component />

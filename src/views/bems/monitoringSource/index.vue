@@ -4,9 +4,9 @@
       <a-tab-pane key="3" tab="变配电运行监控">
         <substationAndDistribution />
       </a-tab-pane>
-      <a-tab-pane key="1" tab="冷源监控与分析(虚拟)">
+      <!-- <a-tab-pane key="1" tab="冷源监控与分析(虚拟)">
         <ColdSourceMonitoring />
-      </a-tab-pane>
+      </a-tab-pane> -->
       <!-- <a-tab-pane key="2" tab="环境监控与分析(虚拟)">
         <EnvironmentalMonitoring />
       </a-tab-pane> -->
@@ -17,10 +17,10 @@
       <!-- <a-tab-pane key="5" tab="给排水(虚拟)">
         <WaterSupplyAndDrainage />
       </a-tab-pane> -->
-      <a-tab-pane key="6" tab="压力传感器">
+      <a-tab-pane key="6" tab="供水保障监控">
         <PressureSensor :apiParams="'26'" />
       </a-tab-pane>
-      <a-tab-pane key="7" tab="流速传感器">
+      <a-tab-pane key="7" tab="供冷供热保障监控">
         <PressureSensor :apiParams="'36'" :isFilter='true' />
       </a-tab-pane>
       <a-tab-pane key="8" tab="空调机组">

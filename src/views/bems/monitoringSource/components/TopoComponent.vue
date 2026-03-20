@@ -17,7 +17,7 @@
                 {{ title }}
               </template>
               <span class="truncated-text">
-                {{ truncateText(title, 10) }}
+                {{ title }}
               </span>
             </a-popover>
           </template>
@@ -58,34 +58,34 @@ const fullScreenModalRef = ref();
 
 const treeData = ref([
   {
-    title: '4号楼',
-    key: '2',
-    path: 'jinAnQiao/4haoLou.json',
-    children: [
-      { title: '1#变压器', key: '2-5' },
-      { title: '2#变压器', key: '2-6' },
-      { title: '3#变压器', key: '2-7' },
-      { title: '4#变压器', key: '2-8' },
-    ],
-  },
-  {
-    title: '5号楼(总楼)',
+    title: '主电室总配电（5号楼）',
     key: '3',
     path: 'jinAnQiao/zongPeiDian.json',
     children: [
-      { title: '1#变压器', key: '3-5' },
-      { title: '2#变压器', key: '3-6' },
-      { title: '3#变压器', key: '3-7' },
-      { title: '4#变压器', key: '3-8' },
+      // { title: '1#变压器', key: '3-5' },
+      // { title: '2#变压器', key: '3-6' },
+      // { title: '3#变压器', key: '3-7' },
+      // { title: '4#变压器', key: '3-8' },
     ],
   },
   {
-    title: '9号楼',
+    title: '提升泵站分配电（4号楼）',
+    key: '2',
+    path: 'jinAnQiao/4haoLou.json',
+    children: [
+      // { title: '1#变压器', key: '2-5' },
+      // { title: '2#变压器', key: '2-6' },
+      // { title: '3#变压器', key: '2-7' },
+      // { title: '4#变压器', key: '2-8' },
+    ],
+  },
+  {
+    title: '除尘改造分配电（9号楼）',
     key: '4',
     path: '9号楼全.json',
     children: [
-      { title: '1#变压器', key: '4-5' },
-      { title: '2#变压器', key: '4-6' },
+      // { title: '1#变压器', key: '4-5' },
+      // { title: '2#变压器', key: '4-6' },
     ],
   },
 ]);
@@ -220,6 +220,7 @@ const truncateText = (text, length = 10) => {
       width: 20%;
       z-index: 10;
       overflow: auto;
+      padding-top: 12px;
     }
     .dinalu-topo-box {
       position: relative;

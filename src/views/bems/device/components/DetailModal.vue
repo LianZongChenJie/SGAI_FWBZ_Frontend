@@ -31,7 +31,7 @@ import { staticDataList, staticDataSave, attributeDataList } from '../Device.api
 
 const visible = ref(false);
 const handleCancel = () => {
-  current.value = ['base'];
+  current.value = ['point'];
   visible.value = false;
 };
 const handleClick = (item: any) => {
@@ -44,20 +44,20 @@ const handleClick = (item: any) => {
     findStaticData(item.key, deviceId.value);
   }
 };
-const current = ref<string[]>(['base']);
+const current = ref<string[]>(['point']);
 const items = ref<MenuProps['items']>([
-  {
-    label: '基本信息',
-    key: 'base',
-  },
-  {
-    label: '技术参数',
-    key: 'tech',
-  },
-  {
-    label: '服务厂商',
-    key: 'vendor',
-  },
+  // {
+  //   label: '基本信息',
+  //   key: 'base',
+  // },
+  // {
+  //   label: '技术参数',
+  //   key: 'tech',
+  // },
+  // {
+  //   label: '服务厂商',
+  //   key: 'vendor',
+  // },
   {
     label: '采集点位',
     key: 'point',
@@ -114,9 +114,10 @@ const findAttributeData = async (deviceId: number) => {
 
 defineExpose({
   openModal: (id: number) => {
-    visible.value = true;
+    // findAttributeData(id);
+    findAttributeData(id);
     deviceId.value = id;
-    findStaticData('base', id);
+    visible.value = true;
   },
 });
 </script>
