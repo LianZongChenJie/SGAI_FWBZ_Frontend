@@ -99,6 +99,7 @@
 
   // 打开弹窗
   const openModal = (data?: any) => {
+    console.log(data,"data");
     formData.type = props.type;
     if (data && data.id) {
       // 使用解构赋值确保只复制需要的字段

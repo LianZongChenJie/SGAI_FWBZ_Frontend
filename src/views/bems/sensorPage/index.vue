@@ -68,7 +68,7 @@
   import HistoryRecordsModal from './components/HistoryRecordsModal.vue';
   import { BasicColumn, BasicTable, FormSchema } from '/@/components/Table';
   import { useListPage } from '/@/hooks/system/useListPage';
- import { message } from 'ant-design-vue';
+  import { message } from 'ant-design-vue';
   const props = defineProps({
     categoryId: {
       type: String,
@@ -419,6 +419,7 @@
     // const searchData = getFieldsValue();
     let res = await exportData({
       ...formState.value,
+      categoryId: props.categoryId,
       startTime: formState.value.startTime ? formState.value.startTime.split(' ')[0] + ' 00:00:00' : null,
       endTime: formState.value.endTime ? formState.value.endTime.split(' ')[0] + ' 00:00:00' : null,
     });

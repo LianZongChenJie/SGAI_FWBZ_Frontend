@@ -11,12 +11,14 @@ enum Api {
   analyticFormula = '/bems/meteringPoint/analyticFormula',
   saveFormula = '/bems/meteringPoint/saveFormula',
   energyFlowType = '/sys/dict/getDictItems/energy_flow_type',
-  energyFlowTree = '/bems/meteringPoint/getTree',
+  // energyFlowTree = '/bems/meteringPoint/getTree',
+  energyFlowTree = '/bems/meteringPoint/getPermissionTree',
   addMeasureRule = '/bems/meteringPoint/add',
   deleteMeasureRule = '/bems/meteringPoint/delete',
   editMeasureRule = '/bems/meteringPoint/edit',
   ruleList = '/bems/meteringPoint/list',
   pointList = '/bems/meteringPoint/listPoint',
+  treeNodeDetail = '/bems/meteringPoint/getById',
 }
 
 /**
@@ -83,3 +85,7 @@ export const editMeasureRule = (params) => defHttp.post({ url: Api.editMeasureRu
  * 能流图节点列表
  */
 export const ruleList = (params) => defHttp.get({ url: Api.ruleList, params });
+/**
+ * 树节点详情
+ */
+export const nodeDetail = (params) => defHttp.get({ url: Api.treeNodeDetail, params });

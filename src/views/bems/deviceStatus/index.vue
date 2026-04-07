@@ -498,6 +498,7 @@
   };
 
   const handleCategoryChange = (value, item, val) => {
+    console.log(value,item,val);
     if (val && val.triggerNode && val.triggerNode.props && val.triggerNode.props.disableCheckbox) {
       message.warn('无该节点权限，不可选！');
       formState.value.categoryId = null;

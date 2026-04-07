@@ -22,16 +22,8 @@
           @expand="handleExpand"
         >
           <template #title="{ title, originData }">
-            <a-popover>
-              <template #content>
-                {{ title }}
-              </template>
-              <span class="truncated-text">
-                <!-- {{ truncateText(title, 10) }} -->
-                <span v-html="highlightText(title)" />
-                <span v-if="originData.extra" class="node-extra"> ({{ truncateText(originData.extra) }}) </span>
-              </span>
-            </a-popover>
+            <span v-html="highlightText(title)" />
+            <span v-if="originData.extra" class="node-extra"> ({{ originData.extra }}) </span>
           </template>
           <!-- <template #title="{ title, key, dataRef }">
             <a-popover>
@@ -83,6 +75,7 @@
   import { h } from 'vue';
   import { PlusOutlined } from '@ant-design/icons-vue';
   import { debounce } from 'lodash-es';
+  import { nodeDetail } from './index.api';
 
   const current = ref<string[]>([]);
   const items = ref<MenuProps['items']>([]);
@@ -169,12 +162,20 @@
 
   // 编辑弹窗
   const showEditModal = () => {
+    // 在treeData中查找选中的节点信息
+    const selectedNode = findNodeInTree(treeData.value, selectKeys.value[0]);
+    if (selectedNode.disableCheckbox) {
+      message.warn('无该节点权限，不可编辑！');
+      return;
+    }
     if (selectKeys.value.length === 0) {
       // 弹窗提醒用户未选择节点
       message.warning('请选择要编辑的节点');
       return;
     }
-    ruleModalRef.value.openModal(findNodeInTree(treeData.value, selectKeys.value[0]));
+    nodeDetail({ id: selectKeys.value[0] }).then((res) => {
+      ruleModalRef.value.openModal(res);
+    });
   };
 
   // 编辑公式
@@ -185,7 +186,7 @@
 
   // 编辑
   const handleEdit = (record) => {
-    ruleModalRef.value.openModal(findNodeInTree(treeData.value, record.id));
+    ruleModalRef.value.openModal(record);
   };
   // 删除
   const handleDeleteTable = (record) => {
@@ -338,8 +339,8 @@
   const transformTreeData = (data, parentKey = null) => {
     return data.map((item) => {
       const node = {
-        key: item.id.toString(),
-        title: item.nodeName,
+        key: item.key.toString(),
+        title: item.title,
         originData: item, // 保留原始数据
         parentKey: parentKey, // 添加父节点key便于搜索时展开
       };
