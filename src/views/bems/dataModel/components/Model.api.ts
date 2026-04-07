@@ -4,7 +4,8 @@ import { useMessage } from '/@/hooks/web/useMessage';
 const { createConfirm } = useMessage();
 enum Api {
   getDeviceModelList = '/bems/deviceModel/queryPage',
-  getCategoryTree = '/bems/equipmentCategory/getTree',
+  // getCategoryTree = '/bems/equipmentCategory/getTree',
+  getCategoryTree = '/bems/equipmentCategory/getPermissionTree',
   addModel = '/bems/deviceModel/add',
   updateModel = '/bems/deviceModel/edit',
   deleteModel = '/bems/deviceModel/delete',

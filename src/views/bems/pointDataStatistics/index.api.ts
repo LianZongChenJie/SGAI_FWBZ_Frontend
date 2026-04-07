@@ -8,7 +8,8 @@ enum Api {
   findMonth = '/bems/meterPointData/findMonth',
   findYear = '/bems/meterPointData/findYear',
   energyFlowType = '/sys/dict/getDictItems/energy_flow_type',
-  energyFlowTree = '/bems/meteringPoint/getTree',
+  // energyFlowTree = '/bems/meteringPoint/getTree',
+  energyFlowTree = '/bems/meteringPoint/getPermissionTree',
   test = '/bems/test/test',
 }
 

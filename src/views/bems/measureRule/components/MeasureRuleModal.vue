@@ -10,7 +10,7 @@
         />
       </a-form-item>
       <a-form-item label="项目编号" name="nodeCode">
-        <a-input v-model:value="formData.nodeCode" placeholder="请输入项目编号" disabled/>
+        <a-input v-model:value="formData.nodeCode" placeholder="请输入项目编号" disabled />
       </a-form-item>
       <a-form-item label="项目名称" name="nodeName">
         <a-input v-model:value="formData.nodeName" placeholder="请输入项目名称" />
@@ -25,6 +25,7 @@
             label: 'title',
             value: 'key',
           }"
+          @change="selectCategoryId"
         />
       </a-form-item>
       <a-form-item label="空间位置" name="spaceId">
@@ -37,6 +38,7 @@
             label: 'title',
             value: 'key',
           }"
+          @change="selectSpaceId"
         />
       </a-form-item>
       <a-form-item label="计量单位" name="meteringUnit">
@@ -80,8 +82,8 @@
     parentId: undefined,
     nodeCode: '',
     nodeName: '',
-    categoryId: undefined,
-    spaceId: undefined,
+    categoryId: null,
+    spaceId: null,
     meteringUnit: undefined,
     sort: 0,
   });
@@ -138,14 +140,13 @@
       try {
         const api = formData.id ? editMeasureRule : addMeasureRule;
         let res = await api(formData);
-        if(res && res.code === 500) {
+        if (res && res.code === 500) {
           // message.error(res.message)
         } else {
-          message.success('编辑成功！')
+          message.success('编辑成功！');
           emit('success');
           closeModal();
         }
-        
       } catch (error) {
         console.error(error);
       } finally {
@@ -153,7 +154,21 @@
       }
     });
   };
+  const selectCategoryId = (value, item, val) => {
+    if (val.triggerNode && val.triggerNode.props.disableCheckbox) {
+      message.warn('无该节点权限，不可选！');
+      formData.categoryId = null;
+      return;
+    }
+  };
 
+  const selectSpaceId = (value, item, val) => {
+    if (val.triggerNode && val.triggerNode.props.disableCheckbox) {
+      message.warn('无该节点权限，不可选！');
+      formData.spaceId = null;
+      return;
+    }
+  };
   // 取消
   const handleCancel = () => {
     closeModal();

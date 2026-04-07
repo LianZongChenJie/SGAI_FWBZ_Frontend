@@ -13,7 +13,7 @@
     <div class="formula-container">
       <!-- 左侧文本块 -->
       <div class="left-panel">
-        <span style="font-size: 16px; font-weight: 600;">{{ nodeName }}</span>
+        <span style="font-size: 16px; font-weight: 600">{{ nodeName }}</span>
         <div class="text-block">
           <div class="block-title">公式内容</div>
           <a-textarea v-model:value="formulaContent" :rows="8" placeholder="请输入公式内容" />
@@ -48,6 +48,7 @@
                   label: 'title',
                   value: 'key',
                 }"
+                @change="selectCategoryId"
               />
             </a-form-item>
             <a-form-item>
@@ -62,6 +63,7 @@
                   label: 'title',
                   value: 'key',
                 }"
+                @change="selectSpaceId"
               />
             </a-form-item>
             <a-form-item>
@@ -122,13 +124,13 @@
     current: 1,
     pageSize: 10,
   });
-  const nodeName = ref('')
+  const nodeName = ref('');
 
   // 修改查询参数
   const queryParams = ref({
     keyword: undefined, // 新增关键字查询参数
-    categoryId: undefined,
-    spaceId: undefined,
+    categoryId: null,
+    spaceId: null,
   });
 
   // 添加当前编辑的记录ID
@@ -177,8 +179,8 @@
   const handleReset = () => {
     queryParams.value = {
       keyword: undefined, // 重置关键字
-      categoryId: undefined,
-      spaceId: undefined,
+      categoryId: null,
+      spaceId: null,
     };
     handleQuery();
   };
@@ -248,7 +250,7 @@
 
     // 重置所有状态
     resetState();
-    nodeName.value = record.nodeCode + '-' + record.nodeName
+    nodeName.value = record.nodeCode + '-' + record.nodeName;
     if (record) {
       currentId.value = record.id;
       formulaContent.value = record.formula || '';
@@ -335,7 +337,21 @@
       message.error('公式解析失败，请检查公式格式');
     }
   };
+  const selectCategoryId = (value, item, val) => {
+    if (val.triggerNode && val.triggerNode.props.disableCheckbox) {
+      message.warn('无该节点权限，不可选！');
+      queryParams.value.categoryId = null;
+      return;
+    }
+  };
 
+  const selectSpaceId = (value, item, val) => {
+    if (val.triggerNode && val.triggerNode.props.disableCheckbox) {
+      message.warn('无该节点权限，不可选！');
+      queryParams.value.spaceId = null;
+      return;
+    }
+  };
   // 暴露方法给父组件
   defineExpose({
     openModal,

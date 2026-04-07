@@ -4,8 +4,10 @@ import { useMessage } from '/@/hooks/web/useMessage';
 const { createConfirm } = useMessage();
 enum Api {
   // list = '/bems/device/list',
-  categoryTree = '/bems/equipmentCategory/getTree',
-  spaceTree = '/bems/space/getTree',
+  // categoryTree = '/bems/equipmentCategory/getTree',
+  categoryTree = '/bems/equipmentCategory/getPermissionTree',
+  // spaceTree = '/bems/space/getTree',
+  spaceTree = '/bems/space/getPermissionTree',
   list = '/bems/deviceData/deviceStatusList',
   findHourData = '/bems/deviceData/findHourData', 
   getDeviceNumberDataApi = '/bems/deviceData/statisticsRunState',

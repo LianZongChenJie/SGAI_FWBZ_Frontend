@@ -3,9 +3,12 @@ import { useMessage } from '/@/hooks/web/useMessage';
 
 const { createConfirm } = useMessage();
 enum Api {
-  categoryTree = '/bems/equipmentCategory/measuring/getTree',
-  spaceTree = '/bems/space/getTree',
-  spaceTree2 = '/bems/space/getTreeByDeviceType',
+  // categoryTree = '/bems/equipmentCategory/measuring/getTree',
+  categoryTree = '/bems/equipmentCategory/measuring/getPermissionTree',
+  // spaceTree = '/bems/space/getTree',
+  spaceTree = '/bems/space/getPermissionTree',
+  // spaceTree2 = '/bems/space/getTreeByDeviceType',
+  spaceTree2 = '/bems/space/getPermissionTreeByDeviceType',
   addDevice = '/bems/device/measuring/add',
   editDevice = '/bems/device/edit',
   deleteDevice = '/bems/device/delete',

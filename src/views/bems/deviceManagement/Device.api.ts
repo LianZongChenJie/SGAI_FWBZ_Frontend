@@ -3,8 +3,10 @@ import { useMessage } from '/@/hooks/web/useMessage';
 
 const { createConfirm } = useMessage();
 enum Api {
-  categoryTree = '/bems/equipmentCategory/equipment/getTree',
-  spaceTree = '/bems/space/getTree',
+  // categoryTree = '/bems/equipmentCategory/equipment/getTree',
+  categoryTree = '/bems/equipmentCategory/equipment/getPermissionTree',
+  // spaceTree = '/bems/space/getTree',
+  spaceTree = '/bems/space/getPermissionTree',
   addDevice = '/bems/device/equipment/add',
   editDevice = '/bems/device/edit',
   deleteDevice = '/bems/device/delete',

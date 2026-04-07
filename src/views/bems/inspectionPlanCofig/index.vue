@@ -16,7 +16,6 @@
               </div>
             </el-form-item>
           </el-form>
-
         </div>
         <el-table :data="planList" tooltip-effect="dark" border>
           <el-table-column type="index" label="序号" width="55" align="center"></el-table-column>
@@ -40,10 +39,18 @@
             </template>
           </el-table-column> -->
         </el-table>
-        <el-pagination class="pagination-box" @size-change="handleSizeChange" @current-change="handleCurrentChange"
-          background :current-page="planPageInfo.page" :page-sizes="[10, 20, 50]" :page-size="planPageInfo.pagesize"
-          :total="planPageInfo.total" layout="total,prev, pager, next, sizes,jumper"
-          v-show="planList.length"></el-pagination>
+        <el-pagination
+          class="pagination-box"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          background
+          :current-page="planPageInfo.page"
+          :page-sizes="[10, 20, 50]"
+          :page-size="planPageInfo.pagesize"
+          :total="planPageInfo.total"
+          layout="total,prev, pager, next, sizes,jumper"
+          v-show="planList.length"
+        ></el-pagination>
       </el-main>
     </el-container>
     <!-- 关联设备弹出框 -->
@@ -178,426 +185,425 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import moment from 'moment'
-import { Search, RefreshRight } from '@element-plus/icons-vue'
-import { getPlanConfigListApi } from './Standardized.api'
+  import { ref, onMounted } from 'vue';
+  import moment from 'moment';
+  // import { Search, RefreshRight } from '@element-plus/icons-vue';
+  import { getPlanConfigListApi } from './Standardized.api';
 
-const selectFlag = ref(true)
-const defaultProps = ref({
-  value: 'id',
-  children: 'children',
-  checkStrictly: true,
-  label: 'name',
-})
-const systemIds = ref([])
-const systemData = ref([])
-const eqVisible = ref(false)
-const loading = ref(false)
-const planSearchForm = ref({
-  search_EQ_year: moment().format('yyyy'),
-})
-const year = ref('')
-const planPageInfo = ref({
-  page: 1,
-  pagesize: 10,
-  total: 0,
-})
-const planList = ref([])
-const deviceVisible = ref(false)
-const activeDeviceIndex = ref(1)
-const navDeviceArr = ref(['图选', '列表'])
-const searchForm = ref({
-  search_LIKE_userName: '',
-})
-const options = ref([])
-const page = ref(1)
-const pagesize = ref(10)
-const total = ref(200)
-const tableData = ref([])
-const selectedDeviceRes = ref([])
-const deviceSearchForm = ref({
-  deviceName: '',
-  search_EQ_specialitySystem: '',
-  spaceLayer: '',
-  specialityName: '',
-})
-const deviceList = ref([])
-const deviceListPageInfo = ref({
-  page: 1,
-  pagesize: 10,
-  total: 0,
-})
-// systemList: [],
-const spaceLayerList = ref([])
-// typeIdList: [],
-const selectAllData = ref([])
-const rowId = ref(null)
+  const selectFlag = ref(true);
+  const defaultProps = ref({
+    value: 'id',
+    children: 'children',
+    checkStrictly: true,
+    label: 'name',
+  });
+  const systemIds = ref([]);
+  const systemData = ref([]);
+  const eqVisible = ref(false);
+  const loading = ref(false);
+  const planSearchForm = ref({
+    search_EQ_year: moment().format('yyyy'),
+  });
+  const year = ref('');
+  const planPageInfo = ref({
+    page: 1,
+    pagesize: 10,
+    total: 0,
+  });
+  const planList = ref([]);
+  const deviceVisible = ref(false);
+  const activeDeviceIndex = ref(1);
+  const navDeviceArr = ref(['图选', '列表']);
+  const searchForm = ref({
+    search_LIKE_userName: '',
+  });
+  const options = ref([]);
+  const page = ref(1);
+  const pagesize = ref(10);
+  const total = ref(200);
+  const tableData = ref([]);
+  const selectedDeviceRes = ref([]);
+  const deviceSearchForm = ref({
+    deviceName: '',
+    search_EQ_specialitySystem: '',
+    spaceLayer: '',
+    specialityName: '',
+  });
+  const deviceList = ref([]);
+  const deviceListPageInfo = ref({
+    page: 1,
+    pagesize: 10,
+    total: 0,
+  });
+  // systemList: [],
+  const spaceLayerList = ref([]);
+  // typeIdList: [],
+  const selectAllData = ref([]);
+  const rowId = ref(null);
 
-// toDelete(row) {
-//   // console.log("row", row);
-//   this.$confirm('删除不可恢复，确认删除该数据？', '提示', {
-//     confirmButtonText: '确定',
-//     cancelButtonText: '取消',
-//   })
-//     .then(() => {
-//       this.rq({
-//         baseURL: this.deviceURL,
-//         url: '/admin/planModel/deleteDeviceByIds',
-//         method: 'post',
-//         contentType: 'application/x-www-form-urlencoded',
-//         data: { ids: row.deviceId, modelId: this.rowId },
-//       })
-//         .then((res) => {
-//           if (res.code === 1000 || res.code === 1001) {
-//             this.getSelectedDevice(this.rowId)
-//             this.$message.success(res.msg ? res.msg : '操作成功!')
-//           } else {
-//             this.$message.error(res.msg)
-//           }
-//         })
-//         .catch(() => { })
-//     })
-//     .catch(() => { })
-// },
-// navClick(item, index, tabPage) {
-//   this.activeDeviceIndex = index
-//   if (this.activeDeviceIndex == 1) {
-//     this.handleDeviceListSizeChange()
-//   }
-// },
-// closeDeviceDialog() {
-//   this.deviceVisible = false
-//   this.activeDeviceIndex = 1
-//   this.resetDeviceSearchForm()
-// },
-// updateEqData(data) {
-//   // this.eqtable = data;
-//   this.selectedDeviceRes = data
-//   // console.log("updateEqData~~~~~~", this.selectedDeviceRes);
-// },
-// getSystemVal(val) {
-//   this.deviceSearchForm.parentSpecialityId = val[val.length - 1]
-// },
-//获取树结构
-// getTree() {
-//   this.loading = true
-//   this.rq({
-//     baseURL: this.deviceURL,
-//     url: '/admin/deviceType/queryDeviceTypeTree',
-//     method: 'get',
-//     params: { treeDepth: 3 },
-//   })
-//     .then((res) => {
-//       this.loading = false
-//       if (res.code == 1000 || res.code == 1001) {
-//         this.handleSystemData(res.data)
-//         this.regDisabled(res.data)
-//         this.systemData = res.data
-//       }
-//     })
-//     .catch((err) => {
-//       this.loading = false
-//     })
-// },
-// handleSystemData(data) {
-//   data.forEach((item) => {
-//     if (item.children) {
-//       if (item.children.length !== 0) {
-//         this.handleSystemData(item.children)
-//       } else {
-//         item.children = undefined
-//       }
-//     }
-//   })
-// },
-//最后一级才可以选
-// regDisabled(data) {
-//   data.forEach((item) => {
-//     item.disabled = item.level != 3
-//     if (Array.isArray(item.children) && item.children.length > 0) {
-//       this.regDisabled(item.children)
-//     }
-//   })
-// },
-//查询已关联数据
-// checkEqData(data) {
-//   // console.log("checkEqData", data);
-//   this.eqVisible = data.associatedDevice ? true : false
-//   this.rowId = data.id
-//   this.getSelectedDevice(data.id)
-// },
-// getSpaceLayerList() {
-//   this.rq({
-//     baseURL: this.deviceURL,
-//     url: '/admin/device/account/getSpaceInfoList',
-//     method: 'get',
-//     params: {
-//       spaceTypeCode: 'A04',
-//       clientId: 'gjdjypark',
-//     },
-//   }).then((res) => {
-//     if (res.code === 1001 || res.code == 1000) {
-//       this.spaceLayerList = res.data
-//       // console.log("louceng", this.spaceLayerList);
-//     }
-//   })
-// },
-// searchDeviceList() {
-//   this.deviceListPageInfo.page = 1
-//   this.getDeviceList()
-// },
-// const getDeviceList = () => {
-//   const data = {
-//     page: this.deviceListPageInfo.page,
-//     pagesize: this.deviceListPageInfo.pagesize,
-//     search_EQ_accountClass: '设备台账',
-//   }
-//   for (let key in this.deviceSearchForm) {
-//     if (this.deviceSearchForm[key]) {
-//       data[key] = this.deviceSearchForm[key]
-//     }
-//   }
-//   return new Promise((resolve) => {
-//     this.rq({
-//       baseURL: this.deviceURL,
-//       url: '/admin/device/account/queryDeviceAccountPage',
-//       method: 'get',
-//       params: data,
-//     }).then((res) => {
-//       if (res.code === 1001 || res.code === 1000) {
-//         this.deviceList = res.data.list
-//         dataNull(this.deviceList)
-//         this.deviceListPageInfo.total = res.data.total
-//         resolve(res.data.list)
-//       }
-//     })
-//   })
-// }
-// handleDeviceListSizeChange(val) {
-//   this.deviceListPageInfo.pagesize = val
-//   this.getDeviceList().then(() => {
-//     this.$nextTick(() => {
-//       this.selectedDeviceRes.forEach((selected) => {
-//         this.deviceList.forEach((item) => {
-//           if (selected.id === item.id) {
-//             this.$refs.deviceTable.toggleRowSelection(item, true)
-//           }
-//         })
-//       })
-//     })
-//   })
-// },
-// handleDeviceListCurrentChange(val) {
-//   this.deviceListPageInfo.page = val
-//   this.getDeviceList().then(() => {
-//     this.$nextTick(() => {
-//       this.selectedDeviceRes.forEach((selected) => {
-//         this.deviceList.forEach((item) => {
-//           if (selected.id === item.id) {
-//             this.$refs.deviceTable.toggleRowSelection(item, true)
-//           }
-//         })
-//       })
-//     })
-//   })
-// },
-const getPlanList = async () => {
-  // this.loading = true
-  const data = {
-    page: planPageInfo.value.page,
-    pagesize: planPageInfo.value.pagesize,
-    search_EQ_labelType: 'Inspection',
-    search_EQ_year: year.value
-  }
-  // for (let key in planSearchForm.value) {
-  //   if (planSearchForm.value[key]) {
-  //     data[key] = planSearchForm.value[key]
+  // toDelete(row) {
+  //   // console.log("row", row);
+  //   this.$confirm('删除不可恢复，确认删除该数据？', '提示', {
+  //     confirmButtonText: '确定',
+  //     cancelButtonText: '取消',
+  //   })
+  //     .then(() => {
+  //       this.rq({
+  //         baseURL: this.deviceURL,
+  //         url: '/admin/planModel/deleteDeviceByIds',
+  //         method: 'post',
+  //         contentType: 'application/x-www-form-urlencoded',
+  //         data: { ids: row.deviceId, modelId: this.rowId },
+  //       })
+  //         .then((res) => {
+  //           if (res.code === 1000 || res.code === 1001) {
+  //             this.getSelectedDevice(this.rowId)
+  //             this.$message.success(res.msg ? res.msg : '操作成功!')
+  //           } else {
+  //             this.$message.error(res.msg)
+  //           }
+  //         })
+  //         .catch(() => { })
+  //     })
+  //     .catch(() => { })
+  // },
+  // navClick(item, index, tabPage) {
+  //   this.activeDeviceIndex = index
+  //   if (this.activeDeviceIndex == 1) {
+  //     this.handleDeviceListSizeChange()
   //   }
+  // },
+  // closeDeviceDialog() {
+  //   this.deviceVisible = false
+  //   this.activeDeviceIndex = 1
+  //   this.resetDeviceSearchForm()
+  // },
+  // updateEqData(data) {
+  //   // this.eqtable = data;
+  //   this.selectedDeviceRes = data
+  //   // console.log("updateEqData~~~~~~", this.selectedDeviceRes);
+  // },
+  // getSystemVal(val) {
+  //   this.deviceSearchForm.parentSpecialityId = val[val.length - 1]
+  // },
+  //获取树结构
+  // getTree() {
+  //   this.loading = true
+  //   this.rq({
+  //     baseURL: this.deviceURL,
+  //     url: '/admin/deviceType/queryDeviceTypeTree',
+  //     method: 'get',
+  //     params: { treeDepth: 3 },
+  //   })
+  //     .then((res) => {
+  //       this.loading = false
+  //       if (res.code == 1000 || res.code == 1001) {
+  //         this.handleSystemData(res.data)
+  //         this.regDisabled(res.data)
+  //         this.systemData = res.data
+  //       }
+  //     })
+  //     .catch((err) => {
+  //       this.loading = false
+  //     })
+  // },
+  // handleSystemData(data) {
+  //   data.forEach((item) => {
+  //     if (item.children) {
+  //       if (item.children.length !== 0) {
+  //         this.handleSystemData(item.children)
+  //       } else {
+  //         item.children = undefined
+  //       }
+  //     }
+  //   })
+  // },
+  //最后一级才可以选
+  // regDisabled(data) {
+  //   data.forEach((item) => {
+  //     item.disabled = item.level != 3
+  //     if (Array.isArray(item.children) && item.children.length > 0) {
+  //       this.regDisabled(item.children)
+  //     }
+  //   })
+  // },
+  //查询已关联数据
+  // checkEqData(data) {
+  //   // console.log("checkEqData", data);
+  //   this.eqVisible = data.associatedDevice ? true : false
+  //   this.rowId = data.id
+  //   this.getSelectedDevice(data.id)
+  // },
+  // getSpaceLayerList() {
+  //   this.rq({
+  //     baseURL: this.deviceURL,
+  //     url: '/admin/device/account/getSpaceInfoList',
+  //     method: 'get',
+  //     params: {
+  //       spaceTypeCode: 'A04',
+  //       clientId: 'gjdjypark',
+  //     },
+  //   }).then((res) => {
+  //     if (res.code === 1001 || res.code == 1000) {
+  //       this.spaceLayerList = res.data
+  //       // console.log("louceng", this.spaceLayerList);
+  //     }
+  //   })
+  // },
+  // searchDeviceList() {
+  //   this.deviceListPageInfo.page = 1
+  //   this.getDeviceList()
+  // },
+  // const getDeviceList = () => {
+  //   const data = {
+  //     page: this.deviceListPageInfo.page,
+  //     pagesize: this.deviceListPageInfo.pagesize,
+  //     search_EQ_accountClass: '设备台账',
+  //   }
+  //   for (let key in this.deviceSearchForm) {
+  //     if (this.deviceSearchForm[key]) {
+  //       data[key] = this.deviceSearchForm[key]
+  //     }
+  //   }
+  //   return new Promise((resolve) => {
+  //     this.rq({
+  //       baseURL: this.deviceURL,
+  //       url: '/admin/device/account/queryDeviceAccountPage',
+  //       method: 'get',
+  //       params: data,
+  //     }).then((res) => {
+  //       if (res.code === 1001 || res.code === 1000) {
+  //         this.deviceList = res.data.list
+  //         dataNull(this.deviceList)
+  //         this.deviceListPageInfo.total = res.data.total
+  //         resolve(res.data.list)
+  //       }
+  //     })
+  //   })
   // }
+  // handleDeviceListSizeChange(val) {
+  //   this.deviceListPageInfo.pagesize = val
+  //   this.getDeviceList().then(() => {
+  //     this.$nextTick(() => {
+  //       this.selectedDeviceRes.forEach((selected) => {
+  //         this.deviceList.forEach((item) => {
+  //           if (selected.id === item.id) {
+  //             this.$refs.deviceTable.toggleRowSelection(item, true)
+  //           }
+  //         })
+  //       })
+  //     })
+  //   })
+  // },
+  // handleDeviceListCurrentChange(val) {
+  //   this.deviceListPageInfo.page = val
+  //   this.getDeviceList().then(() => {
+  //     this.$nextTick(() => {
+  //       this.selectedDeviceRes.forEach((selected) => {
+  //         this.deviceList.forEach((item) => {
+  //           if (selected.id === item.id) {
+  //             this.$refs.deviceTable.toggleRowSelection(item, true)
+  //           }
+  //         })
+  //       })
+  //     })
+  //   })
+  // },
+  const getPlanList = async () => {
+    // this.loading = true
+    const data = {
+      page: planPageInfo.value.page,
+      pagesize: planPageInfo.value.pagesize,
+      search_EQ_labelType: 'Inspection',
+      search_EQ_year: year.value,
+    };
+    // for (let key in planSearchForm.value) {
+    //   if (planSearchForm.value[key]) {
+    //     data[key] = planSearchForm.value[key]
+    //   }
+    // }
 
-  let res = await getPlanConfigListApi(data)
-  planList.value = res.list
-  // dataNull(this.planList)
-  planPageInfo.value.total = res.total
-}
-const handleSizeChange = (val) => {
-  planPageInfo.value.page = 1
-  planPageInfo.value.pagesize = val
-  getPlanList()
-}
-const handleCurrentChange = (val) => {
-  planPageInfo.value.page = val
-  getPlanList()
-}
-const search = () => {
-  page.value = 1
-  getPlanList()
-}
-const resetSearchForm = () => {
-  // planSearchForm.value.search_EQ_year = moment().format('yyyy')
-  year.value = moment().format('yyyy')
-}
-// const resetDeviceSearchForm = () => {
-//   for (let key in this.deviceSearchForm) {
-//     this.deviceSearchForm[key] = ''
-//   }
-//   this.systemIds = []
-// }
-// const toSelectDevice = (row) => {
-//   // console.log('%%%toSelectDevice')
-//   this.curConfigId = row.id
-//   this.deviceVisible = true
-//   if (this.$refs.deviceTable) {
-//     this.$nextTick(() => {
-//       this.$refs.deviceTable.clearSelection()
-//     })
-//   }
-//   this.deviceListPageInfo.page = 1
-//   this.getSelectedDevice(this.curConfigId).then(() => {
-//     this.getDeviceList().then(() => {
-//       this.$nextTick(() => {
-//         this.selectedDeviceRes.forEach((selected) => {
-//           this.deviceList.forEach((item) => {
-//             if (selected.id === item.id) {
-//               this.$refs.deviceTable.toggleRowSelection(item, true)
-//             }
-//           })
-//         })
-//       })
-//     })
-//   })
-//   // console.log("关联设备", this.selectedDeviceRes);
-// }
-// //获取已选设备
-// const getSelectedDevice = (id) => {
-//   return new Promise((resolve) => {
-//     this.rq({
-//       baseURL: this.deviceURL,
-//       url: '/admin/planModel/getDeviceListByPlanId',
-//       method: 'get',
-//       params: {
-//         id: id,
-//       },
-//     }).then((res) => {
-//       if (res.code === 1001 || res.code === 1000) {
-//         if (res.data) {
-//           this.selectedDeviceRes = res.data
-//           // console.log("获取已选设备selectedDeviceRes", this.selectedDeviceRes);
-//           dataNull(this.selectedDeviceRes)
-//           resolve(res.data)
-//         }
-//       } else {
-//         this.$message.error(res.msg)
-//       }
-//     })
-//   })
-// }
-// const handleSelect = (selection, row) => {
-//   if (selection.length) {
-//     selection.forEach((item) => {
-//       if (item.id === row.id) {
-//         //添加
-//         this.selectedDeviceRes.push(row)
-//       } else {
-//         //删除
-//         this.selectedDeviceRes.forEach((item, index) => {
-//           if (item.id === row.id) {
-//             this.selectedDeviceRes.splice(index, 1)
-//           }
-//         })
-//       }
-//     })
-//   } else {
-//     //删除
-//     this.selectedDeviceRes.forEach((item, index) => {
-//       if (item.id === row.id) {
-//         this.selectedDeviceRes.splice(index, 1)
-//       }
-//     })
-//   }
-// },
-// handleSelectAll(selection) {
-//   if (selection.length) {
-//     let res = [...selection, ...this.selectedDeviceRes]
-//     let obj = {}
-//     let resArr = res.reduce((cur, next) => {
-//       if (!obj[next.id]) {
-//         obj[next.id] = true
-//         cur.push(next)
-//       }
-//       //  obj[next.id] ? "" : obj[next.id] = true && cur.push(next)
-//       return cur
-//     }, [])
-//     this.selectedDeviceRes = resArr
-//   } else {
-//     let resArr = this.selectedDeviceRes.filter((item) => {
-//       let idList = this.deviceList.map((d) => d.id)
-//       return !idList.includes(item.id)
-//     })
-//     this.selectedDeviceRes = resArr
-//   }
-// },
-// sumbitSelectedDevice() {
-//   const data = {
-//     id: this.curConfigId,
-//     relateList: this.selectedDeviceRes.map((item) => item.deviceId),
-//   }
-//   if (!data.relateList.length) {
-//     this.$message.error('请选择关联设备！')
-//     return
-//   }
-//   this.rq({
-//     baseURL: this.deviceURL,
-//     url: '/admin/planModel/associativeDevice',
-//     method: 'post',
-//     data: data,
-//   }).then((res) => {
-//     if (res.code === 1001) {
-//       this.activeDeviceIndex = 1
-//       this.$message.success('关联成功！')
-//       this.deviceVisible = false
-//     }
-//   })
-// },
-// deleteSelectedDevice(val) {
-//   this.selectedDeviceRes.forEach((select, index) => {
-//     if (select.id === val.id) {
-//       this.selectedDeviceRes.splice(index, 1)
-//     }
-//   })
-//   this.deviceList.forEach((device) => {
-//     if (device.id === val.id) {
-//       this.$refs.deviceTable.toggleRowSelection(device, false)
-//     }
-//   })
-// },
-// toggleSelected(table, rows, toggle) {
-//   if (rows) {
-//     rows.forEach((row) => {
-//       table.toggleRowSelection(row, toggle)
-//     })
-//   } else {
-//     table.clearSelection()
-//   }
-// },
+    let res = await getPlanConfigListApi(data);
+    planList.value = res.list;
+    // dataNull(this.planList)
+    planPageInfo.value.total = res.total;
+  };
+  const handleSizeChange = (val) => {
+    planPageInfo.value.page = 1;
+    planPageInfo.value.pagesize = val;
+    getPlanList();
+  };
+  const handleCurrentChange = (val) => {
+    planPageInfo.value.page = val;
+    getPlanList();
+  };
+  const search = () => {
+    page.value = 1;
+    getPlanList();
+  };
+  const resetSearchForm = () => {
+    // planSearchForm.value.search_EQ_year = moment().format('yyyy')
+    year.value = moment().format('yyyy');
+  };
+  // const resetDeviceSearchForm = () => {
+  //   for (let key in this.deviceSearchForm) {
+  //     this.deviceSearchForm[key] = ''
+  //   }
+  //   this.systemIds = []
+  // }
+  // const toSelectDevice = (row) => {
+  //   // console.log('%%%toSelectDevice')
+  //   this.curConfigId = row.id
+  //   this.deviceVisible = true
+  //   if (this.$refs.deviceTable) {
+  //     this.$nextTick(() => {
+  //       this.$refs.deviceTable.clearSelection()
+  //     })
+  //   }
+  //   this.deviceListPageInfo.page = 1
+  //   this.getSelectedDevice(this.curConfigId).then(() => {
+  //     this.getDeviceList().then(() => {
+  //       this.$nextTick(() => {
+  //         this.selectedDeviceRes.forEach((selected) => {
+  //           this.deviceList.forEach((item) => {
+  //             if (selected.id === item.id) {
+  //               this.$refs.deviceTable.toggleRowSelection(item, true)
+  //             }
+  //           })
+  //         })
+  //       })
+  //     })
+  //   })
+  //   // console.log("关联设备", this.selectedDeviceRes);
+  // }
+  // //获取已选设备
+  // const getSelectedDevice = (id) => {
+  //   return new Promise((resolve) => {
+  //     this.rq({
+  //       baseURL: this.deviceURL,
+  //       url: '/admin/planModel/getDeviceListByPlanId',
+  //       method: 'get',
+  //       params: {
+  //         id: id,
+  //       },
+  //     }).then((res) => {
+  //       if (res.code === 1001 || res.code === 1000) {
+  //         if (res.data) {
+  //           this.selectedDeviceRes = res.data
+  //           // console.log("获取已选设备selectedDeviceRes", this.selectedDeviceRes);
+  //           dataNull(this.selectedDeviceRes)
+  //           resolve(res.data)
+  //         }
+  //       } else {
+  //         this.$message.error(res.msg)
+  //       }
+  //     })
+  //   })
+  // }
+  // const handleSelect = (selection, row) => {
+  //   if (selection.length) {
+  //     selection.forEach((item) => {
+  //       if (item.id === row.id) {
+  //         //添加
+  //         this.selectedDeviceRes.push(row)
+  //       } else {
+  //         //删除
+  //         this.selectedDeviceRes.forEach((item, index) => {
+  //           if (item.id === row.id) {
+  //             this.selectedDeviceRes.splice(index, 1)
+  //           }
+  //         })
+  //       }
+  //     })
+  //   } else {
+  //     //删除
+  //     this.selectedDeviceRes.forEach((item, index) => {
+  //       if (item.id === row.id) {
+  //         this.selectedDeviceRes.splice(index, 1)
+  //       }
+  //     })
+  //   }
+  // },
+  // handleSelectAll(selection) {
+  //   if (selection.length) {
+  //     let res = [...selection, ...this.selectedDeviceRes]
+  //     let obj = {}
+  //     let resArr = res.reduce((cur, next) => {
+  //       if (!obj[next.id]) {
+  //         obj[next.id] = true
+  //         cur.push(next)
+  //       }
+  //       //  obj[next.id] ? "" : obj[next.id] = true && cur.push(next)
+  //       return cur
+  //     }, [])
+  //     this.selectedDeviceRes = resArr
+  //   } else {
+  //     let resArr = this.selectedDeviceRes.filter((item) => {
+  //       let idList = this.deviceList.map((d) => d.id)
+  //       return !idList.includes(item.id)
+  //     })
+  //     this.selectedDeviceRes = resArr
+  //   }
+  // },
+  // sumbitSelectedDevice() {
+  //   const data = {
+  //     id: this.curConfigId,
+  //     relateList: this.selectedDeviceRes.map((item) => item.deviceId),
+  //   }
+  //   if (!data.relateList.length) {
+  //     this.$message.error('请选择关联设备！')
+  //     return
+  //   }
+  //   this.rq({
+  //     baseURL: this.deviceURL,
+  //     url: '/admin/planModel/associativeDevice',
+  //     method: 'post',
+  //     data: data,
+  //   }).then((res) => {
+  //     if (res.code === 1001) {
+  //       this.activeDeviceIndex = 1
+  //       this.$message.success('关联成功！')
+  //       this.deviceVisible = false
+  //     }
+  //   })
+  // },
+  // deleteSelectedDevice(val) {
+  //   this.selectedDeviceRes.forEach((select, index) => {
+  //     if (select.id === val.id) {
+  //       this.selectedDeviceRes.splice(index, 1)
+  //     }
+  //   })
+  //   this.deviceList.forEach((device) => {
+  //     if (device.id === val.id) {
+  //       this.$refs.deviceTable.toggleRowSelection(device, false)
+  //     }
+  //   })
+  // },
+  // toggleSelected(table, rows, toggle) {
+  //   if (rows) {
+  //     rows.forEach((row) => {
+  //       table.toggleRowSelection(row, toggle)
+  //     })
+  //   } else {
+  //     table.clearSelection()
+  //   }
+  // },
 
-onMounted(async () => {
-  planSearchForm.value.search_EQ_year = moment().format('yyyy')
-  year.value = moment().format('yyyy')
-  await getPlanList()
-})
-
+  onMounted(async () => {
+    planSearchForm.value.search_EQ_year = moment().format('yyyy');
+    year.value = moment().format('yyyy');
+    await getPlanList();
+  });
 </script>
 
 <style lang="less" scoped>
-.inspection-plan-config-main-box {
-  background-color: #fff;
+  .inspection-plan-config-main-box {
+    background-color: #fff;
 
-  .search-box .search-box-button {
-    display: inline-block !important;
-    margin-left: 20px;
-    float: none;
+    .search-box .search-box-button {
+      display: inline-block !important;
+      margin-left: 20px;
+      float: none;
+    }
   }
-}
 </style>
