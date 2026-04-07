@@ -168,7 +168,7 @@
 
     const findAndCollect = (nodes: any[], targetId: string | number): boolean => {
       for (const node of nodes) {
-        if (node.id === targetId) {
+        if (node.key === targetId) {
           // 找到目标节点，收集它及其后代
           collectIds(node);
           return true;
@@ -184,12 +184,11 @@
     };
 
     const collectIds = (node: any) => {
-      resultIds.push(node.id);
+      resultIds.push(node.key);
 
       if (node.children && node.children.length > 0) {
         for (const child of node.children) {
-          // collectIds(child);
-          resultIds.push(child.id);
+          collectIds(child);
         }
       }
     };
@@ -204,16 +203,14 @@
       // 级联模式
       if (checked) {
         // 勾选节点及其所有后代
-        const idArr = getNodeAndDescendantIds(treeData.value, node.id);
+        const idArr = getNodeAndDescendantIds(treeData.value, node.key);
         checkedKeys.value = Array.from(new Set([...checkedKeys.value.checked, ...idArr]));
       } else {
         // 取消勾选节点及其所有后代
-        const idArr = getNodeAndDescendantIds(treeData.value, node.id);
+        const idArr = getNodeAndDescendantIds(treeData.value, node.key);
         checkedKeys.value = checkedKeys.value.checked.filter((key: any) => !idArr.includes(key));
       }
     } else {
-      console.log('checked-------------->', checked, checkedKeys.value);
-
       // 非级联模式：单选
       if (checked) {
         // 勾选当前节点，清空其他选择
@@ -514,11 +511,12 @@
     if (treeData.value.length > 0) {
       if (isCascade.value) {
         // 级联模式：选中第一个节点及其所有后代
-        const idArr = getNodeAndDescendantIds(treeData.value, treeData.value[0].id);
+        const idArr = getNodeAndDescendantIds(treeData.value, treeData.value[0].key);
+        console.log('idArr', idArr);
         checkedKeys.value.push(...idArr);
       } else {
         // 非级联模式：只选中第一个节点
-        checkedKeys.value.push(treeData.value[0].id);
+        checkedKeys.value.push(treeData.value[0].key);
       }
 
       // 重新查询数据
