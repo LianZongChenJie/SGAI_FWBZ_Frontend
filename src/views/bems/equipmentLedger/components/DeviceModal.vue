@@ -124,7 +124,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, computed, unref, h, reactive, watch } from 'vue';
+  import { ref, computed, unref, h, reactive, watch, nextTick } from 'vue';
   import { BasicModal, useModalInner } from '/@/components/Modal';
   import { BasicForm, useForm } from '/@/components/Form/index';
   import { PlusOutlined } from '@ant-design/icons-vue';
@@ -349,6 +349,7 @@
   });
 
   const [registerModal, { setModalProps, closeModal }] = useModalInner(async (data) => {
+    console.log('data', data);
     const res = await spaceTree({});
     // 设置树形数据
     const { categoryTreeData, spaceTreeData } = data;
@@ -363,13 +364,15 @@
     resetFields();
     setModalProps({ confirmLoading: false });
     isUpdate.value = !!data?.isUpdate;
-    await selectCategoryId(data.record.categoryId);
+    // await selectCategoryId(data.record.categoryId);
     if (unref(isUpdate)) {
       id.value = data.record.id;
       getData(data.record.id);
-      await setFieldsValue({
-        ...data.record,
-        id: data.record.id, // 确保 id 被设置
+      nextTick(async () => {
+        await setFieldsValue({
+          ...data.record,
+          id: data.record.id, // 确保 id 被设置
+        });
       });
     }
   });
