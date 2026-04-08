@@ -1,22 +1,22 @@
 import { defHttp } from '/@/utils/http/axios';
 
 enum Api {
-  GetInspectTaskList = '/jeecg-patrol/patrol/task/queryPageWithLimit',
-  DeleteInspectTask = '/jeecg-patrol/patrol/task/delTask',
-  GetInspectTaskDetail = '/jeecg-patrol/patrol/task/detail',
-  AddInspectTask = '/jeecg-patrol/patrol/task/save',
-  UpdateInspectTask = '/jeecg-patrol/patrol/task/update',
-  GetAllGroups = '/jeecg-patrol/patrol/task/getAllGroups',
-  GetSystem = '/jeecg-patrol/patrol/task/getSystem',
-  GetTaskNumber = '/jeecg-patrol/patrol/rule/getNo',
-  GetSpaceTree = '/jeecg-patrol/index/spaceTree',
-  GetAllRule = '/jeecg-patrol/patrol/rule/queryAll',
-  BindRule = '/jeecg-patrol/patrol/task/bindRule',
-  ExportPdf = '/jeecg-patrol/patrol/task/exportPdf',
-  ReleaseTask = '/jeecg-patrol/patrol/task/release',
-  UpdateTaskDate = '/jeecg-patrol/patrol/task/updateDate',
-  ReassignTask = '/jeecg-patrol/patrol/task/reassign',
-  CancelTask = '/jeecg-patrol/patrol/task/cancel',
+  GetInspectTaskList = '/patrol/task/queryPageWithLimit',
+  DeleteInspectTask = '/patrol/task/delTask',
+  GetInspectTaskDetail = '/patrol/task/detail',
+  AddInspectTask = '/patrol/task/save',
+  UpdateInspectTask = '/patrol/task/update',
+  GetAllGroups = '/patrol/task/getAllGroups',
+  GetSystem = '/patrol/task/getSystem',
+  GetTaskNumber = '/patrol/rule/getNo',
+  GetSpaceTree = '/index/spaceTree',
+  GetAllRule = '/patrol/rule/queryAll',
+  BindRule = '/patrol/task/bindRule',
+  ExportPdf = '/patrol/task/exportPdf',
+  ReleaseTask = '/patrol/task/release',
+  UpdateTaskDate = '/patrol/task/updateDate',
+  ReassignTask = '/patrol/task/reassign',
+  CancelTask = '/patrol/task/cancel',
 }
 
 export const getInspectTaskList = (params) => {

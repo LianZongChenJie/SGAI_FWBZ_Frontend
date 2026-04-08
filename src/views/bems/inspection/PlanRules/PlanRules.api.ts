@@ -1,12 +1,12 @@
 import { defHttp } from '/@/utils/http/axios';
 
 enum Api {
-  GetPlanRuleList = '/jeecg-patrol/patrol/rule/queryPage',
-  DeletePlanRule = '/jeecg-patrol/patrol/rule/remove',
-  GetPlanRuleDetail = '/jeecg-patrol/patrol/rule/detail',
-  AddPlanRule = '/jeecg-patrol/patrol/rule/save',
-  GetSpecialty = '/jeecg-patrol/patrol/rule/getspecialty',
-  GetPlanRuleNo = '/jeecg-patrol/patrol/rule/getNo',
+  GetPlanRuleList = '/patrol/rule/queryPage',
+  DeletePlanRule = '/patrol/rule/remove',
+  GetPlanRuleDetail = '/patrol/rule/detail',
+  AddPlanRule = '/patrol/rule/save',
+  GetSpecialty = '/patrol/rule/getspecialty',
+  GetPlanRuleNo = '/patrol/rule/getNo',
 }
 
 export const getPlanRuleList = (params) => {

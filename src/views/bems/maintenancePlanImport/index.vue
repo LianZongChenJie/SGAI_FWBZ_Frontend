@@ -50,7 +50,7 @@
                   />
                 </el-table-column>
               </template>
-              <template>
+              <template v-else>
                 <span v-if="column.field === 'associatedDevice' || column.field === 'associatedSpace'">
                   {{ scope.row[column.field] ? '是' : '否' }}
                 </span>
@@ -97,7 +97,7 @@
 <script setup lang="ts">
   import { ref, onMounted } from 'vue';
   import moment from 'moment';
-  import { ArrowRightBold, ArrowLeftBold, Search, RefreshRight, Upload, Download, Delete } from '@element-plus/icons-vue'
+  import { ArrowRightBold, ArrowLeftBold, Search, RefreshRight, Upload, Download, Delete } from '@element-plus/icons-vue';
   import { constants } from 'node:buffer';
   import { getPlanListApi, importTemplateApi, exportTemplateApi } from './Standardized.api';
   import { set } from 'nprogress';
