@@ -23,6 +23,7 @@
   "dependencies": {
     "@ant-design/colors": "^7.2.0",
     "@ant-design/icons-vue": "^7.0.1",
+    "@element-plus/icons-vue": "^2.3.2",
     "@iconify/iconify": "^3.1.1",
     "@jeecg/online": "3.7.1-RC",
     "@tinymce/tinymce-vue": "4.0.7",
@@ -42,7 +43,7 @@
     "dayjs": "^1.11.13",
     "dom-align": "^1.12.4",
     "echarts": "^5.6.0",
-    "element-plus": "^2.13.0",
+    "element-plus": "^2.13.6",
     "emoji-mart-vue-fast": "^15.0.3",
     "enquire.js": "^2.1.6",
     "event-source-polyfill": "^1.0.31",

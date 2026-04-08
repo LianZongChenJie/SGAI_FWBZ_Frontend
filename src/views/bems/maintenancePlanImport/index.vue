@@ -27,7 +27,7 @@
           <el-button size="default" type="primary" :icon="Delete" @click="deletePlanEvent()" v-permission="'daoru-del'">删除计划</el-button>
         </div>
         <el-table ref="multiLevelTable" class="multi-level-header" :data="planList" tooltip-effect="dark" border>
-          <el-table-column type="index" label="序号" width="55" align="center"></el-table-column>
+          <el-table-column type="index" label="序号" width="55" align="center" />
           <el-table-column
             v-for="(column, index) in tableHeader"
             :key="index"
@@ -56,6 +56,11 @@
                 </span>
                 <span v-else>{{ scope.row[column.field] }}</span>
               </template>
+            </template>
+          </el-table-column>
+          <el-table-column fixed="right" label="操作" min-width="80" align="center">
+            <template #default>
+              <el-button link type="primary" size="small"> 编辑 </el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -92,7 +97,7 @@
 <script setup lang="ts">
   import { ref, onMounted } from 'vue';
   import moment from 'moment';
-  // import { ArrowRightBold, ArrowLeftBold, Search, RefreshRight, Upload, Download, Delete } from '@element-plus/icons-vue'
+  import { ArrowRightBold, ArrowLeftBold, Search, RefreshRight, Upload, Download, Delete } from '@element-plus/icons-vue'
   import { constants } from 'node:buffer';
   import { getPlanListApi, importTemplateApi, exportTemplateApi } from './Standardized.api';
   import { set } from 'nprogress';
@@ -712,6 +717,7 @@
     }
 
     .search-tools {
+      margin-bottom: 10px;
     }
   }
 </style>
