@@ -275,7 +275,7 @@
     resetFields();
     setModalProps({ confirmLoading: false });
     isUpdate.value = !!data?.isUpdate;
-    await selectCategoryId(data.record.categoryId);
+    // await selectCategoryId(data.record.categoryId);
     await nextTick();
     if (unref(isUpdate)) {
       id.value = data.record.id;
