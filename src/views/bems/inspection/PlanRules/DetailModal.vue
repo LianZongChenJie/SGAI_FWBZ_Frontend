@@ -2,18 +2,18 @@
   <BasicModal v-bind="$attrs" @register="registerModal" title="巡检规则详情" :width="1000" :showOkBtn="false">
     <!-- 基本信息 -->
     <Description @register="registerDesc" :data="detailData" :column="2" />
-
+    
     <!-- 巡检规则内容 -->
     <div v-if="detailData.ruleSubjectList && detailData.ruleSubjectList.length > 0" class="rule-content-section">
       <h3 class="section-title">巡检规则内容</h3>
-
+      
       <!-- 规则内容块列表 -->
       <div v-for="(block, blockIndex) in groupedRuleContent" :key="blockIndex" class="rule-content-block">
         <!-- 巡检项目标题 -->
         <div class="project-name-section">
           <h4 class="project-name">{{ block.projectName || `项目 ${blockIndex + 1}` }}</h4>
         </div>
-
+        
         <!-- 巡检规则字段列表 -->
         <div class="rule-fields-table">
           <table class="table">
@@ -34,18 +34,22 @@
                   <div v-if="item.type === '选择'">
                     {{ item.choice }}
                   </div>
-                  <div v-else-if="item.type === '判断'"> True={{ item.trueMark }}, False={{ item.falseMark }} </div>
-                  <div v-else> - 无 - </div>
+                  <div v-else-if="item.type === '判断'">
+                    True={{ item.trueMark }}, False={{ item.falseMark }}
+                  </div>
+                  <div v-else>
+                    - 无 -
+                  </div>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
-
+        
         <div v-if="blockIndex < groupedRuleContent.length - 1" class="block-divider"></div>
       </div>
     </div>
-
+    
     <!-- 无规则内容提示 -->
     <div v-else class="no-content">
       <Empty description="暂无巡检规则内容" />
@@ -70,7 +74,7 @@
         setModalProps({ confirmLoading: true });
         try {
           const res = await getPlanRuleDetail({ ruleId: data.record.id });
-          console.log('获取的编号：', res);
+            console.log('获取的编号：', res);
           detailData.value = res;
         } catch (error) {
           console.error('获取巡检规则详情失败:', error);
@@ -84,19 +88,19 @@
         if (!detailData.value.ruleSubjectList || detailData.value.ruleSubjectList.length === 0) {
           return [];
         }
-
+        
         const groups = new Map();
-        detailData.value.ruleSubjectList.forEach((item) => {
+        detailData.value.ruleSubjectList.forEach(item => {
           const projectName = item.projectName || '未命名项目';
           if (!groups.has(projectName)) {
             groups.set(projectName, {
               projectName,
-              fields: [],
+              fields: []
             });
           }
           groups.get(projectName).fields.push(item);
         });
-
+        
         return Array.from(groups.values());
       });
 
@@ -131,7 +135,7 @@
             field: 'remark',
             label: '备注',
             span: 2,
-            ifShow: (data) => !data.description,
+            ifShow: (data) => !data.description
           },
         ],
       });
@@ -150,24 +154,24 @@
   .rule-content-section {
     margin-top: 24px;
     padding: 0;
-
+    
     .section-title {
       margin: 0 0 16px 0;
       font-size: 16px;
       font-weight: 500;
       color: #333;
     }
-
+    
     .rule-content-block {
       margin-bottom: 24px;
       padding: 20px;
       border: 1px solid #f0f0f0;
       border-radius: 4px;
       background: #fafafa;
-
+      
       .project-name-section {
         margin-bottom: 16px;
-
+        
         .project-name {
           margin: 0;
           font-size: 14px;
@@ -175,35 +179,34 @@
           color: #1890ff;
         }
       }
-
+      
       .rule-fields-table {
         background: #fff;
         border-radius: 4px;
         overflow: hidden;
-
+        
         .table {
           width: 100%;
           border-collapse: collapse;
-
-          th,
-          td {
+          
+          th, td {
             padding: 12px;
             text-align: left;
             border-bottom: 1px solid #f0f0f0;
           }
-
+          
           th {
             background-color: #fafafa;
             font-weight: 500;
             color: #333;
           }
-
+          
           tr:hover {
             background-color: #f5f5f5;
           }
         }
       }
-
+      
       .block-divider {
         height: 2px;
         background-color: #1890ff;
@@ -211,17 +214,17 @@
       }
     }
   }
-
+  
   .no-content {
     margin-top: 40px;
     text-align: center;
   }
-
+  
   /* 调整描述组件的间距 */
   :deep(.ant-descriptions) {
     margin-bottom: 0;
   }
-
+  
   /* 调整模态框的内边距 */
   :deep(.ant-modal-body) {
     padding: 24px;

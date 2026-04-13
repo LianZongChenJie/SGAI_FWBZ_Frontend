@@ -69,13 +69,13 @@
         // 等待DOM更新后执行
         nextTick(() => {
           // 方法1：简单获取所有节点key
-          const allKeys = getAllNodeKeys(newTreeData);
-          checkedKeys.value = allKeys;
+          // const allKeys = getAllNodeKeys(newTreeData);
+          // checkedKeys.value = allKeys;
 
-          // 也可以同时展开所有节点
-          expandedKeys.value = allKeys;
+          // // 也可以同时展开所有节点
+          // expandedKeys.value = allKeys;
 
-          console.log('自动勾选了', allKeys.length, '个节点');
+          // console.log('自动勾选了', allKeys.length, '个节点');
         });
       }
     },

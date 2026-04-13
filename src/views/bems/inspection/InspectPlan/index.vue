@@ -3,5 +3,5 @@
 </template>
 
 <script lang="ts" name="inspection-inspectPlan" setup>
-  import InspectPlanList from './InspectPlanList.vue';
+import InspectPlanList from './InspectPlanList.vue';
 </script>

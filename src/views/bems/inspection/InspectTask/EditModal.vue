@@ -21,7 +21,10 @@
       const [registerModal, { setModalProps, closeModal }] = useModalInner(async (data) => {
         setModalProps({ confirmLoading: false });
 
-        const [groups, systems] = await Promise.all([getAllGroups({ search_EQ_type: 'execution' }), getSystem()]);
+        const [groups, systems] = await Promise.all([
+          getAllGroups({ search_EQ_type: 'execution' }),
+          getSystem(),
+        ]);
 
         if (groups.code === 1001) {
           groupsOptions.value = groups.data;

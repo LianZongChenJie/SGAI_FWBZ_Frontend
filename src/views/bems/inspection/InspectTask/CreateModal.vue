@@ -149,12 +149,12 @@
             spaceId: values.spaceId,
             spaceName: spaceName,
           };
+       
 
-          const res = await addInspectTask(formData);
+          await addInspectTask(formData);
           message.success('创建成功');
           closeModal();
           emit('success');
-          emit('edit', res.data);
         } catch (error) {
           console.error('创建巡检任务失败:', error);
           message.error('创建失败');

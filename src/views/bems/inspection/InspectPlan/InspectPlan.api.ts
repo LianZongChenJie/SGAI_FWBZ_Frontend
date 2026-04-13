@@ -1,24 +1,24 @@
 import { defHttp } from '/@/utils/http/axios';
 
 enum Api {
-  GetInspectPlanList = '/patrol/plan/queryPage',
-  DeleteInspectPlan = '/patrol/plan/remove',
-  GetInspectPlanDetail = '/patrol/plan/detail',
-  AddInspectPlan = '/patrol/plan/save',
-  UpdateInspectPlan = '/patrol/plan/edit',
-  GetSpaceTree = '/index/spaceTree',
-  GetPlanNumber = '/patrol/plan/getNo',
-  GetAllGroups = '/patrol/task/findUserGroup',
-  SetBindRule = '/patrol/plan/bindRule',
-  CreateTask = '/patrol/plan/createTask',
-  Release = '/patrol/plan/release',
-  Cancel = '/patrol/plan/cancel',
-  GetAllRule = '/patrol/rule/queryAll',
-  GetSystem = '/patrol/rule/getSpecialty',
-  SetTaskDate = '/patrol/task/modifyTime',
-  GetWeekDay = '/patrolScheme/getWeekDay',
-  GetDayMonth = '/patrolScheme/getDayMonth',
-  GetYearDay = '/patrolScheme/getYearDay',
+  GetInspectPlanList = '/jeecg-patrol/patrol/plan/queryPage',
+  DeleteInspectPlan = '/jeecg-patrol/patrol/plan/remove',
+  GetInspectPlanDetail = '/jeecg-patrol/patrol/plan/detail',
+  AddInspectPlan = '/jeecg-patrol/patrol/plan/save',
+  UpdateInspectPlan = '/jeecg-patrol/patrol/plan/edit',
+  GetSpaceTree = '/jeecg-patrol/index/spaceTree',
+  GetPlanNumber = '/jeecg-patrol/patrol/plan/getNo',
+  GetAllGroups = '/jeecg-patrol/patrol/task/findUserGroup',
+  SetBindRule = '/jeecg-patrol/patrol/plan/bindRule',
+  CreateTask = '/jeecg-patrol/patrol/plan/createTask',
+  Release = '/jeecg-patrol/patrol/plan/release',
+  Cancel = '/jeecg-patrol/patrol/plan/cancel',
+  GetAllRule = '/jeecg-patrol/patrol/rule/queryAll',
+  GetSystem = '/jeecg-patrol/patrol/rule/getSpecialty',
+  SetTaskDate = '/jeecg-patrol/patrol/task/modifyTime',
+  GetWeekDay = '/jeecg-patrol/patrolScheme/getWeekDay',
+  GetDayMonth = '/jeecg-patrol/patrolScheme/getDayMonth',
+  GetYearDay = '/jeecg-patrol/patrolScheme/getYearDay',
 }
 
 export const getInspectPlanList = (params: any) => {
@@ -54,19 +54,19 @@ export const getAllGroups = (params: any) => {
 };
 
 export const setBindRule = (params: any) => {
-  return defHttp.post({ url: Api.SetBindRule, params });
+  return defHttp.post({ url: Api.SetBindRule, params }, { joinParamsToUrl: true });
 };
 
 export const createTask = (params: any) => {
-  return defHttp.post({ url: Api.CreateTask, params });
+  return defHttp.post({ url: Api.CreateTask, params }, { joinParamsToUrl: true });
 };
 
 export const release = (params: any) => {
-  return defHttp.post({ url: Api.Release, params });
+  return defHttp.post({ url: Api.Release, params }, { joinParamsToUrl: true });
 };
 
 export const cancel = (params: any) => {
-  return defHttp.post({ url: Api.Cancel, params });
+  return defHttp.post({ url: Api.Cancel, params }, { joinParamsToUrl: true });
 };
 
 export const getAllRule = (params: any) => {

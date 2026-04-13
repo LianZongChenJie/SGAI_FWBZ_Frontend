@@ -33,7 +33,7 @@
         </template>
       </template>
     </BasicTable>
-    <CreateModal @register="registerCreateModal" @success="handleSuccess" @edit="handleEdit" />
+    <CreateModal @register="registerCreateModal" @success="handleSuccess" />
     <EditModal @register="registerEditModal" @success="handleSuccess" />
     <DetailModal @register="registerDetailModal" @success="handleSuccess" />
     <ExecuteModal @register="registerExecuteModal" @success="handleSuccess" />
@@ -171,13 +171,6 @@
         });
       }
 
-      function handleEdit(data: Recordable) {
-        openEditModal(true, {
-          record: data,
-          isUpdate: true,
-        });
-      }
-
       function handleDetail(record: Recordable) {
         openDetailModal(true, {
           record,
@@ -221,7 +214,6 @@
         registerDetailModal,
         registerExecuteModal,
         handleCreate,
-        handleEdit,
         handleDetail,
         handleExecute,
         handleDelete,

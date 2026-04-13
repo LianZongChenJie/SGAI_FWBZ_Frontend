@@ -88,6 +88,32 @@ export const searchFormSchema: FormSchema[] = [
     component: 'Input',
     colProps: { span: 6 },
   },
+  {
+    field: 'search_EQ_state',
+    label: '状态',
+    component: 'Select',
+    colProps: { span: 6 },
+    componentProps: {
+      options: [
+        { label: '未开始', value: '未开始' },
+        { label: '执行中', value: '执行中' },
+        { label: '已完成', value: '已完成' },
+        { label: '已取消', value: '已取消' },
+      ],
+    },
+ },
+  {
+    field: 'spaceId',
+    label: '执行位置',
+    component: 'TreeSelect',
+    colProps: { span: 6 },
+  },
+  {
+    field: 'search_EQ_start',
+    label: '开始时间',
+    component: 'DatePicker',
+    colProps: { span: 6 },
+  },
 ];
 
 export const addFormSchema: FormSchema[] = [
@@ -129,7 +155,6 @@ export const addFormSchema: FormSchema[] = [
     component: 'Select',
     required: true,
     defaultValue: '固定时间',
-    slot: 'disposable',
     componentProps: {
       options: [
         { label: '固定时间', value: '固定时间' },
@@ -158,6 +183,21 @@ export const addFormSchema: FormSchema[] = [
     ifShow: ({ values }) => values.disposable === '周期时间',
     colProps: { span: 6 },
     slot: 'frequency',
+    rules: [
+      {
+        required: true,
+        message: '请输入重复频率',
+      },
+      {
+        validator: async (_rule, value) => {
+          const num = Number(value);
+          if (!value || Number.isNaN(num) || num < 1) {
+            return Promise.reject('重复频率必须大于0');
+          }
+          return Promise.resolve();
+        },
+      },
+    ],
   },
   {
     field: 'timeType',
@@ -166,7 +206,20 @@ export const addFormSchema: FormSchema[] = [
     required: true,
     ifShow: ({ values }) => values.disposable === '周期时间',
     colProps: { span: 6 },
-    slot: 'timeType',
+    componentProps: {
+      options: [
+        { label: '天', value: 'day' },
+        { label: '周', value: 'week' },
+        { label: '月', value: 'month' },
+        { label: '年', value: 'year' },
+      ],
+    },
+    rules: [
+      {
+        required: true,
+        message: '请选择时间类型',
+      },
+    ],
   },
   {
     field: 'specificTime',
@@ -175,7 +228,21 @@ export const addFormSchema: FormSchema[] = [
     required: true,
     ifShow: ({ values }) => values.disposable === '周期时间',
     colProps: { span: 10 },
-    slot: 'specificTime',
+    componentProps: {
+      multiple: true,
+      separator: '',
+      placeholder: '的 具体时间',
+    },
+    rules: [
+      {
+        validator: async (_rule, value) => {
+          if (!Array.isArray(value) || value.length === 0) {
+            return Promise.reject('请选择具体时间');
+          }
+          return Promise.resolve();
+        },
+      },
+    ],
   },
   {
     field: 'frequencyDisplay',
@@ -191,8 +258,18 @@ export const addFormSchema: FormSchema[] = [
     component: 'Input',
     required: true,
     ifShow: ({ values }) => values.disposable === '周期时间',
-    colProps: { span: 18 },
+    colProps: { span: 12 },
     slot: 'broad',
+    rules: [
+      {
+        required: true,
+        message: '请输入宽泛期',
+      },
+      {
+        pattern: /^\d+$/,
+        message: '宽泛期只能输入数字',
+      },
+    ],
   },
 ];
 

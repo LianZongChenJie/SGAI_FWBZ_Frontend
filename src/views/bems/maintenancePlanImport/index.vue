@@ -9,24 +9,29 @@
                 :clearable="false"></el-date-picker> -->
               <el-date-picker v-model="year" type="year" format="YYYY" value-format="YYYY" :clearable="false" @change="handleYear" />
             </el-form-item>
+            <el-form-item label="组织机构：">
+              <el-tree-select v-model="orgCode" :props="treeProps" :load="leafLoad" :data="orgTree" lazy check-strictly style="width: 240px" />
+            </el-form-item>
             <el-form-item>
               <el-button type="primary" :icon="ArrowLeftBold" @click="prevYear()">上一年</el-button>
               <el-button type="primary" :icon="ArrowRightBold" @click="nextYear()">下一年</el-button>
             </el-form-item>
           </el-form>
           <div class="search-box-button">
-            <el-button size="default" type="primary" :icon="RefreshRight" @click="resetSearchForm">重置</el-button>
+            <!-- <el-button size="default" type="primary" :icon="RefreshRight" @click="resetSearchForm">重置</el-button> -->
             <el-button size="default" type="primary" :icon="Search" @click="search()">查询</el-button>
           </div>
         </div>
         <div class="search-tools">
-          <el-button size="default" type="primary" :icon="Download" @click="downloadUrl" v-permission="'daoru-download'"
+          <!-- <el-button size="default" type="primary" :icon="Download" @click="downloadUrl" v-permission="'daoru-download'"
             ><a style="color: #fff; text-decoration: none">下载模板</a></el-button
           >
-          <el-button size="default" type="primary" :icon="Upload" @click="dialogVisible = true" v-permission="'daoru-leadingin'">导入计划</el-button>
-          <el-button size="default" type="primary" :icon="Delete" @click="deletePlanEvent()" v-permission="'daoru-del'">删除计划</el-button>
+          <el-button size="default" type="primary" :icon="Upload" @click="dialogVisible = true" v-permission="'daoru-leadingin'">导入计划</el-button> -->
+          <el-button size="default" type="primary" :icon="Plus" @click="addPlanHandle('新增计划')" v-permission="'daoru-add'">新增计划</el-button>
+          <el-button size="default" type="primary" @click="generateTasks">批量生成维保任务</el-button>
+          <!-- <el-button size="default" type="primary" :icon="Delete" @click="deletePlanEvent()" v-permission="'daoru-del'">删除计划</el-button> -->
         </div>
-        <el-table ref="multiLevelTable" class="multi-level-header" :data="planList" tooltip-effect="dark" border>
+        <el-table ref="multiLevelTable" class="multi-level-header" :data="planList" tooltip-effect="dark" border v-loading="loading">
           <el-table-column type="index" label="序号" width="55" align="center" />
           <el-table-column
             v-for="(column, index) in tableHeader"
@@ -58,9 +63,16 @@
               </template>
             </template>
           </el-table-column>
-          <el-table-column fixed="right" label="操作" min-width="80" align="center">
-            <template #default>
-              <el-button link type="primary" size="small"> 编辑 </el-button>
+          <el-table-column fixed="right" label="操作" width="120" align="center">
+            <template #default="scope">
+              <el-button link type="primary" @click="addPlanHandle('编辑计划', scope.row)" size="small"> 编辑 </el-button>
+              <el-popconfirm class="box-item" title="确认删除该计划？" @confirm="deletePlanEvent(scope.row)" placement="top">
+                <template #reference>
+                  <el-button link type="primary" size="small"> 删除 </el-button>
+                </template>
+              </el-popconfirm>
+              <el-button link type="primary" @click="registerDeviceHandle(scope.row.id)" size="small"> 关联设备 </el-button>
+              <el-button link type="primary" @click="registerSpaceHandle(scope.row.id)" size="small"> 关联空间 </el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -91,435 +103,60 @@
         <el-button type="primary" @click="submitUpload" :disabled="saving">确 定</el-button>
       </template>
     </el-dialog>
+
+    <!-- 新增计划组件 -->
+    <add-plan ref="addPlanRef" @submit="handleSubmit" :title="planTitle" />
+    <!-- 关联设备组件 -->
+    <linked-device @register="registerDevice" />
+    <!-- 关联空间组件 -->
+    <linked-space @register="registerSpace" />
   </div>
 </template>
 
 <script setup lang="ts">
   import { ref, onMounted } from 'vue';
   import moment from 'moment';
-  import { ArrowRightBold, ArrowLeftBold, Search, RefreshRight, Upload, Download, Delete } from '@element-plus/icons-vue';
+  import { ArrowRightBold, ArrowLeftBold, Search, RefreshRight, Upload, Download, Delete, Plus } from '@element-plus/icons-vue';
   import { constants } from 'node:buffer';
-  import { getPlanListApi, importTemplateApi, exportTemplateApi } from './Standardized.api';
+  import { getPlanListApi, importTemplateApi, exportTemplateApi, deletePlan, generateTasksByBatch } from './Standardized.api';
   import { set } from 'nprogress';
-
+  import AddPlan from './addPlan.vue';
+  import { queryDepartTreeSync } from '@/views/system/depart/depart.api.ts';
+  import { ElMessage } from 'element-plus';
+  import linkedDevice from './linkedDevice.vue';
+  import linkedSpace from './linkedSpace.vue';
+  import { useModal } from '@/components/Modal';
   const handleYear = (val) => {
     console.log('handleYear--------------->', val);
   };
 
   const upload = ref();
-
   const year = ref(moment().format('YYYY'));
-
+  const addPlanRef = ref();
   const loading = ref(false);
-  const searchForm = ref({
+  const searchForm = ref<{
+    year: string;
+    orgCode: string;
+  }>({
     year: moment().format('YYYY'),
+    orgCode: '',
   });
-
+  const orgTreeSelect = ref();
+  const cacheData = ref<any[]>([]);
+  const orgCode = ref('');
+  const orgTree = ref<any[]>([]);
+  const treeProps = {
+    label: 'departName',
+    children: 'children',
+    isLeaf: 'isLeaf',
+  };
   const planList = ref([]);
   const dialogVisible = ref(false);
+  const addPlanDialogVisible = ref(false);
   const fileList: any = ref([]);
-  const tableHeader: any = ref([
-    {
-      field: 'name',
-      name: '计划工作项目',
-      children: null,
-    },
-    {
-      field: 'count',
-      name: '数量',
-      children: null,
-    },
-    {
-      field: 'factory',
-      name: '厂家',
-      children: null,
-    },
-    {
-      field: 'associatedDevice',
-      name: '是否关联设备',
-      children: null,
-    },
-    {
-      field: 'cycle',
-      name: '维保周期',
-      children: null,
-    },
-    {
-      field: 'unit',
-      name: '单位',
-      children: null,
-    },
-    {
-      field: 'frequency',
-      name: '建议频次',
-      children: null,
-    },
-    {
-      field: 'duration',
-      name: '持续执行时间',
-      children: null,
-    },
-    {
-      field: 'principal',
-      name: '负责人',
-      children: null,
-    },
-    {
-      field: 'department',
-      name: '执行科组',
-      children: null,
-    },
-    {
-      field: 'weibaoType',
-      name: '类型',
-      children: null,
-    },
-    {
-      field: null,
-      name: '时间安排',
-      children: [
-        {
-          field: null,
-          name: '1月',
-          children: [
-            {
-              field: 'w1',
-              name: '第1周(1-2)',
-              children: null,
-            },
-            {
-              field: 'w2',
-              name: '第2周(5-9)',
-              children: null,
-            },
-            {
-              field: 'w3',
-              name: '第3周(12-16)',
-              children: null,
-            },
-            {
-              field: 'w4',
-              name: '第4周(19-23)',
-              children: null,
-            },
-            {
-              field: 'w5',
-              name: '第5周(26-30)',
-              children: null,
-            },
-          ],
-        },
-        {
-          field: null,
-          name: '2月',
-          children: [
-            {
-              field: 'w6',
-              name: '第6周(2-6)',
-              children: null,
-            },
-            {
-              field: 'w7',
-              name: '第7周(9-13)',
-              children: null,
-            },
-            {
-              field: 'w8',
-              name: '第8周(16-20)',
-              children: null,
-            },
-            {
-              field: 'w9',
-              name: '第9周(23-27)',
-              children: null,
-            },
-          ],
-        },
-        {
-          field: null,
-          name: '3月',
-          children: [
-            {
-              field: 'w10',
-              name: '第10周(2-6)',
-              children: null,
-            },
-            {
-              field: 'w11',
-              name: '第11周(9-13)',
-              children: null,
-            },
-            {
-              field: 'w12',
-              name: '第12周(16-20)',
-              children: null,
-            },
-            {
-              field: 'w13',
-              name: '第13周(23-27)',
-              children: null,
-            },
-            {
-              field: 'w14',
-              name: '第14周(30-3)',
-              children: null,
-            },
-          ],
-        },
-        {
-          field: null,
-          name: '4月',
-          children: [
-            {
-              field: 'w15',
-              name: '第15周(6-10)',
-              children: null,
-            },
-            {
-              field: 'w16',
-              name: '第16周(13-17)',
-              children: null,
-            },
-            {
-              field: 'w17',
-              name: '第17周(20-24)',
-              children: null,
-            },
-            {
-              field: 'w18',
-              name: '第18周(27-1)',
-              children: null,
-            },
-          ],
-        },
-        {
-          field: null,
-          name: '5月',
-          children: [
-            {
-              field: 'w19',
-              name: '第19周(4-8)',
-              children: null,
-            },
-            {
-              field: 'w20',
-              name: '第20周(11-15)',
-              children: null,
-            },
-            {
-              field: 'w21',
-              name: '第21周(18-22)',
-              children: null,
-            },
-            {
-              field: 'w22',
-              name: '第22周(25-29)',
-              children: null,
-            },
-          ],
-        },
-        {
-          field: null,
-          name: '6月',
-          children: [
-            {
-              field: 'w23',
-              name: '第23周(1-5)',
-              children: null,
-            },
-            {
-              field: 'w24',
-              name: '第24周(8-12)',
-              children: null,
-            },
-            {
-              field: 'w25',
-              name: '第25周(15-19)',
-              children: null,
-            },
-            {
-              field: 'w26',
-              name: '第26周(22-26)',
-              children: null,
-            },
-            {
-              field: 'w27',
-              name: '第27周(29-3)',
-              children: null,
-            },
-          ],
-        },
-        {
-          field: null,
-          name: '7月',
-          children: [
-            {
-              field: 'w28',
-              name: '第28周(6-10)',
-              children: null,
-            },
-            {
-              field: 'w29',
-              name: '第29周(13-17)',
-              children: null,
-            },
-            {
-              field: 'w30',
-              name: '第30周(20-24)',
-              children: null,
-            },
-            {
-              field: 'w31',
-              name: '第31周(27-31)',
-              children: null,
-            },
-          ],
-        },
-        {
-          field: null,
-          name: '8月',
-          children: [
-            {
-              field: 'w32',
-              name: '第32周(3-7)',
-              children: null,
-            },
-            {
-              field: 'w33',
-              name: '第33周(10-14)',
-              children: null,
-            },
-            {
-              field: 'w34',
-              name: '第34周(17-21)',
-              children: null,
-            },
-            {
-              field: 'w35',
-              name: '第35周(24-28)',
-              children: null,
-            },
-            {
-              field: 'w36',
-              name: '第36周(31-4)',
-              children: null,
-            },
-          ],
-        },
-        {
-          field: null,
-          name: '9月',
-          children: [
-            {
-              field: 'w37',
-              name: '第37周(7-11)',
-              children: null,
-            },
-            {
-              field: 'w38',
-              name: '第38周(14-18)',
-              children: null,
-            },
-            {
-              field: 'w39',
-              name: '第39周(21-25)',
-              children: null,
-            },
-            {
-              field: 'w40',
-              name: '第40周(28-2)',
-              children: null,
-            },
-          ],
-        },
-        {
-          field: null,
-          name: '10月',
-          children: [
-            {
-              field: 'w41',
-              name: '第41周(5-9)',
-              children: null,
-            },
-            {
-              field: 'w42',
-              name: '第42周(12-16)',
-              children: null,
-            },
-            {
-              field: 'w43',
-              name: '第43周(19-23)',
-              children: null,
-            },
-            {
-              field: 'w44',
-              name: '第44周(26-30)',
-              children: null,
-            },
-          ],
-        },
-        {
-          field: null,
-          name: '11月',
-          children: [
-            {
-              field: 'w45',
-              name: '第45周(2-6)',
-              children: null,
-            },
-            {
-              field: 'w46',
-              name: '第46周(9-13)',
-              children: null,
-            },
-            {
-              field: 'w47',
-              name: '第47周(16-20)',
-              children: null,
-            },
-            {
-              field: 'w48',
-              name: '第48周(23-27)',
-              children: null,
-            },
-            {
-              field: 'w49',
-              name: '第49周(30-4)',
-              children: null,
-            },
-          ],
-        },
-        {
-          field: null,
-          name: '12月',
-          children: [
-            {
-              field: 'w50',
-              name: '第50周(7-11)',
-              children: null,
-            },
-            {
-              field: 'w51',
-              name: '第51周(14-18)',
-              children: null,
-            },
-            {
-              field: 'w52',
-              name: '第52周(21-25)',
-              children: null,
-            },
-            {
-              field: 'w53',
-              name: '第53周(28-1)',
-              children: null,
-            },
-          ],
-        },
-      ],
-    },
-  ]);
+  const tableHeader: any = ref([]);
   const saving = ref(false);
-
+  const planTitle = ref('新增计划');
   const downloadUrl = async () => {
     let res = await exportTemplateApi({
       year: year.value,
@@ -579,23 +216,38 @@
   };
 
   const getPlanList = async () => {
+    loading.value = true;
     let res = await getPlanListApi({
       year: year.value,
-      labelType: 'maintenance',
+      orgCode: orgCode.value,
     });
     if (res) {
-      let tableHeader = res.tableHeader.children || [];
-      tableHeader.forEach((v, idx) => {
+      let tHeader = res.tableHeader.children || [];
+      let list = res.planModelList || [];
+      console.log(list);
+      list.forEach((item) => {
+        for (const e in item) {
+          if (Number(e)) {
+            if (item[e]) {
+              item[e] = '√';
+            } else {
+              item[e] = '';
+            }
+          }
+        }
+      });
+
+      tHeader.forEach((v, idx) => {
         const widthMap = {
-          0: 200,
+          0: 160,
           1: 80,
         };
-        v.columnWidth = widthMap[idx] || 120;
+        v.columnWidth = widthMap[idx] || 90;
       });
-      tableHeader.value = tableHeader;
-      planList.value = res.planModelList;
-      // dataNull(this.planList)
+      tableHeader.value = tHeader;
+      planList.value = list;
     }
+    loading.value = false;
   };
 
   const search = async () => {
@@ -675,36 +327,79 @@
       fileList.value = [list[list.length - 1]]; // 覆盖上一次的文件
     }
   };
-  const deletePlanEvent = () => {
-    this.$confirm('删除不可恢复，确认删除该数据？', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning',
-    })
-      .then(() => {
-        this.rq({
-          baseURL: this.deviceURL,
-          url: '/admin/planModel/remove',
-          method: 'post',
-          params: { year: searchForm.value.year },
-        })
-          .then(async (res) => {
-            if (res.code === 1000 || res.code === 1001) {
-              // this.$message.success(res.msg ? res.msg : '操作成功!')
-              await getPlanList();
-            } else {
-              // this.$message.error(res.msg)
-            }
-          })
-          .catch(() => {});
-      })
-      .catch(() => {});
+  const deletePlanEvent = (row) => {
+    deletePlan(row.id).then((res) => {
+      getPlanList();
+    });
   };
-
-  onMounted(async () => {
+  const addPlanHandle = (type, row?) => {
+    planTitle.value = type;
+    addPlanRef.value.showDialog(row, { year: year.value, orgCode: orgCode.value });
+  };
+  const handleSubmit = async () => {
     searchForm.value.year = moment().format('yyyy');
     await getPlanList();
+  };
+  // async function loadRootTreeData() {
+  //   try {
+  //     loading.value = true;
+  //     orgTree.value = [];
+  //     const result = await queryDepartTreeSync();
+  //     if (Array.isArray(result) && result.length > 0) {
+  //       orgTree.value = result;
+  //       // 默认选择第一个选项
+  //       orgCode.value = result[0].id;
+  //     }
+  //   } finally {
+  //     loading.value = false;
+  //   }
+  // }
+  const leafLoad = async (node, resolve) => {
+    // 🌳 root 节点
+    if (node.level === 0) {
+      const res = await queryDepartTreeSync();
+
+      resolve(res);
+
+      // ✅ 关键：只在第一次加载时设置默认选中
+      if (!orgCode.value && res && res.length > 0) {
+        orgCode.value = res[0].id;
+        await getPlanList();
+      }
+
+      return;
+    }
+
+    // 🌿 子节点
+    const res = await queryDepartTreeSync({ pid: node.data.id });
+    resolve(res);
+  };
+  // 批量生成维保任务
+  const generateTasks = async () => {
+    generateTasksByBatch({
+      year: year.value,
+      orgCode: orgCode.value,
+    }).then((res) => {
+      // getPlanList();
+      ElMessage({
+        message: '批量生成维保任务成功！',
+        type: 'success',
+      });
+    });
+  };
+  onMounted(async () => {
+    loading.value = true;
+    // await loadRootTreeData();
+    searchForm.value.year = moment().format('yyyy');
   });
+  const [registerDevice, { openModal: openRegisterDevice }] = useModal();
+  const [registerSpace, { openModal: openRegisterSpace }] = useModal();
+  const registerDeviceHandle = (id) => {
+    openRegisterDevice(true, id);
+  };
+  const registerSpaceHandle = (id) => {
+    openRegisterSpace(true, id);
+  };
 </script>
 
 <style lang="less" scoped>

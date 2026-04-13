@@ -1,7 +1,7 @@
 <template>
   <BasicModal v-bind="$attrs" @register="registerModal" :title="title" @ok="handleSubmit" :width="1000">
     <BasicForm @register="registerForm" />
-
+    
     <div class="rule-content-section">
       <div class="section-header">
         <h3>巡检规则内容</h3>
@@ -51,7 +51,12 @@
               <div class="form-item-left">
                 <div class="form-label">内容范围</div>
                 <div class="form-input">
-                  <a-select v-model:value="item.type" placeholder="请选择" @change="handleTypeChange(item)" style="width: 100%">
+                  <a-select
+                    v-model:value="item.type"
+                    placeholder="请选择"
+                    @change="handleTypeChange(item)"
+                    style="width: 100%"
+                  >
                     <a-select-option v-for="option in typeOptions" :key="option.value" :value="option.value">
                       {{ option.label }}
                     </a-select-option>
@@ -69,7 +74,7 @@
                 </div>
               </div>
               <div v-if="item.type === '判断'" class="extra-input">
-                <div style="display: inline-block; width: 48%; margin-right: 4%">
+                <div style="display: inline-block; width: 48%; margin-right: 4%;">
                   <div class="form-item-left">
                     <div class="form-label">True=</div>
                     <div class="form-input">
@@ -77,7 +82,7 @@
                     </div>
                   </div>
                 </div>
-                <div style="display: inline-block; width: 48%">
+                <div style="display: inline-block; width: 48%;">
                   <div class="form-item-left">
                     <div class="form-label">False=</div>
                     <div class="form-input">
@@ -97,7 +102,9 @@
 
         <!-- 块内添加按钮 -->
         <div class="block-add-button">
-          <a-button type="primary" @click="addRuleField(blockIndex)"> 添加 </a-button>
+          <a-button type="primary" @click="addRuleField(blockIndex)">
+            添加
+          </a-button>
         </div>
 
         <div v-if="blockIndex < ruleContentBlocks.length - 1" class="block-divider"></div>
@@ -143,7 +150,7 @@
         { name: '电气系统', value: '电气系统' },
         { name: '安全出口', value: '安全出口' },
         { name: '应急照明', value: '应急照明' },
-        { name: '防火门', value: '防火门' },
+        { name: '防火门', value: '防火门' }
       ]);
       const ruleContentBlocks = ref<RuleContentBlock[]>([createRuleContentBlock()]);
       const formRefs = ref<any[][]>([]);
@@ -163,7 +170,7 @@
 
         if (!isUpdate.value) {
           const no = await getPlanRuleNo();
-
+      
           setFieldsValue({
             ruleNo: no,
           });
@@ -172,21 +179,19 @@
           setFieldsValue(data.record);
           if (data.record.ruleSubjectList && data.record.ruleSubjectList.length > 0) {
             // 转换为新的块结构
-            ruleContentBlocks.value = [
-              {
-                id: Date.now(),
-                projectName: data.record.ruleSubjectList[0]?.projectName || '',
-                fields: data.record.ruleSubjectList.map((item) => ({
-                  id: item.id || Date.now(),
-                  name: item.name,
-                  content: item.content,
-                  type: item.type,
-                  choice: item.choice,
-                  trueMark: item.trueMark,
-                  falseMark: item.falseMark,
-                })),
-              },
-            ];
+            ruleContentBlocks.value = [{
+              id: Date.now(),
+              projectName: data.record.ruleSubjectList[0]?.projectName || '',
+              fields: data.record.ruleSubjectList.map(item => ({
+                id: item.id || Date.now(),
+                name: item.name,
+                content: item.content,
+                type: item.type,
+                choice: item.choice,
+                trueMark: item.trueMark,
+                falseMark: item.falseMark,
+              })),
+            }];
           } else {
             ruleContentBlocks.value = [createRuleContentBlock()];
           }
@@ -394,8 +399,8 @@
           setModalProps({ confirmLoading: true });
 
           // 转换为API需要的格式
-          const ruleSubjectList = ruleContentBlocks.value.flatMap((block) =>
-            block.fields.map((field) => ({
+          const ruleSubjectList = ruleContentBlocks.value.flatMap(block => 
+            block.fields.map(field => ({
               ...field,
               projectName: block.projectName,
             }))
@@ -438,113 +443,113 @@
 </script>
 
 <style lang="less" scoped>
-  .rule-content-section {
-    margin-top: 20px;
-    padding: 0;
-
-    .section-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-
-      h3 {
-        margin: 0;
-        font-size: 16px;
-        font-weight: 500;
-      }
-    }
-
-    .rule-content-block {
-      margin-bottom: 24px;
-      padding: 20px;
-      border: 1px solid #f0f0f0;
-      border-radius: 4px;
-      background: #fafafa;
-
-      .project-name-section {
-        margin-bottom: 16px;
-
-        .project-name-row {
-          display: flex;
-          align-items: center;
-
-          .project-name-label {
-            width: 120px;
-            font-weight: 500;
-            text-align: right;
-            margin-right: 16px;
-          }
-
-          .project-name-input {
-            flex: 1;
-          }
-
-          .block-actions {
-            margin-left: 16px;
-          }
-        }
-      }
-
-      .rule-field-item {
-        margin-bottom: 12px;
-        padding: 12px;
-        background: #fff;
-        border-radius: 4px;
-
-        .field-actions {
-          display: flex;
-          justify-content: flex-end;
-        }
-
-        .form-item-left {
-          display: flex;
-          align-items: center;
-
-          .form-label {
-            width: 80px;
-            font-weight: 500;
-            text-align: right;
-            margin-right: 12px;
-          }
-
-          .form-input {
-            flex: 1;
-          }
-        }
-      }
-
-      .block-add-button {
-        margin-top: 12px;
-        text-align: right;
-      }
-
-      .block-divider {
-        height: 2px;
-        background-color: #1890ff;
-        margin-top: 20px;
-      }
-    }
-
-    .extra-input {
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-
-      .label-prefix {
-        margin-right: 8px;
-        font-weight: 500;
-      }
+.rule-content-section {
+  margin-top: 20px;
+  padding: 0;
+  
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    
+    h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 500;
     }
   }
 
-  /* 调整表单项目的间距 */
-  .ant-form-item {
-    margin-bottom: 12px;
-  }
-
-  /* 调整模态框的内边距 */
-  .ant-modal-body {
+  .rule-content-block {
+    margin-bottom: 24px;
     padding: 20px;
+    border: 1px solid #f0f0f0;
+    border-radius: 4px;
+    background: #fafafa;
+    
+    .project-name-section {
+      margin-bottom: 16px;
+      
+      .project-name-row {
+        display: flex;
+        align-items: center;
+        
+        .project-name-label {
+          width: 120px;
+          font-weight: 500;
+          text-align: right;
+          margin-right: 16px;
+        }
+        
+        .project-name-input {
+          flex: 1;
+        }
+        
+        .block-actions {
+          margin-left: 16px;
+        }
+      }
+    }
+    
+    .rule-field-item {
+      margin-bottom: 12px;
+      padding: 12px;
+      background: #fff;
+      border-radius: 4px;
+      
+      .field-actions {
+        display: flex;
+        justify-content: flex-end;
+      }
+      
+      .form-item-left {
+        display: flex;
+        align-items: center;
+        
+        .form-label {
+          width: 80px;
+          font-weight: 500;
+          text-align: right;
+          margin-right: 12px;
+        }
+        
+        .form-input {
+          flex: 1;
+        }
+      }
+    }
+    
+    .block-add-button {
+      margin-top: 12px;
+      text-align: right;
+    }
+    
+    .block-divider {
+      height: 2px;
+      background-color: #1890ff;
+      margin-top: 20px;
+    }
   }
+  
+  .extra-input {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    
+    .label-prefix {
+      margin-right: 8px;
+      font-weight: 500;
+    }
+  }
+}
+
+/* 调整表单项目的间距 */
+.ant-form-item {
+  margin-bottom: 12px;
+}
+
+/* 调整模态框的内边距 */
+.ant-modal-body {
+  padding: 20px;
+}
 </style>
