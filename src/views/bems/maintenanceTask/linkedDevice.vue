@@ -51,11 +51,17 @@
           dataIndex: 'deviceName',
           align: 'center',
         },
+        {
+          title: '备注',
+          dataIndex: 'remark',
+          align: 'center',
+        },
       ],
       actionColumn: {
         width: 80,
         title: '操作',
         dataIndex: 'action',
+        fixed: 'right',
       },
       rowKey: 'id',
       rowSelection: { type: 'checkbox' },
