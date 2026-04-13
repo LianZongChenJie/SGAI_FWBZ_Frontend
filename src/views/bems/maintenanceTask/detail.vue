@@ -70,10 +70,14 @@
                 <el-table-column prop="fieldValue" label="字段值" />
               </el-table>
             </el-form-item>
+
+            <el-form-item label="备注" v-if="isExecute">
+              <el-input v-model="completionRemark" type="textarea" placeholder="请输入备注信息" />
+            </el-form-item>
           </el-form> </div
       ></a-tab-pane>
       <a-tab-pane key="2" tab="关联设备">
-        <linkedDevice :taskId="taskId" />
+        <linkedDevice :taskId="taskId" :status="status" />
       </a-tab-pane>
       <a-tab-pane key="3" tab="关联空间">
         <linkedSpace :taskId="taskId" />
@@ -85,15 +89,19 @@
 <script setup>
   import { ref, onMounted } from 'vue';
   import { BasicModal, useModalInner } from '@/components/Modal';
-  import { getDetail } from './task.api';
+  import { getDetail, execute } from './task.api';
   import linkedDevice from './linkedDevice.vue';
   import linkedSpace from './linkedSpace.vue';
   const activeKey = ref('1');
   const taskId = ref(null);
+  const isExecute = ref(false);
+  const completionRemark = ref('');
+  const status = ref('');
   // 导入 API
   const [registerModal, { setModalProps, closeModal }] = useModalInner(async (data) => {
     taskId.value = data.id;
-
+    isExecute.value = data.isExecute ? true : false;
+    status.value = data.status;
     setModalProps({ loading: true });
     try {
       //   实际项目中从API获取数据
@@ -103,7 +111,13 @@
       setModalProps({ loading: false });
     }
   });
-  const handleOk = () => {
+  const handleOk = async () => {
+    if (isExecute.value) {
+      await execute({
+        taskId: taskId.value,
+        completionRemark: completionRemark.value,
+      });
+    }
     closeModal();
   };
   const cancel = () => {

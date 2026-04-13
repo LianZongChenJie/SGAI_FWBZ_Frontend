@@ -7,7 +7,6 @@
       </template>
     </BasicTable>
     <Detail @register="registerDetail" />
-    <Execute @register="registerExecute" />
   </div>
 </template>
 <script setup lang="ts">
@@ -20,8 +19,6 @@
   import Detail from './detail.vue';
   import { useModal } from '@/components/Modal';
   import moment from 'moment';
-  import Execute from './execute.vue';
-
   const { tableContext } = useListPage({
     designScope: 'material-type-template',
     tableProps: {
@@ -56,21 +53,26 @@
   const [registerDetail, { openModal: openDetail }] = useModal();
   const [registerExecute, { openModal: openExecute }] = useModal();
   function getTableAction(record): ActionItem[] {
-    return [
+    const actions = [
       {
         label: '详情',
         onClick: handleDetail.bind(null, record),
       },
-      {
+    ];
+    // 根据任务状态判断是否显示执行按钮
+    if (record.status !== '已执行') {
+      actions.push({
         label: '执行',
         onClick: handleExecute.bind(null, record),
-      },
-    ];
+      });
+    }
+
+    return actions;
   }
   const handleDetail = (record) => {
     openDetail(true, record);
   };
   const handleExecute = (record) => {
-    openExecute(true, record);
+    openDetail(true, { ...record, isExecute: true });
   };
 </script>

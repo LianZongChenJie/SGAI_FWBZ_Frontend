@@ -19,13 +19,13 @@
       api: () => getTreeData(props.taskId),
       columns: [
         {
-          title: '设备编号',
-          dataIndex: 'deviceCode',
+          title: '空间名称',
+          dataIndex: 'spaceName',
           align: 'center',
         },
         {
-          title: '设备名称',
-          dataIndex: 'deviceName',
+          title: '空间全称',
+          dataIndex: 'fullName',
           align: 'center',
         },
       ],

@@ -2,9 +2,10 @@ import { defHttp } from '/@/utils/http/axios';
 enum Api {
   listApi = '/deviceMaintenance/maintenanceTask/list',
   detailApi = '/deviceMaintenance/maintenanceTask/detail/',
-  executeApi = '//deviceMaintenance/maintenanceTask/complete',
-  deviceListApi = '/bems/device/list',
+  executeApi = '/deviceMaintenance/maintenanceTask/complete',
+  deviceListApi = '/deviceMaintenance/taskDevice/listByTask/',
   treeData = '/deviceMaintenance/taskSpace/listByTask/',
+  taskDevice = '/deviceMaintenance/taskDevice/updateRemark'
 }
 
 /**
@@ -26,9 +27,14 @@ export const execute = (params) => defHttp.post({ url: Api.executeApi, params })
  * 设备列表
  * @param params
  */
-export const deviceList = (params) => defHttp.get({ url: Api.deviceListApi, params });
+export const deviceList = (params) => defHttp.get({ url: Api.deviceListApi + params });
 /**
  * 获取空间树
  * @param params
  */
 export const getTreeData = (params) => defHttp.get({ url: Api.treeData + params });
+/**
+ * 更新任务设备关联说明
+ * @param params
+ */
+export const updateTaskDevice = (params) => defHttp.put({ url: Api.taskDevice, params });
