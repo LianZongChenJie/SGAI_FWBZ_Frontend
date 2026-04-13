@@ -11,6 +11,11 @@ export const columns: BasicColumn[] = [
         align: 'center',
     },
     {
+        title: '执行人',
+        dataIndex: 'executorName',
+        align: 'center',
+    },
+    {
         title: '任务开始时间',
         dataIndex: 'plannedStartTime',
         align: "center",
