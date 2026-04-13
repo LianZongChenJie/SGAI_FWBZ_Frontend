@@ -2,8 +2,8 @@
   <BasicModal v-bind="$attrs" @register="registerModal" title="巡检任务详情" :width="1000" :showOkBtn="false">
     <template #footer>
       <a-button @click="handleExportPdf">导出PDF</a-button>
-      <a-button v-if="detailData.state === '待释放'" type="primary" @click="handleReleaseTask">释放巡检任务</a-button>
-      <a-button v-else-if="detailData.state === '执行'" type="primary" @click="handleExecute">执行</a-button>
+      <a-button v-if="detailData.stateCode === '待释放'" type="primary" @click="handleReleaseTask">释放巡检任务</a-button>
+      <a-button v-else-if="detailData.stateCode === '执行'" type="primary" @click="handleExecute">执行</a-button>
       <a-button @click="handleUpdateDate">变更日期</a-button>
       <a-button @click="handleReassign">重新派单</a-button>
       <a-button @click="handleCancel">取消</a-button>
@@ -14,7 +14,7 @@
       <div style="margin-top: 16px">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px">
           <h3 style="margin: 0">巡检规则</h3>
-          <a-button v-if="detailData.state === '待释放'" type="primary" size="small" @click="handleOpenRuleModal">
+          <a-button v-if="detailData.stateCode === '待释放'" type="primary" size="small" @click="handleOpenRuleModal">
             选择
           </a-button>
         </div>
@@ -148,16 +148,16 @@
           { field: 'groupName', label: '执行组别' },
           { field: 'spaceName', label: '执行位置' },
           {
-            field: 'start',
+            field: 'startTime',
             label: '开始时间',
             customRender: ({ value }) => (value ? formatTime(value) : '--'),
           },
           {
-            field: 'end',
+            field: 'endTime',
             label: '结束时间',
             customRender: ({ value }) => (value ? formatTime(value) : '--'),
           },
-          { field: 'state', label: '执行状态' },
+          { field: 'stateCode', label: '执行状态' },
           { field: 'result', label: '巡检结果' },
           { field: 'description', label: '说明', span: 2 },
           { field: 'summary', label: '总结', span: 2 },
@@ -170,7 +170,7 @@
           { title: '任务编号', dataIndex: 'ruleNo', align: 'center' },
           { title: '规则名称', dataIndex: 'name', align: 'center' },
           { title: '巡检对象', dataIndex: 'inspectObject', align: 'center' },
-          { title: '规则类型', dataIndex: 'type', align: 'center' },
+          { title: '规则类型', dataIndex: 'ruleType', align: 'center' },
           { title: '建议工作天数', dataIndex: 'recommendedDays', align: 'center' },
         ],
         pagination: false,
@@ -202,7 +202,7 @@
           { title: '规则编号', dataIndex: 'ruleNo', align: 'center' },
           { title: '规则名称', dataIndex: 'name', align: 'center' },
           { title: '巡检对象', dataIndex: 'inspectObject', align: 'center' },
-          { title: '规则类型', dataIndex: 'type', align: 'center' },
+          { title: '规则类型', dataIndex: 'ruleType', align: 'center' },
           { title: '建议工作天数', dataIndex: 'recommendedDays', align: 'center' },
           { title: '描述', dataIndex: 'executionTime', align: 'center' },
         ],

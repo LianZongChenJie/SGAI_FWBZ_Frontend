@@ -26,17 +26,17 @@ export const columns: BasicColumn[] = [
   },
   {
     title: '有效开始时间',
-    dataIndex: 'start',
+    dataIndex: 'startTime',
     align: 'center',
     ellipsis: true,
-    customRender: ({ record }) => record.start || '--',
+    customRender: ({ record }) => record.startTime || '--',
   },
   {
     title: '有效结束时间',
-    dataIndex: 'end',
+    dataIndex: 'endTime',
     align: 'center',
     ellipsis: true,
-    customRender: ({ record }) => record.end || '--',
+    customRender: ({ record }) => record.endTime || '--',
   },
   {
     title: '执行组别',
@@ -47,10 +47,10 @@ export const columns: BasicColumn[] = [
   },
   {
     title: '状态',
-    dataIndex: 'state',
+    dataIndex: 'stateCode',
     align: 'center',
     ellipsis: true,
-    customRender: ({ record }) => record.state || '--',
+    customRender: ({ record }) => record.stateCode || '--',
   },
   {
     title: '创建人',
@@ -89,7 +89,7 @@ export const searchFormSchema: FormSchema[] = [
     colProps: { span: 6 },
   },
   {
-    field: 'search_EQ_state',
+    field: 'search_EQ_stateCode',
     label: '状态',
     component: 'Select',
     colProps: { span: 6 },
@@ -109,7 +109,7 @@ export const searchFormSchema: FormSchema[] = [
     colProps: { span: 6 },
   },
   {
-    field: 'search_EQ_start',
+    field: 'search_EQ_startTime',
     label: '开始时间',
     component: 'DatePicker',
     colProps: { span: 6 },
@@ -306,12 +306,12 @@ export const detailFormSchema: FormSchema[] = [
     customRender: ({ value }) => (value ? '固定时间' : '周期时间'),
   },
   {
-    field: 'start',
+    field: 'startTime',
     label: '开始时间',
     component: 'Input',
   },
   {
-    field: 'end',
+    field: 'endTime',
     label: '结束时间',
     component: 'Input',
   },

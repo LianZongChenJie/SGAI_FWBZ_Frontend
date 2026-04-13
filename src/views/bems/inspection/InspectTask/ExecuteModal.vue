@@ -38,14 +38,14 @@
                   >
                     <template #bodyCell="{ column, record }">
                       <template v-if="column.key === 'answer'">
-                        <a-radio-group v-if="record.type === '判断'" v-model:value="record.answer" @change="(e) => handleInspeResul(record.id, e.target.value)">
+                        <a-radio-group v-if="record.subjectType === '判断'" v-model:value="record.answer" @change="(e) => handleInspeResul(record.id, e.target.value)">
                           <a-radio v-for="(item, idx) in [record.trueMark, record.falseMark]" :key="idx" :value="item">{{ item }}</a-radio>
                         </a-radio-group>
-                        <a-input v-else-if="record.type === '文本'" v-model:value="record.answer" @change="(e) => handleInspeResul(record.id, e.target.value)" type="textarea" placeholder="请输入文本" :rows="1" />
-                        <a-select v-else-if="record.type === '选择'" v-model:value="record.answer" @change="(value) => handleInspeResul(record.id, value)" placeholder="请选择">
+                        <a-input v-else-if="record.subjectType === '文本'" v-model:value="record.answer" @change="(e) => handleInspeResul(record.id, e.target.value)" type="textarea" placeholder="请输入文本" :rows="1" />
+                        <a-select v-else-if="record.subjectType === '选择'" v-model:value="record.answer" @change="(value) => handleInspeResul(record.id, value)" placeholder="请选择">
                           <a-option v-for="(item, idx) in record.choice" :key="idx" :value="item">{{ item }}</a-option>
                         </a-select>
-                        <a-input v-else-if="record.type === '数字'" v-model:value="record.answer" @change="(e) => handleInspeResul(record.id, e.target.value)" type="number" placeholder="请输入数字" />
+                        <a-input v-else-if="record.subjectType === '数字'" v-model:value="record.answer" @change="(e) => handleInspeResul(record.id, e.target.value)" type="number" placeholder="请输入数字" />
                       </template>
                     </template>
                   </a-table>
@@ -112,16 +112,16 @@
           { field: 'groupName', label: '执行组别' },
           { field: 'spaceName', label: '执行位置' },
           {
-            field: 'start',
+            field: 'startTime',
             label: '开始时间',
             customRender: ({ value }) => (value ? formatTime(value) : '--'),
           },
           {
-            field: 'end',
+            field: 'endTime',
             label: '结束时间',
             customRender: ({ value }) => (value ? formatTime(value) : '--'),
           },
-          { field: 'state', label: '执行状态' },
+          { field: 'stateCode', label: '执行状态' },
         ],
       });
 
@@ -144,8 +144,8 @@
           
           // 处理基本信息
           repairForm.value = resultData || {};
-          if (resultData.start && resultData.end) {
-            repairForm.value.executionTime = [resultData.start, resultData.end];
+          if (resultData.startTime && resultData.endTime) {
+            repairForm.value.executionTime = [resultData.startTime, resultData.endTime];
           }
           
           // 处理巡检规则
@@ -165,7 +165,7 @@
           for (const key1 in subGroup.value) {
             for (const key2 in subGroup.value[key1]) {
               for (let i = 0; i < subGroup.value[key1][key2].length; i++) {
-                if (subGroup.value[key1][key2][i].type === '选择' && typeof subGroup.value[key1][key2][i].choice === 'string') {
+                if (subGroup.value[key1][key2][i].subjectType === '选择' && typeof subGroup.value[key1][key2][i].choice === 'string') {
                   subGroup.value[key1][key2][i].choice = subGroup.value[key1][key2][i].choice.split(',');
                 }
               }
@@ -211,7 +211,7 @@
         { title: '任务编号', dataIndex: 'ruleNo', align: 'center', ellipsis: true },
         { title: '规则名称', dataIndex: 'name', align: 'center' },
         { title: '巡检对象', dataIndex: 'inspectObject', align: 'center', ellipsis: true },
-        { title: '规则类型', dataIndex: 'type', align: 'center', ellipsis: true },
+        { title: '规则类型', dataIndex: 'ruleType', align: 'center', ellipsis: true },
         { title: '建议工作天数', dataIndex: 'recommendedDays', align: 'center' },
       ];
 
@@ -228,11 +228,11 @@
           // 处理巡检作业内容数据
           let taskSubjectList: any[] = [];
           let obj = JSON.parse(JSON.stringify(subGroup.value));
-          
+
           for (const key1 in obj) {
             for (const key2 in obj[key1]) {
               for (let i = 0; i < obj[key1][key2].length; i++) {
-                if (obj[key1][key2][i].type === '选择' && Array.isArray(obj[key1][key2][i].choice)) {
+                if (obj[key1][key2][i].subjectType === '选择' && Array.isArray(obj[key1][key2][i].choice)) {
                   obj[key1][key2][i].choice = obj[key1][key2][i].choice.join(',');
                 }
                 taskSubjectList.push(obj[key1][key2][i]);

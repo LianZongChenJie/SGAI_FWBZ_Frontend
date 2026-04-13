@@ -17,7 +17,7 @@
               },
               {
                 label: '执行',
-                disabled: disableRow(record.state),
+                disabled: disableRow(record.stateCode),
                 onClick: handleExecute.bind(null, record),
               },
               {
@@ -88,7 +88,7 @@
           },
           {
             title: '工单状态',
-            dataIndex: 'state',
+            dataIndex: 'stateCode',
             align: 'center',
             ellipsis: true,
           },
@@ -100,17 +100,17 @@
           },
           {
             title: '开始时间',
-            dataIndex: 'start',
+            dataIndex: 'startTime',
             align: 'center',
             ellipsis: true,
-            customRender: ({ record }) => (record.start ? formatTime(record.start) : '--'),
+            customRender: ({ record }) => (record.startTime ? formatTime(record.startTime) : '--'),
           },
           {
             title: '结束时间',
-            dataIndex: 'end',
+            dataIndex: 'endTime',
             align: 'center',
             ellipsis: true,
-            customRender: ({ record }) => (record.end ? formatTime(record.end) : '--'),
+            customRender: ({ record }) => (record.endTime ? formatTime(record.endTime) : '--'),
           },
           {
             title: '操作',

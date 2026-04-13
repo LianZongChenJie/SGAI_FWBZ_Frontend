@@ -186,7 +186,7 @@
                 id: item.id || Date.now(),
                 name: item.name,
                 content: item.content,
-                type: item.type,
+                type: item.subjectType,
                 choice: item.choice,
                 trueMark: item.trueMark,
                 falseMark: item.falseMark,
@@ -227,7 +227,7 @@
             required: true,
           },
           {
-            field: 'type',
+            field: 'ruleType',
             label: '规则类型',
             component: 'Select',
             componentProps: {
@@ -399,10 +399,11 @@
           setModalProps({ confirmLoading: true });
 
           // 转换为API需要的格式
-          const ruleSubjectList = ruleContentBlocks.value.flatMap(block => 
+          const ruleSubjectList = ruleContentBlocks.value.flatMap(block =>
             block.fields.map(field => ({
               ...field,
               projectName: block.projectName,
+              subjectType: field.type,
             }))
           );
 

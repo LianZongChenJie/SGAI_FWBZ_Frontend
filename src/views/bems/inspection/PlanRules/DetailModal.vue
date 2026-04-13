@@ -29,12 +29,12 @@
               <tr v-for="(item, fieldIndex) in block.fields" :key="fieldIndex">
                 <td>{{ item.name }}</td>
                 <td>{{ item.content }}</td>
-                <td>{{ item.type }}</td>
+                <td>{{ item.subjectType }}</td>
                 <td>
-                  <div v-if="item.type === '选择'">
+                  <div v-if="item.subjectType === '选择'">
                     {{ item.choice }}
                   </div>
-                  <div v-else-if="item.type === '判断'">
+                  <div v-else-if="item.subjectType === '判断'">
                     True={{ item.trueMark }}, False={{ item.falseMark }}
                   </div>
                   <div v-else>

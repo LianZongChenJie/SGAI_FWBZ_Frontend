@@ -2,7 +2,7 @@
   <BasicModal v-bind="$attrs" @register="registerModal" title="巡检计划详情" :width="1000" :showOkBtn="false">
     <template #footer>
       <a-button
-        v-if="!repairForm.state || repairForm.state == '未开始' && !repairForm.isCreateTask && !editStatus"
+        v-if="!repairForm.stateCode || repairForm.stateCode == '未开始' && !repairForm.isCreateTask && !editStatus"
         type="default"
         @click="enterEditMode"
       >
@@ -22,9 +22,9 @@
       >
         取消
       </a-button>
-      <a-button :loading="loading" v-if="!editStatus && !repairForm.state || repairForm.state == '未开始' && tableData && tableData.length != 0 && !repairForm.isCreateTask" type="primary" @click="saveBaseData('createTask')">生成巡检任务</a-button>
-      <a-button :loading="loading" v-if="!editStatus && !repairForm.state || repairForm.state == '未开始' && taskData && taskData.length != 0 && repairForm.canRelease" @click.once="onReleaseTask" type="primary">释放巡检任务</a-button>
-      <a-button :loading="loading" v-if="!editStatus && !repairForm.state || repairForm.state == '未开始' && repairForm.canCancel" @click="onCancelPlan" type="primary">一键取消</a-button>
+      <a-button :loading="loading" v-if="!editStatus && !repairForm.stateCode || repairForm.stateCode == '未开始' && tableData && tableData.length != 0 && !repairForm.isCreateTask" type="primary" @click="saveBaseData('createTask')">生成巡检任务</a-button>
+      <a-button :loading="loading" v-if="!editStatus && !repairForm.stateCode || repairForm.stateCode == '未开始' && taskData && taskData.length != 0 && repairForm.canRelease" @click.once="onReleaseTask" type="primary">释放巡检任务</a-button>
+      <a-button :loading="loading" v-if="!editStatus && !repairForm.stateCode || repairForm.stateCode == '未开始' && repairForm.canCancel" @click="onCancelPlan" type="primary">一键取消</a-button>
       <a-button @click="handleExit">关闭</a-button>
     </template>
     <div v-loading="loading">
@@ -164,7 +164,7 @@ const baseData = computed(() => ({
 const cycleData = computed(() => {
   const data: Record<string, any> = {
     disposable: repairForm.value.disposable ? '周期时间' : '固定时间',
-    timeRange: repairForm.value.start && repairForm.value.end ? repairForm.value.start + '~' + repairForm.value.end : '--',
+    timeRange: repairForm.value.startTime && repairForm.value.endTime ? repairForm.value.startTime + '~' + repairForm.value.endTime : '--',
   };
   if (!repairForm.value.disposable) {
     data.broad = repairForm.value.broad ? repairForm.value.broad + ' ' + repairForm.value.broadUnit : '--';
@@ -388,7 +388,7 @@ const [registerRuleTable, { reload: reloadRuleTable }] = useTable({
     { title: '规则编号', dataIndex: 'ruleNo', align: 'center' },
     { title: '规则名称', dataIndex: 'name', align: 'center' },
     { title: '巡检对象', dataIndex: 'inspectObject', align: 'center' },
-    { title: '规则类型', dataIndex: 'type', align: 'center' },
+    { title: '规则类型', dataIndex: 'ruleType', align: 'center' },
     { title: '建议工作天数', dataIndex: 'recommendedDays', align: 'center' },
     {
       title: '操作',
@@ -418,11 +418,11 @@ const [registerTaskTable, { reload: reloadTaskTable }] = useTable({
   dataSource: taskData,
   columns: [
     { title: '序号', type: 'index', align: 'center', width: 60 },
-    { title: '工单状态', dataIndex: 'state', align: 'center' },
+    { title: '工单状态', dataIndex: 'stateCode', align: 'center' },
     { title: '任务编号', dataIndex: 'taskNo', key: 'taskNo', align: 'center' },
     { title: '执行组别', dataIndex: 'groupName', align: 'center' },
-    { title: '执行开始时间', dataIndex: 'start', align: 'center', customRender: ({ record }) => (record.start ? dayjs(record.start).format('YYYY-MM-DD HH:mm') : '--') },
-    { title: '执行结束时间', dataIndex: 'end', align: 'center', customRender: ({ record }) => (record.end ? dayjs(record.end).format('YYYY-MM-DD HH:mm') : '--') },
+    { title: '执行开始时间', dataIndex: 'startTime', align: 'center', customRender: ({ record }) => (record.startTime ? dayjs(record.startTime).format('YYYY-MM-DD HH:mm') : '--') },
+    { title: '执行结束时间', dataIndex: 'endTime', align: 'center', customRender: ({ record }) => (record.endTime ? dayjs(record.endTime).format('YYYY-MM-DD HH:mm') : '--') },
     { title: '最后执行时间', dataIndex: 'lastTime', align: 'center', customRender: ({ record }) => (record.lastTime ? dayjs(record.lastTime).format('YYYY-MM-DD HH:mm') : '--') },
     {
       title: '操作',
@@ -433,7 +433,7 @@ const [registerTaskTable, { reload: reloadTaskTable }] = useTable({
         return h('div', {}, [
           h('a', {
             onClick: () => changeDate(record),
-            style: { marginRight: '8px', color: record.state === '已取消' ? '#d9d9d9' : undefined, pointerEvents: record.state === '已取消' ? 'none' : undefined }
+            style: { marginRight: '8px', color: record.stateCode === '已取消' ? '#d9d9d9' : undefined, pointerEvents: record.stateCode === '已取消' ? 'none' : undefined }
           }, '变更时间'),
           h('a', { onClick: () => toTaskDetail(record) }, '详情')
         ]);
@@ -469,7 +469,7 @@ const [registerAllRuleTable] = useTable({
     { title: '规则编号', dataIndex: 'ruleNo', align: 'center' },
     { title: '规则名称', dataIndex: 'name', align: 'center' },
     { title: '巡检对象', dataIndex: 'inspectObject', align: 'center' },
-    { title: '规则类型', dataIndex: 'type', align: 'center' },
+    { title: '规则类型', dataIndex: 'ruleType', align: 'center' },
     { title: '建议工作天数', dataIndex: 'recommendedDays', align: 'center' },
     { title: '描述', dataIndex: 'executionTime', align: 'center' },
   ],
@@ -656,8 +656,8 @@ async function saveEditData() {
       spaceId: repairForm.value.spaceId,
       description: repairForm.value.description,
       disposable: repairForm.value.disposable,
-      start: repairForm.value.time[0],
-      end: repairForm.value.time[1],
+      startTime: repairForm.value.time[0],
+      endTime: repairForm.value.time[1],
       cycle: repairForm.value.cycle,
       unit: repairForm.value.unit,
       specificTime: Array.isArray(repairForm.value.specificTime)
@@ -810,7 +810,7 @@ async function saveBaseData(type) {
 async function onReleaseTask() {
   try {
     loading.value = true;
-    await release({ planId: repairForm.value.id, state: '执行中' });
+    await release({ planId: repairForm.value.id, stateCode: '执行中' });
     message.success('操作成功！');
     await getDetaile(repairForm.value.id);
     emit('success');
@@ -824,7 +824,7 @@ async function onReleaseTask() {
 async function onCancelPlan() {
   try {
     loading.value = true;
-    await cancel({ planId: repairForm.value.id, state: '已取消' });
+    await cancel({ planId: repairForm.value.id, stateCode: '已取消' });
     message.success('操作成功！');
     await getDetaile(repairForm.value.id);
     emit('success');
@@ -838,8 +838,8 @@ async function onCancelPlan() {
 function changeDate(data) {
   dialogVisible.value = true;
   taskForm.value.id = data.id;
-  taskForm.value.date = [data.start, data.end];
-  setTaskFieldsValue({ date: [data.start, data.end] });
+  taskForm.value.date = [data.startTime, data.endTime];
+  setTaskFieldsValue({ date: [data.startTime, data.endTime] });
 }
 
 function toTaskDetail(data: Recordable) {
@@ -860,8 +860,8 @@ async function submitForm() {
     const timeArr = typeof values.date === 'string' ? values.date.split(',') : values.date;
     const params = {
       id: taskForm.value.id,
-      start: timeArr ? timeArr[0] : '',
-      end: timeArr ? timeArr[1] : '',
+      startTime: timeArr ? timeArr[0] : '',
+      endTime: timeArr ? timeArr[1] : '',
     };
     await setTaskDate(params);
     message.success('操作成功！');
