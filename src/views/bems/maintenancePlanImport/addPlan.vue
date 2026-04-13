@@ -75,15 +75,20 @@
           </el-row> </el-form
       ></el-tab-pane>
       <el-tab-pane label="时间安排" name="时间安排">
-        <el-tree
-          ref="weeklyTreeRef"
-          show-checkbox
-          style="max-width: 600px"
-          :data="weeklyTree"
-          :props="defaultProps"
-          node-key="weekNumber"
-          :default-checked-keys="defaultCheckedKeys"
-        />
+        <el-table :data="weeklyTree" border>
+          <el-table-column prop="weekTitle" label="月份" width="80" />
+          <el-table-column label="周次">
+            <template #default="{ row }">
+              <el-input
+                v-for="week in row.children"
+                :key="week.weekNumber"
+                :placeholder="'第' + week.weekNumber + '周'"
+                v-model="weeklyInputs[week.weekNumber]"
+                style="width: 100px; margin-right: 8px; margin-bottom: 8px"
+              />
+            </template>
+          </el-table-column>
+        </el-table>
       </el-tab-pane>
     </el-tabs>
 
@@ -106,12 +111,7 @@
     },
   });
   const weeklyTree = ref<any[]>([]);
-  const weeklyTreeRef = ref();
-  const defaultProps = {
-    children: 'children',
-    label: 'weekTitle',
-  };
-  const defaultCheckedKeys = ref([]);
+  const weeklyInputs = ref<Record<string, string>>({});
   const activeName = ref('基本信息');
   const addPlanForm = ref();
   const orgTree = ref<any[]>([]);
@@ -153,7 +153,7 @@
     activeName.value = '基本信息';
     dialogVisible.value = false;
     addPlanForm.value.resetFields();
-    defaultCheckedKeys.value = [];
+    weeklyInputs.value = {};
   };
   const showDialog = async (row, from) => {
     loading.value = true;
@@ -163,7 +163,7 @@
     if (row) {
       const { id, planName, year, orgCode, systemName, maintenanceCycle, cycleUnit, suggestedFrequency, continuousDuration, department } = row;
       planDetail(id).then((res) => {
-        defaultCheckedKeys.value = res.weeklyConfig?.slice(1, -1).split(',') || [];
+        weeklyInputs.value = JSON.parse(res.weeklyConfig || '{}');
         form.value.optionalFields = res.fieldInfoList;
         loading.value = false;
       });
@@ -183,6 +183,7 @@
       form.value.year = from.year;
       form.value.orgCode = from.orgCode;
       getFiledConfigHandle();
+      loading.value = false;
     }
   };
   const getFiledConfigHandle = () => {
@@ -229,9 +230,12 @@
     });
   };
   const submitForm = () => {
-    const checkedNodes = weeklyTreeRef.value.getCheckedNodes();
-    const checkedKeys = checkedNodes.filter((node) => node.weekNumber).map((node) => node.weekNumber);
-    form.value.weeklyConfig = '[' + checkedKeys.join(',') + ']';
+    // 过滤空值，转为 JSON 字符串
+    form.value.weeklyConfig = JSON.stringify(
+      Object.fromEntries(
+        Object.entries(weeklyInputs.value).filter(([_, v]) => v)
+      )
+    );
     // 验证表单
     addPlanForm.value.validate((valid) => {
       console.log(valid);

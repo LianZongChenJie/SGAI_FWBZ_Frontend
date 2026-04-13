@@ -225,17 +225,6 @@
       let tHeader = res.tableHeader.children || [];
       let list = res.planModelList || [];
       console.log(list);
-      list.forEach((item) => {
-        for (const e in item) {
-          if (Number(e)) {
-            if (item[e]) {
-              item[e] = '√';
-            } else {
-              item[e] = '';
-            }
-          }
-        }
-      });
 
       tHeader.forEach((v, idx) => {
         const widthMap = {
