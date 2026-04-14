@@ -1,5 +1,5 @@
 <template>
-  <BasicModal v-bind="$attrs" @register="registerModal" title="维护任务详情" @cancel="cancel" @ok="handleOk" width="800px">
+  <BasicModal v-bind="$attrs" @register="registerModal" title="维保任务详情" @cancel="cancel" @ok="handleOk" width="800px">
     <a-tabs v-model:activeKey="activeKey">
       <a-tab-pane key="1" tab="基本信息"
         ><div class="maintenance-task-detail">
@@ -57,8 +57,8 @@
                 </el-form-item>
               </el-col>
               <el-col :span="12">
-                <el-form-item label="执行人ID：">
-                  <span>{{ taskData.executorId || '未分配' }}</span>
+                <el-form-item label="执行人：">
+                  <span>{{ taskData.executorName || '未分配' }}</span>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -80,7 +80,10 @@
         <linkedDevice :taskId="taskId" :status="status" />
       </a-tab-pane>
       <a-tab-pane key="3" tab="关联空间">
-        <linkedSpace :taskId="taskId" />
+        <linkedSpace :taskId="taskId" :status="status" />
+      </a-tab-pane>
+      <a-tab-pane key="4" tab="操作日志">
+        <operationLog :taskId="taskId" />
       </a-tab-pane>
     </a-tabs>
   </BasicModal>
@@ -89,9 +92,11 @@
 <script setup>
   import { ref, onMounted } from 'vue';
   import { BasicModal, useModalInner } from '@/components/Modal';
+  const emit = defineEmits(['success']);
   import { getDetail, execute } from './task.api';
   import linkedDevice from './linkedDevice.vue';
   import linkedSpace from './linkedSpace.vue';
+  import operationLog from './operationLog.vue';
   const activeKey = ref('1');
   const taskId = ref(null);
   const isExecute = ref(false);
@@ -117,6 +122,7 @@
         taskId: taskId.value,
         completionRemark: completionRemark.value,
       });
+      emit('success');
     }
     closeModal();
   };
@@ -134,7 +140,7 @@
     actualEndTime: null,
     status: '',
     completionRemark: '',
-    executorId: null,
+    executorName: '',
     taskFieldData: [],
   });
 </script>
