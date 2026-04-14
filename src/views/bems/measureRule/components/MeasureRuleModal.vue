@@ -6,7 +6,7 @@
           v-model:value="formData.parentId"
           :tree-data="props.ruleTree"
           placeholder="请选择上级节点"
-          :field-names="{ label: 'nodeName', value: 'id' }"
+          :field-names="{ label: 'title', value: 'key' }"
         />
       </a-form-item>
       <a-form-item label="项目编号" name="nodeCode">
