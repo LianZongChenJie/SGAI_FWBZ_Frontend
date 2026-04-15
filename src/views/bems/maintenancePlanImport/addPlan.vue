@@ -143,7 +143,7 @@
     orgCode: [{ required: true, message: '请输入组织机构编码', trigger: 'blur' }],
     systemName: [{ required: true, message: '请输入系统名称', trigger: 'blur' }],
     maintenanceCycle: [{ required: true, message: '请输入维保周期', trigger: 'blur' }],
-    cycleUnit: [{ message: '请输入周期单位', trigger: 'blur' }],
+    cycleUnit: [{ required: true, message: '请输入周期单位', trigger: 'blur' }],
     suggestedFrequency: [{ required: true, message: '请输入建议频次', trigger: 'blur' }],
     continuousDuration: [{ required: true, message: '请输入持续执行时间', trigger: 'blur' }],
     department: [{ required: true, message: '请输入部门', trigger: 'blur' }],

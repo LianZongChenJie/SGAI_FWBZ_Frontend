@@ -101,7 +101,7 @@ export const searchFormSchema: FormSchema[] = [
         { label: '已取消', value: '已取消' },
       ],
     },
- },
+  },
   {
     field: 'spaceId',
     label: '执行位置',
@@ -155,6 +155,7 @@ export const addFormSchema: FormSchema[] = [
     component: 'Select',
     required: true,
     defaultValue: '固定时间',
+    colProps: { span: 10 },
     componentProps: {
       options: [
         { label: '固定时间', value: '固定时间' },
@@ -166,6 +167,7 @@ export const addFormSchema: FormSchema[] = [
     field: 'time',
     label: '时间范围',
     component: 'RangePicker',
+    colProps: { span: 11 },
     required: true,
     componentProps: {
       format: 'YYYY-MM-DD',
@@ -181,7 +183,13 @@ export const addFormSchema: FormSchema[] = [
     component: 'InputNumber',
     required: true,
     ifShow: ({ values }) => values.disposable === '周期时间',
-    colProps: { span: 6 },
+    colProps: { span: 4, offset: 1 },
+    itemProps: {
+      labelCol: { span: 24 },
+      labelAlign: 'left',
+      wrapperCol: { span: 24 },
+      style: { display: 'block' },
+    },
     slot: 'frequency',
     rules: [
       {
@@ -201,11 +209,17 @@ export const addFormSchema: FormSchema[] = [
   },
   {
     field: 'timeType',
-    label: ' ',
+    label: '重复频率',
     component: 'Select',
     required: true,
     ifShow: ({ values }) => values.disposable === '周期时间',
-    colProps: { span: 6 },
+    colProps: { span: 4 },
+    itemProps: {
+      labelCol: { span: 24 },
+      labelAlign: 'left',
+      wrapperCol: { span: 24 },
+      style: { display: 'block' },
+    },
     componentProps: {
       options: [
         { label: '天', value: 'day' },
@@ -223,11 +237,17 @@ export const addFormSchema: FormSchema[] = [
   },
   {
     field: 'specificTime',
-    label: ' ',
+    label: '重复频率 ',
     component: 'Cascader',
     required: true,
     ifShow: ({ values }) => values.disposable === '周期时间',
-    colProps: { span: 10 },
+    colProps: { span: 6 },
+    itemProps: {
+      labelCol: { span: 24 },
+      wrapperCol: { span: 24 },
+      labelAlign: 'left',
+      style: { display: 'block' },
+    },
     componentProps: {
       multiple: true,
       separator: '',
@@ -245,20 +265,18 @@ export const addFormSchema: FormSchema[] = [
     ],
   },
   {
-    field: 'frequencyDisplay',
-    label: ' ',
-    component: 'Input',
-    ifShow: ({ values }) => values.disposable === '周期时间',
-    colProps: { span: 24 },
-    slot: 'frequencyDisplay',
-  },
-  {
     field: 'broad',
     label: '宽泛期',
     component: 'Input',
     required: true,
     ifShow: ({ values }) => values.disposable === '周期时间',
-    colProps: { span: 12 },
+    colProps: { span: 6 },
+    itemProps: {
+      labelCol: { span: 24 },
+      labelAlign: 'left',
+      wrapperCol: { span: 24 },
+      style: { display: 'block' },
+    },
     slot: 'broad',
     rules: [
       {
@@ -270,6 +288,14 @@ export const addFormSchema: FormSchema[] = [
         message: '宽泛期只能输入数字',
       },
     ],
+  },
+  {
+    field: 'frequencyDisplay',
+    label: '',
+    component: 'Input',
+    ifShow: ({ values }) => values.disposable === '周期时间',
+    colProps: { span: 23, offset: 1 },
+    slot: 'frequencyDisplay',
   },
 ];
 

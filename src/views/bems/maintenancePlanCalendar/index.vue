@@ -26,20 +26,29 @@
         </div>
 
         <div class="calendar-container">
-          <el-calendar v-model="currentDate">
+          <el-calendar v-model="currentDate" ref="calendar">
+            <template #header="{ date }">
+              <span>{{ date }}</span>
+              <el-button-group>
+                <el-button size="small" @click="selectDate('prev-year')">上一年</el-button>
+                <el-button size="small" @click="selectDate('prev-month')">上个月</el-button>
+                <el-button size="small" @click="selectDate('today')">今天</el-button>
+                <el-button size="small" @click="selectDate('next-month')">下个月</el-button>
+                <el-button size="small" @click="selectDate('next-year')">下一年</el-button>
+              </el-button-group>
+            </template>
             <template #date-cell="{ data }">
               <div class="calendar-cell">
                 <div class="date-header">
                   <span class="date-number">{{ data.day.split('-').slice(2).join('') }}</span>
                   <span v-if="isToday(data.day)" class="today-badge">今天</span>
                 </div>
-                <div class="plan-list">
+                <div class="plan-list" style="overflow-x: hidden">
                   <div v-for="plan in getPlansForDate(data.day)" :key="plan.id" class="plan-item" :title="plan.name" @click="viewPlanDetail(plan)">
                     <el-tag :size="'small'" :type="getPlanType(plan.status)">
-                      {{ plan.name }}
+                      {{ plan.taskName }}
                     </el-tag>
                   </div>
-                  <div v-if="getPlansForDate(data.day).length > 3" class="more-plans"> 还有 {{ getPlansForDate(data.day).length - 3 }} 项... </div>
                 </div>
               </div>
             </template>
@@ -49,15 +58,19 @@
         <!-- 计划详情弹框 -->
         <el-dialog v-model="detailVisible" title="计划详情" width="600px" :append-to-body="true">
           <el-descriptions :column="1" border>
-            <el-descriptions-item label="计划名称">{{ currentPlan.name }}</el-descriptions-item>
-            <el-descriptions-item label="计划日期">{{ currentPlan.date }}</el-descriptions-item>
-            <el-descriptions-item label="维保周期">{{ currentPlan.cycle }}</el-descriptions-item>
-            <el-descriptions-item label="负责人">{{ currentPlan.principal }}</el-descriptions-item>
-            <el-descriptions-item label="执行科组">{{ currentPlan.department }}</el-descriptions-item>
-            <el-descriptions-item label="类型">{{ currentPlan.weibaoType }}</el-descriptions-item>
+            <el-descriptions-item label="计划名称">{{ currentPlan.taskName }}</el-descriptions-item>
+            <el-descriptions-item label="年份">{{ currentPlan.year }}</el-descriptions-item>
+            <el-descriptions-item label="周次">{{ currentPlan.weekNumber }}</el-descriptions-item>
+            <el-descriptions-item label="组织机构编码">{{ currentPlan.orgCode }}</el-descriptions-item>
+            <el-descriptions-item label="任务开始时间">{{ currentPlan.plannedStartTime }}</el-descriptions-item>
+            <el-descriptions-item label="任务开始时间">{{ currentPlan.plannedEndTime }}</el-descriptions-item>
+            <el-descriptions-item label="实际开始时间">{{ currentPlan.actualStartTime || '未开始' }}</el-descriptions-item>
+            <el-descriptions-item label="实际结束时间">{{ currentPlan.actualEndTime || '未结束' }}</el-descriptions-item>
             <el-descriptions-item label="状态">
               <el-tag :type="getPlanType(currentPlan.status)">{{ currentPlan.status }}</el-tag>
             </el-descriptions-item>
+            <el-descriptions-item label="备注说明">{{ currentPlan.completionRemark || '无' }}</el-descriptions-item>
+            <el-descriptions-item label="执行人">{{ currentPlan.executorName || '未分配' }}</el-descriptions-item>
           </el-descriptions>
           <template #footer>
             <el-button @click="detailVisible = false">关闭</el-button>
@@ -71,16 +84,16 @@
 <script setup lang="ts">
   import { ref, onMounted } from 'vue';
   import moment from 'moment';
-  // import { ArrowLeft, ArrowRight, Search, RefreshRight } from '@element-plus/icons-vue'
+  import { ArrowLeft, ArrowRight, Search, RefreshRight } from '@element-plus/icons-vue';
   import { getMonthPlanApi } from './Standardized.api';
 
   // 搜索表单
   const searchForm = ref({
     month: moment().format('YYYY-MM'),
   });
-
+  const calendar = ref();
   // 当前日期
-  const currentDate = ref(new Date());
+  const currentDate = ref(moment().format('YYYY-MM'));
 
   // 计划数据（按日期索引）
   const planData = ref<Record<string, any[]>>({});
@@ -97,10 +110,10 @@
   // 获取计划类型（用于标签颜色）
   const getPlanType = (status: string) => {
     const typeMap: Record<string, string> = {
-      未开始: 'info',
-      进行中: 'warning',
-      已完成: 'success',
-      已逾期: 'danger',
+      已执行: 'info',
+      未开始: 'warning',
+      进行中: 'success',
+      已延期: 'danger',
     };
     return typeMap[status] || 'info';
   };
@@ -109,7 +122,7 @@
   const getPlansForDate = (date: string) => {
     const plans = planData.value[date] || [];
     // 最多显示3条，避免格子过于拥挤
-    return plans.slice(0, 3);
+    return plans;
   };
 
   // 查看计划详情
@@ -147,15 +160,26 @@
       const momentDate = moment(currentDate.value, 'YYYY-MM');
       const monthResult = getMonthRangeByMoment(momentDate);
       const res = await getMonthPlanApi({
-        startTime: monthResult?.firstDay + ' 00:00:00',
-        endTime: monthResult?.lastDay + ' 00:00:00',
-        labelType: '维保',
+        yearMonth: monthResult?.firstDay.slice(0, 7),
       });
       if (res) {
         // 将计划数据按日期索引
         const indexedData: Record<string, any[]> = {};
         res.forEach((plan: any) => {
-          const date = plan.planBeginTime.split(' ')[0];
+          console.log(plan, 'plan');
+          let date = '';
+          if (plan.status == '已执行') {
+            date = plan.actualEndTime.slice(0, 10);
+          } else {
+            let startTime = new Date(plan.plannedStartTime).getTime();
+            let nowTime = new Date().getTime();
+            console.log(startTime, nowTime, 'startTime, nowTime');
+            if (startTime < nowTime) {
+              date = moment().format('YYYY-MM-DD');
+            } else {
+              date = plan.plannedStartTime.slice(0, 10);
+            }
+          }
           if (!indexedData[date]) {
             indexedData[date] = [];
           }
@@ -165,6 +189,7 @@
       } else {
         planData.value = {};
       }
+      console.log(planData.value, 'planData.value');
     } catch (error) {
       console.error('加载计划数据失败:', error);
       planData.value = {};
@@ -173,27 +198,51 @@
 
   // 月份切换
   const handleMonthChange = () => {
+    console.log(currentDate.value, 'currentDate.value');
     loadPlanData();
   };
 
   // 上个月
   const prevMonth = () => {
-    currentDate.value = moment(currentDate.value).subtract(1, 'months').toDate();
+    currentDate.value = moment(currentDate.value).subtract(1, 'months').format('YYYY-MM');
     loadPlanData();
   };
 
   // 下个月
   const nextMonth = () => {
-    currentDate.value = moment(currentDate.value).add(1, 'months').toDate();
+    currentDate.value = moment(currentDate.value).add(1, 'months').format('YYYY-MM');
     loadPlanData();
   };
 
   // 重置
   const resetSearchForm = () => {
-    currentDate.value = new Date();
+    currentDate.value = moment().format('YYYY-MM');
     loadPlanData();
   };
-
+  const selectDate = (val: string) => {
+    switch (val) {
+      case 'today':
+        currentDate.value = moment().format('YYYY-MM');
+        loadPlanData();
+        return;
+      case 'prev-year':
+        currentDate.value = moment(currentDate.value).subtract(1, 'years').format('YYYY-MM');
+        loadPlanData();
+        return;
+      case 'prev-month':
+        currentDate.value = moment(currentDate.value).subtract(1, 'months').format('YYYY-MM');
+        loadPlanData();
+        return;
+      case 'next-month':
+        currentDate.value = moment(currentDate.value).add(1, 'months').format('YYYY-MM');
+        loadPlanData();
+        return;
+      case 'next-year':
+        currentDate.value = moment(currentDate.value).add(1, 'years').format('YYYY-MM');
+        loadPlanData();
+        return;
+    }
+  };
   // 页面加载时获取数据
   onMounted(() => {
     loadPlanData();

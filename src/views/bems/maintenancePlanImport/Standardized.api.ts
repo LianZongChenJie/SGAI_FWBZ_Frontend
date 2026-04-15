@@ -4,8 +4,8 @@ import { useMessage } from '/@/hooks/web/useMessage';
 const { createConfirm } = useMessage();
 enum Api {
   getPlanListApi = '/deviceMaintenance/maintenancePlan/tableView',
-  importTemplateApi = '/maintenance/planModel/importTemplate',
-  exportTemplateApi = '/maintenance/planModel/exportTemplate',
+  importTemplateApi = '/deviceMaintenance/maintenancePlan/import',
+  exportTemplateApi = '/deviceMaintenance/maintenancePlan/template',
   getFiledConfigApi = '/deviceMaintenance/orgFieldConfig/org/',
   getWeekDistributionApi = '/deviceMaintenance/maintenancePlan/weekDistribution',
   addPlanApi = '/deviceMaintenance/maintenancePlan/add',

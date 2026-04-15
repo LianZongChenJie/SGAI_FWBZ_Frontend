@@ -1,7 +1,7 @@
 import { defHttp } from '/@/utils/http/axios';
 
 enum Api {
-  getMonthPlanApi = '/maintenance/plan/queryAll',
+  getMonthPlanApi = '/deviceMaintenance/maintenanceTask/listByMonth',
   getPlanDetailApi = '/maintenance/planModel/detail',
 }
 

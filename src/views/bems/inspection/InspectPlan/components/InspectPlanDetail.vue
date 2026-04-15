@@ -1,5 +1,5 @@
 <template>
-  <BasicModal v-bind="$attrs" @register="registerModal" title="巡检计划详情" :width="1000" :showOkBtn="false">
+  <BasicModal v-bind="$attrs" @register="registerModal" title="巡检计划详情" @cancel="handleExit" :width="1000" :showOkBtn="false">
     <template #footer>
       <a-button
         v-if="!repairForm.stateCode || (repairForm.stateCode == '未开始' && !repairForm.isCreateTask && !editStatus)"
@@ -154,7 +154,7 @@
   });
 
   // 基本信息编辑表单
-  const [registerBaseEditForm, { setFieldsValue: setBaseFieldsValue }] = useForm({
+  const [registerBaseEditForm, { setFieldsValue: setBaseFieldsValue, validate: validateBaseForm }] = useForm({
     schemas: [
       { field: 'planNo', label: '巡检计划编号', component: 'Input', disabled: true, colProps: { span: 8 } },
       { field: 'name', label: '巡检计划名称', component: 'Input', required: true, colProps: { span: 8 } },
@@ -174,12 +174,15 @@
         label: '执行位置',
         component: 'TreeSelect',
         required: true,
-        colProps: { span: 8 },
+        colProps: { span: 24 },
         componentProps: {
           treeData: regionData,
+          showCheckedStrategy: 'SHOW_ALL',
           fieldNames: { label: 'spaceName', value: 'id', children: 'children' },
-          showCheckedStrategy: 'SHOW_PARENT',
           placeholder: '请选择执行位置',
+          treeCheckable: true,
+          multiple: true,
+          treeCheckStrictly: true,
           style: { width: '100%' },
         },
       },
@@ -221,7 +224,7 @@
   });
 
   // 执行周期编辑表单
-  const [registerCycleEditForm, { setFieldsValue: setCycleFieldsValue }] = useForm({
+  const [registerCycleEditForm, { setFieldsValue: setCycleFieldsValue, validate: validateCycleForm }] = useForm({
     schemas: [
       {
         field: 'disposable',
@@ -543,8 +546,13 @@
       }
 
       nextTick(() => {
-        reloadRuleTable();
-        reloadTaskTable();
+        // // 检查表格实例是否存在，避免调用不存在的实例方法
+        // if (typeof reloadRuleTable === 'function') {
+        //   reloadRuleTable();
+        // }
+        // if (typeof reloadTaskTable === 'function') {
+        //   reloadTaskTable();
+        // }
       });
     } catch (error) {
       console.error('获取详情失败:', error);
@@ -552,6 +560,7 @@
   }
 
   function handleExit() {
+    editStatus.value = false;
     closeModal();
     emit('success');
   }
@@ -569,10 +578,14 @@
         planNo: repairForm.value.planNo,
         name: repairForm.value.name,
         groupId: repairForm.value.groupId,
-        spaceId: repairForm.value.spaceId,
+        spaceId: repairForm.value.spaceId
+          ? Array.isArray(repairForm.value.spaceId)
+            ? repairForm.value.spaceId
+            : repairForm.value.spaceId.split(',')
+          : [],
         description: repairForm.value.description,
       });
-      
+
       // 设置执行周期表单值
       setCycleFieldsValue({
         disposable: repairForm.value.disposable,
@@ -581,7 +594,7 @@
         cycle: repairForm.value.cycle,
         unit: repairForm.value.unit,
       });
-      
+
       // 处理specificTime回显，加上后缀匹配级联选择器
       if (!!repairForm.value.disposable && repairForm.value.specificTime) {
         let editTime = repairForm.value.specificTime.split(',').map((t) => {
@@ -604,6 +617,7 @@
 
   // 退出编辑模式
   function exitEditMode() {
+    console.log('退出编辑模式', baseData.value);
     repairForm.value = JSON.parse(JSON.stringify(originalForm.value));
     editStatus.value = false;
   }
@@ -630,19 +644,27 @@
       regionData.value = [
         {
           id: '1',
-          spaceName: '一层',
+          spaceName: '国家大剧院',
           children: [
-            { id: '1-1', spaceName: '101房间' },
-            { id: '1-2', spaceName: '102房间' },
-            { id: '1-3', spaceName: '走廊' },
+            { id: '1-1', spaceName: '一层大厅', children: [] },
+            { id: '1-2', spaceName: '二层展厅', children: [] },
+            { id: '1-3', spaceName: '三层设备间', children: [] },
           ],
         },
         {
           id: '2',
-          spaceName: '二层',
+          spaceName: '北京艺术中心',
           children: [
-            { id: '2-1', spaceName: '201房间' },
-            { id: '2-2', spaceName: '202房间' },
+            { id: '2-1', spaceName: '音乐厅', children: [] },
+            { id: '2-2', spaceName: '剧场', children: [] },
+          ],
+        },
+        {
+          id: '3',
+          spaceName: '台湖艺术中心',
+          children: [
+            { id: '3-1', spaceName: '排练厅', children: [] },
+            { id: '3-2', spaceName: '演出厅', children: [] },
           ],
         },
       ];
@@ -657,20 +679,20 @@
     try {
       loading.value = true;
       // 校验表单
-      const [baseValid, cycleValid] = await Promise.all([(registerBaseEditForm as any)[1].validate(), (registerCycleEditForm as any)[1].validate()]);
+      const [baseValid, cycleValid] = await Promise.all([validateBaseForm(), validateCycleForm()]);
 
       if (!baseValid || !cycleValid) return;
-
+      console.log(repairForm.value,"calue");
       // 构建提交参数
       const params = {
         id: repairForm.value.id,
         name: repairForm.value.name,
         groupId: repairForm.value.groupId,
-        spaceId: repairForm.value.spaceId,
+        spaceId: Array.isArray(repairForm.value.spaceId) ? repairForm.value.spaceId.join(',') : repairForm.value.spaceId,
         description: repairForm.value.description,
         disposable: repairForm.value.disposable,
-        startTime: repairForm.value.time[0],
-        endTime: repairForm.value.time[1],
+        startTime: repairForm.value.startTime,
+        endTime: repairForm.value.endTime,
         cycle: repairForm.value.cycle,
         unit: repairForm.value.unit,
         specificTime: Array.isArray(repairForm.value.specificTime)

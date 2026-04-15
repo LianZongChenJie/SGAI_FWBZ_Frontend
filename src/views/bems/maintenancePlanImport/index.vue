@@ -18,15 +18,15 @@
             </el-form-item>
           </el-form>
           <div class="search-box-button">
-            <!-- <el-button size="default" type="primary" :icon="RefreshRight" @click="resetSearchForm">重置</el-button> -->
+            <el-button size="default" type="primary" :icon="RefreshRight" @click="resetSearchForm">重置</el-button>
             <el-button size="default" type="primary" :icon="Search" @click="search()">查询</el-button>
           </div>
         </div>
         <div class="search-tools">
-          <!-- <el-button size="default" type="primary" :icon="Download" @click="downloadUrl" v-permission="'daoru-download'"
+          <el-button size="default" type="primary" :icon="Download" @click="downloadUrl" v-permission="'daoru-download'"
             ><a style="color: #fff; text-decoration: none">下载模板</a></el-button
           >
-          <el-button size="default" type="primary" :icon="Upload" @click="dialogVisible = true" v-permission="'daoru-leadingin'">导入计划</el-button> -->
+          <el-button size="default" type="primary" :icon="Upload" @click="dialogVisible = true" v-permission="'daoru-leadingin'">导入计划</el-button>
           <el-button size="default" type="primary" :icon="Plus" @click="addPlanHandle('新增计划')" v-permission="'daoru-add'">新增计划</el-button>
           <el-button size="default" type="primary" @click="generateTasks">批量生成维保任务</el-button>
           <!-- <el-button size="default" type="primary" :icon="Delete" @click="deletePlanEvent()" v-permission="'daoru-del'">删除计划</el-button> -->
@@ -160,7 +160,7 @@
   const downloadUrl = async () => {
     let res = await exportTemplateApi({
       year: year.value,
-      labelType: 'maintenance',
+      orgCode: orgCode.value,
     });
     if (res) {
       let name = `${year.value}年设备维保模板`;
@@ -224,8 +224,6 @@
     if (res) {
       let tHeader = res.tableHeader.children || [];
       let list = res.planModelList || [];
-      console.log(list);
-
       tHeader.forEach((v, idx) => {
         const widthMap = {
           0: 160,
@@ -257,7 +255,7 @@
   };
   const closeImport = () => {
     dialogVisible.value = false;
-    // this.$refs['upload'].clearFiles()
+    upload.value.clearFiles();
   };
   const uploadSuccess = async (res) => {
     if (res.code === 1000 || res.code === 1001) {
@@ -274,10 +272,16 @@
   const planUpload = async () => {
     const data = new FormData();
     data.append('file', fileList.value[0].raw);
-    data.append('labelType', 'maintenance');
+    data.append('year', year.value);
+    data.append('orgCode', orgCode.value);
     saving.value = true;
     let res = await importTemplateApi(data);
-
+    saving.value = false;
+    if (!res.message) {
+      ElMessage.success('导入成功');
+      closeImport();
+    }
+    getPlanList();
     // this.rq({
     //   headers: { 'Content-Type': 'multipart/form-data' },
     //   baseURL: this.deviceURL,

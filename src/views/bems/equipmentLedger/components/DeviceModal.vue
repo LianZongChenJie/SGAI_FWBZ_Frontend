@@ -277,20 +277,9 @@
       },
     },
     {
-      label: '设备位置',
-      field: 'spaceId',
-      component: 'TreeSelect',
-      required: true,
-      componentProps: {
-        treeData: [], // 将由父组件通过 setFieldsValue 设置
-        placeholder: '请选择设备位置',
-        fieldNames: {
-          label: 'title',
-          key: 'key',
-          value: 'key',
-        },
-        onChange: selectSpaceId,
-      },
+      label: '备注',
+      field: 'remark',
+      component: 'Input',
     },
     // {
     //   label: '倍率',
@@ -333,10 +322,22 @@
         precision: 0,
       },
     },
+
     {
-      label: '备注',
-      field: 'remark',
-      component: 'Input',
+      label: '设备位置',
+      field: 'spaceId',
+      component: 'TreeSelect',
+      required: true,
+      componentProps: {
+        treeData: [], // 将由父组件通过 setFieldsValue 设置
+        placeholder: '请选择设备位置',
+        fieldNames: {
+          label: 'title',
+          key: 'key',
+          value: 'key',
+        },
+        onChange: selectSpaceId,
+      },
     },
   ];
   const id = ref('');
