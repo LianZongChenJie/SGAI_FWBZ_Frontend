@@ -31,6 +31,7 @@ const transform: AxiosTransform = {
    * @description: 处理请求数据。如果数据不是预期格式，可直接抛出错误
    */
   transformRequestHook: (res: AxiosResponse<Result>, options: RequestOptions) => {
+    console.log('res', res);
     const { t } = useI18n();
     const { isTransformResponse, isReturnNativeResponse } = options;
     // 是否返回原生响应头 比如：需要获取响应头时使用该属性
@@ -53,9 +54,12 @@ const transform: AxiosTransform = {
     const { code, result, message, success } = data;
     // 创建 Blob 对象
     const blob = new Blob([data])
+    if (data.size) {
+      return data;
+    }
     // 这里逻辑可以根据项目进行修改
     const hasSuccess = data && (blob || (Reflect.has(data, 'code') && (code === ResultEnum.SUCCESS || code === 200)));
-    
+
     if (hasSuccess) {
       if (!success) {
         //信息成功提示
@@ -104,7 +108,7 @@ const transform: AxiosTransform = {
     // http开头的请求url，不加前缀
     let isStartWithHttp = false;
     const requestUrl = config.url;
-    if(requestUrl!=null && (requestUrl.startsWith("http:") || requestUrl.startsWith("https:"))){
+    if (requestUrl != null && (requestUrl.startsWith("http:") || requestUrl.startsWith("https:"))) {
       isStartWithHttp = true;
     }
     if (!isStartWithHttp && joinPrefix) {
@@ -115,7 +119,7 @@ const transform: AxiosTransform = {
       config.url = `${apiUrl}${config.url}`;
     }
     //update-end---author:scott ---date::2024-02-20  for：以http开头的请求url，不拼加前缀--
-    
+
     const params = config.params || {};
     const data = config.data || false;
     formatDate && data && !isString(data) && formatRequestDate(data);
@@ -167,7 +171,7 @@ const transform: AxiosTransform = {
     // 请求之前处理config
     const token = getToken();
     let tenantId: string | number = getTenantId();
-    
+
     //update-begin---author:wangshuai---date:2024-04-16---for:【QQYUN-9005】发送短信加签。解决没有token无法加签---
     // 将签名和时间戳，添加在请求接口 Header
     config.headers[ConfigEnum.TIMESTAMP] = signMd5Utils.getTimestamp();
@@ -184,7 +188,7 @@ const transform: AxiosTransform = {
       // jwt token
       config.headers.Authorization = options.authenticationScheme ? `${options.authenticationScheme} ${token}` : token;
       config.headers[ConfigEnum.TOKEN] = token;
-      
+
       // 将签名和时间戳，添加在请求接口 Header
       //config.headers[ConfigEnum.TIMESTAMP] = signMd5Utils.getTimestamp();
       //config.headers[ConfigEnum.Sign] = signMd5Utils.getSign(config.url, config.params);

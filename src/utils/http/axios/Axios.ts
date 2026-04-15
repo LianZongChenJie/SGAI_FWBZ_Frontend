@@ -160,6 +160,8 @@ export class VAxios {
           return Promise.resolve(res?.data);
           //--@updateBy-end----author:liusq---date:20211117------for:上传判断是否返回res信息------
         } else {
+          console.log(res,"ppp");
+          
           if (res.data.success == true && res.data.code == 200) {
             createMessage.success(res.data.message);
           } else {

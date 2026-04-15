@@ -10,6 +10,9 @@ enum Api {
 }
 
 export const getPlanRuleList = (params) => {
+  if (params.name) {
+    params.name = '*' + params.name + '*';
+  }
   return defHttp.get({ url: Api.GetPlanRuleList, params });
 };
 

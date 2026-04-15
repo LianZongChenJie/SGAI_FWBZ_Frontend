@@ -22,6 +22,9 @@ enum Api {
 }
 
 export const getInspectPlanList = (params: any) => {
+  if (params.name) {
+    params.name = '*' + params.name + '*';
+  }
   return defHttp.get({ url: Api.GetInspectPlanList, params });
 };
 

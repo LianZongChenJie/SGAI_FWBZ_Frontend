@@ -18,12 +18,12 @@
             </el-form-item>
           </el-form>
           <div class="search-box-button">
-            <el-button size="default" type="primary" :icon="RefreshRight" @click="resetSearchForm">重置</el-button>
+            <!-- <el-button size="default" type="primary" :icon="RefreshRight" @click="resetSearchForm">重置</el-button> -->
             <el-button size="default" type="primary" :icon="Search" @click="search()">查询</el-button>
           </div>
         </div>
         <div class="search-tools">
-          <el-button size="default" type="primary" :icon="Download" @click="downloadUrl" v-permission="'daoru-download'"
+          <el-button size="default" type="primary" :icon="Download" @click="downloadUrl" v-permission="'daoru-download'" :loading="downloadUrlLoading"
             ><a style="color: #fff; text-decoration: none">下载模板</a></el-button
           >
           <el-button size="default" type="primary" :icon="Upload" @click="dialogVisible = true" v-permission="'daoru-leadingin'">导入计划</el-button>
@@ -126,6 +126,7 @@
   import linkedDevice from './linkedDevice.vue';
   import linkedSpace from './linkedSpace.vue';
   import { useModal } from '@/components/Modal';
+  import { message } from 'ant-design-vue';
   const handleYear = (val) => {
     console.log('handleYear--------------->', val);
   };
@@ -157,12 +158,16 @@
   const tableHeader: any = ref([]);
   const saving = ref(false);
   const planTitle = ref('新增计划');
+  const downloadUrlLoading = ref(false);
   const downloadUrl = async () => {
+    downloadUrlLoading.value = true;
     let res = await exportTemplateApi({
       year: year.value,
       orgCode: orgCode.value,
     });
+    message.success('下载成功');
     if (res) {
+      downloadUrlLoading.value = false;
       let name = `${year.value}年设备维保模板`;
       let blobOptions = { type: 'application/vnd.ms-excel' };
       let fileSuffix = '.xls';
@@ -179,40 +184,6 @@
       // 返回json
       // this.$message.warning(res.data.msg)
     }
-    // this.rq({
-    //   baseURL: this.deviceURL,
-    //   url: '/admin/planModel/exportTemplate',
-    //   method: 'get',
-    //   params: { year: searchForm.value.year, labelType: '维保' },
-    //   headers: {
-    //     // 'Auth-Token': getToken(),
-    //   },
-    //   responseType: 'blob',
-    // })
-    //   .then((res) => {
-    //     if (res.type) {
-    //       // 文件下载
-    //       const blob = new Blob([res])
-
-    //       let link = document.createElement('a')
-    //       link.href = URL.createObjectURL(blob)
-    //       // console.log("========", blob);
-    //       link.setAttribute(
-    //         'download',
-    //         `${this.searchForm.year}年设备维保模板.xls`
-    //       )
-    //       link.click()
-    //       link = null
-    //       // this.btnLoading = false;
-    //       // this.$message.success('下载成功')
-    //     } else {
-    //       // 返回json
-    //       // this.$message.warning(res.data.msg)
-    //     }
-    //   })
-    //   .catch((err) => {
-    //     // this.$message.error('下载失败')
-    //   })
   };
 
   const getPlanList = async () => {
@@ -227,7 +198,7 @@
       tHeader.forEach((v, idx) => {
         const widthMap = {
           0: 160,
-          1: 80,
+          1: 100,
         };
         v.columnWidth = widthMap[idx] || 90;
       });

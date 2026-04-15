@@ -5,11 +5,6 @@
         <!-- 基本信息 -->
         <el-row>
           <el-col :span="24">
-            <el-form-item label="执行人：">
-              <span>{{ taskData.executorName || '未分配' }}</span>
-            </el-form-item>
-          </el-col>
-          <el-col :span="24">
             <el-form-item label="备注：">
               <el-input v-model="taskData.remark" type="textarea" placeholder="请输入备注" />
             </el-form-item>
@@ -27,7 +22,6 @@
   import { updateTaskDevice } from './task.api';
   // 导入 API
   const [registerModal, { setModalProps, closeModal }] = useModalInner(async (data) => {
-    console.log(data,"13");
     id.value = data.id;
   });
   const id = ref('');
