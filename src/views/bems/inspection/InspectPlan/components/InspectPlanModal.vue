@@ -78,7 +78,7 @@
   import { addFormSchema } from '../InspectPlan.data';
   import { addInspectPlan, getPlanNumber } from '../InspectPlan.api';
   import { DownOutlined } from '@ant-design/icons-vue';
-
+  import { getTreeData } from '../InspectPlan.api';
   const emit = defineEmits(['register', 'success']);
 
   type TimeType = 'day' | 'week' | 'month' | 'year';
@@ -142,33 +142,7 @@
     { id: '3', name: '巡检组C' },
   ];
 
-  const mockSpaceTreeData: SpaceTreeNode[] = [
-    {
-      id: '1',
-      spaceName: '国家大剧院',
-      childrens: [
-        { id: '1-1', spaceName: '一层大厅', childrens: [] },
-        { id: '1-2', spaceName: '二层展厅', childrens: [] },
-        { id: '1-3', spaceName: '三层设备间', childrens: [] },
-      ],
-    },
-    {
-      id: '2',
-      spaceName: '北京艺术中心',
-      childrens: [
-        { id: '2-1', spaceName: '音乐厅', childrens: [] },
-        { id: '2-2', spaceName: '剧场', childrens: [] },
-      ],
-    },
-    {
-      id: '3',
-      spaceName: '台湖艺术中心',
-      childrens: [
-        { id: '3-1', spaceName: '排练厅', childrens: [] },
-        { id: '3-2', spaceName: '演出厅', childrens: [] },
-      ],
-    },
-  ];
+  const mockSpaceTreeData = ref([]);
 
   function getWeekDay() {
     return [
@@ -367,7 +341,7 @@
   const [registerModal, { setModalProps, closeModal }] = useModalInner(async (data) => {
     setModalProps({ confirmLoading: false });
     isUpdate.value = !!data?.isUpdate;
-
+    mockSpaceTreeData.value = await getTreeData();
     if (!isUpdate.value) {
       await resetFields();
       // ✅ 新增时强制默认固定时间(false)，确保下拉框默认选中
@@ -431,8 +405,8 @@
       {
         field: 'spaceId',
         componentProps: {
-          treeData: mockSpaceTreeData,
-          fieldNames: { label: 'spaceName', value: 'id', children: 'childrens' },
+          treeData: mockSpaceTreeData.value,
+          fieldNames: { label: 'title', value: 'key', children: 'children' },
           showSearch: true,
           treeCheckable: true,
           multiple: true,

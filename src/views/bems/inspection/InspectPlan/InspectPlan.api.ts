@@ -19,6 +19,7 @@ enum Api {
   GetWeekDay = '/jeecg-patrol/patrolScheme/getWeekDay',
   GetDayMonth = '/jeecg-patrol/patrolScheme/getDayMonth',
   GetYearDay = '/jeecg-patrol/patrolScheme/getYearDay',
+  treeData = '/bems/space/getTree',
 }
 
 export const getInspectPlanList = (params: any) => {
@@ -95,3 +96,8 @@ export const getDayMonth = (start: number, end: number, type: string) => {
 export const getYearDay = (start: number, end: number) => {
   return defHttp.get({ url: Api.GetYearDay, params: { start, end } });
 };
+/**
+ * 获取空间树
+ * @param params
+ */
+export const getTreeData = (params) => defHttp.get({ url: Api.treeData, params });

@@ -99,6 +99,7 @@
   import { ProcessingDay, ProcessingEchoDate } from '../config/config';
   import { getWeekDay, getDayMonth, getYearDay } from '../InspectPlan.api';
   import dayjs from 'dayjs';
+  import { getTreeData } from '../InspectPlan.api';
 
   const emit = defineEmits(['register', 'success']);
 
@@ -178,7 +179,7 @@
         componentProps: {
           treeData: regionData,
           showCheckedStrategy: 'SHOW_ALL',
-          fieldNames: { label: 'spaceName', value: 'id', children: 'children' },
+          fieldNames: { label: 'title', value: 'key', children: 'children' },
           placeholder: '请选择执行位置',
           treeCheckable: true,
           multiple: true,
@@ -624,6 +625,7 @@
 
   // 加载组别和空间树数据
   async function loadGroupsAndSpace() {
+    regionData.value = await getTreeData();
     try {
       // TODO: 临时假数据，后续接口恢复后替换为真实API调用
       // const [groupsRes, spaceRes] = await Promise.all([
@@ -639,35 +641,7 @@
         { id: '2', name: '巡检二组' },
         { id: '3', name: '巡检三组' },
       ];
-
       // 空间树假数据
-      regionData.value = [
-        {
-          id: '1',
-          spaceName: '国家大剧院',
-          children: [
-            { id: '1-1', spaceName: '一层大厅', children: [] },
-            { id: '1-2', spaceName: '二层展厅', children: [] },
-            { id: '1-3', spaceName: '三层设备间', children: [] },
-          ],
-        },
-        {
-          id: '2',
-          spaceName: '北京艺术中心',
-          children: [
-            { id: '2-1', spaceName: '音乐厅', children: [] },
-            { id: '2-2', spaceName: '剧场', children: [] },
-          ],
-        },
-        {
-          id: '3',
-          spaceName: '台湖艺术中心',
-          children: [
-            { id: '3-1', spaceName: '排练厅', children: [] },
-            { id: '3-2', spaceName: '演出厅', children: [] },
-          ],
-        },
-      ];
     } catch (error) {
       console.error('加载基础数据失败:', error);
       message.error('加载基础数据失败');
@@ -682,7 +656,7 @@
       const [baseValid, cycleValid] = await Promise.all([validateBaseForm(), validateCycleForm()]);
 
       if (!baseValid || !cycleValid) return;
-      console.log(repairForm.value,"calue");
+      console.log(repairForm.value, 'calue');
       // 构建提交参数
       const params = {
         id: repairForm.value.id,
