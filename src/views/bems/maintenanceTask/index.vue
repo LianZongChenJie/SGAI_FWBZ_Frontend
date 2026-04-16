@@ -115,6 +115,10 @@
         // 自定义重置函数，只重置任务名称
         resetFunc: handleReset,
       },
+      actionColumn: {
+        width: 140,
+        fixed: 'right',
+      },
     },
     // 禁用自动加载，等待组织机构加载完成后再手动触发
     autoFetch: false,

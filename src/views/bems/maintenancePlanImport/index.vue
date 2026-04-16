@@ -251,6 +251,8 @@
     if (!res.message) {
       ElMessage.success('导入成功');
       closeImport();
+    } else if (res.code === 500) {
+      ElMessage.error(res.result.failureList[0].reason);
     }
     getPlanList();
     // this.rq({

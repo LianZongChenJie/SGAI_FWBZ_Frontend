@@ -78,6 +78,7 @@
         </el-dialog>
       </el-main>
     </el-container>
+    <taskDetail :isCalendar="true" @success="detailSuccess" @register="registerDetail" />
   </div>
 </template>
 
@@ -86,7 +87,9 @@
   import moment from 'moment';
   import { ArrowLeft, ArrowRight, Search, RefreshRight } from '@element-plus/icons-vue';
   import { getMonthPlanApi } from './Standardized.api';
-
+  import taskDetail from '../maintenanceTask/edit.vue';
+  import { useModal } from '@/components/Modal';
+  const [registerDetail, { openModal: openDetail }] = useModal();
   // 搜索表单
   const searchForm = ref({
     month: moment().format('YYYY-MM'),
@@ -127,8 +130,7 @@
 
   // 查看计划详情
   const viewPlanDetail = (plan: any) => {
-    currentPlan.value = plan;
-    detailVisible.value = true;
+    openDetail(true, plan);
   };
 
   // 工具函数：获取指定日期的当月范围
@@ -242,6 +244,10 @@
         loadPlanData();
         return;
     }
+  };
+  // 详情成功回调
+  const detailSuccess = (data: any) => {
+    console.log(data, 'detailSuccess');
   };
   // 页面加载时获取数据
   onMounted(() => {

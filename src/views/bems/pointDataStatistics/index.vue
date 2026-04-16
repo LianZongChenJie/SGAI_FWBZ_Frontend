@@ -150,8 +150,8 @@
       treeData.value = await energyFlowTree({ type: energyFlowTreeType.value.type });
       if (treeData.value.length > 0) {
         if (isCascade.value) {
-          // 级联模式：选中第一个节点及其所有后代
-          const idArr = getNodeAndDescendantIds(treeData.value, treeData.value[0].key);
+          // 级联模式：选中第一个节点及其直接子节点
+          const idArr = getNodeAndChildrenIds(treeData.value, treeData.value[0].key);
           checkedKeys.value.push(...idArr);
         } else {
           // 非级联模式：只选中第一个节点
@@ -197,17 +197,47 @@
     return resultIds;
   };
 
+  // 获取节点及其直接子节点ID
+  const getNodeAndChildrenIds = (treeData: any[], targetId: string | number): (string | number)[] => {
+    const resultIds: (string | number)[] = [];
+
+    const findAndCollect = (nodes: any[], targetId: string | number): boolean => {
+      for (const node of nodes) {
+        if (node.key === targetId) {
+          // 找到目标节点，收集它及其直接子节点
+          resultIds.push(node.key);
+          if (node.children && node.children.length > 0) {
+            for (const child of node.children) {
+              resultIds.push(child.key);
+            }
+          }
+          return true;
+        }
+
+        if (node.children && node.children.length > 0) {
+          if (findAndCollect(node.children, targetId)) {
+            return true;
+          }
+        }
+      }
+      return false;
+    };
+
+    findAndCollect(treeData, targetId);
+    return resultIds;
+  };
+
   // 树节点勾选事件处理
   const handleTreeCheck = (checkedKeysParam: any, { node, checked }: any) => {
     if (isCascade.value) {
       // 级联模式
       if (checked) {
-        // 勾选节点及其所有后代
-        const idArr = getNodeAndDescendantIds(treeData.value, node.key);
+        // 勾选节点及其直接子节点
+        const idArr = getNodeAndChildrenIds(treeData.value, node.key);
         checkedKeys.value = Array.from(new Set([...checkedKeys.value.checked, ...idArr]));
       } else {
-        // 取消勾选节点及其所有后代
-        const idArr = getNodeAndDescendantIds(treeData.value, node.key);
+        // 取消勾选节点及其直接子节点
+        const idArr = getNodeAndChildrenIds(treeData.value, node.key);
         checkedKeys.value = checkedKeys.value.checked.filter((key: any) => !idArr.includes(key));
       }
     } else {
@@ -510,8 +540,8 @@
     // 重新初始化选择
     if (treeData.value.length > 0) {
       if (isCascade.value) {
-        // 级联模式：选中第一个节点及其所有后代
-        const idArr = getNodeAndDescendantIds(treeData.value, treeData.value[0].key);
+        // 级联模式：选中第一个节点及其直接子节点
+        const idArr = getNodeAndChildrenIds(treeData.value, treeData.value[0].key);
         console.log('idArr', idArr);
         checkedKeys.value.push(...idArr);
       } else {
