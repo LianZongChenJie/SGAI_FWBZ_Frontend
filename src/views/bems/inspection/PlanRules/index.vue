@@ -16,11 +16,21 @@
                 onClick: handleDetail.bind(null, record),
               },
               {
+                label: '编辑',
+                onClick: handleEdit.bind(null, record),
+                ifShow: () => {
+                  return record.canEdit !== false;
+                },
+              },
+              {
                 label: '删除',
                 color: 'error',
                 popConfirm: {
                   title: '删除不可恢复，确认删除该数据？',
                   confirm: handleDelete.bind(null, record),
+                },
+                ifShow: () => {
+                  return record.canEdit !== false;
                 },
               },
             ]"
@@ -40,7 +50,7 @@
   import { message } from 'ant-design-vue';
   import AddModal from './AddModal.vue';
   import DetailModal from './DetailModal.vue';
-  import { getPlanRuleList, deletePlanRule } from './PlanRules.api';
+  import { getPlanRuleList, deletePlanRule, getPlanRuleDetail } from './PlanRules.api';
 
   export default defineComponent({
     name: 'PlanRules',
@@ -77,7 +87,7 @@
           },
           {
             title: '规则类型',
-            dataIndex: 'type',
+            dataIndex: 'ruleType',
             align: 'center',
             ellipsis: true,
           },
@@ -91,7 +101,7 @@
             title: '操作',
             key: 'action',
             align: 'center',
-            width: 120,
+            width: 180,
             fixed: 'right',
           },
         ],
@@ -124,7 +134,7 @@
               colProps: { span: 6 },
             },
             {
-              field: 'type',
+              field: 'ruleType',
               label: '巡检规则类型',
               component: 'Select',
               componentProps: {
@@ -154,6 +164,18 @@
         });
       }
 
+      async function handleEdit(record: Recordable) {
+        try {
+          const detail = await getPlanRuleDetail({ ruleId: record.id });
+          openAddModal(true, {
+            record: detail,
+            isUpdate: true,
+          });
+        } catch (error) {
+          message.error('获取规则详情失败');
+        }
+      }
+
       function handleDetail(record: Recordable) {
         openDetailModal(true, {
           record,
@@ -180,6 +202,7 @@
         registerAddModal,
         registerDetailModal,
         handleCreate,
+        handleEdit,
         handleDetail,
         handleDelete,
         handleSuccess,

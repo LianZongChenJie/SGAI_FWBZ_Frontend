@@ -119,7 +119,7 @@
             label: '巡检对象',
           },
           {
-            field: 'type',
+            field: 'ruleType',
             label: '规则类型',
           },
           {
@@ -130,12 +130,6 @@
             field: 'description',
             label: '备注',
             span: 2,
-          },
-          {
-            field: 'remark',
-            label: '备注',
-            span: 2,
-            ifShow: (data) => !data.description
           },
         ],
       });

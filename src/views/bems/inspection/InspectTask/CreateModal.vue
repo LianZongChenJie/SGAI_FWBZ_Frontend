@@ -144,8 +144,8 @@
             name: values.name,
             groupId: values.groupId,
             groupName: groupItem?.name || '',
-            start: executionTimeArr[0],
-            end: executionTimeArr[1],
+            startTime: executionTimeArr[0],
+            endTime: executionTimeArr[1],
             spaceId: values.spaceId,
             spaceName: spaceName,
           };

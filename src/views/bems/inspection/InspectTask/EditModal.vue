@@ -72,7 +72,7 @@
             required: true,
           },
           {
-            field: 'start',
+            field: 'startTime',
             label: '开始时间',
             component: 'DatePicker',
             componentProps: {
@@ -82,7 +82,7 @@
             required: true,
           },
           {
-            field: 'end',
+            field: 'endTime',
             label: '结束时间',
             component: 'DatePicker',
             componentProps: {

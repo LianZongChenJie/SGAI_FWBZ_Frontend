@@ -5,6 +5,7 @@ enum Api {
   DeletePlanRule = '/jeecg-patrol/patrol/rule/remove',
   GetPlanRuleDetail = '/jeecg-patrol/patrol/rule/detail',
   AddPlanRule = '/jeecg-patrol/patrol/rule/save',
+  EditPlanRule = '/jeecg-patrol/patrol/rule/edit',
   GetSpecialty = '/jeecg-patrol/patrol/rule/getspecialty',
   GetPlanRuleNo = '/jeecg-patrol/patrol/rule/getNo',
 }
@@ -26,6 +27,10 @@ export const getPlanRuleDetail = (params) => {
 
 export const addPlanRule = (params) => {
   return defHttp.post({ url: Api.AddPlanRule, params });
+};
+
+export const updatePlanRule = (params) => {
+  return defHttp.post({ url: Api.EditPlanRule, params });
 };
 
 export const getSpecialty = () => {

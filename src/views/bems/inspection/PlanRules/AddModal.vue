@@ -112,7 +112,7 @@
   import { BasicForm, useForm } from '/@/components/Form';
   import { message } from 'ant-design-vue';
   import { PlusOutlined, DeleteOutlined } from '@ant-design/icons-vue';
-  import { addPlanRule, getSpecialty, getPlanRuleNo } from './PlanRules.api';
+  import { addPlanRule, updatePlanRule, getSpecialty, getPlanRuleNo } from './PlanRules.api';
 
   interface RuleField {
     id: number;
@@ -135,6 +135,7 @@
     components: { BasicModal, BasicForm, PlusOutlined, DeleteOutlined },
     setup(_, { emit }) {
       const isUpdate = ref(false);
+      const recordId = ref<string>('');
       const title = computed(() => (isUpdate.value ? '编辑巡检规则' : '新增巡检规则'));
       const specialtyOptions = ref([
         { name: '消防系统', value: '消防系统' },
@@ -162,6 +163,7 @@
         await resetFields();
 
         if (!isUpdate.value) {
+          recordId.value = '';
           const no = await getPlanRuleNo();
 
           setFieldsValue({
@@ -169,6 +171,7 @@
           });
           ruleContentBlocks.value = [createRuleContentBlock()];
         } else {
+          recordId.value = data.record.id;
           setFieldsValue(data.record);
           if (data.record.ruleSubjectList && data.record.ruleSubjectList.length > 0) {
             // 转换为新的块结构
@@ -407,12 +410,24 @@
             ruleSubjectList,
           };
 
-          await addPlanRule(formData);
-          message.success('操作成功');
+          // 编辑模式添加 id
+          if (isUpdate.value) {
+            formData.id = recordId.value;
+          }
+
+          // 根据模式调用不同 API
+          if (isUpdate.value) {
+            await updatePlanRule(formData);
+            message.success('编辑成功');
+          } else {
+            await addPlanRule(formData);
+            message.success('新增成功');
+          }
+
           closeModal();
           emit('success');
         } catch (error) {
-          message.error('操作失败');
+          message.error(isUpdate.value ? '编辑失败' : '新增失败');
         } finally {
           setModalProps({ confirmLoading: false });
         }
