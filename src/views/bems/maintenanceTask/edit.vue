@@ -47,7 +47,7 @@
           </a-form-item>
         </a-form>
         <el-descriptions v-else :column="2" border>
-          <el-descriptions-item label="计划名称">{{ taskData.taskName }}</el-descriptions-item>
+          <el-descriptions-item label="计划名称">{{ taskData.cycleUnit + '计划-' + taskData.taskName }}</el-descriptions-item>
           <el-descriptions-item label="年份">{{ taskData.year }}</el-descriptions-item>
           <el-descriptions-item label="周次">{{ taskData.weekNumber }}</el-descriptions-item>
           <el-descriptions-item label="组织机构编码">{{ taskData.orgCode }}</el-descriptions-item>

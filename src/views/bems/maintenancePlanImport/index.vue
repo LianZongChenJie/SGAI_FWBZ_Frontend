@@ -23,10 +23,26 @@
           </div>
         </div>
         <div class="search-tools">
-          <el-button size="default" type="primary" :icon="Download" @click="downloadUrl" v-permission="'daoru-download'" :loading="downloadUrlLoading"
+          <el-button
+            size="default"
+            type="primary"
+            :icon="Download"
+            @click="downloadUrl(true)"
+            v-permission="'daoru-download'"
+            :loading="downloadUrlLoading"
             ><a style="color: #fff; text-decoration: none">下载模板</a></el-button
           >
-          <el-button size="default" type="primary" :icon="Upload" @click="dialogVisible = true" v-permission="'daoru-leadingin'">导入计划</el-button>
+          <el-button
+            size="default"
+            type="primary"
+            :icon="Upload"
+            @click="
+              dialogVisible = true;
+              isDownload = false;
+            "
+            v-permission="'daoru-leadingin'"
+            >导入计划</el-button
+          >
           <el-button size="default" type="primary" :icon="Plus" @click="addPlanHandle('新增计划')" v-permission="'daoru-add'">新增计划</el-button>
           <el-button size="default" type="primary" @click="generateTasks">批量生成维保任务</el-button>
           <!-- <el-button size="default" type="primary" :icon="Delete" @click="deletePlanEvent()" v-permission="'daoru-del'">删除计划</el-button> -->
@@ -81,6 +97,14 @@
     <!-- 导入计划弹出框 -->
     <el-dialog :close-on-click-modal="false" title="导入计划" width="480px" v-model="dialogVisible" :before-close="closeImport">
       <!-- <el-upload ref="upload" :headers="headers" :action="`${this.deviceURL}/admin/planModel/importTemplate`" :auto-upload="false" accept=".xlsx,.xls" :file-list="fileList" :show-file-list="true" :on-change="fileChange" :on-success="uploadSuccess"> -->
+      <el-form class="form-main" ref="importForm" :model="importForm" size="default" label-position="right" label-width="100px">
+        <el-form-item label="年份：">
+          <el-date-picker v-model="importYear" type="year" format="YYYY" value-format="YYYY" :clearable="false" />
+        </el-form-item>
+        <el-form-item label="组织机构：">
+          <el-tree-select v-model="importOrgCode" :props="treeProps" :load="leafLoad" :data="orgTree" lazy check-strictly style="width: 240px" />
+        </el-form-item>
+      </el-form>
       <el-upload
         ref="upload"
         action=""
@@ -90,17 +114,19 @@
         :show-file-list="true"
         :on-change="fileChange"
         :http-request="planUpload"
+        v-if="!isDownload"
       >
         <template #trigger>
           <el-button type="primary">选取文件</el-button>
         </template>
+
         <template #tip>
           <div style="color: #f36767">只能上传excel文件</div>
         </template>
       </el-upload>
       <template #footer>
         <el-button @click="closeImport">取 消</el-button>
-        <el-button type="primary" @click="submitUpload" :disabled="saving">确 定</el-button>
+        <el-button type="primary" @click="submitUpload" :loading="downloadUrlLoading" :disabled="saving">确 定</el-button>
       </template>
     </el-dialog>
 
@@ -142,6 +168,16 @@
     year: moment().format('YYYY'),
     orgCode: '',
   });
+  const importForm = ref<{
+    year: string;
+    orgCode: string;
+  }>({
+    year: moment().format('YYYY'),
+    orgCode: '',
+  });
+  const importYear = ref('');
+  const importOrgCode = ref('');
+  const isDownload = ref(false);
   const orgTreeSelect = ref();
   const cacheData = ref<any[]>([]);
   const orgCode = ref('');
@@ -159,31 +195,9 @@
   const saving = ref(false);
   const planTitle = ref('新增计划');
   const downloadUrlLoading = ref(false);
-  const downloadUrl = async () => {
-    downloadUrlLoading.value = true;
-    let res = await exportTemplateApi({
-      year: year.value,
-      orgCode: orgCode.value,
-    });
-    message.success('下载成功');
-    if (res) {
-      downloadUrlLoading.value = false;
-      let name = `${year.value}年设备维保模板`;
-      let blobOptions = { type: 'application/vnd.ms-excel' };
-      let fileSuffix = '.xls';
-      let url = window.URL.createObjectURL(new Blob([res], blobOptions));
-      let link = document.createElement('a');
-      link.style.display = 'none';
-      link.href = url;
-      link.setAttribute('download', name + fileSuffix);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link); //下载完成移除元素
-      window.URL.revokeObjectURL(url); //释放掉blob对象
-    } else {
-      // 返回json
-      // this.$message.warning(res.data.msg)
-    }
+  const downloadUrl = async (a) => {
+    isDownload.value = a;
+    dialogVisible.value = true;
   };
 
   const getPlanList = async () => {
@@ -221,11 +235,54 @@
   const nextYear = () => {
     year.value = moment(year.value).add(1, 'years').format('YYYY');
   };
-  const submitUpload = () => {
+  const submitUpload = async () => {
+    if (!importYear.value) {
+      ElMessage.error('请选择年份');
+      return;
+    }
+    if (!importOrgCode.value) {
+      ElMessage.error('请选择组织');
+      return;
+    }
+    downloadUrlLoading.value = true;
+
+    if (isDownload.value) {
+      let res = await exportTemplateApi({
+        year: importYear.value,
+        orgCode: importOrgCode.value,
+      });
+      message.success('下载成功');
+      dialogVisible.value = false;
+      if (res) {
+        downloadUrlLoading.value = false;
+        let name = `${year.value}年设备维保模板`;
+        let blobOptions = { type: 'application/vnd.ms-excel' };
+        let fileSuffix = '.xls';
+        let url = window.URL.createObjectURL(new Blob([res], blobOptions));
+        let link = document.createElement('a');
+        link.style.display = 'none';
+        link.href = url;
+        link.setAttribute('download', name + fileSuffix);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link); //下载完成移除元素
+        window.URL.revokeObjectURL(url); //释放掉blob对象
+      } else {
+        // 返回json
+        // this.$message.warning(res.data.msg)
+      }
+      importYear.value = '';
+      importOrgCode.value = '';
+      return;
+    }
+
     upload.value.submit();
   };
   const closeImport = () => {
+    importYear.value = '';
+    importOrgCode.value = '';
     dialogVisible.value = false;
+    downloadUrlLoading.value = false;
     upload.value.clearFiles();
   };
   const uploadSuccess = async (res) => {
@@ -243,17 +300,21 @@
   const planUpload = async () => {
     const data = new FormData();
     data.append('file', fileList.value[0].raw);
-    data.append('year', year.value);
-    data.append('orgCode', orgCode.value);
+    data.append('year', importYear.value);
+    data.append('orgCode', importOrgCode.value);
     saving.value = true;
     let res = await importTemplateApi(data);
     saving.value = false;
+    downloadUrlLoading.value = false;
     if (!res.message) {
-      ElMessage.success('导入成功');
+      message.success('导入成功');
+      importYear.value = '';
+      importOrgCode.value = '';
       closeImport();
     } else if (res.code === 500) {
-      ElMessage.error(res.result.failureList[0].reason);
+      message.error(res.result.failureList[0].reason);
     }
+
     getPlanList();
     // this.rq({
     //   headers: { 'Content-Type': 'multipart/form-data' },
@@ -324,7 +385,6 @@
     // 🌳 root 节点
     if (node.level === 0) {
       const res = await queryDepartTreeSync();
-
       resolve(res);
 
       // ✅ 关键：只在第一次加载时设置默认选中
