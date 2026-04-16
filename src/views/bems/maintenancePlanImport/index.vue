@@ -225,7 +225,7 @@
     let res = await getPlanListApi({
       year: year.value,
       orgCode: orgCode.value,
-      pageNum: currentPage.value,
+      pageNo: currentPage.value,
       pageSize: pageSize.value,
     });
     if (res) {
