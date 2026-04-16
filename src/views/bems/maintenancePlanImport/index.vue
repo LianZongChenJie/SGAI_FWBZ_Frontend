@@ -39,6 +39,8 @@
             @click="
               dialogVisible = true;
               isDownload = false;
+              importYear = moment().format('YYYY');
+              importOrgCode = firstOrgCode;
             "
             v-permission="'daoru-leadingin'"
             >导入计划</el-button
@@ -79,7 +81,7 @@
               </template>
             </template>
           </el-table-column>
-          <el-table-column fixed="right" label="操作" width="120" align="center">
+          <el-table-column fixed="right" label="操作" width="230" align="center">
             <template #default="scope">
               <el-button link type="primary" @click="addPlanHandle('编辑计划', scope.row)" size="small"> 编辑 </el-button>
               <el-popconfirm class="box-item" title="确认删除该计划？" @confirm="deletePlanEvent(scope.row)" placement="top">
@@ -92,6 +94,17 @@
             </template>
           </el-table-column>
         </el-table>
+        <el-pagination
+          v-model:current-page="currentPage"
+          v-model:page-size="pageSize"
+          :page-sizes="[10, 20, 30, 40]"
+          :size="size"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="totalNum"
+          style="margin-top: 10px; float: right"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
       </el-main>
     </el-container>
     <!-- 导入计划弹出框 -->
@@ -148,7 +161,7 @@
   import { set } from 'nprogress';
   import AddPlan from './addPlan.vue';
   import { queryDepartTreeSync } from '@/views/system/depart/depart.api.ts';
-  import { ElMessage } from 'element-plus';
+  import { ElMessage, ComponentSize } from 'element-plus';
   import linkedDevice from './linkedDevice.vue';
   import linkedSpace from './linkedSpace.vue';
   import { useModal } from '@/components/Modal';
@@ -161,6 +174,11 @@
   const year = ref(moment().format('YYYY'));
   const addPlanRef = ref();
   const loading = ref(false);
+  const firstOrgCode = ref('');
+  const currentPage = ref(1);
+  const pageSize = ref(10);
+  const size = ref<ComponentSize>('default');
+  const totalNum = ref(0);
   const searchForm = ref<{
     year: string;
     orgCode: string;
@@ -175,7 +193,7 @@
     year: moment().format('YYYY'),
     orgCode: '',
   });
-  const importYear = ref('');
+  const importYear = ref(moment().format('YYYY'));
   const importOrgCode = ref('');
   const isDownload = ref(false);
   const orgTreeSelect = ref();
@@ -197,6 +215,8 @@
   const downloadUrlLoading = ref(false);
   const downloadUrl = async (a) => {
     isDownload.value = a;
+    importYear.value = moment().format('YYYY');
+    importOrgCode.value = firstOrgCode.value;
     dialogVisible.value = true;
   };
 
@@ -205,6 +225,8 @@
     let res = await getPlanListApi({
       year: year.value,
       orgCode: orgCode.value,
+      pageNum: currentPage.value,
+      pageSize: pageSize.value,
     });
     if (res) {
       let tHeader = res.tableHeader.children || [];
@@ -218,6 +240,7 @@
       });
       tableHeader.value = tHeader;
       planList.value = list;
+      totalNum.value = res.total || 0;
     }
     loading.value = false;
   };
@@ -236,14 +259,6 @@
     year.value = moment(year.value).add(1, 'years').format('YYYY');
   };
   const submitUpload = async () => {
-    if (!importYear.value) {
-      ElMessage.error('请选择年份');
-      return;
-    }
-    if (!importOrgCode.value) {
-      ElMessage.error('请选择组织');
-      return;
-    }
     downloadUrlLoading.value = true;
 
     if (isDownload.value) {
@@ -271,16 +286,12 @@
         // 返回json
         // this.$message.warning(res.data.msg)
       }
-      importYear.value = '';
-      importOrgCode.value = '';
       return;
     }
 
     upload.value.submit();
   };
   const closeImport = () => {
-    importYear.value = '';
-    importOrgCode.value = '';
     dialogVisible.value = false;
     downloadUrlLoading.value = false;
     upload.value.clearFiles();
@@ -306,15 +317,13 @@
     let res = await importTemplateApi(data);
     saving.value = false;
     downloadUrlLoading.value = false;
-    if (!res.message) {
-      message.success('导入成功');
-      importYear.value = '';
-      importOrgCode.value = '';
+    if (res.status === 200) {
+      ElMessage.success('导入成功');
       closeImport();
     } else if (res.code === 500) {
-      message.error(res.result.failureList[0].reason);
+      ElMessage.error(res.result.failureList[0].reason);
     }
-
+    upload.value.clearFiles();
     getPlanList();
     // this.rq({
     //   headers: { 'Content-Type': 'multipart/form-data' },
@@ -390,6 +399,7 @@
       // ✅ 关键：只在第一次加载时设置默认选中
       if (!orgCode.value && res && res.length > 0) {
         orgCode.value = res[0].id;
+        firstOrgCode.value = res[0].id;
         await getPlanList();
       }
 
@@ -412,6 +422,14 @@
         type: 'success',
       });
     });
+  };
+  const handleSizeChange = (val: number) => {
+    pageSize.value = val;
+    getPlanList();
+  };
+  const handleCurrentChange = (val: number) => {
+    currentPage.value = val;
+    getPlanList();
   };
   onMounted(async () => {
     loading.value = true;
