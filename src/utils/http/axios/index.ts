@@ -54,9 +54,6 @@ const transform: AxiosTransform = {
     const { code, result, message, success } = data;
     // 创建 Blob 对象
     const blob = new Blob([data])
-    if (data.size) {
-      return data;
-    }
     // 这里逻辑可以根据项目进行修改
     const hasSuccess = data && (blob || (Reflect.has(data, 'code') && (code === ResultEnum.SUCCESS || code === 200)));
 

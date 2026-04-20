@@ -112,7 +112,7 @@
   import { BasicForm, useForm } from '/@/components/Form';
   import { message } from 'ant-design-vue';
   import { PlusOutlined, DeleteOutlined } from '@ant-design/icons-vue';
-  import { addPlanRule, updatePlanRule, getSpecialty, getPlanRuleNo } from './PlanRules.api';
+  import { addPlanRule, updatePlanRule, getSpecialty, getPlanRuleNo, getPatrolInspectionObjects } from './PlanRules.api';
 
   interface RuleField {
     id: number;
@@ -217,10 +217,11 @@
           {
             field: 'inspectObject',
             label: '巡检对象',
-            component: 'Select',
+            component: 'ApiSelect',
             componentProps: {
-              options: specialtyOptions,
-              fieldNames: { label: 'name', value: 'name' },
+              api: getPatrolInspectionObjects,
+              labelField: 'label',
+              valueField: 'value',
             },
             required: true,
           },

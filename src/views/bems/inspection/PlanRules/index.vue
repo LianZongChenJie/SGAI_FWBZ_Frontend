@@ -44,13 +44,13 @@
 </template>
 
 <script lang="ts">
-  import { defineComponent, reactive } from 'vue';
+  import { defineComponent, reactive, onMounted } from 'vue';
   import { BasicTable, useTable, TableAction } from '/@/components/Table';
   import { useModal } from '/@/components/Modal';
   import { message } from 'ant-design-vue';
   import AddModal from './AddModal.vue';
   import DetailModal from './DetailModal.vue';
-  import { getPlanRuleList, deletePlanRule, getPlanRuleDetail } from './PlanRules.api';
+  import { getPlanRuleList, deletePlanRule, getPlanRuleDetail, getPatrolInspectionObjects } from './PlanRules.api';
 
   export default defineComponent({
     name: 'PlanRules',
@@ -59,10 +59,18 @@
       const [registerAddModal, { openModal: openAddModal }] = useModal();
       const [registerDetailModal, { openModal: openDetailModal }] = useModal();
       const searchInfo = reactive<Recordable>({});
-
       const [registerTable, { reload, getForm }] = useTable({
         title: '巡检规则列表',
-        api: getPlanRuleList,
+        api: async (params) => {
+          let res = await getPatrolInspectionObjects();
+
+          let result = await getPlanRuleList(params);
+          console.log(result, res, '123');
+          result.records.forEach((item) => {
+            item.inspectObjectName = res.find((i) => i.value === item.inspectObject)?.label || '--';
+          });
+          return result;
+        },
         rowKey: 'id',
         columns: [
           {
@@ -80,9 +88,8 @@
           },
           {
             title: '巡检对象',
-            dataIndex: 'inspectObject',
+            dataIndex: 'inspectObjectName',
             align: 'center',
-            width: 100,
             ellipsis: true,
           },
           {
@@ -123,13 +130,11 @@
             {
               field: 'inspectObject',
               label: '巡检对象',
-              component: 'Select',
+              component: 'ApiSelect',
               componentProps: {
-                options: [
-                  { label: '消防系统', value: '消防系统' },
-                  { label: '消防水系统', value: '消防水系统' },
-                  { label: '消防排烟系统', value: '消防排烟系统' },
-                ],
+                api: getPatrolInspectionObjects,
+                labelField: 'label',
+                valueField: 'value',
               },
               colProps: { span: 6 },
             },

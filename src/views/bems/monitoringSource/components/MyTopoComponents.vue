@@ -374,6 +374,7 @@
           targetLeft.value = e.event.layerX + 'px';
           selectValue.value = targetItem.value;
           if (targetItem.options) {
+            console.log('targetItem.options', targetItem.options, targetItem);
             selectOptions.value = targetItem.options;
           } else {
             selectOptions.value = [

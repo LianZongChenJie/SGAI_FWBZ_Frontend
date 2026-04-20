@@ -56,7 +56,11 @@
             </el-col>
             <el-col :span="12">
               <el-form-item label="持续执行时间" prop="continuousDuration">
-                <el-input type="number" min="1" v-model="form.continuousDuration" placeholder="请输入持续执行时间" />
+                <el-input type="number" min="1" v-model="form.continuousDuration" placeholder="请输入持续执行时间">
+                  <template #append>
+                    日
+                  </template>
+                </el-input>
               </el-form-item>
             </el-col>
             <el-col :span="12">
@@ -231,11 +235,7 @@
   };
   const submitForm = () => {
     // 过滤空值，转为 JSON 字符串
-    form.value.weeklyConfig = JSON.stringify(
-      Object.fromEntries(
-        Object.entries(weeklyInputs.value).filter(([_, v]) => v)
-      )
-    );
+    form.value.weeklyConfig = JSON.stringify(Object.fromEntries(Object.entries(weeklyInputs.value).filter(([_, v]) => v)));
     // 验证表单
     addPlanForm.value.validate((valid) => {
       console.log(valid);

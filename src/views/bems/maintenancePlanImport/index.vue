@@ -108,7 +108,13 @@
       </el-main>
     </el-container>
     <!-- 导入计划弹出框 -->
-    <el-dialog :close-on-click-modal="false" title="导入计划" width="480px" v-model="dialogVisible" :before-close="closeImport">
+    <el-dialog
+      :close-on-click-modal="false"
+      :title="isDownload ? '下载计划' : '导入计划'"
+      width="480px"
+      v-model="dialogVisible"
+      :before-close="closeImport"
+    >
       <!-- <el-upload ref="upload" :headers="headers" :action="`${this.deviceURL}/admin/planModel/importTemplate`" :auto-upload="false" accept=".xlsx,.xls" :file-list="fileList" :show-file-list="true" :on-change="fileChange" :on-success="uploadSuccess"> -->
       <el-form class="form-main" ref="importForm" :model="importForm" size="default" label-position="right" label-width="100px">
         <el-form-item label="年份：">
@@ -137,6 +143,7 @@
           <div style="color: #f36767">只能上传excel文件</div>
         </template>
       </el-upload>
+      <el-alert v-if="errorMessage" :title="errorMessage" type="error" />
       <template #footer>
         <el-button @click="closeImport">取 消</el-button>
         <el-button type="primary" @click="submitUpload" :loading="downloadUrlLoading" :disabled="saving">确 定</el-button>
@@ -178,6 +185,7 @@
   const currentPage = ref(1);
   const pageSize = ref(10);
   const size = ref<ComponentSize>('default');
+  const errorMessage = ref('');
   const totalNum = ref(0);
   const searchForm = ref<{
     year: string;
@@ -288,12 +296,18 @@
       }
       return;
     }
-
-    upload.value.submit();
+    console.log(fileList.value, '1234');
+    if (fileList.value[0]) {
+      upload.value.submit();
+    } else {
+      downloadUrlLoading.value = false;
+      ElMessage.error('请先上传文件');
+    }
   };
   const closeImport = () => {
     dialogVisible.value = false;
     downloadUrlLoading.value = false;
+    errorMessage.value = '';
     upload.value.clearFiles();
   };
   const uploadSuccess = async (res) => {
@@ -309,6 +323,7 @@
 
   //导入计划---改
   const planUpload = async () => {
+    console.log('123');
     const data = new FormData();
     data.append('file', fileList.value[0].raw);
     data.append('year', importYear.value);
@@ -317,13 +332,14 @@
     let res = await importTemplateApi(data);
     saving.value = false;
     downloadUrlLoading.value = false;
-    if (res.status === 200) {
+    if (res.success === false) {
+      upload.value.clearFiles();
+      fileList.value = [];
+      errorMessage.value = res.message;
+    } else {
       ElMessage.success('导入成功');
       closeImport();
-    } else if (res.code === 500) {
-      ElMessage.error(res.result.failureList[0].reason);
     }
-    upload.value.clearFiles();
     getPlanList();
     // this.rq({
     //   headers: { 'Content-Type': 'multipart/form-data' },

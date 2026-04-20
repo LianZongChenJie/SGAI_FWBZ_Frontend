@@ -8,6 +8,7 @@ enum Api {
   EditPlanRule = '/jeecg-patrol/patrol/rule/edit',
   GetSpecialty = '/jeecg-patrol/patrol/rule/getspecialty',
   GetPlanRuleNo = '/jeecg-patrol/patrol/rule/getNo',
+  patrolInspectionObjects = '/sys/dict/getDictItems/patrol_inspection_objects',
 }
 
 export const getPlanRuleList = (params) => {
@@ -16,7 +17,10 @@ export const getPlanRuleList = (params) => {
   }
   return defHttp.get({ url: Api.GetPlanRuleList, params });
 };
-
+/**
+ * 能流图分类字典获取
+ */
+export const getPatrolInspectionObjects = () => defHttp.get({ url: Api.patrolInspectionObjects });
 export const deletePlanRule = (params) => {
   return defHttp.post({ url: Api.DeletePlanRule, params }, { joinParamsToUrl: true });
 };

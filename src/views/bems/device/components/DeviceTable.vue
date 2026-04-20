@@ -124,9 +124,9 @@
       resizable: true,
     },
     {
-      title: '倍率',
-      dataIndex: 'magnification',
-      key: 'magnification',
+      title: '备注',
+      dataIndex: 'remark',
+      key: 'remark',
       minWidth: 80,
       width: 120,
       resizable: true,
