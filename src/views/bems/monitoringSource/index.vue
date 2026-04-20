@@ -32,9 +32,9 @@
       <a-tab-pane key="10" tab="热回收机组">
         <MyTopoComponents :path="'reHuiShou.json'" :categoryId="'37'" :deviceList="reHuiShouJi" />
       </a-tab-pane>
-      <a-tab-pane key="11" tab="送排风机">
+      <!-- <a-tab-pane key="11" tab="送排风机">
         <MyToPoComponent2 :path="'songPaiFengItem.json'" :categoryId="'23'" :deviceList="songPaiFengJi" />
-      </a-tab-pane>
+      </a-tab-pane> -->
       <a-tab-pane key="12" tab="送风机">
         <MyToPoComponent2 :path="'songPaiFengItem.json'" :categoryId="'39'" :deviceList="songPaiFengJi" />
       </a-tab-pane>

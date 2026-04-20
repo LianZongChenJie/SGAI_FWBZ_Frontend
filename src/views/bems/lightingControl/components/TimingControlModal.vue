@@ -262,6 +262,9 @@
 
   // 打开弹框
   const showDrawer = async (isUpdate, record?) => {
+    formState.value.operationType = '';
+    formState.value.planName = '';
+    formState.value.relType = '';
     open.value = true;
     tableLoading.value = true;
     if (isUpdate) {

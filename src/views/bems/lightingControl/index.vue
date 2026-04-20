@@ -1,10 +1,10 @@
 <template>
   <div class="">
     <a-tabs defaultActiveKey="1" :centered="true">
-      <a-tab-pane tab="启停控制" key="1">
+      <a-tab-pane tab="一键式控制" key="1">
         <ImmediatelyControl />
       </a-tab-pane>
-      <a-tab-pane tab="定时控制" key="2" forceRender>
+      <a-tab-pane tab="情景控制" key="2" forceRender>
         <TimingControl />
       </a-tab-pane>
       <a-tab-pane tab="控制记录" key="3" forceRender>

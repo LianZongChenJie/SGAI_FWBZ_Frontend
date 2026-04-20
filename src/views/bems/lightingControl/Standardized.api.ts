@@ -19,6 +19,7 @@ enum Api {
   enableApi = '/bems/lighting/plan/enable',
   disableApi = '/bems/lighting/plan/disable',
   executeNowApi = '/bems/lighting/plan/executeNow',
+  relNameApi = '/bems/lighting/area/getAllRelName',
 
   getPlanTimeApi = '/bems/lighting/planExecutionTime/getByPlanId',
   enablePlanApi = '/bems/lighting/plan/enable',
@@ -122,3 +123,8 @@ export const planDetailApi = (params) => defHttp.get({ url: Api.planDetailApi, p
  * @param params
  */
 export const executeNow = (params) => defHttp.post({ url: Api.executeNowApi, params }, { joinParamsToUrl: true });
+/**
+ * 获取区域类型
+ * @param params
+ */
+export const getRelName = (params) => defHttp.get({ url: Api.relNameApi, params });

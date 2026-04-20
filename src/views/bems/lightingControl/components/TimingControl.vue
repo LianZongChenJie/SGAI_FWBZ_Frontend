@@ -78,7 +78,18 @@
   import EnableModal from './EnableModal.vue';
   import { usePermission } from '/@/hooks/web/usePermission';
   const { hasPermission } = usePermission();
+  const weekList = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+  // const filterWeek = computed((week) => {
 
+  // });
+  const filterWeek = (week) => {
+    console.log(week, 'week');
+    if (!week) {
+      return '';
+    }
+    let weekArr = week.split(',');
+    return weekArr.map((item) => weekList[item - 1]).join('、') || '';
+  };
   // 详情弹框
   const timingControlModalRef = ref();
   const timingControlDetailRef = ref();
@@ -135,11 +146,22 @@
       title: '名称',
       dataIndex: 'planName',
       key: 'planName',
+      sorter: (a, b) => a.planName.localeCompare(b.planName),
     },
     {
       title: '时间',
       dataIndex: 'executionTime',
       key: 'executionTime',
+      width: '120px',
+    },
+    {
+      title: '时间范围',
+      dataIndex: 'date',
+    },
+    {
+      title: '周期',
+      dataIndex: 'weeks',
+      width: '300px',
     },
     {
       title: '控制指令',
@@ -173,6 +195,14 @@
       pageSize: pageSize,
     };
     let res = await getLightingPlanAPi(params);
+    console.log(res.records, 'res', res);
+    res.records.map((item) => {
+      if (item.executionInfo) {
+        item.weeks = filterWeek(item.executionInfo.enabledWeek);
+        item.date = item.executionInfo.startDate + '~' + item.executionInfo.endDate;
+      }
+    });
+    console.log(res.records, 'ress', res);
     return {
       records: res.records, // 当前页数据
       total: res.total, // 总记录数

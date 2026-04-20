@@ -37,7 +37,7 @@
               bordered
               @change="handleChange"
               :loading="tableLoading"
-              :scroll="{ y: 500 }"
+              :scroll="{ y: 400 }"
             >
               <template #index="{ text, record, index }">
                 {{ index + 1 }}
@@ -66,9 +66,9 @@
             </a-col>
           </a-row>
           <a-row>
-            <a-col :span="12">
-              <a-form-item label="执行日期">
-                <span>{{ filterWeek }}</span>
+            <a-col :span="24">
+              <a-form-item label="执行日期" :labelCol="{ span: 4 }">
+                <span>{{ formState.enabledWeek }}</span>
               </a-form-item>
             </a-col>
           </a-row>
@@ -94,7 +94,7 @@
   });
 
   const open = ref<boolean>(false);
-  const week = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+  const weekList = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
   const title = ref('定时控制计划详情');
   const id = ref('');
   const formState = ref({
@@ -126,10 +126,15 @@
       align: 'center',
     },
   ];
-  const filterWeek = computed(() => {
-    let weekArr = formState.value.enabledWeek.split(',');
-    return weekArr.map((item) => week[item - 1]).join('、');
-  });
+
+  const filterWeek = (week) => {
+    console.log(week, 'week');
+    if (!week) {
+      return '';
+    }
+    let weekArr = week.split(',');
+    return weekArr.map((item) => weekList[item - 1]).join('、') || '';
+  };
   // 计算属性：根据控制类型过滤列
   const filteredColumns = computed(() => {
     if (formState.value.relType === '回路') {
@@ -151,10 +156,10 @@
   const ids: any = ref([]);
   // 打开弹框
   const showDrawer = async (record?) => {
+    open.value = true;
     tableLoading.value = true;
     await getPlanDetail(record.id);
     tableLoading.value = false;
-    open.value = true;
   };
 
   const closeModal = () => {
@@ -171,6 +176,7 @@
     try {
       const res = await planDetailApi({ id });
       formState.value = res;
+      formState.value.enabledWeek = filterWeek(res.enabledWeek);
       if (res.relType === '回路') {
         dataSource.value = res.circuitList;
       } else {
