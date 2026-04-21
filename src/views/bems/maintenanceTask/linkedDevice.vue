@@ -1,7 +1,7 @@
 <template>
   <div>
     <div v-if="props.status === '未开始'" style="margin-bottom: 16px">
-      <a-button type="primary" @click="handleAddDevice">添加设备</a-button>
+      <a-button type="primary" @click="handleAddDevice" v-if="!props.isCalendar">添加设备</a-button>
     </div>
     <BasicTable @register="registerTable" :loading="loading" :show-action-column="props.status !== '已执行'">
       <template #action="{ record }">
@@ -35,6 +35,11 @@
     },
     // 是否为编辑模式（编辑模式下不显示备注列，操作列只显示删除按钮）
     isEditMode: {
+      type: Boolean,
+      default: false,
+    },
+    // 是否为日历模式（日历模式下不显示备注列，操作列只显示删除按钮）
+    isCalendar: {
       type: Boolean,
       default: false,
     },
@@ -98,6 +103,7 @@
       rowSelection: { type: 'checkbox' },
       showIndexColumn: true,
       showTableSetting: false,
+      showActionColumn: !props.isCalendar,
     },
   });
 

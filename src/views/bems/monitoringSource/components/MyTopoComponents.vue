@@ -161,6 +161,7 @@
     console.log('reHUiShou-----------res---------->', res);
     deviceDataList.value = res;
     const codeArr = res.map((item) => item.attributeCode);
+    console.log('reHUiShou----------codeArr---------->', props.deviceList);
     isControlArr.value = props.deviceList.filter((item: any) => codeArr.includes(item.key));
     console.log('reHUiShou----------isControlArr----------->', isControlArr.value);
     isControlArr.value.forEach((item) => {
@@ -176,6 +177,12 @@
               if (item.value === item.options[j].value) {
                 item.value = item.options[j].label;
               }
+            }
+          } else if (item.name == '冬夏季模式') {
+            if (item.value == '1') {
+              item.value = '夏天';
+            } else {
+              item.value = '冬天';
             }
           } else {
             item.value = Number(deviceDataList.value[i].value).toFixed(2);
@@ -376,6 +383,23 @@
           if (targetItem.options) {
             console.log('targetItem.options', targetItem.options, targetItem);
             selectOptions.value = targetItem.options;
+            if (targetItem.name == '冬夏季模式') {
+              selectOptions.value = [
+                {
+                  value: 0,
+                  label: '冬天',
+                },
+                {
+                  value: 1,
+                  label: '夏天',
+                },
+              ];
+              if (targetItem.value == '1.00') {
+                targetItem.value = '夏天';
+              } else {
+                targetItem.value = '冬天';
+              }
+            }
           } else {
             selectOptions.value = [
               {

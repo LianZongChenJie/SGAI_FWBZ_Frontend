@@ -1,7 +1,7 @@
 <template>
   <div>
     <div v-if="canEdit" style="margin-bottom: 16px">
-      <a-button type="primary" @click="handleAddSpace">添加空间</a-button>
+      <a-button type="primary" @click="handleAddSpace" v-if="!isCalendar">添加空间</a-button>
     </div>
     <BasicTable @register="registerTable" :loading="loading">
       <template #action="{ record }">
@@ -36,6 +36,11 @@
       type: Boolean,
       default: false,
     },
+    // 是否为日历模式（日历模式下不显示备注列，操作列只显示删除按钮）
+    isCalendar: {
+      type: Boolean,
+      default: false,
+    },
   });
 
   // 是否可以编辑（只有未开始状态可以编辑）
@@ -63,13 +68,15 @@
       rowKey: 'id',
       rowSelection: { type: 'checkbox' },
       showIndexColumn: true,
-      showActionColumn: props.isEditMode,
-      actionColumn: props.isEditMode ? {
-        width: 80,
-        title: '操作',
-        dataIndex: 'action',
-        fixed: 'right',
-      } : undefined,
+      showActionColumn: props.isEditMode && !props.isCalendar,
+      actionColumn: props.isEditMode
+        ? {
+            width: 80,
+            title: '操作',
+            dataIndex: 'action',
+            fixed: 'right',
+          }
+        : undefined,
       showTableSetting: false,
     },
   });

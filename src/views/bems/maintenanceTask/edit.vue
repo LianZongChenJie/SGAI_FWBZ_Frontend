@@ -65,12 +65,12 @@
 
       <!-- 关联设备标签页 -->
       <a-tab-pane key="2" tab="关联设备">
-        <linkedDevice :taskId="formData.id" :status="'未开始'" :isEditMode="true" @refresh="handleRefresh" />
+        <linkedDevice :taskId="formData.id" :status="'未开始'" :isEditMode="true" :isCalendar="isCalendar" @refresh="handleRefresh" />
       </a-tab-pane>
 
       <!-- 关联空间标签页 -->
       <a-tab-pane key="3" tab="关联空间">
-        <linkedSpace :taskId="formData.id" :status="'未开始'" :isEditMode="true" />
+        <linkedSpace :taskId="formData.id" :status="'未开始'" :isEditMode="true" :isCalendar="isCalendar" />
       </a-tab-pane>
     </a-tabs>
   </BasicModal>
