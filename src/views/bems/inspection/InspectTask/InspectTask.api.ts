@@ -2,7 +2,7 @@ import { defHttp } from '/@/utils/http/axios';
 
 enum Api {
   GetInspectTaskList = '/jeecg-patrol/patrol/task/queryPageWithLimit',
-  DeleteInspectTask = '/jeecg-patrol/patrol/task/delTask',
+  DeleteInspectTask = '/patrol/task/remove',
   GetInspectTaskDetail = '/jeecg-patrol/patrol/task/detail',
   AddInspectTask = '/jeecg-patrol/patrol/task/save',
   UpdateInspectTask = '/jeecg-patrol/patrol/task/update',
@@ -17,14 +17,19 @@ enum Api {
   UpdateTaskDate = '/jeecg-patrol/patrol/task/updateDate',
   ReassignTask = '/jeecg-patrol/patrol/task/reassign',
   CancelTask = '/jeecg-patrol/patrol/task/cancel',
+  completeApi = '/patrol/task/complete',
 }
+
+export const completeTask = (params) => {
+  return defHttp.post({ url: Api.completeApi, params });
+};
 
 export const getInspectTaskList = (params) => {
   return defHttp.get({ url: Api.GetInspectTaskList, params, requestOptions: { joinPrefix: false } });
 };
 
 export const deleteInspectTask = (params) => {
-  return defHttp.post({ url: Api.DeleteInspectTask, params, requestOptions: { joinPrefix: false } });
+  return defHttp.post({ url: Api.DeleteInspectTask, params }, { joinParamsToUrl: true });
 };
 
 export const getInspectTaskDetail = (params) => {

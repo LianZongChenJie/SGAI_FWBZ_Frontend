@@ -8,15 +8,7 @@
         <!-- 巡检规则部分 -->
         <div class="dialog-scrollbar-main">
           <h2 class="info-title">巡检规则</h2>
-          <a-table
-            v-if="data && data.length"
-            :data-source="data"
-            :columns="ruleColumns"
-            :pagination="false"
-            bordered
-            size="small"
-            row-key="id"
-          />
+          <a-table v-if="data && data.length" :data-source="data" :columns="ruleColumns" :pagination="false" bordered size="small" row-key="id" />
           <a-empty v-else description="暂无巡检规则" />
         </div>
 
@@ -38,14 +30,36 @@
                   >
                     <template #bodyCell="{ column, record }">
                       <template v-if="column.key === 'answer'">
-                        <a-radio-group v-if="record.subjectType === '判断'" v-model:value="record.answer" @change="(e) => handleInspeResul(record.id, e.target.value)">
+                        <a-radio-group
+                          v-if="record.subjectType === '判断'"
+                          v-model:value="record.answer"
+                          @change="(e) => handleInspeResul(record.id, e.target.value)"
+                        >
                           <a-radio v-for="(item, idx) in [record.trueMark, record.falseMark]" :key="idx" :value="item">{{ item }}</a-radio>
                         </a-radio-group>
-                        <a-input v-else-if="record.subjectType === '文本'" v-model:value="record.answer" @change="(e) => handleInspeResul(record.id, e.target.value)" type="textarea" placeholder="请输入文本" :rows="1" />
-                        <a-select v-else-if="record.subjectType === '选择'" v-model:value="record.answer" @change="(value) => handleInspeResul(record.id, value)" placeholder="请选择">
+                        <a-input
+                          v-else-if="record.subjectType === '文本'"
+                          v-model:value="record.answer"
+                          @change="(e) => handleInspeResul(record.id, e.target.value)"
+                          type="textarea"
+                          placeholder="请输入文本"
+                          :rows="1"
+                        />
+                        <a-select
+                          v-else-if="record.subjectType === '选择'"
+                          v-model:value="record.answer"
+                          @change="(value) => handleInspeResul(record.id, value)"
+                          placeholder="请选择"
+                        >
                           <a-option v-for="(item, idx) in record.choice" :key="idx" :value="item">{{ item }}</a-option>
                         </a-select>
-                        <a-input v-else-if="record.subjectType === '数字'" v-model:value="record.answer" @change="(e) => handleInspeResul(record.id, e.target.value)" type="number" placeholder="请输入数字" />
+                        <a-input
+                          v-else-if="record.subjectType === '数字'"
+                          v-model:value="record.answer"
+                          @change="(e) => handleInspeResul(record.id, e.target.value)"
+                          type="number"
+                          placeholder="请输入数字"
+                        />
                       </template>
                     </template>
                   </a-table>
@@ -58,29 +72,29 @@
         </div>
 
         <!-- 巡检结果 -->
-      <div class="dialog-scrollbar-main">
-        <h2 class="info-title">巡检结果</h2>
-        <div style="margin-top: 8px">
-          <div style="display: flex; align-items: flex-start; margin-bottom: 12px">
-            <label style="width: 80px; font-weight: 500">巡检结果：</label>
-            <a-select v-model:value="ruleForm.result" placeholder="请选择巡检结果" style="flex: 1">
-              <a-option value="正常">正常</a-option>
-              <a-option value="异常">异常</a-option>
-            </a-select>
+        <div class="dialog-scrollbar-main">
+          <h2 class="info-title">巡检结果</h2>
+          <div style="margin-top: 8px">
+            <div style="display: flex; align-items: flex-start; margin-bottom: 12px">
+              <label style="width: 80px; font-weight: 500">巡检结果：</label>
+              <a-select v-model:value="ruleForm.result" placeholder="请选择巡检结果" style="flex: 1">
+                <a-option value="正常">正常</a-option>
+                <a-option value="异常">异常</a-option>
+              </a-select>
+            </div>
+            <div style="display: flex; align-items: flex-start; margin-bottom: 12px">
+              <label style="width: 80px; font-weight: 500">说明：</label>
+              <a-input type="textarea" v-model:value="ruleForm.description" style="flex: 1" />
+            </div>
           </div>
-          <div style="display: flex; align-items: flex-start; margin-bottom: 12px">
-            <label style="width: 80px; font-weight: 500">说明：</label>
-            <a-input type="textarea" v-model:value="ruleForm.description" style="flex: 1" />
+          <h2 class="info-title" style="margin-top: 16px">总结</h2>
+          <div style="margin-top: 8px">
+            <div style="display: flex; align-items: flex-start">
+              <label style="width: 80px; font-weight: 500">总结：</label>
+              <a-input type="textarea" v-model:value="ruleForm.summary" style="flex: 1" />
+            </div>
           </div>
         </div>
-        <h2 class="info-title" style="margin-top: 16px">总结</h2>
-        <div style="margin-top: 8px">
-          <div style="display: flex; align-items: flex-start">
-            <label style="width: 80px; font-weight: 500">总结：</label>
-            <a-input type="textarea" v-model:value="ruleForm.summary" style="flex: 1" />
-          </div>
-        </div>
-      </div>
       </div>
     </div>
   </BasicModal>
@@ -91,7 +105,7 @@
   import { BasicModal, useModalInner } from '/@/components/Modal';
   import { Description, useDescription } from '/@/components/Description';
   import { message } from 'ant-design-vue';
-  import { getInspectTaskDetail } from './InspectTask.api';
+  import { getInspectTaskDetail, completeTask } from './InspectTask.api';
 
   export default defineComponent({
     name: 'ExecuteModal',
@@ -140,27 +154,27 @@
       async function loadDetail(taskId: string) {
         try {
           const res = await getInspectTaskDetail({ taskId });
-          const resultData =res?.records || res?.data || res || {};
-          
+          const resultData = res?.records || res?.data || res || {};
+
           // 处理基本信息
           repairForm.value = resultData || {};
           if (resultData.startTime && resultData.endTime) {
             repairForm.value.executionTime = [resultData.startTime, resultData.endTime];
           }
-          
+
           // 处理巡检规则
           data.value = resultData?.ruleList || [];
-          
+
           // 处理巡检结果
           ruleForm.value = {
             result: resultData?.result || '',
             description: resultData?.description || '',
-            summary: resultData?.summary || ''
+            summary: resultData?.summary || '',
           };
-          
+
           // 处理巡检作业内容
           subGroup.value = resultData?.subGroup || {};
-          
+
           // 处理选择类型的巡检项
           for (const key1 in subGroup.value) {
             for (const key2 in subGroup.value[key1]) {
@@ -171,7 +185,7 @@
               }
             }
           }
-          
+
           // 展开所有折叠面板
           activeNames.value = [];
           activeNamess.value = [];
@@ -239,7 +253,7 @@
               }
             }
           }
-          
+
           // 构建提交数据
           let params = {
             id: repairForm.value.id,
@@ -247,12 +261,13 @@
             description: ruleForm.value.description,
             result: ruleForm.value.result,
             taskSubjectList,
-            state: '已完成'
+            state: '已完成',
           };
-          
+
           console.log('提交数据:', params);
-          
+
           setModalProps({ confirmLoading: true });
+          await completeTask(params);
           message.success('执行成功');
           closeModal();
           emit('success');
@@ -294,7 +309,7 @@
     background: #f5f5f5;
     border-radius: 4px;
   }
-  
+
   .info-title {
     font-size: 16px;
     font-weight: bold;
@@ -302,7 +317,7 @@
     padding-left: 10px;
     border-left: 2px solid #1890ff;
   }
-  
+
   .info-title-summary {
     font-size: 14px;
     font-weight: bold;
@@ -310,11 +325,11 @@
     padding-left: 10px;
     border-left: 2px solid #1890ff;
   }
-  
+
   :deep(.ant-collapse-item) {
     margin-bottom: 10px;
   }
-  
+
   :deep(.ant-collapse-header) {
     font-weight: bold;
   }
