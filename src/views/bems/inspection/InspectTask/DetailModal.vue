@@ -14,9 +14,7 @@
       <div style="margin-top: 16px">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px">
           <h3 style="margin: 0">巡检规则</h3>
-          <a-button v-if="detailData.stateCode === '待释放'" type="primary" size="small" @click="handleOpenRuleModal">
-            选择
-          </a-button>
+          <a-button v-if="detailData.stateCode === '待释放'" type="primary" size="small" @click="handleOpenRuleModal"> 选择 </a-button>
         </div>
         <BasicTable @register="registerRuleTable" />
       </div>
@@ -51,22 +49,12 @@
     </div>
   </BasicModal>
 
-  <BasicModal
-      @register="registerRuleModal"
-      title="添加巡检规则"
-      :width="900"
-      @ok="handleBindRule"
-      :closeable="true"
-      :maskClosable="true"
-    >
-      <BasicForm @register="registerSearchForm" style="margin-bottom: 16px" />
-      <BasicTable
-        @register="registerAllRuleTable"
-        :rowSelection="{ type: 'checkbox', selectedRowKeys: selectedRuleKeys, onChange: onSelectChange }"
-      />
-    </BasicModal>
-    
-    <ExecuteModal @register="registerExecuteModal" @success="handleSuccess" />
+  <BasicModal @register="registerRuleModal" title="添加巡检规则" :width="900" @ok="handleBindRule" :closeable="true" :maskClosable="true">
+    <BasicForm @register="registerSearchForm" style="margin-bottom: 16px" />
+    <BasicTable @register="registerAllRuleTable" :rowSelection="{ type: 'checkbox', selectedRowKeys: selectedRuleKeys, onChange: onSelectChange }" />
+  </BasicModal>
+
+  <ExecuteModal @register="registerExecuteModal" @success="handleSuccess" />
 </template>
 
 <script lang="ts">
@@ -117,7 +105,8 @@
       async function loadDetail(taskId: string) {
         try {
           const res = await getInspectTaskDetail({ taskId });
-          const resultData = res?.result || res?.data || res || {};
+          console.log('ress', res);
+          const resultData = res || {};
           detailData.value = resultData;
           ruleData.value = Array.isArray(resultData?.ruleList) ? resultData.ruleList : [];
           subGroup.value = resultData?.subGroup || {};
