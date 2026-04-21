@@ -67,13 +67,6 @@
         rowKey: 'id',
         columns: [
           {
-            title: '序号',
-            dataIndex: 'index',
-            width: 55,
-            align: 'center',
-            customRender: ({ index }) => index + 1,
-          },
-          {
             title: '任务编号',
             dataIndex: 'taskNo',
             key: 'taskNo',

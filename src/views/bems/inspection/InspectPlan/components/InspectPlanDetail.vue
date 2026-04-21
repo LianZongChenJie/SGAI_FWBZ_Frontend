@@ -97,11 +97,52 @@
     updateInspectPlan,
   } from '../InspectPlan.api';
   import { ProcessingDay, ProcessingEchoDate } from '../config/config';
-  import { getWeekDay, getDayMonth, getYearDay } from '../InspectPlan.api';
   import dayjs from 'dayjs';
   import { getTreeData } from '../InspectPlan.api';
 
   const emit = defineEmits(['register', 'success']);
+  interface TimeOption {
+    label: string;
+    value: string;
+    children?: TimeOption[];
+  }
+  function getWeekDay() {
+    return [
+      { label: '星期一', value: '星期一' },
+      { label: '星期二', value: '星期二' },
+      { label: '星期三', value: '星期三' },
+      { label: '星期四', value: '星期四' },
+      { label: '星期五', value: '星期五' },
+      { label: '星期六', value: '星期六' },
+      { label: '星期日', value: '星期日' },
+    ];
+  }
+
+  function getDayMonth(a: number, b: number, t: 'day' | 'month'): TimeOption[] {
+    const arr: TimeOption[] = [];
+    for (let i = a; i < b; i++) {
+      if (t === 'day') {
+        const val = i < 10 ? '0' + i : i;
+        arr.push({ label: val + ':00', value: val + ':00' });
+      } else {
+        arr.push({ label: i + '日', value: i + '日' });
+      }
+    }
+    return arr;
+  }
+
+  function getYearDay(a: number, b: number): TimeOption[] {
+    const arr: TimeOption[] = [];
+    for (let i = a; i < b; i++) {
+      arr.push({ label: i + '月', value: i + '月', children: getDayMonth(1, 32, 'month') });
+    }
+    return arr;
+  }
+
+  const weekDay = getWeekDay();
+  const dayTime = getDayMonth(0, 24, 'day');
+  const monthDay = getDayMonth(1, 32, 'month');
+  const yearDay = getYearDay(1, 13);
 
   const repairForm = ref<Recordable>({});
   const tableData = ref<Recordable[]>([]);
@@ -311,15 +352,16 @@
       {
         field: 'specificTime',
         label: '具体时间',
-        component: 'Cascader',
+        component: 'JSelectMultiple',
         required: true,
         show: () => !!repairForm.value.disposable,
         colProps: { span: 8 },
         componentProps: {
           options: computed(() => getFrequencyTimeOptions()),
-          multiple: true,
-          separator: '',
           style: { width: '100%' },
+          onChange: (val) => {
+            repairForm.value.specificTime = val;
+          },
         },
       },
     ],
@@ -331,14 +373,15 @@
   // 根据单位获取具体时间选项
   function getFrequencyTimeOptions() {
     const unit = repairForm.value.unit;
-    if (unit === 'day') {
-      return getDayMonth(0, 24, 'day');
-    } else if (unit === 'week') {
-      return getWeekDay();
-    } else if (unit === 'month') {
-      return getDayMonth(1, 32, 'month');
-    } else if (unit === 'year') {
-      return getYearDay(1, 13);
+    console.log('unit', unit);
+    if (unit === '天') {
+      return dayTime;
+    } else if (unit === '周') {
+      return weekDay;
+    } else if (unit === '月') {
+      return monthDay;
+    } else if (unit === '年') {
+      return yearDay;
     }
     return [];
   }
@@ -598,20 +641,21 @@
 
       // 处理specificTime回显，加上后缀匹配级联选择器
       if (!!repairForm.value.disposable && repairForm.value.specificTime) {
-        let editTime = repairForm.value.specificTime.split(',').map((t) => {
-          if (repairForm.value.unit === '天') {
-            // 天单位：HH:mm格式，提取小时加"时"
-            const hour = t.split(':')[0];
-            return `${hour}时`;
-          }
-          if (repairForm.value.unit === '月') return `${t}日`;
-          if (repairForm.value.unit === '年') {
-            const [m, d] = t.split('-');
-            return [`${m}月`, `${d}日`];
-          }
-          return t; // 周单位直接返回汉字
-        });
-        setCycleFieldsValue({ specificTime: editTime });
+        // let editTime = repairForm.value.specificTime.split(',').map((t) => {
+        //   if (repairForm.value.unit === '天') {
+        //     // 天单位：HH:mm格式，提取小时加"时"
+        //     const hour = t.split(':')[0];
+        //     return `${hour}时`;
+        //   }
+        //   if (repairForm.value.unit === '月') return `${t}日`;
+        //   if (repairForm.value.unit === '年') {
+        //     const [m, d] = t.split('-');
+        //     return [`${m}月`, `${d}日`];
+        //   }
+        //   return t; // 周单位直接返回汉字
+        // });
+
+        setCycleFieldsValue({ specificTime: repairForm.value.specificTime });
       }
     });
   }
@@ -669,29 +713,7 @@
         endTime: repairForm.value.endTime,
         cycle: repairForm.value.cycle,
         unit: repairForm.value.unit,
-        specificTime: Array.isArray(repairForm.value.specificTime)
-          ? repairForm.value.specificTime
-              .map((item) => {
-                const str = Array.isArray(item) ? item.join('') : String(item);
-                const num = str.replace(/[^0-9]/g, ''); // 去掉非数字字符，只保留数字
-                // 天单位格式化为HH:mm
-                if (repairForm.value.unit === '天') {
-                  return `${num.padStart(2, '0')}:00`;
-                }
-                return num;
-              })
-              .join(',')
-          : (() => {
-              const str = String(repairForm.value.specificTime);
-              const num = str.replace(/[^0-9]/g, '');
-              if (repairForm.value.unit === '天') {
-                return num
-                  .split(',')
-                  .map((n) => `${n.padStart(2, '0')}:00`)
-                  .join(',');
-              }
-              return num;
-            })(),
+        specificTime: repairForm.value.specificTime,
         broad: repairForm.value.broad,
         broadUnit: repairForm.value.broadUnit,
       };
@@ -721,12 +743,11 @@
   async function loadAllRules(searchVal?: string) {
     const params: Recordable = {};
     if (searchVal) {
-      params.search_LIKE_ruleNo = searchVal;
-      params.search_LIKE_name = searchVal;
+      params.name = searchVal;
     }
     try {
       const res = await getAllRule(params);
-      allRuleData.value = Array.isArray(res?.records) ? res.records : [];
+      allRuleData.value = res;
     } catch (error) {
       console.error('加载规则失败:', error);
       allRuleData.value = [];

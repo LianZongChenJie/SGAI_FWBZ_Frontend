@@ -161,9 +161,9 @@
     for (let i = a; i < b; i++) {
       if (t === 'day') {
         const val = i < 10 ? '0' + i : i;
-        arr.push({ label: val + '时', value: val + '时' });
+        arr.push({ label: val + ':00', value: val + ':00' });
       } else {
-        arr.push({ label: i + '日', value: i + '日' });
+        arr.push({ label: i, value: i });
       }
     }
     return arr;
@@ -233,6 +233,7 @@
   }
 
   function handleSpecificTimeChange(value: unknown) {
+    console.log('value', value);
     const normalized = normalizeSpecificTime(value);
     formState.specificTime = normalized;
     syncFieldAndClearValidate('specificTime', normalized.length ? normalized : undefined);
@@ -474,18 +475,18 @@
       params.spaceId = spaceId.value;
       params.spaceName = ddarr.value;
 
-      // 数据处理
-      if (formState.specificTime && formState.specificTime.length) {
-        const arr = normalizeSpecificTime(formState.specificTime).map((item) => {
-          const str = Array.isArray(item) ? item.join('') : String(item);
-          const num = str.replace(/[^0-9]/g, '');
-          if (formState.timeType === 'day') {
-            return `${num.padStart(2, '0')}:00`;
-          }
-          return num;
-        });
-        params.specificTime = arr.join(',');
-      }
+      // // 数据处理
+      // if (formState.specificTime && formState.specificTime.length) {
+      //   const arr = normalizeSpecificTime(formState.specificTime).map((item) => {
+      //     const str = Array.isArray(item) ? item.join('') : String(item);
+      //     const num = str.replace(/[^0-9]/g, '');
+      //     if (formState.timeType === 'day') {
+      //       return `${num.padStart(2, '0')}:00`;
+      //     }
+      //     return num;
+      //   });
+      //   params.specificTime = arr.join(',');
+      // }
 
       if (params.groupId) {
         const group = mockGroupOptions.find((item) => item.id === params.groupId);
@@ -503,7 +504,7 @@
       } else if (formState.timeType === 'year') {
         params.unit = '年';
       }
-
+      console.log('params', params);
       const timeArr = typeof params.time === 'string' ? params.time.split(',') : params.time;
       console.log('timeArr', timeArr, typeof params.time === 'string');
 
@@ -526,7 +527,7 @@
         broadUnit: formState.broadUnit || '时',
         state: '未开始',
       };
-
+      console.log('finalParams', finalParams);
       const res = await addInspectPlan(finalParams);
       message.success('操作成功');
       closeModal();
