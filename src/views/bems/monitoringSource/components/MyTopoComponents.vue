@@ -178,12 +178,6 @@
                 item.value = item.options[j].label;
               }
             }
-          } else if (item.name == '冬夏季模式') {
-            if (item.value == '1') {
-              item.value = '夏天';
-            } else {
-              item.value = '冬天';
-            }
           } else {
             item.value = Number(deviceDataList.value[i].value).toFixed(2);
           }
@@ -370,6 +364,7 @@
         // console.log('reHUiShou--------------------->', item.code, item.valueKey);
       });
       gv.mi(function (e) {
+        console.log('e', e);
         if (e.kind === 'clickData' && e.data && isControlArr.value.find((item) => item.code === e.data._tag).readwriteLevel === '1') {
           const targetItem = isControlArr.value.find((item) => item.code === e.data._tag);
           modalTitle.value = targetItem.name;
@@ -381,25 +376,7 @@
           targetLeft.value = e.event.layerX + 'px';
           selectValue.value = targetItem.value;
           if (targetItem.options) {
-            console.log('targetItem.options', targetItem.options, targetItem);
             selectOptions.value = targetItem.options;
-            if (targetItem.name == '冬夏季模式') {
-              selectOptions.value = [
-                {
-                  value: 0,
-                  label: '冬天',
-                },
-                {
-                  value: 1,
-                  label: '夏天',
-                },
-              ];
-              if (targetItem.value == '1.00') {
-                targetItem.value = '夏天';
-              } else {
-                targetItem.value = '冬天';
-              }
-            }
           } else {
             selectOptions.value = [
               {

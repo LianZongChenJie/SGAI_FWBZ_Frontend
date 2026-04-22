@@ -235,6 +235,7 @@
   function handleSpecificTimeChange(value: unknown) {
     console.log('value', value);
     const normalized = normalizeSpecificTime(value);
+    console.log('normalized', normalized);
     formState.specificTime = normalized;
     syncFieldAndClearValidate('specificTime', normalized.length ? normalized : undefined);
   }
@@ -303,6 +304,7 @@
   }
 
   function formatSpecificTimeTag(tag: SpecificTimeValue): string {
+    console.log('tag', tag);
     if (Array.isArray(tag)) {
       return tag.join('');
     }
@@ -460,6 +462,7 @@
 
   async function handleSubmit() {
     console.log('formState', formState);
+    let specificTime = formState.specificTime;
     try {
       await setFieldsValue({
         disposable: formState.disposable,
@@ -470,13 +473,19 @@
       });
       const values = await validate();
       setModalProps({ confirmLoading: true });
-      console.log('values', values);
       const params = { ...values };
       params.spaceId = spaceId.value;
       params.spaceName = ddarr.value;
-
-      // // 数据处理
-      // if (formState.specificTime && formState.specificTime.length) {
+      console.log('params', params, params.unit, params.timeType, params.unit === '年');
+      if (params.timeType == 'year') {
+        console.log('进入年', specificTime);
+        let string = '';
+        specificTime.forEach((item) => {
+          string += (Array.isArray(item) ? item.join('') : String(item)) + '日,';
+        });
+        console.log('string1', string);
+        params.specificTime = string.slice(0, -1);
+      }
       //   const arr = normalizeSpecificTime(formState.specificTime).map((item) => {
       //     const str = Array.isArray(item) ? item.join('') : String(item);
       //     const num = str.replace(/[^0-9]/g, '');
@@ -527,7 +536,6 @@
         broadUnit: formState.broadUnit || '时',
         state: '未开始',
       };
-      console.log('finalParams', finalParams);
       const res = await addInspectPlan(finalParams);
       message.success('操作成功');
       closeModal();
