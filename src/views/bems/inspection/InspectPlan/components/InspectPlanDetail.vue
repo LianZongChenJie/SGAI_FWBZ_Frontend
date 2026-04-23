@@ -642,21 +642,20 @@
 
       // 处理specificTime回显，加上后缀匹配级联选择器
       if (!!repairForm.value.disposable && repairForm.value.specificTime) {
+        console.log('repairForm.value.specificTime', repairForm.value.specificTime.split(','));
         let editTime = repairForm.value.specificTime.split(',').map((t) => {
           if (repairForm.value.unit === '天' || repairForm.value.unit === '周' || repairForm.value.unit === '月') {
             // 天单位：HH:mm格式，提取小时加"时"
             let responArr = [] as Array<string>;
             const hour = t.split(',');
-            console.log('hour', hour);
             for (let i = 0; i < hour.length; i += 1) {
-              responArr.push(hour.slice(i, i + 1));
+              responArr = hour.slice(i, i + 1);
             }
             return responArr;
           }
           if (repairForm.value.unit === '年') {
             let responArr = [] as Array<string>;
             const hour = t.split('月');
-            console.log('hour', hour);
             for (let i = 0; i < hour.length; i += 1) {
               if (i == 0) {
                 responArr.push(hour[i] + '月');
@@ -669,11 +668,7 @@
           return t; // 周单位直接返回汉字
         });
         console.log('editTime', editTime);
-        nextTick(() => {
-          setTimeout(() => {
-            setCycleFieldsValue({ specificTime: editTime });
-          }, 0);
-        });
+        setCycleFieldsValue({ specificTime: editTime });
       }
     });
   }

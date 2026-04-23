@@ -1,77 +1,52 @@
 <template>
-  <a-modal
-    v-model:open="open"
-    title="定时任务"
-    width="500px"
-    @ok="handleOk" 
-    @cancel="closeModal"
-  ><div class="enable-form-box">
-    <a-form
-      :model="formState"
-      name="basic"
-      ref="formRef"
-      :label-col="{ span: 6 }"
-      :wrapper-col="{ span: 16 }"
-    >
-      <a-form-item
-        label="周期范围"
-        name="date"
-        :rules="[{ required: true, message: '请选择周期范围' }]"
-      >
-        <a-range-picker v-model:value="formState.date" style="width: 100%;" format="YYYY-MM-DD" value-format="YYYY-MM-DD" />
-      </a-form-item>
-      <a-form-item
-        label="执行日期"
-        name="weeks"
-        :rules="[{ required: true, message: '请选择执行日期' }]"
-      >
-        <a-checkbox-group v-model:value="formState.weeks" name="checkboxgroup" :options="weekOptions" />
-      </a-form-item>
+  <a-modal v-model:open="open" title="定时任务" width="500px" @ok="handleOk" @cancel="closeModal"
+    ><div class="enable-form-box">
+      <a-form :model="formState" name="basic" ref="formRef" :label-col="{ span: 6 }" :wrapper-col="{ span: 16 }">
+        <a-form-item label="周期范围" name="date" :rules="[{ required: true, message: '请选择周期范围' }]">
+          <a-range-picker v-model:value="formState.date" style="width: 100%" format="YYYY-MM-DD" value-format="YYYY-MM-DD" />
+        </a-form-item>
+        <a-form-item label="执行日期" name="weeks" :rules="[{ required: true, message: '请选择执行日期' }]">
+          <a-checkbox-group v-model:value="formState.weeks" name="checkboxgroup" :options="weekOptions" />
+        </a-form-item>
 
-      <a-form-item
-        name="time"
-        label="执行时间"
-        :rules="[{ required: true, message: '请选择执行时间' }]"
-      >
-        <a-time-picker v-model:value="formState.time" value-format="HH:mm:ss" style="width: 100%;" />
-      </a-form-item>
-    </a-form>
-  </div>
-    
+        <a-form-item name="time" label="执行时间" :rules="[{ required: true, message: '请选择执行时间' }]">
+          <a-time-picker v-model:value="formState.time" value-format="HH:mm:ss" style="width: 100%" />
+        </a-form-item>
+      </a-form>
+    </div>
   </a-modal>
-
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue';
-import { enableStandardizedManagemenApi, getPatterningExecutionTimeApi } from '../Standardized.api'
-import { message } from 'ant-design-vue';
-// import moment from 'moment';
+  import { ref, reactive } from 'vue';
+  import { enableStandardizedManagemenApi, getPatterningExecutionTimeApi } from '../Standardized.api';
+  import { message } from 'ant-design-vue';
+  // import moment from 'moment';
 
-const props = defineProps({
-  reload: {
-    type: Function,
-    default: () => {}
+  const props = defineProps({
+    reload: {
+      type: Function,
+      default: () => {},
+    },
+  });
+
+  const open = ref(false);
+  const formRef = ref();
+  interface FormState {
+    date: Array<any>;
+    weeks: Array<string>;
+    time: string;
+    id: string;
   }
-})
 
-const open = ref(false);
-const formRef = ref()
-interface FormState {
-  date: Array<any>;
-  weeks: Array<string>;
-  time: string;
-  id: string;
-}
+  const formState = reactive<FormState>({
+    date: [],
+    weeks: [],
+    time: '',
+    id: '',
+  });
 
-const formState = reactive<FormState>({
-  date: [],
-  weeks: [],
-  time: '',
-  id: '',
-});
-
-const targetId = ref()
+  const targetId = ref();
 
   // 周选项配置
   const weekOptions = [
@@ -84,64 +59,65 @@ const targetId = ref()
     { label: '周日', value: '7' },
   ];
 
-// 打开弹框
-const openModal = async (id: string) => {
-  let res = await getPatterningExecutionTimeApi({patterningId: id})
-  if(res.id) {
-    formState.id = res.id
-    formState.date = [res.beginDate, res.endDate]
-    formState.time = res.beginTime
-    formState.weeks = res.enabledWeek.split(',')
-  }
-  targetId.value = id
-  open.value = true;
-};
+  // 打开弹框
+  const openModal = async (id: string) => {
+    let res = await getPatterningExecutionTimeApi({ patterningId: id });
+    if (res) {
+      formState.id = res.id;
+      formState.date = [res.beginDate, res.endDate];
+      formState.time = res.beginTime;
+      formState.weeks = res.enabledWeek.split(',');
+    }
+    targetId.value = id;
+    open.value = true;
+  };
 
-// 提交
-const handleOk = (e: MouseEvent) => {
-  formRef.value
-    .validate()
-    .then(async () => {
-      const params = {
-        patterningId: targetId.value,
-        id: formState.id,
-        beginDate: convertTime(new Date(formState.date[0])),
-        endDate: convertTime(new Date(formState.date[1])),
-        enabledWeek: formState.weeks.join(','),
-        beginTime: formState.time,
-      }
-      await enableStandardizedManagemenApi(params)
-      message.success('启用成功！');
-      formRef.value.resetFields();
-      props.reload()
-      open.value = false;
-    }).catch((error) => {
-      console.log('error', error);
-    });
-};
+  // 提交
+  const handleOk = (e: MouseEvent) => {
+    formRef.value
+      .validate()
+      .then(async () => {
+        const params = {
+          patterningId: targetId.value,
+          id: formState.id,
+          beginDate: convertTime(new Date(formState.date[0])),
+          endDate: convertTime(new Date(formState.date[1])),
+          enabledWeek: formState.weeks.join(','),
+          beginTime: formState.time,
+        };
+        await enableStandardizedManagemenApi(params);
+        message.success('启用成功！');
+        formRef.value.resetFields();
+        props.reload();
+        open.value = false;
+      })
+      .catch((error) => {
+        console.log('error', error);
+      });
+  };
 
-// 取消
-const closeModal = () => {
-  formRef.value.resetFields();
-  open.value = false;
-}
+  // 取消
+  const closeModal = () => {
+    formRef.value.resetFields();
+    open.value = false;
+  };
 
-// 处理时间日期
-const convertTime = (date) => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0'); // 月份从0开始，需要+1
-  const day = String(date.getDate()).padStart(2, '0');
-  const formattedDate = `${year}-${month}-${day}`;
-  return formattedDate
-}
+  // 处理时间日期
+  const convertTime = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // 月份从0开始，需要+1
+    const day = String(date.getDate()).padStart(2, '0');
+    const formattedDate = `${year}-${month}-${day}`;
+    return formattedDate;
+  };
 
-defineExpose({
-  openModal,
-});
+  defineExpose({
+    openModal,
+  });
 </script>
 
 <style scoped lang="less">
-.enable-form-box{
-  padding: 20px 0 0 0;
-}
+  .enable-form-box {
+    padding: 20px 0 0 0;
+  }
 </style>

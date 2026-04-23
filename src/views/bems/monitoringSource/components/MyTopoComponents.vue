@@ -160,6 +160,7 @@
     });
     console.log('reHUiShou-----------res---------->', res);
     deviceDataList.value = res;
+    console.log('reHUiShou----------deviceDataList---------->', deviceDataList.value);
     const codeArr = res.map((item) => item.attributeCode);
     console.log('reHUiShou----------codeArr---------->', props.deviceList);
     isControlArr.value = props.deviceList.filter((item: any) => codeArr.includes(item.key));
@@ -171,6 +172,7 @@
           item.unit = deviceDataList.value[i].unit;
           item.id = deviceDataList.value[i].id;
           item.readwriteLevel = deviceDataList.value[i].readwriteLevel;
+          item.valueConfig = JSON.parse(deviceDataList.value[i].valueConfig);
           if (item.isTransfor) {
             item.value = deviceDataList.value[i].value;
             for (let j = 0; j < 2; j++) {
@@ -364,7 +366,6 @@
         // console.log('reHUiShou--------------------->', item.code, item.valueKey);
       });
       gv.mi(function (e) {
-        console.log('e', e);
         if (e.kind === 'clickData' && e.data && isControlArr.value.find((item) => item.code === e.data._tag).readwriteLevel === '1') {
           const targetItem = isControlArr.value.find((item) => item.code === e.data._tag);
           modalTitle.value = targetItem.name;
@@ -375,8 +376,9 @@
           targetTop.value = e.event.layerY + 'px';
           targetLeft.value = e.event.layerX + 'px';
           selectValue.value = targetItem.value;
-          if (targetItem.options) {
-            selectOptions.value = targetItem.options;
+          console.log('targetItem', targetItem);
+          if (targetItem.valueConfig) {
+            selectOptions.value = targetItem.valueConfig;
           } else {
             selectOptions.value = [
               {
