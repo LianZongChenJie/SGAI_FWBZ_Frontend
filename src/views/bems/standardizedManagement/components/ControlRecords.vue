@@ -69,10 +69,9 @@
     },
     {
       title: '执行人',
-      dataIndex: 'description',
-      key: 'description',
+      dataIndex: 'executedBy',
+      key: 'executedBy',
     },
-    
     {
       title: '执行详情',
       dataIndex: 'active',

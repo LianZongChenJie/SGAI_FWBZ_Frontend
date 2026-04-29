@@ -69,7 +69,7 @@
       customRender: ({ index }) => index + 1, // 显示序号，从 1 开始
     },
     {
-      title: '类型',
+      title: '类别',
       dataIndex: 'relName',
       key: 'relName',
     },
@@ -124,7 +124,7 @@
       formConfig: {
         schemas: [
           {
-            label: '类型',
+            label: '类别',
             field: 'relName',
             component: 'ApiSelect',
             componentProps: {

@@ -66,8 +66,8 @@
     },
     {
       title: '设定值',
-      dataIndex: 'conditionValue',
-      key: 'conditionValue',
+      dataIndex: 'conditionRemark',
+      key: 'conditionRemark',
     },
     {
       title: '执行时间',

@@ -250,7 +250,7 @@
       name: '手动/自动',
       code: 'sd/zd',
       valueKey: 'baoJing',
-      isSelect: false,
+      isSelect: true,
       isTransfor: true,
       options: [
         {
@@ -396,6 +396,17 @@
       code: 'jzqt',
       valueKey: 'baoJing',
       isSelect: true,
+      isTransfor: true,
+      options: [
+        {
+          value: '1',
+          label: '启动',
+        },
+        {
+          value: '0',
+          label: '停止',
+        },
+      ],
     },
     {
       key: 'FAN_AUTO_MODE',

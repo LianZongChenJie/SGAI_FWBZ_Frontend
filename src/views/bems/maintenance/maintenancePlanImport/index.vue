@@ -23,7 +23,7 @@
           </div>
         </div>
         <div class="search-tools">
-          <!-- <el-button
+          <el-button
             size="default"
             type="primary"
             :icon="Download"
@@ -31,7 +31,7 @@
             v-permission="'daoru-download'"
             :loading="downloadUrlLoading"
             ><a style="color: #fff; text-decoration: none">下载模板</a></el-button
-          > -->
+          >
           <el-button
             size="default"
             type="primary"
@@ -45,7 +45,7 @@
             v-permission="'daoru-leadingin'"
             >导入计划</el-button
           >
-          <!-- <el-button size="default" type="primary" :icon="Plus" @click="addPlanHandle('新增计划')" v-permission="'daoru-add'">新增计划</el-button> -->
+          <el-button size="default" type="primary" :icon="Plus" @click="addPlanHandle('新增计划')" v-permission="'daoru-add'">新增计划</el-button>
           <el-button size="default" type="primary" @click="generateTasks">批量生成维保任务</el-button>
           <!-- <el-button size="default" type="primary" :icon="Delete" @click="deletePlanEvent()" v-permission="'daoru-del'">删除计划</el-button> -->
         </div>
@@ -53,8 +53,8 @@
           ref="multiLevelTable"
           class="multi-level-header"
           :data="planList"
-          tooltip-effect="dark"
           :span-method="objectSpanMethod"
+          tooltip-effect="dark"
           border
           v-loading="loading"
         >
@@ -177,11 +177,11 @@
   import AddPlan from './addPlan.vue';
   import { queryDepartTreeSync } from '@/views/system/depart/depart.api.ts';
   import { ElMessage, ComponentSize } from 'element-plus';
-  import type { TableColumnCtx } from 'element-plus';
   import linkedDevice from './linkedDevice.vue';
   import linkedSpace from './linkedSpace.vue';
   import { useModal } from '@/components/Modal';
   import { message } from 'ant-design-vue';
+  import type { TableColumnCtx } from 'element-plus';
   const handleYear = (val) => {
     console.log('handleYear--------------->', val);
   };
@@ -210,41 +210,6 @@
     year: moment().format('YYYY'),
     orgCode: '',
   });
-  interface User {
-    id: string;
-    name: string;
-    amount1: string;
-    amount2: string;
-    amount3: number;
-  }
-  interface SpanMethodProps {
-    row: User;
-    column: TableColumnCtx<User>;
-    rowIndex: number;
-    columnIndex: number;
-  }
-  const objectSpanMethod = ({ row, column, rowIndex, columnIndex }: SpanMethodProps) => {
-    // 获取当前列的 prop
-    const prop = column.property;
-
-    // 检查是否有合并信息
-    if (prop && spanArr.value[prop]) {
-      const span = spanArr.value[prop][rowIndex];
-      if (span > 0) {
-        return {
-          rowspan: span,
-          colspan: 1,
-        };
-      } else {
-        return {
-          rowspan: 0,
-          colspan: 0,
-        };
-      }
-    }
-
-    return undefined;
-  };
   const importYear = ref(moment().format('YYYY'));
   const importOrgCode = ref('');
   const isDownload = ref(false);
@@ -265,53 +230,81 @@
   const saving = ref(false);
   const planTitle = ref('新增计划');
   const downloadUrlLoading = ref(false);
-  // 用于存储每一列的合并信息
-  const spanArr = ref({});
+  interface User {
+    id: string;
+    name: string;
+    amount1: string;
+    amount2: string;
+    amount3: number;
+  }
+
+  interface SpanMethodProps {
+    row: User;
+    column: TableColumnCtx<User>;
+    rowIndex: number;
+    columnIndex: number;
+  }
+  const mergeFields = ['planName', 'systemName', 'maintenanceCycle', 'cycleUnit']; // 👉 按顺序（很重要！）
+
+  const objectSpanMethod = ({ row, column, rowIndex }) => {
+    const field = column.property;
+
+    // 👉 序号列 or 没有字段的列，直接跳过
+    if (!field) return;
+
+    const colIndex = mergeFields.indexOf(field);
+    if (colIndex === -1) return; // 👉 不需要合并的列直接返回
+
+    const data = planList.value;
+
+    // 👉 判断是否和上一行完全一致（包含前置列）
+    const isSameAsPrev = () => {
+      if (rowIndex === 0) return false;
+
+      for (let i = 0; i <= colIndex; i++) {
+        const f = mergeFields[i];
+        if (data[rowIndex][f] !== data[rowIndex - 1][f]) {
+          return false;
+        }
+      }
+      return true;
+    };
+
+    // 👉 如果重复，隐藏
+    if (isSameAsPrev()) {
+      return { rowspan: 0, colspan: 0 };
+    }
+
+    // 👉 计算 rowspan（级联合并）
+    let rowspan = 1;
+    for (let i = rowIndex + 1; i < data.length; i++) {
+      let same = true;
+
+      for (let j = 0; j <= colIndex; j++) {
+        const f = mergeFields[j];
+        if (data[i][f] !== data[rowIndex][f]) {
+          same = false;
+          break;
+        }
+      }
+
+      if (same) {
+        rowspan++;
+      } else {
+        break;
+      }
+    }
+
+    return {
+      rowspan,
+      colspan: 1,
+    };
+  };
   const downloadUrl = async (a) => {
     isDownload.value = a;
     importYear.value = moment().format('YYYY');
     importOrgCode.value = firstOrgCode.value;
     dialogVisible.value = true;
-  };
-
-  // 计算合并信息
-  const calculateSpan = (data) => {
-    // 初始化 spanArr
-    spanArr.value = {};
-
-    if (!data || data.length === 0) return;
-
-    // 只对需要合并的字段进行合并（根据实际表格列配置）
-    const mergeFields = tableHeader.value.map((col) => col.field);
-
-    mergeFields.forEach((field) => {
-      let count = 1; // 记录当前连续相同值的数量
-      const arr = [];
-
-      for (let i = 0; i < data.length; i++) {
-        if (i === 0) {
-          // 第一行
-          arr.push(1);
-        } else {
-          // 与上一行比较
-          if (data[i][field] === data[i - 1][field]) {
-            count++;
-            arr.push(0); // 标记为需要合并的行
-          } else {
-            // 不同值，重置计数
-            arr.push(count);
-            count = 1;
-          }
-        }
-
-        // 最后一行
-        if (i === data.length - 1) {
-          arr[arr.length - count] = count; // 更新起始行的合并数量
-        }
-      }
-
-      spanArr.value[field] = arr;
-    });
   };
 
   const getPlanList = async () => {
@@ -335,9 +328,6 @@
       tableHeader.value = tHeader;
       planList.value = list;
       totalNum.value = res.total || 0;
-
-      // 计算合并信息
-      calculateSpan(list);
     }
     loading.value = false;
   };

@@ -81,11 +81,11 @@
   const selectOptions = ref([
     {
       value: '1',
-      label: 'on',
+      label: '运行',
     },
     {
       value: '0',
-      label: 'off',
+      label: '停止',
     },
   ]);
   const selectValue = ref('0');
@@ -174,12 +174,24 @@
           item.readwriteLevel = deviceDataList.value[i].readwriteLevel;
           item.valueConfig = JSON.parse(deviceDataList.value[i].valueConfig);
           if (item.isTransfor) {
+            if (item.valueConfig && item.valueConfig != null) {
+              let arr = [] as any[];
+              item.valueConfig.forEach((item) => {
+                arr.push({
+                  value: item.key,
+                  label: item.value,
+                });
+              });
+              item.options = arr;
+            }
+
             item.value = deviceDataList.value[i].value;
             for (let j = 0; j < 2; j++) {
               if (item.value === item.options[j].value) {
                 item.value = item.options[j].label;
               }
             }
+            console.log('reHUiShou----------item.options---------->', item.options, item);
           } else {
             item.value = Number(deviceDataList.value[i].value).toFixed(2);
           }
@@ -377,17 +389,17 @@
           targetLeft.value = e.event.layerX + 'px';
           selectValue.value = targetItem.value;
           console.log('targetItem', targetItem);
-          if (targetItem.valueConfig) {
-            selectOptions.value = targetItem.valueConfig;
+          if (targetItem.isSelect) {
+            selectOptions.value = targetItem.options;
           } else {
             selectOptions.value = [
               {
                 value: '1',
-                label: 'on',
+                label: '运行',
               },
               {
                 value: '0',
-                label: 'off',
+                label: '停止',
               },
             ];
           }

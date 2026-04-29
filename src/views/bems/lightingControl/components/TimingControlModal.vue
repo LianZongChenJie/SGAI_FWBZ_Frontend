@@ -264,7 +264,7 @@
   const showDrawer = async (isUpdate, record?) => {
     formState.value.operationType = '';
     formState.value.planName = '';
-    formState.value.relType = '';
+    formState.value.relType = '回路';
     open.value = true;
     tableLoading.value = true;
     if (isUpdate) {
