@@ -3,7 +3,7 @@ import { useMessage } from '/@/hooks/web/useMessage';
 
 const { createConfirm } = useMessage();
 enum Api {
-  getAreaListPageApi = '/bems/lighting/area/listPage',
+  getAreaListPageApi = '/bems/lighting/area/listPage1',
   getAreaListAll = '/bems/lighting/area/all',
   getCircuitListPageApi = '/bems/lighting/circuit/listPage',
   getCircuitListAll = '/bems/lighting/circuit/all',
@@ -24,6 +24,7 @@ enum Api {
   getPlanTimeApi = '/bems/lighting/planExecutionTime/getByPlanId',
   enablePlanApi = '/bems/lighting/plan/enable',
   planDetailApi = '/bems/lighting/plan/detail',
+  allSpaceApi = '/bems/lighting/area/getAllSpace',
 }
 
 /**
@@ -128,3 +129,8 @@ export const executeNow = (params) => defHttp.post({ url: Api.executeNowApi, par
  * @param params
  */
 export const getRelName = (params) => defHttp.get({ url: Api.relNameApi, params });
+/**
+ * 获取全部区域
+ * @param params
+ */
+export const getAllSpace = () => defHttp.get({ url: Api.allSpaceApi });

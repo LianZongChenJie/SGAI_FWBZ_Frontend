@@ -48,7 +48,7 @@
   import { BasicColumn, BasicTable, FormSchema } from '/@/components/Table';
   import { useListPage } from '/@/hooks/system/useListPage';
   import { usePermissionStore } from '/@/store/modules/permission';
-  import { getAreaListPageApi, setAreaOpenApi, setAreaCloseApi, getRelName } from '../Standardized.api';
+  import { getAreaListPageApi, setAreaOpenApi, setAreaCloseApi, getRelName, getAllSpace } from '../Standardized.api';
   import VideoIframeModal from './VideoIframeModal.vue';
   import { message } from 'ant-design-vue';
   import LoopListModal from './LoopListModal.vue';
@@ -74,11 +74,16 @@
       key: 'relName',
     },
     {
-      title: '区域名称',
+      title: '区域',
+      dataIndex: 'spaceName',
+      key: 'spaceName',
+      sorter: (a, b) => a.spaceName.localeCompare(b.spaceName), // 自定义排序函数
+      sortDirections: ['ascend', 'descend'],
+    },
+    {
+      title: '名称',
       dataIndex: 'areaName',
       key: 'areaName',
-      sorter: (a, b) => a.areaName.localeCompare(b.areaName), // 自定义排序函数
-      sortDirections: ['ascend', 'descend'],
     },
     {
       title: '状态',
@@ -142,6 +147,21 @@
               labelField: 'label',
               valueField: 'value',
             },
+          },
+          {
+            label: '区域',
+            field: 'space',
+            component: 'ApiSelect',
+            componentProps: {
+              api: getAllSpace,
+              labelField: 'spaceName',
+              valueField: 'spaceId',
+            },
+          },
+          {
+            label: '名称',
+            field: 'areaName',
+            component: 'Input',
           },
         ],
       },
