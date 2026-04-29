@@ -123,7 +123,13 @@
       align: 'center',
     },
     {
-      title: '区域名称',
+      title: '区域',
+      dataIndex: 'spaceName',
+      key: 'spaceName',
+      align: 'center',
+    },
+    {
+      title: '名称',
       dataIndex: 'areaName',
       key: 'areaName',
       align: 'center',
