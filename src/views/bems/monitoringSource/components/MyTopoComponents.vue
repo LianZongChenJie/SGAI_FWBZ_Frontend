@@ -165,14 +165,14 @@
     deviceDataList.value = res;
     console.log('reHUiShou----------deviceDataList---------->', deviceDataList.value);
     const codeArr = res.map((item) => item.attributeCode);
-    console.log('reHUiShou----------codeArr---------->', props.deviceList);
+    console.log('reHUiShou----------codeArr---------->', props.deviceList, codeArr);
     isControlArr.value = props.deviceList.filter((item: any) => codeArr.includes(item.key));
     console.log('reHUiShou----------isControlArr----------->', isControlArr.value);
     isControlArr.value.forEach((item) => {
       for (let i = 0; i < deviceDataList.value.length; i++) {
         if (deviceDataList.value[i].attributeCode === item.key) {
           // item.value = Number(deviceDataList.value[i].value).toFixed(2)
-          item.unit = deviceDataList.value[i].unit;
+          // item.unit = deviceDataList.value[i].unit;
           item.id = deviceDataList.value[i].id;
           item.readwriteLevel = deviceDataList.value[i].readwriteLevel;
           item.valueConfig = JSON.parse(deviceDataList.value[i].valueConfig);
@@ -196,6 +196,7 @@
             }
             console.log('reHUiShou----------item.options---------->', item.options, item);
           } else {
+            console.log('reHUiShou----------item.value---------->', deviceDataList.value[i], Number(deviceDataList.value[i].value).toFixed(2));
             item.value = Number(deviceDataList.value[i].value).toFixed(2);
           }
           // item.value = deviceDataList.value[i].value
@@ -389,10 +390,12 @@
       return 0;
     }; // 禁止选中
     gv.value.deserialize(`storage/displays/jinAnQiao/${props.path}`, function (json, dm, gv, data) {
+      console.log('reHUiShou----------json---------->', json, dm, gv, deviceCode.value);
       // let targetNode = dm.getDataByTag(`1AA16Modal`);
       dm.getDataByTag(`deviceCode`).a('deviceCode', deviceCode.value);
       dm.getDataByTag(`deviceCode`).a('deviceCode', deviceCode.value);
       isControlArr.value.forEach((item, index) => {
+        console.log('reHUiShou----------itema---------->', item, dm.getDataByTag(item.code));
         dm.getDataByTag(item.code).a(item.valueKey, item.value + (item.unit ? item.unit : ''));
         // console.log('reHUiShou--------------------->', item.code, item.valueKey);
       });
