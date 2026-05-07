@@ -56,7 +56,7 @@
 <script setup lang="ts">
   import { ExpandOutlined, CompressOutlined } from '@ant-design/icons-vue';
   import FullScreenModal from './FullScreenModal.vue';
-  import { ref, onMounted, nextTick } from 'vue';
+  import { ref, onMounted, onUnmounted, nextTick } from 'vue';
   import { findSpaceDeviceByCategoryldApi, getByDeviceIdApi, controlDeviceApi } from '../Standardized.api';
   import { message } from 'ant-design-vue';
 
@@ -138,11 +138,14 @@
 
   const topoPath = ref<any>('');
   const deviceCode = ref<string>('');
+  const currentDeviceId = ref<string>('');
+  let refreshTimer: ReturnType<typeof setInterval> | null = null;
 
   const modalTitle = ref('');
 
   const handleSelect = (keys, e, selectedNodes) => {
     if (keys[0].includes('d')) {
+      currentDeviceId.value = keys[0];
       deviceCode.value = getPathByKey(keys[0]).split('/').join('-');
       getByDeviceId(keys[0]);
     }
@@ -154,7 +157,7 @@
     // initEvent();
   };
 
-  const getByDeviceId = async (id) => {
+  const getByDeviceId = async (id, refreshTopo = true) => {
     let res = await getByDeviceIdApi({
       deviceId: id.split('d')[1],
     });
@@ -199,7 +202,11 @@
         }
       }
     });
-    initEvent();
+    if (refreshTopo) {
+      initEvent();
+    } else {
+      updateTopoData();
+    }
   };
 
   const container = ref();
@@ -335,6 +342,18 @@
   onMounted(async () => {
     topoPath.value = props.path;
     await findSpaceDeviceByCategoryld();
+    refreshTimer = setInterval(() => {
+      if (currentDeviceId.value) {
+        getByDeviceId(currentDeviceId.value, false);
+      }
+    }, 6000);
+  });
+
+  onUnmounted(() => {
+    if (refreshTimer) {
+      clearInterval(refreshTimer);
+      refreshTimer = null;
+    }
   });
 
   // 清除拓扑图内容
@@ -420,6 +439,22 @@
       });
 
       gv.fitContent(); // 适配内容
+    });
+  };
+
+  const updateTopoData = () => {
+    if (!dm.value) return;
+
+    const deviceCodeNode = dm.value.getDataByTag(`deviceCode`);
+    if (deviceCodeNode) {
+      deviceCodeNode.a('deviceCode', deviceCode.value);
+    }
+
+    isControlArr.value.forEach((item) => {
+      const targetNode = dm.value.getDataByTag(item.code);
+      if (targetNode) {
+        targetNode.a(item.valueKey, item.value + (item.unit ? item.unit : ''));
+      }
     });
   };
 
