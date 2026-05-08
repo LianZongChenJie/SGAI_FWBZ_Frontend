@@ -233,6 +233,7 @@
     let res = await getPlanListApi({
       year: year.value,
       orgCode: orgCode.value,
+      sheetName: '天系统',
       pageNo: currentPage.value,
       pageSize: pageSize.value,
     });

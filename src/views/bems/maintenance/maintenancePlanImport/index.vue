@@ -49,6 +49,12 @@
           <el-button size="default" type="primary" @click="generateTasks">批量生成维保任务</el-button>
           <!-- <el-button size="default" type="primary" :icon="Delete" @click="deletePlanEvent()" v-permission="'daoru-del'">删除计划</el-button> -->
         </div>
+        <el-tabs v-model="activeName" type="card" class="demo-tabs" @tab-click="handleClick">
+          <el-tab-pane label="空水系统" name="空水系统" />
+          <el-tab-pane label="强电系统" name="强电系统" />
+          <el-tab-pane label="弱电系统" name="弱电系统" />
+          <el-tab-pane label="综合部分" name="综合部分" />
+        </el-tabs>
         <el-table
           ref="multiLevelTable"
           class="multi-level-header"
@@ -56,6 +62,7 @@
           :span-method="objectSpanMethod"
           tooltip-effect="dark"
           border
+          height="600px"
           v-loading="loading"
         >
           <el-table-column type="index" label="序号" width="55" align="center" />
@@ -102,7 +109,7 @@
             </template>
           </el-table-column> -->
         </el-table>
-        <el-pagination
+        <!-- <el-pagination
           v-model:current-page="currentPage"
           v-model:page-size="pageSize"
           :page-sizes="[10, 20, 30, 40]"
@@ -112,7 +119,7 @@
           style="margin-top: 10px; float: right"
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-        />
+        /> -->
       </el-main>
     </el-container>
     <!-- 导入计划弹出框 -->
@@ -196,6 +203,7 @@
   const size = ref<ComponentSize>('default');
   const errorMessage = ref('');
   const totalNum = ref(0);
+  const activeName = ref('空水系统');
   const searchForm = ref<{
     year: string;
     orgCode: string;
@@ -244,7 +252,16 @@
     rowIndex: number;
     columnIndex: number;
   }
-  const mergeFields = ['planName', 'systemName', 'maintenanceCycle', 'cycleUnit']; // 👉 按顺序（很重要！）
+  const mergeFields = [
+    'systemMain',
+    'systemSub',
+    'componentCategory',
+    'installationLocation',
+    'serviceArea',
+    'maintenanceItems',
+    'suggestedFrequency',
+    'responsiblePerson',
+  ]; // 👉 按顺序（很重要！）
 
   const objectSpanMethod = ({ row, column, rowIndex }) => {
     const field = column.property;
@@ -312,8 +329,7 @@
     let res = await getPlanListApi({
       year: year.value,
       orgCode: orgCode.value,
-      pageNo: currentPage.value,
-      pageSize: pageSize.value,
+      sheetName: activeName.value,
     });
     if (res) {
       let tHeader = res.tableHeader.children || [];
@@ -331,7 +347,10 @@
     }
     loading.value = false;
   };
-
+  const handleClick = (tab) => {
+    activeName.value = tab.paneName;
+    getPlanList();
+  };
   const search = async () => {
     // page.value = 1
     await getPlanList();
@@ -407,6 +426,7 @@
     data.append('file', fileList.value[0].raw);
     data.append('year', importYear.value);
     data.append('orgCode', importOrgCode.value);
+    data.append('sheetName', activeName.value);
     saving.value = true;
     let res = await importTemplateApi(data);
     saving.value = false;

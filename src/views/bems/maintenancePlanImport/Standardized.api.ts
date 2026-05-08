@@ -3,7 +3,7 @@ import { useMessage } from '/@/hooks/web/useMessage';
 
 const { createConfirm } = useMessage();
 enum Api {
-  getPlanListApi = '/deviceMaintenance/maintenancePlan/tableView',
+  getPlanListApi = '/deviceMaintenance/workPlan/query',
   importTemplateApi = '/deviceMaintenance/maintenancePlan/import',
   exportTemplateApi = '/deviceMaintenance/maintenancePlan/template',
   getFiledConfigApi = '/deviceMaintenance/orgFieldConfig/org/',

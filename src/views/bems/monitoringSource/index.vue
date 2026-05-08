@@ -307,7 +307,6 @@
       valueKey: 'shiDu',
       isSelect: false,
       isTransfor: false,
-      unit:'%RH'
     },
     {
       key: 'SA_TEMP',
@@ -324,7 +323,6 @@
       valueKey: 'shiDu',
       isSelect: false,
       isTransfor: false,
-      unit:'%RH'
     },
     {
       key: 'VALVE_OPENING',
@@ -333,7 +331,6 @@
       valueKey: 'kaiDu',
       isSelect: false,
       isTransfor: false,
-      unit:'%'
     },
     {
       key: 'VALVE_FEEDBACK',
@@ -473,7 +470,6 @@
       valueKey: 'shiDu',
       isSelect: false,
       isTransfor: false,
-      unit:'%RH'
     },
     {
       key: 'OA_TEMP',
@@ -490,7 +486,6 @@
       valueKey: 'shiDu',
       isSelect: false,
       isTransfor: false,
-      unit:'%RH'
     },
     {
       key: 'SA_TEMP',
@@ -507,7 +502,6 @@
       valueKey: 'shiDu',
       isSelect: false,
       isTransfor: false,
-      unit:'%RH'
     },
     {
       key: 'VALVE_OPENING',
