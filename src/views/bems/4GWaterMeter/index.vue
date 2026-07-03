@@ -64,13 +64,13 @@
             &nbsp;
             <a-button type="primary" :icon="h(VerticalAlignBottomOutlined)" @click="handleExport">导出</a-button>
             &nbsp;
-            <a-button v-if="props.categoryId === '29'" type="primary" :icon="h(VerticalAlignBottomOutlined)" @click="downloadReport">报表</a-button>
+            <a-button v-if="props.categoryId === '45'" type="primary" :icon="h(VerticalAlignBottomOutlined)" @click="downloadReport">报表</a-button>
             &nbsp;
-            <a-button v-if="props.categoryId !== '29'" type="primary" :icon="h(VerticalAlignBottomOutlined)" @click="downloadReportDian('2')"
+            <a-button v-if="props.categoryId !== '45'" type="primary" :icon="h(VerticalAlignBottomOutlined)" @click="downloadReportDian('2')"
               >报表</a-button
             >
             &nbsp;
-            <a-button v-if="props.categoryId !== '29'" type="primary" :icon="h(VerticalAlignBottomOutlined)" @click="downloadReportDian('3')"
+            <a-button v-if="props.categoryId !== '45'" type="primary" :icon="h(VerticalAlignBottomOutlined)" @click="downloadReportDian('3')"
               >配电室报表</a-button
             >
           </a-form-item>
@@ -113,7 +113,7 @@
   const props = defineProps({
     categoryId: {
       type: String,
-      default: '29',
+      default: '45',
     },
   });
 
@@ -374,7 +374,7 @@
       startTime: formState.value.startTime ? formState.value.startTime.split(' ')[0] + ' 00:00:00' : null,
       endTime: formState.value.endTime ? formState.value.endTime.split(' ')[0] + ' 23:59:59' : null,
       categoryId: props.categoryId,
-      convertInteger: props.categoryId === '29' ? '1' : undefined,
+      convertInteger: props.categoryId === '45' ? '1' : undefined,
     };
     let res: any;
     res = await getList(params);
@@ -507,7 +507,7 @@
       categoryId: props.categoryId,
       startTime: formState.value.startTime ? formState.value.startTime.split(' ')[0] + ' 00:00:00' : null,
       endTime: formState.value.endTime ? formState.value.endTime.split(' ')[0] + ' 23:59:59' : null,
-      convertInteger: props.categoryId === '29' ? '1' : undefined,
+      convertInteger: props.categoryId === '45' ? '1' : undefined,
     });
     let name = '4G水表';
     let blobOptions = { type: 'application/vnd.ms-excel' };
@@ -528,10 +528,10 @@
       ...formState.value,
       startTime: formState.value.startTime ? formState.value.startTime.split(' ')[0] + ' 00:00:00' : null,
       endTime: formState.value.endTime ? formState.value.endTime.split(' ')[0] + ' 23:59:59' : null,
-      convertInteger: props.categoryId === '29' ? '1' : undefined,
-      templateId: props.categoryId === '29' ? '1' : '2,3',
+      convertInteger: props.categoryId === '45' ? '1' : undefined,
+      templateId: props.categoryId === '45' ? '1' : '2,3',
     });
-    let name = props.categoryId === '29' ? '4G水表报表' : '低压配电报表';
+    let name = props.categoryId === '45' ? '4G水表报表' : '低压配电报表';
     let blobOptions = { type: 'application/vnd.ms-excel' };
     let fileSuffix = '.xlsx';
     let url = window.URL.createObjectURL(new Blob([res], blobOptions));
@@ -550,7 +550,7 @@
       ...formState.value,
       startTime: formState.value.startTime ? formState.value.startTime.split(' ')[0] + ' 00:00:00' : null,
       endTime: formState.value.endTime ? formState.value.endTime.split(' ')[0] + ' 23:59:59' : null,
-      convertInteger: props.categoryId === '29' ? '1' : undefined,
+      convertInteger: props.categoryId === '45' ? '1' : undefined,
       templateId: key,
     });
     let name = '';
