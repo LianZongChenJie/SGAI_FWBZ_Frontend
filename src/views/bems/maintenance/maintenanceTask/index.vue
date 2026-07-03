@@ -42,6 +42,7 @@
           <el-table-column label="操作" width="120" align="center" fixed="right">
             <template #default="{ row }">
               <el-button v-if="row.nodeTypeName === '周次'" link type="primary" size="small" @click="handleWeekDetail(row)">周工作计划</el-button>
+              <el-button v-else-if="row.nodeTypeName === '文件分类'" link type="primary" size="small" @click="handleUploadFromClassification(row)">上传文件</el-button>
               <el-popconfirm v-else-if="row.recordId" title="确认删除该记录？" @confirm="handleDelete(row)">
                 <template #reference>
                   <el-button link type="danger" size="small">删除</el-button>
@@ -78,10 +79,10 @@
           <el-input v-model="addForm.year" disabled />
         </el-form-item>
         <el-form-item label="周次" prop="weekNumber">
-          <el-input-number v-model="addForm.weekNumber" :min="1" :max="53" controls-position="right" style="width: 100%" />
+          <el-input-number v-model="addForm.weekNumber" :min="1" :max="53" controls-position="right" style="width: 100%" :disabled="lockContext" />
         </el-form-item>
         <el-form-item label="文件类型" prop="fileType">
-          <el-select v-model="addForm.fileType" placeholder="请选择文件类型" style="width: 100%">
+          <el-select v-model="addForm.fileType" placeholder="请选择文件类型" style="width: 100%" :disabled="lockContext">
             <el-option v-for="item in fileTypeOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
@@ -157,6 +158,7 @@
     orgCode?: string;
     month?: number;
     weekNumber?: number;
+    fileType?: FileType;
     forecastCount?: number;
     jobInstructionCount?: number;
     completionCount?: number;
@@ -184,6 +186,7 @@
   const addVisible = ref(false);
   const addSaving = ref(false);
   const addFormRef = ref();
+  const lockContext = ref(false);
 
   const orgCode = ref('');
   const orgTree = ref<any[]>([]);
@@ -222,10 +225,11 @@
   const fileTypeMap: Array<{
     field: 'forecastFiles' | 'jobInstructionFiles' | 'completionFiles';
     label: string;
+    value: FileType;
   }> = [
-    { field: 'forecastFiles', label: '实施预报表' },
-    { field: 'jobInstructionFiles', label: '作业书' },
-    { field: 'completionFiles', label: '完成表' },
+    { field: 'forecastFiles', label: '实施预报表', value: 'FORECAST' },
+    { field: 'jobInstructionFiles', label: '作业书', value: 'JOB_INSTRUCTION' },
+    { field: 'completionFiles', label: '完成表', value: 'COMPLETION' },
   ];
 
   const normalizeResult = (res) => {
@@ -273,6 +277,10 @@
                 id: `${weekId}-${type.field}`,
                 name: `${type.label}（${files.length}）`,
                 nodeTypeName: '文件分类',
+                year: searchForm.value.year,
+                orgCode: orgCode.value,
+                weekNumber: weekItem.weekNumber,
+                fileType: type.value,
                 children: buildFileNodes(files, `${weekId}-${type.field}`, type.label),
               };
             }),
@@ -320,6 +328,18 @@
     addForm.weekNumber = undefined;
     addForm.fileType = '';
     addForm.fileUrl = '';
+    lockContext.value = false;
+    addVisible.value = true;
+  };
+
+  // 从「文件分类」行进入：上下文已确定，锁定周次与文件类型，仅上传文件
+  const handleUploadFromClassification = (row: TreeNode) => {
+    addForm.year = row.year || searchForm.value.year;
+    addForm.orgCode = row.orgCode || orgCode.value;
+    addForm.weekNumber = row.weekNumber;
+    addForm.fileType = row.fileType || '';
+    addForm.fileUrl = '';
+    lockContext.value = true;
     addVisible.value = true;
   };
 
