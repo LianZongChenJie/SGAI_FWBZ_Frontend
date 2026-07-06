@@ -1,12 +1,19 @@
 {
-  "modified": "Fri Jan 23 2026 16:40:03 GMT+0800 (中国标准时间)",
+  "modified": "Mon Jul 06 2026 16:16:07 GMT+0800 (中国标准时间)",
+  "dataBindings": [
+    {
+      "attr": "deviceCode",
+      "valueType": "String",
+      "name": "名称"
+    }
+  ],
   "gridEnabled": true,
   "width": 200,
   "height": 100,
   "comps": [
     {
       "type": "image",
-      "name": "storage/symbols/Building Control Major/HVAC/Inverter fan2.json",
+      "name": "symbols/Building Control Major/HVAC/Inverter fan2.json",
       "pixelPerfect": true,
       "displayName": "Inverter fan2",
       "rect": [
@@ -74,6 +81,7 @@
       "borderWidth": 1,
       "borderColor": "#979797",
       "pixelPerfect": true,
+      "displayName": "Rectangle",
       "rect": [
         116.46807,
         59,
@@ -82,46 +90,18 @@
       ]
     },
     {
-      "type": "storage/components/lengYuan/baoJing.json",
-      "displayName": "baoJing",
-      "rect": [
-        35,
-        1,
-        100,
-        20
-      ],
-      "value": {
+      "type": "text",
+      "text": {
         "func": "attr@deviceCode",
-        "value": "A2-PF-F4-01"
-      }
-    },
-    {
-      "type": "storage/components/lengYuan/baoJing.json",
-      "displayName": "baoJing",
+        "value": "Text"
+      },
+      "align": "center",
       "rect": [
-        120,
-        33,
-        100,
-        20
-      ],
-      "value": {
-        "func": "attr@szd",
-        "value": "off"
-      }
-    },
-    {
-      "type": "storage/components/lengYuan/baoJing.json",
-      "displayName": "baoJing",
-      "rect": [
-        121,
-        60.28065,
-        100,
-        20
-      ],
-      "value": {
-        "func": "attr@qtkz",
-        "value": "off"
-      }
+        3,
+        0.67268,
+        191,
+        16.32732
+      ]
     }
   ]
 }

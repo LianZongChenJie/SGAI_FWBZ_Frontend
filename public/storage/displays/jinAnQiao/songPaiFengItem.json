@@ -10,7 +10,7 @@
   "d": [
     {
       "c": "ht.Node",
-      "i": 16328,
+      "i": 1960,
       "p": {
         "displayName": "fengJi",
         "tag": "spfjItem",
@@ -23,7 +23,7 @@
     },
     {
       "c": "ht.Node",
-      "i": 16483,
+      "i": 1961,
       "p": {
         "displayName": "Inverter fan2",
         "tag": "fan1",
@@ -36,13 +36,39 @@
         "height": 60.62607,
         "tall": 20
       }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1962,
+      "p": {
+        "displayName": "baoJing",
+        "tag": "szd",
+        "image": "storage/symbols/jinAnQiao/baoJing.json",
+        "position": {
+          "x": 490.8481,
+          "y": 179.06329
+        }
+      }
+    },
+    {
+      "c": "ht.Node",
+      "i": 1963,
+      "p": {
+        "displayName": "baoJing",
+        "tag": "qtkz",
+        "image": "storage/symbols/jinAnQiao/baoJing.json",
+        "position": {
+          "x": 490.96203,
+          "y": 206.41772
+        }
+      }
     }
   ],
-  "modified": "Tue Mar 17 2026 15:00:25 GMT+0800 (中国标准时间)",
+  "modified": "Mon Jul 06 2026 15:46:46 GMT+0800 (中国标准时间)",
   "contentRect": {
     "x": 335.99265,
-    "y": 136.35572,
-    "width": 200,
-    "height": 100
+    "y": 79.06329,
+    "width": 254.96938,
+    "height": 227.35443
   }
 }

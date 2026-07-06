@@ -3,19 +3,17 @@
     <div class="device-topo-box">
       <div ref="container" class="topo-box"> </div>
       <div class="full-screen" @click="fullScreen(1)"> <ExpandOutlined />&ensp;全屏查看 </div>
-      <div v-show="isShow" class="control-div" :style="{ top: targetTop, left: targetLeft }">
+      <!-- <div v-show="isShow" class="control-div" :style="{ top: targetTop, left: targetLeft ,zIndex:1000}">
         <div class="title-box"> {{ modalTitle }}: </div>
         <div class="select-box">
-          <a-select v-model:value="isOpen" style="width: 100%">
-            <a-select-option value="1">on</a-select-option>
-            <a-select-option value="0">off</a-select-option>
-          </a-select>
+          <a-select v-model:value="isOpen" :options="selectOptions" style="width: 100%" />
+            
         </div>
         <div class="button-box">
           <a-button @click="cancel">取消</a-button>
           <a-button type="primary" @click="submitControl">确定</a-button>
         </div>
-      </div>
+      </div> -->
     </div>
     <FullScreenModal2 :path="props.path" ref="fullScreenModalRef" :isControlArr="isControlArr" />
   </div>
@@ -27,13 +25,13 @@
   import { ref, onMounted, nextTick, watch } from 'vue';
   import { findSpaceDeviceByCategoryldApi, getByDeviceIdApi } from '../Standardized.api';
   import { message } from 'ant-design-vue';
-
+  const emit = defineEmits(['controlHandle']);
   const songPaiFengJi = [
     {
       key: 'AUTO_MANUAL_STATUS',
       name: '手自动',
       code: 'szd',
-      valueKey: 'wenDu',
+      valueKey: 'baoJing',
       isTransfor: true,
       options: [
         {
@@ -50,7 +48,7 @@
       key: 'START_STOP_CTRL',
       name: '启停控制',
       code: 'qtkz',
-      valueKey: 'wenDu',
+      valueKey: 'baoJing',
       isTransfor: true,
       options: [
         {
@@ -153,7 +151,7 @@
   const fullScreenModalRef = ref();
   const isControlArr = ref<any>([]);
   const deviceDataList = ref<any>([]);
-
+    const selectOptions = ref<any>([]);
   const checkedKeys = ref<string[]>(['2']);
 
   const topoPath = ref<any>('');
@@ -261,12 +259,19 @@
       if (props.path === 'songPaiFengItem.json') {
         dm.getDataByTag('spfjItem').a('deviceCode', props.deviceCode);
         // dm.getDataByTag('spfjItem').a('szd', deviceDataList.value.find(item => item.attributeCode === 'AUTO_MANUAL_STATUS').value + ((deviceDataList.value.find(item => item.attributeCode === 'AUTO_MANUAL_STATUS').unit) ? deviceDataList.value.find(item => item.attributeCode === 'AUTO_MANUAL_STATUS').unit : ''))
-        if (deviceDataList.value.find((item) => item.attributeCode === 'AUTO_MANUAL_STATUS').value === '0') {
-          dm.getDataByTag('spfjItem').a('szd', '手动');
-        } else {
-          dm.getDataByTag('spfjItem').a('szd', '自动');
-        }
+        // if (deviceDataList.value.find((item) => item.attributeCode === 'AUTO_MANUAL_STATUS').value === '0') {
+        //   dm.getDataByTag('spfjItem').a('szd', '手动');
+        // } else {
+        //   dm.getDataByTag('spfjItem').a('szd', '自动');
+        // }
         // dm.getDataByTag('spfjItem').a('qtkz', deviceDataList.value.find(item => item.attributeCode === 'START_STOP_CTRL').value + (deviceDataList.value.find(item => item.attributeCode === 'START_STOP_CTRL').unit ? deviceDataList.value.find(item => item.attributeCode === 'START_STOP_CTRL').unit : ''))
+        isControlArr.value.forEach((item, index) => {
+        if(item.code=='szd'||item.code=='qtkz'){
+          dm.getDataByTag(item.code).a(item.valueKey, item.value + (item.unit ? item.unit : ''));
+        }
+        
+        // console.log('reHUiShou--------------------->', item.code, item.valueKey);
+      });
         if (deviceDataList.value.find((item) => item.attributeCode === 'START_STOP_CTRL').value === '0') {
           dm.getDataByTag('spfjItem').a('qtkz', '启动');
         } else {
@@ -320,6 +325,7 @@
       }
 
       gv.mi(function (e) {
+        isShow.value=false
         if (e.kind === 'clickData' && e.data && isControlArr.value.find((item) => item.code === e.data._tag).readwriteLevel === '1') {
           const targetItem = isControlArr.value.find((item) => item.code === e.data._tag);
           modalTitle.value = targetItem.name;
@@ -329,6 +335,9 @@
           targetTop.value = e.event.layerY + 'px';
           targetLeft.value = e.event.layerX + 'px';
           isOpen.value = targetItem.value;
+          selectOptions.value = targetItem.options;
+          console.log(e);
+          emit('controlHandle', {targetTop:(e.event.clientY-150) + 'px',targetLeft:(e.event.clientX-300) + 'px',...targetItem});
         } else {
           isShow.value = false;
         }
@@ -386,7 +395,7 @@
       position: relative;
       margin: 0 auto;
       /* 居中显示 */
-      overflow: hidden;
+      overflow: visible;
       position: relative;
 
       .topo-box {
