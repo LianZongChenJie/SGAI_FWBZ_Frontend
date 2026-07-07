@@ -151,7 +151,7 @@
   const fullScreenModalRef = ref();
   const isControlArr = ref<any>([]);
   const deviceDataList = ref<any>([]);
-    const selectOptions = ref<any>([]);
+  const selectOptions = ref<any>([]);
   const checkedKeys = ref<string[]>(['2']);
 
   const topoPath = ref<any>('');
@@ -266,16 +266,18 @@
         // }
         // dm.getDataByTag('spfjItem').a('qtkz', deviceDataList.value.find(item => item.attributeCode === 'START_STOP_CTRL').value + (deviceDataList.value.find(item => item.attributeCode === 'START_STOP_CTRL').unit ? deviceDataList.value.find(item => item.attributeCode === 'START_STOP_CTRL').unit : ''))
         isControlArr.value.forEach((item, index) => {
-        if(item.code=='szd'||item.code=='qtkz'){
-          dm.getDataByTag(item.code).a(item.valueKey, item.value + (item.unit ? item.unit : ''));
-        }
-        
-        // console.log('reHUiShou--------------------->', item.code, item.valueKey);
-      });
+          if (item.code == 'szd' || item.code == 'qtkz') {
+            dm.getDataByTag(item.code).a(item.valueKey, item.value + (item.unit ? item.unit : ''));
+          }
+
+          // console.log('reHUiShou--------------------->', item.code, item.valueKey);
+        });
         if (deviceDataList.value.find((item) => item.attributeCode === 'START_STOP_CTRL').value === '0') {
           dm.getDataByTag('spfjItem').a('qtkz', '启动');
+          dm.getDataByTag('fan1').a('qtkz', '启动');
         } else {
           dm.getDataByTag('spfjItem').a('qtkz', '停止');
+          dm.getDataByTag('fan1').a('qtkz', '停止');
         }
         dm.getDataByTag('spfjItem').a(
           'yxzt',
@@ -325,7 +327,7 @@
       }
 
       gv.mi(function (e) {
-        isShow.value=false
+        isShow.value = false;
         if (e.kind === 'clickData' && e.data && isControlArr.value.find((item) => item.code === e.data._tag).readwriteLevel === '1') {
           const targetItem = isControlArr.value.find((item) => item.code === e.data._tag);
           modalTitle.value = targetItem.name;
@@ -337,7 +339,7 @@
           isOpen.value = targetItem.value;
           selectOptions.value = targetItem.options;
           console.log(e);
-          emit('controlHandle', {targetTop:(e.event.clientY-150) + 'px',targetLeft:(e.event.clientX-300) + 'px',...targetItem});
+          emit('controlHandle', { targetTop: e.event.clientY - 150 + 'px', targetLeft: e.event.clientX - 300 + 'px', ...targetItem });
         } else {
           isShow.value = false;
         }
