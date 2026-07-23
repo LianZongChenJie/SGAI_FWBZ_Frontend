@@ -179,22 +179,33 @@
     console.log('isControlArr.value---------------->', isControlArr.value);
     isControlArr.value.forEach((item) => {
       for (let i = 0; i < deviceDataList.value.length; i++) {
+        console.log('deviceDataList.value[i]---------------->', deviceDataList.value[i], deviceDataList.value[i].valueConfig);
         if (deviceDataList.value[i].attributeCode === item.key) {
           item.value = deviceDataList.value[i].value;
           item.unit = deviceDataList.value[i].unit;
           item.id = deviceDataList.value[i].id;
           item.readwriteLevel = deviceDataList.value[i].readwriteLevel;
           // item.value = deviceDataList.value[i].value
-          if (item.isTransfor) {
-            item.value = deviceDataList.value[i].value;
-            for (let j = 0; j < 2; j++) {
-              if (item.value === item.options[j].value) {
-                item.value = item.options[j].label;
+          if (deviceDataList.value[i].valueConfig) {
+            item.options = JSON.parse(deviceDataList.value[i].valueConfig);
+            item.options.forEach((j: any) => {
+              if (item.value == j.key) {
+                item.label = j.value;
               }
-            }
+            });
           } else {
-            item.value = Number(deviceDataList.value[i].value).toFixed(2);
+            item.label = Number(deviceDataList.value[i].value).toFixed(2);
           }
+          // if (item.isTransfor) {
+          //   item.value = deviceDataList.value[i].value;
+          //   for (let j = 0; j < 2; j++) {
+          //     if (item.value === item.options[j].value) {
+          //       item.value = item.options[j].label;
+          //     }
+          //   }
+          // } else {
+          //   item.value = Number(deviceDataList.value[i].value).toFixed(2);
+          // }
         }
       }
     });
@@ -266,8 +277,9 @@
         // }
         // dm.getDataByTag('spfjItem').a('qtkz', deviceDataList.value.find(item => item.attributeCode === 'START_STOP_CTRL').value + (deviceDataList.value.find(item => item.attributeCode === 'START_STOP_CTRL').unit ? deviceDataList.value.find(item => item.attributeCode === 'START_STOP_CTRL').unit : ''))
         isControlArr.value.forEach((item, index) => {
+          console.log('items---------------->', item);
           if (item.code == 'szd' || item.code == 'qtkz') {
-            dm.getDataByTag(item.code).a(item.valueKey, item.value + (item.unit ? item.unit : ''));
+            dm.getDataByTag(item.code).a(item.valueKey, item.label + (item.unit ? item.unit : ''));
           }
 
           // console.log('reHUiShou--------------------->', item.code, item.valueKey);
@@ -336,7 +348,7 @@
           isShow.value = true;
           targetTop.value = e.event.layerY + 'px';
           targetLeft.value = e.event.layerX + 'px';
-          isOpen.value = targetItem.value;
+          isOpen.value = targetItem.label;
           selectOptions.value = targetItem.options;
           console.log(e);
           emit('controlHandle', { targetTop: e.event.clientY - 150 + 'px', targetLeft: e.event.clientX - 300 + 'px', ...targetItem });

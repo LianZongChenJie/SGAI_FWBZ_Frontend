@@ -26,17 +26,16 @@
         </div>
       </div>
     </div>
-    <div v-show="isShow" class="control-div" :style="{ top: targetTop, left: targetLeft ,zIndex:1000}">
-        <div class="title-box"> {{ modalTitle }}: </div>
-        <div class="select-box">
-          <a-select v-model:value="isOpen" :options="selectOptions" style="width: 100%" />
-            
-        </div>
-        <div class="button-box">
-          <a-button @click="cancel">取消</a-button>
-          <a-button type="primary" @click="submitControl">确定</a-button>
-        </div>
+    <div v-show="isShow" class="control-div" :style="{ top: targetTop, left: targetLeft, zIndex: 1000 }">
+      <div class="title-box"> {{ modalTitle }}: </div>
+      <div class="select-box">
+        <a-select v-model:value="isOpen" :fieldNames="{ label: 'value', value: 'key' }" :options="selectOptions" style="width: 100%" />
       </div>
+      <div class="button-box">
+        <a-button @click="cancel">取消</a-button>
+        <a-button type="primary" @click="submitControl">确定</a-button>
+      </div>
+    </div>
     <FullScreenModal :path="topoPath" ref="fullScreenModalRef" />
   </div>
 </template>
@@ -48,7 +47,7 @@
   import { ref, onMounted, nextTick } from 'vue';
   import { findSpaceDeviceByCategoryldApi, getByDeviceIdApi } from '../Standardized.api';
   import { message } from 'ant-design-vue';
-  import {  controlDeviceApi } from '../Standardized.api';
+  import { controlDeviceApi } from '../Standardized.api';
   const props = defineProps({
     path: {
       type: String,
@@ -155,8 +154,7 @@
     isOpen.value = data.value;
     selectOptions.value = data.options;
     deviceId.value = data.id;
-   
-  }
+  };
   const submitControl = async () => {
     let res = await controlDeviceApi({
       deviceAttributeId: deviceId.value,
@@ -166,15 +164,15 @@
       isShow.value = false;
       message.success('操作成功！');
     }
-  }
+  };
   const cancel = () => {
     isShow.value = false;
-  }
+  };
   onMounted(async () => {
     topoPath.value = props.path;
     await findSpaceDeviceByCategoryld();
   });
-  
+
   // 截断文本函数
   const truncateText = (text, length = 10) => {
     const maxLength = length;
@@ -186,39 +184,39 @@
 </script>
 
 <style scoped lang="less">
-.control-div {
-        padding: 3px 12px;
-        top: 100px;
-        left: 100px;
-        position: absolute;
-        height: 130px;
-        width: 200px;
-        border: 2px solid #adadad;
-        background-color: #fff;
+  .control-div {
+    padding: 3px 12px;
+    top: 100px;
+    left: 100px;
+    position: absolute;
+    height: 130px;
+    width: 200px;
+    border: 2px solid #adadad;
+    background-color: #fff;
 
-        > div {
-          height: 40px;
-          width: 100%;
-        }
+    > div {
+      height: 40px;
+      width: 100%;
+    }
 
-        .title-box {
-          display: flex;
-          align-items: center;
-          justify-content: flex-start;
-          font-size: 16px;
-        }
+    .title-box {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      font-size: 16px;
+    }
 
-        .select-box {
-          height: 40px;
-          width: 100%;
-        }
+    .select-box {
+      height: 40px;
+      width: 100%;
+    }
 
-        .button-box {
-          display: flex;
-          align-items: center;
-          justify-content: space-around;
-        }
-      }
+    .button-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+    }
+  }
   .my-topo-components-main-box {
     height: 84vh;
     padding: 0 12px;

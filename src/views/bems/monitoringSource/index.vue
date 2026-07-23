@@ -44,6 +44,9 @@
       <a-tab-pane key="14" tab="集水坑">
         <MyToPoComponent2 :path="'jiShuiKengItem.json'" :categoryId="'34'" :deviceList="jiShuiKeng" />
       </a-tab-pane>
+      <a-tab-pane key="15" tab="风机盘管">
+        <FJPG :categoryId="'40'" />
+      </a-tab-pane>
     </a-tabs>
   </div>
 </template>
@@ -56,6 +59,7 @@
   import PressureSensor from './components/PressureSensor.vue';
   import MyTopoComponents from './components/MyTopoComponents.vue';
   import MyToPoComponent2 from './components/MyToPoComponent2.vue';
+  import FJPG from './components/FJPG.vue';
   import { ref } from 'vue';
 
   const activeKey = ref('3');
