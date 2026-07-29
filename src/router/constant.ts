@@ -14,10 +14,6 @@ export const EXCEPTION_COMPONENT = () => import('/@/views/sys/exception/Exceptio
  */
 export const LAYOUT = () => import('/@/layouts/default/index.vue');
 
-/**
- * @description: bems layout - 左侧菜单 + 右侧面包屑+用户信息+内容区
- */
-export const BEMS_LAYOUT = () => import('/@/layouts/default/index.vue');
 
 /**
  * @description: parent-layout
