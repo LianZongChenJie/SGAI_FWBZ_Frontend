@@ -47,7 +47,7 @@ const handleClick = () => {
 
 <style scoped lang="less">
 .common-card {
-  min-width: 200px;
+  min-width: 220px;
   min-height: 140px;
   border-radius: 8px;
   cursor: pointer;
