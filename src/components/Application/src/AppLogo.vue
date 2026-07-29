@@ -7,7 +7,7 @@
     <!-- <img src="../../../assets/images/logo.png" /> -->
     <div class="ml-2 truncate md:opacity-100" :class="getTitleClass" v-show="showTitle">
       <!-- {{ shortTitle }} -->
-      金安桥智慧管控平台
+      会展小镇服务保障平台
     </div>
   </div>
 </template>

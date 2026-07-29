@@ -3,7 +3,6 @@ import { defHttp } from '/@/utils/http/axios';
 import { getDictItemsByCode } from '/@/utils/dict/index';
 import { useRouter, useRoute } from 'vue-router'
 import { useAppStore } from '/@/store/modules/app';
-import { useTabs } from '/@/hooks/web/useTabs';
 import { useModal } from '/@/components/Modal';
 import {useMessage} from "/@/hooks/web/useMessage";
 
@@ -163,7 +162,6 @@ export function useMessageHref(emit, props){
   const router = useRouter();
   const appStore = useAppStore();
   const rt = useRoute();
-  const { close: closeTab, closeSameRoute } = useTabs();
  // const defaultPath = '/monitor/mynews';
   //const bpmPath = '/task/handle/'
   
@@ -216,10 +214,8 @@ export function useMessageHref(emit, props){
     // 跳转路由
     appStore.setMessageHrefParams(query);
     if(rt.path.indexOf(path)>=0){
-      await closeTab();
       await router.replace({ path: path, query:{ time: new Date().getTime() } });
     }else{
-      closeSameRoute(path)
       await router.push({ path: path });
     }
   }

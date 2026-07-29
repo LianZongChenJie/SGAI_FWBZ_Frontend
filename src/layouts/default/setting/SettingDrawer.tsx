@@ -10,7 +10,6 @@ import { MenuTypeEnum, TriggerEnum } from '/@/enums/menuEnum';
 import { useRootSetting } from '/@/hooks/setting/useRootSetting';
 import { useMenuSetting } from '/@/hooks/setting/useMenuSetting';
 import { useHeaderSetting } from '/@/hooks/setting/useHeaderSetting';
-import { useMultipleTabSetting } from '/@/hooks/setting/useMultipleTabSetting';
 import { useTransitionSetting } from '/@/hooks/setting/useTransitionSetting';
 import { useI18n } from '/@/hooks/web/useI18n';
 
@@ -24,7 +23,6 @@ import {
   routerTransitionOptions,
   menuTypeList,
   mixSidebarTriggerOptions,
-  tabsThemeOptions,
 } from './enum';
 
 import { HEADER_PRESET_BG_COLOR_LIST, SIDE_BAR_BG_COLOR_LIST, APP_PRESET_COLOR_LIST } from '/@/settings/designSetting';
@@ -72,8 +70,6 @@ export default defineComponent({
     } = useMenuSetting();
 
     const { getShowHeader, getFixed: getHeaderFixed, getHeaderBgColor, getShowSearch } = useHeaderSetting();
-
-    const { getShowMultipleTab, getShowQuick, getShowRedo, getShowFold, getTabsTheme } = useMultipleTabSetting();
 
     const getShowMenuRef = computed(() => {
       return unref(getShowMenu) && !unref(getIsHorizontal);
@@ -183,7 +179,6 @@ export default defineComponent({
           {/*  options={mixSidebarTriggerOptions}*/}
           {/*  disabled={!unref(getIsMixSidebar)}*/}
           {/*/>*/}
-          <SelectItem title={t('layout.setting.tabsTheme')} event={HandlerEnum.TABS_THEME} def={unref(getTabsTheme)} options={tabsThemeOptions} />
           <SelectItem
             title={t('layout.setting.topMenuLayout')}
             event={HandlerEnum.MENU_TOP_ALIGN}
@@ -252,7 +247,6 @@ export default defineComponent({
               disabled={!unref(getShowMenuRef) || !unref(getCollapsed) || unref(getIsMixSidebar)}
             />
           }
-          <SwitchItem title={t('layout.setting.tabs')} event={HandlerEnum.TABS_SHOW} def={unref(getShowMultipleTab)} />
           <SwitchItem
             title={t('layout.setting.breadcrumb')}
             event={HandlerEnum.SHOW_BREADCRUMB}

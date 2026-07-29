@@ -1,4 +1,4 @@
-import { HandlerEnum, tabsThemeOptions} from './enum';
+import { HandlerEnum } from './enum';
 import { updateHeaderBgColor, updateSidebarBgColor } from '/@/logics/theme/updateBackground';
 import { updateColorWeak } from '/@/logics/theme/updateColorWeak';
 import { updateGrayMode } from '/@/logics/theme/updateGrayMode';
@@ -33,7 +33,7 @@ export function layoutHandler(event: HandlerEnum, value: any) {
       updateHeaderBgColor();
       updateSidebarBgColor();
     }
-    baseHandler(HandlerEnum.TABS_THEME, tabsThemeOptions[1].value);
+    // baseHandler(HandlerEnum.TABS_THEME, tabsThemeOptions[1].value);
   } else if (isMixMenu) {
     baseHandler(event, value);
     baseHandler(HandlerEnum.HEADER_THEME, HEADER_PRESET_BG_COLOR_LIST[4]);
@@ -43,7 +43,7 @@ export function layoutHandler(event: HandlerEnum, value: any) {
       updateSidebarBgColor();
     }
     baseHandler(HandlerEnum.CHANGE_THEME_COLOR, APP_PRESET_COLOR_LIST[1]);
-    baseHandler(HandlerEnum.TABS_THEME, tabsThemeOptions[1].value);
+    // baseHandler(HandlerEnum.TABS_THEME, tabsThemeOptions[1].value);
   } else if (isMixSidebarMenu) {
     baseHandler(event, value);
     baseHandler(HandlerEnum.CHANGE_THEME_COLOR, APP_PRESET_COLOR_LIST[1]);
@@ -53,7 +53,7 @@ export function layoutHandler(event: HandlerEnum, value: any) {
       updateHeaderBgColor();
       updateSidebarBgColor();
     }
-    baseHandler(HandlerEnum.TABS_THEME, tabsThemeOptions[1].value);
+    // baseHandler(HandlerEnum.TABS_THEME, tabsThemeOptions[1].value);
   } else {
     baseHandler(event, value);
     baseHandler(HandlerEnum.HEADER_THEME, HEADER_PRESET_BG_COLOR_LIST[4]);
@@ -63,7 +63,7 @@ export function layoutHandler(event: HandlerEnum, value: any) {
       updateSidebarBgColor();
     }
     baseHandler(HandlerEnum.CHANGE_THEME_COLOR, APP_PRESET_COLOR_LIST[1]);
-    baseHandler(HandlerEnum.TABS_THEME, tabsThemeOptions[1].value);
+    // baseHandler(HandlerEnum.TABS_THEME, tabsThemeOptions[1].value);
   }
 }
 
@@ -204,20 +204,20 @@ export function handler(event: HandlerEnum, value: any): DeepPartial<ProjectConf
       return { showLogo: value };
 
     // ============tabs==================
-    case HandlerEnum.TABS_SHOW_QUICK:
-      return { multiTabsSetting: { showQuick: value } };
+    // case HandlerEnum.TABS_SHOW_QUICK:
+    //   return { multiTabsSetting: { showQuick: value } };
 
-    case HandlerEnum.TABS_SHOW:
-      return { multiTabsSetting: { show: value } };
+    // case HandlerEnum.TABS_SHOW:
+    //   return { multiTabsSetting: { show: value } };
 
-    case HandlerEnum.TABS_SHOW_REDO:
-      return { multiTabsSetting: { showRedo: value } };
+    // case HandlerEnum.TABS_SHOW_REDO:
+    //   return { multiTabsSetting: { showRedo: value } };
 
-    case HandlerEnum.TABS_SHOW_FOLD:
-      return { multiTabsSetting: { showFold: value } };
+    // case HandlerEnum.TABS_SHOW_FOLD:
+    //   return { multiTabsSetting: { showFold: value } };
 
-    case HandlerEnum.TABS_THEME:
-      return { multiTabsSetting: { theme: value } };
+    // case HandlerEnum.TABS_THEME:
+    //   return { multiTabsSetting: { theme: value } };
 
     // ============header==================
     case HandlerEnum.HEADER_THEME:

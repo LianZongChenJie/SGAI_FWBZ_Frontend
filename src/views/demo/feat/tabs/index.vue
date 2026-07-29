@@ -25,7 +25,7 @@
 <script lang="ts">
   import { defineComponent, ref } from 'vue';
   import { CollapseContainer } from '/@/components/Container';
-  import { useTabs } from '/@/hooks/web/useTabs';
+  // import { useTabs } from '/@/hooks/web/useTabs';
   import { PageWrapper } from '/@/components/Page';
   import { Input, Alert } from 'ant-design-vue';
   import { useMessage } from '/@/hooks/web/useMessage';
@@ -37,28 +37,32 @@
     setup() {
       const go = useGo();
       const title = ref<string>('');
-      const { closeAll, closeLeft, closeRight, closeOther, closeCurrent, refreshPage, setTitle } = useTabs();
+      // const { closeAll, closeLeft, closeRight, closeOther, closeCurrent, refreshPage, setTitle } = useTabs();
       const { createMessage } = useMessage();
-      function setTabTitle() {
-        if (title.value) {
-          setTitle(title.value);
-        } else {
-          createMessage.error('请输入要设置的Tab标题！');
-        }
-      }
+      // function setTabTitle() {
+      //   if (title.value) {
+      //     setTitle(title.value);
+      //   } else {
+      //     createMessage.error('请输入要设置的Tab标题！');
+      //   }
+      // }
 
       function toDetail(index: number) {
         go(`/comp/basic/tabs/detail/${index}`);
       }
+      // return {
+      //   closeAll,
+      //   closeLeft,
+      //   closeRight,
+      //   closeOther,
+      //   closeCurrent,
+      //   toDetail,
+      //   refreshPage,
+      //   setTabTitle,
+      //   title,
+      // };
       return {
-        closeAll,
-        closeLeft,
-        closeRight,
-        closeOther,
-        closeCurrent,
         toDetail,
-        refreshPage,
-        setTabTitle,
         title,
       };
     },

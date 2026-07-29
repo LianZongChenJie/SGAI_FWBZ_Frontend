@@ -4,8 +4,6 @@ import { useAppStore } from '/@/store/modules/app';
 import { usePermissionStore } from '/@/store/modules/permission';
 import { useUserStore } from '/@/store/modules/user';
 
-import { useTabs } from './useTabs';
-
 import { router, resetRouter } from '/@/router';
 // import { RootRoute } from '/@/router/routes';
 
@@ -15,8 +13,6 @@ import { RoleEnum } from '/@/enums/roleEnum';
 
 import { intersection } from 'lodash-es';
 import { isArray } from '/@/utils/is';
-import { useMultipleTabStore } from '/@/store/modules/multipleTab';
-
 // User permissions related operations
 export function usePermission() {
   const userStore = useUserStore();
@@ -27,8 +23,6 @@ export function usePermission() {
   function initBpmFormData(_bpmFormData) {
     formData = _bpmFormData;
   }
-  const { closeAll } = useTabs(router);
-
   //==================================工作流权限判断-begin=========================================
   function hasBpmPermission(code, type) {
     // 禁用-type=2
@@ -61,15 +55,12 @@ export function usePermission() {
    * @param id
    */
   async function resume() {
-    const tabStore = useMultipleTabStore();
-    tabStore.clearCacheTabs();
     resetRouter();
     const routes = await permissionStore.buildRoutesAction();
     routes.forEach((route) => {
       router.addRoute(route as unknown as RouteRecordRaw);
     });
     permissionStore.setLastBuildMenuTime();
-    closeAll();
   }
 
   /**

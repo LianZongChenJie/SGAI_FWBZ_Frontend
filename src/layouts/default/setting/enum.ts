@@ -1,4 +1,4 @@
-import { TabsThemeEnum, ContentEnum, RouterTransitionEnum } from '/@/enums/appEnum';
+import { ContentEnum, RouterTransitionEnum } from '/@/enums/appEnum';
 import { MenuModeEnum, MenuTypeEnum, TopMenuAlignEnum, TriggerEnum, MixSidebarTriggerEnum } from '/@/enums/menuEnum';
 
 import { useI18n } from '/@/hooks/web/useI18n';
@@ -53,22 +53,6 @@ export enum HandlerEnum {
   OPEN_PAGE_LOADING,
   OPEN_ROUTE_TRANSITION,
 }
-
-// 标签页样式
-export const tabsThemeOptions = [
-  {
-    value: TabsThemeEnum.SMOOTH,
-    label: t('layout.setting.tabsThemeSmooth'),
-  },
-  {
-    value: TabsThemeEnum.CARD,
-    label: t('layout.setting.tabsThemeCard'),
-  },
-  {
-    value: TabsThemeEnum.SIMPLE,
-    label: t('layout.setting.tabsThemeSimple'),
-  },
-];
 
 export const contentModeOptions = [
   {

@@ -7,7 +7,6 @@ import { unref } from 'vue';
 import { useRouter } from 'vue-router';
 import { REDIRECT_NAME } from '/@/router/constant';
 import { useUserStore } from '/@/store/modules/user';
-import { useMultipleTabStore } from '/@/store/modules/multipleTab';
 
 export type RouteLocationRawEx = Omit<RouteLocationRaw, 'path'> & { path: PageEnum };
 
@@ -52,25 +51,6 @@ export const useRedo = (_router?: Router) => {
         resolve(false);
         return;
       }
-      // update-begin--author:liaozhiyang---date:20231123---for：【QQYUN-7099】动态路由匹配右键重新加载404
-      const tabStore = useMultipleTabStore();
-      if (name && Object.keys(params).length > 0) {
-        tabStore.setRedirectPageParam({
-          redirect_type: 'name',
-          name: String(name),
-          params,
-          query,
-        });
-        params['path'] = String(name);
-      } else {
-        tabStore.setRedirectPageParam({
-          redirect_type: 'path',
-          path: fullPath,
-          query,
-        });
-        params['path'] = fullPath;
-      }
-      // update-end--author:liaozhiyang---date:20231123---for：【QQYUN-7099】动态路由匹配右键重新加载404
       push({ name: REDIRECT_NAME, params, query }).then(() => resolve(true));
     });
   }
