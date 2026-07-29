@@ -37,7 +37,6 @@
 
       <UserDropDown :theme="getHeaderTheme" />
 
-      <SettingDrawer v-if="getShowSetting" :class="`${prefixCls}-action__item`" />
       <!-- ai助手 -->
       <!-- <Aide></Aide> -->
     </div>
@@ -61,14 +60,12 @@
   import { useRootSetting } from '/@/hooks/setting/useRootSetting';
 
   import { MenuModeEnum, MenuSplitTyeEnum } from '/@/enums/menuEnum';
-  import { SettingButtonPositionEnum } from '/@/enums/appEnum';
   import { AppLocalePicker } from '/@/components/Application';
 
   import { UserDropDown, LayoutBreadcrumb, FullScreen, Notify, ErrorAction, LockScreen } from './components';
   import { useAppInject } from '/@/hooks/web/useAppInject';
   import { useDesign } from '/@/hooks/web/useDesign';
 
-  import { createAsyncComponent } from '/@/utils/factory/createAsyncComponent';
   import { useLocale } from '/@/locales/useLocale';
 
   import LoginSelect from '/@/views/sys/login/LoginSelect.vue';
@@ -93,9 +90,6 @@
       ErrorAction,
       LockScreen,
       LoginSelect,
-      SettingDrawer: createAsyncComponent(() => import('/@/layouts/default/setting/index.vue'), {
-        loading: true,
-      }),
       Aide
     },
     props: {
@@ -105,7 +99,7 @@
       const { prefixCls } = useDesign('layout-header');
       const userStore = useUserStore();
       const { getShowTopMenu, getShowHeaderTrigger, getSplit, getIsMixMode, getMenuWidth, getIsMixSidebar } = useMenuSetting();
-      const { getUseErrorHandle, getShowSettingButton, getSettingButtonPosition } = useRootSetting();
+      const { getUseErrorHandle } = useRootSetting();
       const { title } = useGlobSetting();
 
       const {
@@ -115,7 +109,6 @@
         getShowContent,
         getShowBread,
         getShowHeaderLogo,
-        getShowHeader,
         getShowSearch,
         getUseLockPage,
         getShowBreadTitle,
@@ -135,18 +128,6 @@
             [`${prefixCls}--${theme}`]: theme,
           },
         ];
-      });
-
-      const getShowSetting = computed(() => {
-        if (!unref(getShowSettingButton)) {
-          return false;
-        }
-        const settingButtonPosition = unref(getSettingButtonPosition);
-
-        if (settingButtonPosition === SettingButtonPositionEnum.AUTO) {
-          return unref(getShowHeader);
-        }
-        return settingButtonPosition === SettingButtonPositionEnum.HEADER;
       });
 
       const getLogoWidth = computed(() => {
@@ -208,8 +189,6 @@
         getUseErrorHandle,
         getLogoWidth,
         getIsMixSidebar,
-        getShowSettingButton,
-        getShowSetting,
         getShowSearch,
         getUseLockPage,
         loginSelectOk,
@@ -247,14 +226,6 @@
       }
     }
 
-    &--dark {
-      .headerIntroductionClass {
-        color: rgba(255, 255, 255, 1);
-      }
-      .anticon, .truncate {
-        color: rgba(255, 255, 255, 1);
-      }
-    }
     //update-end---author:scott ---date::2022-09-30  for：默认隐藏顶部菜单面包屑--------------
   }
 </style>

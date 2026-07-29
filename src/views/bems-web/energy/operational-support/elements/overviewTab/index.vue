@@ -86,20 +86,30 @@
         />
       </div>
     </div>
+    <div class="control-panel">
+      <ControlPanel
+        title="🎮 远程控制面板"
+        tag="实时控制"
+        :ac-data="acData"
+        :lighting-data="lightingData"
+        @control="handleControl"
+      />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import StatCard from '/@/views/bems-web/components/StatCard/index.vue';
+import { ref, computed } from 'vue';
+import { StatCard, DeviceCard} from '/@/views/bems-web/components';
+import ControlPanel, { AcControlItem, LightingControlItem } from '../controlPanel/index.vue';
 
 import {
   ThunderboltOutlined,
   ShopOutlined,
   CloudOutlined,
   SettingOutlined,
-  AlertOutlined,
-  DollarOutlined,
+  BulbOutlined,
+
 } from '@ant-design/icons-vue'
 
 
@@ -112,7 +122,6 @@ const allData = [
   {
     title: '空调机组',
     meta: '楼控系统',
-    icon: TemperatureOutlined,
     iconBg: '#e6f4ff',
     iconColor: '#1677ff',
     stats: [
@@ -154,7 +163,6 @@ const allData = [
   {
     title: '给排水泵',
     meta: '楼控系统',
-    icon: DropboxOutlined,
     iconBg: '#e6fffb',
     iconColor: '#13c2c2',
     stats: [
@@ -168,7 +176,6 @@ const allData = [
   {
     title: '新风机组',
     meta: '楼控系统',
-    icon: WindOutlined,
     iconBg: '#f9f0ff',
     iconColor: '#722ed1',
     stats: [
@@ -182,7 +189,6 @@ const allData = [
   {
     title: '消防设备',
     meta: '消防系统',
-    icon: FireOutlined,
     iconBg: '#fff2f0',
     iconColor: '#ff4d4f',
     stats: [
@@ -196,7 +202,6 @@ const allData = [
   {
     title: '冷源机组',
     meta: '制冷系统',
-    icon: SnowOutlined,
     iconBg: '#e6f7ff',
     iconColor: '#0099cc',
     stats: [
@@ -210,7 +215,6 @@ const allData = [
   {
     title: '光伏设备',
     meta: '新能源',
-    icon: SunOutlined,
     iconBg: '#fff7e6',
     iconColor: '#fa8c16',
     stats: [
@@ -222,6 +226,21 @@ const allData = [
     venue: 'C馆'
   }
 ]
+
+const acData: AcControlItem[] = [
+  { id: '1', code: 'AC-A-01', location: 'A馆-F1-大厅', status: '运行', setTemp: '24°C' },
+  { id: '2', code: 'AC-A-02', location: 'A馆-F2-展厅', status: '运行', setTemp: '22°C' }
+]
+
+const lightingData: LightingControlItem[] = [
+  { id: '1', code: 'LT-A-101', location: 'A馆-F1-大厅', status: '开启', brightness: '80%' },
+  { id: '2', code: 'LT-A-102', location: 'A馆-F2-展厅', status: '开启', brightness: '100%' }
+]
+
+const handleControl = (type: 'ac' | 'lighting', record: any) => {
+  console.log(`控制 ${type}:`, record)
+  // TODO: 打开控制弹窗或发送控制指令
+}
 
 // ===== 筛选逻辑 =====
 const displayData = computed(() => {
@@ -306,6 +325,9 @@ const statData = {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 16px;
+  }
+  .device-overview, .control-panel {
+    margin-top: 20px;
   }
 }
 </style>

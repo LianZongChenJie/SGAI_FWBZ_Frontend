@@ -53,6 +53,8 @@ const emit = defineEmits<{
   click: []
 }>()
 
+console.log(props, 'props')
+
 // 是否存在高亮项（故障/告警）
 const hasError = computed(() => {
   return props.stats?.some((s) => s.highlight && Number(s.value) > 0) || false
@@ -64,14 +66,6 @@ const hasError = computed(() => {
   border-radius: 12px;
   transition: all 0.25s ease;
 
-  &:hover {
-    border-color: #1677ff;
-  }
-
-  // 有故障时边框变红
-  &.has-error {
-    border-color: #ff4d4f;
-  }
 
   // 覆盖 a-card 内部 padding
   :deep(.ant-card-body) {
