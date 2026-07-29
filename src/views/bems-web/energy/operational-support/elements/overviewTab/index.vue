@@ -50,6 +50,45 @@
         :icon="DollarOutlined"
       />
     </div>
+    <h2 class="page-title">普通卡片</h2>
+    <div class="card-list">
+    <CommonCard
+      :icon="SafetyOutlined"
+      title="韧性安全"
+      to="/dashboard/analysis"
+      icon-bg-color="#e6f7ff"
+    />
+    <CommonCard
+      :icon="BulbOutlined"
+      title="节能低碳"
+      to="/task/myHandleTaskInfo"
+      icon-bg-color="#f6ffed"
+    />
+    <CommonCard
+      :icon="GlobalOutlined"
+      title="物联网"
+      to="/bems/gatherRuleConfigList"
+      icon-bg-color="#fff7e6"
+    />
+    <CommonCard
+      :icon="SoundOutlined"
+      title="故障告警"
+      to="/monitoringSource"
+      icon-bg-color="#fff0f0"
+    />
+    <CommonCard
+      :icon="BankOutlined"
+      title="场馆运营"
+      to="/joa/leaveList"
+      icon-bg-color="#e6f7ff"
+    />
+    <CommonCard
+      :icon="GiftOutlined"
+      title="会展服务"
+      to="/bems/pointDataStatistics"
+      icon-bg-color="#f9f0ff"
+    />
+  </div>
   </div>
 </template>
 
@@ -64,6 +103,15 @@ import {
   DollarOutlined,
 } from '@ant-design/icons-vue'
 
+import CommonCard from '/@/views/bems-web/components/CommonCard/index.vue';
+import {
+  SafetyOutlined,
+  BulbOutlined,
+  GlobalOutlined ,
+  SoundOutlined ,
+  BankOutlined,
+  GiftOutlined,
+} from '@ant-design/icons-vue'
 
 console.log(11111111)
 
@@ -93,5 +141,11 @@ const statData = {
     flex-wrap: wrap;
     gap: 16px;
   }
+}
+
+.card-list {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 </style>
