@@ -1,5 +1,5 @@
 <template>
-  会后管理
+  会展服务-会后管理
 </template>
 
 <script>

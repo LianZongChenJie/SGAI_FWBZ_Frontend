@@ -95,51 +95,12 @@
         @control="handleControl"
       />
     </div>
-    <h2 class="page-title">普通跳转卡片</h2>
-    <div class="card-list">
-    <CommonCard
-      :icon="SafetyOutlined"
-      title="韧性安全"
-      to="/dashboard/analysis"
-      icon-bg-color="#e6f7ff"
-    />
-    <CommonCard
-      :icon="BulbOutlined"
-      title="节能低碳"
-      to="/task/myHandleTaskInfo"
-      icon-bg-color="#f6ffed"
-    />
-    <CommonCard
-      :icon="GlobalOutlined"
-      title="物联网"
-      to="/bems/gatherRuleConfigList"
-      icon-bg-color="#fff7e6"
-    />
-    <CommonCard
-      :icon="SoundOutlined"
-      title="故障告警"
-      to="/monitoringSource"
-      icon-bg-color="#fff0f0"
-    />
-    <CommonCard
-      :icon="BankOutlined"
-      title="场馆运营"
-      to="/joa/leaveList"
-      icon-bg-color="#e6f7ff"
-    />
-    <CommonCard
-      :icon="GiftOutlined"
-      title="会展服务"
-      to="/bems/pointDataStatistics"
-      icon-bg-color="#f9f0ff"
-    />
-  </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { StatCard, DeviceCard, CommonCard} from '/@/views/bems-web/components';
+import { StatCard, DeviceCard} from '/@/views/bems-web/components';
 import ControlPanel, { AcControlItem, LightingControlItem } from '../controlPanel/index.vue';
 
 import {
@@ -148,15 +109,6 @@ import {
   CloudOutlined,
   SettingOutlined,
   BulbOutlined,
-
-
-} from '@ant-design/icons-vue'
-import {
-  SafetyOutlined,
-  GlobalOutlined ,
-  SoundOutlined ,
-  BankOutlined,
-  GiftOutlined,
 
 } from '@ant-design/icons-vue'
 
@@ -377,11 +329,5 @@ const statData = {
   .device-overview, .control-panel {
     margin-top: 20px;
   }
-}
-
-.card-list {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
 }
 </style>
