@@ -82,11 +82,11 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
       // proxy: createProxy(VITE_PROXY),
       proxy: {
         ...createProxy(VITE_PROXY),
-        '/api': {
-          target: 'http://t.weather.sojson.com', // 你的后端服务器地址
-          changeOrigin: true, // 建议开启，改变请求头中的host为目标地址
-          // rewrite: (path) => path.replace(/^\/api/, '') // 可选：重写路径，去掉 /api 前缀
-        },
+        // '/api': {
+        //   target: 'http://t.weather.sojson.com', // 你的后端服务器地址
+        //   changeOrigin: true, // 建议开启，改变请求头中的host为目标地址
+        //   // rewrite: (path) => path.replace(/^\/api/, '') // 可选：重写路径，去掉 /api 前缀
+        // },
       },
 
       // 合并 server 配置
