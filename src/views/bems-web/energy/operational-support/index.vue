@@ -42,7 +42,7 @@ import ColdTab from './elements/coldTab/index.vue'
 import PvTab from './elements/pvTab/index.vue'
 
 // 当前激活的 Tab
-const currentTab = ref('pv')
+const currentTab = ref('overview')
 
 // Tab 数据
 const tabData = reactive({

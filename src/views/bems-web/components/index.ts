@@ -1,5 +1,5 @@
 /**
- * BEMS-Web 业务组件 - 统一导出入口
+ * 业务组件 - 统一导出入口
  *
  * 使用方式：
  * import { StatCard, ChartContainer, FeaturePanel, QuickLinks, AlertCard, DeviceCard, FilterBar } from '@/views/bems-web/components'

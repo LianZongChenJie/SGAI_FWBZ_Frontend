@@ -8,11 +8,10 @@ const bemsWeb: AppRouteModule = {
   path: '/bems-web',
   name: 'BemsWeb',
   component: LAYOUT,
-  redirect: '/bems-web/energy',
   meta: {
     orderNo: 20,
     icon: 'ion:grid-outline',
-    title: 'BEMS-Web',
+    title: '总览仪表盘',
   },
   children: [
     {
@@ -21,6 +20,15 @@ const bemsWeb: AppRouteModule = {
       component: () => import('/@/views/bems-web/energy/operational-support/index.vue'),
       meta: {
         title: '运行保障',
+      },
+    },
+
+    {
+      path: 'venue/scheduling',
+      name: 'venueScheduling',
+      component: () => import('/@/views/bems-web/venue/venueScheduling/index.vue'),
+      meta: {
+        title: '场馆排期',
       },
     },
     {
@@ -53,14 +61,6 @@ const bemsWeb: AppRouteModule = {
       component: () => import('/@/views/bems-web/safety/index.vue'),
       meta: {
         title: '安全监管',
-      },
-    },
-    {
-      path: 'venue',
-      name: 'BemsWebVenue',
-      component: () => import('/@/views/bems-web/venue/index.vue'),
-      meta: {
-        title: '场馆管理',
       },
     },
     {
