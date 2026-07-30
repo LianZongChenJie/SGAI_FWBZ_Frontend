@@ -17,18 +17,90 @@
                 @add="handleAddEvent"
             />
         </div>
+        <div class="venue-management">
+            <VenueManagement
+        title="🏢 场馆信息管理"
+        :data="venueData"
+        :loading="venueLoading"
+        @add="handleAddVenue"
+        @detail="handleVenueDetail"
+        @table-change="handleTableChange"
+            />
+        </div>
     </div>
 </template>
 
 <script setup lang="ts">
+interface VenueItem {
+  id: string
+  name: string            // 场馆名称
+  location: string        // 位置
+  orientation: string     // 朝向
+  area: string            // 建筑面积
+  height: string          // 层高
+  lighting: string        // 采光条件
+  infrastructure: string  // 基础条件
+  constructible: boolean  // 可施工
+}
+
+import { ref, onMounted } from 'vue'
 import { StatCard } from '/@/views/bems-web/components';
-import EventSchedule, { DaySchedule } from './elements/eventSchedule/index.vue';
+import { EventSchedule, VenueManagement } from './elements/index';
+import { DaySchedule } from './elements/eventSchedule/index.vue';
+import { getVenueInfoList } from './index.api';
 import {
     ThunderboltOutlined,
     ShopOutlined,
     CloudOutlined,
     SettingOutlined,
 } from '@ant-design/icons-vue'
+
+// ===== 场馆数据 =====
+const venueData = ref<VenueItem[]>([])
+const venueLoading = ref(false)
+const venuePagination = ref({
+  current: 1,
+  pageSize: 10,
+  total: 0,
+})
+
+const fetchVenueData = async () => {
+  venueLoading.value = true
+  try {
+    const res = await getVenueInfoList({
+      pageNo: venuePagination.value.current,
+      pageSize: venuePagination.value.pageSize,
+    })
+    console.log('res111', res)
+    // 假设后端返回 { records: VenueItem[], total: number }
+    venueData.value = res.records || []
+    venuePagination.value.total = res.total || 0
+  } catch (error) {
+    console.error('获取场馆列表失败:', error)
+  } finally {
+    venueLoading.value = false
+  }
+}
+
+onMounted(() => {
+  fetchVenueData()
+})
+
+const handleAddVenue = () => {
+  console.log('新增场馆')
+  // TODO: 打开新增场馆弹窗
+}
+
+const handleVenueDetail = (record: VenueItem) => {
+  console.log('查看详情:', record)
+  // TODO: 跳转详情页或打开详情弹窗
+}
+
+const handleTableChange = (paginationData: any) => {
+  venuePagination.value.current = paginationData.current
+  venuePagination.value.pageSize = paginationData.pageSize
+  fetchVenueData()
+}
 
 const statData = {
     todayPower: '1,286 kWh',
@@ -137,7 +209,7 @@ const handleAddEvent = () => {
     flex-wrap: wrap;
     gap: 16px;
 }
-.event-schedule {
+.event-schedule, .venue-management {
     margin-top: 20px;
 }
 </style>

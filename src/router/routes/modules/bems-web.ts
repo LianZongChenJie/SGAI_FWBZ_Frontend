@@ -1,7 +1,8 @@
 import type { AppRouteModule } from '/@/router/types';
 import { LAYOUT } from '/@/router/constant';
+
 /**
- * BEMS-Web 业务模块路由
+ * BEMS-Web 会展小镇服务保障平台路由
  * 使用 LAYOUT 布局：左侧菜单 + 右侧面包屑+用户信息+内容区
  */
 const bemsWeb: AppRouteModule = {
@@ -11,65 +12,223 @@ const bemsWeb: AppRouteModule = {
   meta: {
     orderNo: 20,
     icon: 'ion:grid-outline',
-    title: '总览仪表盘',
+    title: '会展小镇服务保障平台',
   },
   children: [
+    // ===== 总览仪表盘 =====
     {
-      path: 'energy',
-      name: 'BemsWebEnergy',
-      component: () => import('/@/views/bems-web/energy/operational-support/index.vue'),
-      meta: {
-        title: '运行保障',
-      },
+      path: 'dashboard',
+      name: 'BemsWebDashboard',
+      component: () => import('/@/views/bems-web/dashboard/index.vue'),
+      meta: { title: '总览仪表盘' },
     },
 
-    {
-      path: 'venue/scheduling',
-      name: 'venueScheduling',
-      component: () => import('/@/views/bems-web/venue/venueScheduling/index.vue'),
-      meta: {
-        title: '场馆排期',
-      },
-    },
-    {
-      path: 'iot',
-      name: 'BemsWebIot',
-      component: () => import('/@/views/bems-web/iot/index.vue'),
-      meta: {
-        title: 'IoT监测',
-      },
-    },
-    {
-      path: 'alert',
-      name: 'BemsWebAlert',
-      component: () => import('/@/views/bems-web/alert/index.vue'),
-      meta: {
-        title: '告警中心',
-      },
-    },
-    {
-      path: 'event',
-      name: 'BemsWebEvent',
-      component: () => import('/@/views/bems-web/event/index.vue'),
-      meta: {
-        title: '事件管理',
-      },
-    },
+    // ===== 韧性安全 =====
     {
       path: 'safety',
       name: 'BemsWebSafety',
-      component: () => import('/@/views/bems-web/safety/index.vue'),
-      meta: {
-        title: '安全监管',
-      },
+      meta: { title: '韧性安全' },
+      redirect: '/bems-web/safety/person',
+      children: [
+        {
+          path: 'person',
+          name: 'BemsWebSafetyPerson',
+          component: () => import('/@/views/bems-web/safety/person/index.vue'),
+          meta: { title: '人员管理' },
+        },
+        {
+          path: 'vehicle',
+          name: 'BemsWebSafetyVehicle',
+          component: () => import('/@/views/bems-web/safety/vehicle/index.vue'),
+          meta: { title: '车辆管理' },
+        },
+        {
+          path: 'fire',
+          name: 'BemsWebSafetyFire',
+          component: () => import('/@/views/bems-web/safety/fire/index.vue'),
+          meta: { title: '消防管理' },
+        },
+        {
+          path: 'security',
+          name: 'BemsWebSafetySecurity',
+          component: () => import('/@/views/bems-web/safety/security/index.vue'),
+          meta: { title: '安防管理' },
+        },
+      ],
     },
+
+    // ===== 节能低碳 =====
+    {
+      path: 'energy',
+      name: 'BemsWebEnergy',
+      meta: { title: '节能低碳' },
+      redirect: '/bems-web/energy/operational-support',
+      children: [
+        {
+          path: 'operational-support',
+          name: 'BemsWebEnergyOperationalSupport',
+          component: () => import('/@/views/bems-web/energy/operational-support/index.vue'),
+          meta: { title: '运行保障' },
+        },
+        {
+          path: 'smart-lighting',
+          name: 'BemsWebEnergySmartLighting',
+          component: () => import('/@/views/bems-web/energy/smart-lighting/index.vue'),
+          meta: { title: '智慧照明' },
+        },
+        {
+          path: 'energy-metering',
+          name: 'BemsWebEnergyMetering',
+          component: () => import('/@/views/bems-web/energy/energy-metering/index.vue'),
+          meta: { title: '能源计量' },
+        },
+        {
+          path: 'energy-optimization',
+          name: 'BemsWebEnergyOptimization',
+          component: () => import('/@/views/bems-web/energy/energy-optimization/index.vue'),
+          meta: { title: '能源优化' },
+        },
+      ],
+    },
+
+    // ===== 物联网 =====
+    {
+      path: 'iot',
+      name: 'BemsWebIot',
+      meta: { title: '物联网' },
+      redirect: '/bems-web/iot/interface',
+      children: [
+        {
+          path: 'interface',
+          name: 'BemsWebIotInterface',
+          component: () => import('/@/views/bems-web/iot/interface/index.vue'),
+          meta: { title: '接口平台' },
+        },
+        {
+          path: 'data-collection',
+          name: 'BemsWebIotDataCollection',
+          component: () => import('/@/views/bems-web/iot/data-collection/index.vue'),
+          meta: { title: '数据采集' },
+        },
+        {
+          path: 'operation',
+          name: 'BemsWebIotOperation',
+          component: () => import('/@/views/bems-web/iot/operation/index.vue'),
+          meta: { title: '运行保障' },
+        },
+      ],
+    },
+
+    // ===== 故障告警 =====
+    {
+      path: 'alert',
+      name: 'BemsWebAlert',
+      meta: { title: '故障告警' },
+      redirect: '/bems-web/alert/setting',
+      children: [
+        {
+          path: 'setting',
+          name: 'BemsWebAlertSetting',
+          component: () => import('/@/views/bems-web/alert/setting/index.vue'),
+          meta: { title: '报警设置' },
+        },
+        {
+          path: 'handle',
+          name: 'BemsWebAlertHandle',
+          component: () => import('/@/views/bems-web/alert/handle/index.vue'),
+          meta: { title: '报警处理' },
+        },
+      ],
+    },
+
+    // ===== 场馆运营 =====
+    {
+      path: 'venue',
+      name: 'BemsWebVenue',
+      meta: { title: '场馆运营' },
+      redirect: '/bems-web/venue/flow',
+      children: [
+        {
+          path: 'flow',
+          name: 'BemsWebVenueFlow',
+          component: () => import('/@/views/bems-web/venue/flow/index.vue'),
+          meta: { title: '场馆客流' },
+        },
+        {
+          path: 'scheduling',
+          name: 'BemsWebVenueScheduling',
+          component: () => import('/@/views/bems-web/venue/venueScheduling/index.vue'),
+          meta: { title: '场馆排期' },
+        },
+      ],
+    },
+
+    // ===== 会展服务 =====
+    {
+      path: 'event',
+      name: 'BemsWebEvent',
+      meta: { title: '会展服务' },
+      redirect: '/bems-web/event/pre',
+      children: [
+        {
+          path: 'pre',
+          name: 'BemsWebEventPre',
+          component: () => import('/@/views/bems-web/event/pre/index.vue'),
+          meta: { title: '会前管理' },
+        },
+        {
+          path: 'during',
+          name: 'BemsWebEventDuring',
+          component: () => import('/@/views/bems-web/event/during/index.vue'),
+          meta: { title: '会中管理' },
+        },
+        {
+          path: 'post',
+          name: 'BemsWebEventPost',
+          component: () => import('/@/views/bems-web/event/post/index.vue'),
+          meta: { title: '会后管理' },
+        },
+      ],
+    },
+
+    // ===== AI运行报告 =====
     {
       path: 'ai',
       name: 'BemsWebAi',
-      component: () => import('/@/views/bems-web/ai/index.vue'),
-      meta: {
-        title: 'AI助手',
-      },
+      meta: { title: 'AI运行报告' },
+      redirect: '/bems-web/ai/carbon',
+      children: [
+        {
+          path: 'carbon',
+          name: 'BemsWebAiCarbon',
+          component: () => import('/@/views/bems-web/ai/carbon/index.vue'),
+          meta: { title: '多模态能碳计算' },
+        },
+        {
+          path: 'report',
+          name: 'BemsWebAiReport',
+          component: () => import('/@/views/bems-web/ai/report/index.vue'),
+          meta: { title: 'AI运行报告' },
+        },
+        {
+          path: 'predict',
+          name: 'BemsWebAiPredict',
+          component: () => import('/@/views/bems-web/ai/predict/index.vue'),
+          meta: { title: 'AI预测报告' },
+        },
+        {
+          path: 'energy',
+          name: 'BemsWebAiEnergy',
+          component: () => import('/@/views/bems-web/ai/energy/index.vue'),
+          meta: { title: 'AI节能报告' },
+        },
+        {
+          path: 'fault',
+          name: 'BemsWebAiFault',
+          component: () => import('/@/views/bems-web/ai/fault/index.vue'),
+          meta: { title: 'AI故障分析报告' },
+        },
+      ],
     },
   ],
 };

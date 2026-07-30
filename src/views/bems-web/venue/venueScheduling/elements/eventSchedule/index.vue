@@ -35,7 +35,6 @@
 </template>
 
 <script setup lang="ts">
-import { PlusOutlined } from '@ant-design/icons-vue'
 
 // ===== 类型定义 =====
 export interface EventItem {

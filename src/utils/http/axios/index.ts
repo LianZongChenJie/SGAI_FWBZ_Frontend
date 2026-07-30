@@ -321,9 +321,10 @@ function createAxios(opt?: Partial<CreateAxiosOptions>) {
 }
 export const defHttp = createAxios();
 
-// other api url
-// export const otherHttp = createAxios({
-//   requestOptions: {
-//     apiUrl: 'xxx',
-//   },
-// });
+// 新服务 fwbz（服务保障）的 axios 实例，不使用 /jeecg-system 前缀
+export const fwbzHttp = createAxios({
+  requestOptions: {
+    apiUrl: '',
+    joinPrefix: false,
+  },
+});

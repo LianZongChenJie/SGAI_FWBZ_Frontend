@@ -23,7 +23,7 @@
                 </a-tag>
               </template>
               <template v-if="column.key === 'action'">
-                <a-button size="small" @click="handleControl('ac', record)">
+                <a-button type="link" size="small" @click="handleControl('ac', record)">
                   控制
                 </a-button>
               </template>
@@ -48,7 +48,7 @@
                 </a-tag>
               </template>
               <template v-if="column.key === 'action'">
-                <a-button size="small" @click="handleControl('lighting', record)">
+                <a-button type="link" size="small" @click="handleControl('lighting', record)">
                   控制
                 </a-button>
               </template>
