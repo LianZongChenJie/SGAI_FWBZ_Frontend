@@ -95,7 +95,7 @@
         @control="handleControl"
       />
     </div>
-    <h2 class="page-title">普通卡片</h2>
+    <h2 class="page-title">普通跳转卡片</h2>
     <div class="card-list">
     <CommonCard
       :icon="SafetyOutlined"
@@ -139,7 +139,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { StatCard, DeviceCard} from '/@/views/bems-web/components';
+import { StatCard, DeviceCard, CommonCard} from '/@/views/bems-web/components';
 import ControlPanel, { AcControlItem, LightingControlItem } from '../controlPanel/index.vue';
 
 import {
@@ -149,17 +149,15 @@ import {
   SettingOutlined,
   BulbOutlined,
 
-} from '@ant-design/icons-vue'
-
-import CommonCard from '/@/views/bems-web/components/CommonCard/index.vue';
-import {
   SafetyOutlined,
   BulbOutlined,
   GlobalOutlined ,
   SoundOutlined ,
   BankOutlined,
   GiftOutlined,
+
 } from '@ant-design/icons-vue'
+
 
 // ===== 筛选条件 =====
 const filterSystem = ref('')
