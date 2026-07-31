@@ -1,0 +1,321 @@
+<template>
+  <div class="device-model">
+    <a-card :title="'🔧 设备模型'" :bordered="false">
+      <template #extra>
+        <a-button type="primary" @click="handleAdd">
+          <template #icon><PlusOutlined /></template>
+          新增
+        </a-button>
+      </template>
+
+      <BasicTable @register="registerTable" @row-click="selectTargetModel">
+        <template #form-categoryId="{ model, field }">
+        <a-tree-select
+          v-model:value="model[field]"
+          :tree-data="spaceTreeData"
+          placeholder="请选择位置"
+          :fieldNames="treeSelect"
+          show-search
+          allowClear
+          @change="handleCategoryChange"
+        />
+      </template>
+      <template #bodyCell="{ column, record }">
+        <template v-if="column.key === 'active'">
+          <a-space>
+            <a @click="handleedit(record)"> <EditOutlined />编辑 </a>
+            <a-popconfirm title="确认删除该条数据？" ok-text="确定" cancel-text="取消" @confirm="confirmDelete(record)">
+              <a style="color: red"> <DeleteOutlined style="color: red" />删除 </a>
+            </a-popconfirm>
+          </a-space>
+        </template>
+        <template v-if="column.key === 'categoryId'">
+          {{ getNodeNameById(categoryList, record.categoryId.toString()) }}
+        </template>
+      </template>
+    </BasicTable>
+    </a-card>
+    <a-modal v-model:visible="modalVisible" :title="isUpdate ? '编辑模型' : '新增模型'" width="600px" @ok="handleSubmit" @cancel="handleCancel">
+      <div style="padding: 10px">
+        <a-form :model="formState" :label-col="{ span: 8 }" :wrapper-col="{ span: 16 }" layout="inline">
+          <!-- 输入框 -->
+          <a-col :span="12">
+            <a-form-item label="名称" name="modelName" :rules="[{ required: true, message: '请输入名称' }]">
+              <a-input v-model:value="formState.modelName" placeholder="请输入名称" />
+            </a-form-item>
+          </a-col>
+
+          <!-- 下拉选择框 -->
+          <a-col :span="12">
+            <a-form-item label="专业" name="categoryId" :rules="[{ required: true, message: '请选择专业' }]">
+              <a-tree-select
+                v-model:value="formState.categoryId"
+                :tree-data="spaceTreeData"
+                placeholder="请选择位置"
+                :fieldNames="treeSelect"
+                show-search
+                allowClear
+                @change="handleFormCategoryChange"
+              />
+            </a-form-item>
+          </a-col>
+        </a-form>
+      </div>
+    </a-modal>
+  </div>
+</template>
+
+<script setup lang="ts">
+  import { ref } from 'vue';
+  import { getCategoryDataList, getDeviceModelList, addModel, updateModel, deleteModel } from './Model.api';
+  import { DatabaseFilled } from '@ant-design/icons-vue';
+  import { BasicColumn, BasicTable, FormSchema } from '/@/components/Table';
+  import { useListPage } from '/@/hooks/system/useListPage';
+  import { onMounted, reactive, nextTick } from 'vue';
+  import { PlusOutlined, DeleteOutlined, InboxOutlined, EditOutlined } from '@ant-design/icons-vue';
+  import { message } from 'ant-design-vue';
+  import { Item } from 'ant-design-vue/es/menu';
+  import { log } from 'console';
+
+  const props = defineProps({
+    getTargetModel: { type: Function, default: () => {} },
+  });
+
+  // 表格列配置
+  const columns: BasicColumn[] = [
+    {
+      title: '名称',
+      dataIndex: 'modelName',
+      key: 'modelName',
+    },
+    {
+      title: '专业',
+      dataIndex: 'categoryId',
+      key: 'categoryId',
+    },
+    {
+      title: '操作',
+      dataIndex: 'active',
+      key: 'active',
+    },
+  ];
+
+  const categoryList = ref<[{ label: string; value: string }]>([{ label: '', value: '' }]);
+  //表单搜索字段
+  let searchFormSchema: FormSchema[] = [
+    {
+      label: '设备名称', //显示label
+      field: 'modelName', //查询字段
+      component: 'JInput', //渲染的组件
+      // slot: 'name', //设置默认值
+    },
+    {
+      label: '所属专业', //显示label
+      field: 'categoryId', //查询字段
+      component: 'Select', //渲染的组件
+      slot: 'categoryId',
+      // componentProps: {
+      //   api: getCategoryDataList,
+      //   labelField: 'title',
+      //   valueField: 'key',
+      //   immediate: true,
+      //   resultField: 'records',
+      // },
+    },
+  ];
+
+  // 空间位置树数据
+  const spaceTreeData = ref([]);
+  const treeSelect = { children: 'children', label: 'title', value: 'key', key: 'key' };
+
+  // 获取表格数据
+  const getData = async (pageParams) => {
+    const { pageNo, pageSize } = pageParams;
+    let { getFieldsValue } = getForm();
+    let params = {
+      pageNo: pageNo,
+      pageSize: pageSize,
+      modelName: getFieldsValue().modelName && getFieldsValue().modelName !== '**' ? getFieldsValue().modelName : undefined,
+      categoryId: getFieldsValue().categoryId ? getFieldsValue().categoryId : undefined,
+    };
+    let res = await getDeviceModelList(params);
+    dataSource.value = res.records;
+    return {
+      records: res.records, // 当前页数据
+      total: res.total, // 总记录数
+    };
+  };
+
+  // 表格数据
+  const dataSource = ref([]);
+  const total = ref<number>(0);
+
+  const pagination = ref({
+    pageNo: 1,
+    pageSize: 10,
+  });
+
+  const customResetFunc = async () => {};
+
+  const { tableContext } = useListPage({
+    designScope: 'basic-table-demo',
+    tableProps: {
+      api: getData,
+      columns: columns,
+      showActionColumn: false,
+      size: 'middle',
+      pagination: {
+        pageSize: 10,
+        showSizeChanger: true,
+      },
+      showTableSetting: false,
+      rowkey: 'id',
+      // formConfig: {
+      //   schemas: searchFormSchema,
+      //   submitOnReset: true,
+      //   //重置按钮的自定义事件
+      //   resetFunc: customResetFunc,
+      //   //默认row行配置,当 layout 为 horizontal 生效
+      //   rowProps: { gutter: 24, justify: 'start', align: 'middle' },
+      //   //全局col列占比(每列显示多少位)，和schemas中的colProps属性一致
+      //   baseColProps: { span: 8 },
+      //   //row行的样式
+      //   baseRowStyle: { width: '100%' },
+      //   labelCol: { style: { width: '70px' } },
+      // },
+    },
+  });
+  // 获取专业列表
+  const getCategoryList = async () => {
+    let res = await getCategoryDataList();
+    categoryList.value = res;
+
+    const spaceRes = await getCategoryDataList();
+    spaceTreeData.value = spaceRes;
+  };
+  // 获取数据列表
+  const getCategory = (record) => {
+    let targetItem = categoryList.value.find((item) => {
+      return record.categoryId.toString() === item.value;
+    });
+
+    console.log('record.categoryId.toString()--------------->', categoryList.value);
+
+    return targetItem?.label;
+  };
+
+  function getNodeNameById(tree, targetId) {
+    for (const node of tree) {
+      // 如果当前节点就是目标节点
+      if (node.key === targetId) {
+        return node.value;
+      }
+
+      // 如果有子节点，递归查找
+      if (node.children && node.children.length > 0) {
+        const result = getNodeNameById(node.children, targetId);
+        if (result) {
+          return result;
+        }
+      }
+    }
+    return null;
+  }
+
+  // BasicTable绑定注册
+  const [registerTable, { reload, getForm }] = tableContext;
+
+  const modalVisible = ref<boolean>(false);
+  const isUpdate = ref<boolean>(false);
+  const modelId = ref<number>();
+  // 表单数据
+  const formState = reactive({
+    modelName: '',
+    categoryId: '',
+  });
+  // 打开新增弹框
+  const handleAdd = () => {
+    isUpdate.value = false;
+    modalVisible.value = true;
+  };
+
+  // 打开编辑弹框
+  const handleedit = (record) => {
+    formState.categoryId = record.categoryId + '';
+    formState.modelName = record.modelName;
+    modelId.value = record.id;
+    isUpdate.value = true;
+    modalVisible.value = true;
+  };
+
+  // 提交表单
+  const handleSubmit = async () => {
+    if (isUpdate.value) {
+      await updateModel({ id: modelId.value, ...formState });
+    } else {
+      await addModel(formState);
+    }
+    modalVisible.value = false;
+    // 刷新表格
+    reload();
+    // 重置表单
+    resetForm();
+  };
+
+  // 取消操作
+  const handleCancel = () => {
+    resetForm();
+    modalVisible.value = false;
+  };
+
+  // 确认删除
+  const confirmDelete = async (record) => {
+    await deleteModel({ id: record.id.toString() });
+    message.success('删除成功！');
+    // 刷新表格
+    reload();
+  };
+  const handleCategoryChange = (value, item, val) => {
+    const { setFieldsValue } = getForm();
+    if (val && val.triggerNode && val.triggerNode.props && val.triggerNode.props.disableCheckbox) {
+      message.warn('无该节点权限，不可选！');
+      setFieldsValue({
+        categoryId: null,
+      });
+      return;
+    }
+  };
+  const handleFormCategoryChange = (value, item, val) => {
+    if (val && val.triggerNode && val.triggerNode.props && val.triggerNode.props.disableCheckbox) {
+      message.warn('无该节点权限，不可选！');
+      formState.categoryId = '';
+      return;
+    }
+  };
+  // 重置表单
+  const resetForm = () => {
+    formState.modelName = '';
+    formState.categoryId = '';
+  };
+
+  // 选择某个行
+  const selectTargetModel = (record) => {
+    props.getTargetModel(record);
+  };
+
+  onMounted(async () => {
+    await getCategoryList();
+    await getData();
+    nextTick(() => {
+      selectTargetModel(dataSource.value[0]);
+    });
+  });
+</script>
+
+<style scoped lang="less">
+  .device-model {
+    :deep(.ant-card) {
+      border-radius: 8px;
+    }
+  }
+</style>

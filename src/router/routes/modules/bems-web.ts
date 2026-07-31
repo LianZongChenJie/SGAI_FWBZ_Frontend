@@ -8,11 +8,8 @@ import { LAYOUT } from '/@/router/constant';
 const bemsWeb: AppRouteModule = {
   path: '/fwbz',
   name: 'FWBZ',
-  component: LAYOUT,
-  redirect: '/fwbz/overview',
   meta: {
     title: '总览仪表盘',
-    hideChildrenInMenu: true, // 隐藏子菜单，让一级菜单可以直接点击
   },
   children: [
     // ===== 总览仪表盘 =====
