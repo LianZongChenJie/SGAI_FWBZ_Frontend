@@ -4,8 +4,8 @@ import { useMessage } from '/@/hooks/web/useMessage';
 const { createConfirm } = useMessage();
 enum Api {
   getDeviceModelList = '/sgai-tp/fwbz/deviceModel/queryPage',
-  // getCategoryTree = '/bems/equipmentCategory/getTree',
-  getCategoryTree = '/sgai-tp/fwbz/equipmentCategory/getPermissionTree',
+  getCategoryTree = '/sgai-tp/fwbz/equipmentCategory/getTree',
+  // getCategoryTree = '/sgai-tp/fwbz/equipmentCategory/getPermissionTree',
   addModel = '/sgai-tp/fwbz/deviceModel/add',
   updateModel = '/sgai-tp/fwbz/deviceModel/edit',
   deleteModel = '/sgai-tp/fwbz/deviceModel/delete',

@@ -4,26 +4,26 @@ import { useMessage } from '/@/hooks/web/useMessage';
 const { createConfirm } = useMessage();
 enum Api {
   // categoryTree = '/bems/equipmentCategory/measuring/getTree',
-  categoryTree = '/bems/equipmentCategory/measuring/getPermissionTree',
+  categoryTree = '/sgai-tp/fwbz/equipmentCategory/measuring/getPermissionTree',
   // spaceTree = '/bems/space/getTree',
-  spaceTree = '/bems/space/getPermissionTree',
+  spaceTree = '/sgai-tp/fwbz/space/getPermissionTree',
   // spaceTree2 = '/bems/space/getTreeByDeviceType',
-  spaceTree2 = '/bems/space/getPermissionTreeByDeviceType',
-  addDevice = '/bems/device/measuring/add',
-  editDevice = '/bems/device/edit',
-  deleteDevice = '/bems/device/delete',
-  selectDevice = '/bems/device/measuring/list',
-  updateAutomation = '/bems/device/updateAutomaticAlgorithm',
-  staticDataList = '/bems/deviceStaticData/list',
-  staticDataSave = '/bems/deviceStaticData/save',
-  attributeDataList = '/bems/deviceAttribute/listByDeviceId',
-  getDeviceAttribute = '/bems/deviceModel/queryByCategoryId',
-  getListByDeviceId = '/bems/deviceAttribute/queryPage',
-  saveData = '/bems/deviceAttribute/edit',
-  addDate = '/bems/deviceAttribute/add',
-  deleteItem = '/bems/deviceAttribute/delete',
+  spaceTree2 = '/sgai-tp/fwbz/space/getPermissionTreeByDeviceType',
+  addDevice = '/sgai-tp/fwbz/device/measuring/add',
+  editDevice = '/sgai-tp/fwbz/device/edit',
+  deleteDevice = '/sgai-tp/fwbz/device/delete',
+  selectDevice = '/sgai-tp/fwbz/device/measuring/list',
+  updateAutomation = '/sgai-tp/fwbz/device/updateAutomaticAlgorithm',
+  staticDataList = '/sgai-tp/fwbz/deviceStaticData/list',
+  staticDataSave = '/sgai-tp/fwbz/deviceStaticData/save',
+  attributeDataList = '/sgai-tp/fwbz/deviceAttribute/listByDeviceId',
+  getDeviceAttribute = '/sgai-tp/fwbz/deviceModel/queryByCategoryId',
+  getListByDeviceId = '/sgai-tp/fwbz/deviceAttribute/queryPage',
+  saveData = '/sgai-tp/fwbz/deviceAttribute/edit',
+  addDate = '/sgai-tp/fwbz/deviceAttribute/add',
+  deleteItem = '/sgai-tp/fwbz/deviceAttribute/delete',
 
-  exportData = '/bems/device/export'
+  exportData = '/sgai-tp/fwbz/device/export'
 }
 
 /**
