@@ -1,182 +1,108 @@
 <template>
-  <div
-    :class="prefixCls"
-    class="login-background-img"
-  >
+  <div :class="prefixCls" class="login-page">
+    <!-- 语言切换 -->
     <AppLocalePicker
-      class="absolute top-4 right-4 enter-x xl:text-gray-600"
+      class="absolute top-4 right-4 enter-x"
       :showText="false"
     />
-    <AppDarkModeToggle class="absolute top-3 right-7 enter-x" />
-    <div
-      class="aui-logo"
-      v-if="!getIsMobile"
-    >
-      <div>
-        <h3>
-          <!-- <img :src="logoImg" alt="jeecg" /> -->
-        </h3>
+
+    <!-- 登录卡片 -->
+    <div class="login-box">
+      <!-- Logo 区域 -->
+      <div class="login-logo">
+        <div class="icon">🏢</div>
+        <h1>会展小镇服务保障平台</h1>
+        <p>智慧会展 · 数字孪生 · AI驱动</p>
       </div>
-    </div>
-    <div
-      v-else
-      class="aui-phone-logo"
-    >
-      <!-- <img :src="logoImg" alt="jeecg" /> -->
-    </div>
-    <div v-show="type === 'login'">
-      <div class="aui-content">
-        <div class="aui-container">
-          <div class="form-box">
-            <div class="login-title">
-              金&ensp;安&ensp;桥&ensp;智&ensp;慧&ensp;管&ensp;控&ensp;平&ensp;台
-            </div>
-            <div class="user-info">
-              <div class="user-form">
-                <a-form
-                  :model="formData"
-                  name="basic"
-                  :label-col="{ span: 6 }"
-                  :wrapper-col="{ span: 14 }"
-                  autocomplete="off"
-                >
-                  <a-row
-                    :gutter="16"
-                    style="margin-bottom: 46px;"
-                  >
-                    <a-col :span="24">
-                      <a-form-item
-                        name="username"
-                        :rules="[{ required: true, message: '请输入用户名' }]"
-                        :colon="false"
-                      >
-                        <template #label>
-                          <span class="label-style">
-                            用户名：
-                          </span>
-                        </template>
-                        <a-input
-                          v-model:value="formData.username"
-                          style="height: 40px;padding-left: 10px;"
-                          @keyup.enter="login"
-                        />
-                      </a-form-item>
-                    </a-col>
-                  </a-row>
-                  <a-row
-                    :gutter="16"
-                    style="margin-bottom: 46px;"
-                  >
-                    <a-col :span="24">
-                      <a-form-item
-                        name="password"
-                        :rules="[{ required: true, message: '请输入密码!' }]"
-                        :colon="false"
-                      >
-                      <template #label>
-                          <span class="label-style">
-                            密码：
-                          </span>
-                        </template>
-                        <a-input-password
-                          v-model:value="formData.password"
-                          style="height: 40px;"
-                          @keyup.enter="login"
-                        />
-                      </a-form-item>
-                    </a-col>
-                  </a-row>
-                  <a-row :gutter="16">
-                    <a-col :span="24">
-                      <a-form-item
-                        :rules="[{ required: true, message: '请输入验证码!' }]"
-                        :colon="false"
-                      >
-                      <template #label>
-                          <div class="label-style">
-                            验证码：
-                          </div>
-                        </template>
-                        <div class="input-code-box">
-                          <i class="icon icon-code" style="margin-right: 5px;"></i>
-                          <a-form-item>
-                            <a-input
-                              type="text"
-                              style="height: 40px;border: none;"
-                              :placeholder="t('sys.login.inputCode')"
-                              v-model:value="formData.inputCode"
-                              @keyup.enter="login"
-                            />
-                          </a-form-item>
-                          <div class="aui-code">
-                            <img
-                              v-if="randCodeData.requestCodeSuccess"
-                              :src="randCodeData.randCodeImage"
-                              @click="handleChangeCheckCode"
-                            />
-                            <img
-                              v-else
-                              style="margin-top: 2px; max-width: initial"
-                              :src="codeImg"
-                              @click="handleChangeCheckCode"
-                            />
-                          </div>
-                        </div>
-                      </a-form-item>
-                    </a-col>
-                  </a-row>
-                </a-form>
-              </div>
-              <div class="button-box">
-                <div class="login-box" @click="login">
-                  登录
-                </div>
-                &emsp;
-                &emsp;
-                &emsp;
-                &emsp;
-                &emsp;
-                &emsp;
-                &emsp;
-                <div class="clean-box" @click="handleClean">
-                  清除
-                </div>
-              </div>
+
+      <!-- 登录表单 -->
+      <div v-show="type === 'login'">
+        <div class="form-group">
+          <label>用户名</label>
+          <input
+            v-model="formData.username"
+            type="text"
+            placeholder="请输入用户名"
+            @keyup.enter="login"
+          />
+        </div>
+        <div class="form-group">
+          <label>密码</label>
+          <input
+            v-model="formData.password"
+            type="password"
+            placeholder="请输入密码"
+            @keyup.enter="login"
+          />
+        </div>
+        <div class="form-group">
+          <label>验证码</label>
+          <div class="captcha-row">
+            <input
+              v-model="formData.inputCode"
+              type="text"
+              placeholder="请输入验证码"
+              @keyup.enter="login"
+            />
+            <div class="captcha-img" @click="handleChangeCheckCode">
+              <img
+                v-if="randCodeData.requestCodeSuccess"
+                :src="randCodeData.randCodeImage"
+                alt="验证码"
+              />
+              <img
+                v-else
+                :src="codeImg"
+                alt="验证码"
+              />
             </div>
           </div>
         </div>
+        <button class="login-btn" @click="login">登 录</button>
+        <div class="login-features">
+          <div class="login-feature">
+            <div class="num">8</div>
+            <div class="txt">功能模块</div>
+          </div>
+          <div class="login-feature">
+            <div class="num">30+</div>
+            <div class="txt">子系统对接</div>
+          </div>
+          <div class="login-feature">
+            <div class="num">AI</div>
+            <div class="txt">智能分析</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 忘记密码 -->
+      <div v-show="type === 'forgot'" :class="`${prefixCls}-form`">
+        <MiniForgotpad
+          ref="forgotRef"
+          @go-back="goBack"
+          @success="handleSuccess"
+        />
+      </div>
+
+      <!-- 注册 -->
+      <div v-show="type === 'register'" :class="`${prefixCls}-form`">
+        <MiniRegister
+          ref="registerRef"
+          @go-back="goBack"
+          @success="handleSuccess"
+        />
+      </div>
+
+      <!-- 扫码登录 -->
+      <div v-show="type === 'codeLogin'" :class="`${prefixCls}-form`">
+        <MiniCodelogin
+          ref="codeRef"
+          @go-back="goBack"
+          @success="handleSuccess"
+        />
       </div>
     </div>
-    <div
-      v-show="type === 'forgot'"
-      :class="`${prefixCls}-form`"
-    >
-      <MiniForgotpad
-        ref="forgotRef"
-        @go-back="goBack"
-        @success="handleSuccess"
-      />
-    </div>
-    <div
-      v-show="type === 'register'"
-      :class="`${prefixCls}-form`"
-    >
-      <MiniRegister
-        ref="registerRef"
-        @go-back="goBack"
-        @success="handleSuccess"
-      />
-    </div>
-    <div
-      v-show="type === 'codeLogin'"
-      :class="`${prefixCls}-form`"
-    >
-      <MiniCodelogin
-        ref="codeRef"
-        @go-back="goBack"
-        @success="handleSuccess"
-      />
-    </div>
+
     <!-- 第三方登录相关弹框 -->
     <ThirdModal ref="thirdModalRef"></ThirdModal>
 
@@ -187,6 +113,7 @@
     />
   </div>
 </template>
+
 <script lang="ts" setup name="login-mini">
 import { getCaptcha, getCodeInfo } from '/@/api/sys/user';
 import { computed, onMounted, reactive, ref, toRaw, unref } from 'vue';
@@ -201,8 +128,7 @@ import MiniForgotpad from './MiniForgotpad.vue';
 import MiniRegister from './MiniRegister.vue';
 import MiniCodelogin from './MiniCodelogin.vue';
 import logoImg from '/@/assets/loginmini/icon/jeecg_logo.png';
-import adTextImg from '/@/assets/loginmini/icon/jeecg_ad_text.png';
-import { AppLocalePicker, AppDarkModeToggle } from '/@/components/Application';
+import { AppLocalePicker } from '/@/components/Application';
 import { useLocaleStore } from '/@/store/modules/locale';
 import { useDesign } from '/@/hooks/web/useDesign';
 import { useAppInject } from '/@/hooks/web/useAppInject';
@@ -226,34 +152,24 @@ const randCodeData = reactive<any>({
   checkKey: null,
 });
 const rememberMe = ref<string>('0');
-//手机号登录还是账号登录
 const activeIndex = ref<string>('accountLogin');
 const type = ref<string>('login');
-//账号登录表单字段
 const formData = reactive<any>({
   inputCode: '',
   username: '',
   password: '',
 });
-//手机登录表单字段
 const phoneFormData = reactive<any>({
   mobile: '',
   smscode: '',
 });
 const loginRef = ref();
-//第三方登录弹窗
 const thirdModalRef = ref();
-//扫码登录
 const codeRef = ref();
-//是否显示获取验证码
 const showInterval = ref<boolean>(true);
-//60s
 const timeRuning = ref<number>(60);
-//定时器
 const timer = ref<any>(null);
-//忘记密码
 const forgotRef = ref();
-//注册
 const registerRef = ref();
 const loginLoading = ref<boolean>(false);
 const { getIsMobile } = useAppInject();
@@ -264,12 +180,8 @@ defineProps({
   },
 });
 
-/**
- * 获取验证码
- */
 function handleChangeCheckCode() {
   formData.inputCode = '';
-
   randCodeData.checkKey = 1629428467008;
   getCodeInfo(randCodeData.checkKey).then((res) => {
     randCodeData.randCodeImage = res;
@@ -277,21 +189,14 @@ function handleChangeCheckCode() {
   });
 }
 
-/**
- * 切换登录方式
- */
 function loginClick(type) {
   activeIndex.value = type;
 }
 
-/**
- * 账号或者手机登录
- */
 async function loginHandleClick() {
   if (unref(activeIndex) === 'accountLogin') {
     accountLogin();
   } else {
-    //手机号登录
     phoneLogin();
   }
 }
@@ -313,7 +218,7 @@ async function accountLogin() {
         username: formData.username,
         captcha: formData.inputCode,
         checkKey: randCodeData.checkKey,
-        mode: 'none', //不要默认的错误提示
+        mode: 'none',
       })
     );
     if (userInfo) {
@@ -335,9 +240,6 @@ async function accountLogin() {
   }
 }
 
-/**
- * 手机号登录
- */
 async function phoneLogin() {
   if (!phoneFormData.mobile) {
     createMessage.warn(t('sys.login.mobilePlaceholder'));
@@ -352,7 +254,7 @@ async function phoneLogin() {
     const { userInfo }: any = await userStore.phoneLogin({
       mobile: phoneFormData.mobile,
       captcha: phoneFormData.smscode,
-      mode: 'none', //不要默认的错误提示
+      mode: 'none',
     });
     if (userInfo) {
       notification.success({
@@ -372,21 +274,16 @@ async function phoneLogin() {
   }
 }
 
-/**
- * 获取手机验证码
- */
 async function getLoginCode() {
   if (!phoneFormData.mobile) {
     createMessage.warn(t('sys.login.mobilePlaceholder'));
     return;
   }
-  //update-begin---author:wangshuai---date:2024-04-18---for:【QQYUN-9005】同一个IP，1分钟超过5次短信，则提示需要验证码---
   const result = await getCaptcha({ mobile: phoneFormData.mobile, smsmode: SmsEnum.FORGET_PASSWORD }).catch((res) => {
     if (res.code === ExceptionEnum.PHONE_SMS_FAIL_CODE) {
       openCaptchaModal(true, {});
     }
   });
-  //update-end---author:wangshuai---date:2024-04-18---for:【QQYUN-9005】同一个IP，1分钟超过5次短信，则提示需要验证码---
   if (result) {
     const TIME_COUNT = 60;
     if (!unref(timer)) {
@@ -405,17 +302,10 @@ async function getLoginCode() {
   }
 }
 
-/**
- * 第三方登录
- * @param type
- */
 function onThirdLogin(type) {
   thirdModalRef.value.onThirdLogin(type);
 }
 
-/**
- * 忘记密码
- */
 function forgetHandelClick() {
   type.value = 'forgot';
   setTimeout(() => {
@@ -423,18 +313,11 @@ function forgetHandelClick() {
   }, 300);
 }
 
-/**
- * 返回登录页面
- */
 function goBack() {
   activeIndex.value = 'accountLogin';
   type.value = 'login';
 }
 
-/**
- * 忘记密码/注册账号回调事件
- * @param value
- */
 function handleSuccess(value) {
   Object.assign(formData, value);
   Object.assign(phoneFormData, { mobile: '', smscode: '' });
@@ -443,9 +326,6 @@ function handleSuccess(value) {
   handleChangeCheckCode();
 }
 
-/**
- * 注册
- */
 function registerHandleClick() {
   type.value = 'register';
   setTimeout(() => {
@@ -453,9 +333,6 @@ function registerHandleClick() {
   }, 300);
 }
 
-/**
- * 注册
- */
 function codeHandleClick() {
   type.value = 'codeLogin';
   setTimeout(() => {
@@ -463,252 +340,198 @@ function codeHandleClick() {
   }, 300);
 }
 
-// 登录
 const login = () => {
   loginHandleClick()
 }
-// 清除
-const handleClean = () => {
-  formData.inputCode = null
-  formData.username = null
-  formData.password = null
-}
 
 onMounted(() => {
-  //加载验证码
   handleChangeCheckCode();
 });
 </script>
 
 <style lang="less" scoped>
-@import '/@/assets/loginmini/style/home.less';
-@import '/@/assets/loginmini/style/base.less';
+@prefix-cls: ~'@{namespace}-mini-login';
 
-:deep(.ant-input:focus) {
-  box-shadow: none;
-}
-.aui-get-code {
-  float: right;
+.@{prefix-cls} {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a365d 0%, #2c5282 50%, #3182ce 100%);
   position: relative;
-  z-index: 3;
-  background: #ffffff;
-  color: #1573e9;
-  border-radius: 100px;
-  padding: 5px 16px;
-  margin: 7px;
-  border: 1px solid #1573e9;
-  top: 12px;
-}
 
-.aui-get-code:hover {
-  color: #1573e9;
-}
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='20' cy='20' r='2' fill='rgba(255,255,255,0.1)'/%3E%3Ccircle cx='80' cy='40' r='3' fill='rgba(255,255,255,0.08)'/%3E%3Ccircle cx='40' cy='80' r='2' fill='rgba(255,255,255,0.1)'/%3E%3Ccircle cx='70' cy='70' r='1.5' fill='rgba(255,255,255,0.06)'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+    pointer-events: none;
+  }
 
-.code-shape {
-  border-color: #dadada !important;
-  color: #aaa !important;
-}
+  .login-box {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 50px 45px;
+    border-radius: 16px;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+    width: 420px;
+    position: relative;
+    z-index: 1;
 
-:deep(.jeecg-dark-switch) {
-  position: absolute;
-  margin-right: 10px;
-}
-.aui-link-login {
-  height: 42px;
-  padding: 10px 15px;
-  font-size: 14px;
-  border-radius: 8px;
-  margin-top: 15px;
-  margin-bottom: 8px;
-  flex: 1;
-  color: #fff;
-}
-.aui-phone-logo {
-  position: absolute;
-  margin-left: 10px;
-  width: 60px;
-  top: 2px;
-  z-index: 4;
-}
-.top-3 {
-  top: 0.45rem;
+    .login-logo {
+      text-align: center;
+      margin-bottom: 35px;
+
+      .icon {
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(135deg, #3182ce, #2c5282);
+        border-radius: 14px;
+        margin: 0 auto 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 32px;
+      }
+
+      h1 {
+        font-size: 24px;
+        color: #1a365d;
+        margin-bottom: 8px;
+        font-weight: 600;
+      }
+
+      p {
+        font-size: 13px;
+        color: #718096;
+      }
+    }
+
+    .form-group {
+      margin-bottom: 22px;
+
+      label {
+        display: block;
+        font-size: 13px;
+        color: #4a5568;
+        margin-bottom: 8px;
+        font-weight: 500;
+      }
+
+      input {
+        width: 100%;
+        padding: 14px 16px;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 14px;
+        color: #2d3748;
+        transition: all 0.3s;
+        background: #fff;
+        outline: none;
+        box-sizing: border-box;
+
+        &:focus {
+          border-color: #3182ce;
+          box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+        }
+
+        &::placeholder {
+          color: #a0aec0;
+          font-size: 13px;
+        }
+      }
+
+      .captcha-row {
+        display: flex;
+        gap: 10px;
+
+        input {
+          flex: 1;
+        }
+
+        .captcha-img {
+          width: 100px;
+          height: 42px;
+          border-radius: 8px;
+          overflow: hidden;
+          cursor: pointer;
+          flex-shrink: 0;
+          border: 1px solid #e2e8f0;
+
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+        }
+      }
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #3182ce, #2c5282);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      letter-spacing: 4px;
+      margin-top: 10px;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(49, 130, 206, 0.35);
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+    }
+
+    .login-features {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 25px;
+      padding-top: 20px;
+      border-top: 1px solid #e2e8f0;
+
+      .login-feature {
+        text-align: center;
+
+        .num {
+          font-size: 20px;
+          font-weight: 700;
+          color: #3182ce;
+        }
+
+        .txt {
+          font-size: 11px;
+          color: #718096;
+          margin-top: 4px;
+        }
+      }
+    }
+  }
 }
 </style>
 
 <style lang="less">
 @prefix-cls: ~'@{namespace}-mini-login';
-@dark-bg: #293146;
 
 html[data-theme='dark'] {
   .@{prefix-cls} {
-    background-color: @dark-bg !important;
+    background-color: #293146 !important;
     background-image: none;
 
     &::before {
       background-image: url(/@/assets/svg/login-bg-dark.svg);
-    }
-    .aui-inputClear {
-      background-color: #232a3b !important;
-    }
-    .ant-input,
-    .ant-input-password {
-      background-color: #232a3b !important;
-    }
-
-    .ant-btn:not(.ant-btn-link):not(.ant-btn-primary) {
-      border: 1px solid #4a5569 !important;
-    }
-
-    &-form {
-      background: @dark-bg !important;
-    }
-
-    .app-iconify {
-      color: #fff !important;
-    }
-    .aui-inputClear input,
-    .aui-input-line input,
-    .aui-choice {
-      color: #c9d1d9 !important;
-    }
-
-    .aui-formBox {
-      background-color: @dark-bg !important;
-    }
-    .aui-third-text span {
-      background-color: @dark-bg !important;
-    }
-    .aui-form-nav .aui-flex-box {
-      color: #c9d1d9 !important;
-    }
-
-    .aui-formButton .aui-linek-code {
-      background: @dark-bg !important;
-      color: white !important;
-    }
-    .aui-code-line {
-      border-left: none !important;
-    }
-    .ant-checkbox-inner,
-    .aui-success h3 {
-      border-color: #c9d1d9;
-    }
-    //update-begin---author:wangshuai ---date:20230828  for：【QQYUN-6363】这个样式代码有问题，不在里面，导致表达式有问题------------
-    &-sign-in-way {
-      .anticon {
-        font-size: 22px !important;
-        color: #888 !important;
-        cursor: pointer !important;
-
-        &:hover {
-          color: @primary-color !important;
-        }
-      }
-    }
-    //update-end---author:wangshuai ---date:20230828  for：【QQYUN-6363】这个样式代码有问题，不在里面，导致表达式有问题------------
-  }
-
-  input.fix-auto-fill,
-  .fix-auto-fill input {
-    -webkit-text-fill-color: #c9d1d9 !important;
-    box-shadow: inherit !important;
-  }
-
-  .ant-divider-inner-text {
-    font-size: 12px !important;
-    color: @text-color-secondary !important;
-  }
-  .aui-third-login a {
-    background: transparent;
-  }
-}
-</style>
-
-<style lang="less" scoped>
-.aui-content {
-  background-image: url('/src/assets/images/loginBackground.png');
-  background-size: 100% 100%;
-
-  .aui-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-    .form-box {
-      width: 70%;
-      height: 45%;
-
-      .login-title {
-        background-color: #f9fbfdd7;
-        border-radius: 20px 20px 0 0;
-        height: 20%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 40px;
-        color: #000;
-        font-weight: 600;
-      }
-
-      .user-info {
-        height: 80%;
-        background-color: #9190905b;
-        .user-form {
-          height: 75%;
-          width: 100%;
-          padding-top: 18px;
-
-          .input-code-box {
-            display: flex;
-            align-items: center;
-            background-color: #fff;
-            padding-left: 10px;
-            border-radius: 5px;
-          }
-
-          .ant-form-item {
-            width: 100%;
-          }
-
-          .label-style{
-            height: 40px;
-            display: flex;
-            align-items: flex-end;
-            font-size: 26px;
-            color: #fff;
-            font-weight: 600;
-          }
-        }
-        .button-box {
-          display: flex;
-          height: 20%;
-          align-items: center;
-          justify-content: center;
-          width: 100%;
-          > div {
-            height: 40px;
-            width: 20%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            border-radius: 5px;
-
-            &:hover {
-              cursor: pointer;
-            }
-          }
-          .login-box {
-            background-color: #4a5569;
-            color: #fff;
-          }
-          .clean-box {
-            background-color: #fff;
-            color: #000;
-          }
-        }
-      }
     }
   }
 }
