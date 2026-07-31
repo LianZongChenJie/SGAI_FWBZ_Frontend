@@ -1,0 +1,1 @@
+export { default as EquipmengManagementDetails } from './equipmengManagementDetails/index.vue'
