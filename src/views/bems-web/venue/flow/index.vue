@@ -51,18 +51,7 @@
       </div>
     </div>
 
-    <div class="feature-panel">
-      <h4><InfoCircleOutlined /> 功能说明</h4>
-      <p>对场馆客流量进行实时监测和统计分析。平台与安防系统、票务系统对接，获取客流数据，提供客流趋势、客流对比、来源分析等数据可视化展示，支撑场馆运营决策。</p>
-      <div class="feature-list">
-        <div class="feature-list-item">多场馆客流实时统计</div>
-        <div class="feature-list-item">客流趋势分析与预测</div>
-        <div class="feature-list-item">客流高峰时段识别</div>
-        <div class="feature-list-item">客流来源渠道分析</div>
-        <div class="feature-list-item">场馆承载能力预警</div>
-        <div class="feature-list-item">客流数据报表导出</div>
-      </div>
-    </div>
+    
   </div>
 </template>
 

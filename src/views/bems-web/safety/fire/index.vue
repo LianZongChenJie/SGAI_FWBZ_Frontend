@@ -87,19 +87,7 @@
       </div>
     </div>
 
-    <!-- 功能说明 -->
-    <div class="feature-panel">
-      <h4><InfoCircleOutlined /> 功能说明</h4>
-      <p>对场馆内消防设备进行实时监测和管理，包括烟感探测器、喷淋系统、手动报警装置、消火栓等。平台与消防系统对接，获取设备运行状态、告警信息等数据，实现消防设备的集中管理和智能运维。</p>
-      <div class="feature-list">
-        <div class="feature-list-item">消防设备全生命周期管理</div>
-        <div class="feature-list-item">设备运行状态实时监测</div>
-        <div class="feature-list-item">设备告警智能分级推送</div>
-        <div class="feature-list-item">巡检计划自动编排与执行</div>
-        <div class="feature-list-item">设备故障智能诊断与派单</div>
-        <div class="feature-list-item">历史数据统计与报表导出</div>
-      </div>
-    </div>
+    
   </div>
 </template>
 

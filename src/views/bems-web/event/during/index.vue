@@ -70,18 +70,7 @@
       </div>
     </div>
 
-    <div class="feature-panel">
-      <h4><InfoCircleOutlined /> 功能说明</h4>
-      <p>对会展活动进行中的各类事务进行实时管理和调度。包括现场服务请求处理、实时客流监控、展位运营状态监测等，确保会展活动顺利进行。</p>
-      <div class="feature-list">
-        <div class="feature-list-item">展会现场服务请求实时处理</div>
-        <div class="feature-list-item">现场客流与展位使用率实时监测</div>
-        <div class="feature-list-item">展商服务工单流转与调度</div>
-        <div class="feature-list-item">现场设备故障快速响应</div>
-        <div class="feature-list-item">展会满意度实时采集</div>
-        <div class="feature-list-item">突发事件应急指挥调度</div>
-      </div>
-    </div>
+    
   </div>
 </template>
 

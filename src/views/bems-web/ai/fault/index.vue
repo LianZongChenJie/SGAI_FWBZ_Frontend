@@ -75,18 +75,7 @@
       </div>
     </div>
 
-    <div class="feature-panel">
-      <h4><InfoCircleOutlined /> 功能说明</h4>
-      <p>基于AI算法的设备故障智能分析平台，通过分析设备运行数据、历史故障记录、维护日志等多维数据，实现故障根因分析、故障预测预警、维护建议生成等功能，降低设备故障率。</p>
-      <div class="feature-list">
-        <div class="feature-list-item">AI设备故障智能诊断分析</div>
-        <div class="feature-list-item">故障根因定位与溯源</div>
-        <div class="feature-list-item">设备故障预测与预警</div>
-        <div class="feature-list-item">维护建议自动生成</div>
-        <div class="feature-list-item">故障统计分析报告</div>
-        <div class="feature-list-item">设备健康度评估</div>
-      </div>
-    </div>
+    
   </div>
 </template>
 

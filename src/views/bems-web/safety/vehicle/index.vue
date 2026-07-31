@@ -78,19 +78,7 @@
       </div>
     </div>
 
-    <!-- 功能说明 -->
-    <div class="feature-panel">
-      <h4><InfoCircleOutlined /> 功能说明</h4>
-      <p>通过车辆识别算法，对进出停车场的车辆进行识别、记录和管理。平台与停车管理系统对接，实时获取车辆进出数据、车位占用情况等，提供车辆出入记录查询、停车流量分析等业务功能。</p>
-      <div class="feature-list">
-        <div class="feature-list-item">车牌识别与车辆进出记录</div>
-        <div class="feature-list-item">停车场实时车位监测</div>
-        <div class="feature-list-item">停车流量趋势分析</div>
-        <div class="feature-list-item">车辆黑白名单管理</div>
-        <div class="feature-list-item">停车时长统计与收费管理</div>
-        <div class="feature-list-item">历史数据检索与报表导出</div>
-      </div>
-    </div>
+    
   </div>
 </template>
 

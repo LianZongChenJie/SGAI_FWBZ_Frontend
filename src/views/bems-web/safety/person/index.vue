@@ -153,19 +153,7 @@
       </div>
     </div>
 
-    <!-- 功能说明 -->
-    <div class="feature-panel">
-      <h4><InfoCircleOutlined /> 功能说明</h4>
-      <p>通过人员识别算法，分析人员数据，包括人员特征分析及检索、人员轨迹查询、场馆客流统计等。平台与安防系统对接，获取安防系统内的人员数据、人员分析数据等基础数据，平台通过人员信息检索构建人员轨迹、场馆客流等业务应用功能。</p>
-      <div class="feature-list">
-        <div class="feature-list-item">人脸识别特征提取与比对分析</div>
-        <div class="feature-list-item">人员轨迹跨摄像头追踪与还原</div>
-        <div class="feature-list-item">场馆实时客流密度热力图展示</div>
-        <div class="feature-list-item">人员属性标签化管理（员工/访客/VIP）</div>
-        <div class="feature-list-item">异常行为智能识别与预警推送</div>
-        <div class="feature-list-item">历史人员数据检索与报表导出</div>
-      </div>
-    </div>
+    
   </div>
 </template>
 
@@ -369,52 +357,4 @@ const recognitionData = [
   }
 }
 
-// 功能说明面板
-.feature-panel {
-  background: linear-gradient(135deg, #f0f4ff 0%, #faf5ff 100%);
-  border-radius: 12px;
-  padding: 24px;
-  margin-top: 20px;
-  border: 1px solid #e8e0f0;
-
-  h4 {
-    font-size: 15px;
-    font-weight: 600;
-    color: #2d3748;
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  p {
-    font-size: 13px;
-    color: #4a5568;
-    line-height: 1.8;
-    margin-bottom: 16px;
-  }
-
-  .feature-list {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-
-    .feature-list-item {
-      font-size: 12px;
-      color: #5a6a8a;
-      padding: 8px 12px;
-      background: rgba(255, 255, 255, 0.7);
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-
-      &::before {
-        content: '✓';
-        color: #52c41a;
-        font-weight: 700;
-      }
-    }
-  }
-}
 </style>

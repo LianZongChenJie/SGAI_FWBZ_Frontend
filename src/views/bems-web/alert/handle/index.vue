@@ -50,18 +50,7 @@
       </div>
     </div>
 
-    <div class="feature-panel">
-      <h4><InfoCircleOutlined /> 功能说明</h4>
-      <p>对平台产生的各类告警信息进行集中处理和管理。支持告警确认、工单流转、视频核验、误报标记等操作，实现告警全生命周期管理，确保告警及时有效处理。</p>
-      <div class="feature-list">
-        <div class="feature-list-item">告警信息集中展示与分类过滤</div>
-        <div class="feature-list-item">告警确认与处理流程管理</div>
-        <div class="feature-list-item">工单自动流转与派发</div>
-        <div class="feature-list-item">视频远程核验告警现场</div>
-        <div class="feature-list-item">告警误报标记与反馈</div>
-        <div class="feature-list-item">告警处理统计与KPI分析</div>
-      </div>
-    </div>
+    
   </div>
 </template>
 

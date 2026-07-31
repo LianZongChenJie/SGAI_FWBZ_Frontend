@@ -65,18 +65,7 @@
       </div>
     </div>
 
-    <div class="feature-panel">
-      <h4><InfoCircleOutlined /> 功能说明</h4>
-      <p>AI自动生成各维度运行分析报告，涵盖能源消耗、设备运行、碳排放、场馆运营等数据。支持日报、周报、月报、季报等多种报告类型，提供数据趋势分析和异常预警，辅助运营管理决策。</p>
-      <div class="feature-list">
-        <div class="feature-list-item">多维度运行报告自动生成</div>
-        <div class="feature-list-item">日报/周报/月报/季报全面覆盖</div>
-        <div class="feature-list-item">AI智能数据分析和异常预警</div>
-        <div class="feature-list-item">报告在线查看与下载</div>
-        <div class="feature-list-item">历史报告归档与检索</div>
-        <div class="feature-list-item">报告数据可视化展示</div>
-      </div>
-    </div>
+    
   </div>
 </template>
 

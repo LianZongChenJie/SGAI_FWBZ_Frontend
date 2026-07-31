@@ -60,18 +60,7 @@
       </div>
     </div>
 
-    <div class="feature-panel">
-      <h4><InfoCircleOutlined /> 功能说明</h4>
-      <p>基于AI算法对场馆能源消耗进行智能优化，通过分析历史能耗数据、设备运行参数、环境因素等多维数据，自动生成节能优化策略，实现能源消耗的精细化管理。</p>
-      <div class="feature-list">
-        <div class="feature-list-item">AI智能节能策略自动生成</div>
-        <div class="feature-list-item">空调/照明/设备等多系统协同优化</div>
-        <div class="feature-list-item">节能效果实时量化评估</div>
-        <div class="feature-list-item">节能策略自适应调整</div>
-        <div class="feature-list-item">能耗异常智能诊断</div>
-        <div class="feature-list-item">节能报告自动生成</div>
-      </div>
-    </div>
+    
   </div>
 </template>
 

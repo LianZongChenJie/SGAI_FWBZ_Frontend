@@ -33,18 +33,7 @@
       </div>
     </div>
 
-    <div class="feature-panel">
-      <h4><InfoCircleOutlined /> 功能说明</h4>
-      <p>平台与多系统对接，对设备运行实时数据、定时数据、故障报警数据等实时数据及异变数据进行数据采集，并对数据进行处理、存储、推送。新增多个系统的数据采集，对设备运行实时数据、定时数据、故障报警数据等实时数据及异变数据进行数据采集，并对数据进行处理、存储、推送。</p>
-      <div class="feature-list">
-        <div class="feature-list-item">实时数据高频采集（秒级/毫秒级）</div>
-        <div class="feature-list-item">定时数据批量采集与汇总</div>
-        <div class="feature-list-item">故障报警数据实时推送</div>
-        <div class="feature-list-item">数据异变检测与异常标记</div>
-        <div class="feature-list-item">数据清洗、转换与标准化处理</div>
-        <div class="feature-list-item">时序数据库存储与压缩归档</div>
-      </div>
-    </div>
+    
   </div>
 </template>
 
