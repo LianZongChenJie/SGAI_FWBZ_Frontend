@@ -1,12 +1,15 @@
 <template>
   <div class="device-model">
-    <div class="title-box"> 🔧&ensp;设备模型属性({{ tableTitle }}) </div>
-    <BasicTable @register="registerTable">
-      <!-- 表格顶部按钮 -->
-      <template #tableTitle>
-        <a-button type="primary" :icon="h(PlusOutlined)" @click="handleAdd"> 新增 </a-button>
+    <a-card :title="cardTitle" :bordered="false">
+      <template #extra>
+        <a-button type="primary" @click="handleAdd">
+          <template #icon><PlusOutlined /></template>
+          新增
+        </a-button>
       </template>
-      <template #bodyCell="{ column, record }">
+
+      <BasicTable @register="registerTable">
+        <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'active'">
           <a-space>
             <a @click="handleedit(record)"> <EditOutlined />编辑 </a>
@@ -17,6 +20,7 @@
         </template>
       </template>
     </BasicTable>
+    </a-card>
     <a-modal
       v-model:visible="modalVisible"
       :title="isUpdate ? '编辑模型属性' : '新增模型属性'"
@@ -71,12 +75,13 @@
   import { DatabaseFilled } from '@ant-design/icons-vue';
   import { BasicColumn, BasicTable, FormSchema } from '/@/components/Table';
   import { useListPage } from '/@/hooks/system/useListPage';
-  import { onMounted, reactive, ref } from 'vue';
+  import { computed, onMounted, reactive, ref } from 'vue';
   import { h } from 'vue';
   import { PlusOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons-vue';
   import { message } from 'ant-design-vue';
 
   const tableTitle = ref('');
+  const cardTitle = computed(() => `🔧 设备模型属性(${tableTitle.value})`);
   const formRef = ref();
   let targetModel = reactive<any>({});
 
@@ -277,16 +282,8 @@
 
 <style scoped lang="less">
   .device-model {
-    padding: 10px;
-    .title-box {
-      height: 40px;
-      display: flex;
-      justify-content: flex-start;
-      align-items: center;
-      padding: 0 10px;
-      font-size: 18px;
-      font-weight: 600;
-      color: #000;
+    :deep(.ant-card) {
+      border-radius: 8px;
     }
   }
 </style>

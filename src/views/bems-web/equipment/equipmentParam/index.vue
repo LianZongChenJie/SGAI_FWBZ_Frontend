@@ -25,22 +25,24 @@
 <style scoped lang="less">
   .data-model-main-box {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: flex-start;
     gap: 15px;
     padding: 15px;
-    height: 100%;
+    min-height: 100%;
     background-color: #f5f2f2;
     .model-box,
     .attribute-box {
-      width: 100%;
       border-radius: 10px;
       background-color: #fff;
+      overflow: hidden;
     }
     .model-box {
-      height: 56%;
+      width: 48%;
+      flex-shrink: 0;
     }
     .attribute-box {
-      height: 42%;
+      flex: 1;
     }
   }
 </style>

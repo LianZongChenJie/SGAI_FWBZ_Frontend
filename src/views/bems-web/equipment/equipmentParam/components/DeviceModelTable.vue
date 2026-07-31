@@ -1,15 +1,15 @@
 <template>
   <div class="device-model">
-    <div class="title-box"> 🔧&ensp;设备模型 </div>
-    <BasicTable @register="registerTable" :rowSelection="rowSelection" @row-click="selectTargetModel">
-      <!-- 表格顶部按钮 -->
-      <template #tableTitle>
-        <a-button type="primary" :icon="h(PlusOutlined)" @click="handleAdd"> 新增 </a-button>
-        <!-- <a-popconfirm title="确认删除选中数据？" ok-text="确定" cancel-text="取消" @confirm="confirmDeleteBatc()">
-          <a-button type="primary" danger style="margin-left: 8px" :icon="h(DeleteOutlined)"> 批量删除 </a-button>
-        </a-popconfirm> -->
+    <a-card :title="'🔧 设备模型'" :bordered="false">
+      <template #extra>
+        <a-button type="primary" @click="handleAdd">
+          <template #icon><PlusOutlined /></template>
+          新增
+        </a-button>
       </template>
-      <template #form-categoryId="{ model, field }">
+
+      <BasicTable @register="registerTable" @row-click="selectTargetModel">
+        <template #form-categoryId="{ model, field }">
         <a-tree-select
           v-model:value="model[field]"
           :tree-data="spaceTreeData"
@@ -34,6 +34,7 @@
         </template>
       </template>
     </BasicTable>
+    </a-card>
     <a-modal v-model:visible="modalVisible" :title="isUpdate ? '编辑模型' : '新增模型'" width="600px" @ok="handleSubmit" @cancel="handleCancel">
       <div style="padding: 10px">
         <a-form :model="formState" :label-col="{ span: 8 }" :wrapper-col="{ span: 16 }" layout="inline">
@@ -66,11 +67,11 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
-  import { getCategoryDataList, getDeviceModelList, addModel, updateModel, deleteModel, deleteBatchModel } from './Model.api';
+  import { getCategoryDataList, getDeviceModelList, addModel, updateModel, deleteModel } from './Model.api';
   import { DatabaseFilled } from '@ant-design/icons-vue';
   import { BasicColumn, BasicTable, FormSchema } from '/@/components/Table';
   import { useListPage } from '/@/hooks/system/useListPage';
-  import { h, onMounted, reactive, nextTick } from 'vue';
+  import { onMounted, reactive, nextTick } from 'vue';
   import { PlusOutlined, DeleteOutlined, InboxOutlined, EditOutlined } from '@ant-design/icons-vue';
   import { message } from 'ant-design-vue';
   import { Item } from 'ant-design-vue/es/menu';
@@ -169,8 +170,6 @@
       },
       showTableSetting: false,
       rowkey: 'id',
-      //定义rowSelection的类型，默认是checkbox多选，可以设置成radio单选
-      rowSelection: { type: 'checkbox' },
       // formConfig: {
       //   schemas: searchFormSchema,
       //   submitOnReset: true,
@@ -224,7 +223,7 @@
   }
 
   // BasicTable绑定注册
-  const [registerTable, { reload, getForm }, { rowSelection, selectedRows, selectedRowKeys }] = tableContext;
+  const [registerTable, { reload, getForm }] = tableContext;
 
   const modalVisible = ref<boolean>(false);
   const isUpdate = ref<boolean>(false);
@@ -299,21 +298,6 @@
     formState.categoryId = '';
   };
 
-  const confirmDeleteBatc = async () => {
-    console.log(selectedRowKeys.value);
-    if (!selectedRowKeys.value.length) {
-      message.error('未选择任何数据！');
-    } else {
-      let ids = selectedRowKeys.value.reduce((ids, item) => {
-        return item + ',' + ids;
-      });
-      await deleteBatchModel({ ids: ids });
-      message.success('删除成功！');
-      // 刷新表格
-      reload();
-    }
-  };
-
   // 选择某个行
   const selectTargetModel = (record) => {
     props.getTargetModel(record);
@@ -330,29 +314,8 @@
 
 <style scoped lang="less">
   .device-model {
-    padding: 10px;
-    overflow: hidden;
-    max-width: 100%;
-
-    :deep(.ant-table-wrapper),
-    :deep(.ant-table),
-    :deep(.ant-table-container) {
-      max-width: 100%;
-    }
-
-    :deep(.ant-table-body) {
-      overflow-x: auto;
-    }
-
-    .title-box {
-      height: 40px;
-      display: flex;
-      justify-content: flex-start;
-      align-items: center;
-      padding: 0 10px;
-      font-size: 18px;
-      font-weight: 600;
-      color: #000;
+    :deep(.ant-card) {
+      border-radius: 8px;
     }
   }
 </style>
