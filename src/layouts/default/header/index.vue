@@ -1,96 +1,75 @@
 <template>
   <Header :class="getHeaderClass">
-    <!-- left start -->
+    <!-- left: breadcrumb -->
     <div :class="`${prefixCls}-left`">
-      <!-- logo -->
-      <AppLogo v-if="getShowHeaderLogo || getIsMobile" :class="`${prefixCls}-logo`" :theme="getHeaderTheme" :style="getLogoWidth" />
-      <LayoutTrigger
-        v-if="(getShowContent && getShowHeaderTrigger && !getSplit && !getIsMixSidebar) || getIsMobile"
-        :theme="getHeaderTheme"
-        :sider="false"
-      />
-      <LayoutBreadcrumb v-if="getShowContent && getShowBread" :theme="getHeaderTheme" />
-      <!-- 欢迎语 -->
-      <span v-if="getShowContent && getShowBreadTitle && !getIsMobile" :class="[prefixCls, `${prefixCls}--${getHeaderTheme}`,'headerIntroductionClass']"> {{t('layout.header.welcomeIn')}} {{ title }} </span>
+      <div class="breadcrumb">
+        <span>首页</span>
+        <span class="separator">/</span>
+        <span class="current">{{ breadcrumbTitle }}</span>
+      </div>
     </div>
-    <!-- left end -->
 
-    <!-- menu start -->
-    <div :class="`${prefixCls}-menu`" v-if="getShowTopMenu && !getIsMobile">
-      <LayoutMenu :isHorizontal="true" :theme="getHeaderTheme" :splitType="getSplitType" :menuMode="getMenuMode" />
-    </div>
-    <!-- menu-end -->
-
-    <!-- action  -->
+    <!-- right: action items -->
     <div :class="`${prefixCls}-action`">
-      <AppSearch :class="`${prefixCls}-action__item `" v-if="getShowSearch" />
+      <!-- 告警 -->
+      <div class="topbar-item">
+        <Notify />
+      </div>
 
-      <ErrorAction v-if="getUseErrorHandle" :class="`${prefixCls}-action__item error-action`" />
+      <!-- 日期 -->
+      <div class="topbar-item">
+        <span>📅</span>
+        <span>{{ currentDate }}</span>
+      </div>
 
-      <Notify v-if="getShowNotice" :class="`${prefixCls}-action__item notify-item`" />
+      <!-- 天气 -->
+      <div class="topbar-item">
+        <span>🌤️</span>
+        <span>28°C 晴</span>
+      </div>
 
-      <FullScreen v-if="getShowFullScreen" :class="`${prefixCls}-action__item fullscreen-item`" />
-
-      <LockScreen v-if="getUseLockPage" />
-
-      <AppLocalePicker v-if="getShowLocalePicker" :reload="true" :showText="false" :class="`${prefixCls}-action__item`" />
-
-      <UserDropDown :theme="getHeaderTheme" />
-
-      <!-- ai助手 -->
-      <!-- <Aide></Aide> -->
+      <!-- 用户信息（带下拉菜单-仅退出登录） -->
+      <Dropdown placement="bottomRight" class="topbar-item user-dropdown">
+        <span class="user-info-trigger">
+          <div class="user-avatar">{{ userNameInitial }}</div>
+          <span class="user-name">{{ userName }}</span>
+        </span>
+        <template #overlay>
+          <Menu @click="handleUserMenuClick">
+            <MenuItem itemKey="logout" text="退出登录" icon="ion:power-outline" />
+          </Menu>
+        </template>
+      </Dropdown>
     </div>
   </Header>
-  <LoginSelect ref="loginSelectRef" @success="loginSelectOk"></LoginSelect>
+  <LoginSelect ref="loginSelectRef" @success="loginSelectOk" />
 </template>
 <script lang="ts">
-  import { defineComponent, unref, computed, ref, onMounted, toRaw } from 'vue';
-  import { useGlobSetting } from '/@/hooks/setting';
+  import { defineComponent, computed, ref, unref, onMounted, toRaw, defineAsyncComponent } from 'vue';
+  import { useRoute } from 'vue-router';
   import { propTypes } from '/@/utils/propTypes';
 
-  import { Layout } from 'ant-design-vue';
-  import { AppLogo } from '/@/components/Application';
-  import LayoutMenu from '../menu/index.vue';
-  import LayoutTrigger from '../trigger/index.vue';
-
-  import { AppSearch } from '/@/components/Application';
+  import { Layout, Dropdown, Menu } from 'ant-design-vue';
 
   import { useHeaderSetting } from '/@/hooks/setting/useHeaderSetting';
-  import { useMenuSetting } from '/@/hooks/setting/useMenuSetting';
-  import { useRootSetting } from '/@/hooks/setting/useRootSetting';
 
-  import { MenuModeEnum, MenuSplitTyeEnum } from '/@/enums/menuEnum';
-  import { AppLocalePicker } from '/@/components/Application';
-
-  import { UserDropDown, LayoutBreadcrumb, FullScreen, Notify, ErrorAction, LockScreen } from './components';
+  import { Notify } from './components';
   import { useAppInject } from '/@/hooks/web/useAppInject';
   import { useDesign } from '/@/hooks/web/useDesign';
 
-  import { useLocale } from '/@/locales/useLocale';
-
   import LoginSelect from '/@/views/sys/login/LoginSelect.vue';
   import { useUserStore } from '/@/store/modules/user';
-  import { useI18n } from '/@/hooks/web/useI18n';
-  import Aide from "@/views/dashboard/ai/components/aide/index.vue"
-  const { t } = useI18n();
+  import dayjs from 'dayjs';
 
   export default defineComponent({
     name: 'LayoutHeader',
     components: {
       Header: Layout.Header,
-      AppLogo,
-      LayoutTrigger,
-      LayoutBreadcrumb,
-      LayoutMenu,
-      UserDropDown,
-      AppLocalePicker,
-      FullScreen,
+      Dropdown,
+      Menu,
+      MenuItem: defineAsyncComponent(() => import('./components/user-dropdown/DropMenuItem.vue')),
       Notify,
-      AppSearch,
-      ErrorAction,
-      LockScreen,
       LoginSelect,
-      Aide
     },
     props: {
       fixed: propTypes.bool,
@@ -98,25 +77,43 @@
     setup(props) {
       const { prefixCls } = useDesign('layout-header');
       const userStore = useUserStore();
-      const { getShowTopMenu, getShowHeaderTrigger, getSplit, getIsMixMode, getMenuWidth, getIsMixSidebar } = useMenuSetting();
-      const { getUseErrorHandle } = useRootSetting();
-      const { title } = useGlobSetting();
-
-      const {
-        getHeaderTheme,
-        getShowFullScreen,
-        getShowNotice,
-        getShowContent,
-        getShowBread,
-        getShowHeaderLogo,
-        getShowSearch,
-        getUseLockPage,
-        getShowBreadTitle,
-      } = useHeaderSetting();
-
-      const { getShowLocalePicker } = useLocale();
+      const route = useRoute();
+      const { getHeaderTheme } = useHeaderSetting();
 
       const { getIsMobile } = useAppInject();
+
+      // 计算面包屑标题
+      const breadcrumbTitle = computed(() => {
+        const matched = route.matched;
+        // 跳过根路由和bems-web布局路由
+        const matchedRoutes = matched.filter((r) => r.name && r.path !== '/' && r.path !== '/bems-web');
+        // 如果是二级路由，显示 "一级/二级"
+        if (matchedRoutes.length >= 2) {
+          const parentTitle = matchedRoutes[matchedRoutes.length - 2]?.meta?.title || '';
+          const currentTitle = matchedRoutes[matchedRoutes.length - 1]?.meta?.title || '';
+          return `${parentTitle} / ${currentTitle}`;
+        }
+        // 如果是一级路由，直接显示标题
+        if (matchedRoutes.length === 1) {
+          return matchedRoutes[0]?.meta?.title || '';
+        }
+        return '';
+      });
+
+      // 当前日期
+      const currentDate = computed(() => {
+        return dayjs().format('YYYY-MM-DD');
+      });
+
+      // 用户信息
+      const userName = computed(() => {
+        return userStore.getUserInfo?.realname || '管理员';
+      });
+
+      const userNameInitial = computed(() => {
+        const name = userName.value;
+        return name.charAt(0);
+      });
 
       const getHeaderClass = computed(() => {
         const theme = unref(getHeaderTheme);
@@ -130,21 +127,12 @@
         ];
       });
 
-      const getLogoWidth = computed(() => {
-        if (!unref(getIsMixMode) || unref(getIsMobile)) {
-          return {};
+      // 用户下拉菜单点击处理 - 仅退出登录
+      function handleUserMenuClick({ key }: Record<string, any>) {
+        if (key === 'logout') {
+          userStore.confirmLoginOut();
         }
-        const width = unref(getMenuWidth) < 180 ? 180 : unref(getMenuWidth);
-        return { width: `${width}px` };
-      });
-
-      const getSplitType = computed(() => {
-        return unref(getSplit) ? MenuSplitTyeEnum.TOP : MenuSplitTyeEnum.NONE;
-      });
-
-      const getMenuMode = computed(() => {
-        return unref(getSplit) ? MenuModeEnum.HORIZONTAL : null;
-      });
+      }
 
       /**
        * 首页多租户部门弹窗逻辑
@@ -172,29 +160,14 @@
       return {
         prefixCls,
         getHeaderClass,
-        getShowHeaderLogo,
-        getHeaderTheme,
-        getShowHeaderTrigger,
         getIsMobile,
-        getShowBreadTitle,
-        getShowBread,
-        getShowContent,
-        getSplitType,
-        getSplit,
-        getMenuMode,
-        getShowTopMenu,
-        getShowLocalePicker,
-        getShowFullScreen,
-        getShowNotice,
-        getUseErrorHandle,
-        getLogoWidth,
-        getIsMixSidebar,
-        getShowSearch,
-        getUseLockPage,
-        loginSelectOk,
         loginSelectRef,
-        title,
-        t
+        loginSelectOk,
+        breadcrumbTitle,
+        currentDate,
+        userName,
+        userNameInitial,
+        handleUserMenuClick,
       };
     },
   });
