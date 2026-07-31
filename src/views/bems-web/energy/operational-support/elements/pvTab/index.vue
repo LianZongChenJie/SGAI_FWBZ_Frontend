@@ -8,7 +8,7 @@
         :change-text="data?.stats?.[0]?.changeText ?? '↑ 4 新增'"
         trend="up"
         color="blue"
-        :icon="SunOutlined"
+        :icon="FieldNumberOutlined"
       />
       <StatCard
         label="装机容量"
@@ -24,7 +24,7 @@
         :change-text="data?.stats?.[2]?.changeText ?? '↑ 12.3% kWh'"
         trend="up"
         color="orange"
-        :icon="BatteryFullOutlined"
+        :icon="ThunderboltOutlined"
       />
       <StatCard
         label="发电效率"
@@ -122,12 +122,11 @@
 import { ref, computed } from 'vue'
 import { StatCard } from '/@/views/bems-web/components'
 import {
-  SunOutlined,
   ThunderboltOutlined,
-  BatteryFullOutlined,
   ArrowUpOutlined,
   BarChartOutlined,
   BankOutlined,
+  FieldNumberOutlined
 } from '@ant-design/icons-vue'
 
 defineOptions({ name: 'PvTab' })

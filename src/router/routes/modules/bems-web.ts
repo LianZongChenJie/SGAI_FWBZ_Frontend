@@ -6,21 +6,26 @@ import { LAYOUT } from '/@/router/constant';
  * 使用 LAYOUT 布局：左侧菜单 + 右侧面包屑+用户信息+内容区
  */
 const bemsWeb: AppRouteModule = {
-  path: '/bems-web',
-  name: 'BemsWeb',
+  path: '/fwbz',
+  name: 'FWBZ',
   component: LAYOUT,
+  redirect: '/fwbz/overview',
   meta: {
-    orderNo: 20,
-    icon: 'ion:grid-outline',
-    title: '会展小镇服务保障平台',
+    title: '总览仪表盘',
+    hideChildrenInMenu: true, // 隐藏子菜单，让一级菜单可以直接点击
   },
   children: [
     // ===== 总览仪表盘 =====
     {
-      path: 'dashboard',
-      name: 'BemsWebDashboard',
-      component: () => import('/@/views/bems-web/dashboard/index.vue'),
-      meta: { title: '总览仪表盘' },
+      path: 'overview',
+      name: 'FWBZOverview',
+      component: () => import('/@/views/bems-web/overview/index.vue'),
+      meta: {
+        hideMenu: true,          // 隐藏此菜单项
+        hideBreadcrumb: true,    // 隐藏面包屑
+        title: '总览仪表盘',
+        currentActiveMenu: '/fwbz', // 当前激活的菜单项，确保一级菜单被选中
+      },
     },
 
     // ===== 韧性安全 =====
@@ -28,7 +33,7 @@ const bemsWeb: AppRouteModule = {
       path: 'safety',
       name: 'BemsWebSafety',
       meta: { title: '韧性安全' },
-      redirect: '/bems-web/safety/person',
+      redirect: '/fwbz/safety/person',
       children: [
         {
           path: 'person',
@@ -62,7 +67,7 @@ const bemsWeb: AppRouteModule = {
       path: 'energy',
       name: 'BemsWebEnergy',
       meta: { title: '节能低碳' },
-      redirect: '/bems-web/energy/operational-support',
+      redirect: '/fwbz/energy/operational-support',
       children: [
         {
           path: 'operational-support',
@@ -96,7 +101,7 @@ const bemsWeb: AppRouteModule = {
       path: 'iot',
       name: 'BemsWebIot',
       meta: { title: '物联网' },
-      redirect: '/bems-web/iot/interface',
+      redirect: '/fwbz/iot/interface',
       children: [
         {
           path: 'interface',
@@ -124,7 +129,7 @@ const bemsWeb: AppRouteModule = {
       path: 'alert',
       name: 'BemsWebAlert',
       meta: { title: '故障告警' },
-      redirect: '/bems-web/alert/setting',
+      redirect: '/fwbz/alert/setting',
       children: [
         {
           path: 'setting',
@@ -146,7 +151,7 @@ const bemsWeb: AppRouteModule = {
       path: 'venue',
       name: 'BemsWebVenue',
       meta: { title: '场馆运营' },
-      redirect: '/bems-web/venue/flow',
+      redirect: '/fwbz/venue/flow',
       children: [
         {
           path: 'flow',
@@ -168,7 +173,7 @@ const bemsWeb: AppRouteModule = {
       path: 'event',
       name: 'BemsWebEvent',
       meta: { title: '会展服务' },
-      redirect: '/bems-web/event/pre',
+      redirect: '/fwbz/event/pre',
       children: [
         {
           path: 'pre',
@@ -196,7 +201,7 @@ const bemsWeb: AppRouteModule = {
       path: 'ai',
       name: 'BemsWebAi',
       meta: { title: 'AI运行报告' },
-      redirect: '/bems-web/ai/carbon',
+      redirect: '/fwbz/ai/carbon',
       children: [
         {
           path: 'carbon',

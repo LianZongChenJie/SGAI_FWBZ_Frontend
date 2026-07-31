@@ -375,6 +375,7 @@ onMounted(() => {
   .login-box {
     background: rgba(255, 255, 255, 0.95);
     padding: 50px 45px;
+    margin: 20px 0;
     border-radius: 16px;
     box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
     width: 420px;
