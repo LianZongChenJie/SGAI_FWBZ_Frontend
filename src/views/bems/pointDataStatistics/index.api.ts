@@ -3,14 +3,16 @@ import { useMessage } from '/@/hooks/web/useMessage';
 
 const { createConfirm } = useMessage();
 enum Api {
-  findHour = '/bems/meterPointData/findMinute',
-  findDay = '/bems/meterPointData/findDay',
-  findMonth = '/bems/meterPointData/findMonth',
-  findYear = '/bems/meterPointData/findYear',
+  findHour = '/sgai-tp/fwbz/meterPointData/findMinute',
+  findDay = '/sgai-tp/fwbz/meterPointData/findDay',
+  findMonth = '/sgai-tp/fwbz/meterPointData/findMonth',
+  findYear = '/sgai-tp/fwbz/meterPointData/findYear',
   energyFlowType = '/sys/dict/getDictItems/energy_flow_type',
   // energyFlowTree = '/bems/meteringPoint/getTree',
-  energyFlowTree = '/bems/meteringPoint/getPermissionTree',
-  test = '/bems/test/test',
+  // energyFlowTree = '/sgai-tp/fwbz/meteringPoint/getPermissionTree',
+  energyFlowTree = '/sgai-tp/fwbz/meteringPoint/getTree',
+
+  test = '/sgai-tp/fwbz/test/test',
 }
 
 /**

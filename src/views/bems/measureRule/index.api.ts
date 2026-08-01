@@ -4,21 +4,27 @@ import { useMessage } from '/@/hooks/web/useMessage';
 const { createConfirm } = useMessage();
 enum Api {
   // categoryTree = '/bems/equipmentCategory/measuring/getTree',
-  categoryTree = '/bems/equipmentCategory/measuring/getPermissionTree',
+  // categoryTree = '/sgai-tp/fwbz/equipmentCategory/measuring/getPermissionTree',
+  categoryTree = '/sgai-tp/fwbz/equipmentCategory/measuring/getTree',
+
   // spaceTree = '/bems/space/getTree',
-  spaceTree = '/bems/space/getPermissionTree',
-  unitList = '/bems/unitManagement/findAll',
-  analyticFormula = '/bems/meteringPoint/analyticFormula',
-  saveFormula = '/bems/meteringPoint/saveFormula',
+  // spaceTree = '/sgai-tp/fwbz/space/getPermissionTree',
+  spaceTree = '/sgai-tp/fwbz/space/getTree',
+
+  unitList = '/sgai-tp/fwbz/unitManagement/findAll',
+  analyticFormula = '/sgai-tp/fwbz/meteringPoint/analyticFormula',
+  saveFormula = '/sgai-tp/fwbz/meteringPoint/saveFormula',
   energyFlowType = '/sys/dict/getDictItems/energy_flow_type',
   // energyFlowTree = '/bems/meteringPoint/getTree',
-  energyFlowTree = '/bems/meteringPoint/getPermissionTree',
-  addMeasureRule = '/bems/meteringPoint/add',
-  deleteMeasureRule = '/bems/meteringPoint/delete',
-  editMeasureRule = '/bems/meteringPoint/edit',
-  ruleList = '/bems/meteringPoint/list',
-  pointList = '/bems/meteringPoint/listPoint',
-  treeNodeDetail = '/bems/meteringPoint/getById',
+  // energyFlowTree = '/sgai-tp/fwbz/meteringPoint/getPermissionTree',
+  energyFlowTree = '/sgai-tp/fwbz/meteringPoint/getTree',
+
+  addMeasureRule = '/sgai-tp/fwbz/meteringPoint/add',
+  deleteMeasureRule = '/sgai-tp/fwbz/meteringPoint/delete',
+  editMeasureRule = '/sgai-tp/fwbz/meteringPoint/edit',
+  ruleList = '/sgai-tp/fwbz/meteringPoint/list',
+  pointList = '/sgai-tp/fwbz/meteringPoint/listPoint',
+  treeNodeDetail = '/sgai-tp/fwbz/meteringPoint/getById',
 }
 
 /**
