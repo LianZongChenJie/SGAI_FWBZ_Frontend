@@ -68,18 +68,7 @@
       </div>
     </div>
 
-    <div class="feature-panel">
-      <h4><InfoCircleOutlined /> 功能说明</h4>
-      <p>对会展活动前期筹备工作进行统一管理，包括展商信息管理、展前任务分配与进度跟踪、展位规划等。支持展商注册审核、展位分配、展前准备工作流程化管理。</p>
-      <div class="feature-list">
-        <div class="feature-list-item">展商信息注册与审核管理</div>
-        <div class="feature-list-item">展前准备任务分配与跟踪</div>
-        <div class="feature-list-item">展位规划与分配管理</div>
-        <div class="feature-list-item">展商证件办理与发放</div>
-        <div class="feature-list-item">展会物料准备与配送</div>
-        <div class="feature-list-item">展前准备工作进度看板</div>
-      </div>
-    </div>
+    
   </div>
 </template>
 

@@ -43,18 +43,7 @@
       </div>
     </div>
 
-    <div class="feature-panel">
-      <h4><InfoCircleOutlined /> 功能说明</h4>
-      <p>对物联网对接的各个平台的链路、接口运行状态、数据采集状态、数据处理状态进行监控，保障平台稳定运行。对物联网对接的各个平台的链路、接口运行状态、数据采集状态、数据处理状态进行监控，保障平台稳定运行。</p>
-      <div class="feature-list">
-        <div class="feature-list-item">网络链路连通性实时探测</div>
-        <div class="feature-list-item">接口程序运行状态监控</div>
-        <div class="feature-list-item">数据采集完整性校验</div>
-        <div class="feature-list-item">数据处理流水线监控</div>
-        <div class="feature-list-item">异常自动告警与故障转移</div>
-        <div class="feature-list-item">平台稳定性SLI/SLO看板</div>
-      </div>
-    </div>
+    
   </div>
 </template>
 

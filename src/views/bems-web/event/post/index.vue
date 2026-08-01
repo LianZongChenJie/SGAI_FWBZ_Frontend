@@ -63,18 +63,7 @@
       </div>
     </div>
 
-    <div class="feature-panel">
-      <h4><InfoCircleOutlined /> 功能说明</h4>
-      <p>对已完成的会展活动进行总结分析和数据沉淀。自动生成展会总结报告，包含客流数据、成交情况、展商满意度等多维度分析，为后续展会运营提供数据支撑。</p>
-      <div class="feature-list">
-        <div class="feature-list-item">展会总结报告自动生成</div>
-        <div class="feature-list-item">多维度数据统计分析</div>
-        <div class="feature-list-item">展商满意度调查与评价</div>
-        <div class="feature-list-item">展会投入产出分析</div>
-        <div class="feature-list-item">展会数据报告导出</div>
-        <div class="feature-list-item">展会运营优化建议</div>
-      </div>
-    </div>
+    
   </div>
 </template>
 

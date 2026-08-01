@@ -65,18 +65,7 @@
       </div>
     </div>
 
-    <div class="feature-panel">
-      <h4><InfoCircleOutlined /> 功能说明</h4>
-      <p>基于AI深度学习算法，对场馆能耗、碳排放、客流等关键指标进行智能预测。支持多时间维度预测（日/周/月），提供预测结果与实际数据的对比分析，辅助运营决策优化。</p>
-      <div class="feature-list">
-        <div class="feature-list-item">AI多维度指标智能预测</div>
-        <div class="feature-list-item">能耗/碳排放/客流趋势预测</div>
-        <div class="feature-list-item">预测模型准确率持续优化</div>
-        <div class="feature-list-item">预测与实际数据实时对比</div>
-        <div class="feature-list-item">异常波动预警提示</div>
-        <div class="feature-list-item">预测数据报表导出</div>
-      </div>
-    </div>
+    
   </div>
 </template>
 

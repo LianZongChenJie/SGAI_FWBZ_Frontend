@@ -71,18 +71,7 @@
       </div>
     </div>
 
-    <div class="feature-panel">
-      <h4><InfoCircleOutlined /> 功能说明</h4>
-      <p>基于多模态数据融合的能碳计算平台，实时采集电、水、气、热等多种能源数据，通过AI算法模型进行碳排放计算与分析。支持多维度碳排放核算、碳足迹追踪、碳减排效果评估等功能。</p>
-      <div class="feature-list">
-        <div class="feature-list-item">多模态能源数据融合采集</div>
-        <div class="feature-list-item">AI碳排放计算模型</div>
-        <div class="feature-list-item">碳排放趋势分析与预测</div>
-        <div class="feature-list-item">碳减排效果量化评估</div>
-        <div class="feature-list-item">碳排放报告自动生成</div>
-        <div class="feature-list-item">碳资产管理建议</div>
-      </div>
-    </div>
+    
   </div>
 </template>
 

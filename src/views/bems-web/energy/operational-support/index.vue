@@ -143,7 +143,6 @@ onMounted(() => {
 
 <style scoped lang="less">
 .operation-page {
-  padding: 16px;
   background: #f0f2f5;
   min-height: calc(100vh - 120px);
 }

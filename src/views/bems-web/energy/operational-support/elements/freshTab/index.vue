@@ -8,7 +8,7 @@
         change-text="↑ 6 新增"
         trend="up"
         color="blue"
-        :icon="WindPowerOutlined"
+        :icon="ThunderboltOutlined"
       />
       <StatCard
         label="运行中"
@@ -39,7 +39,7 @@
     <!-- 实时监测表格 -->
     <div class="card">
       <div class="card-header">
-        <h3><WindPowerOutlined /> 新风机组实时监测</h3>
+        <h3><ThunderboltOutlined /> 新风机组实时监测</h3>
         <div class="filter-bar">
           <a-select v-model:value="filterVenue" placeholder="全部场馆" style="width: 140px" allow-clear>
             <a-select-option value="">全部场馆</a-select-option>
@@ -121,7 +121,7 @@
 import { ref, computed } from 'vue'
 import { StatCard } from '/@/views/bems-web/components'
 import {
-  WindPowerOutlined,
+  ThunderboltOutlined,
   CheckCircleOutlined,
   CloudOutlined,
   SyncOutlined,

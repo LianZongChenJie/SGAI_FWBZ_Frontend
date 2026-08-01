@@ -30,18 +30,7 @@
       </div>
     </div>
 
-    <div class="feature-panel">
-      <h4><InfoCircleOutlined /> 功能说明</h4>
-      <p>设置报警等级和报警类型，包括设备故障告警、阈值告警、系统告警、数据分析告警等。扩展新接入平台的设备数据、能耗数据进行数据配置；优化升级原有报警条件配置及报警处理功能，增加对统计分析数据及日期报表数据的报警配置功能，优化升级报警处理功能的业务方向。</p>
-      <div class="feature-list">
-        <div class="feature-list-item">多级报警等级配置（紧急/重要/一般/提示）</div>
-        <div class="feature-list-item">多类型报警规则（故障/阈值/系统/数据）</div>
-        <div class="feature-list-item">设备运行参数阈值告警设置</div>
-        <div class="feature-list-item">能耗数据异常告警配置</div>
-        <div class="feature-list-item">统计分析数据报警规则</div>
-        <div class="feature-list-item">多通道通知（短信/邮件/APP/语音）</div>
-      </div>
-    </div>
+    
   </div>
 </template>
 

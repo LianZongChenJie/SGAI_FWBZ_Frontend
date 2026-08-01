@@ -200,9 +200,6 @@ const handleAddEvent = () => {
 </script>
 
 <style lang="less">
-.venue-scheduling {
-    padding: 16px
-}
 
 .stat-cards {
     display: flex;

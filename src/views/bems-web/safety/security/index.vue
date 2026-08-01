@@ -87,19 +87,7 @@
       </div>
     </div>
 
-    <!-- 功能说明 -->
-    <div class="feature-panel">
-      <h4><InfoCircleOutlined /> 功能说明</h4>
-      <p>通过视频监控系统，对场馆内重点区域进行实时监控和智能分析。平台与安防视频系统对接，获取实时视频流、设备状态、AI分析事件等数据，实现视频巡更、事件预警、历史回放等业务功能。</p>
-      <div class="feature-list">
-        <div class="feature-list-item">实时视频监控画面预览</div>
-        <div class="feature-list-item">多画面布局自由切换</div>
-        <div class="feature-list-item">视频巡更计划编排与执行</div>
-        <div class="feature-list-item">AI视频智能分析（人员聚集/遗留物/禁区入侵）</div>
-        <div class="feature-list-item">告警事件自动识别与推送</div>
-        <div class="feature-list-item">历史视频检索与回放</div>
-      </div>
-    </div>
+    
   </div>
 </template>
 

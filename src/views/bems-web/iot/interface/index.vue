@@ -64,18 +64,7 @@
       </div>
     </div>
 
-    <div class="feature-panel">
-      <h4><InfoCircleOutlined /> 功能说明</h4>
-      <p>平台与多系统对接，提供不同的接口方式，并对接口运行状态进行监控。新增多个系统的接口内容，通过接口平台对新增的接口程序运行状态进行监控，保障平台稳定运行。支持MQTT、Modbus、BACnet、OPC UA、HTTP API等多种协议。</p>
-      <div class="feature-list">
-        <div class="feature-list-item">多协议适配（MQTT/Modbus/BACnet/OPC UA/HTTP）</div>
-        <div class="feature-list-item">接口注册与生命周期管理</div>
-        <div class="feature-list-item">接口运行状态实时监控</div>
-        <div class="feature-list-item">数据格式转换与标准化</div>
-        <div class="feature-list-item">接口异常告警与自动恢复</div>
-        <div class="feature-list-item">接口调用日志与性能分析</div>
-      </div>
-    </div>
+    
   </div>
 </template>
 
