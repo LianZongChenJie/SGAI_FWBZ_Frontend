@@ -9,8 +9,8 @@ enum Api {
   findYear = '/sgai-tp/fwbz/meterPointData/findYear',
   energyFlowType = '/sys/dict/getDictItems/energy_flow_type',
   // energyFlowTree = '/bems/meteringPoint/getTree',
-  // energyFlowTree = '/sgai-tp/fwbz/meteringPoint/getPermissionTree',
-  energyFlowTree = '/sgai-tp/fwbz/meteringPoint/getTree',
+  energyFlowTree = '/sgai-tp/fwbz/meteringPoint/getPermissionTree',
+  // energyFlowTree = '/sgai-tp/fwbz/meteringPoint/getTree',
 
   test = '/sgai-tp/fwbz/test/test',
 }
