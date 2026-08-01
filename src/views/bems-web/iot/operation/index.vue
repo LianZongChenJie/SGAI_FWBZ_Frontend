@@ -51,7 +51,7 @@
 import { StatCard } from '/@/views/bems-web/components'
 import {
   LinkOutlined, CheckCircleOutlined, DownloadOutlined, SettingOutlined,
-  InfoCircleOutlined, ApiOutlined, DatabaseOutlined, CloudServerOutlined,
+  ApiOutlined, DatabaseOutlined, CloudServerOutlined,
 } from '@ant-design/icons-vue'
 
 defineOptions({ name: 'IotOperationPage' })

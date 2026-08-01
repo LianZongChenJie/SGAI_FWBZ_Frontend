@@ -36,7 +36,7 @@
     </BasicTable>
     </a-card>
     <a-modal v-model:visible="modalVisible" :title="isUpdate ? '编辑模型' : '新增模型'" width="600px" @ok="handleSubmit" @cancel="handleCancel">
-      <div style="padding: 10px">
+      <div>
         <a-form :model="formState" :label-col="{ span: 8 }" :wrapper-col="{ span: 16 }" layout="inline">
           <!-- 输入框 -->
           <a-col :span="12">

@@ -12,28 +12,9 @@
     <div class="card">
       <div class="card-header">
         <h3><VideoCameraOutlined /> 实时监控画面</h3>
-        <div class="layout-control">
-          <a-button-group>
-            <a-button :type="gridLayout === '1x1' ? 'primary' : 'default'" size="small" @click="gridLayout = '1x1'">1×1</a-button>
-            <a-button :type="gridLayout === '2x2' ? 'primary' : 'default'" size="small" @click="gridLayout = '2x2'">2×2</a-button>
-            <a-button :type="gridLayout === '3x3' ? 'primary' : 'default'" size="small" @click="gridLayout = '3x3'">3×3</a-button>
-            <a-button :type="gridLayout === '4x4' ? 'primary' : 'default'" size="small" @click="gridLayout = '4x4'">4×4</a-button>
-          </a-button-group>
-        </div>
       </div>
       <div class="card-body">
-        <div class="camera-grid" :class="gridLayout">
-          <div class="camera-item" v-for="cam in cameraList" :key="cam.id">
-            <div class="camera-preview">
-              <div class="camera-icon"><VideoCameraOutlined /></div>
-              <div class="camera-name">{{ cam.name }}</div>
-            </div>
-            <div class="camera-info">
-              <span class="status-dot" :class="cam.status"></span>
-              <span>{{ cam.location }}</span>
-            </div>
-          </div>
-        </div>
+        <CameraCarousel :cameras="cameraList" :items-per-page="8" />
       </div>
     </div>
 
@@ -42,7 +23,7 @@
       <div class="card">
         <div class="card-header">
           <h3><ScheduleOutlined /> 视频巡更计划</h3>
-          <a-button type="primary" size="small">+ 新增巡更</a-button>
+          <a-button type="primary">+ 新增巡更</a-button>
         </div>
         <div class="card-body">
           <a-table
@@ -58,9 +39,6 @@
                   {{ record.status }}
                 </span>
               </template>
-              <template v-if="column.key === 'action'">
-                <a-button type="link" size="small">查看</a-button>
-              </template>
             </template>
           </a-table>
         </div>
@@ -68,41 +46,53 @@
       <div class="card">
         <div class="card-header">
           <h3><WarningOutlined /> AI视频分析事件</h3>
-          <span class="tag tag-red">3 条未处理</span>
+          <a-button @click="handleViewAllAIEvents">查看全部</a-button>
         </div>
         <div class="card-body">
-          <div class="event-list">
-            <div class="event-item" v-for="event in aiEvents" :key="event.id">
-              <div class="event-icon" :style="{ background: event.bgColor, color: event.iconColor }">
-                <component :is="event.icon" />
-              </div>
-              <div class="event-content">
-                <div class="event-title">{{ event.title }}</div>
-                <div class="event-meta">{{ event.location }} | {{ event.time }}</div>
-              </div>
-              <a-button type="primary" size="small" danger>处理</a-button>
-            </div>
-          </div>
+          <AlertCard
+            v-for="event in displayedAIEvents"
+            :key="event.id"
+            :level="event.level"
+            :title="event.title"
+            :description="event.description"
+            :time="event.time"
+            :show-actions="false"
+          />
         </div>
       </div>
     </div>
 
-    
+    <!-- AI事件详情弹窗 -->
+    <a-modal
+      v-model:visible="aiEventsModalVisible"
+      title="AI视频分析事件"
+      width="800px"
+      :footer="null"
+    >
+      <div class="ai-events-modal">
+        <AlertCard
+          v-for="event in allAIEvents"
+          :key="event.id"
+          :level="event.level"
+          :title="event.title"
+          :description="event.description"
+          :time="`${event.time} | ${event.location}`"
+          :show-actions="false"
+        />
+      </div>
+    </a-modal>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { StatCard } from '/@/views/bems-web/components'
+import { StatCard, AlertCard } from '/@/views/bems-web/components'
+import CameraCarousel from '../components/CameraCarousel/index.vue'
 import {
   VideoCameraOutlined,
   CheckCircleOutlined,
   ScheduleOutlined,
   WarningOutlined,
-  InfoCircleOutlined,
-  TeamOutlined,
-  DeleteOutlined,
-  LockOutlined,
 } from '@ant-design/icons-vue'
 
 defineOptions({ name: 'SecurityManagementPage' })
@@ -114,17 +104,13 @@ const statData = {
   aiEvents: 3,
 }
 
-const gridLayout = ref('2x2')
-
 const cameraList = [
-  { id: 1, name: 'CAM-01', location: 'A馆东门入口', status: 'online' },
-  { id: 2, name: 'CAM-02', location: 'A馆F1大厅', status: 'online' },
-  { id: 3, name: 'CAM-03', location: 'A馆F2展厅', status: 'online' },
-  { id: 4, name: 'CAM-04', location: 'B馆南门入口', status: 'online' },
-  { id: 5, name: 'CAM-05', location: 'B馆会议中心', status: 'online' },
-  { id: 6, name: 'CAM-06', location: 'C馆西门入口', status: 'offline' },
-  { id: 7, name: 'CAM-07', location: 'C馆F1展厅', status: 'online' },
-  { id: 8, name: 'CAM-08', location: '停车场入口', status: 'online' },
+  { id: 1, name: 'CAM-01', location: 'A馆东门入口', status: 'online' as const, ip: '192.168.1.101' },
+  { id: 2, name: 'CAM-02', location: 'A馆F1大厅', status: 'online' as const, ip: '192.168.1.102' },
+  { id: 3, name: 'CAM-03', location: 'A馆F2展厅', status: 'online' as const, ip: '192.168.1.103' },
+  { id: 4, name: 'CAM-04', location: 'B馆南门入口', status: 'online' as const, ip: '192.168.1.104' },
+  { id: 5, name: 'CAM-05', location: 'B馆会议中心', status: 'online' as const, ip: '192.168.1.105' },
+  { id: 6, name: 'CAM-06', location: 'C馆西门入口', status: 'offline' as const, ip: '192.168.1.106' },
 ]
 
 const patrolColumns = [
@@ -132,7 +118,6 @@ const patrolColumns = [
   { title: '巡更区域', dataIndex: 'area', key: 'area' },
   { title: '执行时间', dataIndex: 'time', key: 'time' },
   { title: '状态', dataIndex: 'status', key: 'status' },
-  { title: '操作', key: 'action', width: 70 },
 ]
 
 const patrolData = [
@@ -142,11 +127,60 @@ const patrolData = [
   { id: 4, name: '夜间安防巡更', area: '全馆区域', time: '22:00 - 23:00', status: '待开始' },
 ]
 
-const aiEvents = [
-  { id: 1, title: '人员聚集检测', location: 'A馆F2展厅', time: '2026-06-09 14:20', icon: TeamOutlined, bgColor: '#fff5f5', iconColor: '#e53e3e' },
-  { id: 2, title: '遗留物检测', location: 'B馆F1大厅', time: '2026-06-09 13:45', icon: DeleteOutlined, bgColor: '#fffaf0', iconColor: '#dd6b20' },
-  { id: 3, title: '禁区入侵检测', location: 'C馆设备间', time: '2026-06-09 13:12', icon: LockOutlined, bgColor: '#fff5f5', iconColor: '#e53e3e' },
+// 所有AI事件数据
+const allAIEvents = [
+  {
+    id: 1,
+    level: 'danger' as const,
+    title: '人员聚集检测',
+    description: 'A馆F2展厅检测到超50人聚集，存在安全隐患',
+    time: '2026-06-09 14:20',
+    location: 'A馆F2展厅'
+  },
+  {
+    id: 2,
+    level: 'warning' as const,
+    title: '遗留物检测',
+    description: 'B馆F1大厅中央区域发现可疑遗留物品',
+    time: '2026-06-09 13:45',
+    location: 'B馆F1大厅'
+  },
+  {
+    id: 3,
+    level: 'danger' as const,
+    title: '禁区入侵检测',
+    description: 'C馆设备间检测到未授权人员进入',
+    time: '2026-06-09 13:12',
+    location: 'C馆设备间'
+  },
+  {
+    id: 4,
+    level: 'warning' as const,
+    title: '异常行为检测',
+    description: '停车场B区域检测到可疑徘徊行为',
+    time: '2026-06-09 12:55',
+    location: '停车场B区域'
+  },
+  {
+    id: 5,
+    level: 'info' as const,
+    title: '周界入侵告警',
+    description: '户外广场南侧围栏检测到异常触碰',
+    time: '2026-06-09 12:30',
+    location: '户外广场南侧'
+  },
 ]
+
+// 显示前3个事件
+const displayedAIEvents = allAIEvents.slice(0, 3)
+
+// 弹窗状态
+const aiEventsModalVisible = ref(false)
+
+// 查看全部事件
+const handleViewAllAIEvents = () => {
+  aiEventsModalVisible.value = true
+}
 </script>
 
 <style scoped lang="less">
@@ -211,49 +245,7 @@ const aiEvents = [
   }
 }
 
-// 摄像头网格
-.camera-grid {
-  display: grid;
-  gap: 12px;
-
-  &.1x1 { grid-template-columns: 1fr; }
-  &.2x2 { grid-template-columns: 1fr 1fr; }
-  &.3x3 { grid-template-columns: 1fr 1fr 1fr; }
-  &.4x4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
-
-  .camera-item {
-    background: #1a1a2e;
-    border-radius: 8px;
-    overflow: hidden;
-    aspect-ratio: 16 / 9;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    border: 2px solid #2d2d4e;
-
-    .camera-preview {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: rgba(255, 255, 255, 0.3);
-
-      .camera-icon { font-size: 36px; margin-bottom: 8px; }
-      .camera-name { font-size: 13px; color: rgba(255, 255, 255, 0.5); }
-    }
-
-    .camera-info {
-      padding: 6px 10px;
-      background: rgba(0, 0, 0, 0.5);
-      font-size: 11px;
-      color: rgba(255, 255, 255, 0.7);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-  }
-}
+// 状态点样式已在CameraCarousel组件中定义，此处保留通用样式
 
 .status-dot {
   display: inline-block;
@@ -276,49 +268,9 @@ const aiEvents = [
   &.warning { background: #feebc8; color: #744210; }
 }
 
-// AI事件列表
-.event-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-
-  .event-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 14px;
-    background: #fafafa;
-    border-radius: 8px;
-    border: 1px solid #f0f0f0;
-
-    .event-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      flex-shrink: 0;
-    }
-
-    .event-content {
-      flex: 1;
-      min-width: 0;
-
-      .event-title {
-        font-size: 13px;
-        font-weight: 600;
-        color: #2d3748;
-      }
-
-      .event-meta {
-        font-size: 12px;
-        color: #a0aec0;
-        margin-top: 2px;
-      }
-    }
-  }
+.ai-events-modal {
+  max-height: 60vh;
+  overflow-y: auto;
 }
 
 .feature-panel {

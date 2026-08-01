@@ -28,7 +28,7 @@
       @ok="handleSubmit"
       @cancel="handleCancel"
     >
-      <div style="padding: 10px">
+      <div>
         <a-form ref="formRef" :model="formState" :label-col="{ span: 4 }" layout="horizontal">
           <!-- 输入框 -->
           <a-form-item label="属性名称" name="attributeName" :rules="[{ required: true, message: '请输入属性名称' }]">
