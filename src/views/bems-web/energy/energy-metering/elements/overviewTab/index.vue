@@ -3,7 +3,7 @@
     <div class="stat-cards">
       <StatCard
         label="计量表计总数"
-        :value="statData.meterTotal"
+        :value="statData.count"
         :change-text="statData.meterTotalChange"
         trend="up"
         color="blue"
@@ -11,7 +11,7 @@
       />
       <StatCard
         label="表计在线率"
-        :value="statData.meterOnlineRate"
+        :value="statData.onlineRate"
         :change-text="statData.meterOnlineStatus"
         trend=""
         color="green"
@@ -19,7 +19,7 @@
       />
       <StatCard
         label="今日用电量"
-        :value="statData.todayPower"
+        :value="statData.electricCount"
         :change-text="statData.todayPowerChange"
         trend="down"
         color="orange"
@@ -27,7 +27,7 @@
       />
       <StatCard
         label="今日用水量"
-        :value="statData.todayWater"
+        :value="statData.waterCount"
         :change-text="statData.todayWaterChange"
         trend="down"
         color="purple"
@@ -95,7 +95,7 @@
             class="meter-data-card__select"
             :options="venueOptions"
           />
-          <a-button type="primary">
+          <a-button type="primary" @click="handleSearch">
             <template #icon>
               <SearchOutlined />
             </template>
@@ -112,13 +112,22 @@
       <a-table
         :columns="meterColumns"
         :data-source="meterData"
-        :pagination="false"
+        :pagination="pagination"
         size="middle"
         class="meter-data-card__table"
+        @change="handleTableChange"
       >
         <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'status'">
-            <span class="status-tag status-tag--normal">{{ record.status }}</span>
+          <template v-if="column.key === 'runState'">
+            <span
+              class="status-tag"
+              :class="{
+                'status-tag--normal':  record.runState === '在线',
+                'status-tag--offline': record.runState === '离线'
+              }"
+            >
+              {{ record.runState }}
+            </span>
           </template>
           <template v-if="column.key === 'action'">
             <a-button type="link" size="small">详情</a-button>
@@ -138,6 +147,8 @@ import {
   SearchOutlined,
   ExportOutlined,
 } from '@ant-design/icons-vue'
+import { getEnergyMeteringStatistics, getMeasuringListWithMouth } from './index.api'
+import { getVenueInfoList, getCategoryTreeData, spaceTree } from '/@/views/bems-web/equipment/equipmentManagement/elements/device/Device.api'
 
 // 自定义 emoji 图标组件（插头和水滴）
 const PlugIcon = () => h('span', { style: 'font-size: 20px;' }, '🔌')
@@ -145,13 +156,13 @@ const WaterDropIcon = () => h('span', { style: 'font-size: 20px;' }, '💧')
 
 // 统计数据（预留接口，当前为模拟数据）
 const statData = reactive({
-  meterTotal: '245',
+  count: '245',
   meterTotalChange: '56 新增',
-  meterOnlineRate: '100%',
+  onlineRate: '100%',
   meterOnlineStatus: '全部正常',
-  todayPower: '42,156',
+  electricCount: '42,156',
   todayPowerChange: '6.8% kWh',
-  todayWater: '856',
+  waterCount: '856',
   todayWaterChange: '3.2% m³',
 })
 
@@ -166,44 +177,182 @@ const typeOptions = [
   { value: 'gas', label: '气表' },
 ]
 
-const venueOptions = [
-  { value: '', label: '全部场馆' },
-  { value: 'A', label: 'A馆' },
-  { value: 'B', label: 'B馆' },
-  { value: 'C', label: 'C馆' },
-]
+const venueOptions = ref([{ value: '', label: '全部场馆' }])
+
+// 获取场馆列表
+const fetchVenueList = async () => {
+  try {
+    const res = await getVenueInfoList({})
+    const list = Array.isArray(res) ? res : (res.records || res.data || [])
+    const map: Record<string, string> = {}
+    venueOptions.value = [
+      { value: '', label: '全部场馆' },
+      ...list.map((item: any) => {
+        const name = item.venueName || item.name || item.id
+        map[item.id] = name
+        return { value: item.id, label: name }
+      }),
+    ]
+    venueMap.value = map
+  } catch (e) {
+    console.error('获取场馆列表失败:', e)
+  }
+}
 
 const meterColumns = [
-  { title: '表计编号', dataIndex: 'code', key: 'code' },
-  { title: '表计类型', dataIndex: 'type', key: 'type' },
-  { title: '安装位置', dataIndex: 'location', key: 'location' },
-  { title: '今日读数', dataIndex: 'todayReading', key: 'todayReading' },
-  { title: '今日用量', dataIndex: 'todayUsage', key: 'todayUsage' },
-  { title: '本月累计', dataIndex: 'monthTotal', key: 'monthTotal' },
-  { title: '状态', dataIndex: 'status', key: 'status' },
+  { title: '表计编号', dataIndex: 'deviceCode', key: 'deviceCode' },
+  {
+    title: '表计类型',
+    dataIndex: 'categoryId',
+    key: 'categoryId',
+    customRender: ({ text }: any) => {
+      if (!text) return '-'
+      return findTreeNodeTitle(categoryTreeData.value, text) || text
+    }
+  },
+  {
+    title: '安装位置',
+    key: 'installLocation',
+    customRender: ({ record }: any) => {
+      const vId = record.venueId
+      const sId = record.spaceId
+      const venueName = vId ? (venueMap.value[vId] || vId) : '-'
+      const spaceName = sId ? (findTreeNodeTitle(spaceTreeData.value, sId) || sId) : '-'
+      return `${venueName} - ${spaceName}`
+    }
+  },
+  { title: '今日读数', dataIndex: 'value', key: 'value' },
+  { title: '今日用量', dataIndex: 'dayTotal', key: 'dayTotal' },
+  { title: '本月累计', dataIndex: 'mouthTotal', key: 'mouthTotal' },
+  { title: '状态', dataIndex: 'runState', key: 'runState' },
   { title: '操作', key: 'action' },
 ]
 
-const meterData = [
-  { key: '1', code: 'EM-A-001', type: '电表', location: 'A馆-总配电室', todayReading: '1,245,678.5', todayUsage: '12,456 kWh', monthTotal: '356,789 kWh', status: '正常' },
-  { key: '2', code: 'WM-A-001', type: '水表', location: 'A馆-水泵房', todayReading: '456,789.2', todayUsage: '256 m³', monthTotal: '7,234 m³', status: '正常' },
-  { key: '3', code: 'EM-B-001', type: '电表', location: 'B馆-总配电室', todayReading: '892,345.1', todayUsage: '8,923 kWh', monthTotal: '245,678 kWh', status: '正常' },
-  { key: '4', code: 'GM-C-001', type: '气表', location: 'C馆-锅炉房', todayReading: '123,456.8', todayUsage: '456 m³', monthTotal: '12,345 m³', status: '正常' },
-  { key: '5', code: 'EM-C-001', type: '电表', location: 'C馆-总配电室', todayReading: '678,901.3', todayUsage: '6,789 kWh', monthTotal: '189,012 kWh', status: '正常' },
-]
+// 分类树数据（表计类型映射）
+const categoryTreeData = ref<any[]>([])
 
-// 加载概览数据（预留接口）
+// 空间树数据（安装位置映射）
+const spaceTreeData = ref<any[]>([])
+
+// 场馆名称映射 { venueId: venueName }
+const venueMap = ref<Record<string, string>>({})
+
+// 递归查找树节点，根据 key 返回对应 title
+const findTreeNodeTitle = (treeData: any[], key: string | number): string => {
+  if (!treeData || !Array.isArray(treeData)) return ''
+  const find = (nodes: any[]): string => {
+    for (const node of nodes) {
+      if (String(node.key) === String(key)) {
+        return node.title || node.value || node.label
+      }
+      if (node.children && Array.isArray(node.children)) {
+        const title = find(node.children)
+        if (title) return title
+      }
+    }
+    return ''
+  }
+  return find(treeData)
+}
+
+// 加载分类树数据
+const loadCategoryTree = async () => {
+  try {
+    const res = await getCategoryTreeData()
+    categoryTreeData.value = Array.isArray(res) ? res : (res.data || res.records || [])
+  } catch (e) {
+    console.error('加载分类树数据失败:', e)
+  }
+}
+
+// 加载空间树数据
+const loadSpaceTree = async () => {
+  try {
+    const res = await spaceTree()
+    spaceTreeData.value = Array.isArray(res) ? res : (res.data || res.records || [])
+  } catch (e) {
+    console.error('加载空间树数据失败:', e)
+  }
+}
+
+const pagination = reactive({
+  current: 1,
+  pageSize: 10,
+  total: 0,
+  showSizeChanger: true,
+  showQuickJumper: true,
+  showTotal: (total: number) => `共 ${total} 条数据`,
+  pageSizeOptions: ['10', '20', '50', '100'],
+})
+
+const meterData = ref([])
+
+// 构建查询参数
+const buildMeterParams = (pageNo: number, pageSize: number) => {
+  const params: any = { pageNo, pageSize }
+  if (meterType.value) params.categoryId = meterType.value
+  if (meterVenue.value) params.venueId = meterVenue.value
+  return params
+}
+
+// 加载计量表计数据
+const loadMeterData = async (pageNo = pagination.current, pageSize = pagination.pageSize) => {
+  try {
+    const params = buildMeterParams(pageNo, pageSize)
+    const res = await getMeasuringListWithMouth(params)
+    pagination.total = res.total ?? 0
+    meterData.value = (res.records || res || []).map((item: any, idx: number) => ({
+      key: item.deviceId ?? idx,
+      deviceCode: item.deviceCode ?? '-',
+      categoryId: item.categoryId ?? '-',
+      venueId: item.venueId ?? '-',
+      spaceId: item.spaceId ?? '-',
+      value: item.value ?? '-',
+      dayTotal: item.dayTotal ?? '-',
+      mouthTotal: item.mouthTotal ?? '-',
+      runState: item.runState ?? '-',
+    }))
+  } catch (e) {
+    console.error('加载计量表计数据失败:', e)
+  }
+}
+
+// 查询按钮
+const handleSearch = () => {
+  pagination.current = 1
+  loadMeterData(1, pagination.pageSize)
+}
+
+// 表格分页变化
+const handleTableChange = (pag: any) => {
+  pagination.current = pag.current
+  pagination.pageSize = pag.pageSize
+  loadMeterData(pag.current, pag.pageSize)
+}
+
+// 加载概览数据
 const loadOverviewData = async () => {
-  // TODO: 调用概览数据接口，例如：
-  // const res = await getEnergyMeteringOverview()
-  // statData.meterTotal = res.meterTotal
-  // statData.meterTotalChange = res.meterTotalChange
-  // ...
-  console.log('加载能源计量概览数据')
+  try {
+    const res = await getEnergyMeteringStatistics()
+    statData.count = res.count ?? statData.count
+    statData.meterTotalChange = res.meterTotalChange ?? statData.meterTotalChange
+    statData.onlineRate = res.onlineRate ?? statData.onlineRate
+    statData.meterOnlineStatus = res.meterOnlineStatus ?? statData.meterOnlineStatus
+    statData.electricCount = res.electricCount ?? statData.electricCount
+    statData.todayPowerChange = res.todayPowerChange ?? statData.todayPowerChange
+    statData.waterCount = res.waterCount ?? statData.waterCount
+    statData.todayWaterChange = res.todayWaterChange ?? statData.todayWaterChange
+  } catch (e) {
+    console.error('加载能源计量概览数据失败:', e)
+  }
 }
 
 onMounted(() => {
   loadOverviewData()
+  loadMeterData()
+  fetchVenueList()
+  loadCategoryTree()
+  loadSpaceTree()
 })
 </script>
 
@@ -235,7 +384,9 @@ onMounted(() => {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 16px;
+      margin: 0 -16px 16px;
+      padding: 0 16px 12px;
+      border-bottom: 1px solid #f0f0f0;
     }
 
     &__title {
@@ -309,7 +460,9 @@ onMounted(() => {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 16px;
+      margin: 0 -16px 16px;
+      padding: 0 16px 12px;
+      border-bottom: 1px solid #f0f0f0;
     }
 
     &__title {
@@ -356,6 +509,40 @@ onMounted(() => {
       &--normal {
         color: #389e0d;
         background: #e6f7e6;
+      }
+
+      &--offline {
+        color: #cf1322;
+        background: #fff1f0;
+      }
+    }
+
+    .ant-pagination {
+      margin-top: 16px;
+      padding: 8px 0;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+
+      :deep(.ant-pagination-total-text) {
+        margin-right: auto;
+        color: rgba(0, 0, 0, 0.65);
+      }
+
+      :deep(.ant-pagination-options) {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      :deep(.ant-pagination-options-quick-jumper) {
+        color: rgba(0, 0, 0, 0.65);
+
+        input {
+          width: 48px;
+          margin: 0 8px;
+        }
       }
     }
   }
