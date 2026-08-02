@@ -159,6 +159,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { StatCard } from '/@/views/bems-web/components'
 import AlertCard from '/@/views/bems-web/components/AlertCard/index.vue'
 import {
@@ -180,6 +181,8 @@ import {
 
 defineOptions({ name: 'DashboardPage' })
 
+const router = useRouter()
+
 // ===== 统计数据 =====
 const statData = {
   todayVisitors: '12,847',
@@ -190,12 +193,12 @@ const statData = {
 
 // ===== 快捷入口 =====
 const quickLinks = [
-  { title: '韧性安全', icon: SafetyOutlined, bgColor: '#ebf8ff', iconColor: '#3182ce', route: '/bems-web/safety/person' },
-  { title: '节能低碳', icon: EnvironmentOutlined, bgColor: '#f0fff4', iconColor: '#38a169', route: '/bems-web/energy/operational-support' },
-  { title: '物联网', icon: ApiOutlined, bgColor: '#fffaf0', iconColor: '#dd6b20', route: '/bems-web/iot/interface' },
-  { title: '故障告警', icon: BellOutlined, bgColor: '#fff5f5', iconColor: '#e53e3e', route: '/bems-web/alert/setting' },
-  { title: '场馆运营', icon: BankOutlined, bgColor: '#faf5ff', iconColor: '#805ad5', route: '/bems-web/venue/flow' },
-  { title: '会展服务', icon: ExperimentOutlined, bgColor: '#e6fffa', iconColor: '#00b5d8', route: '/bems-web/event/pre' },
+  { title: '韧性安全', icon: SafetyOutlined, bgColor: '#ebf8ff', iconColor: '#3182ce', route: '/fwbz/safety/person' },
+  { title: '节能低碳', icon: EnvironmentOutlined, bgColor: '#f0fff4', iconColor: '#38a169', route: '/fwbz/energy/operational-support' },
+  { title: '物联网', icon: ApiOutlined, bgColor: '#fffaf0', iconColor: '#dd6b20', route: '/fwbz/iot/interface' },
+  { title: '故障告警', icon: BellOutlined, bgColor: '#fff5f5', iconColor: '#e53e3e', route: '/fwbz/alert/setting' },
+  { title: '场馆运营', icon: BankOutlined, bgColor: '#faf5ff', iconColor: '#805ad5', route: '/fwbz/venue/flow' },
+  { title: '会展服务', icon: ExperimentOutlined, bgColor: '#e6fffa', iconColor: '#00b5d8', route: '/fwbz/event/pre' },
 ]
 
 // ===== 能耗趋势 =====
@@ -244,6 +247,7 @@ const subsystems = [
 // ===== 方法 =====
 const handleQuickLink = (link: { title: string; route: string }) => {
   console.log('Navigate to:', link.route)
+  router.push({ path: link.route })
 }
 
 const handleViewAllAlerts = () => {

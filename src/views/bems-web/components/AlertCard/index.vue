@@ -14,7 +14,7 @@
       </div>
       <div class="alert-desc">{{ description }}</div>
       <div class="alert-time">{{ time }}</div>
-      <div class="alert-actions">
+      <div v-if="showActions" class="alert-actions">
         <slot name="actions">
           <!-- 默认展示3个按钮 -->
           <a-button size="small" type="primary" :danger="level === 'danger'" @click="handleAction('confirm')">
@@ -44,9 +44,12 @@ const props = withDefaults(
     title: string
     description: string
     time: string
+    /** 是否展示操作按钮区域，默认 true */
+    showActions?: boolean
   }>(),
   {
-    level: 'info'
+    level: 'info',
+    showActions: true
   }
 )
 
