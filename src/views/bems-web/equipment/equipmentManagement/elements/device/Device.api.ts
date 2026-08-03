@@ -12,7 +12,9 @@ enum Api {
   addDevice = '/sgai-tp/fwbz/device/measuring/add',
   editDevice = '/sgai-tp/fwbz/device/edit',
   deleteDevice = '/sgai-tp/fwbz/device/delete',
-  selectDevice = '/sgai-tp/fwbz/device/measuring/list',
+  // selectDevice = '/sgai-tp/fwbz/device/measuring/list',
+  selectDevice = '/sgai-tp/fwbz/device/list',
+
   updateAutomation = '/sgai-tp/fwbz/device/updateAutomaticAlgorithm',
   staticDataList = '/sgai-tp/fwbz/deviceStaticData/list',
   staticDataSave = '/sgai-tp/fwbz/deviceStaticData/save',

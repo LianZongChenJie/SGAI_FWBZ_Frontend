@@ -50,7 +50,7 @@
           <span class="date-label">日期：</span>
           <a-date-picker v-model:value="date" :picker="dateType" valueFormat="YYYY-MM-DD" />
           <a-button type="primary" @click="handleQuery">查询</a-button>
-          <a-button :icon="h(VerticalAlignBottomOutlined)" @click="handleExport">导出</a-button>
+          <a-button @click="handleExport">导出</a-button>
         </div>
       </div>
       <div class="card-body">

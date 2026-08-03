@@ -4,32 +4,32 @@
       <StatCard
         label="设备总数"
         :value="statData.count"
-        change-text="较昨日下降 5.2%"
-        trend="down"
+        change-text=""
+        trend=""
         color="blue"
         :icon="ThunderboltOutlined"
       />
       <StatCard
         label="在线数量"
         :value="statData.online"
-        change-text="较昨日上升 2.1%"
-        trend="up"
+        change-text=""
+        trend=""
         color="green"
         :icon="ShopOutlined"
       />
       <StatCard
-        label="离线数量"
+        label="仪表数量"
         :value="statData.offline"
-        change-text="较昨日下降 3.8%"
-        trend="down"
+        change-text=""
+        trend=""
         color="orange"
         :icon="CloudOutlined"
       />
       <StatCard
-        label="区域数量"
+        label="运行数量"
         :value="statData.spaceCount"
-        change-text="较昨日上升 1.2%"
-        trend="up"
+        change-text=""
+        trend=""
         color="purple"
         :icon="SettingOutlined"
       />

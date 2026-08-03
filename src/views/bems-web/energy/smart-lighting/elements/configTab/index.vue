@@ -61,8 +61,8 @@
             <a-select-option value="走廊">走廊</a-select-option>
             <a-select-option value="会议厅">会议厅</a-select-option>
           </a-select>
-          <a-button type="primary">查询</a-button>
-          <a-button>导出</a-button>
+          <a-button type="primary">🔍查询</a-button>
+          <a-button>📥导出</a-button>
         </div>
       </template>
       <a-table

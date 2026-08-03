@@ -5,7 +5,7 @@
         v-model:value="categorySelectValue"
         :tree-data="categorySelectTreeData"
         :field-names="{ children: 'children', label: 'title', value: 'key', key: 'key' }"
-        placeholder="设备类别"
+        placeholder="设备类型"
         allow-clear
         tree-default-expand-all
         style="width: 200px; margin-right: 8px;"
