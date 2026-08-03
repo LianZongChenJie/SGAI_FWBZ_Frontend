@@ -283,7 +283,7 @@ const statData = {
   .page-title {
     font-size: 20px;
     font-weight: 600;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
     color: rgba(0, 0, 0, 0.88);
   }
 

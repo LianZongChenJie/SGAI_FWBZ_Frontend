@@ -198,7 +198,6 @@ void PlusOutlined
 .energy-optimization-page {
   background: #f0f2f5;
   min-height: calc(100vh - 120px);
-  padding: 16px 0;
 }
 
 .stat-cards {
@@ -208,7 +207,7 @@ void PlusOutlined
 }
 
 .flow-card {
-  margin-top: 16px;
+  margin-top: 20px;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 
@@ -286,7 +285,7 @@ void PlusOutlined
 .bottom-modules {
   display: flex;
   gap: 16px;
-  margin-top: 16px;
+  margin-top: 20px;
 
   > * {
     flex: 1;

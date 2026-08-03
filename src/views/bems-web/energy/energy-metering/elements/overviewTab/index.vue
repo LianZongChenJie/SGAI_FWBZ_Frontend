@@ -367,7 +367,7 @@ onMounted(() => {
   .analysis-cards {
     display: flex;
     gap: 16px;
-    margin-top: 16px;
+    margin-top: 20px;
   }
 
   .analysis-card {
@@ -448,7 +448,7 @@ onMounted(() => {
   }
 
   .meter-data-card {
-    margin-top: 16px;
+    margin-top: 20px;
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 

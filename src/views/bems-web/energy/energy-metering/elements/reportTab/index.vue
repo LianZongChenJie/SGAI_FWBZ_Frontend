@@ -180,7 +180,7 @@ onMounted(() => {
     display: flex;
     flex-wrap: wrap;
     gap: 16px;
-    margin-bottom: 16px;
+    margin-bottom: 20px;
   }
 
   .report-sections {

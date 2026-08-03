@@ -269,7 +269,7 @@ const handleAlertAction = (alert: { title: string }, type: string) => {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 18px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 // 快捷入口
@@ -277,7 +277,7 @@ const handleAlertAction = (alert: { title: string }, type: string) => {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   gap: 14px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 
   .quick-link {
     background: white;
@@ -317,7 +317,6 @@ const handleAlertAction = (alert: { title: string }, type: string) => {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
-  margin-bottom: 24px;
 }
 
 // 卡片
@@ -374,7 +373,6 @@ const handleAlertAction = (alert: { title: string }, type: string) => {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
-  margin-bottom: 24px;
 }
 
 // 图表占位
