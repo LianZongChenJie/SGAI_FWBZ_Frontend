@@ -1,7 +1,6 @@
 <template>
   <div class="camera-carousel">
     <a-carousel
-      ref="carouselRef"
       :autoplay="isPlaying"
       :autoplay-speed="10000"
       :interval="true"
@@ -31,15 +30,19 @@
             @click="camera && handleCameraClick(camera)"
           >
             <template v-if="camera">
+              <!-- 仅当前可见页播放视频，其余页显示名称占位以节省性能 -->
               <div class="camera-preview">
-                <div class="camera-icon">
-                  <video-camera-outlined />
+                <VideoPlayer
+                  v-if="pageIndex === currentPage && camera.url"
+                  :url="camera.url"
+                />
+                <div v-else class="camera-preview-fallback">
+                  <video-camera-outlined class="fallback-icon" />
                 </div>
-                <div class="camera-name">{{ camera.name }}</div>
               </div>
-              <div class="camera-info">
-                <span class="status-dot" :class="camera.status"></span>
-                <span>{{ camera.location }}</span>
+              <div class="camera-name-bar">
+                <span class="status-dot online"></span>
+                <span class="camera-name-text">{{ camera.cameraName }}</span>
               </div>
             </template>
             <template v-else>
@@ -59,37 +62,28 @@
     <!-- 摄像头详情弹窗 -->
     <a-modal
       v-model:visible="modalVisible"
-      :title="selectedCamera?.name"
+      :title="selectedCamera?.cameraName"
       :footer="null"
-      width="800px"
+      width="850px"
       @cancel="handleModalClose"
     >
       <div v-if="selectedCamera" class="camera-detail">
         <div class="detail-video">
-          <div class="video-placeholder">
+          <!-- 加载中 -->
+          <div v-if="modalLoading" class="video-placeholder">
+            <a-spin size="large" />
+            <div class="video-text">正在获取视频流...</div>
+          </div>
+          <!-- 播放视频 -->
+          <VideoPlayer
+            v-else-if="playUrl"
+            :url="playUrl"
+            :controls="true"
+          />
+          <!-- 获取失败 -->
+          <div v-else class="video-placeholder">
             <video-camera-outlined class="video-icon" />
-            <div class="video-text">{{ selectedCamera.name }} 实时画面</div>
-          </div>
-        </div>
-        <div class="detail-info">
-          <div class="info-item">
-            <span class="info-label">设备位置：</span>
-            <span class="info-value">{{ selectedCamera.location }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">设备状态：</span>
-            <span class="info-value" :class="selectedCamera.status">
-              <span class="status-dot" :class="selectedCamera.status"></span>
-              {{ selectedCamera.status === 'online' ? '在线' : '离线' }}
-            </span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">IP地址：</span>
-            <span class="info-value">{{ selectedCamera.ip || '192.168.1.100' }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">分辨率：</span>
-            <span class="info-value">1920×1080</span>
+            <div class="video-text">暂无视频流</div>
           </div>
         </div>
       </div>
@@ -98,19 +92,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed } from 'vue'
 import {
   VideoCameraOutlined,
   LeftOutlined,
   RightOutlined,
 } from '@ant-design/icons-vue'
+import VideoPlayer from './VideoPlayer.vue'
+import { getCameraPlayUrls } from '../../security/index.api'
 
 interface Camera {
   id: number | string
-  name: string
-  location: string
-  status: 'online' | 'offline'
-  ip?: string
+  cameraName: string
+  url?: string
+  indexCode?: string
+  planId?: number
 }
 
 const props = defineProps<{
@@ -125,19 +121,25 @@ const emit = defineEmits<{
 const itemsPerPage = props.itemsPerPage || 8
 const isPlaying = ref(true)
 const currentPage = ref(0)
-const carouselRef = ref()
 const modalVisible = ref(false)
 const selectedCamera = ref<Camera | null>(null)
+const modalLoading = ref(false)
+const playUrl = ref('')
 
 // 计算分页后的摄像头数据
 const paginatedCameras = computed(() => {
-  const pages = []
+  const pages: (Camera | null)[][] = []
+  if (props.cameras.length === 0) {
+    // 无数据时展示一页空位
+    pages.push(Array.from({ length: itemsPerPage }, () => null))
+    return pages
+  }
   const totalPages = Math.ceil(props.cameras.length / itemsPerPage)
   
   for (let i = 0; i < totalPages; i++) {
     const start = i * itemsPerPage
     const end = start + itemsPerPage
-    const pageCameras = props.cameras.slice(start, end)
+    const pageCameras: (Camera | null)[] = props.cameras.slice(start, end)
     
     // 如果最后一页不满，用 null 填充
     while (pageCameras.length < itemsPerPage) {
@@ -152,35 +154,46 @@ const paginatedCameras = computed(() => {
 
 
 // 处理页面切换
-const handleBeforeChange = (from: number, to: number) => {
+const handleBeforeChange = (_from: number, to: number) => {
   currentPage.value = to
 }
 
-// 处理摄像头点击
-const handleCameraClick = (camera: Camera) => {
+// 处理摄像头点击 — 调用 playUrls 接口获取播放地址
+const handleCameraClick = async (camera: Camera) => {
   selectedCamera.value = camera
   modalVisible.value = true
   isPlaying.value = false // 停止轮播
+  playUrl.value = ''
+  modalLoading.value = true
   emit('cameraClick', camera)
+
+  try {
+    const res: any = await getCameraPlayUrls({
+      cameraIndexCode: [camera.indexCode],
+    })
+    // result 为数组，取匹配 cameraIndexCode 的 url
+    const match = (res || []).find(
+      (item: any) => item.cameraIndexCode === camera.indexCode,
+    )
+    playUrl.value = match?.url || (res?.[0]?.url ?? '')
+  } catch (error) {
+    console.error('获取摄像头播放地址失败:', error)
+    playUrl.value = ''
+  } finally {
+    modalLoading.value = false
+  }
 }
 
 // 关闭弹窗时恢复播放
 const handleModalClose = () => {
   modalVisible.value = false
   selectedCamera.value = null
+  playUrl.value = ''
+  modalLoading.value = false
   setTimeout(() => {
     isPlaying.value = true // 延迟恢复播放，避免闪烁
   }, 500)
 }
-
-// 生命周期管理
-onMounted(() => {
-  // 组件挂载时的初始化逻辑
-})
-
-onBeforeUnmount(() => {
-  // 清理定时器等资源
-})
 </script>
 
 <style scoped lang="less">
@@ -252,14 +265,12 @@ onBeforeUnmount(() => {
     border: 2px solid #2d2d4e;
     cursor: pointer;
     transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
     
     &:hover {
       border-color: #1677ff;
       transform: translateY(-2px);
-      
-      .camera-icon {
-        color: #1677ff;
-      }
     }
     
     &.empty-slot {
@@ -273,23 +284,40 @@ onBeforeUnmount(() => {
     
     .camera-preview {
       flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: rgba(255, 255, 255, 0.7);
-      padding: 8px;
-      
-      .camera-icon {
-        font-size: 24px;
-        margin-bottom: 4px;
-        transition: color 0.3s;
+      position: relative;
+      overflow: hidden;
+      background: #000;
+
+      .camera-preview-fallback {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(255, 255, 255, 0.3);
+
+        .fallback-icon {
+          font-size: 28px;
+        }
       }
-      
-      .camera-name {
-        font-size: 11px;
-        color: rgba(255, 255, 255, 0.8);
-        text-align: center;
+    }
+    
+    .camera-name-bar {
+      padding: 4px 8px;
+      background: rgba(0, 0, 0, 0.65);
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.85);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-height: 22px;
+
+      .camera-name-text {
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
     }
     
@@ -312,16 +340,6 @@ onBeforeUnmount(() => {
         color: rgba(255, 255, 255, 0.4);
       }
     }
-    
-    .camera-info {
-      padding: 4px 8px;
-      background: rgba(0, 0, 0, 0.5);
-      font-size: 10px;
-      color: rgba(255, 255, 255, 0.8);
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
   }
 }
 
@@ -330,6 +348,7 @@ onBeforeUnmount(() => {
   width: 6px;
   height: 6px;
   border-radius: 50%;
+  flex-shrink: 0;
   
   &.online {
     background: #52c41a;
@@ -340,28 +359,18 @@ onBeforeUnmount(() => {
   }
 }
 
-.carousel-controls {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 10px;
-  padding: 0 10px;
-  
-  .page-info {
-    font-size: 12px;
-    color: #666;
-  }
-}
-
 .camera-detail {
   .detail-video {
     margin-bottom: 20px;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    border-radius: 8px;
+    overflow: hidden;
     
     .video-placeholder {
       width: 100%;
-      height: 400px;
-      background: #000;
-      border-radius: 8px;
+      height: 100%;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -385,7 +394,7 @@ onBeforeUnmount(() => {
       margin-bottom: 12px;
       
       .info-label {
-        width: 80px;
+        width: 90px;
         color: #666;
         font-size: 14px;
       }
@@ -394,17 +403,6 @@ onBeforeUnmount(() => {
         flex: 1;
         color: #333;
         font-size: 14px;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        
-        &.online {
-          color: #52c41a;
-        }
-        
-        &.offline {
-          color: #ff4d4f;
-        }
       }
     }
   }

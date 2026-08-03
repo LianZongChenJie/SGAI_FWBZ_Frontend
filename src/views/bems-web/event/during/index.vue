@@ -1,145 +1,276 @@
 <template>
   <div class="event-page">
+    <!-- 统计卡片 -->
     <div class="stats-row">
-      <StatCard label="当前进行展会" :value="statData.activeEvents" change-text="↑ 1 较昨日" trend="up" color="blue" :icon="PlayCircleOutlined" />
-      <StatCard label="现场总人数" :value="statData.totalPeople" change-text="↑ 8.5% 较昨日" trend="up" color="green" :icon="TeamOutlined" />
-      <StatCard label="展位使用率" :value="statData.boothUsage" change-text="↑ 3.2% 较昨日" trend="up" color="orange" :icon="AppstoreOutlined" />
-      <StatCard label="满意度评分" :value="statData.satisfaction" change-text="↑ 0.2 较昨日" trend="up" color="purple" :icon="StarOutlined" />
+      <StatCard label="当前展会" :value="statData.activeEvents" change-text="进行中" trend="up" color="blue" :icon="PlayCircleOutlined" />
+      <StatCard label="现场调度指令" :value="statData.dispatchCount" change-text="↑ 12 今日" trend="up" color="green" :icon="SendOutlined" />
+      <StatCard label="投诉建议" :value="statData.complaints" change-text="↓ 2 较昨日" trend="down" color="orange" :icon="MessageOutlined" />
+      <StatCard label="设备异常" :value="statData.deviceErrors" change-text="↓ 3 已处理" trend="down" color="purple" :icon="ToolOutlined" />
     </div>
 
+    <!-- 对屏指挥 + 对屏控制 -->
     <div class="two-col">
       <div class="card">
-        <div class="card-header"><h3><DashboardOutlined /> 展会实时数据看板</h3><span class="tag tag-blue">实时</span></div>
+        <div class="card-header">
+          <h3><DesktopOutlined /> 对屏指挥看板</h3>
+          <span class="tag tag-blue">实时</span>
+        </div>
         <div class="card-body">
-          <div class="real-time-dashboard">
-            <div class="rt-item" v-for="item in realtimeData" :key="item.label">
-              <div class="rt-label">{{ item.label }}</div>
-              <div class="rt-value">{{ item.value }}</div>
-              <div class="rt-change" :class="item.trend === 'up' ? 'up' : 'down'">{{ item.change }}</div>
+          <div class="chart-placeholder" style="min-height: 350px;">
+            <div class="chart-icon"><DesktopOutlined /></div>
+            <div class="chart-text">指挥大屏实时数据展示</div>
+            <div class="chart-sub">客流/能耗/设备/告警/视频 多维度融合</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <h3><ControlOutlined /> 对屏控制面板</h3>
+          <span class="tag tag-green">可控</span>
+        </div>
+        <div class="card-body">
+          <div class="control-grid">
+            <div class="control-card" v-for="item in controlPanels" :key="item.title">
+              <div class="control-card-header">
+                <div class="control-card-icon" :style="{ background: item.bgColor, color: item.iconColor }">
+                  <component :is="item.icon" />
+                </div>
+                <div>
+                  <div class="control-card-title">{{ item.title }}</div>
+                  <div class="control-card-meta">{{ item.meta }}</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-      <div class="card">
-        <div class="card-header"><h3><BarChartOutlined /> 现场客流趋势</h3></div>
-        <div class="card-body">
-          <div class="chart-placeholder" style="min-height: 240px;">
-            <div class="chart-icon"><BarChartOutlined /></div>
-            <div class="chart-text">今日展会现场分时客流趋势图</div>
-            <div class="chart-sub">当前峰值 2,350人</div>
-          </div>
-        </div>
-      </div>
     </div>
 
+    <!-- 投诉建议处理 -->
     <div class="card">
       <div class="card-header">
-        <h3><CustomerServiceOutlined /> 现场服务请求</h3>
-        <div class="filter-bar">
-          <a-select v-model:value="requestFilter" style="width: 130px" placeholder="全部类型">
-            <a-select-option value="">全部类型</a-select-option>
-            <a-select-option value="设备故障">设备故障</a-select-option>
-            <a-select-option value="安保求助">安保求助</a-select-option>
-            <a-select-option value="咨询服务">咨询服务</a-select-option>
-            <a-select-option value="医疗急救">医疗急救</a-select-option>
-          </a-select>
-          <a-select v-model:value="statusFilter" style="width: 120px" placeholder="全部状态">
-            <a-select-option value="">全部状态</a-select-option>
-            <a-select-option value="待处理">待处理</a-select-option>
-            <a-select-option value="处理中">处理中</a-select-option>
-            <a-select-option value="已完成">已完成</a-select-option>
-          </a-select>
-          <a-button type="primary"><SearchOutlined /> 查询</a-button>
-        </div>
+        <h3><MessageOutlined /> 投诉建议处理</h3>
+        <a-button type="primary">+ 新增记录</a-button>
       </div>
       <div class="card-body">
-        <a-table :columns="columns" :data-source="tableData" :pagination="{ pageSize: 8 }" row-key="id" size="middle">
+        <a-table
+          :columns="columns"
+          :data-source="tableData"
+          :pagination="false"
+          row-key="id"
+          size="small"
+        >
           <template #bodyCell="{ column, record }">
-            <template v-if="column.key === 'priority'">
-              <span class="status-text" :class="record.priority === '紧急' ? 'danger' : record.priority === '重要' ? 'warning' : 'info'">{{ record.priority }}</span>
+            <template v-if="column.key === 'type'">
+              <span class="status-text" :class="record.typeClass">{{ record.type }}</span>
             </template>
             <template v-if="column.key === 'status'">
-              <span class="status-text" :class="record.status === '已完成' ? 'normal' : record.status === '处理中' ? 'warning' : 'danger'">{{ record.status }}</span>
+              <span class="status-text" :class="record.statusClass">{{ record.status }}</span>
             </template>
             <template v-if="column.key === 'action'">
-              <a-button type="link" size="small">处理</a-button>
-              <a-button type="link" size="small">转派</a-button>
+              <a-button type="link" size="small">详情</a-button>
             </template>
           </template>
         </a-table>
       </div>
     </div>
 
-    
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
 import { StatCard } from '/@/views/bems-web/components'
 import {
-  PlayCircleOutlined, TeamOutlined, AppstoreOutlined, StarOutlined,
-  DashboardOutlined, BarChartOutlined, CustomerServiceOutlined,
-  SearchOutlined, InfoCircleOutlined,
+  PlayCircleOutlined,
+  SendOutlined,
+  MessageOutlined,
+  ToolOutlined,
+  DesktopOutlined,
+  ControlOutlined,
+  CloudOutlined,
+  BulbOutlined,
+  VideoCameraOutlined,
+  AlertOutlined,
 } from '@ant-design/icons-vue'
 
 defineOptions({ name: 'EventDuringPage' })
 
-const statData = { activeEvents: 2, totalPeople: '3,567', boothUsage: '92.5%', satisfaction: '4.8' }
-const requestFilter = ref('')
-const statusFilter = ref('')
+const statData = {
+  activeEvents: 3,
+  dispatchCount: 45,
+  complaints: 3,
+  deviceErrors: 1,
+}
 
-const realtimeData = [
-  { label: 'A馆客流', value: '1,234', change: '+12.5%', trend: 'up' },
-  { label: 'B馆客流', value: '892', change: '+5.3%', trend: 'up' },
-  { label: 'C馆客流', value: '1,441', change: '-2.1%', trend: 'down' },
-  { label: '展位使用率', value: '92.5%', change: '+3.2%', trend: 'up' },
-  { label: '服务请求', value: '8', change: '-3', trend: 'down' },
-  { label: '平均响应', value: '3.5min', change: '-1.2min', trend: 'down' },
+const controlPanels = [
+  { title: '空调控制', meta: '温度/模式/风速', icon: CloudOutlined, bgColor: '#ebf8ff', iconColor: '#3182ce' },
+  { title: '照明控制', meta: '开关/亮度/场景', icon: BulbOutlined, bgColor: '#f0fff4', iconColor: '#38a169' },
+  { title: '视频切换', meta: '监控画面/广播', icon: VideoCameraOutlined, bgColor: '#fffaf0', iconColor: '#dd6b20' },
+  { title: '应急控制', meta: '广播/疏散/联动', icon: AlertOutlined, bgColor: '#fff5f5', iconColor: '#e53e3e' },
 ]
 
 const columns = [
-  { title: '请求编号', dataIndex: 'id', key: 'id', width: 80 },
-  { title: '请求类型', dataIndex: 'type', key: 'type', width: 100 },
-  { title: '描述', dataIndex: 'description', key: 'description' },
-  { title: '所属展会', dataIndex: 'event', key: 'event', width: 120 },
-  { title: '位置', dataIndex: 'location', key: 'location', width: 100 },
-  { title: '优先级', dataIndex: 'priority', key: 'priority', width: 70 },
-  { title: '状态', dataIndex: 'status', key: 'status', width: 80 },
-  { title: '操作', key: 'action', width: 110, fixed: 'right' },
+  { title: '时间', dataIndex: 'time', key: 'time', width: 100 },
+  { title: '类型', dataIndex: 'type', key: 'type', width: 80 },
+  { title: '内容', dataIndex: 'content', key: 'content' },
+  { title: '来源', dataIndex: 'source', key: 'source', width: 150 },
+  { title: '处理人', dataIndex: 'handler', key: 'handler', width: 80 },
+  { title: '状态', dataIndex: 'status', key: 'status', width: 90 },
+  { title: '操作', key: 'action', width: 80 },
 ]
 
 const tableData = [
-  { id: 'REQ-001', type: '设备故障', description: 'A馆3号展位投影仪无法显示', event: '2024国际车展', location: 'A馆-3号', priority: '紧急', status: '处理中' },
-  { id: 'REQ-002', type: '安保求助', description: 'B馆入口处发现可疑包裹', event: '智慧城市博览会', location: 'B馆入口', priority: '紧急', status: '待处理' },
-  { id: 'REQ-003', type: '咨询服务', description: '参展商咨询展位电力增容', event: '2024国际车展', location: 'A馆服务台', priority: '一般', status: '处理中' },
-  { id: 'REQ-004', type: '设备故障', description: 'C馆空调出风口漏水', event: '家居设计展', location: 'C馆-012', priority: '重要', status: '待处理' },
-  { id: 'REQ-005', type: '咨询服务', description: '观众询问失物招领处位置', event: '智慧城市博览会', location: 'B馆服务台', priority: '一般', status: '已完成' },
-  { id: 'REQ-006', type: '医疗急救', description: 'A馆有观众突感身体不适', event: '2024国际车展', location: 'A馆-008', priority: '紧急', status: '处理中' },
-  { id: 'REQ-007', type: '安保求助', description: 'B馆发现展品损坏纠纷', event: '智慧城市博览会', location: 'B馆-015', priority: '重要', status: '待处理' },
-  { id: 'REQ-008', type: '咨询服务', description: '展商咨询展位延期申请流程', event: '家居设计展', location: 'C馆服务台', priority: '一般', status: '已完成' },
+  { id: 1, time: '13:30:22', type: '建议', typeClass: 'warning', content: 'A馆F2层空调温度偏低，建议调高1°C', source: '参展商-展位A-105', handler: '张工', status: '已处理', statusClass: 'normal' },
+  { id: 2, time: '13:15:10', type: '投诉', typeClass: 'danger', content: 'B馆会议室音响有杂音，影响论坛进行', source: '主办方-新能源论坛', handler: '李工', status: '处理中', statusClass: 'warning' },
+  { id: 3, time: '12:45:33', type: '咨询', typeClass: 'info', content: '咨询C馆室外广场临时用电申请流程', source: '参展商-汽车展', handler: '王工', status: '已回复', statusClass: 'normal' },
 ]
 </script>
 
 <style scoped lang="less">
 .event-page { padding: 0; }
 
-.real-time-dashboard {
+.stats-row {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  margin-bottom: 20px;
+  overflow: hidden;
+
+  .card-header {
+    padding: 18px 22px;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+
+    h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #2d3748;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0;
+    }
+
+    .tag {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: 500;
+    }
+    .tag-blue { background: #bee3f8; color: #2a4365; }
+    .tag-green { background: #c6f6d5; color: #22543d; }
+  }
+
+  .card-body { padding: 22px; }
+}
+
+.chart-placeholder {
+  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  color: #a0aec0;
+  border: 2px dashed #e2e8f0;
+  min-height: 280px;
+  padding: 30px;
+
+  .chart-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+  }
+
+  .chart-text {
+    font-size: 14px;
+    color: #718096;
+    font-weight: 500;
+  }
+
+  .chart-sub {
+    font-size: 12px;
+    color: #a0aec0;
+    margin-top: 8px;
+  }
+}
+
+.control-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 16px;
-  .rt-item {
-    background: #fafafa;
-    border-radius: 8px;
-    padding: 16px;
-    text-align: center;
-    .rt-label { font-size: 12px; color: #999; margin-bottom: 8px; }
-    .rt-value { font-size: 24px; font-weight: 600; color: #333; }
-    .rt-change {
-      font-size: 12px; margin-top: 4px;
-      &.up { color: #52c41a; }
-      &.down { color: #ff4d4f; }
+
+  .control-card {
+    background: #f7fafc;
+    border-radius: 10px;
+    padding: 18px;
+    border: 1px solid #e2e8f0;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      border-color: #3182ce;
+      box-shadow: 0 4px 12px rgba(49, 130, 206, 0.1);
+    }
+
+    .control-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .control-card-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .control-card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #2d3748;
+    }
+
+    .control-card-meta {
+      font-size: 12px;
+      color: #718096;
+      margin-top: 2px;
     }
   }
+}
+
+.status-text {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+
+  &.normal { background: #c6f6d5; color: #22543d; }
+  &.warning { background: #feebc8; color: #744210; }
+  &.danger { background: #fed7d7; color: #742a2a; }
+  &.info { background: #bee3f8; color: #2a4365; }
 }
 </style>

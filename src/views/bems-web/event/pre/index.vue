@@ -1,150 +1,322 @@
 <template>
   <div class="event-page">
+    <!-- 统计卡片 -->
     <div class="stats-row">
-      <StatCard label="今日展会数" :value="statData.todayEvents" change-text="↑ 2 较昨日" trend="up" color="blue" :icon="CalendarOutlined" />
-      <StatCard label="本周展会数" :value="statData.weekEvents" change-text="↑ 5 较上周" trend="up" color="green" :icon="ScheduleOutlined" />
-      <StatCard label="参展商总数" :value="statData.exhibitorCount" change-text="↑ 15 新增" trend="up" color="orange" :icon="ShopOutlined" />
-      <StatCard label="预计总客流" :value="statData.expectedVisitors" change-text="↑ 8.5% 较上周" trend="up" color="purple" :icon="TeamOutlined" />
+      <StatCard label="待筹备展会" :value="statData.pendingEvents" change-text="↑ 2 新增" trend="up" color="blue" :icon="ScheduleOutlined" />
+      <StatCard label="筹备完成率" :value="statData.completionRate" change-text="↑ 12.3% 较上周" trend="up" color="green" :icon="CheckCircleOutlined" />
+      <StatCard label="明日开展" :value="statData.tomorrowOpen" change-text="数字文创交易会" trend="up" color="orange" :icon="CalendarOutlined" />
+      <StatCard label="会前检查项" :value="statData.checkItems" change-text="全部覆盖" trend="up" color="purple" :icon="AuditOutlined" />
     </div>
 
-    <div class="two-col">
-      <div class="card">
-        <div class="card-header"><h3><CheckCircleOutlined /> 展前准备任务</h3></div>
-        <div class="card-body">
-          <div class="task-list">
-            <div class="task-item" v-for="task in taskList" :key="task.title">
-              <div class="task-status">
-                <CheckCircleFilled v-if="task.status === 'done'" style="color: #52c41a;" />
-                <SyncOutlined v-else-if="task.status === 'doing'" spin style="color: #1890ff;" />
-                <ClockCircleOutlined v-else style="color: #d9d9d9;" />
+    <!-- 会前筹备清单 -->
+    <div class="card">
+      <div class="card-header">
+        <h3><ScheduleOutlined /> 会前筹备清单</h3>
+        <span class="tag tag-blue">数字文创交易会 | 2026-06-10</span>
+      </div>
+      <div class="card-body">
+        <div class="three-col">
+          <!-- 配电与环境 -->
+          <div class="checklist-group">
+            <h4 class="group-title">配电与环境</h4>
+            <div class="info-list">
+              <div class="info-item" v-for="item in powerEnv" :key="item.label">
+                <span class="info-label">{{ item.label }}</span>
+                <span class="info-value" :style="{ color: item.color }">{{ item.value }}</span>
               </div>
-              <div class="task-info">
-                <div class="task-title">{{ task.title }}</div>
-                <div class="task-deadline">截止时间：{{ task.deadline }}</div>
+            </div>
+          </div>
+          <!-- 安保与消防 -->
+          <div class="checklist-group">
+            <h4 class="group-title">安保与消防</h4>
+            <div class="info-list">
+              <div class="info-item" v-for="item in securityFire" :key="item.label">
+                <span class="info-label">{{ item.label }}</span>
+                <span class="info-value" :style="{ color: item.color }">{{ item.value }}</span>
               </div>
-              <div class="task-assignee">{{ task.assignee }}</div>
+            </div>
+          </div>
+          <!-- 物资与人员 -->
+          <div class="checklist-group">
+            <h4 class="group-title">物资与人员</h4>
+            <div class="info-list">
+              <div class="info-item" v-for="item in materials" :key="item.label">
+                <span class="info-label">{{ item.label }}</span>
+                <span class="info-value" :style="{ color: item.color }">{{ item.value }}</span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      <div class="card">
-        <div class="card-header"><h3><BarChartOutlined /> 展前准备进度</h3></div>
-        <div class="card-body">
-          <div class="chart-placeholder" style="min-height: 240px;">
-            <div class="chart-icon"><BarChartOutlined /></div>
-            <div class="chart-text">各展会准备进度对比图</div>
-            <div class="chart-sub">整体完成率 78%</div>
+
+        <!-- 筹备进度 -->
+        <div class="progress-section">
+          <h4 class="group-title">筹备进度</h4>
+          <div class="progress-item" v-for="item in progressData" :key="item.label">
+            <span class="progress-label">{{ item.label }}</span>
+            <div class="progress-bar">
+              <div class="progress-fill" :class="item.color" :style="{ width: item.value + '%' }"></div>
+            </div>
+            <span class="progress-value" :style="{ color: item.value >= 80 ? '#38a169' : '#dd6b20' }">{{ item.value }}%</span>
           </div>
         </div>
       </div>
     </div>
 
+    <!-- 会前数据预测研判 -->
     <div class="card">
       <div class="card-header">
-        <h3><ShopOutlined /> 展商信息管理</h3>
-        <div class="filter-bar">
-          <a-input v-model:value="searchKeyword" placeholder="搜索展商名称" style="width: 180px" />
-          <a-select v-model:value="eventFilter" style="width: 150px" placeholder="全部展会">
-            <a-select-option value="">全部展会</a-select-option>
-            <a-select-option value="2024国际车展">2024国际车展</a-select-option>
-            <a-select-option value="智慧城市博览会">智慧城市博览会</a-select-option>
-            <a-select-option value="家居设计展">家居设计展</a-select-option>
-          </a-select>
-          <a-button type="primary"><SearchOutlined /> 查询</a-button>
-        </div>
+        <h3><BarChartOutlined /> 会前数据预测研判</h3>
+        <span class="tag tag-purple">AI辅助</span>
       </div>
       <div class="card-body">
-        <a-table :columns="columns" :data-source="tableData" :pagination="{ pageSize: 8 }" row-key="id" size="middle">
-          <template #bodyCell="{ column, record }">
-            <template v-if="column.key === 'status'">
-              <span class="status-text" :class="record.status === '已确认' ? 'normal' : record.status === '待确认' ? 'warning' : 'info'">{{ record.status }}</span>
-            </template>
-            <template v-if="column.key === 'action'">
-              <a-button type="link" size="small">编辑</a-button>
-              <a-button type="link" size="small">详情</a-button>
-            </template>
-          </template>
-        </a-table>
+        <div class="two-col">
+          <div class="chart-placeholder">
+            <div class="chart-icon"><BarChartOutlined /></div>
+            <div class="chart-text">展会能耗预测曲线</div>
+            <div class="chart-sub">基于历史同类展会数据与天气预测</div>
+          </div>
+          <div class="chart-placeholder">
+            <div class="chart-icon"><BarChartOutlined /></div>
+            <div class="chart-text">客流预测分布</div>
+            <div class="chart-sub">预测峰值 6,500人 | 出现在 11:00-13:00</div>
+          </div>
+        </div>
       </div>
     </div>
 
-    
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
 import { StatCard } from '/@/views/bems-web/components'
 import {
-  CalendarOutlined, ScheduleOutlined, ShopOutlined, TeamOutlined, CheckCircleOutlined,
-  BarChartOutlined, CheckCircleFilled, SyncOutlined, ClockCircleOutlined,
-  SearchOutlined, InfoCircleOutlined,
+  ScheduleOutlined,
+  CheckCircleOutlined,
+  CalendarOutlined,
+  AuditOutlined,
+  BarChartOutlined,
 } from '@ant-design/icons-vue'
 
 defineOptions({ name: 'EventPrePage' })
 
-const statData = { todayEvents: 3, weekEvents: 8, exhibitorCount: 156, expectedVisitors: '12,500' }
-const searchKeyword = ref('')
-const eventFilter = ref('')
+const statData = {
+  pendingEvents: 5,
+  completionRate: '78.5%',
+  tomorrowOpen: 1,
+  checkItems: 45,
+}
 
-const taskList = [
-  { title: '展位搭建与布置验收', deadline: '2024-03-15 18:00', assignee: '张三', status: 'done' },
-  { title: '展商证件制作与发放', deadline: '2024-03-14 12:00', assignee: '李四', status: 'doing' },
-  { title: '展会设备调试与测试', deadline: '2024-03-14 17:00', assignee: '王五', status: 'doing' },
-  { title: '安保人员岗前培训', deadline: '2024-03-13 16:00', assignee: '赵六', status: 'pending' },
-  { title: '场馆清洁与消杀', deadline: '2024-03-14 20:00', assignee: '外包服务', status: 'pending' },
-  { title: '导览系统安装与测试', deadline: '2024-03-14 15:00', assignee: '技术部', status: 'pending' },
+const colorDone = '#38a169'
+const colorPending = '#dd6b20'
+
+const powerEnv = [
+  { label: '配电容量评估', value: '✅ 已完成', color: colorDone },
+  { label: '负荷预测', value: '✅ 已完成', color: colorDone },
+  { label: '空调预冷', value: '⏳ 明日06:00', color: colorPending },
+  { label: '照明场景预设', value: '✅ 已完成', color: colorDone },
+  { label: '温湿度目标设定', value: '✅ 24°C/55%', color: colorDone },
 ]
 
-const columns = [
-  { title: '展商名称', dataIndex: 'name', key: 'name' },
-  { title: '所属展会', dataIndex: 'event', key: 'event' },
-  { title: '展位号', dataIndex: 'booth', key: 'booth', width: 100 },
-  { title: '联系人', dataIndex: 'contact', key: 'contact', width: 90 },
-  { title: '联系电话', dataIndex: 'phone', key: 'phone', width: 120 },
-  { title: '展品类别', dataIndex: 'category', key: 'category' },
-  { title: '状态', dataIndex: 'status', key: 'status', width: 80 },
-  { title: '操作', key: 'action', width: 120, fixed: 'right' },
+const securityFire = [
+  { label: '安保方案审批', value: '✅ 已通过', color: colorDone },
+  { label: '安保人员部署', value: '✅ 32人已安排', color: colorDone },
+  { label: '消防设备检查', value: '✅ 全部正常', color: colorDone },
+  { label: '应急通道检查', value: '✅ 畅通', color: colorDone },
+  { label: '消防演练', value: '⏳ 今日16:00', color: colorPending },
 ]
 
-const tableData = [
-  { id: 1, name: '蔚来汽车', event: '2024国际车展', booth: 'A-001', contact: '王经理', phone: '138****5678', category: '新能源汽车', status: '已确认' },
-  { id: 2, name: '华为技术', event: '智慧城市博览会', booth: 'B-012', contact: '李经理', phone: '139****2345', category: '智慧城市', status: '已确认' },
-  { id: 3, name: '小米科技', event: '智慧城市博览会', booth: 'B-015', contact: '张经理', phone: '136****7890', category: '智能家居', status: '已确认' },
-  { id: 4, name: '顾家家居', event: '家居设计展', booth: 'C-008', contact: '陈经理', phone: '135****3456', category: '家具', status: '待确认' },
-  { id: 5, name: '美的集团', event: '智慧城市博览会', booth: 'B-020', contact: '刘经理', phone: '137****6789', category: '智能家电', status: '已确认' },
-  { id: 6, name: '比亚迪', event: '2024国际车展', booth: 'A-005', contact: '赵经理', phone: '158****1234', category: '新能源汽车', status: '已确认' },
-  { id: 7, name: '欧派家居', event: '家居设计展', booth: 'C-012', contact: '周经理', phone: '159****5678', category: '定制家居', status: '待确认' },
-  { id: 8, name: '腾讯云', event: '智慧城市博览会', booth: 'B-025', contact: '吴经理', phone: '186****9012', category: '云计算', status: '已确认' },
+const materials = [
+  { label: '应急物资准备', value: '✅ 已到位', color: colorDone },
+  { label: '人员值班排班', value: '✅ 已发布', color: colorDone },
+  { label: '人员培训', value: '✅ 已完成', color: colorDone },
+  { label: '设备巡检', value: '⏳ 今日18:00', color: colorPending },
+  { label: '系统联调测试', value: '✅ 已通过', color: colorDone },
 ]
+
+const progressData = [
+  { label: '总体进度', value: 78.5, color: 'green' },
+  { label: '配电环境', value: 90, color: 'green' },
+  { label: '安保消防', value: 85, color: 'green' },
+  { label: '物资人员', value: 60, color: 'orange' },
+]
+
 </script>
 
 <style scoped lang="less">
 .event-page { padding: 0; }
 
-.task-list {
-  .task-item {
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  margin-bottom: 20px;
+  overflow: hidden;
+
+  .card-header {
+    padding: 18px 22px;
+    border-bottom: 1px solid #f0f0f0;
     display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+
+    h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #2d3748;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0;
+    }
+
+    .tag {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: 500;
+    }
+    .tag-blue { background: #bee3f8; color: #2a4365; }
+    .tag-purple { background: #e9d8fd; color: #553c9a; }
+  }
+
+  .card-body { padding: 22px; }
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.three-col {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.checklist-group {
+  .group-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 14px;
+  }
+}
+
+.info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+
+  .info-item {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
     padding: 12px 0;
     border-bottom: 1px solid #f0f0f0;
+
     &:last-child { border-bottom: none; }
-    .task-status {
-      width: 24px;
-      font-size: 16px;
-      margin-right: 12px;
+
+    .info-label {
+      font-size: 13px;
+      color: #718096;
     }
-    .task-info {
-      flex: 1;
-      .task-title { font-size: 14px; color: #333; font-weight: 500; }
-      .task-deadline { font-size: 12px; color: #999; margin-top: 4px; }
+
+    .info-value {
+      font-size: 13px;
+      font-weight: 600;
     }
-    .task-assignee {
-      font-size: 12px; color: #666;
-      background: #f5f5f5;
-      padding: 2px 10px;
-      border-radius: 4px;
-    }
+  }
+}
+
+.progress-section {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #f0f0f0;
+
+  .group-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 12px;
+  }
+}
+
+.progress-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+
+  &:last-child { margin-bottom: 0; }
+
+  .progress-label {
+    font-size: 13px;
+    color: #4a5568;
+    min-width: 80px;
+  }
+
+  .progress-bar {
+    flex: 1;
+    height: 8px;
+    background: #edf2f7;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s;
+
+    &.green { background: #38a169; }
+    &.orange { background: #dd6b20; }
+  }
+
+  .progress-value {
+    font-size: 13px;
+    font-weight: 600;
+    min-width: 40px;
+    text-align: right;
+  }
+}
+
+.chart-placeholder {
+  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  color: #a0aec0;
+  border: 2px dashed #e2e8f0;
+  min-height: 280px;
+  padding: 30px;
+
+  .chart-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+  }
+
+  .chart-text {
+    font-size: 14px;
+    color: #718096;
+    font-weight: 500;
+  }
+
+  .chart-sub {
+    font-size: 12px;
+    color: #a0aec0;
+    margin-top: 8px;
   }
 }
 </style>

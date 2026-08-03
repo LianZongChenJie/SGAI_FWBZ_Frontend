@@ -238,47 +238,4 @@ const vehicleData = [
   &.normal { background: #c6f6d5; color: #22543d; }
   &.info { background: #bee3f8; color: #2a4365; }
 }
-
-.feature-panel {
-  background: linear-gradient(135deg, #f0f4ff 0%, #faf5ff 100%);
-  border-radius: 12px;
-  padding: 24px;
-  margin-top: 20px;
-  border: 1px solid #e8e0f0;
-
-  h4 {
-    font-size: 15px;
-    font-weight: 600;
-    color: #2d3748;
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  p {
-    font-size: 13px;
-    color: #4a5568;
-    line-height: 1.8;
-    margin-bottom: 16px;
-  }
-
-  .feature-list {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-
-    .feature-list-item {
-      font-size: 12px;
-      color: #5a6a8a;
-      padding: 8px 12px;
-      background: rgba(255, 255, 255, 0.7);
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      &::before { content: '✓'; color: #52c41a; font-weight: 700; }
-    }
-  }
-}
 </style>

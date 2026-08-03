@@ -1,112 +1,245 @@
 <template>
   <div class="event-page">
+    <!-- 统计卡片 -->
     <div class="stats-row">
-      <StatCard label="已完成展会" :value="statData.completedEvents" change-text="↑ 3 较上月" trend="up" color="blue" :icon="CheckCircleOutlined" />
-      <StatCard label="总参展人数" :value="statData.totalVisitors" change-text="↑ 15.3% 较上月" trend="up" color="green" :icon="TeamOutlined" />
-      <StatCard label="总成交额" :value="statData.totalDeal" change-text="↑ 22.5% 较上月" trend="up" color="orange" :icon="DollarOutlined" />
-      <StatCard label="展商满意度" :value="statData.satisfaction" change-text="↑ 0.3 较上月" trend="up" color="purple" :icon="StarOutlined" />
+      <StatCard label="待总结展会" :value="statData.pendingSummary" change-text="需出具报告" trend="up" color="blue" :icon="ScheduleOutlined" />
+      <StatCard label="已总结展会" :value="statData.completedSummary" change-text="↑ 3 本月" trend="up" color="green" :icon="CheckCircleOutlined" />
+      <StatCard label="报告生成" :value="statData.reportMode" change-text="自动+人工" trend="up" color="orange" :icon="RobotOutlined" />
+      <StatCard label="知识库积累" :value="statData.knowledgeBase" change-text="↑ 12 条经验" trend="up" color="purple" :icon="BookOutlined" />
     </div>
 
+    <!-- 展会总结报告 -->
     <div class="card">
       <div class="card-header">
-        <h3><FileTextOutlined /> 展会总结报告</h3>
-        <div class="filter-bar">
-          <a-select v-model:value="eventFilter" style="width: 150px" placeholder="全部展会">
-            <a-select-option value="">全部展会</a-select-option>
-            <a-select-option value="2024国际车展">2024国际车展</a-select-option>
-            <a-select-option value="智慧城市博览会">智慧城市博览会</a-select-option>
-            <a-select-option value="家居设计展">家居设计展</a-select-option>
-          </a-select>
-          <a-button type="primary"><SearchOutlined /> 查询</a-button>
-          <a-button><DownloadOutlined /> 导出报表</a-button>
+        <h3><BarChartOutlined /> 展会总结报告 - 智能制造博览会</h3>
+        <div class="header-actions">
+          <a-button>导出PDF</a-button>
+          <a-button type="primary">AI生成</a-button>
         </div>
       </div>
       <div class="card-body">
-        <a-table :columns="columns" :data-source="tableData" :pagination="{ pageSize: 8 }" row-key="id" size="middle">
-          <template #bodyCell="{ column, record }">
-            <template v-if="column.key === 'satisfaction'">
-              <span class="star-rating">
-                <StarFilled v-for="i in Math.floor(record.satisfaction)" :key="i" style="color: #faad14;" />
-                <StarOutlined v-for="i in (5 - Math.floor(record.satisfaction))" :key="'e' + i" style="color: #d9d9d9;" />
-                <span style="margin-left: 4px; font-size: 12px;">{{ record.satisfaction }}</span>
-              </span>
-            </template>
-            <template v-if="column.key === 'action'">
-              <a-button type="link" size="small">查看报告</a-button>
-              <a-button type="link" size="small">下载</a-button>
-            </template>
-          </template>
-        </a-table>
-      </div>
-    </div>
+        <!-- 三栏数据 -->
+        <div class="three-col">
+          <!-- 人员服务 -->
+          <div class="report-group">
+            <h4 class="group-title">人员服务</h4>
+            <div class="info-list">
+              <div class="info-item" v-for="item in personnelData" :key="item.label">
+                <span class="info-label">{{ item.label }}</span>
+                <span class="info-value" :style="{ color: item.color || '#2d3748' }">{{ item.value }}</span>
+              </div>
+            </div>
+          </div>
+          <!-- 设备与能耗 -->
+          <div class="report-group">
+            <h4 class="group-title">设备与能耗</h4>
+            <div class="info-list">
+              <div class="info-item" v-for="item in deviceData" :key="item.label">
+                <span class="info-label">{{ item.label }}</span>
+                <span class="info-value" :style="{ color: item.color || '#2d3748' }">{{ item.value }}</span>
+              </div>
+            </div>
+          </div>
+          <!-- 会展数据 -->
+          <div class="report-group">
+            <h4 class="group-title">会展数据</h4>
+            <div class="info-list">
+              <div class="info-item" v-for="item in exhibitionData" :key="item.label">
+                <span class="info-label">{{ item.label }}</span>
+                <span class="info-value" :style="{ color: item.color || '#2d3748' }">{{ item.value }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
 
-    <div class="two-col">
-      <div class="card">
-        <div class="card-header"><h3><BarChartOutlined /> 展会数据统计分析</h3></div>
-        <div class="card-body">
-          <div class="chart-placeholder" style="min-height: 240px;">
-            <div class="chart-icon"><BarChartOutlined /></div>
-            <div class="chart-text">各展会数据对比分析图</div>
-            <div class="chart-sub">参展人数 | 成交额 | 满意度</div>
+        <!-- AI优化建议 -->
+        <div class="suggestions-section">
+          <h4 class="group-title">优化建议（AI生成）</h4>
+          <div class="suggestion-list">
+            <div class="suggestion-item" v-for="item in suggestions" :key="item">
+              {{ item }}
+            </div>
           </div>
         </div>
       </div>
-      <div class="card">
-        <div class="card-header"><h3><PieChartOutlined /> 展会类型分布</h3></div>
-        <div class="card-body">
-          <div class="chart-placeholder" style="min-height: 240px;">
-            <div class="chart-icon"><PieChartOutlined /></div>
-            <div class="chart-text">展会类型占比分析</div>
-            <div class="chart-sub">汽车展 25% | 科技展 40% | 家居展 20% | 其他 15%</div>
-          </div>
-        </div>
-      </div>
     </div>
 
-    
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
 import { StatCard } from '/@/views/bems-web/components'
 import {
-  CheckCircleOutlined, TeamOutlined, DollarOutlined, StarOutlined,
-  FileTextOutlined, BarChartOutlined, PieChartOutlined,
-  SearchOutlined, DownloadOutlined, InfoCircleOutlined, StarFilled,
+  ScheduleOutlined,
+  CheckCircleOutlined,
+  RobotOutlined,
+  BookOutlined,
+  BarChartOutlined,
 } from '@ant-design/icons-vue'
 
 defineOptions({ name: 'EventPostPage' })
 
-const statData = { completedEvents: 12, totalVisitors: '35,280', totalDeal: '¥2,850万', satisfaction: '4.8' }
-const eventFilter = ref('')
+const statData = {
+  pendingSummary: 2,
+  completedSummary: 18,
+  reportMode: 'AI',
+  knowledgeBase: 156,
+}
 
-const columns = [
-  { title: '展会名称', dataIndex: 'name', key: 'name' },
-  { title: '举办时间', dataIndex: 'date', key: 'date', width: 120 },
-  { title: '展商数', dataIndex: 'exhibitors', key: 'exhibitors', width: 80 },
-  { title: '参展人数', dataIndex: 'visitors', key: 'visitors', width: 100 },
-  { title: '成交额', dataIndex: 'deal', key: 'deal', width: 110 },
-  { title: '满意度', dataIndex: 'satisfaction', key: 'satisfaction', width: 150 },
-  { title: '操作', key: 'action', width: 120, fixed: 'right' },
+const colorGreen = '#38a169'
+
+const personnelData: { label: string; value: string; color?: string }[] = [
+  { label: '总服务人次', value: '45,678' },
+  { label: '投诉数量', value: '5' },
+  { label: '建议数量', value: '23' },
+  { label: '满意度评分', value: '4.6/5.0', color: colorGreen },
+  { label: '安保出勤', value: '128人次/天' },
 ]
 
-const tableData = [
-  { id: 1, name: '2024国际车展', date: '2024-03-01~03-05', exhibitors: 86, visitors: '12,580', deal: '¥1,200万', satisfaction: 4.8 },
-  { id: 2, name: '智慧城市博览会', date: '2024-02-20~02-23', exhibitors: 120, visitors: '15,200', deal: '¥980万', satisfaction: 4.7 },
-  { id: 3, name: '家居设计展', date: '2024-02-10~02-12', exhibitors: 65, visitors: '7,500', deal: '¥670万', satisfaction: 4.9 },
-  { id: 4, name: '国际教育展', date: '2024-01-15~01-18', exhibitors: 45, visitors: '8,900', deal: '¥350万', satisfaction: 4.5 },
-  { id: 5, name: '人工智能大会', date: '2024-01-05~01-08', exhibitors: 78, visitors: '11,200', deal: '¥780万', satisfaction: 4.6 },
-  { id: 6, name: '绿色能源峰会', date: '2023-12-20~12-22', exhibitors: 52, visitors: '6,800', deal: '¥520万', satisfaction: 4.7 },
+const deviceData: { label: string; value: string; color?: string }[] = [
+  { label: '设备故障数', value: '12' },
+  { label: '平均修复时长', value: '18分钟' },
+  { label: '总用电量', value: '356,789 kWh' },
+  { label: '能耗预算比', value: '95.2%', color: colorGreen },
+  { label: '单人次能耗', value: '7.8 kWh' },
+]
+
+const exhibitionData: { label: string; value: string; color?: string }[] = [
+  { label: '展会天数', value: '3天' },
+  { label: '总客流', value: '45,678' },
+  { label: '峰值客流', value: '8,234' },
+  { label: '参展商数', value: '256家' },
+  { label: '应急响应', value: '2次' },
+]
+
+const suggestions = [
+  '建议A馆F2层空调提前30分钟预冷，可降低开展初期能耗峰值15%',
+  'B馆会议室音响设备建议增加日常巡检频次，减少展会期间故障',
+  'C馆室外广场建议增设临时遮阳设施，提升参展商满意度',
+  '安保人员部署建议根据客流预测动态调整，可优化人力成本10%',
 ]
 </script>
 
 <style scoped lang="less">
 .event-page { padding: 0; }
 
-.star-rating {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  margin-bottom: 20px;
+  overflow: hidden;
+
+  .card-header {
+    padding: 18px 22px;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+
+    h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #2d3748;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+    }
+  }
+
+  .card-body { padding: 22px; }
+}
+
+.three-col {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.report-group {
+  .group-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 14px;
+  }
+}
+
+.info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+
+  .info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+
+    &:last-child { border-bottom: none; }
+
+    .info-label {
+      font-size: 13px;
+      color: #718096;
+    }
+
+    .info-value {
+      font-size: 13px;
+      font-weight: 600;
+    }
+  }
+}
+
+.suggestions-section {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #f0f0f0;
+
+  .group-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 12px;
+  }
+}
+
+.suggestion-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  .suggestion-item {
+    font-size: 12px;
+    color: #5a6a8a;
+    padding: 10px 14px;
+    background: #f7fafc;
+    border-radius: 6px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+
+    &::before {
+      content: '✓';
+      color: #52c41a;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+  }
 }
 </style>

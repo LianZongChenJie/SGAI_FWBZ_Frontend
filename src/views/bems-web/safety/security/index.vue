@@ -2,10 +2,15 @@
   <div class="security-page">
     <!-- 统计卡片行 -->
     <div class="stats-row">
-      <StatCard label="监控摄像头总数" :value="statData.totalCameras" change-text="↑ 8 新增" trend="up" color="blue" :icon="VideoCameraOutlined" />
-      <StatCard label="在线摄像头" :value="statData.onlineCameras" change-text="98.7%" trend="up" color="green" :icon="CheckCircleOutlined" />
-      <StatCard label="今日视频巡更" :value="statData.todayPatrol" change-text="↑ 2 条完成" trend="up" color="orange" :icon="ScheduleOutlined" />
-      <StatCard label="AI分析事件" :value="statData.aiEvents" change-text="↓ 3 较昨日" trend="down" color="red" :icon="WarningOutlined" />
+      <StatCard
+        v-for="(item, index) in statCards"
+        :key="index"
+        :label="item.title"
+        :value="item.value"
+        :change-text="item.context"
+        :color="cardConfig[index].color"
+        :icon="cardConfig[index].icon"
+      />
     </div>
 
     <!-- 实时监控画面 -->
@@ -23,21 +28,26 @@
       <div class="card">
         <div class="card-header">
           <h3><ScheduleOutlined /> 视频巡更计划</h3>
-          <a-button type="primary">+ 新增巡更</a-button>
+          <a-button type="primary" @click="handleAddPatrol">+ 新增巡更</a-button>
         </div>
         <div class="card-body">
           <a-table
             :columns="patrolColumns"
             :data-source="patrolData"
-            :pagination="false"
+            :pagination="patrolPagination"
+            :loading="patrolLoading"
             row-key="id"
             size="small"
+            @change="handlePatrolTableChange"
           >
             <template #bodyCell="{ column, record }">
               <template v-if="column.key === 'status'">
-                <span class="status-text" :class="record.status === '进行中' ? 'normal' : record.status === '待开始' ? 'info' : 'warning'">
-                  {{ record.status }}
-                </span>
+                <a-tag :color="statusMap[record.status]?.color">
+                  {{ statusMap[record.status]?.text }}
+                </a-tag>
+              </template>
+              <template v-if="column.key === 'action'">
+                <a-button type="link" size="small" :disabled="record.status === 2" @click="handleEditPatrol(record)">编辑</a-button>
               </template>
             </template>
           </a-table>
@@ -81,13 +91,66 @@
         />
       </div>
     </a-modal>
+
+    <!-- 巡更计划新增/编辑弹窗 -->
+    <a-modal
+      v-model:visible="patrolModalVisible"
+      :title="patrolModalTitle"
+      width="560px"
+      :confirm-loading="patrolModalLoading"
+      @ok="handlePatrolSubmit"
+      @cancel="handlePatrolCancel"
+    >
+      <a-form ref="patrolFormRef" :model="patrolForm" :rules="patrolRules" :label-col="{ span: 6 }" :wrapper-col="{ span: 16 }">
+        <a-form-item label="计划名称" name="planName">
+          <a-input v-if="patrolModalMode === 'add'" v-model:value="patrolForm.planName" placeholder="请输入计划名称" />
+          <span v-else>{{ patrolForm.planName }}</span>
+        </a-form-item>
+        <a-form-item label="巡更路线" name="patrolRoute">
+          <a-input v-if="patrolModalMode === 'add'" v-model:value="patrolForm.patrolRoute" placeholder="请输入巡更路线" />
+          <span v-else>{{ patrolForm.patrolRoute }}</span>
+        </a-form-item>
+        <a-form-item label="执行周期" name="executionCycle">
+          <a-time-picker
+            v-if="patrolModalMode === 'add'"
+            v-model:value="patrolForm.executionCycle"
+            show-time
+            format="HH:mm:ss"
+            value-format="HH:mm:ss"
+            placeholder="请选择执行周期"
+            style="width: 100%"
+          />
+          <span v-else>{{ patrolForm.executionCycle }}</span>
+        </a-form-item>
+        <a-form-item v-if="patrolModalMode === 'add'" label="巡更摄像头" name="indexCodes">
+          <a-select
+            v-model:value="patrolForm.indexCodes"
+            mode="multiple"
+            placeholder="请选择摄像头"
+            :options="cameraOptions"
+            :field-names="{ label: 'name', value: 'indexCode' }"
+            allow-clear
+          />
+        </a-form-item>
+        <a-form-item label="状态">
+          <a-switch
+            v-model:checked="patrolForm.statusChecked"
+            checked-children="启动"
+            un-checked-children="停用"
+          />
+        </a-form-item>
+      </a-form>
+    </a-modal>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, reactive, computed, onMounted, onBeforeUnmount } from 'vue'
+import { message } from 'ant-design-vue'
+import type { FormInstance } from 'ant-design-vue'
 import { StatCard, AlertCard } from '/@/views/bems-web/components'
 import CameraCarousel from '../components/CameraCarousel/index.vue'
+import { getSecuritySummary, getPatrolPlanList, editPatrolPlan, addPatrolPlan, getCameraList, getRunningCameraList } from './index.api'
 import {
   VideoCameraOutlined,
   CheckCircleOutlined,
@@ -97,35 +160,389 @@ import {
 
 defineOptions({ name: 'SecurityManagementPage' })
 
-const statData = {
-  totalCameras: 156,
-  onlineCameras: '154',
-  todayPatrol: '6/8',
-  aiEvents: 3,
+/** 卡片颜色与图标配置（与后端返回顺序对应） */
+const cardConfig = [
+  { color: 'blue' as const, icon: VideoCameraOutlined },
+  { color: 'green' as const, icon: CheckCircleOutlined },
+  { color: 'orange' as const, icon: ScheduleOutlined },
+  { color: 'red' as const, icon: WarningOutlined },
+]
+
+/** 统计卡片数据 */
+interface StatItem {
+  title: string
+  value: string
+  context: string
 }
 
-const cameraList = [
-  { id: 1, name: 'CAM-01', location: 'A馆东门入口', status: 'online' as const, ip: '192.168.1.101' },
-  { id: 2, name: 'CAM-02', location: 'A馆F1大厅', status: 'online' as const, ip: '192.168.1.102' },
-  { id: 3, name: 'CAM-03', location: 'A馆F2展厅', status: 'online' as const, ip: '192.168.1.103' },
-  { id: 4, name: 'CAM-04', location: 'B馆南门入口', status: 'online' as const, ip: '192.168.1.104' },
-  { id: 5, name: 'CAM-05', location: 'B馆会议中心', status: 'online' as const, ip: '192.168.1.105' },
-  { id: 6, name: 'CAM-06', location: 'C馆西门入口', status: 'offline' as const, ip: '192.168.1.106' },
-]
+/**
+ * ResultPatrolPlanDetailVo
+ */
+export interface Response {
+    /**
+     * 返回代码
+     */
+    code?: number;
+    /**
+     * 返回处理消息
+     */
+    message?: string;
+    /**
+     * 返回数据对象
+     */
+    result?: PatrolPlanDetailVo;
+    /**
+     * 成功标志
+     */
+    success?: boolean;
+    /**
+     * 时间戳
+     */
+    timestamp?: number;
+    [property: string]: any;
+}
+
+/**
+ * 返回数据对象
+ *
+ * PatrolPlanDetailVo
+ */
+export interface PatrolPlanDetailVo {
+    /**
+     * 关联摄像头列表
+     */
+    cameras?: PlanCamera[];
+    /**
+     * 创建人
+     */
+    createBy?: string;
+    /**
+     * 创建日期
+     */
+    createTime?: string;
+    /**
+     * 执行周期
+     */
+    executionCycle?: string;
+    /**
+     * 主键
+     */
+    id?: number;
+    /**
+     * 下次执行
+     */
+    nextExecution?: string;
+    pageNo?: number;
+    pageSize?: number;
+    /**
+     * 巡更路线
+     */
+    patrolRoute?: string;
+    /**
+     * 计划名称
+     */
+    planName?: string;
+    /**
+     * 状态
+     */
+    status?: number;
+    /**
+     * 所属部门
+     */
+    sysOrgCode?: string;
+    /**
+     * 更新人
+     */
+    updateBy?: string;
+    /**
+     * 更新日期
+     */
+    updateTime?: string;
+    [property: string]: any;
+}
+
+/**
+ * table_plan_camera对象
+ *
+ * PlanCamera
+ */
+export interface PlanCamera {
+    /**
+     * 摄像头名称（非数据库字段，联表查询）
+     * 摄像头名称
+     */
+    cameraName?: string;
+    /**
+     * 主键
+     */
+    id?: number;
+    /**
+     * 摄像头唯一编码
+     */
+    indexCode?: string;
+    /**
+     * 巡更计划ID
+     */
+    planId?: number;
+    /**
+     * 视频流URL（HLS m3u8）
+     */
+    url?: string;
+    [property: string]: any;
+}
+
+/**
+ * PatrolPlanDto
+ */
+export interface Request {
+    /**
+     * 创建日期
+     */
+    createTime?: string;
+    /**
+     * 执行周期
+     */
+    executionCycle?: string;
+    /**
+     * 主键
+     */
+    id?: number;
+    /**
+     * 摄像头唯一编码列表
+     */
+    indexCodes?: string[];
+    /**
+     * 巡更路线
+     */
+    patrolRoute?: string;
+    /**
+     * 计划名称
+     */
+    planName?: string;
+    /**
+     * 状态
+     */
+    status?: number;
+    [property: string]: any;
+}
+
+const statCards = ref<StatItem[]>([])
+
+const fetchStatCards = async () => {
+  try {
+    const res = await getSecuritySummary()
+    statCards.value = res || []
+  } catch (error) {
+    console.error('获取安防统计卡片数据失败:', error)
+  }
+}
+
+onMounted(() => {
+  fetchStatCards()
+  fetchPatrolData()
+  fetchCameraOptions()
+  fetchRunningCameras()
+  // 定时轮询：每 60 秒刷新运行中摄像头 + 巡更计划列表
+  runningCameraTimer = setInterval(handlePolling, 60 * 1000)
+})
+
+onBeforeUnmount(() => {
+  if (runningCameraTimer) {
+    clearInterval(runningCameraTimer)
+    runningCameraTimer = null
+  }
+})
+
+/** ===== 实时监控画面（运行中的巡更摄像头） ===== */
+let runningCameraTimer: ReturnType<typeof setInterval> | null = null
+
+const cameraList = ref<any[]>([])
+
+const fetchRunningCameras = async () => {
+  try {
+    const res = await getRunningCameraList()
+    // res 为 PatrolPlanDetailVo，取 cameras 列表映射为 CameraCarousel 所需格式
+    const cameras = res?.cameras || []
+    cameraList.value = cameras.map((cam: any) => ({
+      id: cam.id || cam.indexCode,
+      cameraName: cam.cameraName || cam.indexCode,
+      url: cam.url,
+      indexCode: cam.indexCode,
+      planId: cam.planId,
+    }))
+  } catch (error) {
+    console.error('获取运行中的巡更摄像头失败:', error)
+  }
+}
+
+/** 定时轮询：刷新摄像头 + 巡更计划列表状态 */
+const handlePolling = async () => {
+  await fetchPatrolData()
+  await fetchRunningCameras()
+}
 
 const patrolColumns = [
-  { title: '巡更名称', dataIndex: 'name', key: 'name' },
-  { title: '巡更区域', dataIndex: 'area', key: 'area' },
-  { title: '执行时间', dataIndex: 'time', key: 'time' },
+  { title: '计划名称', dataIndex: 'planName', key: 'planName' },
+  { title: '巡更路线', dataIndex: 'patrolRoute', key: 'patrolRoute' },
+  { title: '执行周期', dataIndex: 'executionCycle', key: 'executionCycle' },
+  { title: '下次执行', dataIndex: 'nextExecution', key: 'nextExecution' },
   { title: '状态', dataIndex: 'status', key: 'status' },
+  { title: '操作', key: 'action', width: 80 },
 ]
 
-const patrolData = [
-  { id: 1, name: '早间例行巡更', area: 'A馆全区域', time: '08:00 - 09:00', status: '已完成' },
-  { id: 2, name: '午间安全巡更', area: 'B馆全区域', time: '12:00 - 13:00', status: '进行中' },
-  { id: 3, name: '下午场馆巡更', area: 'C馆全区域', time: '15:00 - 16:00', status: '待开始' },
-  { id: 4, name: '夜间安防巡更', area: '全馆区域', time: '22:00 - 23:00', status: '待开始' },
-]
+/** 巡更计划状态映射 (0=停用, 1=启动) */
+const statusMap: Record<number, { text: string; color: string }> = {
+  0: { text: '停用', color: 'red' },
+  1: { text: '启动', color: 'green' },
+  2: { text: '运行中', color: 'blue' },
+}
+
+/** 巡更计划数据 */
+interface PatrolPlan {
+  id: number
+  planName: string
+  patrolRoute: string
+  executionCycle: string
+  nextExecution: string
+  status: number
+}
+const patrolData = ref<PatrolPlan[]>([])
+const patrolLoading = ref(false)
+const patrolPagination = ref({
+  current: 1,
+  pageSize: 10,
+  total: 0,
+})
+
+const fetchPatrolData = async () => {
+  patrolLoading.value = true
+  try {
+    const res = await getPatrolPlanList({
+      pageNo: patrolPagination.value.current,
+      pageSize: patrolPagination.value.pageSize,
+    })
+    patrolData.value = res.records || []
+    patrolPagination.value.total = res.total || 0
+    patrolPagination.value.pageSize = res.size || 10
+    patrolPagination.value.current = res.current || 1
+  } catch (error) {
+    console.error('获取巡更计划列表失败:', error)
+  } finally {
+    patrolLoading.value = false
+  }
+}
+
+const handlePatrolTableChange = (pag: any) => {
+  patrolPagination.value.current = pag.current
+  patrolPagination.value.pageSize = pag.pageSize
+  fetchPatrolData()
+}
+
+/** ===== 巡更计划新增/编辑弹窗（复用） ===== */
+const patrolModalVisible = ref(false)
+const patrolModalLoading = ref(false)
+const patrolModalMode = ref<'add' | 'edit'>('add')
+const patrolModalTitle = computed(() => patrolModalMode.value === 'add' ? '新增巡更计划' : '编辑巡更计划')
+const patrolFormRef = ref<FormInstance>()
+
+const patrolForm = reactive({
+  id: 0,
+  planName: '',
+  patrolRoute: '',
+  executionCycle: '',
+  indexCodes: [] as string[],
+  statusChecked: false,
+})
+
+const patrolRules = {
+  planName: [{ required: true, message: '请输入计划名称', trigger: 'blur' }],
+  patrolRoute: [{ required: true, message: '请输入巡更路线', trigger: 'blur' }],
+  executionCycle: [{ required: true, message: '请选择执行周期', trigger: 'change' }],
+  indexCodes: [{ required: true, message: '请选择摄像头', trigger: 'change' }],
+}
+
+/** 摄像头列表选项 */
+interface CameraItem {
+  indexCode: string
+  name: string
+}
+const cameraOptions = ref<CameraItem[]>([])
+
+const fetchCameraOptions = async () => {
+  try {
+    const res = await getCameraList()
+    cameraOptions.value = res || []
+  } catch (error) {
+    console.error('获取摄像头列表失败:', error)
+  }
+}
+
+const resetPatrolForm = () => {
+  patrolForm.id = 0
+  patrolForm.planName = ''
+  patrolForm.patrolRoute = ''
+  patrolForm.executionCycle = ''
+  patrolForm.indexCodes = []
+  patrolForm.statusChecked = true
+  patrolFormRef.value?.resetFields()
+}
+
+/** 新增 */
+const handleAddPatrol = () => {
+  patrolModalMode.value = 'add'
+  resetPatrolForm()
+  patrolModalVisible.value = true
+}
+
+/** 编辑 */
+const handleEditPatrol = (record: PatrolPlan) => {
+  patrolModalMode.value = 'edit'
+  patrolForm.id = record.id
+  patrolForm.planName = record.planName
+  patrolForm.patrolRoute = record.patrolRoute
+  patrolForm.executionCycle = record.executionCycle
+  patrolForm.indexCodes = []
+  patrolForm.statusChecked = record.status === 1
+  patrolModalVisible.value = true
+}
+
+/** 提交（新增/编辑复用） */
+const handlePatrolSubmit = async () => {
+  try {
+    if (patrolModalMode.value === 'add') {
+      await patrolFormRef.value?.validate()
+    }
+    patrolModalLoading.value = true
+
+    if (patrolModalMode.value === 'add') {
+      await addPatrolPlan({
+        planName: patrolForm.planName,
+        patrolRoute: patrolForm.patrolRoute,
+        executionCycle: patrolForm.executionCycle,
+        indexCodes: patrolForm.indexCodes,
+        status: patrolForm.statusChecked ? 1 : 0,
+      })
+      message.success('新增成功')
+    } else {
+      await editPatrolPlan({
+        id: patrolForm.id,
+        status: patrolForm.statusChecked ? 1 : 0,
+      })
+      message.success('修改成功')
+    }
+
+    patrolModalVisible.value = false
+    fetchPatrolData()
+  } catch (error) {
+    console.error('提交巡更计划失败:', error)
+  } finally {
+    patrolModalLoading.value = false
+  }
+}
+
+const handlePatrolCancel = () => {
+  patrolModalVisible.value = false
+}
 
 // 所有AI事件数据
 const allAIEvents = [
@@ -271,47 +688,5 @@ const handleViewAllAIEvents = () => {
 .ai-events-modal {
   max-height: 60vh;
   overflow-y: auto;
-}
-
-.feature-panel {
-  background: linear-gradient(135deg, #f0f4ff 0%, #faf5ff 100%);
-  border-radius: 12px;
-  padding: 24px;
-  margin-top: 20px;
-  border: 1px solid #e8e0f0;
-
-  h4 {
-    font-size: 15px;
-    font-weight: 600;
-    color: #2d3748;
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  p {
-    font-size: 13px;
-    color: #4a5568;
-    line-height: 1.8;
-    margin-bottom: 16px;
-  }
-
-  .feature-list {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    .feature-list-item {
-      font-size: 12px;
-      color: #5a6a8a;
-      padding: 8px 12px;
-      background: rgba(255, 255, 255, 0.7);
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      &::before { content: '✓'; color: #52c41a; font-weight: 700; }
-    }
-  }
 }
 </style>

@@ -16,9 +16,9 @@
         @change="handleTableChange"
       >
         <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'constructible'">
-            <a-tag :color="record.constructible ? 'green' : 'red'">
-              {{ record.constructible ? '是' : '否' }}
+          <template v-if="column.key === 'buildable'">
+            <a-tag :color="record.buildable === 1 ? 'green' : 'red'">
+              {{ record.buildable === 1 ? '是' : '否' }}
             </a-tag>
           </template>
           <template v-if="column.key === 'action'">
@@ -34,19 +34,18 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { PlusOutlined } from '@ant-design/icons-vue'
 
 // ===== 类型定义 =====
 export interface VenueItem {
   id: string
-  name: string            // 场馆名称
+  venueName: string            // 场馆名称
   location: string        // 位置
   orientation: string     // 朝向
   area: string            // 建筑面积
-  height: string          // 层高
+  ceilingH: string          // 层高
   lighting: string        // 采光条件
-  infrastructure: string  // 基础条件
-  constructible: boolean  // 可施工
+  basicFacility: string  // 基础条件
+  buildable: boolean  // 可施工
 }
 
 // ===== Props =====
@@ -73,14 +72,14 @@ const emit = defineEmits<{
 
 // ===== 表格列定义 =====
 const columns = [
-  { title: '场馆名称', dataIndex: 'name', key: 'name', width: 100 },
+  { title: '场馆名称', dataIndex: 'venueName', key: 'venueName', width: 100 },
   { title: '位置', dataIndex: 'location', key: 'location', width: 120 },
   { title: '朝向', dataIndex: 'orientation', key: 'orientation', width: 100 },
   { title: '建筑面积', dataIndex: 'area', key: 'area', width: 120 },
-  { title: '层高', dataIndex: 'height', key: 'height', width: 120 },
+  { title: '层高', dataIndex: 'ceilingH', key: 'ceilingH', width: 120 },
   { title: '采光条件', dataIndex: 'lighting', key: 'lighting', width: 180 },
-  { title: '基础条件', dataIndex: 'infrastructure', key: 'infrastructure', width: 180 },
-  { title: '可施工', key: 'constructible', width: 80 },
+  { title: '基础条件', dataIndex: 'basicFacility', key: 'basicFacility', width: 180 },
+  { title: '可施工', key: 'buildable', width: 80 },
   { title: '操作', key: 'action', width: 80, fixed: 'right' }
 ]
 
