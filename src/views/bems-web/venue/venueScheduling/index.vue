@@ -19,33 +19,81 @@
         </div>
         <div class="venue-management">
             <VenueManagement
-        title="🏢 场馆信息管理"
-        :data="venueData"
-        :loading="venueLoading"
-        @add="handleAddVenue"
-        @detail="handleVenueDetail"
-        @table-change="handleTableChange"
+              title="🏢 场馆信息管理"
+              :data="venueData"
+              :loading="venueLoading"
+              @add="handleAddVenue"
+              @detail="handleVenueDetail"
+              @table-change="handleTableChange"
             />
         </div>
+
+        <!-- 新增场馆弹窗 -->
+        <VenueFormModal ref="venueFormModalRef" @success="handleAddSuccess" />
     </div>
 </template>
 
 <script setup lang="ts">
 interface VenueItem {
   id: string
-  name: string            // 场馆名称
+  venueName: string            // 场馆名称
   location: string        // 位置
   orientation: string     // 朝向
   area: string            // 建筑面积
-  height: string          // 层高
+  ceilingH: string          // 层高
   lighting: string        // 采光条件
-  infrastructure: string  // 基础条件
-  constructible: boolean  // 可施工
+  basicFacility: string  // 基础条件
+  buildable: boolean  // 可施工
+}
+
+interface Request {
+    /**
+     * 建筑面积
+     */
+    area?: string;
+    /**
+     * 基础情况
+     */
+    basicFacility?: string;
+    /**
+     * 可施工 1=是 0=否
+     */
+    buildable?: number;
+    /**
+     * 层高
+     */
+    ceilingH?: string;
+    /**
+     * 楼层
+     */
+    floors?: string;
+    /**
+     * 主键
+     */
+    id?: number;
+    /**
+     * 采光条件
+     */
+    lighting?: string;
+    /**
+     * 位置
+     */
+    location?: string;
+    /**
+     * 朝向
+     */
+    orientation?: string;
+    /**
+     * 场馆名称
+     */
+    venueName?: string;
+    [property: string]: any;
 }
 
 import { ref, onMounted } from 'vue'
 import { StatCard } from '/@/views/bems-web/components';
 import { EventSchedule, VenueManagement } from './elements/index';
+import VenueFormModal from './elements/venueManagement/VenueFormModal.vue';
 import { DaySchedule } from './elements/eventSchedule/index.vue';
 import { getVenueInfoList } from './index.api';
 import {
@@ -71,7 +119,6 @@ const fetchVenueData = async () => {
       pageNo: venuePagination.value.current,
       pageSize: venuePagination.value.pageSize,
     })
-    console.log('res111', res)
     // 假设后端返回 { records: VenueItem[], total: number }
     venueData.value = res.records || []
     venuePagination.value.total = res.total || 0
@@ -86,9 +133,14 @@ onMounted(() => {
   fetchVenueData()
 })
 
+const venueFormModalRef = ref()
+
 const handleAddVenue = () => {
-  console.log('新增场馆')
-  // TODO: 打开新增场馆弹窗
+  venueFormModalRef.value?.open()
+}
+
+const handleAddSuccess = () => {
+  fetchVenueData()
 }
 
 const handleVenueDetail = (record: VenueItem) => {
