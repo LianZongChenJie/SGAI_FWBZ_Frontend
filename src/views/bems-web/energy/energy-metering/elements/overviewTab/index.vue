@@ -4,8 +4,8 @@
       <StatCard
         label="计量表计总数"
         :value="statData.count"
-        :change-text="statData.meterTotalChange"
-        trend="up"
+        :change-text="statData.addCount"
+        trend=""
         color="blue"
         :icon="ThunderboltOutlined"
       />
@@ -20,16 +20,16 @@
       <StatCard
         label="今日用电量"
         :value="statData.electricCount"
-        :change-text="statData.todayPowerChange"
-        trend="down"
+        :change-text="statData.electricCountDoD"
+        trend=""
         color="orange"
         :icon="PlugIcon"
       />
       <StatCard
         label="今日用水量"
         :value="statData.waterCount"
-        :change-text="statData.todayWaterChange"
-        trend="down"
+        :change-text="statData.waterCountDoD"
+        trend=""
         color="purple"
         :icon="WaterDropIcon"
       />
@@ -209,13 +209,13 @@ const WaterDropIcon = () => h('span', { style: 'font-size: 20px;' }, '💧')
 // 统计数据（预留接口，当前为模拟数据）
 const statData = reactive({
   count: '245',
-  meterTotalChange: '56 新增',
+  addCount: '56 新增',
   onlineRate: '100%',
   meterOnlineStatus: '全部正常',
   electricCount: '42,156',
-  todayPowerChange: '6.8% kWh',
+  electricCountDoD: '6.8% kWh',
   waterCount: '856',
-  todayWaterChange: '3.2% m³',
+  waterCountDoD: '3.2% m³',
 })
 
 // 计量表计数据筛选
@@ -433,13 +433,13 @@ const loadOverviewData = async () => {
   try {
     const res = await getEnergyMeteringStatistics()
     statData.count = res.count ?? statData.count
-    statData.meterTotalChange = res.meterTotalChange ?? statData.meterTotalChange
+    statData.addCount = res.addCount ?? statData.addCount
     statData.onlineRate = res.onlineRate ?? statData.onlineRate
     statData.meterOnlineStatus = res.meterOnlineStatus ?? statData.meterOnlineStatus
     statData.electricCount = res.electricCount ?? statData.electricCount
-    statData.todayPowerChange = res.todayPowerChange ?? statData.todayPowerChange
+    statData.electricCountDoD = res.electricCountDoD ?? statData.electricCountDoD
     statData.waterCount = res.waterCount ?? statData.waterCount
-    statData.todayWaterChange = res.todayWaterChange ?? statData.todayWaterChange
+    statData.waterCountDoD = res.waterCountDoD ?? statData.waterCountDoD
   } catch (e) {
     console.error('加载能源计量概览数据失败:', e)
   }

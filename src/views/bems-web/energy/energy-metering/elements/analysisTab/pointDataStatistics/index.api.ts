@@ -7,6 +7,7 @@ enum Api {
   findDay = '/sgai-tp/fwbz/meterPointData/findDay',
   findMonth = '/sgai-tp/fwbz/meterPointData/findMonth',
   findYear = '/sgai-tp/fwbz/meterPointData/findYear',
+  statistics = '/sgai-tp/fwbz/meterPointData/statistics',
   energyFlowType = '/sys/dict/getDictItems/energy_flow_type',
   // energyFlowTree = '/bems/meteringPoint/getTree',
   energyFlowTree = '/sgai-tp/fwbz/meteringPoint/getPermissionTree',
@@ -40,5 +41,10 @@ export const findYear = (params) => defHttp.get({ url: Api.findYear, params });
 export const energyFlowType = () => defHttp.get({ url: Api.energyFlowType });
 
 export const energyFlowTree = (params) => defHttp.get({ url: Api.energyFlowTree, params });
+
+/**
+ * 计量统计汇总数据（顶部四个卡片）
+ */
+export const getStatistics = (params = {}) => defHttp.get({ url: Api.statistics, params });
 
 export const test = () => defHttp.get({ url: Api.test });

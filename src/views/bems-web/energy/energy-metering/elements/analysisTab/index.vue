@@ -3,33 +3,33 @@
     <div class="stat-cards">
       <StatCard
         label="本月总耗电"
-        :value="statData.monthlyPower"
-        :change-text="statData.monthlyPowerChange"
-        trend="up"
+        :value="statData.electricCount"
+        :change-text="statData.electricCountMoM"
+        trend=""
         color="blue"
         :icon="ThunderIcon"
       />
       <StatCard
         label="本月总用水"
-        :value="statData.monthlyWater"
-        :change-text="statData.monthlyWaterChange"
-        trend="down"
+        :value="statData.waterCount"
+        :change-text="statData.waterCountMoM"
+        trend=""
         color="green"
         :icon="WaterDropIcon"
       />
       <StatCard
         label="日均耗电"
-        :value="statData.dailyAvgPower"
-        :change-text="statData.dailyAvgPowerChange"
-        trend="up"
+        :value="statData.electricAvg"
+        :change-text="statData.electricAvgMom"
+        trend=""
         color="orange"
         :icon="ChartIcon"
       />
       <StatCard
         label="环比节能"
         :value="statData.energySaving"
-        :change-text="statData.energySavingChange"
-        trend="up"
+        :change-text="statData.energySavingMom"
+        trend=""
         color="purple"
         :icon="LeafIcon"
       />
@@ -69,7 +69,7 @@
 import { reactive, onMounted, h, ref } from 'vue'
 import { StatCard } from '/@/views/bems-web/components'
 import PointDataStatistics from './pointDataStatistics/index.vue'
-import { VerticalAlignBottomOutlined } from '@ant-design/icons-vue'
+import { getStatistics } from './pointDataStatistics/index.api'
 
 // 自定义 emoji 图标组件
 const ThunderIcon = () => h('span', { style: 'font-size: 20px;' }, '⚡')
@@ -79,14 +79,14 @@ const LeafIcon = () => h('span', { style: 'font-size: 20px;' }, '🌿')
 
 // 统计数据（预留接口，当前为模拟数据）
 const statData = reactive({
-  monthlyPower: '198,456',
-  monthlyPowerChange: '5.2% kWh',
-  monthlyWater: '5,234',
-  monthlyWaterChange: '3.1% m³',
-  dailyAvgPower: '22,050',
-  dailyAvgPowerChange: '2.8% kWh',
-  energySaving: '8.5%',
-  energySavingChange: '1.2% 较上月',
+  electricCount: '',
+  electricCountMoM: '',
+  waterCount: '',
+  waterCountMoM: '',
+  electricAvg: '',
+  electricAvgMom: '',
+  energySaving: '',
+  energySavingMom: '',
 })
 
 // 能耗趋势分析查询参数
@@ -103,10 +103,24 @@ const handleExport = () => {
   pointDataStatisticsRef.value?.handleExport()
 }
 
-// 加载计量分析数据（预留接口）
+// 加载计量分析统计数据
 const loadAnalysisData = async () => {
-  // TODO: 调用计量分析数据接口
-  console.log('加载计量分析数据')
+  try {
+    const res = await getStatistics()
+    const data = res?.result || res?.data || res || {}
+    Object.assign(statData, {
+      electricCount: data.electricCount ?? statData.electricCount,
+      electricCountMoM: data.electricCountMoM ?? statData.electricCountMoM,
+      waterCount: data.waterCount ?? statData.waterCount,
+      waterCountMoM: data.waterCountMoM ?? statData.waterCountMoM,
+      electricAvg: data.electricAvg ?? statData.electricAvg,
+      electricAvgMom: data.electricAvgMom ?? statData.electricAvgMom,
+      energySaving: data.energySaving ?? statData.energySaving,
+      energySavingMom: data.energySavingMom ?? statData.energySavingMom,
+    })
+  } catch (e) {
+    console.error('加载计量分析统计数据失败:', e)
+  }
 }
 
 onMounted(() => {

@@ -3,32 +3,32 @@
     <div class="stat-cards">
       <StatCard
         label="计量项目总数"
-        :value="statData.projectTotal"
-        :change-text="statData.projectTotalChange"
-        trend="up"
+        :value="statData.count"
+        :change-text="statData.addCount"
+        trend=""
         color="blue"
         :icon="ClipboardIcon"
       />
       <StatCard
         label="已配置公式"
-        :value="statData.configuredFormula"
-        :change-text="statData.configuredFormulaChange"
+        :value="statData.formulaCount"
+        :change-text="statData.coverage"
         trend=""
         color="green"
         :icon="CheckSquareIcon"
       />
       <StatCard
         label="电表项目"
-        :value="statData.electricProject"
-        :change-text="statData.electricProjectChange"
+        :value="statData.electricCount"
+        :change-text="statData.electricPercentage"
         trend=""
         color="orange"
         :icon="ThunderIcon"
       />
       <StatCard
         label="水表项目"
-        :value="statData.waterProject"
-        :change-text="statData.waterProjectChange"
+        :value="statData.waterCount"
+        :change-text="statData.waterPercentage"
         trend=""
         color="purple"
         :icon="WaterDropIcon"
@@ -59,6 +59,7 @@ import { reactive, ref, onMounted, h } from 'vue'
 import { PlusOutlined } from '@ant-design/icons-vue'
 import { StatCard } from '/@/views/bems-web/components'
 import MeasureRule from './measureRule/index.vue'
+import { getRulesStatistics } from './index.api'
 
 const measureRuleRef = ref()
 
@@ -70,20 +71,34 @@ const WaterDropIcon = () => h('span', { style: 'font-size: 20px;' }, '💧')
 
 // 统计数据（预留接口，当前为模拟数据）
 const statData = reactive({
-  projectTotal: '37',
-  projectTotalChange: '12 新增',
-  configuredFormula: '31',
-  configuredFormulaChange: '84% 覆盖率',
-  electricProject: '28',
-  electricProjectChange: '76% 占比',
-  waterProject: '9',
-  waterProjectChange: '24% 占比',
+  count: '37',
+  addCount: '12 新增',
+  formulaCount: '31',
+  coverage: '84% 覆盖率',
+  electricCount: '28',
+  electricPercentage: '76% 占比',
+  waterCount: '9',
+  waterPercentage: '24% 占比',
 })
 
-// 加载计量规则数据（预留接口）
+// 加载计量规则统计数据
 const loadRulesData = async () => {
-  // TODO: 调用计量规则数据接口
-  console.log('加载计量规则数据')
+  try {
+    const res = await getRulesStatistics()
+    const data = res?.result || res?.data || res || {}
+    Object.assign(statData, {
+      count: data.count ?? statData.count,
+      addCount: data.addCount ?? statData.addCount,
+      formulaCount: data.formulaCount ?? statData.formulaCount,
+      coverage: data.coverage ?? statData.coverage,
+      electricCount: data.electricCount ?? statData.electricCount,
+      electricPercentage: data.electricPercentage ?? statData.electricPercentage,
+      waterCount: data.waterCount ?? statData.waterCount,
+      waterPercentage: data.waterPercentage ?? statData.waterPercentage,
+    })
+  } catch (e) {
+    console.error('加载计量规则统计数据失败:', e)
+  }
 }
 
 onMounted(() => {

@@ -19,7 +19,7 @@
       />
       <StatCard
         label="仪表数量"
-        :value="statData.offline"
+        :value="statData.measuringCount"
         change-text=""
         trend=""
         color="orange"
@@ -27,7 +27,7 @@
       />
       <StatCard
         label="运行数量"
-        :value="statData.spaceCount"
+        :value="statData.equipmentCount"
         change-text=""
         trend=""
         color="purple"
@@ -53,10 +53,10 @@ import {
 import { getDeviceRunStateStatistics } from './index.api'
 
 const statData = ref({
-  count: '111',
-  online: '222',
-  offline: '333',
-  spaceCount: '444',
+  count: '',
+  online: '',
+  measuringCount: '',
+  equipmentCount: '',
 })
 
 const fetchStatData = async () => {
