@@ -129,6 +129,8 @@
             placeholder="请选择摄像头"
             :options="cameraOptions"
             :field-names="{ label: 'name', value: 'indexCode' }"
+            show-search
+            :filter-option="filterCameraOption"
             allow-clear
           />
         </a-form-item>
@@ -150,7 +152,7 @@ import { message } from 'ant-design-vue'
 import type { FormInstance } from 'ant-design-vue'
 import { StatCard, AlertCard } from '/@/views/bems-web/components'
 import CameraCarousel from '../components/CameraCarousel/index.vue'
-import { getSecuritySummary, getPatrolPlanList, editPatrolPlan, addPatrolPlan, getCameraList, getRunningCameraList } from './index.api'
+import { getSecuritySummary, getPatrolPlanList, editPatrolPlan, addPatrolPlan, getCameraList, getRunningCameraList, checkIsRunningPlan } from './index.api'
 import {
   VideoCameraOutlined,
   CheckCircleOutlined,
@@ -342,7 +344,7 @@ onMounted(() => {
   fetchPatrolData()
   fetchCameraOptions()
   fetchRunningCameras()
-  // 定时轮询：每 60 秒刷新运行中摄像头 + 巡更计划列表
+  // 定时轮询：每 60 秒查询当前计划是否仍在执行，返回 false 时刷新列表和视频
   runningCameraTimer = setInterval(handlePolling, 60 * 1000)
 })
 
@@ -357,12 +359,16 @@ onBeforeUnmount(() => {
 let runningCameraTimer: ReturnType<typeof setInterval> | null = null
 
 const cameraList = ref<any[]>([])
+/** 当前运行中的巡更计划ID（来自 runningPlan 接口返回） */
+const runningPlanId = ref<number | undefined>(undefined)
 
 const fetchRunningCameras = async () => {
   try {
     const res = await getRunningCameraList()
     // res 为 PatrolPlanDetailVo，取 cameras 列表映射为 CameraCarousel 所需格式
     const cameras = res?.cameras || []
+    // 记录当前运行中的计划ID，供轮询 isRunningPlan 使用
+    runningPlanId.value = res?.id
     cameraList.value = cameras.map((cam: any) => ({
       id: cam.id || cam.indexCode,
       cameraName: cam.cameraName || cam.indexCode,
@@ -375,10 +381,30 @@ const fetchRunningCameras = async () => {
   }
 }
 
-/** 定时轮询：刷新摄像头 + 巡更计划列表状态 */
+/**
+ * 定时轮询：查询当前计划是否仍在执行
+ * - isRunningPlan 返回 true  → 计划仍在执行，不刷新
+ * - isRunningPlan 返回 false → 计划已结束，刷新巡更计划列表 + 运行中摄像头
+ * - 没有运行中的计划ID时，直接刷新
+ */
 const handlePolling = async () => {
-  await fetchPatrolData()
-  await fetchRunningCameras()
+  // 没有运行中的计划ID，直接刷新
+  if (!runningPlanId.value) {
+    await fetchPatrolData()
+    await fetchRunningCameras()
+    return
+  }
+
+  try {
+    const isRunning = await checkIsRunningPlan({ id: runningPlanId.value })
+    if (!isRunning) {
+      // 计划已结束，刷新巡更计划列表和运行中摄像头
+      await fetchPatrolData()
+      await fetchRunningCameras()
+    }
+  } catch (error) {
+    console.error('查询计划执行状态失败:', error)
+  }
 }
 
 const patrolColumns = [
@@ -467,6 +493,12 @@ interface CameraItem {
   name: string
 }
 const cameraOptions = ref<CameraItem[]>([])
+
+/** 摄像头下拉模糊搜索：按 name 字段匹配 */
+const filterCameraOption = (input: string, option: any) => {
+  const name = option?.name || ''
+  return name.toLowerCase().includes(input.toLowerCase())
+}
 
 const fetchCameraOptions = async () => {
   try {
@@ -607,14 +639,14 @@ const handleViewAllAIEvents = () => {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 18px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .two-col {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .card {

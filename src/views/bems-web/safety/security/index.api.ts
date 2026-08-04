@@ -14,6 +14,8 @@ enum Api {
   runningCameraList = '/sgai-fwbz-dev/fwbz/patrolPlan/runningPlan',
   /** 获取摄像头播放地址 */
   cameraPlayUrls = '/sgai-fwbz-dev/fwbz/hikvision/camera/playUrls',
+  /** 是否是正在执行的计划 */
+  isRunningPlan = '/sgai-fwbz-dev/fwbz/patrolPlan/isRunningPlan',
 }
 
 /** 获取安防统计卡片汇总 */
@@ -36,6 +38,9 @@ export const getRunningCameraList = (params?) => fwbzHttp.get({ url: Api.running
 
 /** 获取摄像头播放地址（入参格式: { cameraIndexCode: ['编码1', '编码2'] }） */
 export const getCameraPlayUrls = (params) => fwbzHttp.post({ url: Api.cameraPlayUrls, params });
+
+/** 查询指定计划是否仍在执行中（入参: { id: 计划ID }，返回值: boolean） */
+export const checkIsRunningPlan = (params) => fwbzHttp.get({ url: Api.isRunningPlan, params });
 
 
 

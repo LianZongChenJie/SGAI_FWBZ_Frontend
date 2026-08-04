@@ -67,6 +67,6 @@ onMounted(() => {
 }
 
 .tab-content {
-  margin-top: 16px;
+  margin-top: 20px;
 }
 </style>

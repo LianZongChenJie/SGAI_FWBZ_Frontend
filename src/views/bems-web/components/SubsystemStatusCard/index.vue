@@ -101,7 +101,7 @@ const hasError = computed(() => {
 
 <style scoped lang="less">
 .subsystem-card {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
   border-radius: 8px;
   transition: all 0.3s;
   

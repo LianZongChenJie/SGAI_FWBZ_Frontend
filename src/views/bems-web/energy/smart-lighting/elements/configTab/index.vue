@@ -262,13 +262,13 @@ const modeList = ref([
     display: flex;
     flex-wrap: wrap;
     gap: 16px;
-    margin-bottom: 16px;
+    margin-bottom: 20px;
   }
 
   .config-card {
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    margin-bottom: 16px;
+    margin-bottom: 20px;
 
     :deep(.ant-card-head) {
       border-bottom: 1px solid #f0f0f0;
