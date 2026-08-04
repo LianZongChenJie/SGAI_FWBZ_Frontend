@@ -34,68 +34,13 @@
 </template>
 
 <script setup lang="ts">
-interface VenueItem {
-  id: string
-  venueName: string            // 场馆名称
-  location: string        // 位置
-  orientation: string     // 朝向
-  area: string            // 建筑面积
-  ceilingH: string          // 层高
-  lighting: string        // 采光条件
-  basicFacility: string  // 基础条件
-  buildable: boolean  // 可施工
-}
-
-interface Request {
-    /**
-     * 建筑面积
-     */
-    area?: string;
-    /**
-     * 基础情况
-     */
-    basicFacility?: string;
-    /**
-     * 可施工 1=是 0=否
-     */
-    buildable?: number;
-    /**
-     * 层高
-     */
-    ceilingH?: string;
-    /**
-     * 楼层
-     */
-    floors?: string;
-    /**
-     * 主键
-     */
-    id?: number;
-    /**
-     * 采光条件
-     */
-    lighting?: string;
-    /**
-     * 位置
-     */
-    location?: string;
-    /**
-     * 朝向
-     */
-    orientation?: string;
-    /**
-     * 场馆名称
-     */
-    venueName?: string;
-    [property: string]: any;
-}
-
 import { ref, onMounted } from 'vue'
 import { StatCard } from '/@/views/bems-web/components';
 import { EventSchedule, VenueManagement } from './elements/index';
 import VenueFormModal from './elements/venueManagement/VenueFormModal.vue';
-import { DaySchedule } from './elements/eventSchedule/index.vue';
 import { getVenueInfoList } from './index.api';
+import type { VenueItem } from './index.api';
+import type { DaySchedule } from './elements/eventSchedule/index.api';
 import {
     ThunderboltOutlined,
     ShopOutlined,

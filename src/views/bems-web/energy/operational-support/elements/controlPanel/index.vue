@@ -61,6 +61,7 @@
 </template>
 
 <script setup lang="ts">
+import type { AcControlItem, LightingControlItem } from './index.api'
 
 // ===== Props =====
 withDefaults(
@@ -82,24 +83,6 @@ withDefaults(
 const emit = defineEmits<{
   control: [type: 'ac' | 'lighting', record: any]
 }>()
-
-// ===== 类型定义 =====
-export interface AcControlItem {
-  id: string
-  code: string
-  location: string
-  status: '运行' | '待机' | '故障'
-  setTemp: string
-}
-
-export interface LightingControlItem {
-  id: string
-  code: string
-  location: string
-  status: '开启' | '关闭' | '调光'
-  brightness: string
-}
-
 
 // ===== 表格列定义 =====
 const acColumns = [

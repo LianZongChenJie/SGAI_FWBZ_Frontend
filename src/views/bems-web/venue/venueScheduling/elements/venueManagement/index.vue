@@ -34,19 +34,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-
-// ===== 类型定义 =====
-export interface VenueItem {
-  id: string
-  venueName: string            // 场馆名称
-  location: string        // 位置
-  orientation: string     // 朝向
-  area: string            // 建筑面积
-  ceilingH: string          // 层高
-  lighting: string        // 采光条件
-  basicFacility: string  // 基础条件
-  buildable: boolean  // 可施工
-}
+import type { VenueItem } from './index.api'
 
 // ===== Props =====
 const props = withDefaults(

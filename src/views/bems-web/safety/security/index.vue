@@ -153,6 +153,7 @@ import type { FormInstance } from 'ant-design-vue'
 import { StatCard, AlertCard } from '/@/views/bems-web/components'
 import CameraCarousel from '../components/CameraCarousel/index.vue'
 import { getSecuritySummary, getPatrolPlanList, editPatrolPlan, addPatrolPlan, getCameraList, getRunningCameraList, checkIsRunningPlan } from './index.api'
+import type { StatItem, PatrolPlan, CameraItem } from './index.api'
 import {
   VideoCameraOutlined,
   CheckCircleOutlined,
@@ -169,164 +170,6 @@ const cardConfig = [
   { color: 'orange' as const, icon: ScheduleOutlined },
   { color: 'red' as const, icon: WarningOutlined },
 ]
-
-/** 统计卡片数据 */
-interface StatItem {
-  title: string
-  value: string
-  context: string
-}
-
-/**
- * ResultPatrolPlanDetailVo
- */
-export interface Response {
-    /**
-     * 返回代码
-     */
-    code?: number;
-    /**
-     * 返回处理消息
-     */
-    message?: string;
-    /**
-     * 返回数据对象
-     */
-    result?: PatrolPlanDetailVo;
-    /**
-     * 成功标志
-     */
-    success?: boolean;
-    /**
-     * 时间戳
-     */
-    timestamp?: number;
-    [property: string]: any;
-}
-
-/**
- * 返回数据对象
- *
- * PatrolPlanDetailVo
- */
-export interface PatrolPlanDetailVo {
-    /**
-     * 关联摄像头列表
-     */
-    cameras?: PlanCamera[];
-    /**
-     * 创建人
-     */
-    createBy?: string;
-    /**
-     * 创建日期
-     */
-    createTime?: string;
-    /**
-     * 执行周期
-     */
-    executionCycle?: string;
-    /**
-     * 主键
-     */
-    id?: number;
-    /**
-     * 下次执行
-     */
-    nextExecution?: string;
-    pageNo?: number;
-    pageSize?: number;
-    /**
-     * 巡更路线
-     */
-    patrolRoute?: string;
-    /**
-     * 计划名称
-     */
-    planName?: string;
-    /**
-     * 状态
-     */
-    status?: number;
-    /**
-     * 所属部门
-     */
-    sysOrgCode?: string;
-    /**
-     * 更新人
-     */
-    updateBy?: string;
-    /**
-     * 更新日期
-     */
-    updateTime?: string;
-    [property: string]: any;
-}
-
-/**
- * table_plan_camera对象
- *
- * PlanCamera
- */
-export interface PlanCamera {
-    /**
-     * 摄像头名称（非数据库字段，联表查询）
-     * 摄像头名称
-     */
-    cameraName?: string;
-    /**
-     * 主键
-     */
-    id?: number;
-    /**
-     * 摄像头唯一编码
-     */
-    indexCode?: string;
-    /**
-     * 巡更计划ID
-     */
-    planId?: number;
-    /**
-     * 视频流URL（HLS m3u8）
-     */
-    url?: string;
-    [property: string]: any;
-}
-
-/**
- * PatrolPlanDto
- */
-export interface Request {
-    /**
-     * 创建日期
-     */
-    createTime?: string;
-    /**
-     * 执行周期
-     */
-    executionCycle?: string;
-    /**
-     * 主键
-     */
-    id?: number;
-    /**
-     * 摄像头唯一编码列表
-     */
-    indexCodes?: string[];
-    /**
-     * 巡更路线
-     */
-    patrolRoute?: string;
-    /**
-     * 计划名称
-     */
-    planName?: string;
-    /**
-     * 状态
-     */
-    status?: number;
-    [property: string]: any;
-}
 
 const statCards = ref<StatItem[]>([])
 
@@ -424,14 +267,6 @@ const statusMap: Record<number, { text: string; color: string }> = {
 }
 
 /** 巡更计划数据 */
-interface PatrolPlan {
-  id: number
-  planName: string
-  patrolRoute: string
-  executionCycle: string
-  nextExecution: string
-  status: number
-}
 const patrolData = ref<PatrolPlan[]>([])
 const patrolLoading = ref(false)
 const patrolPagination = ref({
@@ -488,10 +323,6 @@ const patrolRules = {
 }
 
 /** 摄像头列表选项 */
-interface CameraItem {
-  indexCode: string
-  name: string
-}
 const cameraOptions = ref<CameraItem[]>([])
 
 /** 摄像头下拉模糊搜索：按 name 字段匹配 */

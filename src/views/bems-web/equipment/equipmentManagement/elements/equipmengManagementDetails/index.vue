@@ -75,20 +75,13 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { getVenueOptions, getCategoryOptions} from './api'
+import type { SelectOption, VenueOption, EquipmentItem } from './api'
 
 // ===== 筛选条件 =====
 const filterType = ref('')
 const filterVenue = ref('')
 
 // ===== 下拉选项数据 =====
-interface SelectOption {
-  id: string | number
-  name: string
-}
-interface VenueOption {
-  id: string | number
-  venueName: string
-}
 const venueOptions = ref<VenueOption[]>([])
 const categoryOptions = ref<SelectOption[]>([])
 
@@ -121,16 +114,7 @@ onMounted(() => {
 })
 
 // ===== 类型定义 =====
-export interface EquipmentItem {
-  id: string
-  device_code: string     // 设备编号
-  device_name: string     // 设备名称
-  category_id: number     // 设备类别id
-  model_id: number        // 设备模型id
-  magnification: string   // 倍率
-  device_type: number     // 设备分类 (1: 仪表, 2: 设备)
-  run_state: number       // 运行状态 (0: 离线, 1: 在线)
-}
+// EquipmentItem 已从 ./api 导入
 
 // ===== Props =====
 const props = withDefaults(

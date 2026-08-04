@@ -101,7 +101,8 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { StatCard, DeviceCard} from '/@/views/bems-web/components';
-import ControlPanel, { AcControlItem, LightingControlItem } from '../controlPanel/index.vue';
+import ControlPanel from '../controlPanel/index.vue';
+import type { AcControlItem, LightingControlItem } from '../controlPanel/index.api';
 
 import {
   ThunderboltOutlined,
