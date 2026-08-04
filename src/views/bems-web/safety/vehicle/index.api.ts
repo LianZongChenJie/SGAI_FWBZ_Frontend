@@ -2,7 +2,7 @@ import { fwbzHttp } from '/@/utils/http/axios';
 
 enum Api {
   /** 汇总统计 */
-  sunnary = '/sgai-fwbz-dev/fwbz/securityStatistics/summary',
+  sunnary = '/sgai-fwbz-dev/fwbz/parkingStatistics/summary',
   /** 停车记录查询 */
   recordList = '/sgai-fwbz-dev/fwbz/parking/record/listPage',
   /** 停车场接口 */

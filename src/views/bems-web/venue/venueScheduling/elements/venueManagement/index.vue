@@ -3,7 +3,7 @@
     <a-card :title="title" :bordered="false">
       <template #extra>
         <a-button type="primary" @click="handleAdd">
-          新增场馆
+          + 新增场馆
         </a-button>
       </template>
 
