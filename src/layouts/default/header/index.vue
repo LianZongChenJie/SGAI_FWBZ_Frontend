@@ -12,8 +12,10 @@
     <!-- right: action items -->
     <div :class="`${prefixCls}-action`">
       <!-- 告警 -->
-      <div class="topbar-item">
-        <Notify />
+      <div class="topbar-item bell-out-lined">
+        <span>🔔</span>
+        <span>告警</span>
+        <span class="badge">12</span>
       </div>
 
       <!-- 日期 -->
@@ -48,12 +50,10 @@
   import { defineComponent, computed, ref, unref, onMounted, toRaw, defineAsyncComponent } from 'vue';
   import { useRoute } from 'vue-router';
   import { propTypes } from '/@/utils/propTypes';
-
   import { Layout, Dropdown, Menu } from 'ant-design-vue';
 
   import { useHeaderSetting } from '/@/hooks/setting/useHeaderSetting';
 
-  import { Notify } from './components';
   import { useAppInject } from '/@/hooks/web/useAppInject';
   import { useDesign } from '/@/hooks/web/useDesign';
 
@@ -68,7 +68,6 @@
       Dropdown,
       Menu,
       MenuItem: defineAsyncComponent(() => import('./components/user-dropdown/DropMenuItem.vue')),
-      Notify,
       LoginSelect,
     },
     props: {
@@ -198,7 +197,6 @@
         color: #000;
       }
     }
-
     //update-end---author:scott ---date::2022-09-30  for：默认隐藏顶部菜单面包屑--------------
   }
 </style>
