@@ -4,7 +4,7 @@
     <div class="stat-cards">
       <StatCard
         label="新风机组总数"
-        :value="24"
+        :value="statsData.count"
         change-text=""
         trend=""
         color="blue"
@@ -12,7 +12,7 @@
       />
       <StatCard
         label="运行中"
-        :value="24"
+        :value="statsData.online"
         change-text=""
         trend=""
         color="green"
@@ -20,7 +20,7 @@
       />
       <StatCard
         label="平均PM2.5"
-        :value="'18'"
+        :value="statsData.avgPm25"
         change-text=""
         trend=""
         color="orange"
@@ -28,11 +28,11 @@
       />
       <StatCard
         label="今日能耗"
-        :value="'3,456'"
+        :value="statsData.energyConsumption"
         change-text=""
         trend=""
         color="purple"
-        :icon="TodayEnergyIcon"
+        :icon="energyConsumptionIcon"
       />
     </div>
 
@@ -52,12 +52,16 @@
             :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
             @change="handleSearch"
           />
+          <!-- <a-select v-model:value="filterStatus" placeholder="全部状态" style="width: 140px" allow-clear @change="handleSearch">
+            <a-select-option value="在线">在线</a-select-option>
+            <a-select-option value="离线">离线</a-select-option>
+          </a-select> -->
           <a-button type="primary" @click="handleSearch">🔍 查询</a-button>
         </div>
       </div>
       <div class="card-body">
         <a-table
-          :dataSource="filteredTableData"
+          :dataSource="tableData"
           :columns="columns"
           :pagination="pagination"
           :scroll="{ x: 1100 }"
@@ -65,10 +69,12 @@
           @change="handleTableChange"
         >
           <template #bodyCell="{ column, record }">
-            <template v-if="column.key === 'status'">
-              <a-tag v-if="record.status === '运行'" color="green">运行</a-tag>
-              <a-tag v-else-if="record.status === '待机'" color="orange">待机</a-tag>
-              <a-tag v-else color="red">故障</a-tag>
+            <template v-if="column.key === 'spaceId'">
+              {{ findTreeNodePath(spaceTreeData, record.spaceId) || record.spaceId }}
+            </template>
+            <template v-if="column.key === 'runState'">
+              <a-tag v-if="record.runState === '在线'" color="green">在线</a-tag>
+              <a-tag v-else color="red">离线</a-tag>
             </template>
             <template v-if="column.key === 'action'">
               <a-button type="link" size="small">详情</a-button>
@@ -82,24 +88,56 @@
     <div class="two-col">
       <div class="card">
         <div class="card-header">
-          <h3>💨各区域CO₂浓度分布</h3>
+          <h3>💨各机组pm2.5分布</h3>
         </div>
-        <div class="card-body">
-          <div class="chart-placeholder">
-            <div class="chart-icon">📊</div>
-            <div class="chart-text">各区域CO₂浓度实时柱状图</div>
+        <div class="card-body chart-body">
+          <div v-show="pm25Loading" class="chart-placeholder">
+            <a-spin />
+            <div class="chart-text">加载中...</div>
           </div>
+          <div
+            v-show="!pm25Loading && pm25ChartData.length === 0"
+            class="chart-placeholder"
+          >
+            <div class="chart-icon">📊</div>
+            <div class="chart-text">暂无数据</div>
+          </div>
+          <div
+            v-show="!pm25Loading && pm25ChartData.length > 0"
+            ref="pm25ChartRef"
+            class="pm25-chart"
+          ></div>
         </div>
       </div>
       <div class="card">
         <div class="card-header">
-          <h3>🔄新风量与客流关联</h3>
-        </div>
-        <div class="card-body">
-          <div class="chart-placeholder">
-            <div class="chart-icon">📊</div>
-            <div class="chart-text">新风量与场馆客流关联分析</div>
+          <h3>🌡️送回风温度曲线</h3>
+          <div class="temp-tabs">
+            <button
+              v-for="tab in tempTabs"
+              :key="tab.key"
+              :class="['temp-tab', { active: tempActive === tab.key }]"
+              @click="handleTempTabChange(tab.key)"
+            >{{ tab.label }}</button>
           </div>
+        </div>
+        <div class="card-body chart-body">
+          <div v-show="tempLoading" class="chart-placeholder">
+            <a-spin />
+            <div class="chart-text">加载中...</div>
+          </div>
+          <div
+            v-show="!tempLoading && tempChartData.length === 0"
+            class="chart-placeholder"
+          >
+            <div class="chart-icon">📊</div>
+            <div class="chart-text">暂无数据</div>
+          </div>
+          <div
+            v-show="!tempLoading && tempChartData.length > 0"
+            ref="tempChartRef"
+            class="pm25-chart"
+          ></div>
         </div>
       </div>
     </div>
@@ -124,15 +162,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, watch, h, onMounted } from 'vue'
+import { ref, reactive, computed, h, onMounted, nextTick } from 'vue'
 import { StatCard } from '/@/views/bems-web/components'
 import { spaceTree } from '/@/views/bems-web/equipment/equipmentManagement/elements/device/Device.api'
+import { getFreshAirUnitList, getFreshAirStatistics, getPm25, getFreshSupplyAirTemperature, getFreshReturnAirTemperature } from './index.api'
+import { useECharts } from '/@/hooks/web/useECharts'
 
 // 自定义 emoji 图标组件
 const FreshUnitTotalIcon = () => h('span', { style: 'font-size: 20px;' }, '🌀')
 const RunningIcon = () => h('span', { style: 'font-size: 20px;' }, '✅')
 const AvgPm25Icon = () => h('span', { style: 'font-size: 20px;' }, '💨')
-const TodayEnergyIcon = () => h('span', { style: 'font-size: 20px;' }, '⚡')
+const energyConsumptionIcon = () => h('span', { style: 'font-size: 20px;' }, '⚡')
 
 defineOptions({ name: 'FreshTab' })
 
@@ -152,6 +192,31 @@ const loadSpaceTree = async () => {
   }
 }
 
+// 筛选条件
+const filterStatus = ref<string | undefined>(undefined)
+
+// 统计卡片数据
+const statsData = reactive({
+  count: "--",
+  online: "--",
+  avgPm25: "--",
+  energyConsumption: "--",
+})
+
+// 加载统计数据
+const loadStatistics = async () => {
+  try {
+    const res = await getFreshAirStatistics()
+    const data = res?.data || res?.result || res || {}
+    statsData.count = data.count ?? 0
+    statsData.online = data.online ?? 0
+    statsData.avgPm25 = data.avgPm25 ?? 0
+    statsData.energyConsumption = data.energyConsumption ?? 0
+  } catch (e) {
+    console.error('加载新风统计数据失败:', e)
+  }
+}
+
 // 分页
 const pagination = reactive({
   current: 1,
@@ -163,55 +228,257 @@ const pagination = reactive({
   pageSizeOptions: ['10', '20', '50', '100'],
 })
 
-// 表格列定义
-const columns = [
-  { title: '机组编号', dataIndex: 'code', key: 'code', width: 110 },
-  { title: '位置', dataIndex: 'location', key: 'location', width: 140 },
-  { title: '运行状态', dataIndex: 'status', key: 'status', width: 100 },
-  { title: '送风量', dataIndex: 'supplyAir', key: 'supplyAir', width: 110 },
-  { title: '回风量', dataIndex: 'returnAir', key: 'returnAir', width: 110 },
-  { title: 'CO₂浓度', dataIndex: 'co2', key: 'co2', width: 100 },
-  { title: 'PM2.5', dataIndex: 'pm25', key: 'pm25', width: 100 },
-  { title: '过滤网压差', dataIndex: 'filterPressure', key: 'filterPressure', width: 110 },
-  { title: '风机频率', dataIndex: 'fanFreq', key: 'fanFreq', width: 100 },
-  { title: '今日能耗', dataIndex: 'todayEnergy', key: 'todayEnergy', width: 110 },
+// 递归查找树节点完整路径
+const findTreeNodePath = (treeData: any[], key: string | number, separator = '-'): string => {
+  if (!treeData || !Array.isArray(treeData)) return ''
+  const findPath = (nodes: any[], path: string[]): string[] | null => {
+    for (const node of nodes) {
+      const label = node.title || node.value || node.label || ''
+      const currentPath = [...path, label]
+      if (String(node.key) === String(key)) {
+        return currentPath
+      }
+      if (node.children && Array.isArray(node.children)) {
+        const result = findPath(node.children, currentPath)
+        if (result) return result
+      }
+    }
+    return null
+  }
+  const result = findPath(treeData, [])
+  return result ? result.join(separator) : ''
+}
+
+// 动态属性列
+const attributeColumns = ref<any[]>([])
+
+// 表格列定义（固定3列 + 动态列 + 操作列）
+const columns = computed(() => [
+  { title: '机组编号', dataIndex: 'deviceCode', key: 'deviceCode', width: 110 },
+  { title: '位置', dataIndex: 'spaceId', key: 'spaceId', width: 150 },
+  { title: '运行状态', dataIndex: 'runState', key: 'runState', width: 100 },
+  ...attributeColumns.value.map((attr: any) => ({
+    title: attr.attributeName,
+    dataIndex: attr.attributeName,
+    key: attr.attributeName,
+    width: 120,
+  })),
   { title: '操作', dataIndex: 'action', key: 'action', width: 80, fixed: 'right' },
-]
+])
 
 // 表格数据
-const tableData = [
-  { code: 'FA-A-01', location: 'A馆-F1-东段', status: '运行', supplyAir: '5,000 m³/h', returnAir: '4,500 m³/h', co2: '480 ppm', pm25: '12 μg/m³', filterPressure: '120 Pa', fanFreq: '45 Hz', todayEnergy: '234 kWh' },
-  { code: 'FA-A-02', location: 'A馆-F2-中段', status: '运行', supplyAir: '6,500 m³/h', returnAir: '6,000 m³/h', co2: '520 ppm', pm25: '15 μg/m³', filterPressure: '145 Pa', fanFreq: '50 Hz', todayEnergy: '312 kWh' },
-  { code: 'FA-B-01', location: 'B馆-F1-南段', status: '运行', supplyAir: '4,000 m³/h', returnAir: '3,800 m³/h', co2: '450 ppm', pm25: '10 μg/m³', filterPressure: '98 Pa', fanFreq: '40 Hz', todayEnergy: '198 kWh' },
-  { code: 'FA-C-01', location: 'C馆-F1-西段', status: '运行', supplyAir: '5,500 m³/h', returnAir: '5,200 m³/h', co2: '510 ppm', pm25: '18 μg/m³', filterPressure: '156 Pa', fanFreq: '48 Hz', todayEnergy: '267 kWh' },
-]
+const tableData = ref<any[]>([])
 
-// 筛选逻辑
-const filteredTableData = computed(() => {
-  return tableData.filter((item) => {
-    const matchVenue = !meterSpace.value || !meterSpace.value.length || item.location.includes(String(meterSpace.value))
-    return matchVenue
-  })
-})
+// 加载新风机组列表
+const loadFreshAirUnitList = async (pageNo = pagination.current, pageSize = pagination.pageSize, spaceId?: string, runState?: string) => {
+  try {
+    const params: any = { pageNo, pageSize }
+    if (spaceId) params.spaceId = spaceId
+    if (runState) params.runState = runState
+    const res = await getFreshAirUnitList(params)
+    pagination.total = res?.total ?? 0
+    const list = res?.records || res?.data || res || []
 
-// 翻页数据变化时更新总数
-watch(filteredTableData, (data) => {
-  pagination.total = data.length
-}, { immediate: true })
+    if (list.length > 0) {
+      attributeColumns.value = list[0].deviceAttributeList || []
+    }
 
+    tableData.value = list.map((item: any) => {
+      const attrs: Record<string, any> = {}
+      if (item.deviceAttributeList) {
+        item.deviceAttributeList.forEach((attr: any) => {
+          attrs[attr.attributeName] = attr.value ?? '--'
+        })
+      }
+      return {
+        deviceId: item.deviceId,
+        deviceCode: item.deviceCode ?? '--',
+        spaceId: item.spaceId ?? '--',
+        runState: item.runState ?? '--',
+        ...attrs,
+      }
+    })
+  } catch (e) {
+    console.error('加载新风机组列表失败:', e)
+  }
+}
+
+// 查询按钮
 const handleSearch = () => {
   pagination.current = 1
-  pagination.total = filteredTableData.value.length
+  loadFreshAirUnitList(1, pagination.pageSize, meterSpace.value, filterStatus.value)
 }
 
 // 表格分页变化
 const handleTableChange = (pag: any) => {
   pagination.current = pag.current
   pagination.pageSize = pag.pageSize
+  loadFreshAirUnitList(pag.current, pag.pageSize, meterSpace.value, filterStatus.value)
+}
+
+// 各机组PM2.5分布柱状图
+const pm25ChartRef = ref<HTMLDivElement>()
+const pm25ChartData = ref<any[]>([])
+const pm25Loading = ref(false)
+const { setOptions: setPm25ChartOptions } = useECharts(pm25ChartRef as any)
+
+/** 加载各机组PM2.5分布数据 */
+const loadPm25Chart = async () => {
+  pm25Loading.value = true
+  try {
+    const res = await getPm25()
+    // 响应格式：{ result: { chat: { xaxis, chatSeriesList } } } 或 { chat: { ... } }
+    const chatData = res?.chat || res?.result?.chat || res?.data?.chat || {}
+    const xaxis = chatData.xaxis || []
+    const seriesList = (chatData.chatSeriesList || chatData.seriesList || []) as any[]
+    const filteredList = seriesList.filter((item: any) => item.name !== '合计')
+    pm25ChartData.value = filteredList
+    pm25Loading.value = false
+    await nextTick()
+    if (xaxis.length > 0 && filteredList.length > 0) {
+      renderPm25Chart(xaxis, filteredList)
+    }
+  } catch (e) {
+    console.error('加载各机组PM2.5分布失败:', e)
+    pm25Loading.value = false
+  }
+}
+
+/** 渲染各机组PM2.5分布柱状图 */
+const renderPm25Chart = (xaxis: string[], seriesList: { name: string; data: number[] }[]) => {
+  setPm25ChartOptions({
+    tooltip: { trigger: 'axis', show: true },
+    legend: {
+      type: 'scroll',
+      data: seriesList.map((item) => item.name),
+      bottom: 4,
+      padding: [4, 0, 0, 0],
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '22%',
+      top: '8%',
+      containLabel: true,
+    },
+    xAxis: {
+      type: 'category',
+      data: xaxis,
+      axisLabel: {
+        color: '#666',
+        fontSize: 12,
+        rotate: xaxis.length > 6 ? 30 : 0,
+      },
+    },
+    yAxis: {
+      type: 'value',
+      name: '',
+      axisLabel: {
+        margin: 15,
+        overflow: 'truncate',
+        color: '#666',
+        fontSize: 12,
+      },
+    },
+    series: seriesList.map((item) => ({
+      name: item.name,
+      type: 'bar',
+      data: item.data,
+      barMaxWidth: 40,
+    })),
+  })
+}
+
+// 送回风温度曲线
+const tempChartRef = ref<HTMLDivElement>()
+const tempChartData = ref<any[]>([])
+const tempLoading = ref(false)
+const tempActive = ref('supply')
+const tempTabs = [
+  { key: 'supply', label: '送风' },
+  { key: 'return', label: '回风' },
+]
+const { setOptions: setTempChartOptions } = useECharts(tempChartRef as any)
+
+const handleTempTabChange = (key: string) => {
+  tempActive.value = key
+  loadTempChart()
+}
+
+/** 加载送回风温度曲线数据 */
+const loadTempChart = async () => {
+  tempLoading.value = true
+  tempChartData.value = []
+  try {
+    const apiFn = tempActive.value === 'supply' ? getFreshSupplyAirTemperature : getFreshReturnAirTemperature
+    const res = await apiFn()
+    const chatData = res?.chat || res?.result?.chat || res?.data?.chat || {}
+    const xaxis = chatData.xaxis || []
+    const seriesList = (chatData.chatSeriesList || chatData.seriesList || []) as any[]
+    const filteredList = seriesList.filter((item: any) => item.name !== '合计')
+    tempChartData.value = filteredList
+    tempLoading.value = false
+    await nextTick()
+    if (xaxis.length > 0 && filteredList.length > 0) {
+      renderTempChart(xaxis, filteredList)
+    }
+  } catch (e) {
+    console.error('加载送回风温度曲线失败:', e)
+    tempLoading.value = false
+  }
+}
+
+/** 渲染送回风温度折线图 */
+const renderTempChart = (xaxis: string[], seriesList: { name: string; data: number[] }[]) => {
+  setTempChartOptions({
+    tooltip: { trigger: 'axis', show: true },
+    legend: {
+      type: 'scroll',
+      data: seriesList.map((item) => item.name),
+      bottom: 0,
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '15%',
+      top: '8%',
+      containLabel: true,
+    },
+    xAxis: {
+      type: 'category',
+      boundaryGap: false,
+      data: xaxis,
+      axisLabel: {
+        color: '#666',
+        fontSize: 12,
+        rotate: xaxis.length > 6 ? 30 : 0,
+      },
+    },
+    yAxis: {
+      type: 'value',
+      name: '',
+      axisLabel: {
+        margin: 15,
+        overflow: 'truncate',
+        color: '#666',
+        fontSize: 12,
+      },
+    },
+    series: seriesList.map((item) => ({
+      name: item.name,
+      type: 'line',
+      data: item.data,
+      smooth: true,
+    })),
+  })
 }
 
 onMounted(() => {
   loadSpaceTree()
+  loadStatistics()
+  loadFreshAirUnitList()
+  loadPm25Chart()
+  loadTempChart()
 })
 </script>
 
@@ -235,7 +502,9 @@ onMounted(() => {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 16px;
+      margin: 0 -24px 16px;
+      padding: 0 24px 12px;
+      border-bottom: 1px solid #f0f0f0;
       flex-wrap: wrap;
       gap: 12px;
 
@@ -254,6 +523,37 @@ onMounted(() => {
         align-items: center;
         gap: 12px;
         flex-wrap: wrap;
+      }
+
+      .temp-tabs {
+        display: inline-flex;
+        border: 1px solid #d9d9d9;
+        border-radius: 4px;
+        overflow: hidden;
+
+        .temp-tab {
+          padding: 4px 14px;
+          font-size: 13px;
+          color: rgba(0, 0, 0, 0.65);
+          background: #ffffff;
+          border: none;
+          outline: none;
+          cursor: pointer;
+          transition: all 0.2s;
+
+          &:hover {
+            color: #1890ff;
+          }
+
+          &.active {
+            color: #ffffff;
+            background: #1890ff;
+          }
+
+          &:not(:last-child) {
+            border-right: 1px solid #d9d9d9;
+          }
+        }
       }
     }
 
@@ -279,6 +579,27 @@ onMounted(() => {
           font-size: 14px;
           color: #86909c;
         }
+      }
+
+      &.chart-body {
+        height: 350px;
+        background: #f7f9fc;
+        border-radius: 8px;
+        overflow: hidden;
+        padding: 0;
+
+        .chart-placeholder {
+          height: 100%;
+          min-height: auto;
+          background: #f7f9fc;
+          border: none;
+          gap: 12px;
+        }
+      }
+
+      .pm25-chart {
+        width: 100%;
+        height: 100%;
       }
     }
   }

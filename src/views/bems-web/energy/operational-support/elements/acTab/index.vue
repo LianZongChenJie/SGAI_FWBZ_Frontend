@@ -44,10 +44,10 @@
             :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
             @change="handleSearch"
           />
-          <a-select v-model:value="filterStatus" placeholder="全部状态" style="width: 140px" allow-clear @change="handleSearch">
+          <!-- <a-select v-model:value="filterStatus" placeholder="全部状态" style="width: 140px" allow-clear @change="handleSearch">
             <a-select-option value="在线">在线</a-select-option>
             <a-select-option value="离线">离线</a-select-option>
-          </a-select>
+          </a-select> -->
           <a-button type="primary" @click="handleSearch">🔍 查询</a-button>
         </div>
       </div>
@@ -64,10 +64,10 @@
             <template v-if="column.key === 'spaceId'">
               {{ findTreeNodePath(spaceTreeData, record.spaceId) || record.spaceId }}
             </template>
-            <template v-if="column.key === 'runState'">
-              <a-tag v-if="record.runState === '在线'" color="green">在线</a-tag>
-              <!-- <a-tag v-else-if="record.runState === '待机'" color="orange">待机</a-tag> -->
-              <a-tag v-else color="red">离线</a-tag>
+            <template v-if="column.key === 'runStop'">
+              <a-tag v-if="record.runStop === '1'" color="green">运行</a-tag>
+              <!-- <a-tag v-else-if="record.runStop === '待机'" color="orange">待机</a-tag> -->
+              <a-tag v-else color="red">停止</a-tag>
             </template>
             <template v-if="column.key === 'action'">
               <a-button type="link" size="small" @click="handleDetail(record)">详情</a-button>
@@ -110,9 +110,18 @@
         <div class="analysis-card__header">
           <div class="analysis-card__title">
             <span class="analysis-card__icon">🌡️</span>
-            <span>供回水温度趋势</span>
+            <span>供回风温度趋势</span>
           </div>
-
+          <div class="temp-tabs">
+            <button
+              v-for="tab in tempTabs"
+              :key="tab.key"
+              :class="['temp-tab', { active: tempActive === tab.key }]"
+              @click="handleTempTabChange(tab.key)"
+            >
+              {{ tab.label }}
+            </button>
+          </div>
         </div>
         <div class="analysis-card__body">
           <div v-show="tempLoading" class="chart-placeholder">
@@ -160,9 +169,9 @@
           <a-descriptions-item label="机组编号">{{ detailRecord?.deviceCode ?? '--' }}</a-descriptions-item>
           <a-descriptions-item label="位置">{{ findTreeNodePath(spaceTreeData, detailRecord?.spaceId) || detailRecord?.spaceId || '--' }}</a-descriptions-item>
           <a-descriptions-item label="运行状态">
-            <a-tag v-if="detailRecord?.runState === '运行'" color="green">运行</a-tag>
-            <a-tag v-else-if="detailRecord?.runState === '待机'" color="orange">待机</a-tag>
-            <a-tag v-else color="red">故障</a-tag>
+            <a-tag v-if="detailRecord?.runStop === '1'" color="green">运行</a-tag>
+            <!-- <a-tag v-else-if="detailRecord?.runStop === '0'" color="orange">待机</a-tag> -->
+            <a-tag v-else color="red">停止</a-tag>
           </a-descriptions-item>
           <template v-for="attr in detailAttributes" :key="attr.label">
             <a-descriptions-item :label="attr.label">{{ attr.value ?? '--' }}</a-descriptions-item>
@@ -176,7 +185,7 @@
 import { ref, reactive, computed, h, onMounted, nextTick } from 'vue'
 import { StatCard } from '/@/views/bems-web/components'
 import { spaceTree } from '/@/views/bems-web/equipment/equipmentManagement/elements/device/Device.api'
-import { getAcUnitList, getAcUnitStatistics, getAirEnergyDay, getDeviceAttrList } from './index.api'
+import { getAcUnitList, getAcUnitStatistics, getAirEnergyDay, getSupplyAirTemperature, getReturnAirTemperature, getDeviceAttrList } from './index.api'
 import { useECharts } from '/@/hooks/web/useECharts'
 
 // 自定义 emoji 图标组件
@@ -262,7 +271,7 @@ const attributeColumns = ref<any[]>([])
 const columns = computed(() => [
   { title: '机组编号', dataIndex: 'deviceCode', key: 'deviceCode', width: 110 },
   { title: '位置', dataIndex: 'spaceId', key: 'spaceId', width: 150 },
-  { title: '运行状态', dataIndex: 'runState', key: 'runState', width: 100 },
+  { title: '运行状态', dataIndex: 'runStop', key: 'runStop', width: 100 },
   ...attributeColumns.value.map((attr: any) => ({
     title: attr.attributeName,
     dataIndex: attr.attributeName,
@@ -276,11 +285,11 @@ const columns = computed(() => [
 const tableData = ref<any[]>([])
 
 // 加载空调机组列表
-const loadAcUnitList = async (pageNo = pagination.current, pageSize = pagination.pageSize, spaceId?: string, runState?: string) => {
+const loadAcUnitList = async (pageNo = pagination.current, pageSize = pagination.pageSize, spaceId?: string, runStop?: string) => {
   try {
     const params: any = { pageNo, pageSize }
     if (spaceId) params.spaceId = spaceId
-    if (runState) params.runState = runState
+    if (runStop) params.runStop = runStop
     const res = await getAcUnitList(params)
     pagination.total = res?.total ?? 0
     const list = res?.records || res?.data || res || []
@@ -300,7 +309,7 @@ const loadAcUnitList = async (pageNo = pagination.current, pageSize = pagination
         deviceId: item.deviceId,
         deviceCode: item.deviceCode ?? '--',
         spaceId: item.spaceId ?? '--',
-        runState: item.runState ?? '--',
+        runStop: item.runStop ?? '--',
         ...attrs,
       }
     })
@@ -348,16 +357,26 @@ const energyChartData = ref<any[]>([])
 const energyLoading = ref(false)
 const { setOptions: setEnergyChartOptions } = useECharts(energyChartRef as any)
 
-// 供回水温度趋势图表
+// 供回风温度趋势图表
 const tempChartRef = ref<HTMLDivElement>()
 const tempChartData = ref<any[]>([])
 const tempLoading = ref(false)
 const { setOptions: setTempChartOptions } = useECharts(tempChartRef as any)
 
-/** 加载图表数据（空调能耗趋势 + 供回水温度趋势共用） */
+const tempTabs: { key: 'supply' | 'return'; label: string }[] = [
+  { key: 'supply', label: '送温' },
+  { key: 'return', label: '回温' },
+]
+const tempActive = ref<'supply' | 'return'>('supply')
+
+const handleTempTabChange = (key: 'supply' | 'return') => {
+  tempActive.value = key
+  loadTempChart()
+}
+
+/** 加载空调能耗趋势数据 */
 const loadEnergyChart = async () => {
   energyLoading.value = true
-  tempLoading.value = true
   try {
     const res = await getAirEnergyDay()
     // 响应格式：{ result: { chat: { xaxis, chatSeriesList } } } 或 { chat: { ... } }
@@ -366,18 +385,36 @@ const loadEnergyChart = async () => {
     const seriesList = (chatData.chatSeriesList || chatData.seriesList || []) as any[]
     const filteredList = seriesList.filter((item: any) => item.name !== '合计')
     energyChartData.value = filteredList
-    tempChartData.value = filteredList
-    // 必须先结束 loading 状态，让图表 div 渲染到 DOM，再设置图表选项
     energyLoading.value = false
-    tempLoading.value = false
     await nextTick()
     if (xaxis.length > 0 && filteredList.length > 0) {
       renderEnergyChart(xaxis, filteredList)
+    }
+  } catch (e) {
+    console.error('加载空调能耗趋势失败:', e)
+    energyLoading.value = false
+  }
+}
+
+/** 加载供回风温度趋势数据 */
+const loadTempChart = async () => {
+  tempLoading.value = true
+  try {
+    const apiFn = tempActive.value === 'supply' ? getSupplyAirTemperature : getReturnAirTemperature
+    const res = await apiFn()
+    // 响应格式：{ result: { chat: { xaxis, chatSeriesList } } } 或 { chat: { ... } }
+    const chatData = res?.chat || res?.result?.chat || res?.data?.chat || {}
+    const xaxis = chatData.xaxis || []
+    const seriesList = (chatData.chatSeriesList || chatData.seriesList || []) as any[]
+    const filteredList = seriesList.filter((item: any) => item.name !== '合计')
+    tempChartData.value = filteredList
+    tempLoading.value = false
+    await nextTick()
+    if (xaxis.length > 0 && filteredList.length > 0) {
       renderTempChart(xaxis, filteredList)
     }
   } catch (e) {
-    console.error('加载图表数据失败:', e)
-    energyLoading.value = false
+    console.error('加载供回风温度趋势失败:', e)
     tempLoading.value = false
   }
 }
@@ -427,7 +464,7 @@ const renderEnergyChart = (xaxis: string[], seriesList: { name: string; data: nu
   })
 }
 
-/** 渲染供回水温度趋势折线图 */
+/** 渲染供回风温度趋势折线图 */
 const renderTempChart = (xaxis: string[], seriesList: { name: string; data: number[] }[]) => {
   setTempChartOptions({
     tooltip: { trigger: 'axis', show: true },
@@ -476,6 +513,7 @@ onMounted(() => {
   loadSpaceTree()
   loadStatistics()
   loadEnergyChart()
+  loadTempChart()
   loadAcUnitList()
 })
 </script>
@@ -591,6 +629,37 @@ onMounted(() => {
       background: #f7f9fc;
       border-radius: 8px;
       overflow: hidden;
+    }
+
+    .temp-tabs {
+      display: inline-flex;
+      border: 1px solid #d9d9d9;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .temp-tab {
+      padding: 4px 14px;
+      font-size: 13px;
+      color: rgba(0, 0, 0, 0.65);
+      background: #ffffff;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      &:hover {
+        color: #1890ff;
+      }
+
+      &.active {
+        color: #ffffff;
+        background: #1890ff;
+      }
+
+      &:not(:last-child) {
+        border-right: 1px solid #d9d9d9;
+      }
     }
 
     .chart-placeholder {

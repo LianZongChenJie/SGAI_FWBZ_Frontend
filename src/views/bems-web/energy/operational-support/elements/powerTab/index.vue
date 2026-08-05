@@ -4,33 +4,26 @@
     <div class="stat-cards">
       <StatCard
         label="配电柜总数"
-        :value="45"
-        change-text="↑ 8 新增"
-        trend="up"
+        :value="statsData.count"
         color="blue"
         :icon="PowerCabinetTotalIcon"
       />
       <StatCard
         label="正常运行"
-        :value="45"
-        change-text="100% 正常"
-        trend="up"
+        :value="statsData.online"
         color="green"
         :icon="NormalRunningIcon"
       />
       <StatCard
         label="今日用电量"
-        :value="'42,156'"
-        change-text="↓ 6.8% kWh"
-        trend="down"
+        :value="statsData.energyConsumption"
+        unit="kWh"
         color="orange"
         :icon="TodayPowerIcon"
       />
       <StatCard
         label="功率因数"
-        :value="'0.95'"
-        change-text="↑ 0.02 较昨日"
-        trend="up"
+        :value="statsData.avgPowerFactor"
         color="purple"
         :icon="PowerFactorIcon"
       />
@@ -52,12 +45,16 @@
             :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
             @change="handleSearch"
           />
+          <!-- <a-select v-model:value="filterStatus" placeholder="全部状态" style="width: 140px" allow-clear @change="handleSearch">
+            <a-select-option value="在线">在线</a-select-option>
+            <a-select-option value="离线">离线</a-select-option>
+          </a-select> -->
           <a-button type="primary" @click="handleSearch">🔍 查询</a-button>
         </div>
       </div>
       <div class="card-body">
         <a-table
-          :dataSource="filteredTableData"
+          :dataSource="tableData"
           :columns="columns"
           :pagination="pagination"
           :scroll="{ x: 1100 }"
@@ -65,10 +62,12 @@
           @change="handleTableChange"
         >
           <template #bodyCell="{ column, record }">
-            <template v-if="column.key === 'status'">
-              <a-tag v-if="record.status === '正常'" color="green">正常</a-tag>
-              <a-tag v-else-if="record.status === '告警'" color="orange">告警</a-tag>
-              <a-tag v-else color="red">故障</a-tag>
+            <template v-if="column.key === 'spaceId'">
+              {{ findTreeNodePath(spaceTreeData, record.spaceId) || record.spaceId }}
+            </template>
+            <template v-if="column.key === 'runState'">
+              <a-tag v-if="record.runState === '在线'" color="green">在线</a-tag>
+              <a-tag v-else color="red">离线</a-tag>
             </template>
             <template v-if="column.key === 'action'">
               <a-button type="link" size="small">详情</a-button>
@@ -82,13 +81,25 @@
     <div class="two-col">
       <div class="card">
         <div class="card-header">
-          <h3>📈各配电柜负载趋势</h3>
+          <h3>📈有功功率</h3>
         </div>
-        <div class="card-body">
-          <div class="chart-placeholder">
-            <div class="chart-icon">📊</div>
-            <div class="chart-text">配电柜负载率分时曲线</div>
+        <div class="card-body chart-body">
+          <div v-show="activeLoading" class="chart-placeholder">
+            <a-spin />
+            <div class="chart-text">加载中...</div>
           </div>
+          <div
+            v-show="!activeLoading && activeChartData.length === 0"
+            class="chart-placeholder"
+          >
+            <div class="chart-icon">📊</div>
+            <div class="chart-text">暂无数据</div>
+          </div>
+          <div
+            v-show="!activeLoading && activeChartData.length > 0"
+            ref="activeChartRef"
+            class="power-chart"
+          ></div>
         </div>
       </div>
       <div class="card">
@@ -124,9 +135,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, watch, h, onMounted } from 'vue'
+import { ref, reactive, computed, h, onMounted, nextTick } from 'vue'
 import { StatCard } from '/@/views/bems-web/components'
 import { spaceTree } from '/@/views/bems-web/equipment/equipmentManagement/elements/device/Device.api'
+import { getPowerUnitList, getActivePower, getPowerStatistics } from './index.api'
+import { useECharts } from '/@/hooks/web/useECharts'
 
 // 自定义 emoji 图标组件
 const PowerCabinetTotalIcon = () => h('span', { style: 'font-size: 20px;' }, '⚡')
@@ -152,6 +165,31 @@ const loadSpaceTree = async () => {
   }
 }
 
+// 筛选条件
+const filterStatus = ref<string | undefined>(undefined)
+
+// 统计卡片数据
+const statsData = reactive({
+  count: "--",
+  online: "--",
+  energyConsumption: "--",
+  avgPowerFactor: "--",
+})
+
+// 加载统计数据
+const loadStatistics = async () => {
+  try {
+    const res = await getPowerStatistics()
+    const data = res?.data || res?.result || res || {}
+    statsData.count = data.count ?? 0
+    statsData.online = data.online ?? 0
+    statsData.energyConsumption = data.energyConsumption ?? 0
+    statsData.avgPowerFactor = data.avgPowerFactor ?? 0
+  } catch (e) {
+    console.error('加载配电统计数据失败:', e)
+  }
+}
+
 // 分页
 const pagination = reactive({
   current: 1,
@@ -163,55 +201,170 @@ const pagination = reactive({
   pageSizeOptions: ['10', '20', '50', '100'],
 })
 
-// 表格列定义
-const columns = [
-  { title: '配电柜编号', dataIndex: 'code', key: 'code', width: 110 },
-  { title: '位置', dataIndex: 'location', key: 'location', width: 150 },
-  { title: '运行状态', dataIndex: 'status', key: 'status', width: 100 },
-  { title: '电压', dataIndex: 'voltage', key: 'voltage', width: 90 },
-  { title: '电流', dataIndex: 'current', key: 'current', width: 90 },
-  { title: '有功功率', dataIndex: 'activePower', key: 'activePower', width: 100 },
-  { title: '无功功率', dataIndex: 'reactivePower', key: 'reactivePower', width: 100 },
-  { title: '功率因数', dataIndex: 'powerFactor', key: 'powerFactor', width: 90 },
-  { title: '柜内温度', dataIndex: 'temp', key: 'temp', width: 90 },
-  { title: '负载率', dataIndex: 'loadRate', key: 'loadRate', width: 80 },
+// 递归查找树节点完整路径
+const findTreeNodePath = (treeData: any[], key: string | number, separator = '-'): string => {
+  if (!treeData || !Array.isArray(treeData)) return ''
+  const findPath = (nodes: any[], path: string[]): string[] | null => {
+    for (const node of nodes) {
+      const label = node.title || node.value || node.label || ''
+      const currentPath = [...path, label]
+      if (String(node.key) === String(key)) {
+        return currentPath
+      }
+      if (node.children && Array.isArray(node.children)) {
+        const result = findPath(node.children, currentPath)
+        if (result) return result
+      }
+    }
+    return null
+  }
+  const result = findPath(treeData, [])
+  return result ? result.join(separator) : ''
+}
+
+// 动态属性列
+const attributeColumns = ref<any[]>([])
+
+// 表格列定义（固定3列 + 动态列 + 操作列）
+const columns = computed(() => [
+  { title: '配电柜编号', dataIndex: 'deviceCode', key: 'deviceCode', width: 110 },
+  { title: '位置', dataIndex: 'spaceId', key: 'spaceId', width: 150 },
+  { title: '运行状态', dataIndex: 'runState', key: 'runState', width: 100 },
+  ...attributeColumns.value.map((attr: any) => ({
+    title: attr.attributeName,
+    dataIndex: attr.attributeName,
+    key: attr.attributeName,
+    width: 120,
+  })),
   { title: '操作', dataIndex: 'action', key: 'action', width: 80, fixed: 'right' },
-]
+])
 
 // 表格数据
-const tableData = [
-  { code: 'PD-A-01', location: 'A馆-1#配电室', status: '正常', voltage: '380V', current: '125A', activePower: '78 kW', reactivePower: '12 kVar', powerFactor: '0.96', temp: '35°C', loadRate: '65%' },
-  { code: 'PD-A-02', location: 'A馆-2#配电室', status: '正常', voltage: '380V', current: '98A', activePower: '58 kW', reactivePower: '8 kVar', powerFactor: '0.97', temp: '32°C', loadRate: '48%' },
-  { code: 'PD-B-01', location: 'B馆-1#配电室', status: '正常', voltage: '380V', current: '156A', activePower: '95 kW', reactivePower: '18 kVar', powerFactor: '0.94', temp: '38°C', loadRate: '78%' },
-  { code: 'PD-C-01', location: 'C馆-1#配电室', status: '正常', voltage: '380V', current: '112A', activePower: '68 kW', reactivePower: '10 kVar', powerFactor: '0.96', temp: '34°C', loadRate: '56%' },
-]
+const tableData = ref<any[]>([])
 
-// 筛选逻辑
-const filteredTableData = computed(() => {
-  return tableData.filter((item) => {
-    const matchVenue = !meterSpace.value || !meterSpace.value.length || item.location.includes(String(meterSpace.value))
-    return matchVenue
-  })
-})
+// 加载配电系统列表
+const loadPowerUnitList = async (pageNo = pagination.current, pageSize = pagination.pageSize, spaceId?: string, runState?: string) => {
+  try {
+    const params: any = { pageNo, pageSize }
+    if (spaceId) params.spaceId = spaceId
+    if (runState) params.runState = runState
+    const res = await getPowerUnitList(params)
+    pagination.total = res?.total ?? 0
+    const list = res?.records || res?.data || res || []
 
-// 翻页数据变化时更新总数
-watch(filteredTableData, (data) => {
-  pagination.total = data.length
-}, { immediate: true })
+    if (list.length > 0) {
+      attributeColumns.value = list[0].deviceAttributeList || []
+    }
 
+    tableData.value = list.map((item: any) => {
+      const attrs: Record<string, any> = {}
+      if (item.deviceAttributeList) {
+        item.deviceAttributeList.forEach((attr: any) => {
+          attrs[attr.attributeName] = attr.value ?? '--'
+        })
+      }
+      return {
+        deviceId: item.deviceId,
+        deviceCode: item.deviceCode ?? '--',
+        spaceId: item.spaceId ?? '--',
+        runState: item.runState ?? '--',
+        ...attrs,
+      }
+    })
+  } catch (e) {
+    console.error('加载配电系统列表失败:', e)
+  }
+}
+
+// 查询按钮
 const handleSearch = () => {
   pagination.current = 1
-  pagination.total = filteredTableData.value.length
+  loadPowerUnitList(1, pagination.pageSize, meterSpace.value, filterStatus.value)
 }
 
 // 表格分页变化
 const handleTableChange = (pag: any) => {
   pagination.current = pag.current
   pagination.pageSize = pag.pageSize
+  loadPowerUnitList(pag.current, pag.pageSize, meterSpace.value, filterStatus.value)
+}
+
+// 有功功率柱状图
+const activeChartRef = ref<HTMLDivElement>()
+const activeChartData = ref<any[]>([])
+const activeLoading = ref(false)
+const { setOptions: setActiveChartOptions } = useECharts(activeChartRef as any)
+
+/** 加载有功功率数据 */
+const loadActiveChart = async () => {
+  activeLoading.value = true
+  try {
+    const res = await getActivePower()
+    const chatData = res?.chat || res?.result?.chat || res?.data?.chat || {}
+    const xaxis = chatData.xaxis || []
+    const seriesList = (chatData.chatSeriesList || chatData.seriesList || []) as any[]
+    const filteredList = seriesList.filter((item: any) => item.name !== '合计')
+    activeChartData.value = filteredList
+    activeLoading.value = false
+    await nextTick()
+    if (xaxis.length > 0 && filteredList.length > 0) {
+      renderActiveChart(xaxis, filteredList)
+    }
+  } catch (e) {
+    console.error('加载有功功率失败:', e)
+    activeLoading.value = false
+  }
+}
+
+/** 渲染有功功率柱状图 */
+const renderActiveChart = (xaxis: string[], seriesList: { name: string; data: number[] }[]) => {
+  setActiveChartOptions({
+    tooltip: { trigger: 'axis', show: true },
+    legend: {
+      type: 'scroll',
+      data: seriesList.map((item) => item.name),
+      bottom: 0,
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '15%',
+      top: '8%',
+      containLabel: true,
+    },
+    xAxis: {
+      type: 'category',
+      data: xaxis,
+      axisLabel: {
+        color: '#666',
+        fontSize: 12,
+        rotate: xaxis.length > 6 ? 30 : 0,
+      },
+    },
+    yAxis: {
+      type: 'value',
+      name: '',
+      axisLabel: {
+        margin: 15,
+        overflow: 'truncate',
+        color: '#666',
+        fontSize: 12,
+      },
+    },
+    series: seriesList.map((item) => ({
+      name: item.name,
+      type: 'bar',
+      data: item.data,
+      barMaxWidth: 40,
+    })),
+  })
 }
 
 onMounted(() => {
   loadSpaceTree()
+  loadStatistics()
+  loadPowerUnitList()
+  loadActiveChart()
 })
 </script>
 
@@ -235,7 +388,9 @@ onMounted(() => {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 16px;
+      margin: 0 -24px 16px;
+      padding: 0 24px 12px;
+      border-bottom: 1px solid #f0f0f0;
       flex-wrap: wrap;
       gap: 12px;
 
@@ -279,6 +434,27 @@ onMounted(() => {
           font-size: 14px;
           color: #86909c;
         }
+      }
+
+      &.chart-body {
+        height: 350px;
+        background: #f7f9fc;
+        border-radius: 8px;
+        overflow: hidden;
+        padding: 0;
+
+        .chart-placeholder {
+          height: 100%;
+          min-height: auto;
+          background: #f7f9fc;
+          border: none;
+          gap: 12px;
+        }
+      }
+
+      .power-chart {
+        width: 100%;
+        height: 100%;
       }
     }
   }

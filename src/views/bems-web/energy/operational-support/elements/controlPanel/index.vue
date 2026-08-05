@@ -12,15 +12,18 @@
           <a-table
             :columns="acColumns"
             :data-source="acData"
+            :loading="acLoading"
             :pagination="false"
             size="small"
             row-key="id"
           >
             <template #bodyCell="{ column, record }">
-              <template v-if="column.key === 'status'">
-                <a-tag :color="record.status === '运行' ? 'green' : 'orange'">
-                  {{ record.status }}
-                </a-tag>
+              <template v-if="column.key === 'spaceId'">
+                {{ findTreeNodePath(spaceTreeData, record.spaceId) || record.spaceId }}
+              </template>
+              <template v-if="column.key === 'runStop'">
+                <a-tag v-if="record.runStop === '1'" color="green">运行</a-tag>
+                <a-tag v-else color="red">停止</a-tag>
               </template>
               <template v-if="column.key === 'action'">
                 <a-button type="link" size="small" @click="handleControl('ac', record)">
@@ -61,21 +64,22 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
 import type { AcControlItem, LightingControlItem } from './index.api'
+import { getAirList } from './index.api'
+import { spaceTree } from '/@/views/bems-web/equipment/equipmentManagement/elements/device/Device.api'
 
 // ===== Props =====
 withDefaults(
   defineProps<{
     title?: string
     tag?: string
-    acData?: AcControlItem[]
     lightingData?: LightingControlItem[]
   }>(),
   {
     title: '🎮 远程控制面板',
     tag: '实时控制',
-    acData: () => [],
-    lightingData: () => []
+    lightingData: () => [],
   }
 )
 
@@ -84,12 +88,60 @@ const emit = defineEmits<{
   control: [type: 'ac' | 'lighting', record: any]
 }>()
 
+// ===== 空调机组数据 =====
+const acData = ref<AcControlItem[]>([])
+const acLoading = ref(false)
+
+const loadAirList = async () => {
+  acLoading.value = true
+  try {
+    const res = await getAirList()
+    const list = res?.records || res?.data?.records || res?.data || res || []
+    acData.value = list as AcControlItem[]
+  } catch (e) {
+    console.error('加载空调机组列表失败:', e)
+  } finally {
+    acLoading.value = false
+  }
+}
+
+// ===== 位置树映射 =====
+const spaceTreeData = ref<any[]>([])
+const loadSpaceTree = async () => {
+  try {
+    const res = await spaceTree()
+    spaceTreeData.value = Array.isArray(res) ? res : (res?.data || res?.records || [])
+  } catch (e) {
+    console.error('加载空间树数据失败:', e)
+  }
+}
+
+const findTreeNodePath = (treeData: any[], key: string | number, separator = '-'): string => {
+  if (!treeData || !Array.isArray(treeData)) return ''
+  const findPath = (nodes: any[], path: string[]): string[] | null => {
+    for (const node of nodes) {
+      const label = node.title || node.value || node.label || ''
+      const currentPath = [...path, label]
+      if (String(node.key) === String(key)) {
+        return currentPath
+      }
+      if (node.children && Array.isArray(node.children)) {
+        const result = findPath(node.children, currentPath)
+        if (result) return result
+      }
+    }
+    return null
+  }
+  const result = findPath(treeData, [])
+  return result ? result.join(separator) : ''
+}
+
 // ===== 表格列定义 =====
 const acColumns = [
-  { title: '机组编号', dataIndex: 'code', key: 'code', width: 130 },
-  { title: '位置', dataIndex: 'location', key: 'location' },
-  { title: '当前状态', key: 'status', width: 100 },
-  { title: '设定温度', dataIndex: 'setTemp', key: 'setTemp', width: 100 },
+  { title: '机组编号', dataIndex: 'deviceCode', key: 'deviceCode', width: 130 },
+  { title: '位置', dataIndex: 'spaceId', key: 'spaceId', width: 130  },
+  { title: '当前状态', dataIndex: 'runStop', key: 'runStop', width: 100 },
+  { title: '设定温度', dataIndex: 'setTemperature', key: 'setTemperature', width: 100 },
   { title: '操作', key: 'action', width: 80 }
 ]
 
@@ -105,6 +157,12 @@ const lightingColumns = [
 const handleControl = (type: 'ac' | 'lighting', record: any) => {
   emit('control', type, record)
 }
+
+// ===== 初始化 =====
+onMounted(() => {
+  loadSpaceTree()
+  loadAirList()
+})
 </script>
 
 <style scoped lang="less">

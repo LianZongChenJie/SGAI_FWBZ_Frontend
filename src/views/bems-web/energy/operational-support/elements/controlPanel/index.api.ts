@@ -1,3 +1,5 @@
+import { defHttp } from '/@/utils/http/axios'
+
 /** 空调机组控制项 */
 export interface AcControlItem {
   id: string
@@ -15,3 +17,10 @@ export interface LightingControlItem {
   status: '开启' | '关闭' | '调光'
   brightness: string
 }
+
+enum Api {
+  airList = '/sgai-tp/fwbz/operationSupport/overview/airList',
+}
+
+/** 获取空调机组列表 */
+export const getAirList = (params = {}) => defHttp.get({ url: Api.airList, params })

@@ -90,7 +90,6 @@
       <ControlPanel
         title="🎮 远程控制面板"
         tag="实时控制"
-        :ac-data="acData"
         :lighting-data="lightingData"
         @control="handleControl"
       />
@@ -102,7 +101,7 @@
 import { ref, computed, h } from 'vue';
 import { StatCard, DeviceCard} from '/@/views/bems-web/components';
 import ControlPanel from '../controlPanel/index.vue';
-import type { AcControlItem, LightingControlItem } from '../controlPanel/index.api';
+import type { LightingControlItem } from '../controlPanel/index.api';
 
 
 // ===== 筛选条件 =====
@@ -239,11 +238,6 @@ const allData = [
   }
 ]
 
-const acData: AcControlItem[] = [
-  { id: '1', code: 'AC-A-01', location: 'A馆-F1-大厅', status: '运行', setTemp: '24°C' },
-  { id: '2', code: 'AC-A-02', location: 'A馆-F2-展厅', status: '运行', setTemp: '22°C' }
-]
-
 const lightingData: LightingControlItem[] = [
   { id: '1', code: 'LT-A-101', location: 'A馆-F1-大厅', status: '开启', brightness: '80%' },
   { id: '2', code: 'LT-A-102', location: 'A馆-F2-展厅', status: '开启', brightness: '100%' }
@@ -316,7 +310,9 @@ const statData = {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 20px;
+    margin: 0 -24px 20px;
+    padding: 0 24px 12px;
+    border-bottom: 1px solid #f0f0f0;
     flex-wrap: wrap;
     gap: 12px;
   }

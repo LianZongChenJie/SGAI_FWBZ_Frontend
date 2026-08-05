@@ -199,7 +199,9 @@ const handleSearch = () => {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 16px;
+      margin: 0 -24px 16px;
+      padding: 0 24px 12px;
+      border-bottom: 1px solid #f0f0f0;
       flex-wrap: wrap;
       gap: 12px;
 

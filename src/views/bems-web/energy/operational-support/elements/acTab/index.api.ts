@@ -4,6 +4,8 @@ enum Api {
   airConditioningUnitList = '/sgai-tp/fwbz/operationSupport/airConditioningUnitList',
   airConditioningUnitStatistics = '/sgai-tp/fwbz/operationSupport/airConditioningUnitStatistics',
   airEnergyFindDay = '/sgai-tp/fwbz/operationSupport/airEnergyFindDay',
+  supplyAirTemperature = '/sgai-tp/fwbz/operationSupport/supplyAirTemperature',
+  returnAirTemperature = '/sgai-tp/fwbz/operationSupport/returnAirTemperature',
   listByDeviceId = '/sgai-tp/fwbz/deviceAttribute/listByDeviceId',
 }
 
@@ -21,6 +23,16 @@ export const getAcUnitStatistics = (params = {}) => defHttp.get({ url: Api.airCo
  * 空调能耗趋势（日）
  */
 export const getAirEnergyDay = (params = {}) => defHttp.get({ url: Api.airEnergyFindDay, params })
+
+/**
+ * 送风温度趋势
+ */
+export const getSupplyAirTemperature = (params = {}) => defHttp.get({ url: Api.supplyAirTemperature, params })
+
+/**
+ * 回风温度趋势
+ */
+export const getReturnAirTemperature = (params = {}) => defHttp.get({ url: Api.returnAirTemperature, params })
 
 /**
  * 设备属性列表（按设备ID查询）
