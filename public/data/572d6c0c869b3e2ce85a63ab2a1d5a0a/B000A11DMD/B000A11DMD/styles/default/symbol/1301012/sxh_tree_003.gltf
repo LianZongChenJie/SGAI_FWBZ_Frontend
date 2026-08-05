@@ -1,0 +1,104 @@
+{
+  "accessors" : [ {
+    "bufferView" : 0,
+    "byteOffset" : 0,
+    "componentType" : 5123,
+    "count" : 1080,
+    "type" : "SCALAR",
+    "max" : [ 1077 ],
+    "min" : [ 0 ]
+  }, {
+    "bufferView" : 1,
+    "byteOffset" : 0,
+    "componentType" : 5126,
+    "count" : 1078,
+    "type" : "VEC3",
+    "max" : [ 13.6841, 13.3, 49.3231 ],
+    "min" : [ -13.6841, -13.3, -0.0165 ]
+  }, {
+    "bufferView" : 2,
+    "byteOffset" : 0,
+    "componentType" : 5126,
+    "count" : 1078,
+    "type" : "VEC2",
+    "max" : [ 0.6588, 0.49049997 ],
+    "min" : [ 0.0174, 0.030200005 ]
+  }, {
+    "bufferView" : 3,
+    "byteOffset" : 0,
+    "componentType" : 5126,
+    "count" : 1078,
+    "type" : "VEC3",
+    "max" : [ 0.9926612, 0.99332225, 0.7589841 ],
+    "min" : [ -0.9961132, -0.99975777, -0.7953219 ]
+  } ],
+  "asset" : {
+    "generator" : "JglTF from https://github.com/javagl/JglTF",
+    "version" : "2.0"
+  },
+  "buffers" : [ {
+    "uri" : "buffer.bin",
+    "byteLength" : 36656
+  } ],
+  "bufferViews" : [ {
+    "buffer" : 0,
+    "byteOffset" : 0,
+    "byteLength" : 2160,
+    "target" : 34963
+  }, {
+    "buffer" : 0,
+    "byteOffset" : 2160,
+    "byteLength" : 12936,
+    "target" : 34962
+  }, {
+    "buffer" : 0,
+    "byteOffset" : 15096,
+    "byteLength" : 8624,
+    "target" : 34962
+  }, {
+    "buffer" : 0,
+    "byteOffset" : 23720,
+    "byteLength" : 12936,
+    "target" : 34962
+  } ],
+  "images" : [ {
+    "uri" : "texture_gradient.png",
+    "mimeType" : "image/png"
+  } ],
+  "materials" : [ {
+    "pbrMetallicRoughness" : {
+      "baseColorFactor" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "baseColorTexture" : {
+        "index" : 0
+      },
+      "metallicFactor" : 0.0,
+      "roughnessFactor" : 1.0
+    },
+    "alphaMode" : "OPAQUE",
+    "doubleSided" : true
+  } ],
+  "meshes" : [ {
+    "primitives" : [ {
+      "attributes" : {
+        "POSITION" : 1,
+        "TEXCOORD_0" : 2,
+        "NORMAL" : 3
+      },
+      "indices" : 0,
+      "material" : 0,
+      "mode" : 4
+    } ]
+  } ],
+  "nodes" : [ {
+    "mesh" : 0
+  } ],
+  "samplers" : [ { } ],
+  "scene" : 0,
+  "scenes" : [ {
+    "nodes" : [ 0 ]
+  } ],
+  "textures" : [ {
+    "sampler" : 0,
+    "source" : 0
+  } ]
+}

@@ -1,0 +1,117 @@
+{
+	"map": {
+		"bdlist": {
+			"data": {
+				"baseUrl": "./",
+				"list": [
+					{
+						"token": "572d6c0c869b3e2ce85a63ab2a1d5a0a",
+						"bdid": "B100A11DAA",
+						"bdName": "首钢IOC",
+						"cat": "温州市瓯海区",
+						"first_capital": "S",
+						"location": "120.6961659,27.9382114,1000",
+						"startFloor": "DX0000500110100001",
+						"algorithm": "fingerprint",
+						"data": {
+							"location": "120.6959223,27.9384347,1000",
+							"rect": "120.69206580079964,27.9359376254962,120.6997787122947,27.940931820834876",
+							"initfloor": "DX0000500110100001",
+							"floors": [
+								{
+									"rect": "120.69206580079964,27.935488413002126,120.70026606964043,27.940934419080186",
+									"flid": "DX0000500110100001",
+									"flname": "F1",
+									"cname": "一层",
+									"flindex": 0
+								}
+							]
+						}
+					},
+					{
+						"token": "572d6c0c869b3e2ce85a63ab2a1d5a0a",
+						"bdid": "B000A11DMD",
+						"bdName": "首钢园",
+						"cat": "北京市石景山区石景山路68号",
+						"first_capital": "S",
+						"location": "116.1589221,39.9159511,1000",
+						"startFloor": "DX0003640110100001",
+						"algorithm": "fingerprint",
+						"data": {
+							"location": "116.1587910,39.9159628,1000",
+							"rect": "116.14400281155446,39.90699097110887,116.17357914859329,39.92493469877621",
+							"initfloor": "DX0003640110100001",
+							"floors": [
+								{
+									"rect": "116.14428252498999,39.9069915970902,116.17356165474487,39.92491061885897",
+									"flid": "DX0003640110100001",
+									"flname": "F1",
+									"cname": "一层",
+									"flindex": 0
+								}
+							]
+						}
+					}
+				]
+			}
+		},
+		"scene": [],
+		"startPosition": {
+			"floorId": "DX0003640110100001",
+			"zoom": 16,
+			"heading": 0,
+			"tilt": 0,
+			"lon": 116.1560248,
+			"lat": 39.9153134,
+			"bdid": "B000A11DMD"
+		},
+		"minZoom":1,
+		"showOutDoorMap": false,
+		"mapBgColorRGB": [
+			9,
+			29,
+			56,
+			1
+		]
+	},
+	"search": {
+		"url": "https://map1a.daxicn.com/search2/search-query-v6/user/s"
+	},
+	"route": {
+		"url": "https://map1a.daxicn.com/RouteServiceForMetro39/route?",
+		"tripModes": [
+			2,
+			1,
+			0
+		],
+		"defaultTripMode": 2
+	},
+	"navi": {
+		"realPosLevel": 3,
+		"minDistance": 6,
+		"naviZoomLevel": 23
+	},
+	"tts": {
+		"url": "https://map1a.daxicn.com/dxtts",
+		"engine": {
+			"type": "msc",
+			"version": 2
+		},
+		"enable": "1"
+	},
+	"location": {
+		"uuids": [
+			"FDA50693-A4E2-4FB1-AFCF-C6EB07647825",
+			"AB8190D5-D11E-4941-ACC4-42F30510B408",
+			"666E3493-F099-6E6D-B204-20949AA2F91A",
+			"C91ABDBE-DF54-4501-A3AA-D7BDF1FD2E1D"
+		]
+	},
+	"log": {
+		"logLevel": "10",
+		"logUrl": "",
+		"trackLoginUrl": "http://47.93.188.169/daxi-mq/trackLog/add",
+		"trackServer": "47.93.188.169",
+		"trackServerPort": "8500"
+	}
+}

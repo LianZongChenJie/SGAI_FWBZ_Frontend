@@ -16,6 +16,304 @@ enum Api {
   cameraPlayUrls = '/sgai-fwbz-dev/fwbz/hikvision/camera/playUrls',
   /** 是否是正在执行的计划 */
   isRunningPlan = '/sgai-fwbz-dev/fwbz/patrolPlan/isRunningPlan',
+
+  // 门禁
+  /** 门禁汇总数据 */
+  accessControlSummary = '/sgai-fwbz-dev/fwbz/hikvision/doorStatistics/summary',
+  /** 门禁地点列表 */
+  accessControlDoorList = '/sgai-fwbz-dev/fwbz/hikvision/door/list',
+  /** 门禁设备列表 */
+  accessControlDeviceList = '/sgai-fwbz-dev/fwbz/hikvision/acsDevice/list',
+  /** 同步门禁状态 */
+  syncAccessControlStatus = '/sgai-fwbz-dev/fwbz/hikvision/door/syncDoorStatus',
+  /** 门禁事件列表 */
+  accessControlEventList = '/sgai-fwbz-dev/fwbz/hikvision/doorEvent/list',
+}
+
+/**
+ * 返回数据对象
+ *
+ * 门禁事件列表
+ */
+export interface IPageDoorEventListVO {
+    countId?: string;
+    current?: number;
+    maxLimit?: number;
+    optimizeCountSql?: boolean;
+    optimizeJoinOfCountSql?: boolean;
+    orders?: OrderItem[];
+    pages?: number;
+    records?: DoorEventListVO[];
+    searchCount?: boolean;
+    size?: number;
+    total?: number;
+    [property: string]: any;
+}
+
+
+
+/**
+ * 门禁点事件列表VO，供前端展示
+ *
+ * DoorEventListVO
+ */
+export interface DoorEventListVO {
+    /**
+     * 卡号
+     */
+    cardNo?: string;
+    /**
+     * 控制器设备名称
+     */
+    devName?: string;
+    /**
+     * 门禁点编码
+     */
+    doorIndexCode?: string;
+    /**
+     * 门禁点名称
+     */
+    doorName?: string;
+    /**
+     * 事件ID
+     */
+    eventId?: string;
+    /**
+     * 事件名称
+     */
+    eventName?: string;
+    /**
+     * 事件产生时间
+     */
+    eventTime?: string;
+    /**
+     * 事件类型
+     */
+    eventType?: number;
+    /**
+     * 记录创建时间
+     */
+    gmtCreate?: string;
+    /**
+     * 主键ID
+     */
+    id?: number;
+    /**
+     * 进出类型：1-进 0-出 -1-未知
+     */
+    inAndOutType?: number;
+    /**
+     * 人员所属组织名称
+     */
+    orgName?: string;
+    /**
+     * 人员唯一编码
+     */
+    personId?: string;
+    /**
+     * 人员姓名
+     */
+    personName?: string;
+    /**
+     * 抓拍图片地址
+     */
+    picUri?: string;
+    /**
+     * 读卡器名称
+     */
+    readerDevName?: string;
+    [property: string]: any;
+}
+
+/**
+ * 返回数据对象
+ *
+ * IPageAcsDeviceListVO
+ */
+export interface IPageAcsDeviceListVO {
+    countId?: string;
+    current?: number;
+    maxLimit?: number;
+    optimizeCountSql?: boolean;
+    optimizeJoinOfCountSql?: boolean;
+    orders?: OrderItem[];
+    pages?: number;
+    records?: AcsDeviceListVO[];
+    searchCount?: boolean;
+    size?: number;
+    total?: number;
+    [property: string]: any;
+}
+
+/**
+ * com.baomidou.mybatisplus.core.metadata.OrderItem
+ *
+ * OrderItem
+ */
+export interface OrderItem {
+    asc?: boolean;
+    column?: string;
+    [property: string]: any;
+}
+
+/**
+ * 门禁设备列表VO，供前端展示门禁设备列表
+ *
+ * AcsDeviceListVO
+ */
+export interface AcsDeviceListVO {
+    /**
+     * 创建时间（设备侧上报）
+     */
+    createTime?: string;
+    /**
+     * 主动设备编号
+     */
+    deviceCode?: string;
+    /**
+     * 门禁设备类型编码
+     */
+    devTypeCode?: string;
+    /**
+     * 门禁设备类型型号
+     */
+    devTypeDesc?: string;
+    /**
+     * 资源唯一编码
+     */
+    indexCode?: string;
+    /**
+     * 门禁设备IP
+     */
+    ip?: string;
+    /**
+     * 厂商
+     */
+    manufacturer?: string;
+    /**
+     * 资源名称
+     */
+    name?: string;
+    /**
+     * 在线状态，0离线，1在线
+     */
+    online?: string;
+    /**
+     * 门禁设备端口
+     */
+    port?: string;
+    /**
+     * 所属区域
+     */
+    regionIndexCode?: string;
+    /**
+     * 区域名称
+     */
+    regionName?: string;
+    /**
+     * 接入协议
+     */
+    treatyType?: string;
+    /**
+     * 更新时间（设备侧上报）
+     */
+    updateTime?: string;
+    [property: string]: any;
+}
+
+
+/**
+ * 返回数据对象
+ *
+ * IPageDoorListVO
+ */
+export interface IPageDoorListVO {
+    countId?: string;
+    current?: number;
+    maxLimit?: number;
+    optimizeCountSql?: boolean;
+    optimizeJoinOfCountSql?: boolean;
+    pages?: number;
+    records?: DoorListVO[];
+    searchCount?: boolean;
+    size?: number;
+    total?: number;
+    [property: string]: any;
+}
+
+
+/**
+ * 门禁点列表VO，供前端展示门禁点列表
+ *
+ * DoorListVO
+ */
+export interface DoorListVO {
+    /**
+     * 通道号
+     */
+    channelNo?: string;
+    /**
+     * 创建时间（设备侧上报）
+     */
+    createTime?: string;
+    /**
+     * 门禁点编号
+     */
+    doorNo?: string;
+    /**
+     * 门状态，0-初始状态，1-开门状态，2-关门状态，3-离线状态
+     */
+    doorState?: string;
+    /**
+     * 资源唯一编码
+     */
+    indexCode?: string;
+    /**
+     * 安装位置
+     */
+    installLocation?: string;
+    /**
+     * 资源名称
+     */
+    name?: string;
+    /**
+     * 所属区域
+     */
+    regionIndexCode?: string;
+    /**
+     * 区域名称
+     */
+    regionName?: string;
+    /**
+     * 接入协议
+     */
+    treatyType?: string;
+    /**
+     * 更新时间（设备侧上报）
+     */
+    updateTime?: string;
+    [property: string]: any;
+}
+
+
+/**
+ * 门禁统计卡片
+ *
+ */
+export interface StatCard {
+    /**
+     * 上下文描述（如 在线率xx%、较昨日↑3）
+     */
+    context?: string;
+    /**
+     * 标题
+     */
+    title?: string;
+    /**
+     * 数值
+     */
+    value?: { [key: string]: any };
+    [property: string]: any;
 }
 
 /** 统计卡片数据项 */
@@ -153,5 +451,19 @@ export const getCameraPlayUrls = (params) => fwbzHttp.post({ url: Api.cameraPlay
 /** 查询指定计划是否仍在执行中（入参: { id: 计划ID }，返回值: boolean） */
 export const checkIsRunningPlan = (params) => fwbzHttp.get({ url: Api.isRunningPlan, params });
 
+// ==================== 门禁相关接口 ====================
 
+/** 获取门禁汇总数据 */
+export const getAccessControlSummary = (params?) => fwbzHttp.get({ url: Api.accessControlSummary, params });
 
+/** 获取门禁地点列表 */
+export const getAccessControlDoorList = (params?) => fwbzHttp.get({ url: Api.accessControlDoorList, params });
+
+/** 获取门禁设备列表 */
+export const getAccessControlDeviceList = (params?) => fwbzHttp.get({ url: Api.accessControlDeviceList, params });
+
+/** 同步门禁状态 */
+export const syncAccessControlStatus = () => fwbzHttp.post({ url: Api.syncAccessControlStatus });
+
+/** 获取门禁事件列表 */
+export const getAccessControlEventList = (params?) => fwbzHttp.get({ url: Api.accessControlEventList, params });

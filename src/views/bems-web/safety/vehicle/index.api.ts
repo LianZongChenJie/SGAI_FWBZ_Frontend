@@ -9,6 +9,90 @@ enum Api {
   parkingLot = '/sgai-fwbz-dev/fwbz/parking/record/parkingLotList',
   /** 车辆类型下拉 */
   parkType = '/sgai-fwbz-dev/fwbz/parking/record/parkTypeList',
+  /** 停车流量趋势 */
+  parkingFlow24h = '/sgai-fwbz-dev/fwbz/parkingStatistics/parkingFlow24h',
+  /** 停车场实时车位分布 */
+  parkingSpaceDistribution = '/sgai-fwbz-dev/fwbz/parkingStatistics/parkingSpaceDistribution',
+}
+
+/**
+ * 停车场实时车位分布数据
+ */
+export interface ResultListParkingSpaceStatVO {
+    /**
+     * 返回代码
+     */
+    code?: number;
+    /**
+     * 返回处理消息
+     */
+    message?: string;
+    /**
+     * 返回数据对象
+     */
+    result?: ParkingSpaceStatVO[];
+    /**
+     * 成功标志
+     */
+    success?: boolean;
+    /**
+     * 时间戳
+     */
+    timestamp?: number;
+    [property: string]: any;
+}
+
+/**
+ * 停车场实时车位分布 VO（用于"停车场实时状态"统计图）
+ *
+ * ParkingSpaceStatVO
+ */
+export interface ParkingSpaceStatVO {
+    /**
+     * 停车场ID
+     */
+    id?: number;
+    /**
+     * 纬度
+     */
+    lat?: number;
+    /**
+     * 经度
+     */
+    lng?: number;
+    /**
+     * 停车场名称（如 P1）
+     */
+    name?: string;
+    /**
+     * 饱和度
+     */
+    saturation?: number;
+    /**
+     * 剩余车位数
+     */
+    shengyu?: number;
+    /**
+     * 车位状态（宽松/适中/拥挤）
+     */
+    state?: string;
+    /**
+     * 总车位数
+     */
+    total?: number;
+    /**
+     * 使用率（百分比，保留 1 位小数）
+     */
+    usageRate?: number;
+    /**
+     * 已用车位数
+     */
+    used?: number;
+    /**
+     * 使用率（原始值，来自API）
+     */
+    usedRate?: number;
+    [property: string]: any;
 }
 
 /**
@@ -108,3 +192,9 @@ export const getParkingLotList = () => fwbzHttp.get({ url: Api.parkingLot });
 
 /** 获取车辆类型下拉列表 */
 export const getParkTypeList = () => fwbzHttp.get({ url: Api.parkType });
+
+/** 获取24小时停车流量趋势 */
+export const getParkingFlow24h = () => fwbzHttp.get({ url: Api.parkingFlow24h });
+
+/** 获取停车场实时车位分布 */
+export const getParkingSpaceDistribution = () => fwbzHttp.get({ url: Api.parkingSpaceDistribution });

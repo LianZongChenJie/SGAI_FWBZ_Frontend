@@ -40,6 +40,7 @@
               style="width: 100%"
               value-format="YYYY-MM-DD"
               placeholder="请选择开始日期"
+              :disabled-date="disabledDate"
             />
           </a-form-item>
         </a-col>
@@ -84,6 +85,7 @@
 import { ref, reactive } from 'vue'
 import { message } from 'ant-design-vue'
 import type { FormInstance } from 'ant-design-vue'
+import dayjs from 'dayjs'
 import { addExhibition, getVenueList } from '../../index.api'
 import type { ExhibitionRequest, VenueItem } from '../../index.api'
 
@@ -124,6 +126,12 @@ const filterVenueOption = (input: string, option: any) => {
 /** 场馆选择变化时同步场馆名称 */
 const handleVenueChange = (_value: any, option: any) => {
   formData.venueName = option?.venueName || ''
+}
+
+/** 禁用日期 */
+const disabledDate = (current: any) => {
+
+  return current && current < dayjs().startOf('day')
 }
 
 /** 获取场馆列表 */
