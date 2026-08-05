@@ -1,0 +1,134 @@
+import { fwbzHttp } from '/@/utils/http/axios';
+
+enum Api {
+  /** 汇总统计 */
+  sunnary = '/sgai-fwbz-dev/fwbz/venueVisitorFlow/summary',
+  /** 客流统计列表 */
+  flowList = '/sgai-fwbz-dev/fwbz/venueVisitorFlow/venueList',
+}
+
+
+/**
+ * 场馆客流统计卡片 VO
+ * <p>对应前端四张卡片：今日总客流 / 当前在场 / 峰值客流 / 平均停留</p>
+ *
+ * VisitorFlowCardVO
+ */
+export interface VisitorFlowCardVO {
+    /**
+     * 上下文描述（如 ↑5.3% 较昨日、进行中）
+     */
+    context?: string;
+    /**
+     * 标题
+     */
+    title?: string;
+    /**
+     * 单位/后缀（如 h、%）
+     */
+    unit?: string;
+    /**
+     * 数值
+     */
+    value?: string;
+    [property: string]: any;
+}
+
+/**
+ * 客流统计列表字段
+ */
+export interface ResultListVenueFlowVO {
+    /**
+     * 返回代码
+     */
+    code?: number;
+    /**
+     * 返回处理消息
+     */
+    message?: string;
+    /**
+     * 返回数据对象
+     */
+    result?: VenueFlowVO[];
+    /**
+     * 成功标志
+     */
+    success?: boolean;
+    /**
+     * 时间戳
+     */
+    timestamp?: number;
+    [property: string]: any;
+}
+
+/**
+ * 各场馆客流统计 VO（前端表格展示）
+ * <p>对应前端"各场馆客流统计"表格：场馆 / 今日进场 / 当前在场 / 峰值人数 / 峰值时间 / 平均停留 / 较昨日 / 状态</p>
+ *
+ * VenueFlowVO
+ */
+export interface VenueFlowVO {
+    /**
+     * 平均停留时长
+     */
+    averageDuration?: number;
+    /**
+     * 较昨日增减率描述（如 ↑18.5%）
+     */
+    compareRate?: string;
+    /**
+     * 峰值人数
+     */
+    maxCount?: number;
+    /**
+     * 峰值时间（HH:mm）
+     */
+    maxTime?: string;
+    /**
+     * 状态码（1=正常，0=异常）
+     */
+    status?: number;
+    /**
+     * 状态描述（如 正常 / 异常）
+     */
+    statusLabel?: string;
+    /**
+     * 今日进场人数
+     */
+    todayInCount?: number;
+    /**
+     * 当前在场人数
+     */
+    todayNowCount?: number;
+    /**
+     * 场馆id
+     */
+    venueId?: number;
+    /**
+     * 场馆名称
+     */
+    venueName?: string;
+    [property: string]: any;
+}
+
+/** 客流统计列表查询参数 */
+export interface FlowListRequest {
+  /** 查询日期，格式 YYYY-MM-DD */
+  date?: string;
+  /** 场馆ID（不传则查全部场馆） */
+  venueId?: number;
+  [property: string]: any;
+}
+
+/** 统计卡片数据项 */
+export interface StatItem {
+  title: string
+  value: string
+  context: string
+}
+
+/** 获取客流汇总卡片 */
+export const getFlowSummary = () => fwbzHttp.get({ url: Api.sunnary });
+
+/** 获取各场馆客流统计列表 */
+export const getFlowList = (params: FlowListRequest) => fwbzHttp.get({ url: Api.flowList, params });

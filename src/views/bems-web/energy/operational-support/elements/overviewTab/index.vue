@@ -101,7 +101,8 @@
 <script setup lang="ts">
 import { ref, computed, h } from 'vue';
 import { StatCard, DeviceCard} from '/@/views/bems-web/components';
-import ControlPanel, { AcControlItem, LightingControlItem } from '../controlPanel/index.vue';
+import ControlPanel from '../controlPanel/index.vue';
+import type { AcControlItem, LightingControlItem } from '../controlPanel/index.api';
 
 
 // ===== 筛选条件 =====

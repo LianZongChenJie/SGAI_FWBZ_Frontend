@@ -2,10 +2,15 @@
   <div class="vehicle-page">
     <!-- 统计卡片行 -->
     <div class="stats-row">
-      <StatCard label="今日进场车辆" :value="statData.todayEntry" change-text="↑ 9.3% 较昨日" trend="up" color="blue" :icon="CarOutlined" />
-      <StatCard label="当前在场车辆" :value="statData.currentParked" change-text="↑ 3.2% 较昨日" trend="up" color="green" :icon="ShopOutlined" />
-      <StatCard label="剩余车位" :value="statData.remainingSpots" change-text="↑ 156 较昨日" trend="up" color="orange" :icon="EnvironmentOutlined" />
-      <StatCard label="平均停车时长" :value="statData.avgParkingTime" change-text="↓ 12min 较昨日" trend="down" color="purple" :icon="ClockCircleOutlined" />
+      <StatCard
+        v-for="(item, index) in statCards"
+        :key="index"
+        :label="item.title"
+        :value="item.value"
+        :change-text="item.context"
+        :color="cardConfig[index]?.color || 'blue'"
+        :icon="cardConfig[index]?.icon"
+      />
     </div>
 
     <!-- 两栏布局：停车场实时状态 + 流量趋势 -->
@@ -29,10 +34,25 @@
           <span class="tag tag-blue">实时</span>
         </div>
         <div class="card-body">
-          <div class="chart-placeholder">
-            <div class="chart-icon"><BarChartOutlined /></div>
-            <div class="chart-text">24小时停车流量趋势图</div>
+          <!-- 今日汇总 -->
+          <div class="trend-summary">
+            <div class="summary-item">
+              <span class="summary-label">今日进场</span>
+              <span class="summary-value color-in">{{ trendData.todayInTotal }}</span>
+            </div>
+            <div class="summary-divider"></div>
+            <div class="summary-item">
+              <span class="summary-label">今日出场</span>
+              <span class="summary-value color-out">{{ trendData.todayOutTotal }}</span>
+            </div>
+            <div class="summary-divider"></div>
+            <div class="summary-item">
+              <span class="summary-label">今日总流量</span>
+              <span class="summary-value color-total">{{ trendData.todayInOutTotal }}</span>
+            </div>
           </div>
+          <!-- 趋势图表 -->
+          <div ref="trendChartRef" class="trend-chart"></div>
         </div>
       </div>
     </div>
@@ -42,33 +62,37 @@
       <div class="card-header">
         <h3><CarOutlined /> 车辆出入记录</h3>
         <div class="filter-bar">
-          <a-input v-model:value="searchKeyword" placeholder="搜索车牌号" style="width: 180px" />
-          <a-select v-model:value="parkingLot" style="width: 140px" placeholder="全部停车场">
+          <a-input
+            v-model:value="searchKeyword"
+            placeholder="搜索车牌号"
+            allow-clear
+            style="width: 180px"
+            @press-enter="handleSearch"
+          />
+          <a-select v-model:value="parkingLot" style="width: 140px" placeholder="全部停车场" allow-clear @change="handleSearch">
             <a-select-option value="">全部停车场</a-select-option>
-            <a-select-option value="P1">P1停车场</a-select-option>
-            <a-select-option value="P2">P2停车场</a-select-option>
-            <a-select-option value="P3">P3停车场</a-select-option>
+            <a-select-option v-for="item in parkingLotOptions" :key="item.parkingLot" :value="item.parkingLot">{{ item.parkingLot }}</a-select-option>
           </a-select>
-          <a-select v-model:value="direction" style="width: 120px" placeholder="全部方向">
-            <a-select-option value="">全部方向</a-select-option>
-            <a-select-option value="进场">进场</a-select-option>
-            <a-select-option value="出场">出场</a-select-option>
+          <a-select v-model:value="parkType" style="width: 120px" placeholder="全部类型" allow-clear @change="handleSearch">
+            <a-select-option value="">全部类型</a-select-option>
+            <a-select-option v-for="item in parkTypeOptions" :key="item.parkType" :value="item.parkType">{{ item.parkType }}</a-select-option>
           </a-select>
-          <a-button type="primary"><SearchOutlined /> 查询</a-button>
-          <a-button><DownloadOutlined /> 导出</a-button>
+          <a-button type="primary" @click="handleSearch"><SearchOutlined /> 查询</a-button>
         </div>
       </div>
       <div class="card-body">
         <a-table
           :columns="vehicleColumns"
           :data-source="vehicleData"
-          :pagination="{ pageSize: 10 }"
+          :pagination="vehiclePagination"
+          :loading="vehicleLoading"
           row-key="id"
           size="middle"
+          @change="handleTableChange"
         >
           <template #bodyCell="{ column, record }">
-            <template v-if="column.key === 'direction'">
-              <span class="status-text" :class="record.direction === '进场' ? 'normal' : 'info'">{{ record.direction }}</span>
+            <template v-if="column.key === 'parkType'">
+              <span class="status-text" :class="record.parkType === '进场' ? 'normal' : 'info'">{{ record.parkType }}</span>
             </template>
             <template v-if="column.key === 'action'">
               <a-button type="link" size="small">详情</a-button>
@@ -83,8 +107,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted, shallowRef, nextTick } from 'vue'
+import * as echarts from 'echarts'
 import { StatCard } from '/@/views/bems-web/components'
+import { getRecordList, getParkingLotList, getParkTypeList, getSummary } from './index.api'
+import type { Request, ParkingRecord, ParkingLotOption, ParkTypeOption, StatItem } from './index.api'
 import {
   CarOutlined,
   ShopOutlined,
@@ -93,43 +120,251 @@ import {
   BarChartOutlined,
   SearchOutlined,
   DownloadOutlined,
-  InfoCircleOutlined,
 } from '@ant-design/icons-vue'
 
 defineOptions({ name: 'VehicleManagementPage' })
 
-const statData = {
-  todayEntry: '1,856',
-  currentParked: '1,023',
-  remainingSpots: '2,156',
-  avgParkingTime: '2h 35min',
+/** 卡片颜色与图标配置（与后端返回顺序对应） */
+const cardConfig = [
+  { color: 'blue' as const, icon: CarOutlined },
+  { color: 'green' as const, icon: ShopOutlined },
+  { color: 'orange' as const, icon: EnvironmentOutlined },
+  { color: 'purple' as const, icon: ClockCircleOutlined },
+]
+
+/** 统计卡片数据 */
+const statCards = ref<StatItem[]>([])
+
+/** 获取统计卡片数据 */
+const fetchStatCards = async () => {
+  try {
+    const res = await getSummary()
+    statCards.value = res || []
+  } catch (error) {
+    console.error('获取统计卡片数据失败:', error)
+  }
 }
 
+// ===================== 停车流量趋势数据 =====================
+const trendData = ref({
+  date: ['00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00', '08:00'],
+  in: [20, 12, 6, 2, 2, 3, 14, 80, 290],
+  out: [35, 17, 8, 1, 1, 3, 6, 173, 57],
+  total: [55, 29, 14, 3, 3, 6, 20, 253, 347],
+  todayInTotal: 429,
+  todayOutTotal: 301,
+  todayInOutTotal: 730,
+})
+
+// ===================== ECharts 图表 =====================
+const trendChartRef = ref<HTMLElement>()
+const chartInstance = shallowRef<echarts.ECharts>()
+
+const initChart = () => {
+  if (!trendChartRef.value) return
+  chartInstance.value = echarts.init(trendChartRef.value)
+  updateChart()
+}
+
+const updateChart = () => {
+  if (!chartInstance.value) return
+  const data = trendData.value
+  const option: echarts.EChartsOption = {
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: { type: 'shadow' },
+      backgroundColor: 'rgba(255,255,255,0.95)',
+      borderColor: '#e2e8f0',
+      textStyle: { color: '#2d3748', fontSize: 12 },
+      extraCssText: 'box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-radius: 8px;',
+    },
+    legend: {
+      data: ['进场', '出场', '总流量'],
+      top: 0,
+      right: 0,
+      itemWidth: 12,
+      itemHeight: 12,
+      textStyle: { color: '#718096', fontSize: 12 },
+    },
+    grid: {
+      left: '2%',
+      right: '2%',
+      bottom: '3%',
+      top: '15%',
+      containLabel: true,
+    },
+    xAxis: {
+      type: 'category',
+      boundaryGap: true,
+      data: data.date,
+      axisLine: { lineStyle: { color: '#e2e8f0' } },
+      axisLabel: { color: '#a0aec0', fontSize: 11 },
+      axisTick: { show: false },
+    },
+    yAxis: {
+      type: 'value',
+      axisLine: { show: false },
+      axisTick: { show: false },
+      axisLabel: { color: '#a0aec0', fontSize: 11 },
+      splitLine: { lineStyle: { color: '#f0f0f0', type: 'dashed' } },
+    },
+    series: [
+      {
+        name: '进场',
+        type: 'bar',
+        data: data.in,
+        barWidth: '18%',
+        itemStyle: {
+          borderRadius: [4, 4, 0, 0],
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: '#36b37e' },
+            { offset: 1, color: '#52c41a' },
+          ]),
+        },
+      },
+      {
+        name: '出场',
+        type: 'bar',
+        data: data.out,
+        barWidth: '18%',
+        itemStyle: {
+          borderRadius: [4, 4, 0, 0],
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: '#1890ff' },
+            { offset: 1, color: '#69c0ff' },
+          ]),
+        },
+      },
+      {
+        name: '总流量',
+        type: 'line',
+        data: data.total,
+        smooth: true,
+        symbol: 'circle',
+        symbolSize: 6,
+        lineStyle: { width: 2, color: '#ff9c6e' },
+        itemStyle: { color: '#ff9c6e' },
+        areaStyle: {
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: 'rgba(255,156,110,0.25)' },
+            { offset: 1, color: 'rgba(255,156,110,0.02)' },
+          ]),
+        },
+      },
+    ],
+  }
+  chartInstance.value.setOption(option, true)
+}
+
+const resizeChart = () => {
+  chartInstance.value?.resize()
+}
+
+onMounted(() => {
+  nextTick(() => {
+    initChart()
+    window.addEventListener('resize', resizeChart)
+  })
+  // 加载统计卡片
+  fetchStatCards()
+  // 加载下拉选项
+  fetchParkingLotOptions()
+  fetchParkTypeOptions()
+  // 加载停车记录列表
+  fetchVehicleData()
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', resizeChart)
+  chartInstance.value?.dispose()
+})
+
+// ===================== 车辆出入记录（接口驱动） =====================
 const searchKeyword = ref('')
 const parkingLot = ref('')
-const direction = ref('')
+const parkType = ref('')
+
+/** 下拉选项（接口获取） */
+const parkingLotOptions = ref<ParkingLotOption[]>([])
+const parkTypeOptions = ref<ParkTypeOption[]>([])
 
 const vehicleColumns = [
-  { title: '时间', dataIndex: 'time', key: 'time', width: 180 },
-  { title: '车牌号', dataIndex: 'plateNumber', key: 'plateNumber', width: 130 },
-  { title: '车辆类型', dataIndex: 'vehicleType', key: 'vehicleType', width: 100 },
+  { title: '日期', dataIndex: 'parkDate', key: 'parkDate', width: 120 },
+  { title: '时间', dataIndex: 'parkTime', key: 'parkTime', width: 100 },
+  { title: '车牌号', dataIndex: 'plateNo', key: 'plateNo', width: 130 },
   { title: '停车场', dataIndex: 'parkingLot', key: 'parkingLot', width: 110 },
+  { title: '类型', dataIndex: 'parkType', key: 'parkType', width: 80 },
+  { title: '车位号', dataIndex: 'spaceNo', key: 'spaceNo', width: 90 },
+  { title: '停车时长', dataIndex: 'parkDuration', key: 'parkDuration', width: 120 },
   { title: '方向', dataIndex: 'direction', key: 'direction', width: 80 },
-  { title: '车位号', dataIndex: 'spotNumber', key: 'spotNumber', width: 90 },
-  { title: '停车时长', dataIndex: 'duration', key: 'duration', width: 100 },
   { title: '操作', key: 'action', width: 80, fixed: 'right' },
 ]
 
-const vehicleData = [
-  { id: 1, time: '2026-06-09 14:32:15', plateNumber: '京A·88888', vehicleType: '轿车', parkingLot: 'P1停车场', direction: '进场', spotNumber: 'A-012', duration: '-' },
-  { id: 2, time: '2026-06-09 14:28:43', plateNumber: '京B·66666', vehicleType: 'SUV', parkingLot: 'P2停车场', direction: '出场', spotNumber: 'B-035', duration: '3h 12min' },
-  { id: 3, time: '2026-06-09 14:25:10', plateNumber: '京C·12345', vehicleType: '轿车', parkingLot: 'P1停车场', direction: '进场', spotNumber: 'A-013', duration: '-' },
-  { id: 4, time: '2026-06-09 14:22:05', plateNumber: '京A·99999', vehicleType: 'MPV', parkingLot: 'P3停车场', direction: '进场', spotNumber: 'C-008', duration: '-' },
-  { id: 5, time: '2026-06-09 14:18:30', plateNumber: '京D·77777', vehicleType: 'SUV', parkingLot: 'P1停车场', direction: '出场', spotNumber: 'A-008', duration: '5h 45min' },
-  { id: 6, time: '2026-06-09 14:15:22', plateNumber: '京E·33333', vehicleType: '轿车', parkingLot: 'P2停车场', direction: '进场', spotNumber: 'B-036', duration: '-' },
-  { id: 7, time: '2026-06-09 14:10:48', plateNumber: '京A·55555', vehicleType: '新能源', parkingLot: 'P1停车场', direction: '进场', spotNumber: 'A-014', duration: '-' },
-  { id: 8, time: '2026-06-09 14:05:12', plateNumber: '京F·22222', vehicleType: '轿车', parkingLot: 'P3停车场', direction: '出场', spotNumber: 'C-002', duration: '2h 20min' },
-]
+const vehicleData = ref<ParkingRecord[]>([])
+const vehicleLoading = ref(false)
+const vehiclePagination = ref({
+  current: 1,
+  pageSize: 10,
+  total: 0,
+  showSizeChanger: true,
+  showTotal: (total: number) => `共 ${total} 条`,
+})
+
+/** 查询停车记录 */
+const fetchVehicleData = async () => {
+  vehicleLoading.value = true
+  try {
+    const params: Request = {
+      pageNo: vehiclePagination.value.current,
+      pageSize: vehiclePagination.value.pageSize,
+    }
+    if (searchKeyword.value) params.plateNo = searchKeyword.value
+    if (parkingLot.value) params.parkingLot = parkingLot.value
+    if (parkType.value) params.parkType = parkType.value
+
+    const res = await getRecordList(params)
+    vehicleData.value = res?.records || []
+    vehiclePagination.value.total = res?.total || 0
+  } catch (error) {
+    console.error('获取停车记录列表失败:', error)
+  } finally {
+    vehicleLoading.value = false
+  }
+}
+
+/** 点击查询 */
+const handleSearch = () => {
+  vehiclePagination.value.current = 1
+  fetchVehicleData()
+}
+
+
+/** 表格分页变化 */
+const handleTableChange = (pag: any) => {
+  vehiclePagination.value.current = pag.current
+  vehiclePagination.value.pageSize = pag.pageSize
+  fetchVehicleData()
+}
+
+/** 获取停车场下拉选项 */
+const fetchParkingLotOptions = async () => {
+  try {
+    const res = await getParkingLotList()
+    parkingLotOptions.value = res || []
+  } catch (error) {
+    console.error('获取停车场下拉列表失败:', error)
+  }
+}
+
+/** 获取车辆类型下拉选项 */
+const fetchParkTypeOptions = async () => {
+  try {
+    const res = await getParkTypeList()
+    parkTypeOptions.value = res || []
+  } catch (error) {
+    console.error('获取车辆类型下拉列表失败:', error)
+  }
+}
 </script>
 
 <style scoped lang="less">
@@ -196,19 +431,43 @@ const vehicleData = [
   }
 }
 
-.chart-placeholder {
-  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
-  border-radius: 10px;
+/* 停车流量趋势 - 汇总 + 图表 */
+.trend-summary {
   display: flex;
   align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  color: #a0aec0;
-  border: 2px dashed #e2e8f0;
-  min-height: 280px;
-  padding: 30px;
-  .chart-icon { font-size: 48px; margin-bottom: 12px; }
-  .chart-text { font-size: 14px; color: #718096; font-weight: 500; }
+  justify-content: space-around;
+  background: linear-gradient(135deg, #f0f7ff 0%, #f7fafc 100%);
+  border-radius: 10px;
+  padding: 14px 20px;
+  margin-bottom: 16px;
+
+  .summary-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .summary-label {
+    font-size: 12px;
+    color: #718096;
+  }
+  .summary-value {
+    font-size: 22px;
+    font-weight: 700;
+    &.color-in { color: #52c41a; }
+    &.color-out { color: #1890ff; }
+    &.color-total { color: #ff7a45; }
+  }
+  .summary-divider {
+    width: 1px;
+    height: 32px;
+    background: #e2e8f0;
+  }
+}
+
+.trend-chart {
+  width: 100%;
+  height: 300px;
 }
 
 .map-placeholder {

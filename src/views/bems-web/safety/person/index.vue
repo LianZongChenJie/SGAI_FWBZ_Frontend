@@ -5,32 +5,24 @@
       <StatCard
         label="今日进场人数"
         :value="statData.todayEntry"
-        change-text="↑ 12.5% 较昨日"
-        trend="up"
         color="blue"
         :icon="UserOutlined"
       />
       <StatCard
         label="当前在场人数"
         :value="statData.currentPresent"
-        change-text="↑ 5.3% 较昨日"
-        trend="up"
         color="green"
         :icon="TeamOutlined"
       />
       <StatCard
         label="人员识别记录"
         :value="statData.recognitionRecords"
-        change-text="↑ 8.7% 较昨日"
-        trend="up"
         color="orange"
         :icon="CameraOutlined"
       />
       <StatCard
         label="异常行为预警"
         :value="statData.abnormalAlerts"
-        change-text="↓ 2 较昨日"
-        trend="down"
         color="purple"
         :icon="WarningOutlined"
       />
@@ -116,7 +108,7 @@
     <div class="card">
       <div class="card-header">
         <h3><SearchOutlined /> 人员轨迹查询</h3>
-        <a-button type="primary">+ 新增查询</a-button>
+        <a-button type="primary" @click="handleAddTrack">+ 新增查询</a-button>
       </div>
       <div class="card-body">
         <div class="two-col">
@@ -153,13 +145,51 @@
       </div>
     </div>
 
-    
+    <!-- 新增查询弹窗 -->
+    <a-modal
+      v-model:visible="trackModalVisible"
+      title="新增查询"
+      width="560px"
+      :confirm-loading="trackModalLoading"
+      @ok="handleTrackSubmit"
+      @cancel="handleTrackCancel"
+    >
+      <a-form ref="trackFormRef" :model="trackForm" :rules="trackRules" :label-col="{ span: 5 }" :wrapper-col="{ span: 18 }">
+        <a-form-item label="人脸照片" name="facePhoto">
+          <a-upload
+            list-type="picture-card"
+            :file-list="fileList"
+            :before-upload="handleBeforeUpload"
+            :max-count="1"
+            accept="image/*"
+            @remove="handleRemovePhoto"
+          >
+            <div v-if="fileList.length === 0">
+              <PlusOutlined />
+              <div class="ant-upload-text">上传照片</div>
+            </div>
+          </a-upload>
+        </a-form-item>
+        <a-form-item label="查询时间段" name="timeRange">
+          <a-range-picker
+            v-model:value="trackForm.timeRange"
+            show-time
+            format="YYYY-MM-DD HH:mm:ss"
+            value-format="YYYY-MM-DD HH:mm:ss"
+            style="width: 100%"
+          />
+        </a-form-item>
+      </a-form>
+    </a-modal>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
+import { message } from 'ant-design-vue'
+import type { FormInstance, UploadFile } from 'ant-design-vue'
 import { StatCard } from '/@/views/bems-web/components'
+import { addTrackQuery, getTodayEntryCount, getCurrentOnsiteCount, getRecognitionRecords, getAbnormalBehaviorAlerts } from './index.api'
 import {
   UserOutlined,
   TeamOutlined,
@@ -171,17 +201,40 @@ import {
   DownloadOutlined,
   NodeIndexOutlined,
   InfoCircleOutlined,
+  PlusOutlined,
 } from '@ant-design/icons-vue'
 
 defineOptions({ name: 'PersonManagementPage' })
 
 // ===== 统计数据 =====
-const statData = {
-  todayEntry: '8,234',
-  currentPresent: '3,567',
-  recognitionRecords: '45,892',
-  abnormalAlerts: 3,
+const statData = reactive({
+  todayEntry: 0,
+  currentPresent: 0,
+  recognitionRecords: 0,
+  abnormalAlerts: 0,
+})
+
+/** 同时请求四个统计接口 */
+const fetchStatData = async () => {
+  try {
+    const [entryRes, onsiteRes, recordRes, alertRes] = await Promise.all([
+      getTodayEntryCount(),
+      getCurrentOnsiteCount(),
+      getRecognitionRecords(),
+      getAbnormalBehaviorAlerts(),
+    ])
+    statData.todayEntry = entryRes?.entryCount || 0
+    statData.currentPresent = onsiteRes?.onsiteCount || 0
+    statData.recognitionRecords = recordRes?.count || 0
+    statData.abnormalAlerts = alertRes?.count || 0
+  } catch (error) {
+    console.error('获取统计数据失败:', error)
+  }
 }
+
+onMounted(() => {
+  fetchStatData()
+})
 
 // ===== 筛选条件 =====
 const searchKeyword = ref('')
@@ -210,6 +263,88 @@ const recognitionData = [
   { id: 7, time: '2026-06-09 13:38:45', personType: '访客', nameId: '周九 / VIS-5091', location: 'A馆-东门-闸机01', confidence: '94.7%', direction: '出场' },
   { id: 8, time: '2026-06-09 13:36:30', personType: '员工', nameId: '吴十 / EMP-4023', location: 'C馆-西门-闸机01', confidence: '99.2%', direction: '进场' },
 ]
+
+// ===== 新增查询弹窗 =====
+const trackModalVisible = ref(false)
+const trackModalLoading = ref(false)
+const trackFormRef = ref<FormInstance>()
+const fileList = ref<UploadFile[]>([])
+
+const trackForm = reactive({
+  facePhoto: '',
+  timeRange: [] as string[],
+})
+
+const trackRules = {
+  facePhoto: [{ required: true, message: '请上传人脸照片', trigger: 'change' }],
+  timeRange: [{ required: true, type: 'array' as const, message: '请选择查询时间段', trigger: 'change' }],
+}
+
+/** 打开新增查询弹窗 */
+const handleAddTrack = () => {
+  resetTrackForm()
+  trackModalVisible.value = true
+}
+
+/** 重置表单 */
+const resetTrackForm = () => {
+  trackForm.facePhoto = ''
+  trackForm.timeRange = []
+  fileList.value = []
+  trackFormRef.value?.resetFields()
+}
+
+/** 文件上传前处理：转为Base64编码字符串 */
+const handleBeforeUpload = (file: File) => {
+  const reader = new FileReader()
+  reader.readAsDataURL(file)
+  reader.onload = () => {
+    const base64 = reader.result as string
+    trackForm.facePhoto = base64
+    fileList.value = [
+      {
+        uid: String(Date.now()),
+        name: file.name,
+        status: 'done',
+        url: base64,
+      } as UploadFile,
+    ]
+    // 手动触发校验清除
+    trackFormRef.value?.validateFields('facePhoto')
+  }
+  return false
+}
+
+/** 移除照片 */
+const handleRemovePhoto = () => {
+  trackForm.facePhoto = '' 
+  fileList.value = []
+  return true
+}
+
+/** 提交新增查询 */
+const handleTrackSubmit = async () => {
+  try {
+    await trackFormRef.value?.validate()
+    trackModalLoading.value = true
+    await addTrackQuery({
+      facePhoto: trackForm.facePhoto,
+      startTime: trackForm.timeRange[0],
+      endTime: trackForm.timeRange[1],
+    })
+    message.success('查询提交成功')
+    trackModalVisible.value = false
+  } catch (error) {
+    console.error('提交人员轨迹查询失败:', error)
+  } finally {
+    trackModalLoading.value = false
+  }
+}
+
+/** 取消 */
+const handleTrackCancel = () => {
+  trackModalVisible.value = false
+}
 </script>
 
 <style scoped lang="less">
