@@ -1,0 +1,99 @@
+{
+  "accessors" : [ {
+    "bufferView" : 0,
+    "byteOffset" : 0,
+    "componentType" : 5123,
+    "count" : 1887,
+    "type" : "SCALAR",
+    "max" : [ 1885 ],
+    "min" : [ 0 ]
+  }, {
+    "bufferView" : 1,
+    "byteOffset" : 0,
+    "componentType" : 5126,
+    "count" : 1886,
+    "type" : "VEC3",
+    "max" : [ 48.0504, 31.4236, 23.6896 ],
+    "min" : [ -48.0504, -31.4236, -2.5522 ]
+  }, {
+    "bufferView" : 2,
+    "byteOffset" : 0,
+    "componentType" : 5126,
+    "count" : 1886,
+    "type" : "VEC2",
+    "max" : [ 0.8668, 0.6172 ],
+    "min" : [ 0.0844, 0.13069999 ]
+  }, {
+    "bufferView" : 3,
+    "byteOffset" : 0,
+    "componentType" : 5126,
+    "count" : 1886,
+    "type" : "VEC3",
+    "max" : [ 0.88599795, 0.99742246, 0.9998604 ],
+    "min" : [ -0.9380957, -0.8969565, -0.089797966 ]
+  } ],
+  "asset" : {
+    "generator" : "JglTF from https://github.com/javagl/JglTF",
+    "version" : "2.0"
+  },
+  "buffers" : [ {
+    "uri" : "buffer.bin",
+    "byteLength" : 64128
+  } ],
+  "bufferViews" : [ {
+    "buffer" : 0,
+    "byteOffset" : 0,
+    "byteLength" : 3774,
+    "target" : 34963
+  }, {
+    "buffer" : 0,
+    "byteOffset" : 3776,
+    "byteLength" : 22632,
+    "target" : 34962
+  }, {
+    "buffer" : 0,
+    "byteOffset" : 26408,
+    "byteLength" : 15088,
+    "target" : 34962
+  }, {
+    "buffer" : 0,
+    "byteOffset" : 41496,
+    "byteLength" : 22632,
+    "target" : 34962
+  } ],
+  "materials" : [ {
+    "pbrMetallicRoughness" : {
+      "baseColorFactor" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "baseColorTexture" : {
+        "index" : 0
+      },
+      "metallicFactor" : 0.0,
+      "roughnessFactor" : 1.0
+    },
+    "alphaMode" : "OPAQUE",
+    "doubleSided" : true
+  } ],
+  "meshes" : [ {
+    "primitives" : [ {
+      "attributes" : {
+        "POSITION" : 1,
+        "TEXCOORD_0" : 2,
+        "NORMAL" : 3
+      },
+      "indices" : 0,
+      "material" : 0,
+      "mode" : 4
+    } ]
+  } ],
+  "nodes" : [ {
+    "mesh" : 0
+  } ],
+  "samplers" : [ { } ],
+  "scene" : 0,
+  "scenes" : [ {
+    "nodes" : [ 0 ]
+  } ],
+  "textures" : [ {
+    "sampler" : 0
+  } ]
+}

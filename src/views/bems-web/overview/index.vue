@@ -158,10 +158,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import dayjs from 'dayjs'
 import { StatCard } from '/@/views/bems-web/components'
 import AlertCard from '/@/views/bems-web/components/AlertCard/index.vue'
+import { getTodayExhibitionActivity } from './index.api'
+import type { ActiveMeetInfo } from './index.api'
 import {
   TeamOutlined,
   ThunderboltOutlined,
@@ -227,12 +230,65 @@ const alertList = [
 ]
 
 // ===== 今日会展活动 =====
-const todayEvents = [
-  { time: '08:00 - 18:00', title: '2026国际智能制造博览会', location: 'A馆1-3层', visitors: '8,000', status: 'normal', statusLabel: '正常' },
-  { time: '09:00 - 17:00', title: '新能源产业高峰论坛', location: 'B馆会议中心', visitors: '2,500', status: 'normal', statusLabel: '正常' },
-  { time: '14:00 - 20:00', title: '夏季汽车消费展', location: 'C馆室外广场', visitors: '5,000', status: 'warning', statusLabel: '筹备中' },
-  { time: '明日 09:00', title: '数字文创产业交易会', location: 'A馆4层', visitors: '6,000', status: 'info', statusLabel: '待开始' },
-]
+interface TodayEvent {
+  id: number | string
+  time: string
+  title: string
+  location: string
+  visitors: string
+  status: string
+  statusLabel: string
+}
+
+const todayEvents = ref<TodayEvent[]>([])
+
+const fetchTodayEvents = async () => {
+  try {
+    const res = await getTodayExhibitionActivity({
+      startDate: dayjs().format('YYYY-MM-DD'),
+    })
+    const records = res?.records || []
+    const now = dayjs()
+    todayEvents.value = records.map((item: ActiveMeetInfo) => {
+      const startStr = item.startTime ? item.startTime.substring(0, 5) : ''
+      const endStr = item.endTime ? item.endTime.substring(0, 5) : ''
+      const timeRange = startStr && endStr ? `${startStr} - ${endStr}` : (startStr || endStr || '--')
+
+      // 根据当前时间与活动时间计算状态
+      let status = 'info'
+      let statusLabel = '待开始'
+      if (startStr && endStr) {
+        const todayDate = dayjs().format('YYYY-MM-DD')
+        const start = dayjs(`${todayDate} ${startStr}:00`)
+        const end = dayjs(`${todayDate} ${endStr}:00`)
+        if (now.isAfter(end)) {
+          status = 'info'
+          statusLabel = '已结束'
+        } else if (now.isAfter(start) && now.isBefore(end)) {
+          status = 'normal'
+          statusLabel = '进行中'
+        } else if (now.isBefore(start)) {
+          status = 'warning'
+          statusLabel = '筹备中'
+        }
+      }
+
+      const location = [item.venueName, item.venueFloors].filter(Boolean).join(' ') || '--'
+
+      return {
+        id: item.id || item.activeName || '',
+        time: timeRange,
+        title: item.activeName || '--',
+        location,
+        visitors: item.peopleQuantity != null ? String(item.peopleQuantity) : '--',
+        status,
+        statusLabel,
+      }
+    })
+  } catch (error) {
+    console.error('获取今日会展活动失败:', error)
+  }
+}
 
 // ===== 子系统对接 =====
 const subsystems = [
@@ -257,6 +313,10 @@ const handleViewAllAlerts = () => {
 const handleAlertAction = (alert: { title: string }, type: string) => {
   console.log('Alert action:', alert.title, type)
 }
+
+onMounted(() => {
+  fetchTodayEvents()
+})
 </script>
 
 <style scoped lang="less">

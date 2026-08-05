@@ -1,0 +1,189 @@
+{
+  "accessors": [
+    {
+      "name": "Plane001_1_0_positions",
+      "componentType": 5126,
+      "count": 25,
+      "min": [
+        -1,
+        -0.10000000149011612,
+        0
+      ],
+      "max": [
+        1,
+        0.10000000149011612,
+        0
+      ],
+      "type": "VEC3",
+      "bufferView": 0,
+      "byteOffset": 0
+    },
+    {
+      "name": "Plane001_1_0_normals",
+      "componentType": 5126,
+      "count": 25,
+      "min": [
+        0,
+        0,
+        1
+      ],
+      "max": [
+        0,
+        0,
+        1
+      ],
+      "type": "VEC3",
+      "bufferView": 1,
+      "byteOffset": 0
+    },
+    {
+      "name": "Plane001_1_0_texcoords",
+      "componentType": 5126,
+      "count": 25,
+      "min": [
+        0,
+        0
+      ],
+      "max": [
+        1,
+        1
+      ],
+      "type": "VEC2",
+      "bufferView": 2,
+      "byteOffset": 0
+    },
+    {
+      "name": "Plane001_1_0_indices",
+      "componentType": 5123,
+      "count": 96,
+      "min": [
+        0
+      ],
+      "max": [
+        24
+      ],
+      "type": "SCALAR",
+      "bufferView": 3,
+      "byteOffset": 0
+    }
+  ],
+  "asset": {
+    "generator": "obj2gltf",
+    "version": "2.0"
+  },
+  "buffers": [
+    {
+      "name": "hx_001",
+      "byteLength": 992,
+      "uri": "data:application/octet-stream;base64,AACAv83MzL0AAAAAAAAAv83MzL0AAAAAAAAAv83MTL0AAAAAAACAv83MTL0AAAAAAAAAAM3MzL0AAAAAAAAAAM3MTL0AAAAAAAAAP83MzL0AAAAAAAAAP83MTL0AAAAAAACAP83MzL0AAAAAAACAP83MTL0AAAAAAAAAvwAAAAAAAAAAAACAvwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPwAAAAAAAAAAAACAPwAAAAAAAAAAAAAAv83MTD0AAAAAAACAv83MTD0AAAAAAAAAAM3MTD0AAAAAAAAAP83MTD0AAAAAAACAP83MTD0AAAAAAAAAv83MzD0AAAAAAACAv83MzD0AAAAAAAAAAM3MzD0AAAAAAAAAP83MzD0AAAAAAACAP83MzD0AAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAgD8AAIA+AACAPwAAgD4AAEA/AAAAAAAAQD8AAAA/AACAPwAAAD8AAEA/AABAPwAAgD8AAEA/AABAPwAAgD8AAIA/AACAPwAAQD8AAIA+AAAAPwAAAAAAAAA/AAAAPwAAAD8AAEA/AAAAPwAAgD8AAAA/AACAPgAAgD4AAAAAAACAPgAAAD8AAIA+AABAPwAAgD4AAIA/AACAPgAAgD4AAAAAAAAAAAAAAAAAAAA/AAAAAAAAQD8AAAAAAACAPwAAAAAAAAEAAgACAAMAAAABAAQABQAFAAIAAQAEAAYABwAHAAUABAAGAAgACQAJAAcABgADAAIACgAKAAsAAwACAAUADAAMAAoAAgAFAAcADQANAAwABQAHAAkADgAOAA0ABwALAAoADwAPABAACwAKAAwAEQARAA8ACgAMAA0AEgASABEADAANAA4AEwATABIADQAQAA8AFAAUABUAEAAPABEAFgAWABQADwARABIAFwAXABYAEQASABMAGAAYABcAEgA="
+    }
+  ],
+  "bufferViews": [
+    {
+      "name": "bufferView_0",
+      "buffer": 0,
+      "byteLength": 300,
+      "byteOffset": 0,
+      "byteStride": 12,
+      "target": 34962
+    },
+    {
+      "name": "bufferView_1",
+      "buffer": 0,
+      "byteLength": 300,
+      "byteOffset": 300,
+      "byteStride": 12,
+      "target": 34962
+    },
+    {
+      "name": "bufferView_2",
+      "buffer": 0,
+      "byteLength": 200,
+      "byteOffset": 600,
+      "byteStride": 8,
+      "target": 34962
+    },
+    {
+      "name": "bufferView_3",
+      "buffer": 0,
+      "byteLength": 192,
+      "byteOffset": 800,
+      "target": 34963
+    }
+  ],
+  "images": [
+    {
+      "name": "h_001",
+      "uri": "h_001.jpg"
+    }
+  ],
+  "materials": [
+    {
+      "name": "Material__6525",
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 0
+        },
+        "baseColorFactor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "metallicFactor": 0,
+        "roughnessFactor": 0.99
+      },
+      "emissiveFactor": [
+        0,
+        0,
+        0
+      ],
+      "alphaMode": "OPAQUE",
+      "doubleSided": false
+    }
+  ],
+  "meshes": [
+    {
+      "name": "Plane001_1",
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 0,
+            "NORMAL": 1,
+            "TEXCOORD_0": 2
+          },
+          "indices": 3,
+          "material": 0,
+          "mode": 4
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "name": "Plane001",
+      "mesh": 0
+    }
+  ],
+  "samplers": [
+    {
+      "wrapS": 10497,
+      "wrapT": 10497
+    }
+  ],
+  "scene": 0,
+  "scenes": [
+    {
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "textures": [
+    {
+      "name": "h_001",
+      "sampler": 0,
+      "source": 0
+    }
+  ]
+}

@@ -1,0 +1,97 @@
+import { fwbzHttp } from '/@/utils/http/axios';
+
+enum Api {
+    /** 今日会展活动 */
+    todayExhibitionActivity = '/sgai-fwbz-dev/fwbz/activeMeet/info/listPage',
+}
+
+/**
+ * 今日会展活动
+ *
+ * IPageActiveMeetInfo
+ */
+export interface IPageActiveMeetInfo {
+    countId?: string;
+    current?: number;
+    maxLimit?: number;
+    optimizeCountSql?: boolean;
+    optimizeJoinOfCountSql?: boolean;
+    pages?: number;
+    records?: ActiveMeetInfo[];
+    searchCount?: boolean;
+    size?: number;
+    total?: number;
+    [property: string]: any;
+}
+
+
+/**
+ * 活动信息
+ *
+ * ActiveMeetInfo
+ */
+export interface ActiveMeetInfo {
+    /**
+     * 活动名称
+     */
+    activeName?: string;
+    /**
+     * 创建人
+     */
+    createBy?: string;
+    /**
+     * 创建日期
+     */
+    createTime?: string;
+    /**
+     * 结束时间
+     */
+    endTime?: string;
+    /**
+     * 主键
+     */
+    id?: number;
+    pageNo?: number;
+    pageSize?: number;
+    /**
+     * 预计人数
+     */
+    peopleQuantity?: number;
+    /**
+     * 开始日期
+     */
+    startDate?: string;
+    /**
+     * 开始时间
+     */
+    startTime?: string;
+    /**
+     * 所属部门
+     */
+    sysOrgCode?: string;
+    /**
+     * 更新人
+     */
+    updateBy?: string;
+    /**
+     * 更新日期
+     */
+    updateTime?: string;
+    /**
+     * 活动层数
+     */
+    venueFloors?: string;
+    /**
+     * 场馆id
+     */
+    venueId?: number;
+    /**
+     * 场馆名称（非数据库字段）
+     */
+    venueName?: string;
+    [property: string]: any;
+}
+
+/** 获取今日会展活动列表（入参: { startDate: 'YYYY-MM-DD' }） */
+export const getTodayExhibitionActivity = (params?: { startDate?: string }) =>
+  fwbzHttp.get({ url: Api.todayExhibitionActivity, params });

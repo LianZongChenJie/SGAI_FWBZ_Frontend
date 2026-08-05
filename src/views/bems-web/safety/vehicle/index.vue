@@ -21,11 +21,7 @@
           <span class="tag tag-green">运行正常</span>
         </div>
         <div class="card-body">
-          <div class="map-placeholder">
-            <div class="map-icon"><CarOutlined /></div>
-            <div class="map-text">停车场实时状态地图</div>
-            <div class="map-sub">P1停车场 85/120 | P2停车场 62/80 | P3停车场 45/60</div>
-          </div>
+          <ParkingMapView :data="parkingSpaceData" />
         </div>
       </div>
       <div class="card">
@@ -35,7 +31,7 @@
         </div>
         <div class="card-body">
           <!-- 今日汇总 -->
-          <div class="trend-summary">
+          <!-- <div class="trend-summary">
             <div class="summary-item">
               <span class="summary-label">今日进场</span>
               <span class="summary-value color-in">{{ trendData.todayInTotal }}</span>
@@ -50,7 +46,7 @@
               <span class="summary-label">今日总流量</span>
               <span class="summary-value color-total">{{ trendData.todayInOutTotal }}</span>
             </div>
-          </div>
+          </div> -->
           <!-- 趋势图表 -->
           <div ref="trendChartRef" class="trend-chart"></div>
         </div>
@@ -110,8 +106,9 @@
 import { ref, onMounted, onUnmounted, shallowRef, nextTick } from 'vue'
 import * as echarts from 'echarts'
 import { StatCard } from '/@/views/bems-web/components'
-import { getRecordList, getParkingLotList, getParkTypeList, getSummary } from './index.api'
-import type { Request, ParkingRecord, ParkingLotOption, ParkTypeOption, StatItem } from './index.api'
+import { getRecordList, getParkingLotList, getParkTypeList, getSummary, getParkingFlow24h, getParkingSpaceDistribution } from './index.api'
+import type { Request, ParkingRecord, ParkingLotOption, ParkTypeOption, StatItem, ParkingSpaceStatVO } from './index.api'
+import ParkingMapView from './ParkingMapView.vue'
 import {
   CarOutlined,
   ShopOutlined,
@@ -119,7 +116,6 @@ import {
   ClockCircleOutlined,
   BarChartOutlined,
   SearchOutlined,
-  DownloadOutlined,
 } from '@ant-design/icons-vue'
 
 defineOptions({ name: 'VehicleManagementPage' })
@@ -147,14 +143,46 @@ const fetchStatCards = async () => {
 
 // ===================== 停车流量趋势数据 =====================
 const trendData = ref({
-  date: ['00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00', '08:00'],
-  in: [20, 12, 6, 2, 2, 3, 14, 80, 290],
-  out: [35, 17, 8, 1, 1, 3, 6, 173, 57],
-  total: [55, 29, 14, 3, 3, 6, 20, 253, 347],
-  todayInTotal: 429,
-  todayOutTotal: 301,
-  todayInOutTotal: 730,
+  date: [] as string[],
+  in: [] as number[],
+  out: [] as number[],
+  total: [] as number[],
+  todayInTotal: 0,
+  todayOutTotal: 0,
+  todayInOutTotal: 0,
 })
+
+const fetchTrendData = async () => {
+  try {
+    const res = await getParkingFlow24h()
+    if (res) {
+      trendData.value = {
+        date: res.date || [],
+        in: res.in || [],
+        out: res.out || [],
+        total: res.total || [],
+        todayInTotal: res.todayInTotal || 0,
+        todayOutTotal: res.todayOutTotal || 0,
+        todayInOutTotal: res.todayInOutTotal || 0,
+      }
+      updateChart()
+    }
+  } catch (error) {
+    console.error('获取停车流量趋势失败:', error)
+  }
+}
+
+// ===================== 停车场实时状态（DaxiMap 室内地图） =====================
+const parkingSpaceData = ref<ParkingSpaceStatVO[]>([])
+
+const fetchParkingSpace = async () => {
+  try {
+    const res = await getParkingSpaceDistribution()
+    parkingSpaceData.value = res || []
+  } catch (error) {
+    console.error('获取停车场分布数据失败:', error)
+  }
+}
 
 // ===================== ECharts 图表 =====================
 const trendChartRef = ref<HTMLElement>()
@@ -169,7 +197,7 @@ const initChart = () => {
 const updateChart = () => {
   if (!chartInstance.value) return
   const data = trendData.value
-  const option: echarts.EChartsOption = {
+  const option: any = {
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
@@ -272,11 +300,56 @@ onMounted(() => {
   fetchParkTypeOptions()
   // 加载停车记录列表
   fetchVehicleData()
+  // 加载趋势图数据
+  fetchTrendData()
+  // 加载停车场分布数据（地图组件自行初始化）
+  fetchParkingSpace()
+  // 设置整点后10秒定时刷新
+  scheduleHourlyRefresh()
 })
+
+// ====== 整点后10秒定时刷新 ======
+let hourlyTimeout: ReturnType<typeof setTimeout> | null = null
+let hourlyInterval: ReturnType<typeof setInterval> | null = null
+
+/** 计算距离下一个整点后10秒的毫秒数 */
+const getMsToNextHour10 = (): number => {
+  const now = new Date()
+  const target = new Date(now)
+  target.setMinutes(0, 10, 0) // 当前小时的 :00:10
+  // 如果当前已过 :00:10，则目标为下一个小时的 :00:10
+  if (target.getTime() <= now.getTime()) {
+    target.setHours(target.getHours() + 1)
+  }
+  return target.getTime() - now.getTime()
+}
+
+/** 定时刷新趋势图和停车场分布数据 */
+const scheduleHourlyRefresh = () => {
+  const ms = getMsToNextHour10()
+  hourlyTimeout = setTimeout(() => {
+    fetchTrendData()
+    fetchParkingSpace()
+    // 之后每 1 小时刷新一次
+    hourlyInterval = setInterval(() => {
+      fetchTrendData()
+      fetchParkingSpace()
+    }, 60 * 60 * 1000)
+  }, ms)
+}
 
 onUnmounted(() => {
   window.removeEventListener('resize', resizeChart)
   chartInstance.value?.dispose()
+  // 清理定时器
+  if (hourlyTimeout) {
+    clearTimeout(hourlyTimeout)
+    hourlyTimeout = null
+  }
+  if (hourlyInterval) {
+    clearInterval(hourlyInterval)
+    hourlyInterval = null
+  }
 })
 
 // ===================== 车辆出入记录（接口驱动） =====================
