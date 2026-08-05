@@ -5,48 +5,53 @@
       <StatCard
         label="新风机组总数"
         :value="24"
-        change-text="↑ 6 新增"
-        trend="up"
+        change-text=""
+        trend=""
         color="blue"
-        :icon="ThunderboltOutlined"
+        :icon="FreshUnitTotalIcon"
       />
       <StatCard
         label="运行中"
         :value="24"
-        change-text="100% 运行率"
-        trend="up"
+        change-text=""
+        trend=""
         color="green"
-        :icon="CheckCircleOutlined"
+        :icon="RunningIcon"
       />
       <StatCard
-        label="平均CO₂浓度"
-        :value="'520'"
-        change-text="↓ 8% ppm"
-        trend="down"
+        label="平均PM2.5"
+        :value="'18'"
+        change-text=""
+        trend=""
         color="orange"
-        :icon="CloudOutlined"
+        :icon="AvgPm25Icon"
       />
       <StatCard
-        label="今日换气次数"
-        :value="'6.5'"
-        change-text="↑ 0.5 次/h"
-        trend="up"
+        label="今日能耗"
+        :value="'3,456'"
+        change-text=""
+        trend=""
         color="purple"
-        :icon="SyncOutlined"
+        :icon="TodayEnergyIcon"
       />
     </div>
 
     <!-- 实时监测表格 -->
     <div class="card">
       <div class="card-header">
-        <h3><ThunderboltOutlined /> 新风机组实时监测</h3>
+        <h3>🌀新风机组实时监测</h3>
         <div class="filter-bar">
-          <a-select v-model:value="filterVenue" placeholder="全部场馆" style="width: 140px" allow-clear>
-            <a-select-option value="">全部场馆</a-select-option>
-            <a-select-option value="A馆">A馆</a-select-option>
-            <a-select-option value="B馆">B馆</a-select-option>
-            <a-select-option value="C馆">C馆</a-select-option>
-          </a-select>
+          <a-tree-select
+            v-model:value="meterSpace"
+            :tree-data="spaceTreeData"
+            :field-names="{ children: 'children', label: 'title', value: 'key', key: 'key' }"
+            placeholder="设备位置"
+            allow-clear
+            tree-default-expand-all
+            style="width: 200px"
+            :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
+            @change="handleSearch"
+          />
           <a-button type="primary" @click="handleSearch">🔍 查询</a-button>
         </div>
       </div>
@@ -54,9 +59,10 @@
         <a-table
           :dataSource="filteredTableData"
           :columns="columns"
-          :pagination="{ pageSize: 10 }"
+          :pagination="pagination"
           :scroll="{ x: 1100 }"
           size="middle"
+          @change="handleTableChange"
         >
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'status'">
@@ -76,22 +82,22 @@
     <div class="two-col">
       <div class="card">
         <div class="card-header">
-          <h3><CloudOutlined /> 各区域CO₂浓度分布</h3>
+          <h3>💨各区域CO₂浓度分布</h3>
         </div>
         <div class="card-body">
           <div class="chart-placeholder">
-            <div class="chart-icon"><BarChartOutlined /></div>
+            <div class="chart-icon">📊</div>
             <div class="chart-text">各区域CO₂浓度实时柱状图</div>
           </div>
         </div>
       </div>
       <div class="card">
         <div class="card-header">
-          <h3><SyncOutlined /> 新风量与客流关联</h3>
+          <h3>🔄新风量与客流关联</h3>
         </div>
         <div class="card-body">
           <div class="chart-placeholder">
-            <div class="chart-icon"><BarChartOutlined /></div>
+            <div class="chart-icon">📊</div>
             <div class="chart-text">新风量与场馆客流关联分析</div>
           </div>
         </div>
@@ -101,12 +107,12 @@
     <!-- 工艺图监控 - 新风系统 -->
     <div class="card">
       <div class="card-header">
-        <h3><BankOutlined /> 工艺图监控 - 新风系统</h3>
+        <h3>🏭工艺图监控 - 新风系统</h3>
         <a-tag color="green">实时</a-tag>
       </div>
       <div class="card-body">
         <div class="chart-placeholder" style="min-height: 300px">
-          <div class="chart-icon"><BankOutlined /></div>
+          <div class="chart-icon">🏭</div>
           <div class="chart-text">新风系统工艺流程监控图</div>
           <div style="font-size: 12px; color: #a0aec0; margin-top: 8px">
             新风入口 → 过滤网 → 表冷器 → 送风机 → PM2.5监测 → 送风出口 | 实时参数叠加显示
@@ -118,16 +124,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, reactive, computed, watch, h, onMounted } from 'vue'
 import { StatCard } from '/@/views/bems-web/components'
-import {
-  ThunderboltOutlined,
-  CheckCircleOutlined,
-  CloudOutlined,
-  SyncOutlined,
-  BarChartOutlined,
-  BankOutlined,
-} from '@ant-design/icons-vue'
+import { spaceTree } from '/@/views/bems-web/equipment/equipmentManagement/elements/device/Device.api'
+
+// 自定义 emoji 图标组件
+const FreshUnitTotalIcon = () => h('span', { style: 'font-size: 20px;' }, '🌀')
+const RunningIcon = () => h('span', { style: 'font-size: 20px;' }, '✅')
+const AvgPm25Icon = () => h('span', { style: 'font-size: 20px;' }, '💨')
+const TodayEnergyIcon = () => h('span', { style: 'font-size: 20px;' }, '⚡')
 
 defineOptions({ name: 'FreshTab' })
 
@@ -135,8 +140,28 @@ defineProps<{
   data?: any
 }>()
 
-// 筛选条件
-const filterVenue = ref('')
+// 设备位置树数据
+const meterSpace = ref([])
+const spaceTreeData = ref([])
+const loadSpaceTree = async () => {
+  try {
+    const res = await spaceTree()
+    spaceTreeData.value = Array.isArray(res) ? res : (res.data || res.records || [])
+  } catch (e) {
+    console.error('加载空间树数据失败:', e)
+  }
+}
+
+// 分页
+const pagination = reactive({
+  current: 1,
+  pageSize: 10,
+  total: 0,
+  showSizeChanger: true,
+  showQuickJumper: true,
+  showTotal: (total: number) => `共 ${total} 条数据`,
+  pageSizeOptions: ['10', '20', '50', '100'],
+})
 
 // 表格列定义
 const columns = [
@@ -164,14 +189,30 @@ const tableData = [
 // 筛选逻辑
 const filteredTableData = computed(() => {
   return tableData.filter((item) => {
-    const matchVenue = !filterVenue.value || item.location.includes(filterVenue.value)
+    const matchVenue = !meterSpace.value || !meterSpace.value.length || item.location.includes(String(meterSpace.value))
     return matchVenue
   })
 })
 
+// 翻页数据变化时更新总数
+watch(filteredTableData, (data) => {
+  pagination.total = data.length
+}, { immediate: true })
+
 const handleSearch = () => {
-  console.log('查询:', { venue: filterVenue.value })
+  pagination.current = 1
+  pagination.total = filteredTableData.value.length
 }
+
+// 表格分页变化
+const handleTableChange = (pag: any) => {
+  pagination.current = pag.current
+  pagination.pageSize = pag.pageSize
+}
+
+onMounted(() => {
+  loadSpaceTree()
+})
 </script>
 
 <style scoped lang="less">

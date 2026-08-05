@@ -8,7 +8,7 @@
         change-text="↑ 2 新增"
         trend="up"
         color="blue"
-        :icon="FireOutlined"
+        :icon="ColdSourceTotalIcon"
       />
       <StatCard
         label="运行中"
@@ -16,7 +16,7 @@
         change-text="87.5% 运行率"
         trend="up"
         color="green"
-        :icon="CheckCircleOutlined"
+        :icon="RunningIcon"
       />
       <StatCard
         label="今日制冷量"
@@ -24,7 +24,7 @@
         change-text="↑ 8.5% RT"
         trend="up"
         color="orange"
-        :icon="ExperimentOutlined"
+        :icon="TodayCoolingIcon"
       />
       <StatCard
         label="平均COP"
@@ -32,14 +32,14 @@
         change-text="↑ 0.4 较上周"
         trend="up"
         color="purple"
-        :icon="ArrowUpOutlined"
+        :icon="AvgCopIcon"
       />
     </div>
 
     <!-- 实时监测表格 -->
     <div class="card">
       <div class="card-header">
-        <h3><FireOutlined /> 冷源系统实时监测</h3>
+        <h3>❄️冷源系统实时监测</h3>
         <div class="filter-bar">
           <a-select v-model:value="filterType" placeholder="全部机组" style="width: 140px" allow-clear>
             <a-select-option value="">全部机组</a-select-option>
@@ -76,22 +76,22 @@
     <div class="two-col">
       <div class="card">
         <div class="card-header">
-          <h3><BarChartOutlined /> 冷源系统能效趋势</h3>
+          <h3>📈冷源系统能效趋势</h3>
         </div>
         <div class="card-body">
           <div class="chart-placeholder">
-            <div class="chart-icon"><BarChartOutlined /></div>
+            <div class="chart-icon">📊</div>
             <div class="chart-text">各冷机COP与负荷率趋势</div>
           </div>
         </div>
       </div>
       <div class="card">
         <div class="card-header">
-          <h3><ExperimentOutlined /> 冷冻水系统压差</h3>
+          <h3>🧊冷冻水系统压差</h3>
         </div>
         <div class="card-body">
           <div class="chart-placeholder">
-            <div class="chart-icon"><BarChartOutlined /></div>
+            <div class="chart-icon">📊</div>
             <div class="chart-text">冷冻水供回水压差与流量</div>
           </div>
         </div>
@@ -101,12 +101,12 @@
     <!-- 工艺图监控 - 冷源系统 -->
     <div class="card">
       <div class="card-header">
-        <h3><BankOutlined /> 工艺图监控 - 冷源系统</h3>
+        <h3>🏭工艺图监控 - 冷源系统</h3>
         <a-tag color="purple">实时</a-tag>
       </div>
       <div class="card-body">
         <div class="chart-placeholder" style="min-height: 300px">
-          <div class="chart-icon"><BankOutlined /></div>
+          <div class="chart-icon">🏭</div>
           <div class="chart-text">冷源系统工艺流程监控图</div>
           <div style="font-size: 12px; color: #a0aec0; margin-top: 8px">
             冷却塔 → 冷却水泵 → 冷水机组 → 冷冻水泵 → 分水器 → 末端空调 → 集水器 → 回冷水机组 | 实时水温/流量/压力叠加显示
@@ -118,16 +118,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, h } from 'vue'
 import { StatCard } from '/@/views/bems-web/components'
-import {
-  FireOutlined,
-  CheckCircleOutlined,
-  ExperimentOutlined,
-  ArrowUpOutlined,
-  BarChartOutlined,
-  BankOutlined,
-} from '@ant-design/icons-vue'
+
+// 自定义 emoji 图标组件
+const ColdSourceTotalIcon = () => h('span', { style: 'font-size: 20px;' }, '❄️')
+const RunningIcon = () => h('span', { style: 'font-size: 20px;' }, '✅')
+const TodayCoolingIcon = () => h('span', { style: 'font-size: 20px;' }, '🧊')
+const AvgCopIcon = () => h('span', { style: 'font-size: 20px;' }, '📈')
 
 defineOptions({ name: 'ColdTab' })
 

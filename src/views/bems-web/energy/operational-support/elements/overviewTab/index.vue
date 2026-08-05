@@ -2,36 +2,36 @@
   <div class="energy-page">
     <div class="stat-cards">
       <StatCard
-        label="今日用电量"
+        label="对接子系统数"
         :value="statData.todayPower"
         change-text="较昨日下降 5.2%"
         trend="down"
         color="blue"
-        :icon="ThunderboltOutlined"
+        :icon="ClipboardIcon"
       />
       <StatCard
-        label="今日用水量"
+        label="设备在线率"
         :value="statData.todayWater"
         change-text="较昨日上升 2.1%"
         trend="up"
         color="green"
-        :icon="ShopOutlined"
+        :icon="CheckSquareIcon"
       />
       <StatCard
-        label="碳排放量"
+        label="远程控制设备"
         :value="statData.carbonEmission"
         change-text="较昨日下降 3.8%"
         trend="down"
         color="orange"
-        :icon="CloudOutlined"
+        :icon="ThunderIcon"
       />
       <StatCard
-        label="设备运行率"
+        label="今日指令下发"
         :value="statData.deviceRate"
         change-text="较昨日上升 1.2%"
         trend="up"
         color="purple"
-        :icon="SettingOutlined"
+        :icon="WaterDropIcon"
       />
       
     </div>
@@ -67,7 +67,7 @@
             <a-select-option value="C馆">C馆</a-select-option>
           </a-select>
 
-          <a-button type="primary" @click="handleSearch">查询</a-button>
+          <a-button type="primary" @click="handleSearch">🔍查询</a-button>
         </div>
       </div>
 
@@ -99,29 +99,35 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, h } from 'vue';
 import { StatCard, DeviceCard} from '/@/views/bems-web/components';
 import ControlPanel, { AcControlItem, LightingControlItem } from '../controlPanel/index.vue';
-
-import {
-  ThunderboltOutlined,
-  ShopOutlined,
-  CloudOutlined,
-  SettingOutlined,
-  BulbOutlined,
-
-} from '@ant-design/icons-vue'
 
 
 // ===== 筛选条件 =====
 const filterSystem = ref('')
 const filterVenue = ref('')
 
+// 自定义 emoji 图标组件
+const ClipboardIcon = () => h('span', { style: 'font-size: 20px;' }, '🔌')
+const CheckSquareIcon = () => h('span', { style: 'font-size: 20px;' }, '📶')
+const ThunderIcon = () => h('span', { style: 'font-size: 20px;' }, '🎮')
+const WaterDropIcon = () => h('span', { style: 'font-size: 20px;' }, '📤')
+const AirConditionerIcon = () => h('span', { style: 'font-size: 20px;' }, '🌡️')
+const LightingCircuitIcon = () => h('span', { style: 'font-size: 20px;' }, '💡')
+const DistributionCabinetIcon = () => h('span', { style: 'font-size: 20px;' }, '⚡')
+const WaterPumpIcon = () => h('span', { style: 'font-size: 20px;' }, '🌊')
+const FreshAirUnitIcon = () => h('span', { style: 'font-size: 20px;' }, '🌀')
+const FireEquipmentIcon = () => h('span', { style: 'font-size: 20px;' }, '🔥')
+const ColdSourceUnitIcon = () => h('span', { style: 'font-size: 20px;' }, '❄️')
+const PhotovoltaicIcon = () => h('span', { style: 'font-size: 20px;' }, '☀️')
+
 // ===== 原始数据 =====
 const allData = [
   {
     title: '空调机组',
     meta: '楼控系统',
+    icon: AirConditionerIcon,
     iconBg: '#e6f4ff',
     iconColor: '#1677ff',
     stats: [
@@ -135,7 +141,7 @@ const allData = [
   {
     title: '照明回路',
     meta: '照明系统',
-    icon: BulbOutlined,
+    icon: LightingCircuitIcon,
     iconBg: '#f6ffed',
     iconColor: '#52c41a',
     stats: [
@@ -149,7 +155,7 @@ const allData = [
   {
     title: '配电柜',
     meta: '低压配电',
-    icon: ThunderboltOutlined,
+    icon: DistributionCabinetIcon,
     iconBg: '#fffbe6',
     iconColor: '#faad14',
     stats: [
@@ -163,6 +169,7 @@ const allData = [
   {
     title: '给排水泵',
     meta: '楼控系统',
+    icon: WaterPumpIcon,
     iconBg: '#e6fffb',
     iconColor: '#13c2c2',
     stats: [
@@ -176,6 +183,7 @@ const allData = [
   {
     title: '新风机组',
     meta: '楼控系统',
+    icon: FreshAirUnitIcon,
     iconBg: '#f9f0ff',
     iconColor: '#722ed1',
     stats: [
@@ -189,6 +197,7 @@ const allData = [
   {
     title: '消防设备',
     meta: '消防系统',
+    icon: FireEquipmentIcon,
     iconBg: '#fff2f0',
     iconColor: '#ff4d4f',
     stats: [
@@ -202,6 +211,7 @@ const allData = [
   {
     title: '冷源机组',
     meta: '制冷系统',
+    icon: ColdSourceUnitIcon,
     iconBg: '#e6f7ff',
     iconColor: '#0099cc',
     stats: [
@@ -215,6 +225,7 @@ const allData = [
   {
     title: '光伏设备',
     meta: '新能源',
+    icon: PhotovoltaicIcon,
     iconBg: '#fff7e6',
     iconColor: '#fa8c16',
     stats: [
@@ -268,13 +279,14 @@ const handleCardClick = (item: any) => {
 console.log(11111111)
 
 const statData = {
-  todayPower: '1,286 kWh',
-  todayWater: '326 m³',
-  carbonEmission: '852 kg',
-  deviceRate: '96.5%',
+  todayPower: '12',
+  todayWater: '97.8%',
+  carbonEmission: '2,456',
+  deviceRate: '1,234',
   alarmTotal: '3 条',
   savings: '¥ 12,580',
 }
+
 </script>
 
 <style scoped lang="less">

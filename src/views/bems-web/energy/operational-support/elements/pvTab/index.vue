@@ -8,7 +8,7 @@
         :change-text="data?.stats?.[0]?.changeText ?? '↑ 4 新增'"
         trend="up"
         color="blue"
-        :icon="FieldNumberOutlined"
+        :icon="PvStringCountIcon"
       />
       <StatCard
         label="装机容量"
@@ -16,7 +16,7 @@
         :change-text="data?.stats?.[1]?.changeText ?? 'kW'"
         trend="up"
         color="green"
-        :icon="ThunderboltOutlined"
+        :icon="InstalledCapacityIcon"
       />
       <StatCard
         label="今日发电量"
@@ -24,7 +24,7 @@
         :change-text="data?.stats?.[2]?.changeText ?? '↑ 12.3% kWh'"
         trend="up"
         color="orange"
-        :icon="ThunderboltOutlined"
+        :icon="TodayGenerationIcon"
       />
       <StatCard
         label="发电效率"
@@ -32,14 +32,14 @@
         :change-text="data?.stats?.[3]?.changeText ?? '↑ 0.8% 较昨日'"
         trend="up"
         color="purple"
-        :icon="ArrowUpOutlined"
+        :icon="GenerationEfficiencyIcon"
       />
     </div>
 
     <!-- 实时监测表格 -->
     <div class="card">
       <div class="card-header">
-        <h3><SunOutlined /> 光伏系统实时监测</h3>
+        <h3>☀️光伏系统实时监测</h3>
         <div class="filter-bar">
           <a-select v-model:value="filterArea" placeholder="全部区域" style="width: 140px" allow-clear>
             <a-select-option value="">全部区域</a-select-option>
@@ -77,22 +77,22 @@
     <div class="two-col">
       <div class="card">
         <div class="card-header">
-          <h3><BarChartOutlined /> 光伏发电趋势</h3>
+          <h3>📈光伏发电趋势</h3>
         </div>
         <div class="card-body">
           <div class="chart-placeholder">
-            <div class="chart-icon"><BarChartOutlined /></div>
+            <div class="chart-icon">📊</div>
             <div class="chart-text">今日光伏发电功率曲线</div>
           </div>
         </div>
       </div>
       <div class="card">
         <div class="card-header">
-          <h3><SunOutlined /> 发电效率分析</h3>
+          <h3>🌤️发电效率分析</h3>
         </div>
         <div class="card-body">
           <div class="chart-placeholder">
-            <div class="chart-icon"><BarChartOutlined /></div>
+            <div class="chart-icon">📊</div>
             <div class="chart-text">辐照度-发电量关联分析</div>
           </div>
         </div>
@@ -102,12 +102,12 @@
     <!-- 工艺图监控 - 光伏系统（只在光伏系统tab展示） -->
     <div class="card">
       <div class="card-header">
-        <h3><BankOutlined /> 工艺图监控 - 光伏系统</h3>
+        <h3>🏭工艺图监控 - 光伏系统</h3>
         <a-tag color="green">实时</a-tag>
       </div>
       <div class="card-body">
         <div class="chart-placeholder" style="min-height: 300px">
-          <div class="chart-icon"><BankOutlined /></div>
+          <div class="chart-icon">🏭</div>
           <div class="chart-text">光伏系统拓扑监控图</div>
           <div style="font-size: 12px; color: #a0aec0; margin-top: 8px">
             光伏组串 → 汇流箱 → 逆变器 → 交流配电柜 → 并网柜/储能 → 负载/电网 | 实时电压/功率/发电量叠加显示
@@ -119,15 +119,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, h } from 'vue'
 import { StatCard } from '/@/views/bems-web/components'
-import {
-  ThunderboltOutlined,
-  ArrowUpOutlined,
-  BarChartOutlined,
-  BankOutlined,
-  FieldNumberOutlined
-} from '@ant-design/icons-vue'
+
+// 自定义 emoji 图标组件
+const PvStringCountIcon = () => h('span', { style: 'font-size: 20px;' }, '☀️')
+const InstalledCapacityIcon = () => h('span', { style: 'font-size: 20px;' }, '⚡')
+const TodayGenerationIcon = () => h('span', { style: 'font-size: 20px;' }, '🔋')
+const GenerationEfficiencyIcon = () => h('span', { style: 'font-size: 20px;' }, '📈')
 
 defineOptions({ name: 'PvTab' })
 

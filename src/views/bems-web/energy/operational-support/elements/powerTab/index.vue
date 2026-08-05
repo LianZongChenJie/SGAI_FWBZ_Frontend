@@ -8,7 +8,7 @@
         change-text="↑ 8 新增"
         trend="up"
         color="blue"
-        :icon="ThunderboltOutlined"
+        :icon="PowerCabinetTotalIcon"
       />
       <StatCard
         label="正常运行"
@@ -16,7 +16,7 @@
         change-text="100% 正常"
         trend="up"
         color="green"
-        :icon="CheckCircleOutlined"
+        :icon="NormalRunningIcon"
       />
       <StatCard
         label="今日用电量"
@@ -24,7 +24,7 @@
         change-text="↓ 6.8% kWh"
         trend="down"
         color="orange"
-        :icon="PoweroffOutlined"
+        :icon="TodayPowerIcon"
       />
       <StatCard
         label="功率因数"
@@ -32,21 +32,26 @@
         change-text="↑ 0.02 较昨日"
         trend="up"
         color="purple"
-        :icon="DashboardOutlined"
+        :icon="PowerFactorIcon"
       />
     </div>
 
     <!-- 实时监测表格 -->
     <div class="card">
       <div class="card-header">
-        <h3><ThunderboltOutlined /> 配电系统实时监测</h3>
+        <h3>⚡配电系统实时监测</h3>
         <div class="filter-bar">
-          <a-select v-model:value="filterVenue" placeholder="全部场馆" style="width: 140px" allow-clear>
-            <a-select-option value="">全部场馆</a-select-option>
-            <a-select-option value="A馆">A馆</a-select-option>
-            <a-select-option value="B馆">B馆</a-select-option>
-            <a-select-option value="C馆">C馆</a-select-option>
-          </a-select>
+          <a-tree-select
+            v-model:value="meterSpace"
+            :tree-data="spaceTreeData"
+            :field-names="{ children: 'children', label: 'title', value: 'key', key: 'key' }"
+            placeholder="设备位置"
+            allow-clear
+            tree-default-expand-all
+            style="width: 200px"
+            :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
+            @change="handleSearch"
+          />
           <a-button type="primary" @click="handleSearch">🔍 查询</a-button>
         </div>
       </div>
@@ -54,9 +59,10 @@
         <a-table
           :dataSource="filteredTableData"
           :columns="columns"
-          :pagination="{ pageSize: 10 }"
+          :pagination="pagination"
           :scroll="{ x: 1100 }"
           size="middle"
+          @change="handleTableChange"
         >
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'status'">
@@ -76,22 +82,22 @@
     <div class="two-col">
       <div class="card">
         <div class="card-header">
-          <h3><BarChartOutlined /> 各配电柜负载趋势</h3>
+          <h3>📈各配电柜负载趋势</h3>
         </div>
         <div class="card-body">
           <div class="chart-placeholder">
-            <div class="chart-icon"><BarChartOutlined /></div>
+            <div class="chart-icon">📊</div>
             <div class="chart-text">配电柜负载率分时曲线</div>
           </div>
         </div>
       </div>
       <div class="card">
         <div class="card-header">
-          <h3><HeatMapOutlined /> 柜内温度分布</h3>
+          <h3>🌡️柜内温度分布</h3>
         </div>
         <div class="card-body">
           <div class="chart-placeholder">
-            <div class="chart-icon"><BarChartOutlined /></div>
+            <div class="chart-icon">📊</div>
             <div class="chart-text">配电柜温度热力分布</div>
           </div>
         </div>
@@ -101,12 +107,12 @@
     <!-- 工艺图监控 - 配电系统 -->
     <div class="card">
       <div class="card-header">
-        <h3><BankOutlined /> 工艺图监控 - 配电系统</h3>
+        <h3>🏭工艺图监控 - 配电系统</h3>
         <a-tag color="orange">实时</a-tag>
       </div>
       <div class="card-body">
         <div class="chart-placeholder" style="min-height: 300px">
-          <div class="chart-icon"><BankOutlined /></div>
+          <div class="chart-icon">🏭</div>
           <div class="chart-text">配电系统单线拓扑监控图</div>
           <div style="font-size: 12px; color: #a0aec0; margin-top: 8px">
             市电进线 → 变压器 → 低压配电柜 → 各楼层分配电箱 → 末端设备 | 实时电压/电流/负载率叠加显示
@@ -118,17 +124,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, reactive, computed, watch, h, onMounted } from 'vue'
 import { StatCard } from '/@/views/bems-web/components'
-import {
-  ThunderboltOutlined,
-  CheckCircleOutlined,
-  PoweroffOutlined,
-  DashboardOutlined,
-  BarChartOutlined,
-  HeatMapOutlined,
-  BankOutlined,
-} from '@ant-design/icons-vue'
+import { spaceTree } from '/@/views/bems-web/equipment/equipmentManagement/elements/device/Device.api'
+
+// 自定义 emoji 图标组件
+const PowerCabinetTotalIcon = () => h('span', { style: 'font-size: 20px;' }, '⚡')
+const NormalRunningIcon = () => h('span', { style: 'font-size: 20px;' }, '✅')
+const TodayPowerIcon = () => h('span', { style: 'font-size: 20px;' }, '🔌')
+const PowerFactorIcon = () => h('span', { style: 'font-size: 20px;' }, '📐')
 
 defineOptions({ name: 'PowerTab' })
 
@@ -136,8 +140,28 @@ defineProps<{
   data?: any
 }>()
 
-// 筛选条件
-const filterVenue = ref('')
+// 设备位置树数据
+const meterSpace = ref([])
+const spaceTreeData = ref([])
+const loadSpaceTree = async () => {
+  try {
+    const res = await spaceTree()
+    spaceTreeData.value = Array.isArray(res) ? res : (res.data || res.records || [])
+  } catch (e) {
+    console.error('加载空间树数据失败:', e)
+  }
+}
+
+// 分页
+const pagination = reactive({
+  current: 1,
+  pageSize: 10,
+  total: 0,
+  showSizeChanger: true,
+  showQuickJumper: true,
+  showTotal: (total: number) => `共 ${total} 条数据`,
+  pageSizeOptions: ['10', '20', '50', '100'],
+})
 
 // 表格列定义
 const columns = [
@@ -165,14 +189,30 @@ const tableData = [
 // 筛选逻辑
 const filteredTableData = computed(() => {
   return tableData.filter((item) => {
-    const matchVenue = !filterVenue.value || item.location.includes(filterVenue.value)
+    const matchVenue = !meterSpace.value || !meterSpace.value.length || item.location.includes(String(meterSpace.value))
     return matchVenue
   })
 })
 
+// 翻页数据变化时更新总数
+watch(filteredTableData, (data) => {
+  pagination.total = data.length
+}, { immediate: true })
+
 const handleSearch = () => {
-  console.log('查询:', { venue: filterVenue.value })
+  pagination.current = 1
+  pagination.total = filteredTableData.value.length
 }
+
+// 表格分页变化
+const handleTableChange = (pag: any) => {
+  pagination.current = pag.current
+  pagination.pageSize = pag.pageSize
+}
+
+onMounted(() => {
+  loadSpaceTree()
+})
 </script>
 
 <style scoped lang="less">

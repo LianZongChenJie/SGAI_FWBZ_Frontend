@@ -63,6 +63,8 @@ const hasError = computed(() => {
 
 <style scoped lang="less">
 .device-card {
+  background: #f7fafc;
+  border: 1px solid #f0f0f0;
   border-radius: 12px;
   transition: all 0.25s ease;
 

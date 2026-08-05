@@ -60,7 +60,7 @@ const tabData = reactive({
     ],
     tableData: [
       {
-        id: 'PV-A-01',
+        code: 'PV-A-01',
         location: 'A馆屋顶-东',
         status: '发电',
         dcVoltage: '680V',
@@ -72,7 +72,7 @@ const tabData = reactive({
         todayEnergy: '156kWh'
       },
       {
-        id: 'PV-A-02',
+        code: 'PV-A-02',
         location: 'A馆屋顶-西',
         status: '发电',
         dcVoltage: '675V',
@@ -84,7 +84,7 @@ const tabData = reactive({
         todayEnergy: '142kWh'
       },
       {
-        id: 'PV-B-01',
+        code: 'PV-B-01',
         location: 'B馆屋顶',
         status: '发电',
         dcVoltage: '690V',
@@ -96,7 +96,7 @@ const tabData = reactive({
         todayEnergy: '168kWh'
       },
       {
-        id: 'PV-C-01',
+        code: 'PV-C-01',
         location: 'C馆屋顶',
         status: '发电',
         dcVoltage: '685V',
@@ -108,7 +108,7 @@ const tabData = reactive({
         todayEnergy: '159kWh'
       },
       {
-        id: 'PV-P-01',
+        code: 'PV-P-01',
         location: '停车场车棚',
         status: '发电',
         dcVoltage: '670V',
