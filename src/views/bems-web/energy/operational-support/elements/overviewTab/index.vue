@@ -3,33 +3,26 @@
     <div class="stat-cards">
       <StatCard
         label="对接子系统数"
-        :value="statData.todayPower"
-        change-text="较昨日下降 5.2%"
-        trend="down"
+        :value="statData.count"
         color="blue"
         :icon="ClipboardIcon"
       />
       <StatCard
         label="设备在线率"
-        :value="statData.todayWater"
-        change-text="较昨日上升 2.1%"
-        trend="up"
+        :value="statData.online"
+        unit="%"
         color="green"
         :icon="CheckSquareIcon"
       />
       <StatCard
         label="远程控制设备"
-        :value="statData.carbonEmission"
-        change-text="较昨日下降 3.8%"
-        trend="down"
+        :value="statData.remoteControlEquipment"
         color="orange"
         :icon="ThunderIcon"
       />
       <StatCard
         label="今日指令下发"
-        :value="statData.deviceRate"
-        change-text="较昨日上升 1.2%"
-        trend="up"
+        :value="statData.todayInstructionWasIssued"
         color="purple"
         :icon="WaterDropIcon"
       />
@@ -40,22 +33,16 @@
       <div class="overview-header">
         <span class="overview-title">🏗️ 设备总览</span>
         <div class="filter-area">
-          <a-select
+          <a-tree-select
             v-model:value="filterSystem"
-            placeholder="全部系统"
-            style="width: 150px"
+            :tree-data="categoryTreeData"
+            :field-names="{ children: 'children', label: 'title', value: 'key', key: 'key' }"
+            placeholder="设备类型"
             allow-clear
-          >
-            <a-select-option value="">全部系统</a-select-option>
-            <a-select-option value="楼控系统">楼控系统</a-select-option>
-            <a-select-option value="照明系统">照明系统</a-select-option>
-            <a-select-option value="低压配电">低压配电</a-select-option>
-            <a-select-option value="消防系统">消防系统</a-select-option>
-            <a-select-option value="制冷系统">制冷系统</a-select-option>
-            <a-select-option value="新能源">新能源</a-select-option>
-          </a-select>
+            style="width: 200px"
+          />
 
-          <a-select
+          <!-- <a-select
             v-model:value="filterVenue"
             placeholder="全部场馆"
             style="width: 140px"
@@ -65,7 +52,7 @@
             <a-select-option value="A馆">A馆</a-select-option>
             <a-select-option value="B馆">B馆</a-select-option>
             <a-select-option value="C馆">C馆</a-select-option>
-          </a-select>
+          </a-select> -->
 
           <a-button type="primary" @click="handleSearch">🔍查询</a-button>
         </div>
@@ -98,145 +85,105 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, h } from 'vue';
+import { ref, reactive, computed, h, onMounted } from 'vue';
 import { StatCard, DeviceCard} from '/@/views/bems-web/components';
 import ControlPanel from '../controlPanel/index.vue';
 import type { LightingControlItem } from '../controlPanel/index.api';
+import { getOverviewStatistics, getEquipmentOverview } from './index.api';
+import { getCategoryTreeData } from '/@/views/bems-web/equipment/equipmentManagement/elements/device/Device.api';
 
 
 // ===== 筛选条件 =====
-const filterSystem = ref('')
+const filterSystem = ref<string | undefined>(undefined)
 const filterVenue = ref('')
+
+// 设备类别树数据
+const categoryTreeData = ref<any[]>([])
+
+const loadCategoryTree = async () => {
+  try {
+    const res = await getCategoryTreeData()
+    // 只保留一级节点，去掉所有二级及以下菜单
+    const flatTree = (res || []).map((node: any) => ({ ...node, children: undefined }))
+    categoryTreeData.value = flatTree
+  } catch (e) {
+    console.error('加载设备类别树失败:', e)
+  }
+}
 
 // 自定义 emoji 图标组件
 const ClipboardIcon = () => h('span', { style: 'font-size: 20px;' }, '🔌')
 const CheckSquareIcon = () => h('span', { style: 'font-size: 20px;' }, '📶')
 const ThunderIcon = () => h('span', { style: 'font-size: 20px;' }, '🎮')
 const WaterDropIcon = () => h('span', { style: 'font-size: 20px;' }, '📤')
-const AirConditionerIcon = () => h('span', { style: 'font-size: 20px;' }, '🌡️')
-const LightingCircuitIcon = () => h('span', { style: 'font-size: 20px;' }, '💡')
-const DistributionCabinetIcon = () => h('span', { style: 'font-size: 20px;' }, '⚡')
-const WaterPumpIcon = () => h('span', { style: 'font-size: 20px;' }, '🌊')
+const HeatMeterIcon = () => h('span', { style: 'font-size: 20px;' }, '🌡️')
+const AirConditionerIcon = () => h('span', { style: 'font-size: 20px;' }, '❄️')
 const FreshAirUnitIcon = () => h('span', { style: 'font-size: 20px;' }, '🌀')
-const FireEquipmentIcon = () => h('span', { style: 'font-size: 20px;' }, '🔥')
-const ColdSourceUnitIcon = () => h('span', { style: 'font-size: 20px;' }, '❄️')
-const PhotovoltaicIcon = () => h('span', { style: 'font-size: 20px;' }, '☀️')
+const ElectricMeterIcon = () => h('span', { style: 'font-size: 20px;' }, '⚡')
+const PressureTransmitterIcon = () => h('span', { style: 'font-size: 20px;' }, '📊')
+const WaterMeterIcon = () => h('span', { style: 'font-size: 20px;' }, '💧')
+const SumpPitIcon = () => h('span', { style: 'font-size: 20px;' }, '🕳️')
+const FlowSensorIcon = () => h('span', { style: 'font-size: 20px;' }, '📏')
+const HeatRecoveryIcon = () => h('span', { style: 'font-size: 20px;' }, '🔄')
+const ExhaustFanIcon = () => h('span', { style: 'font-size: 20px;' }, '💨')
+const SupplyFanIcon = () => h('span', { style: 'font-size: 20px;' }, '🌬️')
+const FanCoilIcon = () => h('span', { style: 'font-size: 20px;' }, '🎛️')
+const TerminalElectricIcon = () => h('span', { style: 'font-size: 20px;' }, '🔌')
+const TerminalWaterIcon = () => h('span', { style: 'font-size: 20px;' }, '🚰')
 
-// ===== 原始数据 =====
-const allData = [
-  {
-    title: '空调机组',
-    meta: '楼控系统',
-    icon: AirConditionerIcon,
-    iconBg: '#e6f4ff',
-    iconColor: '#1677ff',
-    stats: [
-      { label: '总数', value: 86 },
-      { label: '运行', value: 84 },
-      { label: '故障', value: 2, highlight: true }
-    ],
-    system: '楼控系统',
-    venue: 'A馆'
-  },
-  {
-    title: '照明回路',
-    meta: '照明系统',
-    icon: LightingCircuitIcon,
-    iconBg: '#f6ffed',
-    iconColor: '#52c41a',
-    stats: [
-      { label: '总数', value: '2,340' },
-      { label: '在线', value: '2,338' },
-      { label: '故障', value: 1, highlight: true }
-    ],
-    system: '照明系统',
-    venue: 'B馆'
-  },
-  {
-    title: '配电柜',
-    meta: '低压配电',
-    icon: DistributionCabinetIcon,
-    iconBg: '#fffbe6',
-    iconColor: '#faad14',
-    stats: [
-      { label: '总数', value: 45 },
-      { label: '正常', value: 45 },
-      { label: '告警', value: 0 }
-    ],
-    system: '低压配电',
-    venue: 'A馆'
-  },
-  {
-    title: '给排水泵',
-    meta: '楼控系统',
-    icon: WaterPumpIcon,
-    iconBg: '#e6fffb',
-    iconColor: '#13c2c2',
-    stats: [
-      { label: '总数', value: 32 },
-      { label: '运行', value: 32 },
-      { label: '停止', value: 0 }
-    ],
-    system: '楼控系统',
-    venue: 'C馆'
-  },
-  {
-    title: '新风机组',
-    meta: '楼控系统',
-    icon: FreshAirUnitIcon,
-    iconBg: '#f9f0ff',
-    iconColor: '#722ed1',
-    stats: [
-      { label: '总数', value: 24 },
-      { label: '运行', value: 24 },
-      { label: '故障', value: 0 }
-    ],
-    system: '楼控系统',
-    venue: 'A馆'
-  },
-  {
-    title: '消防设备',
-    meta: '消防系统',
-    icon: FireEquipmentIcon,
-    iconBg: '#fff2f0',
-    iconColor: '#ff4d4f',
-    stats: [
-      { label: '总数', value: 892 },
-      { label: '正常', value: 890 },
-      { label: '告警', value: 2, highlight: true }
-    ],
-    system: '消防系统',
-    venue: 'B馆'
-  },
-  {
-    title: '冷源机组',
-    meta: '制冷系统',
-    icon: ColdSourceUnitIcon,
-    iconBg: '#e6f7ff',
-    iconColor: '#0099cc',
-    stats: [
-      { label: '总数', value: 8 },
-      { label: '运行', value: 7 },
-      { label: '待机', value: 1 }
-    ],
-    system: '制冷系统',
-    venue: 'C馆'
-  },
-  {
-    title: '光伏设备',
-    meta: '新能源',
-    icon: PhotovoltaicIcon,
-    iconBg: '#fff7e6',
-    iconColor: '#fa8c16',
-    stats: [
-      { label: '组串', value: 12 },
-      { label: 'kW装机', value: 856 },
-      { label: 'kW发电', value: 623 }
-    ],
-    system: '新能源',
-    venue: 'C馆'
+// ===== 图标配置 =====
+const iconConfig: Record<string, { icon: any; iconBg: string; iconColor: string }> = {
+  '热量表': { icon: HeatMeterIcon, iconBg: '#fff2f0', iconColor: '#ff4d4f' },
+  '空调机组': { icon: AirConditionerIcon, iconBg: '#e6f4ff', iconColor: '#1677ff' },
+  '新风机组': { icon: FreshAirUnitIcon, iconBg: '#f9f0ff', iconColor: '#722ed1' },
+  '电表': { icon: ElectricMeterIcon, iconBg: '#fffbe6', iconColor: '#faad14' },
+  '压力变送器': { icon: PressureTransmitterIcon, iconBg: '#e6fffb', iconColor: '#13c2c2' },
+  '水表': { icon: WaterMeterIcon, iconBg: '#e6f7ff', iconColor: '#0099cc' },
+  '集水坑': { icon: SumpPitIcon, iconBg: '#f0f5ff', iconColor: '#2f54eb' },
+  '流量传感器': { icon: FlowSensorIcon, iconBg: '#f6ffed', iconColor: '#52c41a' },
+  '热回收机组': { icon: HeatRecoveryIcon, iconBg: '#fff7e6', iconColor: '#fa8c16' },
+  '排风机': { icon: ExhaustFanIcon, iconBg: '#f5f5f5', iconColor: '#595959' },
+  '送风机': { icon: SupplyFanIcon, iconBg: '#e6f7ff', iconColor: '#1890ff' },
+  '风机盘管': { icon: FanCoilIcon, iconBg: '#f9f0ff', iconColor: '#9254de' },
+  '末端电表': { icon: TerminalElectricIcon, iconBg: '#fff1f0', iconColor: '#cf1322' },
+  '末端水表': { icon: TerminalWaterIcon, iconBg: '#e6fffb', iconColor: '#006d75' },
+}
+
+// ===== 设备总览数据 =====
+const allData = ref<any[]>([])
+const equipmentLoading = ref(false)
+
+/** 加载设备总览数据 */
+const loadEquipmentOverview = async () => {
+  equipmentLoading.value = true
+  try {
+    const res = await getEquipmentOverview()
+    const list = res?.records || res?.data?.records || res?.data || res || []
+    const items = Array.isArray(list) ? list : []
+    allData.value = items.map((item: any) => {
+      const categoryName = item.category?.categoryName || item.title || item.name || ''
+      const cfg = iconConfig[categoryName] || { icon: AirConditionerIcon, iconBg: '#e6f4ff', iconColor: '#1677ff' }
+      return {
+        title: categoryName,
+        meta: item.meta || item.system || '',
+        icon: cfg.icon,
+        iconBg: cfg.iconBg,
+        iconColor: cfg.iconColor,
+        stats: item.stats || [
+          { label: '总数', value: item.count ?? 0 },
+          { label: '运行', value: item.online ?? 0 },
+          { label: '故障', value: item.offline ?? 0, highlight: (item.offline ?? 0) > 0 },
+        ],
+        system: item.system || item.meta || '',
+        venue: item.venue || '',
+      }
+    })
+  } catch (e) {
+    console.error('加载设备总览失败:', e)
+  } finally {
+    equipmentLoading.value = false
   }
-]
+}
 
 const lightingData: LightingControlItem[] = [
   { id: '1', code: 'LT-A-101', location: 'A馆-F1-大厅', status: '开启', brightness: '80%' },
@@ -249,9 +196,23 @@ const handleControl = (type: 'ac' | 'lighting', record: any) => {
 }
 
 // ===== 筛选逻辑 =====
+// 递归查找树节点 title
+const findTreeTitle = (tree: any[], key: string | undefined): string => {
+  if (!key) return ''
+  for (const node of tree) {
+    if (node.key === key) return node.title || ''
+    if (node.children?.length) {
+      const found = findTreeTitle(node.children, key)
+      if (found) return found
+    }
+  }
+  return ''
+}
+
 const displayData = computed(() => {
-  return allData.filter((item) => {
-    const matchSystem = !filterSystem.value || item.system === filterSystem.value
+  const filterTitle = findTreeTitle(categoryTreeData.value, filterSystem.value)
+  return allData.value.filter((item) => {
+    const matchSystem = !filterTitle || item.title === filterTitle
     const matchVenue = !filterVenue.value || item.venue === filterVenue.value
     return matchSystem && matchVenue
   })
@@ -259,10 +220,7 @@ const displayData = computed(() => {
 
 // ===== 事件 =====
 const handleSearch = () => {
-  console.log('筛选条件:', {
-    system: filterSystem.value,
-    venue: filterVenue.value
-  })
+  loadEquipmentOverview()
 }
 
 const handleCardClick = (item: any) => {
@@ -271,16 +229,32 @@ const handleCardClick = (item: any) => {
 }
 
 
-console.log(11111111)
+// 统计卡片数据
+const statData = reactive({
+  count: "--",
+  online: "--",
+  remoteControlEquipment: "--",
+  todayInstructionWasIssued: "--",
+})
 
-const statData = {
-  todayPower: '12',
-  todayWater: '97.8%',
-  carbonEmission: '2,456',
-  deviceRate: '1,234',
-  alarmTotal: '3 条',
-  savings: '¥ 12,580',
+const loadStatistics = async () => {
+  try {
+    const res = await getOverviewStatistics()
+    const data = res?.data || res?.result || res || {}
+    statData.count = data.count ?? 0
+    statData.online = data.online ?? 0
+    statData.remoteControlEquipment = data.remoteControlEquipment ?? 0
+    statData.todayInstructionWasIssued = data.todayInstructionWasIssued ?? 0
+  } catch (e) {
+    console.error('加载概览统计数据失败:', e)
+  }
 }
+
+onMounted(() => {
+  loadStatistics()
+  loadCategoryTree()
+  loadEquipmentOverview()
+})
 
 </script>
 
