@@ -93,5 +93,5 @@ export interface ActiveMeetInfo {
 }
 
 /** 获取今日会展活动列表（入参: { startDate: 'YYYY-MM-DD' }） */
-export const getTodayExhibitionActivity = (params?: { startDate?: string }) =>
+export const getTodayExhibitionActivity = (params?: { startDate?: string, endDate?: string }) =>
   fwbzHttp.get({ url: Api.todayExhibitionActivity, params });

@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, watch } from 'vue'
+import { onActivated, onDeactivated, onMounted, onUnmounted, ref, watch } from 'vue'
 import { loadMapScripts } from '/@/components/map/loadMapScripts'
 import type { ParkingSpaceStatVO } from './index.api'
 
@@ -22,8 +22,116 @@ const props = defineProps<{
 let map: any = null
 let flid: string | null = null
 let mapReady = false
+let mapLoadCompleteHandler: (() => Promise<void>) | null = null
 const markerArr: any[] = []
 let openedInfoEl: HTMLElement | null = null
+let mapContainer: HTMLElement | null = null
+const mapScrollListeners: Array<{ target: EventTarget; name: string; handler: EventListener }> = []
+const webglSupported = ref(true)
+const mapError = ref<string | null>(null)
+
+const destroyMap = () => {
+  if (!map) return
+
+  closeAllInfo()
+  clearAllMarkers()
+
+  if (map.off && mapLoadCompleteHandler) {
+    try {
+      map.off('loadComplete', mapLoadCompleteHandler)
+    } catch (e) {
+      console.warn('[ParkingMap] remove loadComplete listener failed', e)
+    }
+  }
+
+  const underlyingMap = map.g || map.getMapBoxMap?.()
+  if (underlyingMap && typeof underlyingMap.remove === 'function') {
+    try {
+      underlyingMap.remove()
+    } catch (e) {
+      console.warn('[ParkingMap] underlying map remove failed', e)
+    }
+  } else if (typeof map.remove === 'function') {
+    try {
+      map.remove()
+    } catch (e) {
+      console.warn('[ParkingMap] map.remove failed', e)
+    }
+  }
+
+  removeMapScrollCapture()
+  map = null
+  mapReady = false
+  mapLoadCompleteHandler = null
+}
+
+const checkWebGLSupport = (): boolean => {
+  if (typeof document === 'undefined') return false
+  const canvas = document.createElement('canvas')
+  const names = ['webgl', 'experimental-webgl', 'moz-webgl', 'webkit-3d']
+  for (const name of names) {
+    try {
+      const context = canvas.getContext(name, { failIfMajorPerformanceCaveat: false })
+      if (context) {
+        if (typeof (context as any).getExtension === 'function') {
+          const ext = (context as any).getExtension('WEBGL_lose_context') || (context as any).getExtension('MOZ_WEBGL_lose_context')
+          ext?.loseContext?.()
+        }
+        return true
+      }
+    } catch (e) {
+      // ignore and try next context name
+    }
+  }
+  return false
+}
+
+const setupMapScrollCapture = () => {
+  if (mapScrollListeners.length > 0) return
+
+  mapContainer = document.getElementById('parkingMapContainer')
+  if (!mapContainer) return
+  mapContainer.style.setProperty('touch-action', 'pan-y', 'important')
+  mapContainer.style.setProperty('-webkit-touch-callout', 'none', 'important')
+
+  // 强制 html/body 可滚动：这些 bems-web 页面没有内部滚动容器，滚动依赖
+  // document 通道。地图 SDK createCanvas 也会设置 html/body overflow:auto，
+  // 这里再显式设一次，确保页面可滚动。卸载时不移除（见 removeMapScrollCapture）。
+  document.documentElement.style.setProperty('overflow', 'auto', 'important')
+  document.body.style.setProperty('overflow', 'auto', 'important')
+
+  const stopMapScroll = (event: Event) => {
+    if (!(event.target instanceof Node) || !mapContainer?.contains(event.target)) return
+    if (event.cancelable) {
+      event.stopPropagation()
+      event.stopImmediatePropagation()
+    }
+  }
+
+  const targets: EventTarget[] = [mapContainer, document.documentElement, document.body]
+  const eventNames = ['wheel', 'mousewheel', 'DOMMouseScroll', 'touchmove', 'touchstart']
+
+  eventNames.forEach((name) => {
+    targets.forEach((target) => {
+      target.addEventListener(name, stopMapScroll, { capture: true, passive: false })
+      mapScrollListeners.push({ target, name, handler: stopMapScroll })
+    })
+  })
+}
+
+const removeMapScrollCapture = () => {
+  mapScrollListeners.forEach(({ target, name, handler }) => {
+    target.removeEventListener(name, handler, { capture: true })
+  })
+  mapScrollListeners.length = 0
+
+  // 重要：不要移除 html/body 的 overflow。
+  // 这些 bems-web 路由页面（含消防管理等）没有内部滚动容器，滚动依赖
+  // html/body 的 overflow:auto（由地图 SDK createCanvas 打开，这是项目能滚动的基础）。
+  // 若用 removeProperty 移除，html 会回落到全局 CSS 的 overflow:hidden，导致切换后的页面无法滚动。
+  // 因此这里只清理滚动事件监听器，保留可滚动的 overflow。
+  mapContainer = null
+}
 
 // 地图配置（与 comprehensivePreview 保持一致）
 const buildingID = 'B000A11DMD'
@@ -280,15 +388,30 @@ function addParkingMarkers() {
 
 /** 初始化地图 */
 const initMap = async () => {
+  if (!checkWebGLSupport()) {
+    webglSupported.value = false
+    mapError.value = '当前浏览器或环境不支持 WebGL，地图无法初始化。'
+    console.warn('[ParkingMap] WebGL 不支持，跳过地图初始化')
+    return
+  }
+
   try {
     const DaxiMap = (window as any).DaxiMap
-    map = await new DaxiMap.Map('parkingMapContainer', mapConfig)
-    map.on('loadComplete', async () => {
+    try {
+      map = await new DaxiMap.Map('parkingMapContainer', mapConfig)
+    } catch (innerError) {
+      webglSupported.value = false
+      mapError.value = '地图初始化失败：WebGL 上下文创建失败。'
+      console.error('[ParkingMap] 地图初始化失败:', innerError)
+      return
+    }
+
+    mapLoadCompleteHandler = async () => {
+      if (!map) return
       console.log('[ParkingMap] 地图加载完成')
-      // SDK 的 createCanvas 会设置 html.style.overflow = "visible"（内联样式），
-      // 覆盖全局 CSS 的 html { overflow: hidden }。
-      // 这里不移除它，让当前页面可以滚动。
-      // 在 onUnmounted 中再清理，避免影响其他页面。
+      // 如果 SDK 拦截了滚轮/触摸事件，页面滚动会失效。
+      // 这里在地图容器上先捕获滚动相关事件，避免 SDK 阻断页面滚动。
+      setupMapScrollCapture()
       map.setZoomLevelRange(10, 23)
       // 默认缩放到 14
       map.setZoom(14)
@@ -297,9 +420,12 @@ const initMap = async () => {
       setTimeout(() => {
         addParkingMarkers()
       }, 800)
-    })
+    }
+    map.on('loadComplete', mapLoadCompleteHandler)
     console.log('[ParkingMap] 地图初始化成功')
   } catch (error) {
+    webglSupported.value = false
+    mapError.value = '地图初始化失败，请检查浏览器是否支持 WebGL。'
     console.error('[ParkingMap] 地图初始化失败:', error)
   }
 }
@@ -336,26 +462,34 @@ function zoomOut() {
   }
 }
 
-onMounted(async () => {
-  // 使用共享的 loadMapScripts（单例，带 AMD define 隔离）
+const mountMap = async () => {
   await loadMapScripts()
-  initMap()
-  // 点击地图空白时自动关闭信息面板
+  await initMap()
   document.addEventListener('click', handleDocumentClick, true)
+}
+
+const unmountMap = () => {
+  destroyMap()
+  removeMapScrollCapture()
+  document.removeEventListener('click', handleDocumentClick, true)
+}
+
+onMounted(async () => {
+  await mountMap()
+})
+
+onActivated(async () => {
+  if (!mapReady) {
+    await mountMap()
+  }
+})
+
+onDeactivated(() => {
+  unmountMap()
 })
 
 onUnmounted(() => {
-  // 清除所有标点
-  clearAllMarkers()
-  if (map) {
-    map = null
-  }
-  // 清理 SDK 在 html 上设置的内联 overflow 样式，
-  // 让全局 CSS 的 html { overflow: hidden } 重新生效，
-  // 避免影响其他页面的滚动行为。
-  document.documentElement.style.removeProperty('overflow')
-  // 移除全局点击监听
-  document.removeEventListener('click', handleDocumentClick, true)
+  unmountMap()
 })
 </script>
 
@@ -364,6 +498,7 @@ onUnmounted(() => {
   position: relative;
   width: 100%;
   height: 300px;
+  touch-action: pan-y;
 }
 
 .map-container {
@@ -371,6 +506,7 @@ onUnmounted(() => {
   height: 100%;
   border-radius: 8px;
   overflow: hidden;
+  touch-action: pan-y;
 }
 
 .map-zoom-controls {

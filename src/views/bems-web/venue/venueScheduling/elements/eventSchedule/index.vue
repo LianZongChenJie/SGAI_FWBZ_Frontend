@@ -11,36 +11,37 @@
         <div class="schedule-scroll">
           <div class="schedule-list">
             <div
-              v-for="day in data"
+              v-for="day in weekData"
               :key="day.date"
               class="schedule-day"
+              :class="{ 'is-today': isToday(day.date) }"
             >
-              <div class="day-header">{{ formatDayHeader(day.date) }}</div>
-              <div
-                v-for="(event, index) in day.list"
-                :key="event.id"
-                class="schedule-item"
-                :style="{ borderLeftColor: getColor(index) }"
-              >
-                <div class="event-time">{{ event.startTime }} - {{ event.endTime }}</div>
-                <div class="event-row">
-                  <a-tooltip :title="event.activeName" placement="topLeft">
-                    <div class="event-name">{{ event.activeName }}</div>
-                  </a-tooltip>
-                  <a-popconfirm
-                    title="确认删除该活动？"
-                    ok-text="确定"
-                    cancel-text="取消"
-                    @confirm="handleDelete(event)"
-                  >
-                    <DeleteOutlined class="event-delete" @click.stop />
-                  </a-popconfirm>
-                </div>
-                <div class="event-meta">
-                  {{ event.venueName }}{{ event.venueFloors ? ' ' + event.venueFloors : '' }} | {{ event.peopleQuantity }}人
-                </div>
+            <div class="day-header">{{ formatDayHeader(day.date) }}</div>
+            <div
+              v-for="(event, index) in day.list"
+              :key="event.id"
+              class="schedule-item"
+              :style="{ borderLeftColor: getColor(index) }"
+            >
+              <div class="event-time">{{ event.startTime }} - {{ event.endTime }}</div>
+              <div class="event-row">
+                <a-tooltip :title="event.activeName" placement="topLeft">
+                  <div class="event-name">{{ event.activeName }}</div>
+                </a-tooltip>
+                <a-popconfirm
+                  title="确认删除该活动？"
+                  ok-text="确定"
+                  cancel-text="取消"
+                  @confirm="handleDelete(event)"
+                >
+                  <DeleteOutlined class="event-delete" @click.stop />
+                </a-popconfirm>
               </div>
-              <div v-if="!day.list || day.list.length === 0" class="event-empty">暂无活动</div>
+              <div class="event-meta">
+                {{ event.venueName }}{{ event.venueFloors ? ' ' + event.venueFloors : '' }} | {{ event.peopleQuantity }}人
+              </div>
+            </div>
+            <div v-if="!day.list || day.list.length === 0" class="event-empty">暂无活动</div>
             </div>
           </div>
         </div>
@@ -50,6 +51,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn'
 import { DeleteOutlined } from '@ant-design/icons-vue'
@@ -84,8 +86,14 @@ const formatDayHeader = (date?: string): string => {
   return `${weekday} ${dateStr}`
 }
 
+/** 判断是否为今天 */
+const isToday = (date?: string): boolean => {
+  if (!date) return false
+  return dayjs(date).isSame(dayjs(), 'day')
+}
+
 // ===== Props =====
-withDefaults(
+const props = withDefaults(
   defineProps<{
     title?: string
     data?: DaySchedule[]
@@ -104,6 +112,44 @@ const emit = defineEmits<{
   delete: [event: any]
 }>()
 
+/** 生成当前周的7天（周一到周日） */
+const generateWeekDays = (): DaySchedule[] => {
+  const today = dayjs()
+  const dayOfWeek = today.day() // 0=周日, 1=周一, ..., 6=周六
+  // 计算本周周一的日期
+  const monday = today.subtract(dayOfWeek === 0 ? 6 : dayOfWeek - 1, 'day')
+  return Array.from({ length: 7 }, (_, i) => {
+    const date = monday.add(i, 'day')
+    return {
+      date: date.format('YYYY-MM-DD'),
+      list: [],
+    }
+  })
+}
+
+/** 将后端数据合并到7天卡片中 */
+const weekData = computed<DaySchedule[]>(() => {
+  const weekDays = generateWeekDays()
+  if (!props.data || props.data.length === 0) return weekDays
+
+  // 将后端数据按日期建立映射
+  const dataMap = new Map<string, any[]>()
+  props.data.forEach((day) => {
+    if (day.date) {
+      const dateKey = dayjs(day.date).format('YYYY-MM-DD')
+      dataMap.set(dateKey, day.list || [])
+    }
+  })
+
+  // 合并：将后端数据匹配到对应的日期卡片
+  return weekDays.map((day) => {
+    const matchedList = dataMap.get(day.date!)
+    return {
+      ...day,
+      list: matchedList || [],
+    }
+  })
+})
 
 // ===== 事件处理 =====
 const handleAdd = () => {
@@ -118,7 +164,9 @@ const handleDelete = (event: any) => {
 <style scoped lang="less">
 .event-schedule {
   width: 100%;
+
 }
+
 
 .schedule-scroll {
   overflow-x: auto;
@@ -139,6 +187,15 @@ const handleDelete = (event: any) => {
   padding: 16px;
   border: 1px solid #f0f0f0;
   flex: 1;
+
+  &.is-today {
+    background: #e6f4ff;
+    border-color: #69b1ff;
+
+    .day-header {
+      color: #1677ff;
+    }
+  }
 }
 
 .day-header {

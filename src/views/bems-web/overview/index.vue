@@ -246,6 +246,7 @@ const fetchTodayEvents = async () => {
   try {
     const res = await getTodayExhibitionActivity({
       startDate: dayjs().format('YYYY-MM-DD'),
+      endDate: dayjs().format('YYYY-MM-DD'),
     })
     const records = res?.records || []
     const now = dayjs()

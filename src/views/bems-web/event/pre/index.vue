@@ -2,63 +2,123 @@
   <div class="event-page">
     <!-- 统计卡片 -->
     <div class="stats-row">
-      <StatCard label="待筹备展会" :value="statData.pendingEvents" change-text="↑ 2 新增" trend="up" color="blue" :icon="ScheduleOutlined" />
-      <StatCard label="筹备完成率" :value="statData.completionRate" change-text="↑ 12.3% 较上周" trend="up" color="green" :icon="CheckCircleOutlined" />
-      <StatCard label="明日开展" :value="statData.tomorrowOpen" change-text="数字文创交易会" trend="up" color="orange" :icon="CalendarOutlined" />
-      <StatCard label="会前检查项" :value="statData.checkItems" change-text="全部覆盖" trend="up" color="purple" :icon="AuditOutlined" />
+      <StatCard
+        v-for="(card, index) in statCards"
+        :key="index"
+        :label="card.title || '--'"
+        :value="card.value ?? '--'"
+        :change-text="card.context || ''"
+        :color="statCardConfigs[index]?.color || 'blue'"
+        :icon="statCardConfigs[index]?.icon"
+      />
     </div>
 
     <!-- 会前筹备清单 -->
     <div class="card">
       <div class="card-header">
         <h3><ScheduleOutlined /> 会前筹备清单</h3>
-        <span class="tag tag-blue">数字文创交易会 | 2026-06-10</span>
+        <div class="header-right">
+          <a-select
+            v-model:value="selectedMeetId"
+            style="width: 240px"
+            placeholder="请选择会展活动"
+            :loading="meetLoading"
+            @change="handleMeetChange"
+          >
+            <a-select-option v-for="item in meetList" :key="item.id" :value="item.id">
+              {{ item.activeName }}
+            </a-select-option>
+          </a-select>
+        </div>
       </div>
       <div class="card-body">
-        <div class="three-col">
-          <!-- 配电与环境 -->
-          <div class="checklist-group">
-            <h4 class="group-title">配电与环境</h4>
-            <div class="info-list">
-              <div class="info-item" v-for="item in powerEnv" :key="item.label">
-                <span class="info-label">{{ item.label }}</span>
-                <span class="info-value" :style="{ color: item.color }">{{ item.value }}</span>
+        <a-spin :spinning="listLoading">
+          <!-- 无数据空状态 -->
+          <div v-if="!checklistData?.data || checklistData.data.length === 0" class="empty-placeholder">
+            <div class="empty-icon"><InboxOutlined /></div>
+            <div class="empty-text">暂无筹备数据</div>
+          </div>
+          <template v-else>
+            <div class="checklist-grid">
+              <div
+                class="checklist-group"
+                v-for="group in checklistData.data"
+                :key="group.typeId"
+              >
+                <h4 class="group-title">
+                  {{ group.typeName || '--' }}
+                  <span v-if="group.preparationProgress" class="group-progress">{{ group.preparationProgress }}</span>
+                </h4>
+                <div class="info-list">
+                  <div
+                    class="info-item"
+                    v-for="item in group.typeData || []"
+                    :key="item.preparationInfoId"
+                  >
+                    <span class="info-label">{{ item.preparationInfoName || '--' }}</span>
+                    <div class="info-right">
+                      <span
+                        class="info-value"
+                        :class="{ 'done': item.status === 1, 'pending': item.status !== 1 }"
+                      >
+                        <template v-if="item.status === 1">
+                          {{`${item.realValue} /${item.preparationValue}`}}
+                          ✅ 已完成
+                        </template>
+                        <template v-else>
+                          {{`${item.realValue} /${item.preparationValue}`}}
+                        </template>
+                      </span>
+                      <a-button
+                        v-if="item.status !== 1"
+                        type="primary"
+                        size="small"
+                        @click="handleFinish(item)"
+                      >
+                        完成
+                      </a-button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-          <!-- 安保与消防 -->
-          <div class="checklist-group">
-            <h4 class="group-title">安保与消防</h4>
-            <div class="info-list">
-              <div class="info-item" v-for="item in securityFire" :key="item.label">
-                <span class="info-label">{{ item.label }}</span>
-                <span class="info-value" :style="{ color: item.color }">{{ item.value }}</span>
-              </div>
-            </div>
-          </div>
-          <!-- 物资与人员 -->
-          <div class="checklist-group">
-            <h4 class="group-title">物资与人员</h4>
-            <div class="info-list">
-              <div class="info-item" v-for="item in materials" :key="item.label">
-                <span class="info-label">{{ item.label }}</span>
-                <span class="info-value" :style="{ color: item.color }">{{ item.value }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
 
-        <!-- 筹备进度 -->
-        <div class="progress-section">
-          <h4 class="group-title">筹备进度</h4>
-          <div class="progress-item" v-for="item in progressData" :key="item.label">
-            <span class="progress-label">{{ item.label }}</span>
-            <div class="progress-bar">
-              <div class="progress-fill" :class="item.color" :style="{ width: item.value + '%' }"></div>
+            <!-- 筹备进度 -->
+            <div class="progress-section">
+              <h4 class="group-title">筹备进度</h4>
+              <!-- 总体进度 -->
+              <div class="progress-item overall">
+                <span class="progress-label">总体进度</span>
+                <div class="progress-bar">
+                  <div
+                    class="progress-fill"
+                    :class="getOverallPercent() >= 80 ? 'green' : 'orange'"
+                    :style="{ width: getOverallPercent() + '%' }"
+                  ></div>
+                </div>
+                <span
+                  class="progress-value"
+                  :style="{ color: getOverallPercent() >= 80 ? '#38a169' : '#dd6b20' }"
+                >{{ getOverallPercent() }}%</span>
+              </div>
+              <!-- 各分组进度 -->
+              <div class="progress-item" v-for="group in checklistData.data" :key="group.typeId">
+                <span class="progress-label">{{ group.typeName || '--' }}</span>
+                <div class="progress-bar">
+                  <div
+                    class="progress-fill"
+                    :class="getProgressPercent(group) >= 80 ? 'green' : 'orange'"
+                    :style="{ width: getProgressPercent(group) + '%' }"
+                  ></div>
+                </div>
+                <span
+                  class="progress-value"
+                  :style="{ color: getProgressPercent(group) >= 80 ? '#38a169' : '#dd6b20' }"
+                >{{ getProgressPercent(group) }}%</span>
+              </div>
             </div>
-            <span class="progress-value" :style="{ color: item.value >= 80 ? '#38a169' : '#dd6b20' }">{{ item.value }}%</span>
-          </div>
-        </div>
+          </template>
+        </a-spin>
       </div>
     </div>
 
@@ -83,63 +143,146 @@
         </div>
       </div>
     </div>
-
   </div>
 </template>
 
 <script setup lang="ts">
-import { StatCard } from '/@/views/bems-web/components'
+import { ref, onMounted } from 'vue';
+import { message } from 'ant-design-vue';
+import { StatCard } from '/@/views/bems-web/components';
 import {
   ScheduleOutlined,
   CheckCircleOutlined,
   CalendarOutlined,
   AuditOutlined,
   BarChartOutlined,
-} from '@ant-design/icons-vue'
+  InboxOutlined,
+} from '@ant-design/icons-vue';
+import {
+  getSummary,
+  getPreparationList,
+  finishPreparationItem,
+  getActiveMeetList,
+} from './index.api';
+import type { StatCardVO, PreparationChecklistVO, PreparationDetailVO } from './index.api';
+import type { ActiveMeetInfo } from '/@/views/bems-web/overview/index.api';
 
-defineOptions({ name: 'EventPrePage' })
+defineOptions({ name: 'EventPrePage' });
 
-const statData = {
-  pendingEvents: 5,
-  completionRate: '78.5%',
-  tomorrowOpen: 1,
-  checkItems: 45,
-}
+// ===== 统计卡片配置（图标/颜色固定，数据来自后端） =====
+const statCardConfigs = [
+  { color: 'blue' as const, icon: ScheduleOutlined },
+  { color: 'green' as const, icon: CheckCircleOutlined },
+  { color: 'orange' as const, icon: CalendarOutlined },
+  { color: 'purple' as const, icon: AuditOutlined },
+];
+const statCards = ref<StatCardVO[]>([]);
 
-const colorDone = '#38a169'
-const colorPending = '#dd6b20'
+const fetchSummary = async () => {
+  try {
+    const res = await getSummary();
+    statCards.value = Array.isArray(res) ? res : [];
+  } catch (error) {
+    console.error('获取卡片汇总失败:', error);
+  }
+};
 
-const powerEnv = [
-  { label: '配电容量评估', value: '✅ 已完成', color: colorDone },
-  { label: '负荷预测', value: '✅ 已完成', color: colorDone },
-  { label: '空调预冷', value: '⏳ 明日06:00', color: colorPending },
-  { label: '照明场景预设', value: '✅ 已完成', color: colorDone },
-  { label: '温湿度目标设定', value: '✅ 24°C/55%', color: colorDone },
-]
+// ===== 会展活动下拉 =====
+const meetList = ref<ActiveMeetInfo[]>([]);
+const meetLoading = ref(false);
+const selectedMeetId = ref<number | undefined>(undefined);
 
-const securityFire = [
-  { label: '安保方案审批', value: '✅ 已通过', color: colorDone },
-  { label: '安保人员部署', value: '✅ 32人已安排', color: colorDone },
-  { label: '消防设备检查', value: '✅ 全部正常', color: colorDone },
-  { label: '应急通道检查', value: '✅ 畅通', color: colorDone },
-  { label: '消防演练', value: '⏳ 今日16:00', color: colorPending },
-]
+const fetchMeetList = async () => {
+  meetLoading.value = true;
+  try {
+    const res = await getActiveMeetList({ pageNo: 1, pageSize: 100 });
+    meetList.value = res?.records || [];
+    // 默认选择第一个
+    if (meetList.value.length > 0 && meetList.value[0].id != null) {
+      selectedMeetId.value = meetList.value[0].id;
+      await fetchPreparationList(selectedMeetId.value);
+    }
+  } catch (error) {
+    console.error('获取会展活动列表失败:', error);
+  } finally {
+    meetLoading.value = false;
+  }
+};
 
-const materials = [
-  { label: '应急物资准备', value: '✅ 已到位', color: colorDone },
-  { label: '人员值班排班', value: '✅ 已发布', color: colorDone },
-  { label: '人员培训', value: '✅ 已完成', color: colorDone },
-  { label: '设备巡检', value: '⏳ 今日18:00', color: colorPending },
-  { label: '系统联调测试', value: '✅ 已通过', color: colorDone },
-]
+const handleMeetChange = (val: number) => {
+  fetchPreparationList(val);
+};
 
-const progressData = [
-  { label: '总体进度', value: 78.5, color: 'green' },
-  { label: '配电环境', value: 90, color: 'green' },
-  { label: '安保消防', value: 85, color: 'green' },
-  { label: '物资人员', value: 60, color: 'orange' },
-]
+// ===== 会前筹备清单 =====
+const listLoading = ref(false);
+const checklistData = ref<PreparationChecklistVO>({});
+const finishingId = ref<number | null>(null);
 
+const fetchPreparationList = async (id?: number) => {
+  if (!id) {
+    checklistData.value = {};
+    return;
+  }
+  listLoading.value = true;
+  try {
+    const res = await getPreparationList({ id });
+    checklistData.value = res || {};
+  } catch (error) {
+    console.error('获取会前筹备清单失败:', error);
+  } finally {
+    listLoading.value = false;
+  }
+};
+
+// 完成筹备项
+const handleFinish = async (item: PreparationDetailVO) => {
+  console.log('handleFinish', item);
+  if (item.preparationInfoId == null) return;
+  finishingId.value = item.preparationInfoId;
+  try {
+    await finishPreparationItem({
+      preparationInfoId: item.preparationInfoId,
+      preparationValue: item.preparationValue ?? 0,
+      realValue: item.realValue ?? 0,
+    });
+    message.success('已完成');
+    // 刷新筹备清单
+    await fetchPreparationList(selectedMeetId.value);
+  } catch (error) {
+    console.error('完成筹备项失败:', error);
+  } finally {
+    finishingId.value = null;
+  }
+};
+
+// 计算总体进度百分比，取 checklistData.preparationProgress
+const getOverallPercent = () => {
+  const progress = checklistData.value?.preparationProgress;
+  if (progress) {
+    const num = parseFloat(progress);
+    if (!isNaN(num)) return Math.min(100, Math.max(0, num));
+  }
+  return 0;
+};
+
+// 计算分组完成进度百分比
+const getProgressPercent = (group: { typeData?: PreparationDetailVO[]; preparationProgress?: string }) => {
+  // 优先使用后端返回的 preparationProgress
+  if (group.preparationProgress) {
+    const num = parseFloat(group.preparationProgress);
+    if (!isNaN(num)) return Math.min(100, Math.max(0, num));
+  }
+  // 根据 typeData 自行计算
+  const data = group.typeData || [];
+  if (data.length === 0) return 0;
+  const done = data.filter((d) => d.status === 1).length;
+  return Math.round((done / data.length) * 100);
+};
+
+onMounted(() => {
+  fetchSummary();
+  fetchMeetList();
+});
 </script>
 
 <style scoped lang="less">
@@ -186,6 +329,12 @@ const progressData = [
     }
     .tag-blue { background: #bee3f8; color: #2a4365; }
     .tag-purple { background: #e9d8fd; color: #553c9a; }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
   }
 
   .card-body { padding: 22px; }
@@ -197,10 +346,10 @@ const progressData = [
   gap: 20px;
 }
 
-.three-col {
+.checklist-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
 }
 
 .checklist-group {
@@ -209,6 +358,15 @@ const progressData = [
     font-weight: 600;
     color: #2d3748;
     margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .group-progress {
+      font-size: 12px;
+      font-weight: 400;
+      color: #a0aec0;
+    }
   }
 }
 
@@ -231,9 +389,18 @@ const progressData = [
       color: #718096;
     }
 
+    .info-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
     .info-value {
       font-size: 13px;
       font-weight: 600;
+
+      &.done { color: #38a169; }
+      &.pending { color: #dd6b20; }
     }
   }
 }
@@ -256,6 +423,13 @@ const progressData = [
   align-items: center;
   gap: 12px;
   margin-bottom: 10px;
+
+  &.overall {
+    .progress-label { font-weight: 600; color: #2d3748; }
+    .progress-bar { height: 10px; }
+    .progress-fill { border-radius: 5px; }
+    .progress-value { font-weight: 700; }
+  }
 
   &:last-child { margin-bottom: 0; }
 
@@ -287,6 +461,30 @@ const progressData = [
     font-weight: 600;
     min-width: 40px;
     text-align: right;
+  }
+}
+
+.empty-placeholder {
+  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  color: #a0aec0;
+  border: 2px dashed #e2e8f0;
+  min-height: 260px;
+  padding: 30px;
+
+  .empty-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+  }
+
+  .empty-text {
+    font-size: 14px;
+    color: #718096;
+    font-weight: 500;
   }
 }
 

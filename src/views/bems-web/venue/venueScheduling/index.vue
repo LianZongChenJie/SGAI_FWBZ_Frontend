@@ -13,7 +13,7 @@
         </div>
         <div class="event-schedule">
             <EventSchedule
-                title="📅 今日会展活动"
+                title="📅 本周活动排期"
                 :data="scheduleData"
                 :loading="scheduleLoading"
                 @add="handleAddEvent"
@@ -176,4 +176,6 @@ const handleDeleteEvent = async (event: ActiveMeetInfo) => {
 .event-schedule, .venue-management {
     margin-top: 20px;
 }
+  
+ 
 </style>

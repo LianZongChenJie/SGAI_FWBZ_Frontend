@@ -1,41 +1,58 @@
 <template>
   <div class="iot-page">
     <div class="stats-row">
-      <StatCard label="对接系统数" :value="statData.systemCount" change-text="↑ 8 新增" trend="up" color="blue" :icon="ApiOutlined" />
-      <StatCard label="接口在线率" :value="statData.onlineRate" change-text="↑ 0.5% 较上周" trend="up" color="green" :icon="CheckCircleOutlined" />
-      <StatCard label="今日数据量" :value="statData.todayData" change-text="↑ 15% 条" trend="up" color="orange" :icon="InboxOutlined" />
-      <StatCard label="异常接口" :value="statData.errorCount" change-text="↓ 1 较昨日" trend="down" color="red" :icon="WarningOutlined" />
+      <StatCard
+        v-for="(card, index) in statCards"
+        :key="index"
+        :label="card.title || '--'"
+        :value="card.value ?? '--'"
+        :change-text="card.context || ''"
+        :color="statCardConfigs[index]?.color || 'blue'"
+        :icon="statCardConfigs[index]?.icon"
+      />
     </div>
 
     <div class="card">
       <div class="card-header">
         <h3><ApiOutlined /> 接口状态监控</h3>
         <div class="filter-bar">
-          <a-select v-model:value="protocolFilter" style="width: 130px" placeholder="全部协议">
+          <a-select v-model:value="searchForm.protocolTypeId" style="width: 150px">
             <a-select-option value="">全部协议</a-select-option>
-            <a-select-option value="MQTT">MQTT</a-select-option>
-            <a-select-option value="Modbus">Modbus</a-select-option>
-            <a-select-option value="BACnet">BACnet</a-select-option>
-            <a-select-option value="OPC UA">OPC UA</a-select-option>
-            <a-select-option value="HTTP API">HTTP API</a-select-option>
+            <a-select-option v-for="item in protocolTypeOptions" :key="item.id" :value="item.id">
+              {{ item.typeName }}
+            </a-select-option>
           </a-select>
-          <a-select v-model:value="statusFilter" style="width: 130px" placeholder="全部状态">
+          <a-select v-model:value="searchForm.state" style="width: 130px">
             <a-select-option value="">全部状态</a-select-option>
-            <a-select-option value="online">在线</a-select-option>
-            <a-select-option value="offline">离线</a-select-option>
-            <a-select-option value="error">异常</a-select-option>
+            <a-select-option :value="1">在线</a-select-option>
+            <a-select-option :value="0">离线</a-select-option>
+            <a-select-option :value="2">异常</a-select-option>
           </a-select>
-          <a-button type="primary"><SearchOutlined /> 查询</a-button>
+          <a-button type="primary" @click="handleSearch"><SearchOutlined /> 查询</a-button>
         </div>
       </div>
       <div class="card-body">
-        <a-table :columns="columns" :data-source="tableData" :pagination="{ pageSize: 10 }" row-key="id" size="middle">
+        <a-table
+          :columns="columns"
+          :data-source="tableData"
+          :loading="loading"
+          :pagination="pagination"
+          row-key="id"
+          size="middle"
+          @change="handleTableChange"
+        >
           <template #bodyCell="{ column, record }">
-            <template v-if="column.key === 'status'">
-              <span class="status-text" :class="record.status === '在线' ? 'normal' : record.status === '异常' ? 'warning' : 'danger'">{{ record.status }}</span>
+            <template v-if="column.key === 'protocolTypeName'">
+              {{ getProtocolName(record.protocolTypeId) }}
+            </template>
+            <template v-if="column.key === 'state'">
+              <span class="status-text" :class="getStateClass(record.state)">{{ getStateText(record.state) }}</span>
+            </template>
+            <template v-if="column.key === 'responseTime'">
+              {{ record.responseTime != null ? record.responseTime + 'ms' : '-' }}
             </template>
             <template v-if="column.key === 'action'">
-              <a-button v-if="record.status === '异常' || record.status === '离线'" type="link" danger size="small">诊断</a-button>
+              <a-button v-if="record.state === 2 || record.state === 0" type="link" danger size="small">诊断</a-button>
               <a-button v-else type="link" size="small">详情</a-button>
             </template>
           </template>
@@ -63,44 +80,161 @@
         </div>
       </div>
     </div>
-
-    
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { StatCard } from '/@/views/bems-web/components'
+import { ref, reactive, onMounted } from 'vue';
+import { StatCard } from '/@/views/bems-web/components';
 import {
-  ApiOutlined, CheckCircleOutlined, InboxOutlined, WarningOutlined,
-  SearchOutlined, BarChartOutlined, ClockCircleOutlined, InfoCircleOutlined,
-} from '@ant-design/icons-vue'
+  ApiOutlined,
+  CheckCircleOutlined,
+  InboxOutlined,
+  WarningOutlined,
+  SearchOutlined,
+  BarChartOutlined,
+  ClockCircleOutlined,
+  ReloadOutlined,
+} from '@ant-design/icons-vue';
+import { getSummary, getInterfaceStatusList, getProtocolTypeList } from './index.api';
+import type { StatCardVO, InterfaceInfo, ProtocolTypeInfo } from './index.api';
 
-defineOptions({ name: 'IotInterfacePage' })
+defineOptions({ name: 'IotInterfacePage' });
 
-const statData = { systemCount: 28, onlineRate: '99.2%', todayData: '2.8M', errorCount: 2 }
-const protocolFilter = ref('')
-const statusFilter = ref('')
+// ===== 统计卡片配置（图标/颜色固定，数据来自后端） =====
+const statCardConfigs = [
+  { color: 'blue' as const, icon: ApiOutlined },
+  { color: 'green' as const, icon: CheckCircleOutlined },
+  { color: 'orange' as const, icon: InboxOutlined },
+  { color: 'red' as const, icon: WarningOutlined },
+];
+const statCards = ref<StatCardVO[]>([]);
 
+const fetchSummary = async () => {
+  try {
+    const res = await getSummary();
+    statCards.value = Array.isArray(res) ? res : [];
+  } catch (error) {
+    console.error('获取卡片汇总失败:', error);
+  }
+};
+
+// ===== 协议类型下拉 =====
+const protocolTypeOptions = ref<ProtocolTypeInfo[]>([]);
+const protocolTypeMap = ref<Map<number, string>>(new Map());
+
+const fetchProtocolTypes = async () => {
+  try {
+    const res = await getProtocolTypeList();
+    const list: ProtocolTypeInfo[] = Array.isArray(res) ? res : res?.records || [];
+    protocolTypeOptions.value = list;
+    const map = new Map<number, string>();
+    list.forEach((item) => {
+      if (item.id != null) {
+        map.set(item.id, item.typeName || '--');
+      }
+    });
+    protocolTypeMap.value = map;
+  } catch (error) {
+    console.error('获取协议类型列表失败:', error);
+  }
+};
+
+const getProtocolName = (id?: number) => {
+  if (id == null) return '--';
+  return protocolTypeMap.value.get(id) || '--';
+};
+
+// ===== 状态映射：0=离线 1=在线 2=异常 =====
+const getStateText = (state?: number) => {
+  switch (state) {
+    case 1:
+      return '在线';
+    case 0:
+      return '离线';
+    case 2:
+      return '异常';
+    default:
+      return '--';
+  }
+};
+
+const getStateClass = (state?: number) => {
+  switch (state) {
+    case 1:
+      return 'normal';
+    case 0:
+      return 'danger';
+    case 2:
+      return 'warning';
+    default:
+      return '';
+  }
+};
+
+// ===== 列表搜索 =====
+const searchForm = reactive({
+  protocolTypeId: '' as string | number,
+  state: '' as string | number,
+});
+
+const loading = ref(false);
+const tableData = ref<InterfaceInfo[]>([]);
+const pagination = reactive({
+  current: 1,
+  pageSize: 10,
+  total: 0,
+  showTotal: (total: number) => `共 ${total} 条`,
+  showSizeChanger: true,
+});
+
+const fetchList = async () => {
+  loading.value = true;
+  try {
+    const res = await getInterfaceStatusList({
+      pageNo: pagination.current,
+      pageSize: pagination.pageSize,
+      protocolTypeId: searchForm.protocolTypeId === '' ? undefined : (searchForm.protocolTypeId as number),
+      state: searchForm.state === '' ? undefined : (searchForm.state as number),
+    });
+    tableData.value = res?.records || [];
+    pagination.total = res?.total || 0;
+  } catch (error) {
+    console.error('获取接口状态列表失败:', error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const handleSearch = () => {
+  pagination.current = 1;
+  fetchList();
+};
+
+
+
+const handleTableChange = (pag: any) => {
+  pagination.current = pag.current;
+  pagination.pageSize = pag.pageSize;
+  fetchList();
+};
+
+// ===== 列定义 =====
 const columns = [
-  { title: '系统名称', dataIndex: 'systemName', key: 'systemName' },
-  { title: '接口协议', dataIndex: 'protocol', key: 'protocol', width: 110 },
-  { title: '接口地址', dataIndex: 'address', key: 'address' },
-  { title: '状态', dataIndex: 'status', key: 'status', width: 80 },
-  { title: '今日调用', dataIndex: 'todayCalls', key: 'todayCalls', width: 100 },
-  { title: '响应时间', dataIndex: 'responseTime', key: 'responseTime', width: 100 },
-  { title: '最后心跳', dataIndex: 'lastHeartbeat', key: 'lastHeartbeat', width: 170 },
+  { title: '系统名称', dataIndex: 'sysName', key: 'sysName' },
+  { title: '接口协议', key: 'protocolTypeName', width: 120 },
+  { title: '接口地址', dataIndex: 'interfacePath', key: 'interfacePath' },
+  { title: '状态', key: 'state', width: 80 },
+  { title: '响应时间', key: 'responseTime', width: 110 },
+  { title: '最后心跳', dataIndex: 'requestTime', key: 'requestTime', width: 170 },
   { title: '操作', key: 'action', width: 80, fixed: 'right' },
-]
+];
 
-const tableData = [
-  { id: 1, systemName: '安防监控系统', protocol: 'HTTP API', address: '192.168.1.10:8080', status: '在线', todayCalls: '45,678', responseTime: '45ms', lastHeartbeat: '13:45:22' },
-  { id: 2, systemName: '消防报警系统', protocol: 'MQTT', address: 'mqtt://192.168.1.11:1883', status: '在线', todayCalls: '12,345', responseTime: '23ms', lastHeartbeat: '13:45:20' },
-  { id: 3, systemName: '楼控系统', protocol: 'BACnet', address: '192.168.1.12:47808', status: '在线', todayCalls: '89,234', responseTime: '67ms', lastHeartbeat: '13:45:18' },
-  { id: 4, systemName: '照明系统', protocol: 'Modbus TCP', address: '192.168.1.13:502', status: '异常', todayCalls: '56,789', responseTime: '2,345ms', lastHeartbeat: '13:30:05' },
-  { id: 5, systemName: '能源计量系统', protocol: 'OPC UA', address: 'opc.tcp://192.168.1.14:4840', status: '在线', todayCalls: '234,567', responseTime: '34ms', lastHeartbeat: '13:45:22' },
-  { id: 6, systemName: '停车管理系统', protocol: 'HTTP API', address: '192.168.1.15:8081', status: '离线', todayCalls: '0', responseTime: '-', lastHeartbeat: '12:15:33' },
-]
+onMounted(() => {
+  fetchSummary();
+  fetchProtocolTypes();
+  fetchList();
+});
 </script>
 
 <style scoped lang="less">
