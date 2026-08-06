@@ -2,10 +2,15 @@
   <div class="event-page">
     <!-- 统计卡片 -->
     <div class="stats-row">
-      <StatCard label="当前展会" :value="statData.activeEvents" change-text="进行中" trend="up" color="blue" :icon="PlayCircleOutlined" />
-      <StatCard label="现场调度指令" :value="statData.dispatchCount" change-text="↑ 12 今日" trend="up" color="green" :icon="SendOutlined" />
-      <StatCard label="投诉建议" :value="statData.complaints" change-text="↓ 2 较昨日" trend="down" color="orange" :icon="MessageOutlined" />
-      <StatCard label="设备异常" :value="statData.deviceErrors" change-text="↓ 3 已处理" trend="down" color="purple" :icon="ToolOutlined" />
+      <StatCard
+        v-for="(card, index) in statCards"
+        :key="index"
+        :label="card.title || '--'"
+        :value="card.value ?? '--'"
+        :change-text="card.context || ''"
+        :color="statCardConfigs[index]?.color || 'blue'"
+        :icon="statCardConfigs[index]?.icon"
+      />
     </div>
 
     <!-- 对屏指挥 + 对屏控制 -->
@@ -50,35 +55,163 @@
     <div class="card">
       <div class="card-header">
         <h3><MessageOutlined /> 投诉建议处理</h3>
-        <a-button type="primary">+ 新增记录</a-button>
+        <a-button type="primary" @click="handleAdd">+ 新增记录</a-button>
       </div>
       <div class="card-body">
         <a-table
           :columns="columns"
           :data-source="tableData"
-          :pagination="false"
+          :loading="loading"
+          :pagination="pagination"
           row-key="id"
           size="small"
+          @change="handleTableChange"
         >
           <template #bodyCell="{ column, record }">
-            <template v-if="column.key === 'type'">
-              <span class="status-text" :class="record.typeClass">{{ record.type }}</span>
+            <template v-if="column.key === 'complaintTime'">
+              {{ record.complaintDate || '--' }} {{ record.complaintTime || '' }}
+            </template>
+            <template v-if="column.key === 'typeName'">
+              {{ record.typeName || '--' }}
             </template>
             <template v-if="column.key === 'status'">
-              <span class="status-text" :class="record.statusClass">{{ record.status }}</span>
+              <span class="status-text" :class="getStatusClass(record.status)">{{ record.status || '--' }}</span>
             </template>
             <template v-if="column.key === 'action'">
-              <a-button type="link" size="small">详情</a-button>
+              <!-- <a-button type="link" size="small" @click="handleEdit(record)">编辑</a-button> -->
+              <a-button type="link" size="small" @click="handleProcess(record)">处理</a-button>
+              <a-button type="link" danger size="small" @click="handleDelete(record)">删除</a-button>
             </template>
           </template>
         </a-table>
       </div>
     </div>
 
+    <!-- 新增投诉弹窗 -->
+    <a-modal
+      v-model:visible="addModalVisible"
+      title="新增投诉记录"
+      width="600px"
+      :confirm-loading="addModalLoading"
+      @ok="handleAddSubmit"
+      @cancel="handleAddCancel"
+    >
+      <a-form ref="addFormRef" :model="addForm" :rules="addRules" :label-col="{ span: 5 }" :wrapper-col="{ span: 18 }">
+        <a-form-item label="标题" name="title">
+          <a-input v-model:value="addForm.title" placeholder="请输入标题" />
+        </a-form-item>
+        <a-form-item label="类型" name="typeId">
+          <a-select
+            v-model:value="addForm.typeId"
+            placeholder="请选择类型"
+            :options="typeOptions"
+            :field-names="{ label: 'typeName', value: 'id' }"
+            allow-clear
+          />
+        </a-form-item>
+        <a-form-item label="日期" name="complaintDate">
+          <a-date-picker
+            v-model:value="addForm.complaintDate"
+            style="width: 100%"
+            value-format="YYYY-MM-DD"
+            placeholder="请选择日期"
+          />
+        </a-form-item>
+        <a-form-item label="时间" name="complaintTime">
+          <a-time-picker
+            v-model:value="addForm.complaintTime"
+            style="width: 100%"
+            format="HH:mm:ss"
+            value-format="HH:mm:ss"
+            placeholder="请选择时间"
+          />
+        </a-form-item>
+        <a-form-item label="投诉内容" name="content">
+          <a-textarea
+            v-model:value="addForm.content"
+            placeholder="请输入投诉内容"
+            :rows="3"
+            :maxlength="500"
+            show-count
+          />
+        </a-form-item>
+        <a-form-item label="投诉来源" name="source">
+          <a-input v-model:value="addForm.source" placeholder="请输入投诉来源" />
+        </a-form-item>
+        <a-form-item label="处理人" name="handler">
+          <a-input v-model:value="addForm.handler" placeholder="请输入处理人" />
+        </a-form-item>
+        <a-form-item label="状态" name="status">
+          <a-select
+            v-model:value="addForm.status"
+            placeholder="请选择状态"
+            :options="statusOptions"
+            :field-names="{ label: 'statusName', value: 'statusName' }"
+            allow-clear
+          />
+        </a-form-item>
+      </a-form>
+    </a-modal>
+
+    <!-- 编辑弹窗（仅编辑处理人） -->
+    <a-modal
+      v-model:visible="editModalVisible"
+      title="编辑处理人"
+      width="480px"
+      :confirm-loading="editModalLoading"
+      @ok="handleEditSubmit"
+      @cancel="handleEditCancel"
+    >
+      <a-form :label-col="{ span: 5 }" :wrapper-col="{ span: 18 }">
+        <a-form-item label="投诉内容">
+          <span>{{ editRecord?.content || '--' }}</span>
+        </a-form-item>
+        <a-form-item label="处理人">
+          <a-input v-model:value="editHandler" placeholder="请输入处理人" />
+        </a-form-item>
+      </a-form>
+    </a-modal>
+
+    <!-- 处理弹窗 -->
+    <a-modal
+      v-model:visible="processModalVisible"
+      title="处理投诉"
+      width="520px"
+      :confirm-loading="processModalLoading"
+      @ok="handleProcessSubmit"
+      @cancel="handleProcessCancel"
+    >
+      <a-form ref="processFormRef" :model="processForm" :rules="processRules" :label-col="{ span: 5 }" :wrapper-col="{ span: 18 }">
+        <a-form-item label="处理人" name="handler">
+          <a-input v-model:value="processForm.handler" placeholder="请输入处理人" />
+        </a-form-item>
+        <a-form-item label="处理内容" name="handleContent">
+          <a-textarea
+            v-model:value="processForm.handleContent"
+            placeholder="请输入处理内容"
+            :rows="4"
+            :maxlength="500"
+            show-count
+          />
+        </a-form-item>
+        <a-form-item label="处理状态" name="status">
+          <a-select
+            v-model:value="processForm.status"
+            placeholder="请选择处理状态"
+            :options="statusOptions"
+            :field-names="{ label: 'statusName', value: 'statusName' }"
+            allow-clear
+          />
+        </a-form-item>
+      </a-form>
+    </a-modal>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, reactive, onMounted } from 'vue'
+import { message, Modal } from 'ant-design-vue'
+import type { FormInstance } from 'ant-design-vue'
 import { StatCard } from '/@/views/bems-web/components'
 import {
   PlayCircleOutlined,
@@ -92,16 +225,44 @@ import {
   VideoCameraOutlined,
   AlertOutlined,
 } from '@ant-design/icons-vue'
+import {
+  getSummary,
+  getComplaintList,
+  getTypeList,
+  getStatusList,
+  addComplaint,
+  editComplaint,
+  handleComplaint,
+  deleteComplaint,
+} from './index.api'
+import type {
+  StatCardVO,
+  ComplaintInfo,
+  ComplaintType,
+  ComplaintStatus,
+} from './index.api'
 
 defineOptions({ name: 'EventDuringPage' })
 
-const statData = {
-  activeEvents: 3,
-  dispatchCount: 45,
-  complaints: 3,
-  deviceErrors: 1,
+// ===== 统计卡片配置（图标/颜色固定，数据来自后端） =====
+const statCardConfigs = [
+  { color: 'blue' as const, icon: PlayCircleOutlined },
+  { color: 'green' as const, icon: SendOutlined },
+  { color: 'orange' as const, icon: MessageOutlined },
+  { color: 'purple' as const, icon: ToolOutlined },
+]
+const statCards = ref<StatCardVO[]>([])
+
+const fetchSummary = async () => {
+  try {
+    const res = await getSummary()
+    statCards.value = Array.isArray(res) ? res : []
+  } catch (error) {
+    console.error('获取卡片汇总失败:', error)
+  }
 }
 
+// ===== 对屏控制面板（静态配置） =====
 const controlPanels = [
   { title: '空调控制', meta: '温度/模式/风速', icon: CloudOutlined, bgColor: '#ebf8ff', iconColor: '#3182ce' },
   { title: '照明控制', meta: '开关/亮度/场景', icon: BulbOutlined, bgColor: '#f0fff4', iconColor: '#38a169' },
@@ -109,21 +270,276 @@ const controlPanels = [
   { title: '应急控制', meta: '广播/疏散/联动', icon: AlertOutlined, bgColor: '#fff5f5', iconColor: '#e53e3e' },
 ]
 
+// ===== 类型 / 状态下拉 =====
+const typeOptions = ref<ComplaintType[]>([])
+const statusOptions = ref<ComplaintStatus[]>([])
+
+const fetchTypeOptions = async () => {
+  try {
+    const res = await getTypeList()
+    typeOptions.value = Array.isArray(res) ? res : res?.records || []
+  } catch (error) {
+    console.error('获取类型列表失败:', error)
+  }
+}
+
+const fetchStatusOptions = async () => {
+  try {
+    const res = await getStatusList()
+    statusOptions.value = Array.isArray(res) ? res : res?.records || []
+  } catch (error) {
+    console.error('获取状态列表失败:', error)
+  }
+}
+
+// ===== 状态样式映射 =====
+const getStatusClass = (status?: string) => {
+  if (!status) return ''
+  if (status.includes('已处理') || status.includes('已回复') || status.includes('完成')) return 'normal'
+  if (status.includes('处理中') || status.includes('待处理') || status.includes('待')) return 'warning'
+  if (status.includes('驳回') || status.includes('关闭') || status.includes('无效')) return 'danger'
+  return 'info'
+}
+
+// ===== 列表数据 =====
+const loading = ref(false)
+const tableData = ref<ComplaintInfo[]>([])
+const pagination = reactive({
+  current: 1,
+  pageSize: 10,
+  total: 0,
+  showTotal: (total: number) => `共 ${total} 条`,
+  showSizeChanger: true,
+})
+
+const fetchList = async () => {
+  loading.value = true
+  try {
+    const res = await getComplaintList({
+      pageNo: pagination.current,
+      pageSize: pagination.pageSize,
+    })
+    if (Array.isArray(res)) {
+      tableData.value = res
+      pagination.total = res.length
+    } else {
+      tableData.value = res?.records || []
+      pagination.total = res?.total || 0
+    }
+  } catch (error) {
+    console.error('获取投诉建议列表失败:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+const handleTableChange = (pag: any) => {
+  pagination.current = pag.current
+  pagination.pageSize = pag.pageSize
+  fetchList()
+}
+
+// ===== 列定义 =====
 const columns = [
-  { title: '时间', dataIndex: 'time', key: 'time', width: 100 },
-  { title: '类型', dataIndex: 'type', key: 'type', width: 80 },
-  { title: '内容', dataIndex: 'content', key: 'content' },
+  { title: '标题', dataIndex: 'title', key: 'title', width: 180 },
+  { title: '时间', key: 'complaintTime', width: 180 },
+  { title: '类型', dataIndex: 'typeName', key: 'typeName', width: 90 },
+  { title: '内容', dataIndex: 'content', key: 'content', ellipsis: true },
   { title: '来源', dataIndex: 'source', key: 'source', width: 150 },
-  { title: '处理人', dataIndex: 'handler', key: 'handler', width: 80 },
-  { title: '状态', dataIndex: 'status', key: 'status', width: 90 },
-  { title: '操作', key: 'action', width: 80 },
+  { title: '处理人', dataIndex: 'handler', key: 'handler', width: 90 },
+  { title: '状态', dataIndex: 'status', key: 'status', width: 100 },
+  { title: '操作', key: 'action', width: 180 },
 ]
 
-const tableData = [
-  { id: 1, time: '13:30:22', type: '建议', typeClass: 'warning', content: 'A馆F2层空调温度偏低，建议调高1°C', source: '参展商-展位A-105', handler: '张工', status: '已处理', statusClass: 'normal' },
-  { id: 2, time: '13:15:10', type: '投诉', typeClass: 'danger', content: 'B馆会议室音响有杂音，影响论坛进行', source: '主办方-新能源论坛', handler: '李工', status: '处理中', statusClass: 'warning' },
-  { id: 3, time: '12:45:33', type: '咨询', typeClass: 'info', content: '咨询C馆室外广场临时用电申请流程', source: '参展商-汽车展', handler: '王工', status: '已回复', statusClass: 'normal' },
-]
+// ===== 新增弹窗 =====
+const addModalVisible = ref(false)
+const addModalLoading = ref(false)
+const addFormRef = ref<FormInstance>()
+
+const addForm = reactive({
+  title: '',
+  typeId: undefined as number | undefined,
+  complaintDate: undefined as string | undefined,
+  complaintTime: undefined as string | undefined,
+  content: '',
+  source: '',
+  handler: '',
+  status: undefined as string | undefined,
+})
+
+const addRules = {
+  title: [{ required: true, message: '请输入标题', trigger: 'change' }],
+  typeId: [{ required: true, message: '请选择类型', trigger: 'change' }],
+  complaintDate: [{ required: true, message: '请选择日期', trigger: 'change' }],
+  complaintTime: [{ required: true, message: '请选择时间', trigger: 'change' }],
+  content: [{ required: true, message: '请输入投诉内容', trigger: 'blur' }],
+  source: [{ required: true, message: '请输入投诉来源', trigger: 'blur' }],
+  status: [{ required: true, message: '请选择状态', trigger: 'change' }],
+}
+
+const resetAddForm = () => {
+  addForm.typeId = undefined
+  addForm.complaintDate = undefined
+  addForm.complaintTime = undefined
+  addForm.content = ''
+  addForm.source = ''
+  addForm.handler = ''
+  addForm.status = undefined
+  addFormRef.value?.resetFields()
+}
+
+const handleAdd = () => {
+  resetAddForm()
+  addModalVisible.value = true
+}
+
+const handleAddSubmit = async () => {
+  try {
+    await addFormRef.value?.validate()
+    addModalLoading.value = true
+    await addComplaint({
+      title: addForm.title,
+      typeId: addForm.typeId,
+      complaintDate: addForm.complaintDate,
+      complaintTime: addForm.complaintTime,
+      content: addForm.content,
+      source: addForm.source,
+      handler: addForm.handler,
+      status: addForm.status,
+    })
+    message.success('新增成功')
+    addModalVisible.value = false
+    fetchList()
+  } catch (error) {
+    console.error('新增投诉失败:', error)
+  } finally {
+    addModalLoading.value = false
+  }
+}
+
+const handleAddCancel = () => {
+  addModalVisible.value = false
+}
+
+// ===== 编辑弹窗（仅编辑处理人） =====
+const editModalVisible = ref(false)
+const editModalLoading = ref(false)
+const editRecord = ref<ComplaintInfo | null>(null)
+const editHandler = ref('')
+
+const handleEdit = (record: ComplaintInfo) => {
+  editRecord.value = record
+  editHandler.value = record.handler || ''
+  editModalVisible.value = true
+}
+
+const handleEditSubmit = async () => {
+  if (!editRecord.value?.id) return
+  editModalLoading.value = true
+  try {
+    await editComplaint({
+      id: editRecord.value.id,
+      handler: editHandler.value,
+    })
+    message.success('修改成功')
+    editModalVisible.value = false
+    fetchList()
+  } catch (error) {
+    console.error('编辑投诉失败:', error)
+  } finally {
+    editModalLoading.value = false
+  }
+}
+
+const handleEditCancel = () => {
+  editModalVisible.value = false
+}
+
+// ===== 处理弹窗 =====
+const processModalVisible = ref(false)
+const processModalLoading = ref(false)
+const processFormRef = ref<FormInstance>()
+const processRecord = ref<ComplaintInfo | null>(null)
+
+const processForm = reactive({
+  handler: '',
+  handleContent: '',
+  status: undefined as string | undefined,
+})
+
+const processRules = {
+  handler: [{ required: true, message: '请输入处理人', trigger: 'blur' }],
+  handleContent: [{ required: true, message: '请输入处理内容', trigger: 'blur' }],
+  status: [{ required: true, message: '请选择处理状态', trigger: 'change' }],
+}
+
+const resetProcessForm = () => {
+  processForm.handler = ''
+  processForm.handleContent = ''
+  processForm.status = undefined
+  processFormRef.value?.resetFields()
+}
+
+const handleProcess = (record: ComplaintInfo) => {
+  processRecord.value = record
+  resetProcessForm()
+  // 回填当前处理人
+  processForm.handler = record.handler || ''
+  processModalVisible.value = true
+}
+
+const handleProcessSubmit = async () => {
+  try {
+    await processFormRef.value?.validate()
+    if (!processRecord.value?.id) return
+    processModalLoading.value = true
+    await handleComplaint({
+      complaintId: processRecord.value.id,
+      handleContent: processForm.handleContent,
+      handler: processForm.handler,
+      status: processForm.status!,
+    })
+    message.success('处理成功')
+    processModalVisible.value = false
+    fetchList()
+  } catch (error) {
+    console.error('处理投诉失败:', error)
+  } finally {
+    processModalLoading.value = false
+  }
+}
+
+const handleProcessCancel = () => {
+  processModalVisible.value = false
+}
+
+// ===== 删除投诉 =====
+const handleDelete = (record: ComplaintInfo) => {
+  Modal.confirm({
+    title: '确认删除',
+    content: `确定要删除该投诉记录吗？`,
+    okText: '确定',
+    okType: 'danger',
+    cancelText: '取消',
+    async onOk() {
+      try {
+        await deleteComplaint({ id: record.id! })
+        message.success('删除成功')
+        fetchList()
+      } catch (error) {
+        console.error('删除投诉失败:', error)
+      }
+    },
+  })
+}
+
+// ===== 初始化 =====
+onMounted(() => {
+  fetchSummary()
+  fetchTypeOptions()
+  fetchStatusOptions()
+  fetchList()
+})
 </script>
 
 <style scoped lang="less">

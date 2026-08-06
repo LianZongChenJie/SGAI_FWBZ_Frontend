@@ -17,9 +17,15 @@
     <div class="card">
       <div class="card-header">
         <h3><VideoCameraOutlined /> 实时监控画面</h3>
+        <a-radio-group v-model:value="gridLayout" button-style="solid" size="small">
+          <a-radio-button :value="1">1×1</a-radio-button>
+          <a-radio-button :value="2">2×2</a-radio-button>
+          <a-radio-button :value="3">3×3</a-radio-button>
+          <a-radio-button :value="4">4×4</a-radio-button>
+        </a-radio-group>
       </div>
       <div class="card-body">
-        <CameraCarousel :cameras="cameraList" :items-per-page="8" />
+        <CameraCarousel :cameras="cameraList" :layout="gridLayout" />
       </div>
     </div>
 
@@ -170,6 +176,9 @@ import {
 } from '@ant-design/icons-vue'
 
 defineOptions({ name: 'SecurityTab' })
+
+/** 监控画面网格布局：1=1×1, 2=2×2, 3=3×3, 4=4×4 */
+const gridLayout = ref(2)
 
 /** 卡片颜色与图标配置（与后端返回顺序对应） */
 const cardConfig = [

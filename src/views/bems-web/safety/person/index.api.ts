@@ -2,13 +2,13 @@ import { fwbzHttp } from '/@/utils/http/axios';
 
 enum Api {
   /** 今日进场人数 */
-  todayEntrance = '/sgai-fwbz-dev/fwbz/hikvision/dashboard/todayEntryCount',
+  todayEntrance = '/sgai-fwbz-dev/fwbz/hikvision/dashboard/stat/todayEntryCount',
   /** 当前在场人数 */
-  currentEntrance = '/sgai-fwbz-dev/fwbz/hikvision/dashboard/currentOnsiteCount',
+  currentEntrance = '/sgai-fwbz-dev/fwbz/hikvision/dashboard/stat/currentOnsiteCount',
   /** 查询人员识别记录 */
-  queryPersonRecord = '/sgai-fwbz-dev/fwbz/hikvision/dashboard/recognitionRecords',
+  queryPersonRecord = '/sgai-fwbz-dev/fwbz/hikvision/dashboard/stat/recognitionRecordCount',
   /** 查询异常行为预警 */
-  queryAbnormalBehavior = '/sgai-fwbz-dev/fwbz/hikvision/dashboard/abnormalBehaviorAlerts',
+  queryAbnormalBehavior = '/sgai-fwbz-dev/fwbz/hikvision/dashboard/stat/abnormalAlertCount',
   /** 人员轨迹查询 */
   trackList = '/sgai-fwbz-dev/fwbz/personnelTrajectory/query',
 }
