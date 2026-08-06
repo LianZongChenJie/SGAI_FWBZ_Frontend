@@ -199,6 +199,9 @@ import {
   findDayByConfig,
   findMonthByConfig,
   findYearByConfig,
+  findDayVenueElectricity,
+  findMonthVenueElectricity,
+  findYearVenueElectricity,
 } from './index.api'
 import { getVenueInfoList, getCategoryTreeData, spaceTree } from '/@/views/bems-web/equipment/equipmentManagement/elements/device/Device.api'
 
@@ -468,11 +471,11 @@ const loadVenueElectricity = async (type: 'day' | 'month' | 'year' = 'month') =>
   venueLoading.value = true
   try {
     const apiMap = {
-      day: findDayByConfig,
-      month: findMonthByConfig,
-      year: findYearByConfig,
+      day: findDayVenueElectricity,
+      month: findMonthVenueElectricity,
+      year: findYearVenueElectricity,
     }
-    const res = await apiMap[type]({ businessConfigKey: 'meterPointData:venueElectricity' })
+    const res = await apiMap[type]()
     // 响应格式：{ result: { chat: { xaxis, chatSeriesList } } } 或已解包 { chat: { ... } }
     const chatData = res?.chat || res?.result?.chat || res?.data?.chat || {}
     const xaxis = chatData.xaxis || []
@@ -564,7 +567,7 @@ const loadStructureData = async (type: 'day' | 'month' | 'year' = 'month') => {
       month: findMonthByConfig,
       year: findYearByConfig,
     }
-    const res = await apiMap[type]({ businessConfigKey: 'meterPointData:energyStructure' })
+    const res = await apiMap[type]()
     // 响应格式：{ result: { chat: { xaxis, chatSeriesList } } }
     const chatData = res?.chat || res?.result?.chat || res?.data?.chat || {}
     const seriesList = (chatData.chatSeriesList || chatData.seriesList || []) as any[]

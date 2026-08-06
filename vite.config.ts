@@ -78,6 +78,10 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
       // @ts-ignore
       https: false,
       port: VITE_PORT,
+      // 允许 unload 事件，解决百度统计 Permissions-Policy 报错
+      headers: {
+        'Permissions-Policy': 'unload=*',
+      },
       // Load proxy configuration from .env
       // proxy: createProxy(VITE_PROXY),
       proxy: {
