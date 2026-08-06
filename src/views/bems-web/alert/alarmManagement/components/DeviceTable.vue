@@ -1,0 +1,297 @@
+<template>
+  <div class="device-table">
+    <BasicTable @register="registerTable">
+      <template #tableTitle>
+        <a-button
+          type="primary"
+          :icon="h(PlusOutlined)"
+          @click="handleCreated"
+        >新建</a-button>
+      </template>
+      <template #bodyCell="{ column, record }">
+        <template v-if="column.key === 'action'">
+          <a-space>
+            <a @click="handleEdit(record)">编辑</a>
+            <a
+              @click="handleDelete(record)"
+              style="color: red;"
+            >删除</a>
+            <a @click="handleDetail(record)">详情</a>
+          </a-space>
+        </template>
+        <template v-else-if="column.key === 'automaticAlgorithm'">
+          <!-- 自动算法 -->
+          <a-switch
+            :checked="record.automaticAlgorithm == '1'"
+            :disabled="false"
+            @change="(checked) => handleAutomaticAlgorithmChange(record, checked)"
+          />
+        </template>
+      </template>
+    </BasicTable>
+  </div>
+</template>
+
+<script lang="ts" setup>
+import { ref, onMounted, watch, computed } from 'vue';
+import { selectDevice, updateAutomaticAlgorithm } from './Device.api';
+import { BasicColumn, BasicTable, FormSchema } from '/@/components/Table';
+import { useListPage } from '/@/hooks/system/useListPage';
+import { h } from 'vue';
+import { PlusOutlined } from '@ant-design/icons-vue';
+
+const props = defineProps<{
+  categoryKeys?: string[]; // 类别树节点
+  spaceKeys?: string[]; // 空间树节点
+  categoryTreeData: any[];
+  spaceTreeData: any[];
+}>();
+
+const emit = defineEmits(['edit', 'delete', 'refresh', 'detail']);
+
+// 搜索参数
+const searchParams = ref({
+  deviceName: '',
+});
+
+// 查找树节点的标题
+const findTreeNodeTitle = (treeData: any[], key: string | number): string => {
+  if (!treeData || !Array.isArray(treeData)) {
+    return '';
+  }
+
+  const find = (nodes: any[]): string => {
+    for (const node of nodes) {
+      if (String(node.key) === String(key)) {
+        return node.value;
+      }
+      if (node.children && Array.isArray(node.children)) {
+        const title = find(node.children);
+        if (title) return title;
+      }
+    }
+    return '';
+  };
+  return find(treeData);
+};
+
+// 表格列配置
+const columns: BasicColumn[] = [
+  {
+    title: '设备名称',
+    dataIndex: 'deviceName',
+    key: 'deviceName',
+    resizable: true,
+  },
+  {
+    title: '设备编号',
+    dataIndex: 'deviceCode',
+    key: 'deviceCode',
+    resizable: true,
+  },
+  {
+    title: '设备类型',
+    dataIndex: 'categoryId',
+    key: 'categoryId',
+    customRender: ({ text }) => {
+      if (!text) return '';
+      return findTreeNodeTitle(props.categoryTreeData, text) || text;
+    },
+    resizable: true,
+  },
+  {
+    title: '设备位置',
+    dataIndex: 'spaceId',
+    key: 'spaceId',
+    customRender: ({ text }) => {
+      if (!text) return '';
+      return findTreeNodeTitle(props.spaceTreeData, text) || text;
+    },
+    resizable: true,
+  },
+  {
+    title: '倍率',
+    dataIndex: 'magnification',
+    key: 'magnification',
+    resizable: true,
+  },
+  {
+    title: '排序',
+    dataIndex: 'sort',
+    key: 'sort',
+    resizable: true,
+  },
+  {
+    title: '自动算法',
+    dataIndex: 'automaticAlgorithm',
+    key: 'automaticAlgorithm',
+  },
+];
+
+//表单搜索字段
+const searchFormSchema: FormSchema[] = [
+  {
+    label: '设备名称/设备编号', //显示label
+    field: 'deviceName', //查询字段
+    component: 'JInput', //渲染的组件
+    // slot: 'name', //设置默认值
+  },
+];
+
+// 表格数据
+const dataSource = ref([]);
+const total = ref<number>(0);
+const pagination = ref({
+  pageNo: 1,
+  pageSize: 10,
+});
+
+// 搜索处理
+// const handleSearch = () => {
+//   pagination.value.pageNo = 1;
+//   setPagination({
+//     current: pagination.value.pageNo, // 跳转到第2页
+//     pageSize: pagination.value.pageSize, // 每页20条
+//   });
+//   loadData();
+// };
+
+// 表格分页变化
+// const handleTableChange = (pag: any) => {
+//   pagination.value.pageNo = pag.current;
+//   pagination.value.pageSize = pag.pageSize;
+//   setPagination({
+//     current: pagination.value.pageNo, // 跳转到第2页
+//     pageSize: pagination.value.pageSize, // 每页20条
+//   });
+//   loadData();
+// };
+
+// 自动算法切换
+const handleAutomaticAlgorithmChange = (record: any, checked: boolean) => {
+  try {
+    const params = {
+      id: record.id,
+      automaticAlgorithm: checked ? '1' : '0',
+    };
+    updateAutomaticAlgorithm(params);
+    record.automaticAlgorithm = checked ? '1' : '0';
+  } catch (error) {
+    record.automaticAlgorithm = checked ? '0' : '1';
+    console.error('自动算法切换失败:', error);
+  }
+};
+
+// 加载数据
+const loadData = async (pageParams) => {
+  const { pageNo, pageSize } = pageParams;
+  try {
+    let { getFieldsValue } = getForm();
+    const searchData = getFieldsValue();
+    const params = {
+      pageNo: pageNo,
+      pageSize: pageSize,
+      nameOrCode: searchData.deviceName ? searchData.deviceName.split('*')[1] : undefined,
+      categoryIds: props.categoryKeys ? props.categoryKeys.join(',') : undefined,
+      spaceIds: props.spaceKeys ? props.spaceKeys.join(',') : undefined,
+    };
+    console.log('request params:', params); // 调试日志
+    const res = await selectDevice(params);
+    return {
+      records: res.records, // 当前页数据
+      total: res.total, // 总记录数
+    };
+  } catch (error) {
+    console.error('加载数据失败:', error);
+  }
+};
+
+async function customResetFunc() {
+  searchParams.value.deviceName = '';
+}
+
+const { tableContext } = useListPage({
+  designScope: 'basic-table-demo',
+  tableProps: {
+    api: loadData,
+    columns: columns,
+    showActionColumn: false,
+    size: 'middle',
+    pagination: {
+      pageSize: 10,
+      showSizeChanger: true,
+    },
+    showTableSetting:false,
+    formConfig: {
+      schemas: searchFormSchema,
+      submitOnReset: true,
+      //重置按钮的自定义事件
+      resetFunc: customResetFunc,
+      //默认row行配置,当 layout 为 horizontal 生效
+      rowProps: { gutter: 24, justify: 'start', align: 'middle' },
+      //全局col列占比(每列显示多少位)，和schemas中的colProps属性一致
+      baseColProps: { span: 8 },
+      //row行的样式
+      baseRowStyle: { width: '100%' },
+      labelCol: { style: { width: '130px' } },
+    },
+  },
+});
+
+// BasicTable绑定注册
+const [registerTable, { reload, getForm }] = tableContext;
+
+// 监听选中节点变化
+watch(
+  () => props.categoryKeys,
+  (newVal, oldVal) => {
+    pagination.value.pageNo = 1;
+    loadData();
+    reload();
+  }
+);
+watch(
+  () => props.spaceKeys,
+  (newVal, oldVal) => {
+    pagination.value.pageNo = 1;
+    loadData();
+    reload();
+  }
+);
+
+// 初始加载
+onMounted(() => {
+  loadData();
+});
+
+// 操作方法
+const handleEdit = (record: any) => {
+  emit('edit', record);
+  reload();
+};
+
+const handleDelete = (record: any) => {
+  emit('delete', record);
+  reload();
+};
+
+const handleDetail = (record: any) => {
+  emit('detail', record);
+};
+
+const handleCreated = () => {
+  emit('add');
+  reload();
+};
+
+// 暴露 reload 方法给父组件
+defineExpose({
+  reload: () => {
+    pagination.value.pageNo = 1;
+    loadData();
+  },
+});
+</script>
+
+<style lang="less" scoped>
+</style>

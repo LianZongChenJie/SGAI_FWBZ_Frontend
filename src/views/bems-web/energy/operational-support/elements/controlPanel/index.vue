@@ -60,13 +60,35 @@
         </div>
       </div>
     </a-card>
+
+    <!-- 空调机组控制弹窗 -->
+    <a-modal
+      v-model:open="acModalVisible"
+      title="控制"
+      :mask-closable="false"
+      @ok="handleAcSave"
+      ok-text="保存"
+      cancel-text="取消"
+    >
+      <div class="ac-control-form">
+        <div class="control-row">
+          <span class="control-label">开关</span>
+          <a-switch v-model:checked="acSwitchValue" checked-children="开" un-checked-children="关" />
+        </div>
+        <div class="control-row">
+          <span class="control-label">温度</span>
+          <a-input-number v-model:value="acTempValue" :min="16" :max="30" :step="1" style="width: 200px" addon-after="°C" />
+        </div>
+      </div>
+    </a-modal>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { message } from 'ant-design-vue'
 import type { AcControlItem, LightingControlItem } from './index.api'
-import { getAirList } from './index.api'
+import { getAirList, airControl } from './index.api'
 import { spaceTree } from '/@/views/bems-web/equipment/equipmentManagement/elements/device/Device.api'
 
 // ===== Props =====
@@ -153,9 +175,41 @@ const lightingColumns = [
   { title: '操作', key: 'action', width: 80 }
 ]
 
-// ===== 事件处理 =====
+// ===== 空调机组控制弹窗 =====
+const acModalVisible = ref(false)
+const acSwitchValue = ref(false)
+const acTempValue = ref<number>(22)
+const acCurrentRecord = ref<any>(null)
+
 const handleControl = (type: 'ac' | 'lighting', record: any) => {
-  emit('control', type, record)
+  if (type === 'ac') {
+    acCurrentRecord.value = record
+    acSwitchValue.value = record.runStop === '1'
+    acTempValue.value = Number(record.setTemperature) || 22
+    acModalVisible.value = true
+  } else {
+    emit('control', type, record)
+  }
+}
+
+const handleAcSave = async () => {
+  const deviceId = acCurrentRecord.value?.deviceId
+  if (!deviceId) return
+  const onOffValue = acSwitchValue.value ? 2 : 1
+  const payload = [
+    { deviceId, attributeCode: 'UNIT_ON_OFF', value: onOffValue },
+    { deviceId, attributeCode: 'SA_TEMP_SETPOINT', value: acTempValue.value },
+  ]
+  try {
+    await airControl(payload)
+    message.success('保存成功')
+  } catch (e) {
+    console.error('空调控制失败:', e)
+    message.error('保存失败')
+  } finally {
+    acModalVisible.value = false
+    loadAirList()
+  }
 }
 
 // ===== 初始化 =====
@@ -192,6 +246,22 @@ onMounted(() => {
     padding: 2px 12px;
     border-radius: 12px;
     }
+
+.ac-control-form {
+  .control-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .control-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #1d2129;
+    width: 50px;
+    flex-shrink: 0;
+  }
+}
 
 
 </style>

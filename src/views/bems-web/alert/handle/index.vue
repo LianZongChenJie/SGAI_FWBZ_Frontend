@@ -1,51 +1,57 @@
+<!-- 报警处理 -->
 <template>
   <div class="alert-page">
     <div class="stats-row">
-      <StatCard label="待处理告警" :value="statData.pending" change-text="↓ 3 较昨日" trend="down" color="red" :icon="WarningOutlined" />
-      <StatCard label="处理中" :value="statData.processing" change-text="↑ 2 较昨日" trend="up" color="orange" :icon="SyncOutlined" />
-      <StatCard label="今日已处理" :value="statData.todayDone" change-text="↑ 8 较昨日" trend="up" color="green" :icon="CheckCircleOutlined" />
-      <StatCard label="平均处理时长" :value="statData.avgTime" change-text="↓ 3.2min" trend="down" color="blue" :icon="ClockCircleOutlined" />
+      <StatCard label="待处理告警" :value="statData.untreatedCount" change-text="" trend="" color="red" :icon="PendingAlertIcon" />
+      <StatCard label="处理中" :value="statData.eventCount" change-text="" trend="" color="orange" :icon="ProcessingIcon" />
+      <StatCard label="今日已处理" :value="statData.completedCount" change-text="" trend="" color="green" :icon="TodayDoneIcon" />
+      <StatCard label="平均处理时长(分钟)" :value="statData.averageProcessingTime" change-text="" trend="" color="blue" :icon="AvgTimeIcon" />
     </div>
 
     <div class="card">
       <div class="card-header">
-        <h3><WarningOutlined /> 待处理告警</h3>
+        <h3>🚨待处理告警</h3>
         <div class="filter-bar">
-          <a-select v-model:value="levelFilter" style="width: 120px" placeholder="全部等级">
-            <a-select-option value="">全部等级</a-select-option>
-            <a-select-option value="紧急">紧急</a-select-option>
-            <a-select-option value="重要">重要</a-select-option>
-            <a-select-option value="一般">一般</a-select-option>
-          </a-select>
-          <a-select v-model:value="typeFilter" style="width: 130px" placeholder="全部类型">
-            <a-select-option value="">全部类型</a-select-option>
-            <a-select-option value="设备故障">设备故障</a-select-option>
-            <a-select-option value="阈值告警">阈值告警</a-select-option>
-            <a-select-option value="系统告警">系统告警</a-select-option>
-          </a-select>
-          <a-button type="primary"><SearchOutlined /> 查询</a-button>
+          <a-select v-model:value="levelFilter" style="width: 120px" placeholder="报警等级" :options="levelOption" allowClear @change="onQuery" />
+          <a-select v-model:value="typeFilter" style="width: 130px" placeholder="报警类型" :options="categoryOption" allowClear @change="onQuery" />
+          <a-button type="primary" @click="onQuery">🔍查询</a-button>
         </div>
       </div>
       <div class="card-body">
-        <div class="alert-list">
-          <div class="alert-card" :class="alert.level" v-for="alert in alertList" :key="alert.title">
+        <a-spin :spinning="loading" tip="加载中...">
+          <div v-if="alertList.length === 0 && !loading" class="empty-state">暂无待处理告警</div>
+          <div class="alert-list" v-else>
+          <div class="alert-card" :class="alert.level" v-for="alert in alertList" :key="alert.id">
             <div class="alert-icon">
-              <WarningFilled v-if="alert.level === 'danger'" />
-              <WarningOutlined v-else-if="alert.level === 'warning'" />
-              <InfoCircleOutlined v-else />
+              <VeryDangerIcon v-if="alert.level === 'veryDanger'" />
+              <DangerIcon v-else-if="alert.level === 'danger'" />
+              <InfoIcon v-else />
             </div>
             <div class="alert-content">
-              <div class="alert-title">{{ alert.title }} <span class="level-tag" :class="alert.level">{{ alert.levelLabel }}</span></div>
-              <div class="alert-desc">{{ alert.description }}</div>
+              <div class="alert-title">{{ alert.description }} <span class="category-tag">{{ alert.alarmCategoryName }}</span> <span class="level-tag" :class="alert.level">{{ alert.levelLabel }}</span></div>
+              <div class="alert-desc">{{ alert.title }}</div>
+
+              <!-- <div class="alert-title">{{ alert.title }} <span class="level-tag" :class="alert.level">{{ alert.levelLabel }}</span></div> -->
+              <!-- <div class="alert-desc">{{ alert.description }}</div> -->
               <div class="alert-time">{{ alert.time }} | 持续 {{ alert.duration }}</div>
               <div class="alert-actions">
-                <a-button type="primary" :danger="alert.level === 'danger'" size="small">确认并处理</a-button>
+                <a-button class="confirm-btn" :class="'confirm-' + alert.level" size="small">确认并处理</a-button>
                 <a-button size="small">转工单</a-button>
-                <a-button size="small">视频核验</a-button>
-                <a-button size="small">标记误报</a-button>
-              </div>
+                </div>
             </div>
           </div>
+        </div>
+        </a-spin>
+        <div class="pagination-wrapper">
+          <Pagination
+            :current="currentPage"
+            :total="totalRecords"
+            :page-size="pageSize"
+            show-size-changer
+            :show-total="(total) => `共 ${total} 条`"
+            @change="onPageChange"
+            @showSizeChange="onPageSizeChange"
+          />
         </div>
       </div>
     </div>
@@ -55,46 +61,163 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, h, onMounted } from 'vue'
 import { StatCard } from '/@/views/bems-web/components'
 import {
-  WarningOutlined, SyncOutlined, CheckCircleOutlined, ClockCircleOutlined,
-  SearchOutlined, InfoCircleOutlined, WarningFilled,
-} from '@ant-design/icons-vue'
+  getAlarmRecordsListApi,
+  getAlarmCategoryListApi,
+  getAlarmLevelListApi,
+  getAlarmRecordStatisticsApi,
+} from '../alarmManagement/Standardized.api'
+import { message, Pagination } from 'ant-design-vue'
+
+// 自定义 emoji 图标组件
+const PendingAlertIcon = () => h('span', { style: 'font-size: 20px;' }, '🚨')
+const ProcessingIcon = () => h('span', { style: 'font-size: 20px;' }, '🔄')
+const TodayDoneIcon = () => h('span', { style: 'font-size: 20px;' }, '✅')
+const AvgTimeIcon = () => h('span', { style: 'font-size: 20px;' }, '⏱️')
+const VeryDangerIcon = () => h('span', { style: 'font-size: 18px;' }, '🚨')
+const DangerIcon = () => h('span', { style: 'font-size: 18px;' }, '⚠️')
+const InfoIcon = () => h('span', { style: 'font-size: 18px;' }, '💡')
 
 defineOptions({ name: 'AlertHandlePage' })
 
-const statData = { pending: 12, processing: 5, todayDone: 28, avgTime: '12.5min' }
-const levelFilter = ref('')
-const typeFilter = ref('')
+interface AlertCard {
+  id: string
+  _record: any
+  level: string
+  levelLabel: string
+  title: string
+  description: string
+  time: string
+  duration: string
+  alarmCategoryName: string
+}
 
-const alertList = [
-  {
-    level: 'danger', levelLabel: '紧急', title: 'A馆F2层烟感探测器异常',
-    description: '烟感探测器ID: SMK-201 信号异常，信号强度 32%，需立即检查设备连接状态。该设备位于A馆F2层展厅A区域，属于消防重点监控区域。',
-    time: '2026-06-09 13:42:18', duration: '3分钟',
-  },
-  {
-    level: 'danger', levelLabel: '紧急', title: 'B馆消防水泵房压力异常',
-    description: '消防水泵出口压力 0.45MPa，低于设定阈值 0.5MPa，可能影响消防供水能力。建议立即检查水泵运行状态及管网泄漏情况。',
-    time: '2026-06-09 13:38:05', duration: '7分钟',
-  },
-  {
-    level: 'warning', levelLabel: '重要', title: 'B馆空调机组能耗异常偏高',
-    description: '当前能耗较基准值高出 23%，建议检查设备运行参数。机组AC-B-03运行电流异常，可能为滤网堵塞或冷媒不足导致。',
-    time: '2026-06-09 13:35:05', duration: '10分钟',
-  },
-  {
-    level: 'warning', levelLabel: '重要', title: 'C馆照明回路L-305离线',
-    description: '智慧照明系统回路L-305通信中断，已自动切换备用模式。该回路控制C馆F2层展厅照明，涉及12个灯具。',
-    time: '2026-06-09 13:28:33', duration: '17分钟',
-  },
-  {
-    level: 'info', levelLabel: '一般', title: '停车系统接口异常',
-    description: '停车管理系统HTTP API接口响应超时，已自动重连3次。当前系统处于降级模式，数据采集延迟约15分钟。',
-    time: '2026-06-09 12:15:33', duration: '1小时30分钟',
-  },
-]
+const statData = ref({ untreatedCount: 0, eventCount: 0, completedCount: 0, averageProcessingTime: '0min' })
+
+// 获取统计数据
+const fetchStatistics = async () => {
+  try {
+    const res = await getAlarmRecordStatisticsApi()
+    if (res) {
+      statData.value = {
+        untreatedCount: res.untreatedCount ?? 0,
+        eventCount: res.eventCount ?? 0,
+        completedCount: res.completedCount ?? 0,
+        averageProcessingTime: res.averageProcessingTime ?? '0min',
+      }
+    }
+  } catch {
+    // 静默处理
+  }
+}
+const levelFilter = ref<string | undefined>(undefined)
+const typeFilter = ref<string | undefined>(undefined)
+const categoryOption = ref<{ label: string; value: string }[]>([])
+const levelOption = ref<{ label: string; value: string }[]>([])
+const alertList = ref<AlertCard[]>([])
+const loading = ref(false)
+const currentPage = ref(1)
+const pageSize = ref(10)
+const totalRecords = ref(0)
+
+// 报警等级文本 → level class 映射
+const levelClassMap: Record<string, string> = { '非常紧急': 'veryDanger', '紧急': 'danger' }
+
+// 计算持续时间
+const getDuration = (alarmTime: string): string => {
+  if (!alarmTime) return ''
+  const diff = Date.now() - new Date(alarmTime).getTime()
+  const minutes = Math.floor(diff / 60000)
+  if (minutes < 1) return '刚刚'
+  if (minutes < 60) return `${minutes}分钟`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours}小时${minutes % 60}分钟`
+  const days = Math.floor(hours / 24)
+  return `${days}天${hours % 24}小时`
+}
+
+// API 记录 → 卡片格式映射
+const mapRecordToCard = (record: any): AlertCard => {
+  const levelName: string = record.alarmLevelName || ''
+  return {
+    id: record.id,
+    _record: record,
+    level: levelClassMap[levelName] || 'info',
+    levelLabel: levelName,
+    title: record.alarmContent || '',
+    description: `设备: ${record.deviceName || '-'} | 位置: ${record.spaceName || '-'}`,
+    time: record.alarmTime || '',
+    duration: getDuration(record.alarmTime),
+    alarmCategoryName: record.alarmCategoryName || '-',
+  }
+}
+
+// 获取待处理告警列表
+const fetchAlertList = async (page = currentPage.value) => {
+  loading.value = true
+  try {
+    const params: any = {
+      pageNo: page,
+      pageSize: pageSize.value,
+      alarmStatus: '1', // 未处理
+    }
+    if (levelFilter.value) params.alarmLevelId = levelFilter.value
+    if (typeFilter.value) params.alarmCategoryId = typeFilter.value
+    const res = await getAlarmRecordsListApi(params)
+    alertList.value = (res.records || []).map(mapRecordToCard)
+    totalRecords.value = res.total || 0
+    currentPage.value = page
+  } catch {
+    message.error('获取告警列表失败')
+  } finally {
+    loading.value = false
+  }
+}
+
+// 分页切换
+const onPageChange = (page: number) => {
+  currentPage.value = page
+  fetchAlertList(page)
+}
+
+// 每页条数切换
+const onPageSizeChange = (_page: number, size: number) => {
+  pageSize.value = size
+  fetchAlertList(1)
+}
+
+// 查询（重置到第一页）
+const onQuery = () => {
+  fetchAlertList(1)
+}
+
+// 获取报警类型/等级下拉选项
+const getOptionsData = async () => {
+  try {
+    const [categoryRes, levelRes] = await Promise.all([
+      getAlarmCategoryListApi(),
+      getAlarmLevelListApi(),
+    ])
+    categoryOption.value = (categoryRes || []).map((item: any) => ({
+      label: item.alarmCategoryName,
+      value: item.id,
+    }))
+    levelOption.value = (levelRes || []).map((item: any) => ({
+      label: item.alarmLevelName,
+      value: item.id,
+    }))
+  } catch {
+    // 静默处理
+  }
+}
+
+onMounted(() => {
+  fetchStatistics()
+  getOptionsData()
+  fetchAlertList()
+})
 </script>
 
 <style scoped lang="less">
@@ -115,6 +238,48 @@ const alertList = [
   gap: 16px;
 }
 
+.pagination-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+
+  :deep(.ant-pagination) {
+    margin-top: 0;
+    padding: 8px 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  :deep(.ant-pagination-total-text) {
+    margin-right: auto;
+    color: rgba(0, 0, 0, 0.65);
+  }
+
+  :deep(.ant-pagination-options) {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  :deep(.ant-pagination-options-quick-jumper) {
+    color: rgba(0, 0, 0, 0.65);
+
+    input {
+      width: 48px;
+      margin: 0 8px;
+    }
+  }
+}
+
+.empty-state {
+  text-align: center;
+  color: #86909c;
+  padding: 60px 0;
+  font-size: 14px;
+}
+
 .alert-card {
   display: flex;
   align-items: flex-start;
@@ -126,14 +291,14 @@ const alertList = [
 
   &:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
 
-  &.danger { background: #fff2f0; border-left-color: #ff4d4f; }
-  &.warning { background: #fffbe6; border-left-color: #faad14; }
+  &.veryDanger { background: #fff2f0; border-left-color: #ff4d4f; }
+  &.danger { background: #fffbe6; border-left-color: #faad14; }
   &.info { background: #e6f4ff; border-left-color: #1677ff; }
 
   .alert-icon {
     width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0;
-    .danger & { background: #ffccc7; color: #ff4d4f; }
-    .warning & { background: #ffe58f; color: #faad14; }
+    .veryDanger & { background: #ffccc7; color: #ff4d4f; }
+    .danger & { background: #ffe58f; color: #faad14; }
     .info & { background: #bae0ff; color: #1677ff; }
   }
 
@@ -141,13 +306,19 @@ const alertList = [
     flex: 1; min-width: 0;
     .alert-title { font-size: 14px; font-weight: 600; color: #1d2129; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
     .level-tag { font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 500;
-      &.danger { background: #ffccc7; color: #742a2a; }
-      &.warning { background: #ffe58f; color: #744210; }
+      &.veryDanger { background: #ffccc7; color: #742a2a; }
+      &.danger { background: #ffe58f; color: #744210; }
       &.info { background: #bae0ff; color: #2a4365; }
     }
+    .category-tag { font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 500; background: #e8e8e8; color: #555; }
     .alert-desc { font-size: 13px; color: #4e5969; line-height: 1.6; }
     .alert-time { font-size: 12px; color: #86909c; margin-top: 6px; }
     .alert-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+    .confirm-btn {
+      &.confirm-veryDanger { background: #ff4d4f; border-color: #ff4d4f; color: #fff; &:hover { background: #ff7875; border-color: #ff7875; } }
+      &.confirm-danger { background: #faad14; border-color: #faad14; color: #fff; &:hover { background: #ffc53d; border-color: #ffc53d; } }
+      &.confirm-info { background: #1677ff; border-color: #1677ff; color: #fff; &:hover { background: #4096ff; border-color: #4096ff; } }
+    }
   }
 }
 </style>
