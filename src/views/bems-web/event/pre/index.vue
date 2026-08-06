@@ -47,7 +47,6 @@
               >
                 <h4 class="group-title">
                   {{ group.typeName || '--' }}
-                  <span v-if="group.preparationProgress" class="group-progress">{{ group.preparationProgress }}</span>
                 </h4>
                 <div class="info-list">
                   <div
@@ -362,11 +361,6 @@ onMounted(() => {
     align-items: center;
     gap: 8px;
 
-    .group-progress {
-      font-size: 12px;
-      font-weight: 400;
-      color: #a0aec0;
-    }
   }
 }
 
