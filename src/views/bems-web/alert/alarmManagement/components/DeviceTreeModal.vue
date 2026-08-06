@@ -16,7 +16,7 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue';
 import { selectDevice, spaceTree, categoryTree, selectMeasuringDevice } from '../Standardized.api';
-import DeviceTreePage from '/@/views/bems/deviceTreePage/index.vue';
+import DeviceTreePage from '/@/views/bems-web/deviceTreePage/index.vue';
 import { message } from 'ant-design-vue';
 
 const props = defineProps({
