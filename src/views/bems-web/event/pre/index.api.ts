@@ -2,13 +2,13 @@ import { fwbzHttp } from '/@/utils/http/axios';
 
 enum Api {
     /** 卡片汇总 */
-    summary = '/sgai-fwbz-dev/fwbz/preparationStatistics/summary',
+    summary = '/jeecgboot/sgai-fwbz-dev/fwbz/preparationStatistics/summary',
     /** 会前筹备清单 */
-    preparationList = '/sgai-fwbz-dev/fwbz/activeMeet/preparation/checklist',
+    preparationList = '/jeecgboot/sgai-fwbz-dev/fwbz/activeMeet/preparation/checklist',
     /** 完成筹备项 */
-    finishPreparationItem = '/sgai-fwbz-dev/fwbz/activeMeet/preparation/complete',
+    finishPreparationItem = '/jeecgboot/sgai-fwbz-dev/fwbz/activeMeet/preparation/complete',
     /** 会展活动列表 */
-    activeMeetList = '/sgai-fwbz-dev/fwbz/activeMeet/info/listPage',
+    activeMeetList = '/jeecgboot/sgai-fwbz-dev/fwbz/activeMeet/info/listPage',
 }
 
 /**

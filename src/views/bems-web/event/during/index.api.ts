@@ -2,24 +2,24 @@ import { fwbzHttp } from '/@/utils/http/axios';
 
 enum Api {
     /** 卡片汇总 */
-    summary = '/sgai-fwbz-dev/fwbz/complaintStatistics/summary',
+    summary = '/jeecgboot/sgai-fwbz-dev/fwbz/complaintStatistics/summary',
     /** 投诉建议处理列表 */
-    complaintList = '/sgai-fwbz-dev/fwbz/complaint/list',
+    complaintList = '/jeecgboot/sgai-fwbz-dev/fwbz/complaint/list',
     /** 类型下拉 */
-    typeList = '/sgai-fwbz-dev/fwbz/complaint/typeList',
+    typeList = '/jeecgboot/sgai-fwbz-dev/fwbz/complaint/typeList',
     /** 状态下拉 */
-    statusList = '/sgai-fwbz-dev/fwbz/complaint/statusList',
+    statusList = '/jeecgboot/sgai-fwbz-dev/fwbz/complaint/statusList',
     /** 新增投诉 */
-    addComplaint = '/sgai-fwbz-dev/fwbz/complaint/add',
+    addComplaint = '/jeecgboot/sgai-fwbz-dev/fwbz/complaint/add',
     /** 编辑投诉 */
-    editComplaint = '/sgai-fwbz-dev/fwbz/complaint/edit',
+    editComplaint = '/jeecgboot/sgai-fwbz-dev/fwbz/complaint/edit',
     /** 处理投诉 */
-    handleComplaint = '/sgai-fwbz-dev/fwbz/complaint/handle',
+    handleComplaint = '/jeecgboot/sgai-fwbz-dev/fwbz/complaint/handle',
     /** 删除投诉 */
-    deleteComplaint = '/sgai-fwbz-dev/fwbz/complaint/delete',
+    deleteComplaint = '/jeecgboot/sgai-fwbz-dev/fwbz/complaint/delete',
 
     /** 人员处理记录详情 */
-    handleRecordDetail = '/sgai-fwbz-dev/fwbz/complaint/queryById',
+    handleRecordDetail = '/jeecgboot/sgai-fwbz-dev/fwbz/complaint/queryById',
 }
 
 

@@ -1,35 +1,35 @@
 import { fwbzHttp } from '/@/utils/http/axios';
 
 enum Api {
-  summary = '/sgai-fwbz-dev/fwbz/securityStatistics/summary',
+  summary = '/jeecgboot/sgai-fwbz-dev/fwbz/securityStatistics/summary',
   /** 巡更计划列表 */
-  patrolPlanList = '/sgai-fwbz-dev/fwbz/patrolPlan/list',
+  patrolPlanList = '/jeecgboot/sgai-fwbz-dev/fwbz/patrolPlan/list',
   /** 巡更计划编辑 */
-  patrolPlanEdit = '/sgai-fwbz-dev/fwbz/patrolPlan/edit',
+  patrolPlanEdit = '/jeecgboot/sgai-fwbz-dev/fwbz/patrolPlan/edit',
   /** 巡更计划新增 */
-  patrolPlanAdd = '/sgai-fwbz-dev/fwbz/patrolPlan/add',
+  patrolPlanAdd = '/jeecgboot/sgai-fwbz-dev/fwbz/patrolPlan/add',
   /** 摄像头列表数据 */
-  cameraList = '/sgai-fwbz-dev/fwbz/hikvision/camera/list',
+  cameraList = '/jeecgboot/sgai-fwbz-dev/fwbz/hikvision/camera/list',
   /** 获取运行中的巡更计划摄像头 */
-  runningCameraList = '/sgai-fwbz-dev/fwbz/patrolPlan/runningPlan',
+  runningCameraList = '/jeecgboot/sgai-fwbz-dev/fwbz/patrolPlan/runningPlan',
   /** 获取摄像头播放地址 */
-  cameraPlayUrls = '/sgai-fwbz-dev/fwbz/hikvision/camera/playUrls',
+  cameraPlayUrls = '/jeecgboot/sgai-fwbz-dev/fwbz/hikvision/camera/playUrls',
   /** 是否是正在执行的计划 */
-  isRunningPlan = '/sgai-fwbz-dev/fwbz/patrolPlan/isRunningPlan',
+  isRunningPlan = '/jeecgboot/sgai-fwbz-dev/fwbz/patrolPlan/isRunningPlan',
   /** 报警信息列表 */
-  alarmInfoList = '/sgai-fwbz-dev/fwbz/hikvision/eventNotify/list',
+  alarmInfoList = '/jeecgboot/sgai-fwbz-dev/fwbz/hikvision/eventNotify/list',
 
   // 门禁
   /** 门禁汇总数据 */
-  accessControlSummary = '/sgai-fwbz-dev/fwbz/hikvision/doorStatistics/summary',
+  accessControlSummary = '/jeecgboot/sgai-fwbz-dev/fwbz/hikvision/doorStatistics/summary',
   /** 门禁地点列表 */
-  accessControlDoorList = '/sgai-fwbz-dev/fwbz/hikvision/door/list',
+  accessControlDoorList = '/jeecgboot/sgai-fwbz-dev/fwbz/hikvision/door/list',
   /** 门禁设备列表 */
-  accessControlDeviceList = '/sgai-fwbz-dev/fwbz/hikvision/acsDevice/list',
+  accessControlDeviceList = '/jeecgboot/sgai-fwbz-dev/fwbz/hikvision/acsDevice/list',
   /** 同步门禁状态 */
-  syncAccessControlStatus = '/sgai-fwbz-dev/fwbz/hikvision/door/syncDoorStatus',
+  syncAccessControlStatus = '/jeecgboot/sgai-fwbz-dev/fwbz/hikvision/door/syncDoorStatus',
   /** 门禁事件列表 */
-  accessControlEventList = '/sgai-fwbz-dev/fwbz/hikvision/doorEvent/list',
+  accessControlEventList = '/jeecgboot/sgai-fwbz-dev/fwbz/hikvision/doorEvent/list',
 }
 
 

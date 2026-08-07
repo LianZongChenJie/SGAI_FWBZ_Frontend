@@ -40,7 +40,7 @@ function toggleFullscreen() {
 }
 
 function goConsole() {
-  router.push('/fwbz/overview');
+  router.push('/fwbz');
 }
 
 onMounted(() => {

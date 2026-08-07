@@ -2,7 +2,7 @@ import { fwbzHttp } from '/@/utils/http/axios';
 
 enum Api {
     /** 今日会展活动 */
-    todayExhibitionActivity = '/sgai-fwbz-dev/fwbz/activeMeet/info/listPage',
+    todayExhibitionActivity = '/jeecgboot/sgai-fwbz-dev/fwbz/activeMeet/info/listPage',
 }
 
 /**

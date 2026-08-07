@@ -43,9 +43,19 @@ import SidePanel from './components/SidePanel.vue';
 import MapArea from './components/MapArea.vue';
 import TickerBar from './components/TickerBar.vue';
 import DetailModal from './components/DetailModal.vue';
-import { leftPanels as rawLeftPanels, rightPanels, kpiData, tickerData } from './data/index';
+import { leftPanels as rawLeftPanels, rightPanels as rawRightPanels, kpiData, tickerData } from './data/index';
 import { modalData as rawModalData } from './data/modalData';
-import { getTodayCheckCount, getAlarmExceptionCount, getAlarmRecordList, getAlarmStatistics, getAlarmTrendRecently } from './index.api';
+import {
+  getTodayCheckCount,
+  getAlarmExceptionCount,
+  getAlarmRecordList,
+  getAlarmStatistics,
+  getAlarmTrendRecently,
+  getTodayDataSize,
+  getCollectionPointCount,
+  getTodayTraffic,
+  getCurrentOnSite,
+} from './index.api';
 import type { CountVO } from './index.api';
 
 defineOptions({ name: 'BigscreenPage' });
@@ -57,9 +67,13 @@ const innerStyle = ref<Record<string, string>>({});
 // 左侧面板数据（响应式，便于接口回填）
 const leftPanels = reactive(rawLeftPanels);
 
+// 右侧面板数据（响应式，便于接口回填）
+const rightPanels = reactive(rawRightPanels);
+
 /** 面板索引 */
-const RESILIENCE_INDEX = 0;
+const IOT_INDEX = 1;
 const ALARM_INDEX = 2;
+const EXHIBITION_INDEX = 2; // rightPanels 中的会展服务索引
 // 弹窗数据（响应式，便于接口回填）
 const modalData = reactive(rawModalData);
 
@@ -191,6 +205,64 @@ async function handleOpenModal(key: string) {
   }
 }
 
+/** 请求今日数据量并回填（KB → GB） */
+async function fetchTodayDataSize() {
+  try {
+    const res = await getTodayDataSize();
+    const val = res?.value ?? res;
+    if (val != null) {
+      const kb = parseFloat(val) || 0;
+      const gb = kb / (1024 * 1024);
+      // 保留1位小数
+      leftPanels[IOT_INDEX].metricRows[1].value = gb.toFixed(1);
+    }
+  } catch (error) {
+    console.error('获取今日数据量失败:', error);
+  }
+}
+
+/** 请求数据采集点并回填（千分位） */
+async function fetchCollectionPoint() {
+  try {
+    const res = await getCollectionPointCount();
+    const val = res?.value ?? res;
+    if (val != null) {
+      const num = parseInt(val, 10) || 0;
+      leftPanels[IOT_INDEX].metricRows[0].value = num.toLocaleString();
+    }
+  } catch (error) {
+    console.error('获取数据采集点失败:', error);
+  }
+}
+
+/** 请求今日总客流并回填（千分位） */
+async function fetchTodayTraffic() {
+  try {
+    const res = await getTodayTraffic();
+    const val = res?.value ?? res;
+    if (val != null) {
+      const num = parseInt(val, 10) || 0;
+      rightPanels[EXHIBITION_INDEX].metricCards[0].value = num.toLocaleString();
+    }
+  } catch (error) {
+    console.error('获取今日总客流失败:', error);
+  }
+}
+
+/** 请求当前在场人数并回填（千分位） */
+async function fetchCurrentOnSite() {
+  try {
+    const res = await getCurrentOnSite();
+    const val = res?.value ?? res;
+    if (val != null) {
+      const num = parseInt(val, 10) || 0;
+      rightPanels[EXHIBITION_INDEX].metricRows[0].value = num.toLocaleString();
+    }
+  } catch (error) {
+    console.error('获取当前在场人数失败:', error);
+  }
+}
+
 function calcScale() {
   const targetW = 1920;
   const targetH = 1080;
@@ -225,6 +297,12 @@ onMounted(() => {
   fetchAlarmException();
   // 请求告警统计数据
   fetchAlarmStatistics();
+  // 请求物联网实时数据
+  fetchTodayDataSize();
+  fetchCollectionPoint();
+  // 请求会展服务实时数据
+  fetchTodayTraffic();
+  fetchCurrentOnSite();
 });
 
 onUnmounted(() => {

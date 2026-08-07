@@ -2,11 +2,11 @@ import { fwbzHttp } from '/@/utils/http/axios';
 
 enum Api {
     /** 卡片汇总 */
-    summary = '/sgai-fwbz-dev/fwbz/interfaceStatistics/summary',
+    summary = '/jeecgboot/sgai-fwbz-dev/fwbz/interfaceStatistics/summary',
     /** 接口状态监控列表 */
-    interfaceStatusList = '/sgai-fwbz-dev/fwbz/interfaceInfo/listPage',
+    interfaceStatusList = '/jeecgboot/sgai-fwbz-dev/fwbz/interfaceInfo/listPage',
     /** 协议类型下拉 */
-    protocolTypeList = '/sgai-fwbz-dev/fwbz/protocolType/list',
+    protocolTypeList = '/jeecgboot/sgai-fwbz-dev/fwbz/protocolType/list',
 }
 
 /**

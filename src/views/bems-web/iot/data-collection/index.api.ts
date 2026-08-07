@@ -2,9 +2,9 @@ import { fwbzHttp } from '/@/utils/http/axios';
 
 enum Api {
     /** 卡片汇总 */
-    summary = '/sgai-fwbz-dev/fwbz/dataCollection/summary',
+    summary = '/jeecgboot/sgai-fwbz-dev/fwbz/dataCollection/summary',
     /** 数据采集状态列表 */
-    dataCollectionList = '/sgai-fwbz-dev/fwbz/dataCollection/interfaceList',
+    dataCollectionList = '/jeecgboot/sgai-fwbz-dev/fwbz/dataCollection/interfaceList',
 }
 
 /**

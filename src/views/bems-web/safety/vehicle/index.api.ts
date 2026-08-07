@@ -2,17 +2,17 @@ import { fwbzHttp } from '/@/utils/http/axios';
 
 enum Api {
   /** 汇总统计 */
-  sunnary = '/sgai-fwbz-dev/fwbz/parkingStatistics/summary',
+  sunnary = '/jeecgboot/sgai-fwbz-dev/fwbz/parkingStatistics/summary',
   /** 停车记录查询 */
-  recordList = '/sgai-fwbz-dev/fwbz/parking/record/listPage',
+  recordList = '/jeecgboot/sgai-fwbz-dev/fwbz/parking/record/listPage',
   /** 停车场接口 */
-  parkingLot = '/sgai-fwbz-dev/fwbz/parking/record/parkingLotList',
+  parkingLot = '/jeecgboot/sgai-fwbz-dev/fwbz/parking/record/parkingLotList',
   /** 车辆类型下拉 */
-  parkType = '/sgai-fwbz-dev/fwbz/parking/record/parkTypeList',
+  parkType = '/jeecgboot/sgai-fwbz-dev/fwbz/parking/record/parkTypeList',
   /** 停车流量趋势 */
-  parkingFlow24h = '/sgai-fwbz-dev/fwbz/parkingStatistics/parkingFlow24h',
+  parkingFlow24h = '/jeecgboot/sgai-fwbz-dev/fwbz/parkingStatistics/parkingFlow24h',
   /** 停车场实时车位分布 */
-  parkingSpaceDistribution = '/sgai-fwbz-dev/fwbz/parkingStatistics/parkingSpaceDistribution',
+  parkingSpaceDistribution = '/jeecgboot/sgai-fwbz-dev/fwbz/parkingStatistics/parkingSpaceDistribution',
 }
 
 /**

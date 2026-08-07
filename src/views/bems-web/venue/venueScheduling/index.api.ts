@@ -2,24 +2,24 @@ import { fwbzHttp } from '/@/utils/http/axios';
 
 enum Api {
   /** 汇总卡片列表 */
-  summaryCardList = '/sgai-fwbz-dev/fwbz/activeMeetStatistics/summary',
+  summaryCardList = '/jeecgboot/sgai-fwbz-dev/fwbz/activeMeetStatistics/summary',
   /** 场馆信息列表 */
-  venueInfoList = '/sgai-fwbz-dev/fwbz/venueInfo/list',
+  venueInfoList = '/jeecgboot/sgai-fwbz-dev/fwbz/venueInfo/list',
   /** 新增场馆信息 */
-  addVenue = '/sgai-fwbz-dev/fwbz/venueInfo/add',
+  addVenue = '/jeecgboot/sgai-fwbz-dev/fwbz/venueInfo/add',
   /** 编辑场馆信息 */
-  editVenue = '/sgai-fwbz-dev/fwbz/venueInfo/edit',
+  editVenue = '/jeecgboot/sgai-fwbz-dev/fwbz/venueInfo/edit',
   /** 删除场馆信息 */
-  delVenue = '/sgai-fwbz-dev/fwbz/venueInfo/delete',
+  delVenue = '/jeecgboot/sgai-fwbz-dev/fwbz/venueInfo/delete',
 
   /** 新增会展活动 */
-  addExhibition = '/sgai-fwbz-dev/fwbz/activeMeet/info/add',
+  addExhibition = '/jeecgboot/sgai-fwbz-dev/fwbz/activeMeet/info/add',
   /** 场馆列表（全量） */
-  venueList = '/sgai-fwbz-dev/fwbz/venueInfo/listAll',
+  venueList = '/jeecgboot/sgai-fwbz-dev/fwbz/venueInfo/listAll',
   /** 会展列表 */
-  exhibitionList = '/sgai-fwbz-dev/fwbz/activeMeet/info/thisWeek',
+  exhibitionList = '/jeecgboot/sgai-fwbz-dev/fwbz/activeMeet/info/thisWeek',
   /** 删除会展活动 */
-  delExhibition = '/sgai-fwbz-dev/fwbz/activeMeet/info/delete',
+  delExhibition = '/jeecgboot/sgai-fwbz-dev/fwbz/activeMeet/info/delete',
 }
 
 /**

@@ -2,9 +2,9 @@ import { fwbzHttp } from '/@/utils/http/axios';
 
 enum Api {
   /** 汇总统计 */
-  sunnary = '/sgai-fwbz-dev/fwbz/venueVisitorFlow/summary',
+  sunnary = '/jeecgboot/sgai-fwbz-dev/fwbz/venueVisitorFlow/summary',
   /** 客流统计列表 */
-  flowList = '/sgai-fwbz-dev/fwbz/venueVisitorFlow/venueList',
+  flowList = '/jeecgboot/sgai-fwbz-dev/fwbz/venueVisitorFlow/venueList',
 }
 
 

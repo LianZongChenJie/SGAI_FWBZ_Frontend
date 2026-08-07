@@ -2,15 +2,15 @@ import { fwbzHttp } from '/@/utils/http/axios';
 
 enum Api {
   /** 卡片汇总 */
-  summary = '/sgai-fwbz-dev/fwbz/hikvision/dashboard/stat/summary',
+  summary = '/jeecgboot/sgai-fwbz-dev/fwbz/hikvision/dashboard/stat/summary',
   /** 人员轨迹查询 */
-  trackList = '/sgai-fwbz-dev/fwbz/personnelTrajectory/query',
+  trackList = '/jeecgboot/sgai-fwbz-dev/fwbz/personnelTrajectory/query',
   /** 人员识别记录 */
-  recognitionRecord = '/sgai-fwbz-dev/fwbz/hikvision/personRecognition/list',
+  recognitionRecord = '/jeecgboot/sgai-fwbz-dev/fwbz/hikvision/personRecognition/list',
   /** 场馆客流趋势数据 */
-  venueFlowTrend = '/sgai-fwbz-dev/fwbz/venueVisitorFlow/hourly/todayTrend',
+  venueFlowTrend = '/jeecgboot/sgai-fwbz-dev/fwbz/venueVisitorFlow/hourly/todayTrend',
   /** 场馆列表（全量） */
-  venueList = '/sgai-fwbz-dev/fwbz/venueInfo/listAll',
+  venueList = '/jeecgboot/sgai-fwbz-dev/fwbz/venueInfo/listAll',
 }
 
 
