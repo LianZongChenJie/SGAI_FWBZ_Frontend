@@ -53,10 +53,10 @@ const MeterIcon = () => h('span', { style: 'font-size: 20px;' }, '📏')
 const RunningCountIcon = () => h('span', { style: 'font-size: 20px;' }, '⚙️')
 
 const statData = ref({
-  count: '',
-  online: '',
-  measuringCount: '',
-  equipmentCount: '',
+  count: '--',
+  online: '--',
+  measuringCount: '--',
+  equipmentCount: '--',
 })
 
 const fetchStatData = async () => {

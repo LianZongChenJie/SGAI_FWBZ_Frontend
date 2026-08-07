@@ -71,14 +71,14 @@ const WaterDropIcon = () => h('span', { style: 'font-size: 20px;' }, '💧')
 
 // 统计数据（预留接口，当前为模拟数据）
 const statData = reactive({
-  count: '37',
-  addCount: '12 新增',
-  formulaCount: '31',
-  coverage: '84% 覆盖率',
-  electricCount: '28',
-  electricPercentage: '76% 占比',
-  waterCount: '9',
-  waterPercentage: '24% 占比',
+  count: '--',
+  addCount: '',
+  formulaCount: '--',
+  coverage: '',
+  electricCount: '--',
+  electricPercentage: '',
+  waterCount: '--',
+  waterPercentage: '',
 })
 
 // 加载计量规则统计数据

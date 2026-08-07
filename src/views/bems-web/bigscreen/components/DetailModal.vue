@@ -5,7 +5,7 @@
     :footer="null"
     :closable="false"
     width="1100px"
-    :bodyStyle="{ padding: 0, maxHeight: '720px', overflow: 'hidden' }"
+    :bodyStyle="{ padding: 0, overflow: 'hidden' }"
     wrapClassName="bigscreen-modal"
     @cancel="handleClose"
   >
@@ -119,20 +119,47 @@
             </table>
           </div>
 
-          <!-- 趋势图 -->
-          <div v-if="modalContent.trend" style="margin-top: 16px;">
+          <!-- 趋势柱状图 -->
+          <div v-if="modalContent.trend" class="trend-chart-section">
             <div class="modal-panel-title">{{ modalContent.trend.title }}</div>
-            <div class="modal-chart">
-              <div class="mini-chart">
-                <div
-                  v-for="(bar, i) in modalContent.trend.bars"
-                  :key="i"
-                  class="bar"
-                  :style="{ height: bar.height + '%', '--bar-color': bar.color }"
-                ></div>
-              </div>
-              <span class="chart-footer">{{ modalContent.trend.footer }}</span>
+            <!-- 多系列图例 -->
+            <div v-if="modalContent.trend.series && modalContent.trend.series.length > 1" class="trend-legend">
+              <span v-for="(s, i) in modalContent.trend.series" :key="i" class="trend-legend-item">
+                <i :style="{ background: s.color }"></i>{{ s.name }}
+              </span>
             </div>
+            <div class="trend-bar-chart">
+              <!-- y轴 -->
+              <div class="trend-y-axis">
+                <span v-for="v in yAxisTicks" :key="v">{{ v }}</span>
+              </div>
+              <!-- 图表区域 -->
+              <div class="trend-chart-area">
+                <!-- 网格线 -->
+                <div class="trend-grid">
+                  <div v-for="(_, i) in yAxisTicks" :key="'g' + i" class="trend-grid-line"></div>
+                </div>
+                <!-- 分组柱子容器 -->
+                <div class="trend-bars-row">
+                  <div class="trend-bar-col" v-for="(xl, xi) in modalContent.trend.xAxis" :key="xi">
+                    <div class="trend-bar-group">
+                      <div class="trend-bar-group-item" v-for="(s, si) in modalContent.trend.series" :key="si">
+                        <span class="trend-bar-val">{{ s.values[xi] ?? '' }}</span>
+                        <div
+                          class="trend-bar-fill multi"
+                          :style="{
+                            height: trendMaxVal > 0 ? Math.round((s.values[xi] / trendMaxVal) * 100) + '%' : '0%',
+                            background: s.color,
+                          }"
+                        ></div>
+                      </div>
+                    </div>
+                    <span class="trend-bar-xlabel">{{ xl }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- <div class="trend-footer">{{ modalContent.trend.footer }}</div> -->
           </div>
         </div>
       </div>
@@ -142,17 +169,94 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import type { ModalContent, ModalTableData, ModalBarData } from '../data/modalData';
+import type { ModalContent, ModalTableData, ModalBarData, ModalBarItem } from '../data/modalData';
 
 defineOptions({ name: 'DetailModal' });
 
 const visible = ref(false);
 const modalContent = ref<ModalContent | null>(null);
 
-function open(key: string, data: Record<string, ModalContent>) {
+function getLevelColor(level: string): string {
+  const map: Record<string, string> = {
+    非常紧急: '#ef4444',
+    紧急: '#f97316',
+    一般: '#38bdf8',
+  };
+  return map[level] || '#38bdf8';
+}
+
+function open(key: string, data: Record<string, ModalContent>, alarmRecords?: any[], alarmStats?: any, alarmTrend?: any) {
   const content = data[key];
   if (content) {
-    modalContent.value = content;
+    // 深拷贝避免修改原始 modalData
+    modalContent.value = JSON.parse(JSON.stringify(content));
+    // 告警弹窗：用接口统计数据覆盖 stats 和左栏图表
+    if (key === 'alarm' && alarmStats) {
+      const stats = modalContent.value!.stats;
+      if (alarmStats.count != null) stats[0].value = String(alarmStats.count);          // 今日告警
+      if (alarmStats.completedCount != null) stats[1].value = String(alarmStats.completedCount); // 已处理
+      if (alarmStats.untreatedCount != null) stats[2].value = String(alarmStats.untreatedCount); // 待处理
+      if (alarmStats.seriousCount != null) stats[3].value = String(alarmStats.seriousCount);     // 严重告警
+
+      // categoryIdMap → leftPanel.data.items
+      if (alarmStats.categoryIdMap && modalContent.value!.leftPanel.type === 'bar') {
+        const barData = modalContent.value!.leftPanel.data as ModalBarData;
+        const colorList = ['orange', 'blue', 'red', 'purple', 'green'];
+        const entries = Object.entries(alarmStats.categoryIdMap) as [string, any][];
+        const total = entries.reduce((sum, [, v]) => sum + Number(v), 0);
+        barData.items = entries.map(([key, value], idx): ModalBarItem => ({
+          label: key,
+          color: colorList[idx % colorList.length],
+          percent: total > 0 ? Math.round((Number(value) / total) * 100) : 0,
+          value: `${value}条`,
+        }));
+      }
+
+      // averageProcessingTime 覆盖 footer
+      const at = alarmStats.averageProcessingTime;
+      if (at != null && modalContent.value!.leftPanel.type === 'bar') {
+        const barData = modalContent.value!.leftPanel.data as ModalBarData;
+        barData.footer = `平均响应时间: ${at}分钟 | 平均处理时间: ${at}分钟`;
+      }
+    }
+    // 告警弹窗：用接口趋势数据覆盖底部柱状图（xaxis + chatSeriesList）
+    if (key === 'alarm' && alarmTrend) {
+      const xaxis: string[] = alarmTrend.xaxis ?? alarmTrend.xAxis ?? [];
+      const chatSeriesList: any[] = alarmTrend.chatSeriesList ?? [];
+      if (xaxis.length > 0 && chatSeriesList.length > 0 && modalContent.value?.trend) {
+        const colorList = ['#fb923c', '#38bdf8', '#4ade80', '#f87171', '#a78bfa', '#eab308', '#ec4899'];
+        const allNums: number[] = [];
+        modalContent.value.trend.xAxis = xaxis;
+        modalContent.value.trend.series = chatSeriesList.map((s: any, idx: number) => {
+          const values: number[] = (s.data || []).map((v: any) => Number(v) || 0);
+          allNums.push(...values);
+          return { name: s.name || `系列${idx + 1}`, color: colorList[idx % colorList.length], values };
+        });
+        // 同步计算 bars 用于 yAxisTicks 等兼容
+        if (allNums.length > 0) {
+          const max = Math.max(...allNums);
+          const flatBars = xaxis.flatMap((xl, xi) =>
+            (modalContent.value!.trend?.series ?? []).map((s) => ({
+              height: max > 0 ? Math.round(((s.values[xi] ?? 0) / max) * 100) : 0,
+              color: s.color,
+              label: xl,
+              value: s.values[xi] ?? 0,
+            })),
+          );
+          modalContent.value.trend.bars = flatBars;
+        }
+      }
+    }
+    // 告警弹窗：用接口真实数据覆盖右栏表格
+    if (alarmRecords && alarmRecords.length > 0 && key === 'alarm' && modalContent.value!.rightPanel.type === 'table') {
+      const tableData = modalContent.value!.rightPanel.data as ModalTableData;
+      tableData.rows = alarmRecords.map((r: any) => ({
+        time: r.alarmTime ? r.alarmTime.split(' ').pop() : '',
+        type: r.alarmCategoryName || '',
+        location: r.spaceName || '',
+        level: { text: r.alarmLevelName || '', color: getLevelColor(r.alarmLevelName) },
+      }));
+    }
     visible.value = true;
   }
 }
@@ -179,6 +283,20 @@ const rightBarItems = computed(() => (rightPanelData.value as ModalBarData)?.ite
 const rightBarFooter = computed(() => (rightPanelData.value as ModalBarData)?.footer);
 
 const extraTableCols = computed(() => modalContent.value?.extraTable?.columns || []);
+
+/** y轴刻度（最大值的 0%/25%/50%/75%/100%） */
+const yAxisTicks = computed(() => {
+  const max = trendMaxVal.value;
+  if (max === 0) return ['0', '', '', '', '0'];
+  return [String(max), String(Math.round(max * 0.75)), String(Math.round(max * 0.5)), String(Math.round(max * 0.25)), '0'];
+});
+
+/** 趋势图所有系列中的最大值 */
+const trendMaxVal = computed(() => {
+  const series = modalContent.value?.trend?.series;
+  if (!series || series.length === 0) return 0;
+  return Math.max(...series.flatMap((s) => s.values));
+});
 </script>
 
 <style scoped>
@@ -190,6 +308,7 @@ const extraTableCols = computed(() => modalContent.value?.extraTable?.columns ||
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  max-height: 720px;
 }
 .modal-box-top-bar {
   position: absolute;
@@ -240,9 +359,10 @@ const extraTableCols = computed(() => modalContent.value?.extraTable?.columns ||
   overflow-y: auto;
   position: relative;
   z-index: 2;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
 }
-.modal-body::-webkit-scrollbar { width: 4px; }
-.modal-body::-webkit-scrollbar-thumb { background: rgba(56, 189, 248, 0.15); border-radius: 2px; }
+.modal-body::-webkit-scrollbar { display: none; } /* Chrome/Safari/Edge */
 
 /* 统计卡片 */
 .modal-stats {
@@ -361,33 +481,138 @@ const extraTableCols = computed(() => modalContent.value?.extraTable?.columns ||
   color: #94a3b8;
 }
 
-/* 趋势图 */
-.modal-chart {
-  height: 160px;
-  background: rgba(56, 189, 248, 0.02);
+/* ===== 趋势柱状图 ===== */
+.trend-chart-section {
+  margin-top: 16px;
+  background: rgba(8, 20, 40, 0.5);
+  border: 1px solid rgba(56, 189, 248, 0.1);
   border-radius: 6px;
+  padding: 14px;
+}
+/* 多系列图例 */
+.trend-legend {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin: 8px 0 0;
+}
+.trend-legend-item {
+  font-size: 11px;
+  color: #cbd5e1;
   display: flex;
   align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  gap: 6px;
+  gap: 5px;
 }
-.mini-chart {
+.trend-legend-item i {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.trend-bar-chart {
+  display: flex;
+  height: 180px;
+  margin-top: 8px;
+}
+.trend-y-axis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 40px;
+  flex-shrink: 0;
+  padding-right: 6px;
+}
+.trend-y-axis span {
+  font-size: 10px;
+  color: #64748b;
+  text-align: right;
+  line-height: 1;
+}
+.trend-chart-area {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.trend-grid {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none;
+}
+.trend-grid-line {
+  height: 0;
+  border-bottom: 1px dashed rgba(56, 189, 248, 0.08);
+}
+.trend-bars-row {
+  flex: 1;
   display: flex;
   align-items: flex-end;
-  gap: 4px;
-  height: 80px;
+  justify-content: space-around;
+  position: relative;
+  z-index: 1;
+  padding-bottom: 22px;
 }
-.mini-chart .bar {
-  width: 12px;
-  background: linear-gradient(180deg, var(--bar-color, #38bdf8), rgba(56, 189, 248, 0.15));
+.trend-bar-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+  position: relative;
+  flex: 1;
+}
+/* 分组柱内联 */
+.trend-bar-group {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 100%;
+}
+.trend-bar-group-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+}
+.trend-bar-val {
+  font-size: 10px;
+  color: #e2e8f0;
+  font-weight: 600;
+  margin-bottom: 3px;
+  font-family: 'DIN Alternate', 'Arial Black', sans-serif;
+  flex-shrink: 0;
+}
+.trend-bar-fill {
+  width: 16px;
+  min-height: 2px;
   border-radius: 2px 2px 0 0;
-  transition: height 0.8s ease;
+  transition: height 0.6s ease;
+  flex-shrink: 0;
 }
-.chart-footer {
+.trend-bar-fill.multi {
+  width: 12px;
+}
+.trend-bar-xlabel {
+  font-size: 10px;
+  color: #94a3b8;
+  position: absolute;
+  bottom: 0;
+  white-space: nowrap;
+  transform: translateY(100%);
+  padding-top: 4px;
+}
+.trend-footer {
+  margin-top: 8px;
   font-size: 12px;
   color: #64748b;
+  text-align: center;
 }
+
 </style>
 
 <style>
