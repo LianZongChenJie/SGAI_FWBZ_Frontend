@@ -92,10 +92,10 @@ defineEmits<{ (e: 'open', key: string): void }>();
   background: rgba(15, 35, 65, 0.5);
   border: 1px solid rgba(56, 189, 248, 0.08);
   border-radius: 3px;
-  padding: 8px;
+  padding:10px 8px;
   text-align: center;
 }
-.metric-card-icon { font-size: 14px; margin-bottom: 6px; line-height: 1; color: #fff }
+.metric-card-icon { font-size: 16px; margin-bottom: 6px; line-height: 1; color: #fff }
 .metric-card-value {
   font-size: 16px;
   font-weight: 700;
