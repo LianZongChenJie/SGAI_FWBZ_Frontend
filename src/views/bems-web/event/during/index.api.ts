@@ -17,7 +17,73 @@ enum Api {
     handleComplaint = '/sgai-fwbz-dev/fwbz/complaint/handle',
     /** 删除投诉 */
     deleteComplaint = '/sgai-fwbz-dev/fwbz/complaint/delete',
+
+    /** 人员处理记录详情 */
+    handleRecordDetail = '/sgai-fwbz-dev/fwbz/complaint/queryById',
 }
+
+
+/**
+ * 人员处理记录详情
+ *
+ * ComplaintInfo
+ */
+export interface ComplaintInfo {
+    /**
+     * 日期
+     */
+    complaintDate?: string;
+    /**
+     * 时间，格式 HH:mm:ss
+     */
+    complaintTime?: string;
+    /**
+     * 内容
+     */
+    content?: string;
+    /**
+     * 创建时间
+     */
+    gmtCreate?: string;
+    /**
+     * 更新时间
+     */
+    gmtModified?: string;
+    /**
+     * 处理人
+     */
+    handler?: string;
+    /**
+     * 投诉建议ID
+     */
+    id?: number;
+    /**
+     * 备注
+     */
+    remark?: string;
+    /**
+     * 来源
+     */
+    source?: string;
+    /**
+     * 状态
+     */
+    status?: string;
+    /**
+     * 标题
+     */
+    title?: string;
+    /**
+     * 投诉类型ID，关联 table_complaint_type.id
+     */
+    typeId?: number;
+    /**
+     * 类型名称（非数据库字段，用于列表展示）
+     * 类型名称
+     */
+    typeName?: string;
+}
+
 
 /**
  * 处理投诉
@@ -262,6 +328,22 @@ export interface ComplaintInfo {
 }
 
 
+/**
+ * 投诉处理记录
+ */
+export interface HandleRecordVO {
+    /** 处理内容 */
+    handleContent?: string;
+    /** 处理时间 */
+    handleTime?: string;
+    /** 处理人 */
+    handler?: string;
+    /** 记录ID */
+    id?: number;
+    /** 处理状态 */
+    status?: string;
+    [property: string]: any;
+}
 
 
 /** 卡片汇总信息 */
@@ -291,4 +373,10 @@ export const handleComplaint = (params: HandleRequest) => fwbzHttp.post({ url: A
 /** 删除投诉 */
 export const deleteComplaint = (params: { id: number }) =>
     fwbzHttp.delete({ url: `${Api.deleteComplaint}?id=${params.id}` });
+
+/** 查询投诉处理记录详情 */
+export const getHandleRecordDetail = (params: { id: number }) =>
+    fwbzHttp.get({ url: Api.handleRecordDetail, params });
+
+
 

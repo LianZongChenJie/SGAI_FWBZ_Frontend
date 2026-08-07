@@ -39,7 +39,8 @@
         </div>
         <div class="card-body">
           <a-spin :spinning="trendLoading">
-            <div ref="trendChartRef" class="trend-chart"></div>
+            <div v-if="trendVenueNames.length > 0" ref="trendChartRef" class="trend-chart"></div>
+            <a-empty v-else description="暂无数据" class="trend-empty" />
           </a-spin>
         </div>
       </div>
@@ -274,15 +275,42 @@ const fetchTrendData = async () => {
     if (res) {
       trendData.value = res
       // 动态提取各场馆名称（排除非场馆字段）
-      trendVenueNames.value = Object.keys(res).filter(
+      const venues = Object.keys(res).filter(
         (key) => !EXCLUDE_KEYS.includes(key),
       )
-      updateChart()
+      trendVenueNames.value = venues
+      if (venues.length > 0) {
+        // 有数据时确保图表容器已渲染后再初始化/更新
+        await nextTick()
+        // v-if 切换可能导致旧实例失效，此处统一处理
+        if (chartInstance.value) {
+          // 实例已存在，直接更新
+          updateChart()
+        } else {
+          initChart()
+        }
+      } else {
+        // 无场馆数据时销毁图表实例并置空引用
+        disposeChart()
+      }
+    } else {
+      trendVenueNames.value = []
+      disposeChart()
     }
   } catch (error) {
     console.error('获取场馆客流趋势失败:', error)
+    trendVenueNames.value = []
+    disposeChart()
   } finally {
     trendLoading.value = false
+  }
+}
+
+/** 销毁图表实例 */
+const disposeChart = () => {
+  if (chartInstance.value) {
+    chartInstance.value.dispose()
+    chartInstance.value = undefined
   }
 }
 
@@ -616,6 +644,14 @@ const getPersonTypeClass = (type?: string) => {
 .trend-chart {
   width: 100%;
   height: 300px;
+}
+
+.trend-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
 }
 
 .map-placeholder {

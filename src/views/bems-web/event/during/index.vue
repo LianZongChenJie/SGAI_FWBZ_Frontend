@@ -79,6 +79,7 @@
             </template>
             <template v-if="column.key === 'action'">
               <!-- <a-button type="link" size="small" @click="handleEdit(record)">编辑</a-button> -->
+              <a-button type="link" size="small" @click="handleRecordDetail(record)">详情</a-button>
               <a-button type="link" size="small" @click="handleProcess(record)">处理</a-button>
               <a-button type="link" danger size="small" @click="handleDelete(record)">删除</a-button>
             </template>
@@ -205,6 +206,45 @@
         </a-form-item>
       </a-form>
     </a-modal>
+
+    <!-- 详情弹窗 -->
+    <a-modal
+      v-model:visible="detailModalVisible"
+      title="处理记录详情"
+      width="720px"
+      :footer="null"
+      @cancel="detailModalVisible = false"
+    >
+      <a-spin :spinning="detailLoading">
+        <a-descriptions :column="2" size="small" bordered class="detail-desc">
+          <a-descriptions-item label="标题">{{ detailRecord?.title || '--' }}</a-descriptions-item>
+          <a-descriptions-item label="类型">{{ detailRecord?.typeName || '--' }}</a-descriptions-item>
+          <a-descriptions-item label="时间">{{ detailRecord?.complaintDate || '--' }} {{ detailRecord?.complaintTime || '' }}</a-descriptions-item>
+          <a-descriptions-item label="来源">{{ detailRecord?.source || '--' }}</a-descriptions-item>
+          <a-descriptions-item label="处理人">{{ detailRecord?.handler || '--' }}</a-descriptions-item>
+          <a-descriptions-item label="状态">
+            <span class="status-text" :class="getStatusClass(detailRecord?.status)">{{ detailRecord?.status || '--' }}</span>
+          </a-descriptions-item>
+          <a-descriptions-item label="投诉内容" :span="2">{{ detailRecord?.content || '--' }}</a-descriptions-item>
+        </a-descriptions>
+
+        <div class="record-section-title">处理记录</div>
+        <a-table
+          :columns="recordColumns"
+          :data-source="recordList"
+          :loading="detailLoading"
+          :pagination="false"
+          row-key="id"
+          size="small"
+        >
+          <template #bodyCell="{ column, record }">
+            <template v-if="column.key === 'status'">
+              <span class="status-text" :class="getStatusClass(record.status)">{{ record.status || '--' }}</span>
+            </template>
+          </template>
+        </a-table>
+      </a-spin>
+    </a-modal>
   </div>
 </template>
 
@@ -234,12 +274,14 @@ import {
   editComplaint,
   handleComplaint,
   deleteComplaint,
+  getHandleRecordDetail,
 } from './index.api'
 import type {
   StatCardVO,
   ComplaintInfo,
   ComplaintType,
   ComplaintStatus,
+  HandleRecordVO,
 } from './index.api'
 
 defineOptions({ name: 'EventDuringPage' })
@@ -529,6 +571,43 @@ const handleDelete = (record: ComplaintInfo) => {
   })
 }
 
+// ===== 详情弹窗（处理记录） =====
+const detailModalVisible = ref(false)
+const detailLoading = ref(false)
+const detailRecord = ref<ComplaintInfo | null>(null)
+const recordList = ref<HandleRecordVO[]>([])
+
+const recordColumns = [
+  { title: '处理人', dataIndex: 'handler', key: 'handler', width: 100 },
+  { title: '处理时间', dataIndex: 'gmtModified', key: 'gmtModified', width: 180 },
+  { title: '处理状态', dataIndex: 'status', key: 'status', width: 100 },
+  { title: '处理内容', dataIndex: 'handleContent', key: 'handleContent', ellipsis: true },
+]
+
+/** 查看处理记录详情 */
+const handleRecordDetail = async (record: ComplaintInfo) => {
+  detailRecord.value = record
+  detailModalVisible.value = true
+  detailLoading.value = true
+  recordList.value = []
+  try {
+    const res = await getHandleRecordDetail({ id: record.id! })
+    // 兼容返回数组或对象
+    if (Array.isArray(res)) {
+      recordList.value = res
+    } else if (res?.records) {
+      recordList.value = res.records
+    } else if (res && typeof res === 'object') {
+      // 单条记录也放入列表
+      recordList.value = [res]
+    }
+  } catch (error) {
+    console.error('获取处理记录详情失败:', error)
+  } finally {
+    detailLoading.value = false
+  }
+}
+
 // ===== 初始化 =====
 onMounted(() => {
   fetchSummary()
@@ -683,5 +762,18 @@ onMounted(() => {
   &.warning { background: #feebc8; color: #744210; }
   &.danger { background: #fed7d7; color: #742a2a; }
   &.info { background: #bee3f8; color: #2a4365; }
+}
+
+.detail-desc {
+  margin-bottom: 20px;
+}
+
+.record-section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 12px;
+  padding-left: 8px;
+  border-left: 3px solid #1890ff;
 }
 </style>

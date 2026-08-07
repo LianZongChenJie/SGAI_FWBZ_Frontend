@@ -1,0 +1,2407 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>会展小镇服务保障平台 - 数据大屏</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 4px rgba(56, 189, 248, 0.3); }
+  50% { box-shadow: 0 0 12px rgba(56, 189, 248, 0.6); }
+}
+
+@keyframes border-flow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scan-line {
+  0% { top: 0%; opacity: 0; }
+  5% { opacity: 1; }
+  95% { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+
+@keyframes ticker-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+@keyframes modal-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+body {
+  background: #000;
+  color: #e2e8f0;
+  font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+  overflow: hidden;
+  width: 1920px;
+  height: 1080px;
+  position: relative;
+  transform-origin: top left;
+}
+
+/* 全屏按钮 */
+.btn-fullscreen {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 20;
+  background: rgba(8, 25, 50, 0.8);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  color: #38bdf8;
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.3s ease;
+}
+
+.btn-fullscreen:hover {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: rgba(56, 189, 248, 0.5);
+}
+
+.btn-fullscreen svg {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+}
+
+/* 顶部标题栏 */
+.header {
+  position: relative;
+  z-index: 10;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, rgba(8, 25, 50, 0.95) 0%, rgba(8, 25, 50, 0.4) 100%);
+  border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+}
+
+.header::before {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 400px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #0ea5e9, #38bdf8, #0ea5e9, transparent);
+}
+
+.header-title {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 6px;
+  color: #f1f5f9;
+  text-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+}
+
+.header-sub {
+  position: absolute;
+  right: 110px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-sub .live-dot {
+  width: 6px;
+  height: 6px;
+  background: #22c55e;
+  border-radius: 50%;
+  animation: blink 2s ease-in-out infinite;
+}
+
+/* 主内容区 */
+.main {
+  position: relative;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: 580px 700px 580px;
+  gap: 10px;
+  padding: 8px 20px;
+  height: calc(1080px - 56px - 28px);
+}
+
+/* 面板卡片 */
+.panel {
+  background: rgba(8, 20, 40, 0.7);
+  border: 1px solid rgba(56, 189, 248, 0.1);
+  border-radius: 4px;
+  padding: 10px 12px;
+  position: relative;
+  overflow: hidden;
+  animation: fade-in-up 0.4s ease-out;
+  cursor: pointer;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.panel:hover {
+  border-color: rgba(56, 189, 248, 0.3);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.1);
+}
+
+.panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 3px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--accent, #38bdf8), transparent);
+}
+
+.panel-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent, #38bdf8);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-left: 8px;
+  position: relative;
+  z-index: 2;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.panel-title::after {
+  content: '点击查看详情';
+  margin-left: auto;
+  font-size: 10px;
+  color: #475569;
+  font-weight: 400;
+  opacity: 0.7;
+}
+
+/* 指标卡片行 */
+.metric-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  margin-bottom: 8px;
+  flex-shrink: 0;
+}
+
+.metric-card {
+  background: rgba(15, 35, 65, 0.5);
+  border: 1px solid rgba(56, 189, 248, 0.08);
+  border-radius: 3px;
+  padding: 8px;
+  text-align: center;
+}
+
+.metric-card-icon {
+  font-size: 18px;
+  margin-bottom: 2px;
+}
+
+.metric-card-value {
+  font-size: 18px;
+  font-weight: 700;
+  font-family: 'DIN Alternate', 'Arial Black', sans-serif;
+  color: #f1f5f9;
+}
+
+.metric-card-label {
+  font-size: 10px;
+  color: #64748b;
+  margin-top: 1px;
+}
+
+/* 指标行 */
+.metric-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.05);
+  position: relative;
+  z-index: 2;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.metric-row:last-child { border-bottom: none; }
+
+.metric-label { color: #94a3b8; }
+
+.metric-value {
+  font-weight: 700;
+  font-family: 'DIN Alternate', 'Arial Black', sans-serif;
+}
+
+.metric-value.blue { color: #38bdf8; }
+.metric-value.green { color: #4ade80; }
+.metric-value.orange { color: #fb923c; }
+.metric-value.purple { color: #c084fc; }
+.metric-value.red { color: #f87171; }
+.metric-value.yellow { color: #facc15; }
+
+.metric-unit {
+  font-size: 10px;
+  color: #64748b;
+  margin-left: 2px;
+  font-weight: 400;
+}
+
+/* 横向条形图 */
+.hbar-chart {
+  margin: 6px 0 0 0;
+  flex-shrink: 0;
+}
+
+.hbar-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 5px;
+  font-size: 11px;
+}
+
+.hbar-label {
+  width: 60px;
+  color: #94a3b8;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.hbar-track {
+  flex: 1;
+  height: 14px;
+  background: rgba(148, 163, 184, 0.06);
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+
+.hbar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 1s ease;
+  position: relative;
+}
+
+.hbar-fill::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  background: rgba(255,255,255,0.3);
+}
+
+.hbar-fill.blue { background: linear-gradient(90deg, #0ea5e9, #38bdf8); }
+.hbar-fill.green { background: linear-gradient(90deg, #16a34a, #4ade80); }
+.hbar-fill.orange { background: linear-gradient(90deg, #ea580c, #fb923c); }
+.hbar-fill.purple { background: linear-gradient(90deg, #7c3aed, #c084fc); }
+.hbar-fill.red { background: linear-gradient(90deg, #dc2626, #f87171); }
+
+.hbar-value {
+  width: 40px;
+  color: #e2e8f0;
+  font-weight: 600;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+/* 数据表格 */
+.data-table-compact {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+}
+
+.data-table-compact th {
+  color: #64748b;
+  font-weight: 500;
+  text-align: left;
+  padding: 4px 6px;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.1);
+}
+
+.data-table-compact td {
+  padding: 4px 6px;
+  color: #e2e8f0;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.04);
+}
+
+.data-table-compact tr:hover td {
+  background: rgba(56, 189, 248, 0.04);
+}
+
+.status-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-right: 4px;
+}
+
+.status-dot.green { background: #4ade80; }
+.status-dot.orange { background: #fb923c; }
+.status-dot.red { background: #f87171; }
+.status-dot.blue { background: #38bdf8; }
+
+/* 中间区域 */
+.center-col {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* 核心KPI横幅 */
+.kpi-banner {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-shrink: 0;
+}
+
+.kpi-card {
+  background: rgba(8, 20, 40, 0.7);
+  border: 1px solid rgba(56, 189, 248, 0.12);
+  border-radius: 4px;
+  padding: 10px 6px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  animation: fade-in-up 0.7s ease-out;
+  cursor: pointer;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.kpi-card:hover {
+  border-color: rgba(56, 189, 248, 0.3);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.1);
+}
+
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+}
+
+.kpi-card:nth-child(1) { --accent: #38bdf8; }
+.kpi-card:nth-child(2) { --accent: #4ade80; }
+.kpi-card:nth-child(3) { --accent: #fb923c; }
+.kpi-card:nth-child(4) { --accent: #c084fc; }
+
+.kpi-icon {
+  font-size: 18px;
+  margin-bottom: 2px;
+}
+
+.kpi-number {
+  font-size: 22px;
+  font-weight: 800;
+  font-family: 'DIN Alternate', 'Arial Black', sans-serif;
+  color: #f1f5f9;
+  line-height: 1.2;
+}
+
+.kpi-label {
+  font-size: 10px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+/* 地图区域 */
+.map-area {
+  flex: 1;
+  background: rgba(8, 20, 40, 0.5);
+  border: 1px solid rgba(56, 189, 248, 0.18);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+}
+
+.map-area iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+.map-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* 扫描线 */
+.scan-line {
+  position: absolute;
+  left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.5), transparent);
+  animation: scan-line 6s ease-in-out infinite;
+}
+
+/* 地图标记 */
+.map-marker {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.map-marker::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.map-marker.blue { background: #38bdf8; color: #38bdf8; }
+.map-marker.green { background: #4ade80; color: #4ade80; }
+.map-marker.orange { background: #fb923c; color: #fb923c; }
+.map-marker.red { background: #f87171; color: #f87171; }
+.map-marker.purple { background: #c084fc; color: #c084fc; }
+
+.map-marker-label {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 10px;
+  color: #e2e8f0;
+  background: rgba(6, 25, 50, 0.9);
+  padding: 1px 6px;
+  border-radius: 3px;
+  border: 1px solid rgba(56, 189, 248, 0.2);
+}
+
+/* 地图方框标记 */
+.map-box {
+  position: absolute;
+  border: 2px solid;
+  border-radius: 3px;
+  background: rgba(0,0,0,0.1);
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+.map-box.red { border-color: #f87171; box-shadow: 0 0 8px rgba(248, 113, 113, 0.3); }
+.map-box.blue { border-color: #38bdf8; box-shadow: 0 0 8px rgba(56, 189, 248, 0.3); }
+.map-box.orange { border-color: #fb923c; box-shadow: 0 0 8px rgba(251, 146, 60, 0.3); }
+
+/* 底部跑马灯 */
+.ticker-bar {
+  height: 28px;
+  background: rgba(8, 25, 50, 0.8);
+  border-top: 1px solid rgba(56, 189, 248, 0.1);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.ticker-content {
+  display: flex;
+  gap: 36px;
+  white-space: nowrap;
+  animation: ticker-scroll 40s linear infinite;
+  padding-left: 100%;
+}
+
+.ticker-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.ticker-item .dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+}
+
+.ticker-item .dot.green { background: #4ade80; }
+.ticker-item .dot.orange { background: #fb923c; }
+.ticker-item .dot.red { background: #f87171; }
+
+/* 左侧/右侧列 */
+.side-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: hidden;
+}
+
+.side-col::-webkit-scrollbar { width: 3px; }
+.side-col::-webkit-scrollbar-thumb { background: rgba(56, 189, 248, 0.1); border-radius: 2px; }
+
+/* 角标 */
+.corner-deco {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+}
+
+.corner-deco.tl { top: 2px; left: 2px; border-right: none; border-bottom: none; }
+.corner-deco.tr { top: 2px; right: 2px; border-left: none; border-bottom: none; }
+.corner-deco.bl { bottom: 2px; left: 2px; border-right: none; border-top: none; }
+.corner-deco.br { bottom: 2px; right: 2px; border-left: none; border-top: none; }
+
+/* ========== 弹窗模态框 ========== */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.modal-box {
+  width: 1100px;
+  height: 720px;
+  background: linear-gradient(135deg, rgba(10, 25, 50, 0.95) 0%, rgba(5, 15, 35, 0.98) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+  animation: modal-in 0.3s ease-out;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-box::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--modal-accent, #38bdf8), transparent);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.1);
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--modal-accent, #38bdf8);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(8, 20, 40, 0.6);
+  color: #94a3b8;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.modal-close:hover {
+  background: rgba(248, 113, 113, 0.15);
+  border-color: rgba(248, 113, 113, 0.3);
+  color: #f87171;
+}
+
+.modal-body {
+  flex: 1;
+  padding: 16px 24px;
+  overflow-y: auto;
+  position: relative;
+  z-index: 2;
+}
+
+.modal-body::-webkit-scrollbar { width: 4px; }
+.modal-body::-webkit-scrollbar-thumb { background: rgba(56, 189, 248, 0.15); border-radius: 2px; }
+
+/* 弹窗内统计卡片 */
+.modal-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.modal-stat-card {
+  background: rgba(15, 35, 65, 0.5);
+  border: 1px solid rgba(56, 189, 248, 0.1);
+  border-radius: 6px;
+  padding: 14px;
+  text-align: center;
+}
+
+.modal-stat-value {
+  font-size: 24px;
+  font-weight: 800;
+  font-family: 'DIN Alternate', 'Arial Black', sans-serif;
+  color: #f1f5f9;
+}
+
+.modal-stat-label {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-top: 4px;
+}
+
+/* 弹窗内表格 */
+.modal-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-top: 12px;
+}
+
+.modal-table th {
+  color: #64748b;
+  font-weight: 500;
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+  background: rgba(8, 20, 40, 0.4);
+}
+
+.modal-table td {
+  padding: 8px 12px;
+  color: #e2e8f0;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.06);
+}
+
+.modal-table tr:hover td {
+  background: rgba(56, 189, 248, 0.04);
+}
+
+/* 弹窗内两栏布局 */
+.modal-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.modal-panel {
+  background: rgba(8, 20, 40, 0.5);
+  border: 1px solid rgba(56, 189, 248, 0.1);
+  border-radius: 6px;
+  padding: 14px;
+}
+
+.modal-panel-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #38bdf8;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.1);
+}
+
+/* 弹窗内横向条形图 */
+.modal-hbar {
+  margin: 6px 0;
+}
+
+.modal-hbar-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+
+.modal-hbar-label {
+  width: 80px;
+  color: #94a3b8;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.modal-hbar-track {
+  flex: 1;
+  height: 16px;
+  background: rgba(148, 163, 184, 0.06);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.modal-hbar-fill {
+  height: 100%;
+  border-radius: 3px;
+}
+
+.modal-hbar-fill.blue { background: linear-gradient(90deg, #0ea5e9, #38bdf8); }
+.modal-hbar-fill.green { background: linear-gradient(90deg, #16a34a, #4ade80); }
+.modal-hbar-fill.orange { background: linear-gradient(90deg, #ea580c, #fb923c); }
+.modal-hbar-fill.purple { background: linear-gradient(90deg, #7c3aed, #c084fc); }
+.modal-hbar-fill.red { background: linear-gradient(90deg, #dc2626, #f87171); }
+
+.modal-hbar-value {
+  width: 50px;
+  color: #e2e8f0;
+  font-weight: 600;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+/* 弹窗内图表占位 */
+.modal-chart {
+  height: 160px;
+  background: rgba(56, 189, 248, 0.02);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.modal-chart .mini-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 80px;
+}
+
+.modal-chart .bar {
+  width: 12px;
+  background: linear-gradient(180deg, var(--bar-color, #38bdf8), rgba(56, 189, 248, 0.15));
+  border-radius: 2px 2px 0 0;
+}
+
+/* 地图底部按钮 */
+.map-bottom-btns {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 12px;
+  z-index: 10;
+  pointer-events: auto;
+}
+
+.map-btn {
+  background: rgba(8, 20, 40, 0.85);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 6px;
+  padding: 8px 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(4px);
+}
+
+.map-btn:hover {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: rgba(56, 189, 248, 0.5);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
+}
+
+.map-btn-icon {
+  font-size: 16px;
+}
+
+.map-btn-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+/* 响应式 */
+@media (max-width: 1400px) {
+  .main { grid-template-columns: 260px 1fr 260px; gap: 8px; padding: 6px; }
+  .kpi-number { font-size: 18px; }
+}
+</style>
+</head>
+<body>
+
+<!-- 弹窗模态框 -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal-box" id="modalBox" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">📊 详情</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- 顶部标题栏 -->
+<div class="header">
+  <div class="header-title">会展小镇服务保障平台</div>
+  <div class="header-sub">
+    <span class="live-dot"></span>
+    <span>实时数据监控中</span>
+    <span id="clock">--:--:--</span>
+  </div>
+  <button class="btn-fullscreen" id="btnFullscreen" onclick="toggleFullscreen()">
+    <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+    全屏
+  </button>
+</div>
+
+<!-- 主内容 -->
+<div class="main">
+
+  <!-- 左侧列 -->
+  <div class="side-col">
+
+    <!-- 韧性安全 -->
+    <div class="panel" style="--accent:#f87171;" onclick="openModal('resilience')">
+      <div class="corner-deco tl"></div><div class="corner-deco tr"></div>
+      <div class="corner-deco bl"></div><div class="corner-deco br"></div>
+      <div class="panel-title">🛡️ 韧性安全</div>
+      <div class="metric-cards">
+        <div class="metric-card">
+          <div class="metric-card-icon">📋</div>
+          <div class="metric-card-value" style="color:#38bdf8;">8</div>
+          <div class="metric-card-label">应急预案</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-card-icon">✅</div>
+          <div class="metric-card-value" style="color:#4ade80;">95%</div>
+          <div class="metric-card-label">巡检完成率</div>
+        </div>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">今日巡检完成</span>
+        <span class="metric-value blue">142<span class="metric-unit">项</span></span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">设施异常</span>
+        <span class="metric-value red">1<span class="metric-unit">项</span></span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">结构安全评分</span>
+        <span class="metric-value green">98.2<span class="metric-unit">分</span></span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">应急物资储备</span>
+        <span class="metric-value blue">96<span class="metric-unit">%</span></span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">疏散通道畅通</span>
+        <span class="metric-value green">100<span class="metric-unit">%</span></span>
+      </div>
+      <div class="hbar-chart">
+        <div class="hbar-item">
+          <span class="hbar-label">配电</span>
+          <div class="hbar-track"><div class="hbar-fill blue" style="width:98%"></div></div>
+          <span class="hbar-value">98%</span>
+        </div>
+        <div class="hbar-item">
+          <span class="hbar-label">给排水</span>
+          <div class="hbar-track"><div class="hbar-fill green" style="width:96%"></div></div>
+          <span class="hbar-value">96%</span>
+        </div>
+        <div class="hbar-item">
+          <span class="hbar-label">电梯</span>
+          <div class="hbar-track"><div class="hbar-fill blue" style="width:100%"></div></div>
+          <span class="hbar-value">100%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 物联网 -->
+    <div class="panel" style="--accent:#38bdf8;" onclick="openModal('iot')">
+      <div class="corner-deco tl"></div><div class="corner-deco tr"></div>
+      <div class="corner-deco bl"></div><div class="corner-deco br"></div>
+      <div class="panel-title">🔗 物联网</div>
+      <div class="metric-cards">
+        <div class="metric-card">
+          <div class="metric-card-icon">📡</div>
+          <div class="metric-card-value" style="color:#38bdf8;">12,580</div>
+          <div class="metric-card-label">接入设备</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-card-icon">📊</div>
+          <div class="metric-card-value" style="color:#4ade80;">98.5%</div>
+          <div class="metric-card-label">在线率</div>
+        </div>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">数据采集点</span>
+        <span class="metric-value blue">45,680<span class="metric-unit">个</span></span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">今日数据量</span>
+        <span class="metric-value purple">2.8<span class="metric-unit">GB</span></span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">网关状态</span>
+        <span class="metric-value green">正常</span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">协议覆盖</span>
+        <span class="metric-value blue">Modbus/BACnet/OPC</span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">边缘节点</span>
+        <span class="metric-value blue">24<span class="metric-unit">个</span></span>
+      </div>
+      <div class="hbar-chart">
+        <div class="hbar-item">
+          <span class="hbar-label">传感器</span>
+          <div class="hbar-track"><div class="hbar-fill blue" style="width:42%"></div></div>
+          <span class="hbar-value">42%</span>
+        </div>
+        <div class="hbar-item">
+          <span class="hbar-label">控制器</span>
+          <div class="hbar-track"><div class="hbar-fill green" style="width:28%"></div></div>
+          <span class="hbar-value">28%</span>
+        </div>
+        <div class="hbar-item">
+          <span class="hbar-label">执行器</span>
+          <div class="hbar-track"><div class="hbar-fill orange" style="width:18%"></div></div>
+          <span class="hbar-value">18%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 故障告警 -->
+    <div class="panel" style="--accent:#fb923c;" onclick="openModal('alarm')">
+      <div class="corner-deco tl"></div><div class="corner-deco tr"></div>
+      <div class="corner-deco bl"></div><div class="corner-deco br"></div>
+      <div class="panel-title">⚠️ 故障告警</div>
+      <div class="metric-cards">
+        <div class="metric-card">
+          <div class="metric-card-icon">🔔</div>
+          <div class="metric-card-value" style="color:#f87171;">23</div>
+          <div class="metric-card-label">今日告警</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-card-icon">⏱️</div>
+          <div class="metric-card-value" style="color:#fb923c;">3.2</div>
+          <div class="metric-card-label">响应分钟</div>
+        </div>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">已处理</span>
+        <span class="metric-value green">18<span class="metric-unit">条</span></span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">待处理</span>
+        <span class="metric-value orange">5<span class="metric-unit">条</span></span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">严重告警</span>
+        <span class="metric-value red">1<span class="metric-unit">条</span></span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">平均处理时长</span>
+        <span class="metric-value blue">18<span class="metric-unit">分钟</span></span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">工单闭环率</span>
+        <span class="metric-value green">91<span class="metric-unit">%</span></span>
+      </div>
+      <div class="hbar-chart">
+        <div class="hbar-item">
+          <span class="hbar-label">设备</span>
+          <div class="hbar-track"><div class="hbar-fill orange" style="width:45%"></div></div>
+          <span class="hbar-value">45%</span>
+        </div>
+        <div class="hbar-item">
+          <span class="hbar-label">能耗</span>
+          <div class="hbar-track"><div class="hbar-fill blue" style="width:30%"></div></div>
+          <span class="hbar-value">30%</span>
+        </div>
+        <div class="hbar-item">
+          <span class="hbar-label">安防</span>
+          <div class="hbar-track"><div class="hbar-fill red" style="width:25%"></div></div>
+          <span class="hbar-value">25%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI数据 -->
+    <div class="panel" style="--accent:#c084fc;" onclick="openModal('ai')">
+      <div class="corner-deco tl"></div><div class="corner-deco tr"></div>
+      <div class="corner-deco bl"></div><div class="corner-deco br"></div>
+      <div class="panel-title">🤖 AI数据</div>
+      <div class="metric-cards">
+        <div class="metric-card">
+          <div class="metric-card-icon">🧠</div>
+          <div class="metric-card-value" style="color:#c084fc;">18</div>
+          <div class="metric-card-label">策略运行</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-card-icon">🎯</div>
+          <div class="metric-card-value" style="color:#4ade80;">94.5%</div>
+          <div class="metric-card-label">预测准确</div>
+        </div>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">异常检测命中</span>
+        <span class="metric-value blue">87<span class="metric-unit">%</span></span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">智能调度</span>
+        <span class="metric-value green">156<span class="metric-unit">次/日</span></span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">模型版本</span>
+        <span class="metric-value blue">v3.2.1</span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">训练数据量</span>
+        <span class="metric-value purple">12.5<span class="metric-unit">TB</span></span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">节能优化效果</span>
+        <span class="metric-value green">15.8<span class="metric-unit">%</span></span>
+      </div>
+      <div class="hbar-chart">
+        <div class="hbar-item">
+          <span class="hbar-label">负荷</span>
+          <div class="hbar-track"><div class="hbar-fill purple" style="width:94.5%"></div></div>
+          <span class="hbar-value">94.5%</span>
+        </div>
+        <div class="hbar-item">
+          <span class="hbar-label">异常</span>
+          <div class="hbar-track"><div class="hbar-fill purple" style="width:87%"></div></div>
+          <span class="hbar-value">87%</span>
+        </div>
+        <div class="hbar-item">
+          <span class="hbar-label">节能</span>
+          <div class="hbar-track"><div class="hbar-fill green" style="width:92%"></div></div>
+          <span class="hbar-value">92%</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 中间列 -->
+  <div class="center-col">
+
+    <!-- 核心KPI -->
+    <div class="kpi-banner">
+      <div class="kpi-card" onclick="openModal('kpiPower')">
+        <div class="kpi-icon">⚡</div>
+        <div class="kpi-number" id="kpi-power">42,156</div>
+        <div class="kpi-label">今日用电量 kWh</div>
+      </div>
+      <div class="kpi-card" onclick="openModal('kpiPeople')">
+        <div class="kpi-icon">👥</div>
+        <div class="kpi-number" id="kpi-people">12,580</div>
+        <div class="kpi-label">今日客流 人次</div>
+      </div>
+      <div class="kpi-card" onclick="openModal('kpiSave')">
+        <div class="kpi-icon">🌿</div>
+        <div class="kpi-number" id="kpi-save">156,780</div>
+        <div class="kpi-label">累计节能 kWh</div>
+      </div>
+      <div class="kpi-card" onclick="openModal('kpiCarbon')">
+        <div class="kpi-icon">🌍</div>
+        <div class="kpi-number" id="kpi-carbon">89.6</div>
+        <div class="kpi-label">碳减排 吨CO₂</div>
+      </div>
+    </div>
+
+    <!-- 园区地图 -->
+    <div class="map-area">
+      <iframe src="http://39.103.216.15:3000/preview/viewer/viewer.html?token=5751e096467f0f8e3f4e6ded210cd953&bdid=B000A11DMD&lon=116.15879098007387&lat=39.91596283494254&floorId=DX0003640110100001&version=v3" allowfullscreen></iframe>
+      <div class="map-overlay">
+        <div class="scan-line"></div>
+        <div class="map-box red" style="top:18%; left:24%; width:18%; height:22%;"></div>
+        <div class="map-box blue" style="top:28%; left:48%; width:15%; height:18%;"></div>
+        <div class="map-box orange" style="top:48%; left:38%; width:16%; height:20%;"></div>
+        <div class="map-marker blue" style="top:25%; left:30%;"><div class="map-marker-label">A馆</div></div>
+        <div class="map-marker green" style="top:35%; left:55%;"><div class="map-marker-label">B馆</div></div>
+        <div class="map-marker orange" style="top:55%; left:45%;"><div class="map-marker-label">C馆</div></div>
+        <div class="map-marker blue" style="top:15%; left:60%;"><div class="map-marker-label">会议中心</div></div>
+        <div class="map-marker purple" style="top:70%; left:20%;"><div class="map-marker-label">停车场</div></div>
+        <div class="map-marker red" style="top:42%; left:70%;"><div class="map-marker-label">消防中控</div></div>
+        <!-- 地图底部按钮 -->
+        <div class="map-bottom-btns">
+          <div class="map-btn" onclick="openModal('mapPeople')">
+            <span class="map-btn-icon">👥</span>
+            <span class="map-btn-text">客流</span>
+          </div>
+          <div class="map-btn" onclick="openModal('mapSecurity')">
+            <span class="map-btn-icon">🔒</span>
+            <span class="map-btn-text">安防</span>
+          </div>
+          <div class="map-btn" onclick="openModal('mapLighting')">
+            <span class="map-btn-icon">💡</span>
+            <span class="map-btn-text">照明</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 右侧列 -->
+  <div class="side-col">
+
+    <!-- 节能低碳 -->
+    <div class="panel" style="--accent:#4ade80;" onclick="openModal('energy')">
+      <div class="corner-deco tl"></div><div class="corner-deco tr"></div>
+      <div class="corner-deco bl"></div><div class="corner-deco br"></div>
+      <div class="panel-title">🌿 节能低碳</div>
+      <div class="metric-cards">
+        <div class="metric-card">
+          <div class="metric-card-icon">⚡</div>
+          <div class="metric-card-value" style="color:#38bdf8;">42,156</div>
+          <div class="metric-card-label">用电kWh</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-card-icon">💧</div>
+          <div class="metric-card-value" style="color:#38bdf8;">856</div>
+          <div class="metric-card-label">用水m³</div>
+        </div>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">光伏发电</span>
+        <span class="metric-value green">2,450<span class="metric-unit">kW</span></span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">累计节能</span>
+        <span class="metric-value green">156,780<span class="metric-unit">kWh</span></span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">节能收益率</span>
+        <span class="metric-value green">23.5<span class="metric-unit">%</span></span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">碳减排量</span>
+        <span class="metric-value green">89.6<span class="metric-unit">吨</span></span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">AI优化策略</span>
+        <span class="metric-value purple">18<span class="metric-unit">个运行</span></span>
+      </div>
+      <div class="hbar-chart">
+        <div class="hbar-item">
+          <span class="hbar-label">空调</span>
+          <div class="hbar-track"><div class="hbar-fill blue" style="width:45%"></div></div>
+          <span class="hbar-value">45%</span>
+        </div>
+        <div class="hbar-item">
+          <span class="hbar-label">照明</span>
+          <div class="hbar-track"><div class="hbar-fill green" style="width:25%"></div></div>
+          <span class="hbar-value">25%</span>
+        </div>
+        <div class="hbar-item">
+          <span class="hbar-label">动力</span>
+          <div class="hbar-track"><div class="hbar-fill orange" style="width:18%"></div></div>
+          <span class="hbar-value">18%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 场馆运营 -->
+    <div class="panel" style="--accent:#38bdf8;" onclick="openModal('venue')">
+      <div class="corner-deco tl"></div><div class="corner-deco tr"></div>
+      <div class="corner-deco bl"></div><div class="corner-deco br"></div>
+      <div class="panel-title">🏢 场馆运营</div>
+      <div class="metric-cards">
+        <div class="metric-card">
+          <div class="metric-card-icon">❄️</div>
+          <div class="metric-card-value" style="color:#38bdf8;">86</div>
+          <div class="metric-card-label">空调运行</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-card-icon">🌀</div>
+          <div class="metric-card-value" style="color:#4ade80;">45</div>
+          <div class="metric-card-label">新风运行</div>
+        </div>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">配电回路</span>
+        <span class="metric-value blue">320<span class="metric-unit">路正常</span></span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">冷源系统</span>
+        <span class="metric-value green">4<span class="metric-unit">套运行</span></span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">照明回路</span>
+        <span class="metric-value blue">1,245<span class="metric-unit">路开启</span></span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">系统负荷率</span>
+        <span class="metric-value orange">72<span class="metric-unit">%</span></span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">室内温度</span>
+        <span class="metric-value blue">24.5<span class="metric-unit">°C</span></span>
+      </div>
+      <div class="hbar-chart">
+        <div class="hbar-item">
+          <span class="hbar-label">A馆</span>
+          <div class="hbar-track"><div class="hbar-fill blue" style="width:78%"></div></div>
+          <span class="hbar-value">78%</span>
+        </div>
+        <div class="hbar-item">
+          <span class="hbar-label">B馆</span>
+          <div class="hbar-track"><div class="hbar-fill green" style="width:65%"></div></div>
+          <span class="hbar-value">65%</span>
+        </div>
+        <div class="hbar-item">
+          <span class="hbar-label">C馆</span>
+          <div class="hbar-track"><div class="hbar-fill orange" style="width:72%"></div></div>
+          <span class="hbar-value">72%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 会展服务 -->
+    <div class="panel" style="--accent:#facc15;" onclick="openModal('exhibition')">
+      <div class="corner-deco tl"></div><div class="corner-deco tr"></div>
+      <div class="corner-deco bl"></div><div class="corner-deco br"></div>
+      <div class="panel-title">🎯 会展服务</div>
+      <div class="metric-cards">
+        <div class="metric-card">
+          <div class="metric-card-icon">👥</div>
+          <div class="metric-card-value" style="color:#38bdf8;">12,580</div>
+          <div class="metric-card-label">今日客流</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-card-icon">🚗</div>
+          <div class="metric-card-value" style="color:#fb923c;">67%</div>
+          <div class="metric-card-label">车位使用</div>
+        </div>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">当前在馆</span>
+        <span class="metric-value orange">3,420<span class="metric-unit">人</span></span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">峰值时段</span>
+        <span class="metric-value purple">10:00-12:00</span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">剩余车位</span>
+        <span class="metric-value green">820<span class="metric-unit">个</span></span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">A馆占用</span>
+        <span class="metric-value blue">85<span class="metric-unit">%</span></span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">B馆占用</span>
+        <span class="metric-value green">62<span class="metric-unit">%</span></span>
+      </div>
+      <div class="hbar-chart">
+        <div class="hbar-item">
+          <span class="hbar-label">A馆</span>
+          <div class="hbar-track"><div class="hbar-fill blue" style="width:85%"></div></div>
+          <span class="hbar-value">85%</span>
+        </div>
+        <div class="hbar-item">
+          <span class="hbar-label">B馆</span>
+          <div class="hbar-track"><div class="hbar-fill green" style="width:62%"></div></div>
+          <span class="hbar-value">62%</span>
+        </div>
+        <div class="hbar-item">
+          <span class="hbar-label">C馆</span>
+          <div class="hbar-track"><div class="hbar-fill orange" style="width:48%"></div></div>
+          <span class="hbar-value">48%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 安全防范 -->
+    <div class="panel" style="--accent:#f87171;" onclick="openModal('security')">
+      <div class="corner-deco tl"></div><div class="corner-deco tr"></div>
+      <div class="corner-deco bl"></div><div class="corner-deco br"></div>
+      <div class="panel-title">🔒 安全防范</div>
+      <div class="metric-cards">
+        <div class="metric-card">
+          <div class="metric-card-icon">📹</div>
+          <div class="metric-card-value" style="color:#38bdf8;">1,680</div>
+          <div class="metric-card-label">监控点位</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-card-icon">🧯</div>
+          <div class="metric-card-value" style="color:#4ade80;">2,340</div>
+          <div class="metric-card-label">消防设备</div>
+        </div>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">今日告警</span>
+        <span class="metric-value red">5<span class="metric-unit">条</span></span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">门禁通行</span>
+        <span class="metric-value blue">8,560<span class="metric-unit">人次</span></span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">消防水压</span>
+        <span class="metric-value green">0.35<span class="metric-unit">MPa正常</span></span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">烟感在线</span>
+        <span class="metric-value green">1,558<span class="metric-unit">/1,560</span></span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-label">应急照明</span>
+        <span class="metric-value green">198<span class="metric-unit">/200正常</span></span>
+      </div>
+      <div class="hbar-chart">
+        <div class="hbar-item">
+          <span class="hbar-label">监控</span>
+          <div class="hbar-track"><div class="hbar-fill blue" style="width:98%"></div></div>
+          <span class="hbar-value">98%</span>
+        </div>
+        <div class="hbar-item">
+          <span class="hbar-label">消防</span>
+          <div class="hbar-track"><div class="hbar-fill green" style="width:96%"></div></div>
+          <span class="hbar-value">96%</span>
+        </div>
+        <div class="hbar-item">
+          <span class="hbar-label">门禁</span>
+          <div class="hbar-track"><div class="hbar-fill blue" style="width:99%"></div></div>
+          <span class="hbar-value">99%</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- 底部跑马灯 -->
+<div class="ticker-bar">
+  <div class="ticker-content">
+    <div class="ticker-item"><span class="dot green"></span> 安全防范：监控 1,680点在线 | 消防 2,340台正常 | 烟感 1,558/1,560</div>
+    <div class="ticker-item"><span class="dot green"></span> 节能低碳：AI策略 18个运行 | 预计节能 15.8% | 光伏 2,450kW</div>
+    <div class="ticker-item"><span class="dot green"></span> 物联网：设备 12,580台 | 在线率 98.5% | 采集 45,680点</div>
+    <div class="ticker-item"><span class="dot orange"></span> 故障告警：今日 23条 | 已处理 18条 | 待处理 5条 | 严重 1条</div>
+    <div class="ticker-item"><span class="dot green"></span> 场馆运营：空调 86台 | 新风 45台 | 照明 1,245路 | 负荷 72%</div>
+    <div class="ticker-item"><span class="dot green"></span> 会展服务：在馆 3,420人 | 车位使用 67% | 剩余 820个</div>
+    <div class="ticker-item"><span class="dot green"></span> AI数据：负荷预测 94.5% | 智能调度 156次/日 | 模型 v3.2.1</div>
+    <div class="ticker-item"><span class="dot green"></span> 韧性安全：应急预案 8项 | 巡检完成 142项 | 完成率 95%</div>
+  </div>
+</div>
+
+<script>
+// ========== 弹窗数据内容 ==========
+const modalData = {
+  resilience: {
+    title: '🛡️ 韧性安全详情',
+    accent: '#f87171',
+    content: `
+      <div class="modal-stats">
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#38bdf8;">8</div><div class="modal-stat-label">应急预案</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#4ade80;">142</div><div class="modal-stat-label">巡检完成</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#fb923c;">8</div><div class="modal-stat-label">待巡检</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#4ade80;">95%</div><div class="modal-stat-label">完成率</div></div>
+      </div>
+      <div class="modal-two-col">
+        <div class="modal-panel">
+          <div class="modal-panel-title">📋 应急预案状态</div>
+          <table class="modal-table">
+            <thead><tr><th>预案名称</th><th>类型</th><th>状态</th><th>最后演练</th></tr></thead>
+            <tbody>
+              <tr><td>火灾应急疏散</td><td>消防</td><td style="color:#4ade80;">正常</td><td>2026-05-20</td></tr>
+              <tr><td>防汛应急预案</td><td>自然灾害</td><td style="color:#4ade80;">正常</td><td>2026-04-15</td></tr>
+              <tr><td>停电应急响应</td><td>设备故障</td><td style="color:#4ade80;">正常</td><td>2026-05-10</td></tr>
+              <tr><td>反恐防暴预案</td><td>安防</td><td style="color:#4ade80;">正常</td><td>2026-03-28</td></tr>
+              <tr><td>疫情防控预案</td><td>公共卫生</td><td style="color:#4ade80;">正常</td><td>2026-02-20</td></tr>
+              <tr><td>电梯困人救援</td><td>设备故障</td><td style="color:#4ade80;">正常</td><td>2026-05-25</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-panel">
+          <div class="modal-panel-title">🔧 设施巡检状态</div>
+          <table class="modal-table">
+            <thead><tr><th>设施类型</th><th>总数</th><th>已检</th><th>待检</th><th>异常</th></tr></thead>
+            <tbody>
+              <tr><td>配电设施</td><td>45</td><td>42</td><td>3</td><td style="color:#4ade80;">0</td></tr>
+              <tr><td>给排水系统</td><td>32</td><td>30</td><td>2</td><td style="color:#4ade80;">0</td></tr>
+              <tr><td>电梯设备</td><td>18</td><td>18</td><td>0</td><td style="color:#4ade80;">0</td></tr>
+              <tr><td>结构安全</td><td>12</td><td>11</td><td>1</td><td style="color:#4ade80;">0</td></tr>
+              <tr><td>防雷接地</td><td>8</td><td>8</td><td>0</td><td style="color:#4ade80;">0</td></tr>
+              <tr><td>应急物资</td><td>25</td><td>24</td><td>1</td><td style="color:#fb923c;">1</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div style="margin-top:16px;">
+        <div class="modal-panel-title">📈 近7日巡检完成趋势</div>
+        <div class="modal-chart">
+          <div class="mini-chart">
+            <div class="bar" style="height:90%;--bar-color:#f87171;"></div>
+            <div class="bar" style="height:92%;--bar-color:#f87171;"></div>
+            <div class="bar" style="height:88%;--bar-color:#f87171;"></div>
+            <div class="bar" style="height:95%;--bar-color:#f87171;"></div>
+            <div class="bar" style="height:93%;--bar-color:#f87171;"></div>
+            <div class="bar" style="height:96%;--bar-color:#f87171;"></div>
+            <div class="bar" style="height:94%;--bar-color:#f87171;"></div>
+          </div>
+          <span style="font-size:12px;color:#64748b;">巡检完成率: 90% → 95% | 本周累计完成 142 项</span>
+        </div>
+      </div>
+    `
+  },
+  iot: {
+    title: '🔗 物联网详情',
+    accent: '#38bdf8',
+    content: `
+      <div class="modal-stats">
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#38bdf8;">12,580</div><div class="modal-stat-label">接入设备</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#4ade80;">98.5%</div><div class="modal-stat-label">在线率</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#c084fc;">45,680</div><div class="modal-stat-label">采集点</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#fb923c;">2.8GB</div><div class="modal-stat-label">今日数据</div></div>
+      </div>
+      <div class="modal-two-col">
+        <div class="modal-panel">
+          <div class="modal-panel-title">📡 设备类型分布</div>
+          <div class="modal-hbar">
+            <div class="modal-hbar-item"><span class="modal-hbar-label">传感器</span><div class="modal-hbar-track"><div class="modal-hbar-fill blue" style="width:42%"></div></div><span class="modal-hbar-value">5,284</span></div>
+            <div class="modal-hbar-item"><span class="modal-hbar-label">控制器</span><div class="modal-hbar-track"><div class="modal-hbar-fill green" style="width:28%"></div></div><span class="modal-hbar-value">3,522</span></div>
+            <div class="modal-hbar-item"><span class="modal-hbar-label">执行器</span><div class="modal-hbar-track"><div class="modal-hbar-fill orange" style="width:18%"></div></div><span class="modal-hbar-value">2,264</span></div>
+            <div class="modal-hbar-item"><span class="modal-hbar-label">网关</span><div class="modal-hbar-track"><div class="modal-hbar-fill purple" style="width:8%"></div></div><span class="modal-hbar-value">1,006</span></div>
+            <div class="modal-hbar-item"><span class="modal-hbar-label">其他</span><div class="modal-hbar-track"><div class="modal-hbar-fill red" style="width:4%"></div></div><span class="modal-hbar-value">504</span></div>
+          </div>
+        </div>
+        <div class="modal-panel">
+          <div class="modal-panel-title">📊 协议覆盖情况</div>
+          <table class="modal-table">
+            <thead><tr><th>协议</th><th>设备数</th><th>占比</th><th>状态</th></tr></thead>
+            <tbody>
+              <tr><td>Modbus RTU</td><td>4,560</td><td>36.2%</td><td style="color:#4ade80;">正常</td></tr>
+              <tr><td>BACnet/IP</td><td>3,280</td><td>26.1%</td><td style="color:#4ade80;">正常</td></tr>
+              <tr><td>OPC UA</td><td>2,150</td><td>17.1%</td><td style="color:#4ade80;">正常</td></tr>
+              <tr><td>MQTT</td><td>1,680</td><td>13.4%</td><td style="color:#4ade80;">正常</td></tr>
+              <tr><td>HTTP/REST</td><td>890</td><td>7.1%</td><td style="color:#4ade80;">正常</td></tr>
+              <tr><td>其他</td><td>20</td><td>0.1%</td><td style="color:#4ade80;">正常</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div style="margin-top:16px;">
+        <div class="modal-panel-title">📈 近7日数据采集趋势</div>
+        <div class="modal-chart">
+          <div class="mini-chart">
+            <div class="bar" style="height:60%;--bar-color:#38bdf8;"></div>
+            <div class="bar" style="height:75%;--bar-color:#38bdf8;"></div>
+            <div class="bar" style="height:55%;--bar-color:#38bdf8;"></div>
+            <div class="bar" style="height:80%;--bar-color:#38bdf8;"></div>
+            <div class="bar" style="height:70%;--bar-color:#38bdf8;"></div>
+            <div class="bar" style="height:85%;--bar-color:#38bdf8;"></div>
+            <div class="bar" style="height:90%;--bar-color:#38bdf8;"></div>
+          </div>
+          <span style="font-size:12px;color:#64748b;">数据量: 2.1GB → 2.8GB | 峰值: 3.2GB (6月5日)</span>
+        </div>
+      </div>
+    `
+  },
+  alarm: {
+    title: '⚠️ 故障告警详情',
+    accent: '#fb923c',
+    content: `
+      <div class="modal-stats">
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#f87171;">23</div><div class="modal-stat-label">今日告警</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#4ade80;">18</div><div class="modal-stat-label">已处理</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#fb923c;">5</div><div class="modal-stat-label">待处理</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#f87171;">1</div><div class="modal-stat-label">严重告警</div></div>
+      </div>
+      <div class="modal-two-col">
+        <div class="modal-panel">
+          <div class="modal-panel-title">📋 告警类型分布</div>
+          <div class="modal-hbar">
+            <div class="modal-hbar-item"><span class="modal-hbar-label">设备故障</span><div class="modal-hbar-track"><div class="modal-hbar-fill orange" style="width:45%"></div></div><span class="modal-hbar-value">10条</span></div>
+            <div class="modal-hbar-item"><span class="modal-hbar-label">能耗异常</span><div class="modal-hbar-track"><div class="modal-hbar-fill blue" style="width:30%"></div></div><span class="modal-hbar-value">7条</span></div>
+            <div class="modal-hbar-item"><span class="modal-hbar-label">安防告警</span><div class="modal-hbar-track"><div class="modal-hbar-fill red" style="width:25%"></div></div><span class="modal-hbar-value">6条</span></div>
+          </div>
+          <div style="margin-top:12px;font-size:12px;color:#94a3b8;">平均响应时间: 3.2分钟 | 平均处理时间: 18分钟</div>
+        </div>
+        <div class="modal-panel">
+          <div class="modal-panel-title">🔔 待处理告警</div>
+          <table class="modal-table">
+            <thead><tr><th>时间</th><th>类型</th><th>位置</th><th>等级</th></tr></thead>
+            <tbody>
+              <tr><td>14:05</td><td>应急照明故障</td><td>C馆走廊</td><td style="color:#fb923c;">一般</td></tr>
+              <tr><td>16:30</td><td>消防水压偏低</td><td>水泵房</td><td style="color:#f87171;">严重</td></tr>
+              <tr><td>11:42</td><td>监控离线</td><td>停车场C区</td><td style="color:#94a3b8;">低</td></tr>
+              <tr><td>09:20</td><td>空调温度异常</td><td>A馆F3</td><td style="color:#fb923c;">一般</td></tr>
+              <tr><td>13:10</td><td>能耗突增</td><td>B馆配电室</td><td style="color:#fb923c;">一般</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div style="margin-top:16px;">
+        <div class="modal-panel-title">📈 近7日告警趋势</div>
+        <div class="modal-chart">
+          <div class="mini-chart">
+            <div class="bar" style="height:30%;--bar-color:#fb923c;"></div>
+            <div class="bar" style="height:45%;--bar-color:#fb923c;"></div>
+            <div class="bar" style="height:25%;--bar-color:#fb923c;"></div>
+            <div class="bar" style="height:60%;--bar-color:#fb923c;"></div>
+            <div class="bar" style="height:35%;--bar-color:#fb923c;"></div>
+            <div class="bar" style="height:50%;--bar-color:#fb923c;"></div>
+            <div class="bar" style="height:23%;--bar-color:#fb923c;"></div>
+          </div>
+          <span style="font-size:12px;color:#64748b;">周一:12 → 周二:18 → 周三:10 → 周四:24 → 周五:14 → 周六:20 → 周日:23</span>
+        </div>
+      </div>
+    `
+  },
+  ai: {
+    title: '🤖 AI数据详情',
+    accent: '#c084fc',
+    content: `
+      <div class="modal-stats">
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#c084fc;">18</div><div class="modal-stat-label">策略运行</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#4ade80;">94.5%</div><div class="modal-stat-label">预测准确率</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#38bdf8;">87%</div><div class="modal-stat-label">异常检测命中</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#fb923c;">156</div><div class="modal-stat-label">调度次数/日</div></div>
+      </div>
+      <div class="modal-two-col">
+        <div class="modal-panel">
+          <div class="modal-panel-title">🧠 AI策略列表</div>
+          <table class="modal-table">
+            <thead><tr><th>策略名称</th><th>类型</th><th>状态</th><th>效果</th></tr></thead>
+            <tbody>
+              <tr><td>空调冷机群控优化</td><td>节能</td><td style="color:#4ade80;">运行中</td><td>节能15%</td></tr>
+              <tr><td>照明按需调光</td><td>节能</td><td style="color:#4ade80;">运行中</td><td>节能20%</td></tr>
+              <tr><td>新风量自适应</td><td>节能</td><td style="color:#4ade80;">运行中</td><td>节能12%</td></tr>
+              <tr><td>负荷预测调度</td><td>预测</td><td style="color:#4ade80;">运行中</td><td>准确率94%</td></tr>
+              <tr><td>异常用电检测</td><td>检测</td><td style="color:#4ade80;">运行中</td><td>命中87%</td></tr>
+              <tr><td>设备故障预警</td><td>预警</td><td style="color:#4ade80;">运行中</td><td>命中91%</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-panel">
+          <div class="modal-panel-title">📊 模型性能指标</div>
+          <div class="modal-hbar">
+            <div class="modal-hbar-item"><span class="modal-hbar-label">负荷预测</span><div class="modal-hbar-track"><div class="modal-hbar-fill purple" style="width:94.5%"></div></div><span class="modal-hbar-value">94.5%</span></div>
+            <div class="modal-hbar-item"><span class="modal-hbar-label">异常检测</span><div class="modal-hbar-track"><div class="modal-hbar-fill purple" style="width:87%"></div></div><span class="modal-hbar-value">87%</span></div>
+            <div class="modal-hbar-item"><span class="modal-hbar-label">节能优化</span><div class="modal-hbar-track"><div class="modal-hbar-fill green" style="width:92%"></div></div><span class="modal-hbar-value">92%</span></div>
+            <div class="modal-hbar-item"><span class="modal-hbar-label">故障预警</span><div class="modal-hbar-track"><div class="modal-hbar-fill blue" style="width:91%"></div></div><span class="modal-hbar-value">91%</span></div>
+            <div class="modal-hbar-item"><span class="modal-hbar-label">客流预测</span><div class="modal-hbar-track"><div class="modal-hbar-fill orange" style="width:88%"></div></div><span class="modal-hbar-value">88%</span></div>
+          </div>
+          <div style="margin-top:12px;font-size:12px;color:#94a3b8;">模型版本: v3.2.1 | 训练数据: 12.5TB | 最后更新: 2026-06-08</div>
+        </div>
+      </div>
+      <div style="margin-top:16px;">
+        <div class="modal-panel-title">📈 AI节能效果趋势</div>
+        <div class="modal-chart">
+          <div class="mini-chart">
+            <div class="bar" style="height:70%;--bar-color:#c084fc;"></div>
+            <div class="bar" style="height:75%;--bar-color:#c084fc;"></div>
+            <div class="bar" style="height:80%;--bar-color:#c084fc;"></div>
+            <div class="bar" style="height:85%;--bar-color:#c084fc;"></div>
+            <div class="bar" style="height:90%;--bar-color:#c084fc;"></div>
+            <div class="bar" style="height:92%;--bar-color:#c084fc;"></div>
+            <div class="bar" style="height:94%;--bar-color:#c084fc;"></div>
+          </div>
+          <span style="font-size:12px;color:#64748b;">近7日AI节能效果: 12.3% → 15.8% | 累计节能量: 156,780 kWh</span>
+        </div>
+      </div>
+    `
+  },
+  energy: {
+    title: '🌿 节能低碳详情',
+    accent: '#4ade80',
+    content: `
+      <div class="modal-stats">
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#38bdf8;">42,156</div><div class="modal-stat-label">今日用电kWh</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#38bdf8;">856</div><div class="modal-stat-label">今日用水m³</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#4ade80;">156,780</div><div class="modal-stat-label">累计节能kWh</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#4ade80;">89.6</div><div class="modal-stat-label">碳减排吨</div></div>
+      </div>
+      <div class="modal-two-col">
+        <div class="modal-panel">
+          <div class="modal-panel-title">⚡ 用能结构分析</div>
+          <div class="modal-hbar">
+            <div class="modal-hbar-item"><span class="modal-hbar-label">空调</span><div class="modal-hbar-track"><div class="modal-hbar-fill blue" style="width:45%"></div></div><span class="modal-hbar-value">45%</span></div>
+            <div class="modal-hbar-item"><span class="modal-hbar-label">照明</span><div class="modal-hbar-track"><div class="modal-hbar-fill green" style="width:25%"></div></div><span class="modal-hbar-value">25%</span></div>
+            <div class="modal-hbar-item"><span class="modal-hbar-label">动力</span><div class="modal-hbar-track"><div class="modal-hbar-fill orange" style="width:18%"></div></div><span class="modal-hbar-value">18%</span></div>
+            <div class="modal-hbar-item"><span class="modal-hbar-label">其他</span><div class="modal-hbar-track"><div class="modal-hbar-fill purple" style="width:12%"></div></div><span class="modal-hbar-value">12%</span></div>
+          </div>
+          <div style="margin-top:12px;font-size:12px;color:#94a3b8;">光伏发电: 2,450kW | 节能收益率: 23.5% | AI策略: 18个运行</div>
+        </div>
+        <div class="modal-panel">
+          <div class="modal-panel-title">📊 各场馆能耗对比</div>
+          <table class="modal-table">
+            <thead><tr><th>场馆</th><th>用电kWh</th><th>用水m³</th><th>环比</th></tr></thead>
+            <tbody>
+              <tr><td>A馆</td><td>15,680</td><td>320</td><td style="color:#4ade80;">↓5.2%</td></tr>
+              <tr><td>B馆</td><td>12,450</td><td>245</td><td style="color:#4ade80;">↓3.8%</td></tr>
+              <tr><td>C馆</td><td>8,920</td><td>186</td><td style="color:#f87171;">↑1.2%</td></tr>
+              <tr><td>会议中心</td><td>3,200</td><td>78</td><td style="color:#4ade80;">↓8.5%</td></tr>
+              <tr><td>公共区域</td><td>1,906</td><td>27</td><td style="color:#4ade80;">↓2.1%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div style="margin-top:16px;">
+        <div class="modal-panel-title">📈 近7日能耗趋势</div>
+        <div class="modal-chart">
+          <div class="mini-chart">
+            <div class="bar" style="height:75%;--bar-color:#4ade80;"></div>
+            <div class="bar" style="height:80%;--bar-color:#4ade80;"></div>
+            <div class="bar" style="height:70%;--bar-color:#4ade80;"></div>
+            <div class="bar" style="height:85%;--bar-color:#4ade80;"></div>
+            <div class="bar" style="height:78%;--bar-color:#4ade80;"></div>
+            <div class="bar" style="height:82%;--bar-color:#4ade80;"></div>
+            <div class="bar" style="height:76%;--bar-color:#4ade80;"></div>
+          </div>
+          <span style="font-size:12px;color:#64748b;">日均用电: 38,500kWh → 42,156kWh | 本周累计节能: 8,560kWh</span>
+        </div>
+      </div>
+    `
+  },
+  venue: {
+    title: '🏢 场馆运营详情',
+    accent: '#38bdf8',
+    content: `
+      <div class="modal-stats">
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#38bdf8;">86</div><div class="modal-stat-label">空调机组</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#4ade80;">45</div><div class="modal-stat-label">新风机组</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#38bdf8;">320</div><div class="modal-stat-label">配电回路</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#fb923c;">72%</div><div class="modal-stat-label">系统负荷</div></div>
+      </div>
+      <div class="modal-two-col">
+        <div class="modal-panel">
+          <div class="modal-panel-title">⚙️ 系统运行状态</div>
+          <table class="modal-table">
+            <thead><tr><th>系统</th><th>运行数</th><th>总数</th><th>负荷</th><th>状态</th></tr></thead>
+            <tbody>
+              <tr><td>空调机组</td><td>86台</td><td>92台</td><td>78%</td><td style="color:#4ade80;">正常</td></tr>
+              <tr><td>新风机组</td><td>45台</td><td>48台</td><td>65%</td><td style="color:#4ade80;">正常</td></tr>
+              <tr><td>配电回路</td><td>320路</td><td>320路</td><td>72%</td><td style="color:#4ade80;">正常</td></tr>
+              <tr><td>冷源系统</td><td>4套</td><td>4套</td><td>85%</td><td style="color:#4ade80;">正常</td></tr>
+              <tr><td>照明回路</td><td>1,245路</td><td>2,340路</td><td>53%</td><td style="color:#fb923c;">节能</td></tr>
+              <tr><td>光伏系统</td><td>12组</td><td>12组</td><td>92%</td><td style="color:#4ade80;">正常</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-panel">
+          <div class="modal-panel-title">🌡️ 环境参数</div>
+          <table class="modal-table">
+            <thead><tr><th>区域</th><th>温度</th><th>湿度</th><th>CO₂</th><th>PM2.5</th></tr></thead>
+            <tbody>
+              <tr><td>A馆大厅</td><td>24.5°C</td><td>55%</td><td>420ppm</td><td>12μg</td></tr>
+              <tr><td>B馆展厅</td><td>23.8°C</td><td>52%</td><td>380ppm</td><td>15μg</td></tr>
+              <tr><td>C馆会议</td><td>25.2°C</td><td>58%</td><td>450ppm</td><td>10μg</td></tr>
+              <tr><td>会议中心</td><td>24.0°C</td><td>50%</td><td>360ppm</td><td>8μg</td></tr>
+              <tr><td>公共区域</td><td>26.0°C</td><td>60%</td><td>500ppm</td><td>18μg</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div style="margin-top:16px;">
+        <div class="modal-panel-title">📈 今日系统负荷趋势</div>
+        <div class="modal-chart">
+          <div class="mini-chart">
+            <div class="bar" style="height:50%;--bar-color:#38bdf8;"></div>
+            <div class="bar" style="height:65%;--bar-color:#38bdf8;"></div>
+            <div class="bar" style="height:80%;--bar-color:#38bdf8;"></div>
+            <div class="bar" style="height:75%;--bar-color:#38bdf8;"></div>
+            <div class="bar" style="height:90%;--bar-color:#38bdf8;"></div>
+            <div class="bar" style="height:85%;--bar-color:#38bdf8;"></div>
+            <div class="bar" style="height:72%;--bar-color:#38bdf8;"></div>
+          </div>
+          <span style="font-size:12px;color:#64748b;">负荷峰值: 90% (14:00) | 当前负荷: 72% | 预计晚间降至 45%</span>
+        </div>
+      </div>
+    `
+  },
+  exhibition: {
+    title: '🎯 会展服务详情',
+    accent: '#facc15',
+    content: `
+      <div class="modal-stats">
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#38bdf8;">12,580</div><div class="modal-stat-label">今日客流</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#fb923c;">3,420</div><div class="modal-stat-label">当前在馆</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#4ade80;">820</div><div class="modal-stat-label">剩余车位</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#facc15;">67%</div><div class="modal-stat-label">车位使用</div></div>
+      </div>
+      <div class="modal-two-col">
+        <div class="modal-panel">
+          <div class="modal-panel-title">👥 各场馆客流分布</div>
+          <div class="modal-hbar">
+            <div class="modal-hbar-item"><span class="modal-hbar-label">A馆</span><div class="modal-hbar-track"><div class="modal-hbar-fill blue" style="width:85%"></div></div><span class="modal-hbar-value">5,420人</span></div>
+            <div class="modal-hbar-item"><span class="modal-hbar-label">B馆</span><div class="modal-hbar-track"><div class="modal-hbar-fill green" style="width:62%"></div></div><span class="modal-hbar-value">3,980人</span></div>
+            <div class="modal-hbar-item"><span class="modal-hbar-label">C馆</span><div class="modal-hbar-track"><div class="modal-hbar-fill orange" style="width:48%"></div></div><span class="modal-hbar-value">3,080人</span></div>
+            <div class="modal-hbar-item"><span class="modal-hbar-label">会议中心</span><div class="modal-hbar-track"><div class="modal-hbar-fill purple" style="width:35%"></div></div><span class="modal-hbar-value">1,100人</span></div>
+          </div>
+          <div style="margin-top:12px;font-size:12px;color:#94a3b8;">峰值时段: 10:00-12:00 | 预计今日总客流: 15,000人</div>
+        </div>
+        <div class="modal-panel">
+          <div class="modal-panel-title">🚗 停车场状态</div>
+          <table class="modal-table">
+            <thead><tr><th>区域</th><th>总数</th><th>已用</th><th>剩余</th><th>使用率</th></tr></thead>
+            <tbody>
+              <tr><td>A区地面</td><td>800</td><td>620</td><td>180</td><td style="color:#fb923c;">78%</td></tr>
+              <tr><td>B区地下</td><td>900</td><td>540</td><td>360</td><td style="color:#4ade80;">60%</td></tr>
+              <tr><td>C区地面</td><td>500</td><td>320</td><td>180</td><td style="color:#fb923c;">64%</td></tr>
+              <tr><td>会议中心</td><td>300</td><td>200</td><td>100</td><td style="color:#fb923c;">67%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div style="margin-top:16px;">
+        <div class="modal-panel-title">📈 今日客流趋势</div>
+        <div class="modal-chart">
+          <div class="mini-chart">
+            <div class="bar" style="height:30%;--bar-color:#facc15;"></div>
+            <div class="bar" style="height:50%;--bar-color:#facc15;"></div>
+            <div class="bar" style="height:80%;--bar-color:#facc15;"></div>
+            <div class="bar" style="height:95%;--bar-color:#facc15;"></div>
+            <div class="bar" style="height:85%;--bar-color:#facc15;"></div>
+            <div class="bar" style="height:70%;--bar-color:#facc15;"></div>
+            <div class="bar" style="height:55%;--bar-color:#facc15;"></div>
+          </div>
+          <span style="font-size:12px;color:#64748b;">08:00:1,200 → 10:00:4,500 → 12:00:6,800 → 14:00:5,200 → 16:00:3,800</span>
+        </div>
+      </div>
+    `
+  },
+  security: {
+    title: '🔒 安全防范详情',
+    accent: '#f87171',
+    content: `
+      <div class="modal-stats">
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#38bdf8;">1,680</div><div class="modal-stat-label">监控点位</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#4ade80;">2,340</div><div class="modal-stat-label">消防设备</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#f87171;">5</div><div class="modal-stat-label">今日告警</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#4ade80;">95%</div><div class="modal-stat-label">巡检完成率</div></div>
+      </div>
+      <div class="modal-two-col">
+        <div class="modal-panel">
+          <div class="modal-panel-title">📹 监控点位分布</div>
+          <table class="modal-table">
+            <thead><tr><th>区域</th><th>点位数</th><th>在线率</th><th>状态</th></tr></thead>
+            <tbody>
+              <tr><td>A馆</td><td>420</td><td>100%</td><td style="color:#4ade80;">正常</td></tr>
+              <tr><td>B馆</td><td>380</td><td>99.2%</td><td style="color:#4ade80;">正常</td></tr>
+              <tr><td>C馆</td><td>360</td><td>100%</td><td style="color:#4ade80;">正常</td></tr>
+              <tr><td>会议中心</td><td>280</td><td>98.5%</td><td style="color:#4ade80;">正常</td></tr>
+              <tr><td>停车场</td><td>120</td><td>100%</td><td style="color:#4ade80;">正常</td></tr>
+              <tr><td>公共区域</td><td>120</td><td>97.8%</td><td style="color:#fb923c;">1路离线</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-panel">
+          <div class="modal-panel-title">🧯 消防设备状态</div>
+          <table class="modal-table">
+            <thead><tr><th>设备类型</th><th>数量</th><th>正常</th><th>异常</th></tr></thead>
+            <tbody>
+              <tr><td>烟感探测器</td><td>1,560</td><td>1,558</td><td style="color:#f87171;">2</td></tr>
+              <tr><td>手动报警按钮</td><td>280</td><td>280</td><td style="color:#4ade80;">0</td></tr>
+              <tr><td>消防栓</td><td>180</td><td>180</td><td style="color:#4ade80;">0</td></tr>
+              <tr><td>喷淋系统</td><td>120</td><td>120</td><td style="color:#4ade80;">0</td></tr>
+              <tr><td>应急照明</td><td>200</td><td>198</td><td style="color:#f87171;">2</td></tr>
+            </tbody>
+          </table>
+          <div style="margin-top:12px;font-size:12px;color:#94a3b8;">今日巡检完成 142项，待巡检 8项，异常 2项</div>
+        </div>
+      </div>
+      <div style="margin-top:16px;">
+        <div class="modal-panel-title">📋 今日安全事件</div>
+        <table class="modal-table">
+          <thead><tr><th>时间</th><th>事件类型</th><th>位置</th><th>等级</th><th>状态</th></tr></thead>
+          <tbody>
+            <tr><td>08:23</td><td>门禁异常开启</td><td>A馆F2</td><td style="color:#fb923c;">一般</td><td style="color:#4ade80;">已处理</td></tr>
+            <tr><td>10:15</td><td>烟感误报</td><td>B馆F1</td><td style="color:#fb923c;">一般</td><td style="color:#4ade80;">已处理</td></tr>
+            <tr><td>11:42</td><td>监控离线</td><td>停车场C区</td><td style="color:#94a3b8;">低</td><td style="color:#fb923c;">处理中</td></tr>
+            <tr><td>14:05</td><td>应急照明故障</td><td>C馆走廊</td><td style="color:#fb923c;">一般</td><td style="color:#fb923c;">处理中</td></tr>
+            <tr><td>16:30</td><td>消防水压偏低</td><td>水泵房</td><td style="color:#f87171;">严重</td><td style="color:#fb923c;">处理中</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="margin-top:16px;">
+        <div class="modal-panel-title">🚪 门禁通行记录</div>
+        <table class="modal-table">
+          <thead><tr><th>时间</th><th>门禁点</th><th>通行人数</th><th>类型</th></tr></thead>
+          <tbody>
+            <tr><td>08:00-09:00</td><td>A馆主入口</td><td>2,340</td><td style="color:#38bdf8;">入场</td></tr>
+            <tr><td>08:00-09:00</td><td>B馆东门</td><td>1,560</td><td style="color:#38bdf8;">入场</td></tr>
+            <tr><td>12:00-13:00</td><td>员工通道</td><td>890</td><td style="color:#fb923c;">出入</td></tr>
+            <tr><td>17:00-18:00</td><td>A馆主入口</td><td>1,680</td><td style="color:#f87171;">离场</td></tr>
+          </tbody>
+        </table>
+      </div>
+    `
+  },
+  kpiPower: {
+    title: '⚡ 今日用电量详情',
+    accent: '#38bdf8',
+    content: `
+      <div class="modal-stats">
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#38bdf8;">42,156</div><div class="modal-stat-label">今日用电kWh</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#4ade80;">↓6.8%</div><div class="modal-stat-label">环比昨日</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#fb923c;">3,520</div><div class="modal-stat-label">峰值kW</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#c084fc;">1,245</div><div class="modal-stat-label">平均kW</div></div>
+      </div>
+      <div class="modal-two-col">
+        <div class="modal-panel">
+          <div class="modal-panel-title">📊 各时段用电分布</div>
+          <table class="modal-table">
+            <thead><tr><th>时段</th><th>用电量kWh</th><th>占比</th><th>环比</th></tr></thead>
+            <tbody>
+              <tr><td>00:00-06:00</td><td>2,450</td><td>5.8%</td><td style="color:#4ade80;">↓12%</td></tr>
+              <tr><td>06:00-09:00</td><td>5,680</td><td>13.5%</td><td style="color:#f87171;">↑8%</td></tr>
+              <tr><td>09:00-12:00</td><td>12,340</td><td>29.3%</td><td style="color:#f87171;">↑5%</td></tr>
+              <tr><td>12:00-14:00</td><td>8,920</td><td>21.2%</td><td style="color:#4ade80;">↓3%</td></tr>
+              <tr><td>14:00-18:00</td><td>9,560</td><td>22.7%</td><td style="color:#4ade80;">↓2%</td></tr>
+              <tr><td>18:00-24:00</td><td>3,206</td><td>7.5%</td><td style="color:#4ade80;">↓15%</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-panel">
+          <div class="modal-panel-title">🏢 各场馆用电对比</div>
+          <table class="modal-table">
+            <thead><tr><th>场馆</th><th>用电kWh</th><th>占比</th><th>环比</th></tr></thead>
+            <tbody>
+              <tr><td>A馆</td><td>15,680</td><td>37.2%</td><td style="color:#4ade80;">↓5.2%</td></tr>
+              <tr><td>B馆</td><td>12,450</td><td>29.5%</td><td style="color:#4ade80;">↓3.8%</td></tr>
+              <tr><td>C馆</td><td>8,920</td><td>21.2%</td><td style="color:#f87171;">↑1.2%</td></tr>
+              <tr><td>会议中心</td><td>3,200</td><td>7.6%</td><td style="color:#4ade80;">↓8.5%</td></tr>
+              <tr><td>公共区域</td><td>1,906</td><td>4.5%</td><td style="color:#4ade80;">↓2.1%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div style="margin-top:16px;">
+        <div class="modal-panel-title">📈 近7日用电趋势</div>
+        <div class="modal-chart">
+          <div class="mini-chart">
+            <div class="bar" style="height:75%;--bar-color:#38bdf8;"></div>
+            <div class="bar" style="height:80%;--bar-color:#38bdf8;"></div>
+            <div class="bar" style="height:70%;--bar-color:#38bdf8;"></div>
+            <div class="bar" style="height:85%;--bar-color:#38bdf8;"></div>
+            <div class="bar" style="height:78%;--bar-color:#38bdf8;"></div>
+            <div class="bar" style="height:82%;--bar-color:#38bdf8;"></div>
+            <div class="bar" style="height:76%;--bar-color:#38bdf8;"></div>
+          </div>
+          <span style="font-size:12px;color:#64748b;">日均: 38,500 → 42,156 kWh | 本周累计: 285,600 kWh</span>
+        </div>
+      </div>
+    `
+  },
+  kpiPeople: {
+    title: '👥 今日客流详情',
+    accent: '#4ade80',
+    content: `
+      <div class="modal-stats">
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#38bdf8;">12,580</div><div class="modal-stat-label">今日客流</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#fb923c;">3,420</div><div class="modal-stat-label">当前在馆</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#4ade80;">↑15%</div><div class="modal-stat-label">环比昨日</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#c084fc;">6,800</div><div class="modal-stat-label">峰值人数</div></div>
+      </div>
+      <div class="modal-two-col">
+        <div class="modal-panel">
+          <div class="modal-panel-title">📊 各时段客流分布</div>
+          <table class="modal-table">
+            <thead><tr><th>时段</th><th>入场</th><th>离场</th><th>净增</th></tr></thead>
+            <tbody>
+              <tr><td>08:00-09:00</td><td>2,340</td><td>120</td><td style="color:#4ade80;">+2,220</td></tr>
+              <tr><td>09:00-10:00</td><td>1,560</td><td>280</td><td style="color:#4ade80;">+1,280</td></tr>
+              <tr><td>10:00-12:00</td><td>2,800</td><td>450</td><td style="color:#4ade80;">+2,350</td></tr>
+              <tr><td>12:00-14:00</td><td>1,200</td><td>1,680</td><td style="color:#f87171;">-480</td></tr>
+              <tr><td>14:00-16:00</td><td>1,680</td><td>1,200</td><td style="color:#4ade80;">+480</td></tr>
+              <tr><td>16:00-18:00</td><td>890</td><td>2,340</td><td style="color:#f87171;">-1,450</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-panel">
+          <div class="modal-panel-title">🏢 各场馆客流分布</div>
+          <table class="modal-table">
+            <thead><tr><th>场馆</th><th>客流</th><th>占比</th><th>峰值时段</th></tr></thead>
+            <tbody>
+              <tr><td>A馆</td><td>5,420</td><td>43.1%</td><td>10:00-12:00</td></tr>
+              <tr><td>B馆</td><td>3,980</td><td>31.6%</td><td>10:00-12:00</td></tr>
+              <tr><td>C馆</td><td>2,080</td><td>16.5%</td><td>14:00-16:00</td></tr>
+              <tr><td>会议中心</td><td>1,100</td><td>8.8%</td><td>09:00-11:00</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div style="margin-top:16px;">
+        <div class="modal-panel-title">📈 近7日客流趋势</div>
+        <div class="modal-chart">
+          <div class="mini-chart">
+            <div class="bar" style="height:60%;--bar-color:#4ade80;"></div>
+            <div class="bar" style="height:72%;--bar-color:#4ade80;"></div>
+            <div class="bar" style="height:68%;--bar-color:#4ade80;"></div>
+            <div class="bar" style="height:85%;--bar-color:#4ade80;"></div>
+            <div class="bar" style="height:90%;--bar-color:#4ade80;"></div>
+            <div class="bar" style="height:95%;--bar-color:#4ade80;"></div>
+            <div class="bar" style="height:88%;--bar-color:#4ade80;"></div>
+          </div>
+          <span style="font-size:12px;color:#64748b;">日均: 9,800 → 12,580 人次 | 本周累计: 78,600 人次</span>
+        </div>
+      </div>
+    `
+  },
+  kpiSave: {
+    title: '🌿 累计节能详情',
+    accent: '#fb923c',
+    content: `
+      <div class="modal-stats">
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#fb923c;">156,780</div><div class="modal-stat-label">累计节能kWh</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#4ade80;">23.5%</div><div class="modal-stat-label">节能收益率</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#38bdf8;">¥18.8万</div><div class="modal-stat-label">节省费用</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#c084fc;">18</div><div class="modal-stat-label">AI策略数</div></div>
+      </div>
+      <div class="modal-two-col">
+        <div class="modal-panel">
+          <div class="modal-panel-title">⚡ 节能措施效果</div>
+          <table class="modal-table">
+            <thead><tr><th>措施</th><th>节能量kWh</th><th>占比</th><th>效果</th></tr></thead>
+            <tbody>
+              <tr><td>空调群控优化</td><td>58,520</td><td>37.3%</td><td style="color:#4ade80;">节能15%</td></tr>
+              <tr><td>照明按需调光</td><td>42,340</td><td>27.0%</td><td style="color:#4ade80;">节能20%</td></tr>
+              <tr><td>新风自适应</td><td>28,560</td><td>18.2%</td><td style="color:#4ade80;">节能12%</td></tr>
+              <tr><td>光伏自发自用</td><td>18,900</td><td>12.1%</td><td style="color:#4ade80;">替代8%</td></tr>
+              <tr><td>其他优化</td><td>8,460</td><td>5.4%</td><td style="color:#4ade80;">节能5%</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-panel">
+          <div class="modal-panel-title">📊 各场馆节能对比</div>
+          <table class="modal-table">
+            <thead><tr><th>场馆</th><th>基准kWh</th><th>实际kWh</th><th>节能率</th></tr></thead>
+            <tbody>
+              <tr><td>A馆</td><td>18,200</td><td>15,680</td><td style="color:#4ade80;">13.8%</td></tr>
+              <tr><td>B馆</td><td>14,500</td><td>12,450</td><td style="color:#4ade80;">14.1%</td></tr>
+              <tr><td>C馆</td><td>9,800</td><td>8,920</td><td style="color:#4ade80;">9.0%</td></tr>
+              <tr><td>会议中心</td><td>3,800</td><td>3,200</td><td style="color:#4ade80;">15.8%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div style="margin-top:16px;">
+        <div class="modal-panel-title">📈 近12月节能趋势</div>
+        <div class="modal-chart">
+          <div class="mini-chart">
+            <div class="bar" style="height:50%;--bar-color:#fb923c;"></div>
+            <div class="bar" style="height:55%;--bar-color:#fb923c;"></div>
+            <div class="bar" style="height:60%;--bar-color:#fb923c;"></div>
+            <div class="bar" style="height:65%;--bar-color:#fb923c;"></div>
+            <div class="bar" style="height:70%;--bar-color:#fb923c;"></div>
+            <div class="bar" style="height:75%;--bar-color:#fb923c;"></div>
+            <div class="bar" style="height:80%;--bar-color:#fb923c;"></div>
+            <div class="bar" style="height:85%;--bar-color:#fb923c;"></div>
+            <div class="bar" style="height:88%;--bar-color:#fb923c;"></div>
+            <div class="bar" style="height:90%;--bar-color:#fb923c;"></div>
+            <div class="bar" style="height:92%;--bar-color:#fb923c;"></div>
+            <div class="bar" style="height:95%;--bar-color:#fb923c;"></div>
+          </div>
+          <span style="font-size:12px;color:#64748b;">累计节能量: 12万 → 15.7万 kWh | 年度目标: 20万 kWh</span>
+        </div>
+      </div>
+    `
+  },
+  kpiCarbon: {
+    title: '🌍 碳减排详情',
+    accent: '#c084fc',
+    content: `
+      <div class="modal-stats">
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#c084fc;">89.6</div><div class="modal-stat-label">碳减排吨</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#4ade80;">↓8.7%</div><div class="modal-stat-label">环比上月</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#38bdf8;">356</div><div class="modal-stat-label">年度累计吨</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#fb923c;">1,200</div><div class="modal-stat-label">年度目标吨</div></div>
+      </div>
+      <div class="modal-two-col">
+        <div class="modal-panel">
+          <div class="modal-panel-title">🏭 碳排放结构</div>
+          <table class="modal-table">
+            <thead><tr><th>排放源</th><th>排放量吨</th><th>占比</th><th>减排措施</th></tr></thead>
+            <tbody>
+              <tr><td>电力消耗</td><td>42.3</td><td>47.2%</td><td>光伏+AI优化</td></tr>
+              <tr><td>空调制冷</td><td>28.6</td><td>31.9%</td><td>群控优化</td></tr>
+              <tr><td>照明用电</td><td>12.4</td><td>13.8%</td><td>LED+调光</td></tr>
+              <tr><td>交通通勤</td><td>4.8</td><td>5.4%</td><td>新能源车</td></tr>
+              <tr><td>其他</td><td>1.5</td><td>1.7%</td><td>综合优化</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-panel">
+          <div class="modal-panel-title">📊 双碳指标达成</div>
+          <table class="modal-table">
+            <thead><tr><th>指标</th><th>当前值</th><th>目标值</th><th>达成率</th></tr></thead>
+            <tbody>
+              <tr><td>单位面积碳排</td><td>12.5kg/m²</td><td>15kg/m²</td><td style="color:#4ade80;">116%</td></tr>
+              <tr><td>可再生能源占比</td><td>28%</td><td>25%</td><td style="color:#4ade80;">112%</td></tr>
+              <tr><td>碳排放强度</td><td>0.45t/万元</td><td>0.50t/万元</td><td style="color:#4ade80;">111%</td></tr>
+              <tr><td>绿化覆盖率</td><td>42%</td><td>40%</td><td style="color:#4ade80;">105%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div style="margin-top:16px;">
+        <div class="modal-panel-title">📈 近12月碳减排趋势</div>
+        <div class="modal-chart">
+          <div class="mini-chart">
+            <div class="bar" style="height:40%;--bar-color:#c084fc;"></div>
+            <div class="bar" style="height:45%;--bar-color:#c084fc;"></div>
+            <div class="bar" style="height:50%;--bar-color:#c084fc;"></div>
+            <div class="bar" style="height:55%;--bar-color:#c084fc;"></div>
+            <div class="bar" style="height:60%;--bar-color:#c084fc;"></div>
+            <div class="bar" style="height:65%;--bar-color:#c084fc;"></div>
+            <div class="bar" style="height:70%;--bar-color:#c084fc;"></div>
+            <div class="bar" style="height:75%;--bar-color:#c084fc;"></div>
+            <div class="bar" style="height:80%;--bar-color:#c084fc;"></div>
+            <div class="bar" style="height:85%;--bar-color:#c084fc;"></div>
+            <div class="bar" style="height:88%;--bar-color:#c084fc;"></div>
+            <div class="bar" style="height:90%;--bar-color:#c084fc;"></div>
+          </div>
+          <span style="font-size:12px;color:#64748b;">年度累计: 356吨 | 年度目标: 1,200吨 | 达成率: 29.7%</span>
+        </div>
+      </div>
+    `
+  },
+  mapPeople: {
+    title: '👥 园区客流热力图',
+    accent: '#4ade80',
+    content: `
+      <div class="modal-stats">
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#38bdf8;">3,420</div><div class="modal-stat-label">当前在馆</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#fb923c;">6,800</div><div class="modal-stat-label">今日峰值</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#4ade80;">12,580</div><div class="modal-stat-label">今日总客流</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#c084fc;">A馆</div><div class="modal-stat-label">最热区域</div></div>
+      </div>
+      <div class="modal-two-col">
+        <div class="modal-panel">
+          <div class="modal-panel-title">🗺️ 各区域实时人数</div>
+          <table class="modal-table">
+            <thead><tr><th>区域</th><th>当前人数</th><th>密度人/千㎡</th><th>状态</th></tr></thead>
+            <tbody>
+              <tr><td>A馆展厅</td><td>1,680</td><td>420</td><td style="color:#fb923c;">拥挤</td></tr>
+              <tr><td>B馆展厅</td><td>1,240</td><td>310</td><td style="color:#4ade80;">适中</td></tr>
+              <tr><td>C馆会议区</td><td>380</td><td>190</td><td style="color:#4ade80;">舒适</td></tr>
+              <tr><td>会议中心</td><td>520</td><td>260</td><td style="color:#4ade80;">适中</td></tr>
+              <tr><td>餐饮区</td><td>280</td><td>350</td><td style="color:#fb923c;">较拥挤</td></tr>
+              <tr><td>停车场</td><td>120</td><td>15</td><td style="color:#4ade80;">舒适</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-panel">
+          <div class="modal-panel-title">📊 客流预警设置</div>
+          <table class="modal-table">
+            <thead><tr><th>区域</th><th>容量上限</th><th>预警阈值</th><th>当前状态</th></tr></thead>
+            <tbody>
+              <tr><td>A馆展厅</td><td>2,000</td><td>1,600 (80%)</td><td style="color:#fb923c;">预警中</td></tr>
+              <tr><td>B馆展厅</td><td>1,800</td><td>1,440 (80%)</td><td style="color:#4ade80;">正常</td></tr>
+              <tr><td>会议中心</td><td>800</td><td>640 (80%)</td><td style="color:#4ade80;">正常</td></tr>
+              <tr><td>餐饮区</td><td>400</td><td>320 (80%)</td><td style="color:#4ade80;">正常</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div style="margin-top:16px;">
+        <div class="modal-panel-title">📈 今日各时段客流分布</div>
+        <div class="modal-chart">
+          <div class="mini-chart">
+            <div class="bar" style="height:25%;--bar-color:#4ade80;"></div>
+            <div class="bar" style="height:40%;--bar-color:#4ade80;"></div>
+            <div class="bar" style="height:65%;--bar-color:#4ade80;"></div>
+            <div class="bar" style="height:85%;--bar-color:#4ade80;"></div>
+            <div class="bar" style="height:100%;--bar-color:#4ade80;"></div>
+            <div class="bar" style="height:80%;--bar-color:#4ade80;"></div>
+            <div class="bar" style="height:60%;--bar-color:#4ade80;"></div>
+            <div class="bar" style="height:45%;--bar-color:#4ade80;"></div>
+          </div>
+          <span style="font-size:12px;color:#64748b;">08:00 1,200 → 10:00 4,500 → 12:00 6,800(峰值) → 14:00 5,200 → 16:00 3,800</span>
+        </div>
+      </div>
+    `
+  },
+  mapSecurity: {
+    title: '🔒 园区安防态势',
+    accent: '#f87171',
+    content: `
+      <div class="modal-stats">
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#38bdf8;">1,680</div><div class="modal-stat-label">监控在线</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#4ade80;">0</div><div class="modal-stat-label">异常入侵</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#fb923c;">5</div><div class="modal-stat-label">今日告警</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#4ade80;">100%</div><div class="modal-stat-label">周界正常</div></div>
+      </div>
+      <div class="modal-two-col">
+        <div class="modal-panel">
+          <div class="modal-panel-title">📹 监控点位状态</div>
+          <table class="modal-table">
+            <thead><tr><th>区域</th><th>总数</th><th>在线</th><th>离线</th><th>状态</th></tr></thead>
+            <tbody>
+              <tr><td>A馆</td><td>420</td><td>420</td><td>0</td><td style="color:#4ade80;">正常</td></tr>
+              <tr><td>B馆</td><td>380</td><td>378</td><td>2</td><td style="color:#fb923c;">2路离线</td></tr>
+              <tr><td>C馆</td><td>360</td><td>360</td><td>0</td><td style="color:#4ade80;">正常</td></tr>
+              <tr><td>周界</td><td>120</td><td>120</td><td>0</td><td style="color:#4ade80;">正常</td></tr>
+              <tr><td>停车场</td><td>200</td><td>198</td><td>2</td><td style="color:#fb923c;">2路离线</td></tr>
+              <tr><td>公共区域</td><td>200</td><td>196</td><td>4</td><td style="color:#fb923c;">4路离线</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-panel">
+          <div class="modal-panel-title">🚨 安防事件记录</div>
+          <table class="modal-table">
+            <thead><tr><th>时间</th><th>事件</th><th>位置</th><th>等级</th><th>处理</th></tr></thead>
+            <tbody>
+              <tr><td>08:15</td><td>人员聚集</td><td>A馆F1入口</td><td style="color:#fb923c;">一般</td><td style="color:#4ade80;">已疏导</td></tr>
+              <tr><td>10:30</td><td>物品遗留</td><td>B馆休息区</td><td style="color:#94a3b8;">低</td><td style="color:#4ade80;">已清理</td></tr>
+              <tr><td>12:45</td><td>越界告警</td><td>周界西侧</td><td style="color:#fb923c;">一般</td><td style="color:#4ade80;">误报</td></tr>
+              <tr><td>14:20</td><td>异常徘徊</td><td>停车场B区</td><td style="color:#94a3b8;">低</td><td style="color:#fb923c;">监控中</td></tr>
+              <tr><td>16:00</td><td>消防通道占用</td><td>C馆F2</td><td style="color:#fb923c;">一般</td><td style="color:#4ade80;">已处理</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div style="margin-top:16px;">
+        <div class="modal-panel-title">📈 近7日安防事件趋势</div>
+        <div class="modal-chart">
+          <div class="mini-chart">
+            <div class="bar" style="height:30%;--bar-color:#f87171;"></div>
+            <div class="bar" style="height:45%;--bar-color:#f87171;"></div>
+            <div class="bar" style="height:25%;--bar-color:#f87171;"></div>
+            <div class="bar" style="height:60%;--bar-color:#f87171;"></div>
+            <div class="bar" style="height:35%;--bar-color:#f87171;"></div>
+            <div class="bar" style="height:50%;--bar-color:#f87171;"></div>
+            <div class="bar" style="height:40%;--bar-color:#f87171;"></div>
+          </div>
+          <span style="font-size:12px;color:#64748b;">本周累计: 28起 | 已处理: 26起 | 处理率: 92.9%</span>
+        </div>
+      </div>
+    `
+  },
+  mapLighting: {
+    title: '💡 园区照明管控',
+    accent: '#facc15',
+    content: `
+      <div class="modal-stats">
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#facc15;">2,340</div><div class="modal-stat-label">照明回路</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#4ade80;">1,245</div><div class="modal-stat-label">当前开启</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#fb923c;">53%</div><div class="modal-stat-label">开启率</div></div>
+        <div class="modal-stat-card"><div class="modal-stat-value" style="color:#38bdf8;">节能</div><div class="modal-stat-label">模式运行</div></div>
+      </div>
+      <div class="modal-two-col">
+        <div class="modal-panel">
+          <div class="modal-panel-title">🏢 各区域照明状态</div>
+          <table class="modal-table">
+            <thead><tr><th>区域</th><th>回路数</th><th>开启</th><th>亮度</th><th>模式</th></tr></thead>
+            <tbody>
+              <tr><td>A馆展厅</td><td>480</td><td>420</td><td>80%</td><td style="color:#fb923c;">展会</td></tr>
+              <tr><td>B馆展厅</td><td>420</td><td>280</td><td>60%</td><td style="color:#4ade80;">日常</td></tr>
+              <tr><td>C馆会议</td><td>360</td><td>180</td><td>50%</td><td style="color:#4ade80;">节能</td></tr>
+              <tr><td>走廊通道</td><td>520</td><td>260</td><td>40%</td><td style="color:#4ade80;">节能</td></tr>
+              <tr><td>室外泛光</td><td>280</td><td>0</td><td>0%</td><td style="color:#94a3b8;">关闭</td></tr>
+              <tr><td>应急照明</td><td>280</td><td>105</td><td>100%</td><td style="color:#4ade80;">常开</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-panel">
+          <div class="modal-panel-title">🎨 场景模式配置</div>
+          <table class="modal-table">
+            <thead><tr><th>模式</th><th>开启回路</th><th>平均亮度</th><th>预计能耗</th></tr></thead>
+            <tbody>
+              <tr><td>展会模式</td><td>1,680</td><td>85%</td><td>8,500kWh/日</td></tr>
+              <tr><td>日常模式</td><td>1,245</td><td>65%</td><td>5,200kWh/日</td></tr>
+              <tr><td>节能模式</td><td>860</td><td>45%</td><td>3,100kWh/日</td></tr>
+              <tr><td>清洁模式</td><td>520</td><td>70%</td><td>2,800kWh/日</td></tr>
+              <tr><td>应急模式</td><td>280</td><td>100%</td><td>1,200kWh/日</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div style="margin-top:16px;">
+        <div class="modal-panel-title">📈 今日照明能耗趋势</div>
+        <div class="modal-chart">
+          <div class="mini-chart">
+            <div class="bar" style="height:20%;--bar-color:#facc15;"></div>
+            <div class="bar" style="height:35%;--bar-color:#facc15;"></div>
+            <div class="bar" style="height:60%;--bar-color:#facc15;"></div>
+            <div class="bar" style="height:85%;--bar-color:#facc15;"></div>
+            <div class="bar" style="height:90%;--bar-color:#facc15;"></div>
+            <div class="bar" style="height:80%;--bar-color:#facc15;"></div>
+            <div class="bar" style="height:55%;--bar-color:#facc15;"></div>
+            <div class="bar" style="height:30%;--bar-color:#facc15;"></div>
+          </div>
+          <span style="font-size:12px;color:#64748b;">今日照明用电: 4,200kWh | 较昨日↓12% | 节能模式节省 1,800kWh</span>
+        </div>
+      </div>
+    `
+  }
+};
+
+// 打开弹窗
+function openModal(type) {
+  const data = modalData[type];
+  if (!data) return;
+  const overlay = document.getElementById('modalOverlay');
+  const box = document.getElementById('modalBox');
+  const title = document.getElementById('modalTitle');
+  const body = document.getElementById('modalBody');
+  title.textContent = data.title;
+  title.style.color = data.accent;
+  box.style.setProperty('--modal-accent', data.accent);
+  body.innerHTML = data.content;
+  overlay.classList.add('active');
+}
+
+// 关闭弹窗
+function closeModal(event) {
+  if (event && event.target !== event.currentTarget) return;
+  document.getElementById('modalOverlay').classList.remove('active');
+}
+
+// 自动缩放适配
+function autoScale() {
+  const screenW = window.innerWidth;
+  const screenH = window.innerHeight;
+  const designW = 1920;
+  const designH = 1080;
+  const scaleX = screenW / designW;
+  const scaleY = screenH / designH;
+  const scale = Math.min(scaleX, scaleY);
+  document.body.style.transform = 'scale(' + scale + ')';
+  const offsetX = (screenW - designW * scale) / 2;
+  const offsetY = (screenH - designH * scale) / 2;
+  document.body.style.marginLeft = offsetX + 'px';
+  document.body.style.marginTop = offsetY + 'px';
+}
+window.addEventListener('resize', autoScale);
+window.addEventListener('load', autoScale);
+
+// 全屏切换
+function toggleFullscreen() {
+  const btn = document.getElementById('btnFullscreen');
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().then(() => {
+      btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></svg>退出';
+    }).catch(() => {});
+  } else {
+    document.exitFullscreen().then(() => {
+      btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>全屏';
+    }).catch(() => {});
+  }
+}
+
+document.addEventListener('fullscreenchange', () => {
+  const btn = document.getElementById('btnFullscreen');
+  if (document.fullscreenElement) {
+    btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></svg>退出';
+  } else {
+    btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>全屏';
+  }
+  setTimeout(autoScale, 300);
+});
+
+// 实时时钟
+function updateClock() {
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' });
+  const timeStr = now.toLocaleTimeString('zh-CN', { hour12: false });
+  document.getElementById('clock').textContent = dateStr + ' ' + timeStr;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// 数字滚动动画
+function animateNumber(el, target, duration = 2000) {
+  const start = parseInt(el.textContent.replace(/,/g, '')) || 0;
+  const diff = target - start;
+  const startTime = performance.now();
+  function step(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const ease = 1 - Math.pow(1 - progress, 3);
+    const current = Math.floor(start + diff * ease);
+    el.textContent = current.toLocaleString();
+    if (progress < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    animateNumber(document.getElementById('kpi-power'), 42156, 2500);
+    animateNumber(document.getElementById('kpi-people'), 12580, 2500);
+    animateNumber(document.getElementById('kpi-save'), 156780, 3000);
+    animateNumber(document.getElementById('kpi-carbon'), 89.6, 2500);
+  }, 500);
+});
+
+// 模拟数据刷新
+setInterval(() => {
+  const powerEl = document.getElementById('kpi-power');
+  const currentPower = parseInt(powerEl.textContent.replace(/,/g, ''));
+  const newPower = currentPower + Math.floor(Math.random() * 200 - 50);
+  powerEl.textContent = newPower.toLocaleString();
+}, 30000);
+</script>
+
+</body>
+</html>
