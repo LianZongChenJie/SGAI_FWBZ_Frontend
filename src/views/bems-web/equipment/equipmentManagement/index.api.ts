@@ -2,7 +2,7 @@ import { fwbzHttp } from '/@/utils/http/axios';
 
 enum Api {
   venueInfoList = '/sgai-fwbz/fwbz/venueInfo/list',
-  deviceRunStateStatistics = '/jeecg-system/sgai-tp/fwbz/device/deviceRunStateStatistics',
+  deviceRunStateStatistics = '/sgai-tp/fwbz/device/deviceRunStateStatistics',
 }
 
 /** 获取设备信息列表 */
