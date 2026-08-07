@@ -44,8 +44,9 @@ import MapArea from './components/MapArea.vue';
 import TickerBar from './components/TickerBar.vue';
 import DetailModal from './components/DetailModal.vue';
 import { leftPanels as rawLeftPanels, rightPanels, kpiData, tickerData } from './data/index';
-import { modalData } from './data/modalData';
+import { modalData as rawModalData } from './data/modalData';
 import { getTodayCheckCount, getAlarmExceptionCount, getAlarmRecordList, getAlarmStatistics, getAlarmTrendRecently } from './index.api';
+import type { CountVO } from './index.api';
 
 defineOptions({ name: 'BigscreenPage' });
 
@@ -59,29 +60,67 @@ const leftPanels = reactive(rawLeftPanels);
 /** 面板索引 */
 const RESILIENCE_INDEX = 0;
 const ALARM_INDEX = 2;
+// 弹窗数据（响应式，便于接口回填）
+const modalData = reactive(rawModalData);
 
-/** 韧性安全面板 metricRows 索引 */
-const ROW_TODAY_CHECK = 0;  // 今日巡检完成
-const ROW_FACILITY_ANOMALY = 1;  // 设施异常
+/** 索引 */
+const ROW_ZERO = 0;  
+const ROW_ONE = 1;
 
-/** 请求今日巡检完成数量并回填 */
+/** 解析 "已完成/未完成" 格式，返回 { completed, uncompleted, total, percent } */
+function parseContext(ctx: string): { completed: number; uncompleted: number; total: number; percent: string } | null {
+  const parts = ctx.split('/');
+  if (parts.length === 2) {
+    const completed = parseFloat(parts[0]) || 0;
+    const uncompleted = parseFloat(parts[1]) || 0;
+    const total = completed + uncompleted;
+    const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+    return { completed, uncompleted, total, percent: percent + '%' };
+  }
+  return null;
+}
+
+/** 请求今日巡检完成数量并回填面板和弹窗 */
 async function fetchTodayCheck() {
   try {
-    const res = await getTodayCheckCount();
+    const res: CountVO = await getTodayCheckCount();
     if (res?.value != null) {
-      leftPanels[RESILIENCE_INDEX].metricRows[ROW_TODAY_CHECK].value = res.value;
+      // 解析 context（已完成/未完成 格式）
+      const parsed = res.context ? parseContext(res.context) : null;
+
+      // === 回填面板 ===
+      // 今日巡检完成：显示 value
+      leftPanels[ROW_ZERO].metricRows[ROW_ZERO].value = res.value;
+      // 巡检完成率：显示百分比
+      if (parsed) {
+        leftPanels[ROW_ZERO].metricCards[ROW_ONE].value = parsed.percent;
+      }
+
+      // === 回填弹窗 ===
+      const resilienceModal = modalData['resilience'];
+      if (resilienceModal) {
+        // stats[1] 巡检完成 → value
+        resilienceModal.stats[1].value = res.value;
+        if (parsed) {
+          // stats[2] 待巡检 → 未完成数
+          resilienceModal.stats[2].value = String(parsed.uncompleted);
+          // stats[3] 完成率 → 百分比
+          resilienceModal.stats[3].value = parsed.percent;
+        }
+      }
     }
   } catch (error) {
     console.error('获取今日巡检完成数量失败:', error);
   }
 }
 
-/** 请求待处理告警异常并回填 */
+/** 请求待处理告警异常并回填面板和弹窗 */
 async function fetchAlarmException() {
   try {
-    const res = await getAlarmExceptionCount();
+    const res: CountVO = await getAlarmExceptionCount();
     if (res?.value != null) {
-      leftPanels[RESILIENCE_INDEX].metricRows[ROW_FACILITY_ANOMALY].value = res.value;
+      // === 回填面板 ===
+      leftPanels[ROW_ZERO].metricRows[ROW_ONE].value = res.value;
     }
   } catch (error) {
     console.error('获取待处理告警异常失败:', error);

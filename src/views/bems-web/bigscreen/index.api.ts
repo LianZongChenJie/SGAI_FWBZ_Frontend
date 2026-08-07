@@ -14,6 +14,10 @@ enum Api {
     alarmStatistics = '/sgai-tp/fwbz/alarm/record/statistics',
     /** 告警趋势 */
     alarmTrendRecently = '/sgai-tp/fwbz/alarm/record/alarmTrendRecently',
+    /** 今日数据量 */
+    todayDataSize = '/sgai-fwbz-dev/fwbz/interfaceStatistics/todayDataSize',
+    /** 采集点位数 */
+    collectionPoint = '/sgai-fwbz-dev/fwbz/dataCollection/collectionPointCount',
 }
 
 
