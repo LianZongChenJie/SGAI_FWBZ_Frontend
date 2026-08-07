@@ -290,5 +290,5 @@ export const handleComplaint = (params: HandleRequest) => fwbzHttp.post({ url: A
 
 /** 删除投诉 */
 export const deleteComplaint = (params: { id: number }) =>
-    fwbzHttp.delete({ url: Api.deleteComplaint, params });
+    fwbzHttp.delete({ url: `${Api.deleteComplaint}?id=${params.id}` });
 

@@ -158,7 +158,6 @@ const handleAddEventSuccess = () => {
 const handleDeleteEvent = async (event: ActiveMeetInfo) => {
   try {
     await delExhibition({ id: event.id! })
-    message.success('删除成功')
     fetchScheduleData()
   } catch (error) {
     console.error('删除会展活动失败:', error)

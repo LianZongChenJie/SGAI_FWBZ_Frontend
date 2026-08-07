@@ -198,7 +198,6 @@ const handleSyncAccessControlStatus = async () => {
   syncLoading.value = true
   try {
     await syncAccessControlStatus()
-    message.success('同步门禁状态成功')
     fetchDoorData()
   } catch (error) {
     console.error('同步门禁状态失败:', error)

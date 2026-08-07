@@ -244,7 +244,6 @@ const handleFinish = async (item: PreparationDetailVO) => {
       preparationValue: item.preparationValue ?? 0,
       realValue: item.realValue ?? 0,
     });
-    message.success('已完成');
     // 刷新筹备清单
     await fetchPreparationList(selectedMeetId.value);
   } catch (error) {

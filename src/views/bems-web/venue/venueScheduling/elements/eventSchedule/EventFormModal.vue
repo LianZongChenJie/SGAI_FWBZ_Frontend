@@ -170,7 +170,6 @@ const handleSubmit = async () => {
     await formRef.value?.validate()
     submitLoading.value = true
     await addExhibition({ ...formData })
-    message.success('新增排期成功')
     visible.value = false
     emit('success')
   } catch (error) {

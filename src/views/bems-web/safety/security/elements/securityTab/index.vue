@@ -87,7 +87,7 @@
     >
       <div class="ai-events-modal">
         <AlertCard
-          v-for="event in allAIEvents"
+          v-for="event in aiEvents"
           :key="event.id"
           :level="event.level"
           :title="event.title"
@@ -166,8 +166,9 @@ import {
   getCameraList,
   getRunningCameraList,
   checkIsRunningPlan,
+  getAlarmInfoList,
 } from '../../index.api'
-import type { StatItem, PatrolPlan, CameraItem } from '../../index.api'
+import type { StatItem, PatrolPlan, CameraItem, EventNotify } from '../../index.api'
 import {
   VideoCameraOutlined,
   CheckCircleOutlined,
@@ -204,6 +205,7 @@ onMounted(() => {
   fetchPatrolData()
   fetchCameraOptions()
   fetchRunningCameras()
+  fetchAlarmInfoList()
   // 定时轮询：每 60 秒查询当前计划是否仍在执行，返回 false 时刷新列表和视频
   runningCameraTimer = setInterval(handlePolling, 60 * 1000)
 })
@@ -288,7 +290,7 @@ const patrolData = ref<PatrolPlan[]>([])
 const patrolLoading = ref(false)
 const patrolPagination = ref({
   current: 1,
-  pageSize: 10,
+  pageSize: 5,
   total: 0,
 })
 
@@ -402,13 +404,11 @@ const handlePatrolSubmit = async () => {
         indexCodes: patrolForm.indexCodes,
         status: patrolForm.statusChecked ? 1 : 0,
       })
-      message.success('新增成功')
     } else {
       await editPatrolPlan({
         id: patrolForm.id,
         status: patrolForm.statusChecked ? 1 : 0,
       })
-      message.success('修改成功')
     }
 
     patrolModalVisible.value = false
@@ -424,52 +424,54 @@ const handlePatrolCancel = () => {
   patrolModalVisible.value = false
 }
 
-// 所有AI事件数据
-const allAIEvents = [
-  {
-    id: 1,
-    level: 'danger' as const,
-    title: '人员聚集检测',
-    description: 'A馆F2展厅检测到超50人聚集，存在安全隐患',
-    time: '2026-06-09 14:20',
-    location: 'A馆F2展厅',
-  },
-  {
-    id: 2,
-    level: 'warning' as const,
-    title: '遗留物检测',
-    description: 'B馆F1大厅中央区域发现可疑遗留物品',
-    time: '2026-06-09 13:45',
-    location: 'B馆F1大厅',
-  },
-  {
-    id: 3,
-    level: 'danger' as const,
-    title: '禁区入侵检测',
-    description: 'C馆设备间检测到未授权人员进入',
-    time: '2026-06-09 13:12',
-    location: 'C馆设备间',
-  },
-  {
-    id: 4,
-    level: 'warning' as const,
-    title: '异常行为检测',
-    description: '停车场B区域检测到可疑徘徊行为',
-    time: '2026-06-09 12:55',
-    location: '停车场B区域',
-  },
-  {
-    id: 5,
-    level: 'info' as const,
-    title: '周界入侵告警',
-    description: '户外广场南侧围栏检测到异常触碰',
-    time: '2026-06-09 12:30',
-    location: '户外广场南侧',
-  },
-]
+// ===== 报警信息列表（AI视频分析事件） =====
+/** 事件等级映射：0-未配置 1-低 2-中 3-高 */
+const alarmLevelMap: Record<number, 'danger' | 'warning' | 'info'> = {
+  3: 'danger',
+  2: 'warning',
+  1: 'info',
+  0: 'info',
+}
+
+/** 报警信息列表 */
+const alarmInfoList = ref<EventNotify[]>([])
+
+/** 格式化时间：ISO8601 → 可读格式 */
+const formatTime = (iso?: string): string => {
+  if (!iso) return '--'
+  const d = new Date(iso)
+  if (isNaN(d.getTime())) return iso
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
+
+/** 前端展示用的事件列表（映射为 AlertCard 所需格式） */
+const aiEvents = computed(() =>
+  alarmInfoList.value.map((item) => ({
+    id: item.id,
+    level: alarmLevelMap[item.eventLvl ?? 0] ?? 'info',
+    title: item.srcName || item.ability || '报警事件',
+    description: item.eventTypeName || `事件类型: ${item.eventType ?? '--'}`,
+    time: formatTime(item.happenTime || item.gmtCreate),
+    location: item.srcName || '--',
+  })),
+)
 
 // 显示前3个事件
-const displayedAIEvents = allAIEvents.slice(0, 3)
+const displayedAIEvents = computed(() => aiEvents.value.slice(0, 3))
+
+const fetchAlarmInfoList = async () => {
+  try {
+    const res = await getAlarmInfoList({ pageNo: 1, pageSize: 100 })
+    if (Array.isArray(res)) {
+      alarmInfoList.value = res
+    } else {
+      alarmInfoList.value = res?.records || []
+    }
+  } catch (error) {
+    console.error('获取报警信息列表失败:', error)
+  }
+}
 
 // 弹窗状态
 const aiEventsModalVisible = ref(false)

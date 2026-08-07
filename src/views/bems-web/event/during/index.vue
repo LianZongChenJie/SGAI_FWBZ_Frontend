@@ -407,7 +407,6 @@ const handleAddSubmit = async () => {
       handler: addForm.handler,
       status: addForm.status,
     })
-    message.success('新增成功')
     addModalVisible.value = false
     fetchList()
   } catch (error) {
@@ -441,7 +440,6 @@ const handleEditSubmit = async () => {
       id: editRecord.value.id,
       handler: editHandler.value,
     })
-    message.success('修改成功')
     editModalVisible.value = false
     fetchList()
   } catch (error) {
@@ -499,7 +497,6 @@ const handleProcessSubmit = async () => {
       handler: processForm.handler,
       status: processForm.status!,
     })
-    message.success('处理成功')
     processModalVisible.value = false
     fetchList()
   } catch (error) {
@@ -524,7 +521,6 @@ const handleDelete = (record: ComplaintInfo) => {
     async onOk() {
       try {
         await deleteComplaint({ id: record.id! })
-        message.success('删除成功')
         fetchList()
       } catch (error) {
         console.error('删除投诉失败:', error)
