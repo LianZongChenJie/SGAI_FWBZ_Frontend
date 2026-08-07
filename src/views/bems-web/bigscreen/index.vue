@@ -36,21 +36,56 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, nextTick } from 'vue';
+import { ref, reactive, onMounted, onUnmounted, nextTick } from 'vue';
 import BigscreenHeader from './components/BigscreenHeader.vue';
 import KpiBanner from './components/KpiBanner.vue';
 import SidePanel from './components/SidePanel.vue';
 import MapArea from './components/MapArea.vue';
 import TickerBar from './components/TickerBar.vue';
 import DetailModal from './components/DetailModal.vue';
-import { leftPanels, rightPanels, kpiData, tickerData } from './data/index';
+import { leftPanels as rawLeftPanels, rightPanels, kpiData, tickerData } from './data/index';
 import { modalData } from './data/modalData';
+import { getTodayCheckCount, getAlarmExceptionCount } from './index.api';
 
 defineOptions({ name: 'BigscreenPage' });
 
 const wrapperRef = ref<HTMLElement | null>(null);
 const modalRef = ref<InstanceType<typeof DetailModal> | null>(null);
 const innerStyle = ref<Record<string, string>>({});
+
+// 左侧面板数据（响应式，便于接口回填）
+const leftPanels = reactive(rawLeftPanels);
+
+/** 韧性安全面板索引 */
+const RESILIENCE_INDEX = 0;
+
+/** 韧性安全面板 metricRows 索引 */
+const ROW_TODAY_CHECK = 0;  // 今日巡检完成
+const ROW_FACILITY_ANOMALY = 1;  // 设施异常
+
+/** 请求今日巡检完成数量并回填 */
+async function fetchTodayCheck() {
+  try {
+    const res = await getTodayCheckCount();
+    if (res?.value != null) {
+      leftPanels[RESILIENCE_INDEX].metricRows[ROW_TODAY_CHECK].value = res.value;
+    }
+  } catch (error) {
+    console.error('获取今日巡检完成数量失败:', error);
+  }
+}
+
+/** 请求待处理告警异常并回填 */
+async function fetchAlarmException() {
+  try {
+    const res = await getAlarmExceptionCount();
+    if (res?.value != null) {
+      leftPanels[RESILIENCE_INDEX].metricRows[ROW_FACILITY_ANOMALY].value = res.value;
+    }
+  } catch (error) {
+    console.error('获取待处理告警异常失败:', error);
+  }
+}
 
 function handleOpenModal(key: string) {
   modalRef.value?.open(key, modalData);
@@ -85,6 +120,9 @@ function onResize() {
 onMounted(() => {
   nextTick(calcScale);
   window.addEventListener('resize', onResize);
+  // 请求韧性安全实时数据
+  fetchTodayCheck();
+  fetchAlarmException();
 });
 
 onUnmounted(() => {

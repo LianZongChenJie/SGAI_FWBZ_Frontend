@@ -95,7 +95,7 @@ defineEmits<{ (e: 'open', key: string): void }>();
   padding:10px 8px;
   text-align: center;
 }
-.metric-card-icon { font-size: 16px; margin-bottom: 6px; line-height: 1; color: #fff }
+.metric-card-icon { font-size: 18px; margin-bottom: 6px; line-height: 1; color: #fff }
 .metric-card-value {
   font-size: 16px;
   font-weight: 700;

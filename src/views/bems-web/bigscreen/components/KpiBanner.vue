@@ -91,7 +91,7 @@ onUnmounted(() => {
   height: 2px;
   background: linear-gradient(90deg, transparent, var(--accent), transparent);
 }
-.kpi-icon { font-size: 18px; margin-bottom: 2px; }
+.kpi-icon { font-size: 18px; margin-bottom: 2px; color: #fff }
 .kpi-number {
   font-size: 22px;
   font-weight: 800;
