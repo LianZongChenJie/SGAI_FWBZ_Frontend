@@ -20,7 +20,11 @@ export interface LightingControlItem {
 
 enum Api {
   airList = '/sgai-tp/fwbz/operationSupport/overview/airList',
+  airControl = '/sgai-tp/fwbz/operationSupport/airControl',
 }
 
 /** 获取空调机组列表 */
 export const getAirList = (params = {}) => defHttp.get({ url: Api.airList, params })
+
+/** 空调机组控制 */
+export const airControl = (data: any[]) => defHttp.post({ url: Api.airControl, data })

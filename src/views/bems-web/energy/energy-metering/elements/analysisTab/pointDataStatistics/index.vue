@@ -1,7 +1,7 @@
 <template>
   <a-menu v-model:selectedKeys="current" mode="horizontal" :items="items" @click="menuClick" style="justify-content: center; display: none" />
   <div class="point-data-statistics">
-    <div class="metering-point-tree">
+    <div v-if="!hideTree" class="metering-point-tree">
       <div class="cascade-box">
         是否级联：
         <a-switch v-model:checked="isCascade" checked-children="是" un-checked-children="否" @change="cascadeTypeChange" />
@@ -28,7 +28,7 @@
       </a-tree>
     </div>
     <div class="right-content">
-      <div class="switch-box">
+      <div v-if="!hideSwitch" class="switch-box">
         <a-button
           :class="['chart-type-btn',{ active: isLine === 'line' }]"
           @click="switchChartType('line')"
@@ -74,6 +74,9 @@
     dateType?: string
     date?: string
     time?: string
+    hideTree?: boolean
+    hideSwitch?: boolean
+    mixChart?: boolean
   }>()
 
   const emit = defineEmits(['update:dateType', 'update:date', 'update:time'])
@@ -142,17 +145,27 @@
     if (energyFlowTreeType.value.type != '') {
       treeData.value = await energyFlowTree({ type: energyFlowTreeType.value.type });
       if (treeData.value.length > 0) {
-        if (isCascade.value) {
-          // 级联模式：选中第一个节点及其直接子节点
-          const idArr = getNodeAndChildrenIds(treeData.value, treeData.value[0].key);
-          checkedKeys.value.push(...idArr);
-        } else {
-          // 非级联模式：只选中第一个节点
-          checkedKeys.value.push(treeData.value[0].key);
-        }
+        // 默认选中所有节点ID，作为 energyFlowDiagramIds 的默认入参
+        const allIds = getAllNodeIds(treeData.value);
+        checkedKeys.value = allIds;
         findData();
       }
     }
+  };
+
+  // 递归获取树结构中所有节点ID（包括叶子节点和父节点）
+  const getAllNodeIds = (treeData: any[]): (string | number)[] => {
+    const ids: (string | number)[] = [];
+    const traverse = (nodes: any[]) => {
+      for (const node of nodes) {
+        ids.push(node.key);
+        if (node.children && node.children.length > 0) {
+          traverse(node.children);
+        }
+      }
+    };
+    traverse(treeData);
+    return ids;
   };
 
   // 递归获取节点及其所有后代ID
@@ -421,15 +434,39 @@
       // ],
     };
     option.xAxis.data = chart.xaxis;
-    chart.chatSeriesList.pop();
-    option.series = chart.chatSeriesList.map((item) => {
-      return {
-        name: item.name,
-        type: chartType.value,
-        data: item.data,
-        barWidth: '20px',
-      };
-    });
+    if (props.mixChart) {
+      // 混合模式：柱状图 + 折线图合并渲染，不pop保留合计作为折线
+      option.series = chart.chatSeriesList.map((item) => {
+        const isTotal = item.name === '合计'
+        if (isTotal) {
+          return {
+            name: item.name,
+            type: 'line',
+            data: item.data,
+            smooth: true,
+            symbol: 'circle',
+            symbolSize: 8,
+            lineStyle: { width: 3 },
+          }
+        }
+        return {
+          name: item.name,
+          type: 'bar',
+          data: item.data,
+          barWidth: '20px',
+        }
+      })
+    } else {
+      chart.chatSeriesList.pop();
+      option.series = chart.chatSeriesList.map((item) => {
+        return {
+          name: item.name,
+          type: chartType.value,
+          data: item.data,
+          barWidth: '20px',
+        };
+      })
+    };
     option.legend.data = chart.chatSeriesList.map((item) => item.name);
     console.log('option', option);
     chartInstance.value?.clear();

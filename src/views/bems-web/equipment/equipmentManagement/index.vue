@@ -7,7 +7,7 @@
         change-text=""
         trend=""
         color="blue"
-        :icon="ThunderboltOutlined"
+        :icon="DeviceTotalIcon"
       />
       <StatCard
         label="在线数量"
@@ -15,7 +15,7 @@
         change-text=""
         trend=""
         color="green"
-        :icon="ShopOutlined"
+        :icon="OnlineIcon"
       />
       <StatCard
         label="仪表数量"
@@ -23,7 +23,7 @@
         change-text=""
         trend=""
         color="orange"
-        :icon="CloudOutlined"
+        :icon="MeterIcon"
       />
       <StatCard
         label="运行数量"
@@ -31,7 +31,7 @@
         change-text=""
         trend=""
         color="purple"
-        :icon="SettingOutlined"
+        :icon="RunningCountIcon"
       />
     </div>
     <div class="equip-management">
@@ -41,16 +41,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, h } from 'vue';
 import { StatCard} from '/@/views/bems-web/components';
 import Device from './elements/device/index.vue';
-import {
-  ThunderboltOutlined,
-  ShopOutlined,
-  CloudOutlined,
-  SettingOutlined,
-} from '@ant-design/icons-vue'
 import { getDeviceRunStateStatistics } from './index.api'
+
+// 自定义 emoji 图标组件
+const DeviceTotalIcon = () => h('span', { style: 'font-size: 20px;' }, '📊')
+const OnlineIcon = () => h('span', { style: 'font-size: 20px;' }, '📶')
+const MeterIcon = () => h('span', { style: 'font-size: 20px;' }, '📏')
+const RunningCountIcon = () => h('span', { style: 'font-size: 20px;' }, '⚙️')
 
 const statData = ref({
   count: '',
