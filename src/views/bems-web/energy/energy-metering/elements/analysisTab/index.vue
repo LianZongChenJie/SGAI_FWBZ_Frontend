@@ -79,13 +79,13 @@ const LeafIcon = () => h('span', { style: 'font-size: 20px;' }, '🌿')
 
 // 统计数据（预留接口，当前为模拟数据）
 const statData = reactive({
-  electricCount: '',
+  electricCount: '--',
   electricCountMoM: '',
-  waterCount: '',
+  waterCount: '--',
   waterCountMoM: '',
-  electricAvg: '',
+  electricAvg: '--',
   electricAvgMom: '',
-  energySaving: '',
+  energySaving: '--',
   energySavingMom: '',
 })
 

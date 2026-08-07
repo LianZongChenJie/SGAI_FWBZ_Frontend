@@ -211,14 +211,14 @@ const WaterDropIcon = () => h('span', { style: 'font-size: 20px;' }, '💧')
 
 // 统计数据（预留接口，当前为模拟数据）
 const statData = reactive({
-  count: '245',
-  addCount: '56 新增',
-  onlineRate: '100%',
-  meterOnlineStatus: '全部正常',
-  electricCount: '42,156',
-  electricCountDoD: '6.8% kWh',
-  waterCount: '856',
-  waterCountDoD: '3.2% m³',
+  count: '--',
+  addCount: '',
+  onlineRate: '--',
+  meterOnlineStatus: '',
+  electricCount: '--',
+  electricCountDoD: '',
+  waterCount: '--',
+  waterCountDoD: '',
 })
 
 // 计量表计数据筛选
@@ -641,7 +641,7 @@ const renderStructureChart = (data: { name: string; value: number }[]) => {
 onMounted(() => {
   loadOverviewData()
   loadMeterData()
-  fetchVenueList()
+  // fetchVenueList()
   loadCategoryTree()
   loadSpaceTree()
   loadVenueElectricity('month')
