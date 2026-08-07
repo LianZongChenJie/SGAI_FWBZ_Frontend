@@ -5,6 +5,10 @@ enum Api {
     todayCheck = '/sgai-fwbz-dev/fwbz/fireDevice/smokeDetector/count/todayCheck',
     /** 待处理告警异常 */
     alarmException = '/sgai-fwbz-dev/fwbz/fireDevice/smokeDetector/count/pendingAlarm',
+    /** 今日数据量 */
+    todayDataSize = '/sgai-fwbz-dev/fwbz/interfaceStatistics/todayDataSize',
+    /** 采集点位数 */
+    collectionPoint = '/sgai-fwbz-dev/fwbz/dataCollection/collectionPointCount',
 }
 
 
