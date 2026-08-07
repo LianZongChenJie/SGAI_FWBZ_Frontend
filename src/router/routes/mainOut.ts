@@ -17,6 +17,15 @@ export const mainOutRoutes: AppRouteModule[] = [
       ignoreAuth: true,
     },
   },
+  {
+    path: '/bigscreen',
+    name: 'Bigscreen',
+    component: () => import('/@/views/bems-web/bigscreen/index.vue'),
+    meta: {
+      title: '数据大屏',
+      ignoreAuth: true,
+    },
+  },
 ];
 
 export const mainOutRouteNames = mainOutRoutes.map((item) => item.name);

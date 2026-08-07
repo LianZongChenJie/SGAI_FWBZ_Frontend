@@ -24,10 +24,10 @@
         <span>{{ currentDate }}</span>
       </div>
 
-      <!-- 天气 -->
-      <div class="topbar-item">
-        <span>🌤️</span>
-        <span>28°C 晴</span>
+      <!-- 大屏可视化 -->
+      <div class="topbar-item bigscreen-btn" @click="openBigscreen">
+        <span>📊</span>
+        <span>大屏可视化</span>
       </div>
 
       <!-- 用户信息（带下拉菜单-仅退出登录） -->
@@ -48,7 +48,7 @@
 </template>
 <script lang="ts">
   import { defineComponent, computed, ref, unref, onMounted, toRaw, defineAsyncComponent } from 'vue';
-  import { useRoute } from 'vue-router';
+  import { useRoute, useRouter } from 'vue-router';
   import { propTypes } from '/@/utils/propTypes';
   import { Layout, Dropdown, Menu } from 'ant-design-vue';
 
@@ -77,6 +77,7 @@
       const { prefixCls } = useDesign('layout-header');
       const userStore = useUserStore();
       const route = useRoute();
+      const router = useRouter();
       const { getHeaderTheme } = useHeaderSetting();
 
       const { getIsMobile } = useAppInject();
@@ -133,6 +134,11 @@
         }
       }
 
+      // 打开大屏可视化（当前页面跳转）
+      function openBigscreen() {
+        router.push('/bigscreen');
+      }
+
       /**
        * 首页多租户部门弹窗逻辑
        */
@@ -167,6 +173,7 @@
         userName,
         userNameInitial,
         handleUserMenuClick,
+        openBigscreen,
       };
     },
   });

@@ -300,7 +300,6 @@
               formula: formulaContent.value,
             });
             emit('success');
-            message.success('保存成功');
             visible.value = false;
             resetState();
           } catch (error) {

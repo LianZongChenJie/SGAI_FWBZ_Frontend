@@ -16,6 +16,8 @@ enum Api {
   cameraPlayUrls = '/sgai-fwbz-dev/fwbz/hikvision/camera/playUrls',
   /** 是否是正在执行的计划 */
   isRunningPlan = '/sgai-fwbz-dev/fwbz/patrolPlan/isRunningPlan',
+  /** 报警信息列表 */
+  alarmInfoList = '/sgai-fwbz-dev/fwbz/hikvision/eventNotify/list',
 
   // 门禁
   /** 门禁汇总数据 */
@@ -29,6 +31,78 @@ enum Api {
   /** 门禁事件列表 */
   accessControlEventList = '/sgai-fwbz-dev/fwbz/hikvision/doorEvent/list',
 }
+
+
+/**
+ * 报警信息列表
+ *
+ * EventNotify
+ */
+export interface EventNotify {
+    /**
+     * 事件类别，如：视频事件
+     */
+    ability?: string;
+    /**
+     * 事件其它扩展信息，JSON格式存储
+     */
+    eventData?: string;
+    /**
+     * 事件唯一标识
+     */
+    eventId?: string;
+    /**
+     * 事件等级：0-未配置 1-低 2-中 3-高
+     */
+    eventLvl?: number;
+    /**
+     * 事件类型，数值编码
+     */
+    eventType?: number;
+    /**
+     * 记录创建时间
+     */
+    gmtCreate?: string;
+    /**
+     * 记录更新时间
+     */
+    gmtModified?: string;
+    /**
+     * 事件发生时间（设备时间），ISO8601格式
+     */
+    happenTime?: string;
+    id?: number;
+    /**
+     * 事件从接收者发出的时间，ISO8601格式
+     */
+    sendTime?: string;
+    /**
+     * 事件源编号
+     */
+    srcIndex?: string;
+    /**
+     * 事件源名称
+     */
+    srcName?: string;
+    /**
+     * 事件源父设备编码
+     */
+    srcParentIndex?: string;
+    /**
+     * 事件源类型
+     */
+    srcType?: string;
+    /**
+     * 事件状态：0-瞬时 1-开始 2-停止
+     */
+    status?: number;
+    /**
+     * 脉冲超时时间，单位：秒
+     */
+    timeout?: number;
+    [property: string]: any;
+}
+
 
 /**
  * 返回数据对象
@@ -450,6 +524,9 @@ export const getCameraPlayUrls = (params) => fwbzHttp.post({ url: Api.cameraPlay
 
 /** 查询指定计划是否仍在执行中（入参: { id: 计划ID }，返回值: boolean） */
 export const checkIsRunningPlan = (params) => fwbzHttp.get({ url: Api.isRunningPlan, params });
+
+/** 获取报警信息列表 */
+export const getAlarmInfoList = (params?) => fwbzHttp.get({ url: Api.alarmInfoList, params });
 
 // ==================== 门禁相关接口 ====================
 
