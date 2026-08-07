@@ -7,8 +7,12 @@ enum Api {
     alarmException = '/sgai-fwbz-dev/fwbz/fireDevice/smokeDetector/count/pendingAlarm',
     /** 今日数据量 */
     todayDataSize = '/sgai-fwbz-dev/fwbz/interfaceStatistics/todayDataSize',
-    /** 采集点位数 */
+    /** 数据采集点 */
     collectionPoint = '/sgai-fwbz-dev/fwbz/dataCollection/collectionPointCount',
+    /** 今日总客流 */
+    todayTraffic = '/sgai-fwbz-dev/fwbz/venueVisitorFlow/todayVisitorCount',
+    /** 当前在场 */
+    currentOnSite = '/sgai-fwbz-dev/fwbz/venueVisitorFlow/currentVisitorCount',
 }
 
 

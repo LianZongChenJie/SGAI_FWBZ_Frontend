@@ -1,1 +1,3 @@
-AI
+<template>
+  <div>AI</div>
+</template>

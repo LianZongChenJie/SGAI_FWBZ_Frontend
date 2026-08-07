@@ -22,7 +22,7 @@ import { ref } from 'vue';
 import AlarmLeve from './components/AlarmLevel.vue'
 import AlarmCategory from './components/AlarmCategory.vue'
 import AlarmRules from './components/AlarmRules.vue'
-import AlarmRecord from '../alarmRecord/index.vue'
+import AlarmRecord from './components/AlarmRecords.vue'
 
 const activeKey = ref('4');
 </script>
