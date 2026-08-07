@@ -5,7 +5,7 @@
     :footer="null"
     :closable="false"
     width="1100px"
-    :bodyStyle="{ padding: 0, maxHeight: '720px', overflowY: 'hidden', overflowX: 'hidden' }"
+    :bodyStyle="{ padding: 0, overflow: 'hidden' }"
     wrapClassName="bigscreen-modal"
     @cancel="handleClose"
   >
@@ -308,6 +308,7 @@ const trendMaxVal = computed(() => {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  max-height: 720px;
 }
 .modal-box-top-bar {
   position: absolute;
