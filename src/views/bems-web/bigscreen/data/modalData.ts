@@ -35,10 +35,29 @@ export interface ModalBarData {
   footer?: string;
 }
 
+export interface TrendBar {
+  height: number;
+  color: string;
+  /** x轴标签 */
+  label?: string;
+  /** 柱上数值 */
+  value?: number;
+}
+
+export interface TrendSeriesItem {
+  name: string;
+  color: string;
+  values: number[];
+}
+
 export interface ModalTrend {
   title: string;
-  bars: { height: number; color: string }[];
+  bars: TrendBar[];
   footer: string;
+  /** 多系列模式：x轴标签 */
+  xAxis?: string[];
+  /** 多系列模式：各系列数据 */
+  series?: TrendSeriesItem[];
 }
 
 export interface ModalPanel {
@@ -199,7 +218,7 @@ export const modalData: Record<string, ModalContent> = {
           { title: '时间', key: 'time', width: 60 },
           { title: '类型', key: 'type' },
           { title: '位置', key: 'location' },
-          { title: '等级', key: 'level', width: 70 },
+          { title: '等级', key: 'level', width: 90 },
         ],
         rows: [
           { time: '14:05', type: '应急照明故障', location: 'C馆走廊', level: { text: '一般', color: '#fb923c' } },

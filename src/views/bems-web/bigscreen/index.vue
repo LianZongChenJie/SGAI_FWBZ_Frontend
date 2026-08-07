@@ -45,7 +45,7 @@ import TickerBar from './components/TickerBar.vue';
 import DetailModal from './components/DetailModal.vue';
 import { leftPanels as rawLeftPanels, rightPanels, kpiData, tickerData } from './data/index';
 import { modalData } from './data/modalData';
-import { getTodayCheckCount, getAlarmExceptionCount } from './index.api';
+import { getTodayCheckCount, getAlarmExceptionCount, getAlarmRecordList, getAlarmStatistics, getAlarmTrendRecently } from './index.api';
 
 defineOptions({ name: 'BigscreenPage' });
 
@@ -56,8 +56,9 @@ const innerStyle = ref<Record<string, string>>({});
 // 左侧面板数据（响应式，便于接口回填）
 const leftPanels = reactive(rawLeftPanels);
 
-/** 韧性安全面板索引 */
+/** 面板索引 */
 const RESILIENCE_INDEX = 0;
+const ALARM_INDEX = 2;
 
 /** 韧性安全面板 metricRows 索引 */
 const ROW_TODAY_CHECK = 0;  // 今日巡检完成
@@ -87,8 +88,68 @@ async function fetchAlarmException() {
   }
 }
 
-function handleOpenModal(key: string) {
-  modalRef.value?.open(key, modalData);
+/** 请求告警统计数据并回填告警面板，返回原始数据供弹窗使用 */
+async function fetchAlarmStatistics(): Promise<any> {
+  try {
+    const res = await getAlarmStatistics();
+    // 接口返回可能嵌套在 data/result 中，解包后使用
+    const data = res?.data || res?.result || res;
+    if (data) {
+      const count = data.count;
+      const averageProcessingTime = data.averageProcessingTime;
+      const completedCount = data.completedCount;
+      const untreatedCount = data.untreatedCount;
+      const seriousCount = data.seriousCount;
+      // metricCards[0] = 今日告警 → count
+      if (count != null) leftPanels[ALARM_INDEX].metricCards[0].value = String(count);
+      // metricCards[1] = 响应分钟 → averageProcessingTime
+      if (averageProcessingTime != null) leftPanels[ALARM_INDEX].metricCards[1].value = String(averageProcessingTime);
+      // metricRows[0] = 已处理 → completedCount
+      if (completedCount != null) leftPanels[ALARM_INDEX].metricRows[0].value = String(completedCount);
+      // metricRows[1] = 待处理 → untreatedCount
+      if (untreatedCount != null) leftPanels[ALARM_INDEX].metricRows[1].value = String(untreatedCount);
+      // metricRows[2] = 严重告警 → seriousCount
+      if (seriousCount != null) leftPanels[ALARM_INDEX].metricRows[2].value = String(seriousCount);
+      // metricRows[3] = 平均处理时长 → averageProcessingTime
+      if (averageProcessingTime != null) leftPanels[ALARM_INDEX].metricRows[3].value = String(averageProcessingTime);
+    }
+    return data;
+  } catch (error) {
+    console.error('获取告警统计失败:', error);
+    return null;
+  }
+}
+
+/** 请求告警趋势数据，返回原始数据供弹窗使用 */
+async function fetchAlarmTrend(): Promise<any> {
+  try {
+    const res = await getAlarmTrendRecently();
+    return res?.data || res?.result || res;
+  } catch (error) {
+    console.error('获取告警趋势失败:', error);
+    return null;
+  }
+}
+
+/** 请求待处理告警列表，返回记录数组 */
+async function fetchAlarmRecords(): Promise<any[]> {
+  try {
+    const res = await getAlarmRecordList({ pageNo: 1, pageSize: 5, alarmStatus: 1 });
+    return res?.result?.records || res?.data?.records || res?.records || [];
+  } catch (error) {
+    console.error('获取告警记录列表失败:', error);
+    return [];
+  }
+}
+
+async function handleOpenModal(key: string) {
+  // 点故障告警面板时先请求告警记录、统计数据和趋势再打开弹窗
+  if (key === 'alarm') {
+    const [records, stats, trend] = await Promise.all([fetchAlarmRecords(), fetchAlarmStatistics(), fetchAlarmTrend()]);
+    modalRef.value?.open(key, modalData, records, stats, trend);
+  } else {
+    modalRef.value?.open(key, modalData);
+  }
 }
 
 function calcScale() {
@@ -123,6 +184,8 @@ onMounted(() => {
   // 请求韧性安全实时数据
   fetchTodayCheck();
   fetchAlarmException();
+  // 请求告警统计数据
+  fetchAlarmStatistics();
 });
 
 onUnmounted(() => {
