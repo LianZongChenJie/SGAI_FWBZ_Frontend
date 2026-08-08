@@ -1,4 +1,4 @@
-import { fwbzHttp } from '/@/utils/http/axios';
+import { defHttp } from '/@/utils/http/axios';
 
 enum Api {
   venueOptions = '/sgai-fwbz/fwbz/venueInfo/listAll',
@@ -33,10 +33,10 @@ export interface EquipmentItem {
  * 获取场馆列表
  */
 export const getVenueOptions = (params?: Record<string, any>) =>
-  fwbzHttp.get({ url: Api.venueOptions, params });
+  defHttp.get({ url: Api.venueOptions, params });
 
 /**
  * 获取设备类型列表
  */
 export const getCategoryOptions = (params?: Record<string, any>) =>
-  fwbzHttp.get({ url: Api.categoryOptions, params });
+  defHttp.get({ url: Api.categoryOptions, params });

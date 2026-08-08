@@ -1,10 +1,10 @@
-import { fwbzHttp } from '/@/utils/http/axios';
+import { defHttp } from '/@/utils/http/axios';
 
 enum Api {
     /** 卡片汇总 */
-    summary = '/jeecgboot/sgai-fwbz-dev/fwbz/dataCollection/summary',
+    summary = '/sgai-fwbz-dev/fwbz/dataCollection/summary',
     /** 数据采集状态列表 */
-    dataCollectionList = '/jeecgboot/sgai-fwbz-dev/fwbz/dataCollection/interfaceList',
+    dataCollectionList = '/sgai-fwbz-dev/fwbz/dataCollection/interfaceList',
 }
 
 /**
@@ -62,10 +62,10 @@ export interface InterfaceListVO {
 }
 
 /** 卡片汇总信息 */
-export const getSummary = () => fwbzHttp.get({ url: Api.summary });
+export const getSummary = () => defHttp.get({ url: Api.summary });
 
 /** 数据采集状态列表（分页） */
 export const getDataCollectionList = (params?: {
     pageNo?: number;
     pageSize?: number;
-}) => fwbzHttp.get({ url: Api.dataCollectionList, params });
+}) => defHttp.get({ url: Api.dataCollectionList, params });

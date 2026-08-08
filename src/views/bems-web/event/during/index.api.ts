@@ -1,25 +1,25 @@
-import { fwbzHttp } from '/@/utils/http/axios';
+import { defHttp } from '/@/utils/http/axios';
 
 enum Api {
     /** 卡片汇总 */
-    summary = '/jeecgboot/sgai-fwbz-dev/fwbz/complaintStatistics/summary',
+    summary = '/sgai-fwbz-dev/fwbz/complaintStatistics/summary',
     /** 投诉建议处理列表 */
-    complaintList = '/jeecgboot/sgai-fwbz-dev/fwbz/complaint/list',
+    complaintList = '/sgai-fwbz-dev/fwbz/complaint/list',
     /** 类型下拉 */
-    typeList = '/jeecgboot/sgai-fwbz-dev/fwbz/complaint/typeList',
+    typeList = '/sgai-fwbz-dev/fwbz/complaint/typeList',
     /** 状态下拉 */
-    statusList = '/jeecgboot/sgai-fwbz-dev/fwbz/complaint/statusList',
+    statusList = '/sgai-fwbz-dev/fwbz/complaint/statusList',
     /** 新增投诉 */
-    addComplaint = '/jeecgboot/sgai-fwbz-dev/fwbz/complaint/add',
+    addComplaint = '/sgai-fwbz-dev/fwbz/complaint/add',
     /** 编辑投诉 */
-    editComplaint = '/jeecgboot/sgai-fwbz-dev/fwbz/complaint/edit',
+    editComplaint = '/sgai-fwbz-dev/fwbz/complaint/edit',
     /** 处理投诉 */
-    handleComplaint = '/jeecgboot/sgai-fwbz-dev/fwbz/complaint/handle',
+    handleComplaint = '/sgai-fwbz-dev/fwbz/complaint/handle',
     /** 删除投诉 */
-    deleteComplaint = '/jeecgboot/sgai-fwbz-dev/fwbz/complaint/delete',
+    deleteComplaint = '/sgai-fwbz-dev/fwbz/complaint/delete',
 
     /** 人员处理记录详情 */
-    handleRecordDetail = '/jeecgboot/sgai-fwbz-dev/fwbz/complaint/queryById',
+    handleRecordDetail = '/sgai-fwbz-dev/fwbz/complaint/queryById',
 }
 
 
@@ -347,36 +347,36 @@ export interface HandleRecordVO {
 
 
 /** 卡片汇总信息 */
-export const getSummary = () => fwbzHttp.get({ url: Api.summary });
+export const getSummary = () => defHttp.get({ url: Api.summary });
 
 /** 投诉建议列表（分页） */
 export const getComplaintList = (params?: {
     pageNo?: number;
     pageSize?: number;
-}) => fwbzHttp.get({ url: Api.complaintList, params });
+}) => defHttp.get({ url: Api.complaintList, params });
 
 /** 类型下拉列表 */
-export const getTypeList = () => fwbzHttp.get({ url: Api.typeList });
+export const getTypeList = () => defHttp.get({ url: Api.typeList });
 
 /** 状态下拉列表 */
-export const getStatusList = () => fwbzHttp.get({ url: Api.statusList });
+export const getStatusList = () => defHttp.get({ url: Api.statusList });
 
 /** 新增投诉 */
-export const addComplaint = (params: Request) => fwbzHttp.post({ url: Api.addComplaint, params });
+export const addComplaint = (params: Request) => defHttp.post({ url: Api.addComplaint, params });
 
 /** 编辑投诉（仅编辑处理人） */
-export const editComplaint = (params: Request) => fwbzHttp.put({ url: Api.editComplaint, params });
+export const editComplaint = (params: Request) => defHttp.put({ url: Api.editComplaint, params });
 
 /** 处理投诉 */
-export const handleComplaint = (params: HandleRequest) => fwbzHttp.post({ url: Api.handleComplaint, params });
+export const handleComplaint = (params: HandleRequest) => defHttp.post({ url: Api.handleComplaint, params });
 
 /** 删除投诉 */
 export const deleteComplaint = (params: { id: number }) =>
-    fwbzHttp.delete({ url: `${Api.deleteComplaint}?id=${params.id}` });
+    defHttp.delete({ url: `${Api.deleteComplaint}?id=${params.id}` });
 
 /** 查询投诉处理记录详情 */
 export const getHandleRecordDetail = (params: { id: number }) =>
-    fwbzHttp.get({ url: Api.handleRecordDetail, params });
+    defHttp.get({ url: Api.handleRecordDetail, params });
 
 
 

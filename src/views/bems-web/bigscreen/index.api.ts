@@ -1,11 +1,10 @@
-import { fwbzHttp } from '/@/utils/http/axios';
 import { defHttp } from '/@/utils/http/axios';
 
 enum Api {
     /** 统计今日巡检完成数量 */
-    todayCheck = '/jeecgboot/sgai-fwbz-dev/fwbz/fireDevice/smokeDetector/count/todayCheck',
+    todayCheck = '/sgai-fwbz-dev/fwbz/fireDevice/smokeDetector/count/todayCheck',
     /** 待处理告警异常 */
-    alarmException = '/jeecgboot/sgai-fwbz-dev/fwbz/fireDevice/smokeDetector/count/pendingAlarm',
+    alarmException = '/sgai-fwbz-dev/fwbz/fireDevice/smokeDetector/count/pendingAlarm',
     
     /** 故障告警 */
     /** 告警记录分页列表 */
@@ -15,16 +14,120 @@ enum Api {
     /** 告警趋势 */
     alarmTrendRecently = '/sgai-tp/fwbz/alarm/record/alarmTrendRecently',
     /** 今日数据量 */
-    todayDataSize = '/jeecgboot/sgai-fwbz-dev/fwbz/interfaceStatistics/todayDataSize',
+    todayDataSize = '/sgai-fwbz-dev/fwbz/interfaceStatistics/todayDataSize',
     /** 数据采集点 */
-    collectionPoint = '/jeecgboot/sgai-fwbz-dev/fwbz/dataCollection/collectionPointCount',
+    collectionPoint = '/sgai-fwbz-dev/fwbz/dataCollection/collectionPointCount',
     /** 今日总客流 */
-    todayTraffic = '/jeecgboot/sgai-fwbz-dev/fwbz/venueVisitorFlow/todayVisitorCount',
+    todayTraffic = '/sgai-fwbz-dev/fwbz/venueVisitorFlow/todayVisitorCount',
     /** 当前在馆 */
-    currentOnSite = '/jeecgboot/sgai-fwbz-dev/fwbz/venueVisitorFlow/currentVisitorCount',
+    currentOnSite = '/sgai-fwbz-dev/fwbz/venueVisitorFlow/currentVisitorCount',
     /** 停车场实时状态 */
-    parkingLotStatus = '/jeecgboot/sgai-fwbz-dev/fwbz/parkingStatistics/parkingSpaceDistribution',
-    /** 各场馆客流分布 */
+    parkingLotStatus = '/sgai-fwbz-dev/fwbz/parkingStatistics/parkingSpaceDistribution',
+    /** 摄像头坐标分组分布 */
+    cameraCoordinateGroup = '/sgai-fwbz-dev/fwbz/hikvision/camera/coordinateGroup',
+    /** 人员热力分布数据 */
+    personHeatMap = '/sgai-fwbz-dev/fwbz/venueVisitorFlow/hourly/areaHeat',
+}
+
+/**
+ * 返回数据对象
+ *
+ * 人员热力分布数据
+ */
+export interface AreaHeatResponseVO {
+    /**
+     * 最大权重
+     */
+    maxweight?: number;
+    /**
+     * 热力图数据列表
+     */
+    peopleHeatmapDataList?: AreaHeatDataItemVO[];
+    [property: string]: any;
+}
+
+/**
+ * 区域热力图数据项
+ *
+ * AreaHeatDataItemVO
+ */
+export interface AreaHeatDataItemVO {
+    /**
+     * 人数
+     */
+    count?: number;
+    /**
+     * 纬度
+     */
+    lat?: number;
+    /**
+     * 经度
+     */
+    lon?: number;
+    [property: string]: any;
+}
+
+
+// 摄像头视频信息
+export interface VideoInfo {
+    /** 视频ID */
+    id: number;
+    /** 视频名称 */
+    name: string;
+    /** 简称 */
+    shortName: string;
+    /** 视频编码 */
+    videoCode:  string;
+    /** 经度 */
+    longitude: string;
+    /** 纬度 */
+    latitude: string;
+    /** IP地址 */
+    ip: string;
+    /** 端口 */
+    port:  number;
+    /** 用户名 */
+    userName:  string;
+    /** 密码 */
+    password:  string;
+    /** 空间路径 */
+    spacePath:  string;
+    /** 系统ID */
+    systemId: string;
+    /** 绘图编码 */
+    drawingCode:  string;
+    /** 类型 */
+    type:  string;
+    /** 远程ID */
+    remoteId: number;
+    /** 排序号 */
+    sortNum:  number;
+    /** 是否初始化 */
+    isInit: number;
+    /** 制造商 */
+    manufacturers:  string;
+    /** 点位路径 */
+    pointPath: string;
+    /** 分组ID */
+    groupId:  string;
+    /** 分组名称 */
+    groupName:  string;
+    /** 在线状态 */
+    online:  boolean;
+    /** URL地址 */
+    url:  string;
+}
+
+// 摄像头分组信息
+export interface CameraGroup {
+    /** 纬度 */
+    latitude: number;
+    /** 该分组下的摄像头数量 */
+    count: number;
+    /** 摄像头列表 */
+    videos: VideoInfo[];
+    /** 经度 */
+    longitude: number;
 }
 
 
@@ -105,10 +208,10 @@ export interface CountVO {
 }
 
 /** 统计今日巡检完成数量 */
-export const getTodayCheckCount = () => fwbzHttp.get({ url: Api.todayCheck });
+export const getTodayCheckCount = () => defHttp.get({ url: Api.todayCheck });
 
 /** 待处理告警异常 */
-export const getAlarmExceptionCount = () => fwbzHttp.get({ url: Api.alarmException });
+export const getAlarmExceptionCount = () => defHttp.get({ url: Api.alarmException });
 
 /** 告警记录分页列表（待处理告警） */
 export const getAlarmRecordList = (params: { pageNo: number; pageSize: number; alarmStatus: number }) =>
@@ -121,13 +224,22 @@ export const getAlarmStatistics = () => defHttp.get({ url: Api.alarmStatistics }
 export const getAlarmTrendRecently = () => defHttp.get({ url: Api.alarmTrendRecently });
 
 /** 今日数据量（返回KB） */
-export const getTodayDataSize = () => fwbzHttp.get({ url: Api.todayDataSize });
+export const getTodayDataSize = () => defHttp.get({ url: Api.todayDataSize });
 
 /** 数据采集点数量 */
-export const getCollectionPointCount = () => fwbzHttp.get({ url: Api.collectionPoint });
+export const getCollectionPointCount = () => defHttp.get({ url: Api.collectionPoint });
 
 /** 今日总客流 */
-export const getTodayTraffic = () => fwbzHttp.get({ url: Api.todayTraffic });
+export const getTodayTraffic = () => defHttp.get({ url: Api.todayTraffic });
 
 /** 当前在场人数 */
-export const getCurrentOnSite = () => fwbzHttp.get({ url: Api.currentOnSite });
+export const getCurrentOnSite = () => defHttp.get({ url: Api.currentOnSite });
+
+/** 停车场实时车位分布 */
+export const getParkingLotStatus = () => defHttp.get({ url: Api.parkingLotStatus });
+
+/** 摄像头坐标分组分布 */
+export const getCameraCoordinateGroup = () => defHttp.get({ url: Api.cameraCoordinateGroup });
+
+/** 人员热力分布数据 */
+export const getPersonHeatMap = () => defHttp.get({ url: `${Api.personHeatMap}?areaId=` });

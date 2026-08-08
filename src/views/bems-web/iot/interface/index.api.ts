@@ -1,12 +1,12 @@
-import { fwbzHttp } from '/@/utils/http/axios';
+import { defHttp } from '/@/utils/http/axios';
 
 enum Api {
     /** 卡片汇总 */
-    summary = '/jeecgboot/sgai-fwbz-dev/fwbz/interfaceStatistics/summary',
+    summary = '/sgai-fwbz-dev/fwbz/interfaceStatistics/summary',
     /** 接口状态监控列表 */
-    interfaceStatusList = '/jeecgboot/sgai-fwbz-dev/fwbz/interfaceInfo/listPage',
+    interfaceStatusList = '/sgai-fwbz-dev/fwbz/interfaceInfo/listPage',
     /** 协议类型下拉 */
-    protocolTypeList = '/jeecgboot/sgai-fwbz-dev/fwbz/protocolType/list',
+    protocolTypeList = '/sgai-fwbz-dev/fwbz/protocolType/list',
 }
 
 /**
@@ -149,7 +149,7 @@ export interface StatCardVO {
 
 
 /** 卡片汇总信息 */
-export const getSummary = () => fwbzHttp.get({ url: Api.summary });
+export const getSummary = () => defHttp.get({ url: Api.summary });
 
 /** 接口状态监控列表（分页，支持搜索） */
 export const getInterfaceStatusList = (params?: {
@@ -158,7 +158,7 @@ export const getInterfaceStatusList = (params?: {
     sysName?: string;
     protocolTypeId?: number;
     state?: number;
-}) => fwbzHttp.get({ url: Api.interfaceStatusList, params });
+}) => defHttp.get({ url: Api.interfaceStatusList, params });
 
 /** 协议类型下拉列表 */
-export const getProtocolTypeList = () => fwbzHttp.get({ url: Api.protocolTypeList });
+export const getProtocolTypeList = () => defHttp.get({ url: Api.protocolTypeList });

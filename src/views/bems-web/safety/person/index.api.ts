@@ -1,16 +1,16 @@
-import { fwbzHttp } from '/@/utils/http/axios';
+import { defHttp } from '/@/utils/http/axios';
 
 enum Api {
   /** 卡片汇总 */
-  summary = '/jeecgboot/sgai-fwbz-dev/fwbz/hikvision/dashboard/stat/summary',
+  summary = '/sgai-fwbz-dev/fwbz/hikvision/dashboard/stat/summary',
   /** 人员轨迹查询 */
-  trackList = '/jeecgboot/sgai-fwbz-dev/fwbz/personnelTrajectory/query',
+  trackList = '/sgai-fwbz-dev/fwbz/personnelTrajectory/query',
   /** 人员识别记录 */
-  recognitionRecord = '/jeecgboot/sgai-fwbz-dev/fwbz/hikvision/personRecognition/list',
+  recognitionRecord = '/sgai-fwbz-dev/fwbz/hikvision/personRecognition/list',
   /** 场馆客流趋势数据 */
-  venueFlowTrend = '/jeecgboot/sgai-fwbz-dev/fwbz/venueVisitorFlow/hourly/todayTrend',
+  venueFlowTrend = '/sgai-fwbz-dev/fwbz/venueVisitorFlow/hourly/todayTrend',
   /** 场馆列表（全量） */
-  venueList = '/jeecgboot/sgai-fwbz-dev/fwbz/venueInfo/listAll',
+  venueList = '/sgai-fwbz-dev/fwbz/venueInfo/listAll',
 }
 
 
@@ -288,18 +288,18 @@ export interface PersonnelTrajectoryVO {
 
 
 /** 新增人员轨迹查询 */
-export const addTrackQuery = (params: TrackQueryRequest) => fwbzHttp.post({ url: Api.trackList, params });
+export const addTrackQuery = (params: TrackQueryRequest) => defHttp.post({ url: Api.trackList, params });
 
 /** 获取今日进场人数 */
-export const getSummary = () => fwbzHttp.get({ url: Api.summary });
+export const getSummary = () => defHttp.get({ url: Api.summary });
 
 /** 获取人员识别记录列表（分页） */
 export const getRecognitionRecord = (params: Request) =>
-    fwbzHttp.get({ url: Api.recognitionRecord, params });
+    defHttp.get({ url: Api.recognitionRecord, params });
 
 /** 获取场馆列表（全量，用于下拉选择） */
-export const getVenueList = () => fwbzHttp.get({ url: Api.venueList });
+export const getVenueList = () => defHttp.get({ url: Api.venueList });
 
 /** 获取场馆客流趋势数据 */
 export const getVenueFlowTrend = (params: VenueFlowTrendRequest) =>
-    fwbzHttp.get({ url: Api.venueFlowTrend, params });
+    defHttp.get({ url: Api.venueFlowTrend, params });

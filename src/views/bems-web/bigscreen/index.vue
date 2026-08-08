@@ -15,7 +15,7 @@
         <!-- 中间列：KPI + 地图 -->
         <div class="center-col">
           <KpiBanner :kpiData="kpiData" @open="handleOpenModal" />
-          <MapArea @open="handleOpenModal" />
+          <MapArea />
         </div>
         <!-- 右侧面板 -->
         <div class="side-col">
@@ -55,8 +55,9 @@ import {
   getCollectionPointCount,
   getTodayTraffic,
   getCurrentOnSite,
+  getParkingLotStatus,
 } from './index.api';
-import type { CountVO } from './index.api';
+import type { CountVO, ParkingSpaceStatVO } from './index.api';
 
 defineOptions({ name: 'BigscreenPage' });
 
@@ -200,6 +201,10 @@ async function handleOpenModal(key: string) {
   if (key === 'alarm') {
     const [records, stats, trend] = await Promise.all([fetchAlarmRecords(), fetchAlarmStatistics(), fetchAlarmTrend()]);
     modalRef.value?.open(key, modalData, records, stats, trend);
+  } else if (key === 'exhibition') {
+    // 会展服务弹窗：先请求停车场实时状态再打开
+    await fetchParkingLotStatus();
+    modalRef.value?.open(key, modalData);
   } else {
     modalRef.value?.open(key, modalData);
   }
@@ -260,6 +265,42 @@ async function fetchCurrentOnSite() {
     }
   } catch (error) {
     console.error('获取当前在场人数失败:', error);
+  }
+}
+
+/** 根据使用率获取颜色 */
+function getRateColor(usageRate: number): string {
+  if (usageRate >= 80) return '#f87171'; // 拥挤 - 红
+  if (usageRate >= 60) return '#fb923c'; // 适中 - 橙
+  return '#4ade80'; // 宽松 - 绿
+}
+
+/** 请求停车场实时状态并回填会展服务弹窗 */
+async function fetchParkingLotStatus() {
+  try {
+    const res = await getParkingLotStatus();
+    const list: ParkingSpaceStatVO[] = res?.result || res?.data || res || [];
+    if (Array.isArray(list) && list.length > 0) {
+      const exhibitionModal = modalData['exhibition'];
+      if (exhibitionModal && exhibitionModal.rightPanel.type === 'table') {
+        const tableData = exhibitionModal.rightPanel.data as any;
+        tableData.rows = list.map((item: ParkingSpaceStatVO) => {
+          const total = item.total ?? 0;
+          const used = item.used ?? 0;
+          const remain = item.shengyu ?? (total - used);
+          const rate = item.usageRate ?? (total > 0 ? Math.round((used / total) * 100) : 0);
+          return {
+            name: item.name || '--',
+            total: String(total),
+            used: String(used),
+            remain: String(remain),
+            rate: { text: rate + '%', color: getRateColor(rate) },
+          };
+        });
+      }
+    }
+  } catch (error) {
+    console.error('获取停车场实时状态失败:', error);
   }
 }
 

@@ -1,8 +1,8 @@
-import { fwbzHttp } from '/@/utils/http/axios';
+import { defHttp } from '/@/utils/http/axios';
 
 enum Api {
     /** 今日会展活动 */
-    todayExhibitionActivity = '/jeecgboot/sgai-fwbz-dev/fwbz/activeMeet/info/listPage',
+    todayExhibitionActivity = '/sgai-fwbz-dev/fwbz/activeMeet/info/listPage',
 }
 
 /**
@@ -94,4 +94,4 @@ export interface ActiveMeetInfo {
 
 /** 获取今日会展活动列表（入参: { startDate: 'YYYY-MM-DD' }） */
 export const getTodayExhibitionActivity = (params?: { startDate?: string, endDate?: string }) =>
-  fwbzHttp.get({ url: Api.todayExhibitionActivity, params });
+  defHttp.get({ url: Api.todayExhibitionActivity, params });

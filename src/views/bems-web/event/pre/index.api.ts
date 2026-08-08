@@ -1,14 +1,14 @@
-import { fwbzHttp } from '/@/utils/http/axios';
+import { defHttp } from '/@/utils/http/axios';
 
 enum Api {
     /** 卡片汇总 */
-    summary = '/jeecgboot/sgai-fwbz-dev/fwbz/preparationStatistics/summary',
+    summary = '/sgai-fwbz-dev/fwbz/preparationStatistics/summary',
     /** 会前筹备清单 */
-    preparationList = '/jeecgboot/sgai-fwbz-dev/fwbz/activeMeet/preparation/checklist',
+    preparationList = '/sgai-fwbz-dev/fwbz/activeMeet/preparation/checklist',
     /** 完成筹备项 */
-    finishPreparationItem = '/jeecgboot/sgai-fwbz-dev/fwbz/activeMeet/preparation/complete',
+    finishPreparationItem = '/sgai-fwbz-dev/fwbz/activeMeet/preparation/complete',
     /** 会展活动列表 */
-    activeMeetList = '/jeecgboot/sgai-fwbz-dev/fwbz/activeMeet/info/listPage',
+    activeMeetList = '/sgai-fwbz-dev/fwbz/activeMeet/info/listPage',
 }
 
 /**
@@ -82,16 +82,16 @@ export interface PreparationDetailVO {
 
 
 /** 卡片汇总信息 */
-export const getSummary = () => fwbzHttp.get({ url: Api.summary });
+export const getSummary = () => defHttp.get({ url: Api.summary });
 
 /** 会前筹备清单 */
 export const getPreparationList = (params?: { id?: number }) =>
-    fwbzHttp.get({ url: Api.preparationList, params });
+    defHttp.get({ url: Api.preparationList, params });
 
 /** 会展活动列表 */
 export const getActiveMeetList = (params?: { pageNo?: number; pageSize?: number }) =>
-    fwbzHttp.get({ url: Api.activeMeetList, params });
+    defHttp.get({ url: Api.activeMeetList, params });
 
 /** 完成筹备项 */
 export const finishPreparationItem = (params: Request) =>
-    fwbzHttp.post({ url: Api.finishPreparationItem, params });
+    defHttp.post({ url: Api.finishPreparationItem, params });

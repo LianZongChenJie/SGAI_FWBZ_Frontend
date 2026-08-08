@@ -1,10 +1,10 @@
-import { fwbzHttp } from '/@/utils/http/axios';
+import { defHttp } from '/@/utils/http/axios';
 
 enum Api {
   /** 汇总统计 */
-  sunnary = '/jeecgboot/sgai-fwbz-dev/fwbz/venueVisitorFlow/summary',
+  sunnary = '/sgai-fwbz-dev/fwbz/venueVisitorFlow/summary',
   /** 客流统计列表 */
-  flowList = '/jeecgboot/sgai-fwbz-dev/fwbz/venueVisitorFlow/venueList',
+  flowList = '/sgai-fwbz-dev/fwbz/venueVisitorFlow/venueList',
 }
 
 
@@ -128,7 +128,7 @@ export interface StatItem {
 }
 
 /** 获取客流汇总卡片 */
-export const getFlowSummary = () => fwbzHttp.get({ url: Api.sunnary });
+export const getFlowSummary = () => defHttp.get({ url: Api.sunnary });
 
 /** 获取各场馆客流统计列表 */
-export const getFlowList = (params: FlowListRequest) => fwbzHttp.get({ url: Api.flowList, params });
+export const getFlowList = (params: FlowListRequest) => defHttp.get({ url: Api.flowList, params });

@@ -1,25 +1,25 @@
-import { fwbzHttp } from '/@/utils/http/axios';
+import { defHttp } from '/@/utils/http/axios';
 
 enum Api {
   /** 汇总卡片列表 */
-  summaryCardList = '/jeecgboot/sgai-fwbz-dev/fwbz/activeMeetStatistics/summary',
+  summaryCardList = '/sgai-fwbz-dev/fwbz/activeMeetStatistics/summary',
   /** 场馆信息列表 */
-  venueInfoList = '/jeecgboot/sgai-fwbz-dev/fwbz/venueInfo/list',
+  venueInfoList = '/sgai-fwbz-dev/fwbz/venueInfo/list',
   /** 新增场馆信息 */
-  addVenue = '/jeecgboot/sgai-fwbz-dev/fwbz/venueInfo/add',
+  addVenue = '/sgai-fwbz-dev/fwbz/venueInfo/add',
   /** 编辑场馆信息 */
-  editVenue = '/jeecgboot/sgai-fwbz-dev/fwbz/venueInfo/edit',
+  editVenue = '/sgai-fwbz-dev/fwbz/venueInfo/edit',
   /** 删除场馆信息 */
-  delVenue = '/jeecgboot/sgai-fwbz-dev/fwbz/venueInfo/delete',
+  delVenue = '/sgai-fwbz-dev/fwbz/venueInfo/delete',
 
   /** 新增会展活动 */
-  addExhibition = '/jeecgboot/sgai-fwbz-dev/fwbz/activeMeet/info/add',
+  addExhibition = '/sgai-fwbz-dev/fwbz/activeMeet/info/add',
   /** 场馆列表（全量） */
-  venueList = '/jeecgboot/sgai-fwbz-dev/fwbz/venueInfo/listAll',
+  venueList = '/sgai-fwbz-dev/fwbz/venueInfo/listAll',
   /** 会展列表 */
-  exhibitionList = '/jeecgboot/sgai-fwbz-dev/fwbz/activeMeet/info/thisWeek',
+  exhibitionList = '/sgai-fwbz-dev/fwbz/activeMeet/info/thisWeek',
   /** 删除会展活动 */
-  delExhibition = '/jeecgboot/sgai-fwbz-dev/fwbz/activeMeet/info/delete',
+  delExhibition = '/sgai-fwbz-dev/fwbz/activeMeet/info/delete',
 }
 
 /**
@@ -197,22 +197,22 @@ export interface VenueRequest {
 }
 
 /** 获取场地列表（分页） */
-export const getVenueInfoList = (params: VenueRequest) => fwbzHttp.get({ url: Api.venueInfoList, params });
+export const getVenueInfoList = (params: VenueRequest) => defHttp.get({ url: Api.venueInfoList, params });
 
 /** 新增场馆 */
-export const addVenueInfo = (params: VenueRequest) => fwbzHttp.post({ url: Api.addVenue, params });
+export const addVenueInfo = (params: VenueRequest) => defHttp.post({ url: Api.addVenue, params });
 
 /** 获取场馆列表（全量，用于下拉选择） */
-export const getVenueList = () => fwbzHttp.get({ url: Api.venueList });
+export const getVenueList = () => defHttp.get({ url: Api.venueList });
 
 /** 新增会展活动排期 */
-export const addExhibition = (params: ExhibitionRequest) => fwbzHttp.post({ url: Api.addExhibition, params });
+export const addExhibition = (params: ExhibitionRequest) => defHttp.post({ url: Api.addExhibition, params });
 
 /** 获取本周会展活动列表 */
-export const getExhibitionList = () => fwbzHttp.get({ url: Api.exhibitionList });
+export const getExhibitionList = () => defHttp.get({ url: Api.exhibitionList });
 
 /** 删除会展活动 */
-export const delExhibition = (params: { id: number }) => fwbzHttp.delete({ url: `${Api.delExhibition}?id=${params.id}` });
+export const delExhibition = (params: { id: number }) => defHttp.delete({ url: `${Api.delExhibition}?id=${params.id}` });
 
 /** 统计卡片数据项 */
 export interface StatItem {
@@ -225,4 +225,4 @@ export interface StatItem {
 }
 
 /** 获取统计卡片汇总 */
-export const getSummaryCardList = () => fwbzHttp.get({ url: Api.summaryCardList });
+export const getSummaryCardList = () => defHttp.get({ url: Api.summaryCardList });

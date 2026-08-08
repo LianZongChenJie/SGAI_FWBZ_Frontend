@@ -1,18 +1,18 @@
-import { fwbzHttp } from '/@/utils/http/axios';
+import { defHttp } from '/@/utils/http/axios';
 
 enum Api {
   /** 汇总统计 */
-  sunnary = '/jeecgboot/sgai-fwbz-dev/fwbz/parkingStatistics/summary',
+  sunnary = '/sgai-fwbz-dev/fwbz/parkingStatistics/summary',
   /** 停车记录查询 */
-  recordList = '/jeecgboot/sgai-fwbz-dev/fwbz/parking/record/listPage',
+  recordList = '/sgai-fwbz-dev/fwbz/parking/record/listPage',
   /** 停车场接口 */
-  parkingLot = '/jeecgboot/sgai-fwbz-dev/fwbz/parking/record/parkingLotList',
+  parkingLot = '/sgai-fwbz-dev/fwbz/parking/record/parkingLotList',
   /** 车辆类型下拉 */
-  parkType = '/jeecgboot/sgai-fwbz-dev/fwbz/parking/record/parkTypeList',
+  parkType = '/sgai-fwbz-dev/fwbz/parking/record/parkTypeList',
   /** 停车流量趋势 */
-  parkingFlow24h = '/jeecgboot/sgai-fwbz-dev/fwbz/parkingStatistics/parkingFlow24h',
+  parkingFlow24h = '/sgai-fwbz-dev/fwbz/parkingStatistics/parkingFlow24h',
   /** 停车场实时车位分布 */
-  parkingSpaceDistribution = '/jeecgboot/sgai-fwbz-dev/fwbz/parkingStatistics/parkingSpaceDistribution',
+  parkingSpaceDistribution = '/sgai-fwbz-dev/fwbz/parkingStatistics/parkingSpaceDistribution',
 }
 
 /**
@@ -182,19 +182,19 @@ export interface StatItem {
 }
 
 /** 获取统计卡片汇总 */
-export const getSummary = () => fwbzHttp.get({ url: Api.sunnary });
+export const getSummary = () => defHttp.get({ url: Api.sunnary });
 
 /** 停车记录查询（分页） */
-export const getRecordList = (params: Request) => fwbzHttp.get({ url: Api.recordList, params });
+export const getRecordList = (params: Request) => defHttp.get({ url: Api.recordList, params });
 
 /** 获取停车场下拉列表 */
-export const getParkingLotList = () => fwbzHttp.get({ url: Api.parkingLot });
+export const getParkingLotList = () => defHttp.get({ url: Api.parkingLot });
 
 /** 获取车辆类型下拉列表 */
-export const getParkTypeList = () => fwbzHttp.get({ url: Api.parkType });
+export const getParkTypeList = () => defHttp.get({ url: Api.parkType });
 
 /** 获取24小时停车流量趋势 */
-export const getParkingFlow24h = () => fwbzHttp.get({ url: Api.parkingFlow24h });
+export const getParkingFlow24h = () => defHttp.get({ url: Api.parkingFlow24h });
 
 /** 获取停车场实时车位分布 */
-export const getParkingSpaceDistribution = () => fwbzHttp.get({ url: Api.parkingSpaceDistribution });
+export const getParkingSpaceDistribution = () => defHttp.get({ url: Api.parkingSpaceDistribution });

@@ -1,35 +1,35 @@
-import { fwbzHttp } from '/@/utils/http/axios';
+import { defHttp } from '/@/utils/http/axios';
 
 enum Api {
-  summary = '/jeecgboot/sgai-fwbz-dev/fwbz/securityStatistics/summary',
+  summary = '/sgai-fwbz-dev/fwbz/securityStatistics/summary',
   /** 巡更计划列表 */
-  patrolPlanList = '/jeecgboot/sgai-fwbz-dev/fwbz/patrolPlan/list',
+  patrolPlanList = '/sgai-fwbz-dev/fwbz/patrolPlan/list',
   /** 巡更计划编辑 */
-  patrolPlanEdit = '/jeecgboot/sgai-fwbz-dev/fwbz/patrolPlan/edit',
+  patrolPlanEdit = '/sgai-fwbz-dev/fwbz/patrolPlan/edit',
   /** 巡更计划新增 */
-  patrolPlanAdd = '/jeecgboot/sgai-fwbz-dev/fwbz/patrolPlan/add',
+  patrolPlanAdd = '/sgai-fwbz-dev/fwbz/patrolPlan/add',
   /** 摄像头列表数据 */
-  cameraList = '/jeecgboot/sgai-fwbz-dev/fwbz/hikvision/camera/list',
+  cameraList = '/sgai-fwbz-dev/fwbz/hikvision/camera/list',
   /** 获取运行中的巡更计划摄像头 */
-  runningCameraList = '/jeecgboot/sgai-fwbz-dev/fwbz/patrolPlan/runningPlan',
+  runningCameraList = '/sgai-fwbz-dev/fwbz/patrolPlan/runningPlan',
   /** 获取摄像头播放地址 */
-  cameraPlayUrls = '/jeecgboot/sgai-fwbz-dev/fwbz/hikvision/camera/playUrls',
+  cameraPlayUrls = '/sgai-fwbz-dev/fwbz/hikvision/camera/playUrls',
   /** 是否是正在执行的计划 */
-  isRunningPlan = '/jeecgboot/sgai-fwbz-dev/fwbz/patrolPlan/isRunningPlan',
+  isRunningPlan = '/sgai-fwbz-dev/fwbz/patrolPlan/isRunningPlan',
   /** 报警信息列表 */
-  alarmInfoList = '/jeecgboot/sgai-fwbz-dev/fwbz/hikvision/eventNotify/list',
+  alarmInfoList = '/sgai-fwbz-dev/fwbz/hikvision/eventNotify/list',
 
   // 门禁
   /** 门禁汇总数据 */
-  accessControlSummary = '/jeecgboot/sgai-fwbz-dev/fwbz/hikvision/doorStatistics/summary',
+  accessControlSummary = '/sgai-fwbz-dev/fwbz/hikvision/doorStatistics/summary',
   /** 门禁地点列表 */
-  accessControlDoorList = '/jeecgboot/sgai-fwbz-dev/fwbz/hikvision/door/list',
+  accessControlDoorList = '/sgai-fwbz-dev/fwbz/hikvision/door/list',
   /** 门禁设备列表 */
-  accessControlDeviceList = '/jeecgboot/sgai-fwbz-dev/fwbz/hikvision/acsDevice/list',
+  accessControlDeviceList = '/sgai-fwbz-dev/fwbz/hikvision/acsDevice/list',
   /** 同步门禁状态 */
-  syncAccessControlStatus = '/jeecgboot/sgai-fwbz-dev/fwbz/hikvision/door/syncDoorStatus',
+  syncAccessControlStatus = '/sgai-fwbz-dev/fwbz/hikvision/door/syncDoorStatus',
   /** 门禁事件列表 */
-  accessControlEventList = '/jeecgboot/sgai-fwbz-dev/fwbz/hikvision/doorEvent/list',
+  accessControlEventList = '/sgai-fwbz-dev/fwbz/hikvision/doorEvent/list',
 }
 
 
@@ -502,45 +502,45 @@ export interface CameraItem {
 }
 
 /** 获取安防统计卡片汇总 */
-export const getSecuritySummary = (params?) => fwbzHttp.get({ url: Api.summary, params });
+export const getSecuritySummary = (params?) => defHttp.get({ url: Api.summary, params });
 
 /** 获取巡更计划列表 */
-export const getPatrolPlanList = (params?) => fwbzHttp.get({ url: Api.patrolPlanList, params });
+export const getPatrolPlanList = (params?) => defHttp.get({ url: Api.patrolPlanList, params });
 
 /** 编辑巡更计划 */
-export const editPatrolPlan = (params: Request) => fwbzHttp.put({ url: Api.patrolPlanEdit, params });
+export const editPatrolPlan = (params: Request) => defHttp.put({ url: Api.patrolPlanEdit, params });
 
 /** 新增巡更计划 */
-export const addPatrolPlan = (params: Request) => fwbzHttp.post({ url: Api.patrolPlanAdd, params });
+export const addPatrolPlan = (params: Request) => defHttp.post({ url: Api.patrolPlanAdd, params });
 
 /** 获取摄像头列表 */
-export const getCameraList = (params?) => fwbzHttp.get({ url: Api.cameraList, params });
+export const getCameraList = (params?) => defHttp.get({ url: Api.cameraList, params });
 
 /** 获取运行中的巡更计划摄像头（实时监控画面） */
-export const getRunningCameraList = (params?) => fwbzHttp.get({ url: Api.runningCameraList, params });
+export const getRunningCameraList = (params?) => defHttp.get({ url: Api.runningCameraList, params });
 
 /** 获取摄像头播放地址（入参格式: { cameraIndexCode: ['编码1', '编码2'] }） */
-export const getCameraPlayUrls = (params) => fwbzHttp.post({ url: Api.cameraPlayUrls, params });
+export const getCameraPlayUrls = (params) => defHttp.post({ url: Api.cameraPlayUrls, params });
 
 /** 查询指定计划是否仍在执行中（入参: { id: 计划ID }，返回值: boolean） */
-export const checkIsRunningPlan = (params) => fwbzHttp.get({ url: Api.isRunningPlan, params });
+export const checkIsRunningPlan = (params) => defHttp.get({ url: Api.isRunningPlan, params });
 
 /** 获取报警信息列表 */
-export const getAlarmInfoList = (params?) => fwbzHttp.get({ url: Api.alarmInfoList, params });
+export const getAlarmInfoList = (params?) => defHttp.get({ url: Api.alarmInfoList, params });
 
 // ==================== 门禁相关接口 ====================
 
 /** 获取门禁汇总数据 */
-export const getAccessControlSummary = (params?) => fwbzHttp.get({ url: Api.accessControlSummary, params });
+export const getAccessControlSummary = (params?) => defHttp.get({ url: Api.accessControlSummary, params });
 
 /** 获取门禁地点列表 */
-export const getAccessControlDoorList = (params?) => fwbzHttp.get({ url: Api.accessControlDoorList, params });
+export const getAccessControlDoorList = (params?) => defHttp.get({ url: Api.accessControlDoorList, params });
 
 /** 获取门禁设备列表 */
-export const getAccessControlDeviceList = (params?) => fwbzHttp.get({ url: Api.accessControlDeviceList, params });
+export const getAccessControlDeviceList = (params?) => defHttp.get({ url: Api.accessControlDeviceList, params });
 
 /** 同步门禁状态 */
-export const syncAccessControlStatus = () => fwbzHttp.post({ url: Api.syncAccessControlStatus });
+export const syncAccessControlStatus = () => defHttp.post({ url: Api.syncAccessControlStatus });
 
 /** 获取门禁事件列表 */
-export const getAccessControlEventList = (params?) => fwbzHttp.get({ url: Api.accessControlEventList, params });
+export const getAccessControlEventList = (params?) => defHttp.get({ url: Api.accessControlEventList, params });
