@@ -109,13 +109,12 @@ export const modalData: Record<string, ModalContent> = {
     rightPanel: {
       type: 'table',
       data: {
-        title: '🔧 设施巡检状态',
+        title: '🔧 设备状态统计',
         columns: [
-          { title: '设施类型', key: 'name' },
+          { title: '设备类型', key: 'name', width: 120 },
           { title: '总数', key: 'total', width: 60 },
           { title: '已检', key: 'done', width: 60 },
           { title: '待检', key: 'pending', width: 60 },
-          { title: '异常', key: 'abnormal', width: 60 },
         ],
         rows: [
           { name: '配电设施', total: 45, done: 42, pending: 3, abnormal: { text: '0', color: '#4ade80' } },
@@ -127,14 +126,14 @@ export const modalData: Record<string, ModalContent> = {
         ],
       },
     },
-    trend: {
-      title: '📈 近7日巡检完成趋势',
-      bars: [
-        { height: 90, color: '#f87171' }, { height: 92, color: '#f87171' }, { height: 88, color: '#f87171' },
-        { height: 95, color: '#f87171' }, { height: 93, color: '#f87171' }, { height: 96, color: '#f87171' }, { height: 94, color: '#f87171' },
-      ],
-      footer: '巡检完成率: 90% → 95% | 本周累计完成 142 项',
-    },
+    // trend: {
+    //   title: '📈 近7日巡检完成趋势',
+    //   bars: [
+    //     { height: 90, color: '#f87171' }, { height: 92, color: '#f87171' }, { height: 88, color: '#f87171' },
+    //     { height: 95, color: '#f87171' }, { height: 93, color: '#f87171' }, { height: 96, color: '#f87171' }, { height: 94, color: '#f87171' },
+    //   ],
+    //   footer: '巡检完成率: 90% → 95% | 本周累计完成 142 项',
+    // },
   },
 
   iot: {

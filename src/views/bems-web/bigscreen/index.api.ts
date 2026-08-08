@@ -5,6 +5,53 @@ enum Api {
     todayCheck = '/sgai-fwbz-dev/fwbz/fireDevice/smokeDetector/count/todayCheck',
     /** 待处理告警异常 */
     alarmException = '/sgai-fwbz-dev/fwbz/fireDevice/smokeDetector/count/pendingAlarm',
+    /** 当前在场人数 */
+    currentEntryCount = '/sgai-fwbz-dev/fwbz/hikvision/dashboard/currentOnsiteCount',
+    /** 当前在场车辆 */
+    currentOnVehicle = '/sgai-fwbz-dev/fwbz/parkingStatistics/currentInCount',
+    /** 剩余车位数 */
+    remainingParkingSpace = '/sgai-fwbz-dev/fwbz/parkingStatistics/remainingSpaceCount',
+    /** 在线摄像头 */
+    onlineCamera = '/sgai-fwbz-dev/fwbz/securityStatistics/cameraOnline',
+    /** 总数摄像头 */
+    totalCamera = '/sgai-fwbz-dev/fwbz/securityStatistics/cameraTotal',
+    /** 接入设备/数据采集点 */
+    accessDevice = '/sgai-fwbz-dev/fwbz/dataCollection/collectionPointCount',
+    /** 系统对接数 */
+    systemDocking = '/sgai-fwbz-dev/fwbz/securityStatistics/systemDocking',
+    /** 接口在线率 */
+    onlineRate = '/sgai-fwbz-dev/fwbz/securityStatistics/onlineRate',
+    /** 设备状态统计 */
+    deviceStatusStatistics = '/sgai-fwbz-dev/fwbz/fireDevice/smokeDetector/countByTypeAndStatus',
+    /** 当前在场 */
+    currentOnSiteCount = '/sgai-fwbz-dev/fwbz/venueVisitorFlow/currentVisitorCount',
+    /** 今日活动数 */
+    todayActivityCount = '/sgai-fwbz-dev/fwbz/activeMeetStatistics/countToday',
+    /** 今日总客流 */
+    todayVisitorCount = '/sgai-fwbz-dev/fwbz/venueVisitorFlow/todayVisitorCount',
+    /** 待筹备活动 */
+    pendingActivity = '/sgai-fwbz-dev/fwbz/activeMeetStatistics/countNextWeek',
+    /** 消防设备 */
+    fireDeviceTotal = '/sgai-fwbz-dev/fwbz/fireDevice/smokeDetector/count/total',
+    /** 今日告警 */
+    todayAlarm = '/sgai-fwbz-dev/fwbz/hikvision/eventNotify/list',
+    /** 门禁通行 */
+    accessControl = '/sgai-fwbz-dev/fwbz/hikvision/doorStatistics/countTodayDoorEvents',
+    /** 门禁设备总数 */
+    accessDeviceTotal = '/sgai-fwbz-dev/fwbz/hikvision/doorStatistics/countTotalDevices',
+    /** 门禁点位总数 */
+    accessPointTotal = '/sgai-fwbz-dev/fwbz/hikvision/doorStatistics/countTotalDoorPoints',
+    /** 消防设备 */
+    fireDevice = '/sgai-fwbz-dev/fwbz/fireDevice/smokeDetector/count/total',
+    /** 峰值客流 */
+    peakFlow = '/sgai-fwbz-dev/fwbz/venueVisitorFlow/peakVisitorCount',
+    /** 本月活动数 */
+    activityCount = '/sgai-fwbz-dev/fwbz/activeMeetStatistics/countThisMonth',
+    /** 今日采集量 */
+    todayCollectionAmount = '/sgai-fwbz-dev/fwbz/dataCollection/todayCollectionAmount',
+    /** 数据完整率 */
+    dataCompleteRate = '/sgai-fwbz-dev/fwbz/dataCollection/dataCompletenessRate',
+
     
     /** 故障告警 */
     /** 告警记录分页列表 */
@@ -28,6 +75,41 @@ enum Api {
     /** 人员热力分布数据 */
     personHeatMap = '/sgai-fwbz-dev/fwbz/venueVisitorFlow/hourly/areaHeat',
 }
+
+/**
+ * 按设备类型统计状态数量
+ *
+ * DeviceTypeStatusVO
+ */
+export interface DeviceTypeStatusVO {
+    /**
+     * 该类型下各状态统计列表
+     */
+    data?: StatusCountVO[];
+    /**
+     * 设备类型名称
+     */
+    typeName?: string;
+    [property: string]: any;
+}
+
+/**
+ * 设备状态统计
+ *
+ * StatusCountVO
+ */
+export interface StatusCountVO {
+    /**
+     * 设备数量
+     */
+    count?: number;
+    /**
+     * 状态名称
+     */
+    status?: string;
+    [property: string]: any;
+}
+
 
 /**
  * 返回数据对象
@@ -212,6 +294,75 @@ export const getTodayCheckCount = () => defHttp.get({ url: Api.todayCheck });
 
 /** 待处理告警异常 */
 export const getAlarmExceptionCount = () => defHttp.get({ url: Api.alarmException });
+
+/** 当前在场人数（韧性安全） */
+export const getCurrentEntryCount = () => defHttp.get({ url: Api.currentEntryCount });
+
+/** 当前在场车辆 */
+export const getCurrentOnVehicle = () => defHttp.get({ url: Api.currentOnVehicle });
+
+/** 剩余车位数 */
+export const getRemainingParkingSpace = () => defHttp.get({ url: Api.remainingParkingSpace });
+
+/** 在线摄像头数量 */
+export const getOnlineCamera = () => defHttp.get({ url: Api.onlineCamera });
+
+/** 摄像头总数 */
+export const getTotalCamera = () => defHttp.get({ url: Api.totalCamera });
+
+/** 接入设备数量（与数据采集点同一接口） */
+export const getAccessDevice = () => defHttp.get({ url: Api.accessDevice });
+
+/** 系统对接数 */
+export const getSystemDocking = () => defHttp.get({ url: Api.systemDocking });
+
+/** 接口在线率 */
+export const getOnlineRate = () => defHttp.get({ url: Api.onlineRate });
+
+/** 设备状态统计（按设备类型统计状态数量） */
+export const getDeviceStatusStatistics = () => defHttp.get({ url: Api.deviceStatusStatistics });
+
+/** 当前在场人数（场馆运营） */
+export const getCurrentOnSiteCount = () => defHttp.get({ url: Api.currentOnSiteCount });
+
+/** 今日活动数 */
+export const getTodayActivityCount = () => defHttp.get({ url: Api.todayActivityCount });
+
+/** 今日总客流（场馆运营） */
+export const getTodayVisitorCount = () => defHttp.get({ url: Api.todayVisitorCount });
+
+/** 待筹备活动 */
+export const getPendingActivity = () => defHttp.get({ url: Api.pendingActivity });
+
+/** 消防设备总数 */
+export const getFireDeviceTotal = () => defHttp.get({ url: Api.fireDeviceTotal });
+
+/** 今日告警（安全防范） */
+export const getTodayAlarm = () => defHttp.get({ url: Api.todayAlarm });
+
+/** 门禁通行 */
+export const getAccessControl = () => defHttp.get({ url: Api.accessControl });
+
+/** 门禁设备总数 */
+export const getAccessDeviceTotal = () => defHttp.get({ url: Api.accessDeviceTotal });
+
+/** 门禁点位总数 */
+export const getAccessPointTotal = () => defHttp.get({ url: Api.accessPointTotal });
+
+/** 消防设备（fireDevice 接口） */
+export const getFireDevice = () => defHttp.get({ url: Api.fireDevice });
+
+/** 峰值客流 */
+export const getPeakFlow = () => defHttp.get({ url: Api.peakFlow });
+
+/** 本月活动数 */
+export const getActivityCount = () => defHttp.get({ url: Api.activityCount });
+
+/** 今日采集量 */
+export const getTodayCollectionAmount = () => defHttp.get({ url: Api.todayCollectionAmount });
+
+/** 数据完整率 */
+export const getDataCompleteRate = () => defHttp.get({ url: Api.dataCompleteRate });
 
 /** 告警记录分页列表（待处理告警） */
 export const getAlarmRecordList = (params: { pageNo: number; pageSize: number; alarmStatus: number }) =>

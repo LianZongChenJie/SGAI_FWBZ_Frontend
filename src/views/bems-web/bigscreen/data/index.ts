@@ -69,10 +69,10 @@ export const leftPanels: PanelData[] = [
       { icon: '✅', value: '95%', valueColor: '#4ade80', label: '巡检完成率' },
     ],
     metricRows: [
+      { label: '当前在场人数', value: '1', valueClass: 'red', unit: '人' },
+      { label: '在场车辆/总车位', value: '98.2/100', valueClass: 'green', unit: '' },
       { label: '今日巡检完成', value: '142', valueClass: 'blue', unit: '项' },
-      { label: '设施异常', value: '1', valueClass: 'red', unit: '项' },
-      { label: '结构安全评分', value: '98.2', valueClass: 'green', unit: '分' },
-      { label: '应急物资储备', value: '96', valueClass: 'blue', unit: '%' },
+      { label: '在线摄像头/总数', value: '96/100', valueClass: 'blue', unit: '' },
     ],
   },
   {
@@ -81,13 +81,13 @@ export const leftPanels: PanelData[] = [
     title: '🔗 物联网',
     metricCards: [
       { icon: '📡', value: '12,580', valueColor: '#38bdf8', label: '接入设备' },
-      { icon: '📊', value: '98.5%', valueColor: '#4ade80', label: '在线率' },
+      { icon: '📊', value: '98.5%', valueColor: '#4ade80', label: '接口在线率' },
     ],
     metricRows: [
       { label: '数据采集点', value: '45,680', valueClass: 'blue', unit: '个' },
-      { label: '今日数据量', value: '2.8', valueClass: 'purple', unit: 'GB' },
-      { label: '网关状态', value: '正常', valueClass: 'green' },
-      { label: '协议覆盖', value: 'Modbus/BACnet/OPC', valueClass: 'blue' },
+      { label: '系统对接', value: '2.8', valueClass: 'purple', unit: '个' },
+      { label: '今日采集量', value: '2.8', valueClass: 'purple', unit: 'KB' },
+      { label: '数据完整率', value: '2.8', valueClass: 'purple', unit: '' },
     ],
   },
   {
@@ -144,14 +144,14 @@ export const rightPanels: PanelData[] = [
     accent: '#38bdf8',
     title: '🏢 场馆运营',
     metricCards: [
-      { icon: '❄️', value: '86', valueColor: '#38bdf8', label: '空调运行' },
-      { icon: '🌀', value: '45', valueColor: '#4ade80', label: '新风运行' },
+      { icon: '👥', value: '86', valueColor: '#38bdf8', label: '当前在场' },
+      { icon: '🔢', value: '45', valueColor: '#4ade80', label: '今日活动数' },
     ],
     metricRows: [
-      { label: '配电回路', value: '320', valueClass: 'blue', unit: '路正常' },
-      { label: '冷源系统', value: '4', valueClass: 'green', unit: '套运行' },
-      { label: '照明回路', value: '1,245', valueClass: 'blue', unit: '路开启' },
-      { label: '系统负荷率', value: '72', valueClass: 'orange', unit: '%' },
+      { label: '今日总客流', value: '320', valueClass: 'blue', unit: '人' },
+      { label: '待筹备活动', value: '4', valueClass: 'green', unit: '' },
+      { label: '峰值客流', value: '1,245', valueClass: 'blue', unit: '' },
+      { label: '本月活动数', value: '72', valueClass: 'orange', unit: '%' },
     ],
   },
   {
@@ -180,8 +180,8 @@ export const rightPanels: PanelData[] = [
     metricRows: [
       { label: '今日告警', value: '5', valueClass: 'red', unit: '条' },
       { label: '门禁通行', value: '8,560', valueClass: 'blue', unit: '人次' },
-      { label: '消防水压', value: '0.35', valueClass: 'green', unit: 'MPa正常' },
-      { label: '烟感在线', value: '1,558', valueClass: 'green', unit: '/1,560' },
+      { label: '门禁设备总数', value: '0.35', valueClass: 'green', unit: '个' },
+      { label: '门禁点位总数', value: '1,558', valueClass: 'green', unit: '/1,560' },
     ],
   },
 ];

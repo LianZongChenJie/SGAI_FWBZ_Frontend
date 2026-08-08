@@ -15,7 +15,7 @@
         <!-- 中间列：KPI + 地图 -->
         <div class="center-col">
           <KpiBanner :kpiData="kpiData" @open="handleOpenModal" />
-          <MapArea />
+          <!-- <MapArea /> -->
         </div>
         <!-- 右侧面板 -->
         <div class="side-col">
@@ -47,17 +47,36 @@ import { leftPanels as rawLeftPanels, rightPanels as rawRightPanels, kpiData, ti
 import { modalData as rawModalData } from './data/modalData';
 import {
   getTodayCheckCount,
-  getAlarmExceptionCount,
   getAlarmRecordList,
   getAlarmStatistics,
   getAlarmTrendRecently,
-  getTodayDataSize,
-  getCollectionPointCount,
   getTodayTraffic,
   getCurrentOnSite,
   getParkingLotStatus,
+  getCurrentEntryCount,
+  getCurrentOnVehicle,
+  getRemainingParkingSpace,
+  getOnlineCamera,
+  getTotalCamera,
+  getAccessDevice,
+  getSystemDocking,
+  getOnlineRate,
+  getDeviceStatusStatistics,
+  getCurrentOnSiteCount,
+  getTodayActivityCount,
+  getTodayVisitorCount,
+  getPendingActivity,
+  getTodayAlarm,
+  getAccessControl,
+  getFireDevice,
+  getAccessDeviceTotal,
+  getAccessPointTotal,
+  getPeakFlow,
+  getActivityCount,
+  getTodayCollectionAmount,
+  getDataCompleteRate,
 } from './index.api';
-import type { CountVO, ParkingSpaceStatVO } from './index.api';
+import type { CountVO, ParkingSpaceStatVO, DeviceTypeStatusVO, StatusCountVO } from './index.api';
 
 defineOptions({ name: 'BigscreenPage' });
 
@@ -74,6 +93,7 @@ const rightPanels = reactive(rawRightPanels);
 /** 面板索引 */
 const IOT_INDEX = 1;
 const ALARM_INDEX = 2;
+const VENUE_INDEX = 1;       // rightPanels 中的场馆运营索引
 const EXHIBITION_INDEX = 2; // rightPanels 中的会展服务索引
 // 弹窗数据（响应式，便于接口回填）
 const modalData = reactive(rawModalData);
@@ -81,6 +101,31 @@ const modalData = reactive(rawModalData);
 /** 索引 */
 const ROW_ZERO = 0;  
 const ROW_ONE = 1;
+
+/** 韧性安全 metricRows 索引 */
+const RES_PEOPLE_IDX = 0;    // 当前在场人数
+const RES_VEHICLE_IDX = 1;   // 在场车辆/总车位
+const RES_CHECK_IDX = 2;     // 今日巡检完成
+const RES_CAMERA_IDX = 3;    // 在线摄像头/总数
+
+/** 物联网 metricCards / metricRows 索引 */
+const IOT_DEVICE_IDX = 0;       // 接入设备 (metricCards[0])
+const IOT_ONLINE_RATE_IDX = 1;  // 接口在线率 (metricCards[1])
+const IOT_COLLECT_IDX = 0;      // 数据采集点 (metricRows[0])
+const IOT_DOCKING_IDX = 1;      // 系统对接 (metricRows[1])
+
+/** 场馆运营 metricCards / metricRows 索引 */
+const VENUE_ONSITE_IDX = 0;     // 当前在场 (metricCards[0])
+const VENUE_ACTIVITY_IDX = 1;   // 今日活动数 (metricCards[1])
+const VENUE_VISITOR_IDX = 0;    // 今日总客流 (metricRows[0])
+const VENUE_PENDING_IDX = 1;    // 待筹备活动 (metricRows[1])
+
+/** 安全防范面板索引 */
+const SECURITY_INDEX = 3;           // rightPanels 中的安全防范索引
+const SEC_MONITOR_IDX = 0;          // 监控点位 (metricCards[0])
+const SEC_FIREDEVICE_IDX = 1;       // 消防设备 (metricCards[1])
+const SEC_ALARM_IDX = 0;            // 今日告警 (metricRows[0])
+const SEC_ACCESS_IDX = 1;           // 门禁通行 (metricRows[1])
 
 /** 解析 "已完成/未完成" 格式，返回 { completed, uncompleted, total, percent } */
 function parseContext(ctx: string): { completed: number; uncompleted: number; total: number; percent: string } | null {
@@ -105,7 +150,7 @@ async function fetchTodayCheck() {
 
       // === 回填面板 ===
       // 今日巡检完成：显示 value
-      leftPanels[ROW_ZERO].metricRows[ROW_ZERO].value = res.value;
+      leftPanels[ROW_ZERO].metricRows[RES_CHECK_IDX].value = res.value;
       // 巡检完成率：显示百分比
       if (parsed) {
         leftPanels[ROW_ZERO].metricCards[ROW_ONE].value = parsed.percent;
@@ -126,19 +171,6 @@ async function fetchTodayCheck() {
     }
   } catch (error) {
     console.error('获取今日巡检完成数量失败:', error);
-  }
-}
-
-/** 请求待处理告警异常并回填面板和弹窗 */
-async function fetchAlarmException() {
-  try {
-    const res: CountVO = await getAlarmExceptionCount();
-    if (res?.value != null) {
-      // === 回填面板 ===
-      leftPanels[ROW_ZERO].metricRows[ROW_ONE].value = res.value;
-    }
-  } catch (error) {
-    console.error('获取待处理告警异常失败:', error);
   }
 }
 
@@ -196,9 +228,180 @@ async function fetchAlarmRecords(): Promise<any[]> {
   }
 }
 
+/** 请求设备状态统计并回填韧性安全弹窗右栏表格 */
+async function fetchDeviceStatusStatistics() {
+  try {
+    const res = await getDeviceStatusStatistics();
+    const list: DeviceTypeStatusVO[] = res?.result || res?.data || res || [];
+    if (Array.isArray(list) && list.length > 0) {
+      const resilienceModal = modalData['resilience'];
+      if (resilienceModal && resilienceModal.rightPanel.type === 'table') {
+        const tableData = resilienceModal.rightPanel.data as any;
+        // 收集所有出现过的状态名称，用于动态生成列
+        const statusSet = new Set<string>();
+        list.forEach((item: DeviceTypeStatusVO) => {
+          (item.data || []).forEach((sc: StatusCountVO) => {
+            if (sc.status) statusSet.add(sc.status);
+          });
+        });
+        const statuses = Array.from(statusSet);
+        // 动态生成列：设备类型 + 总数 + 各状态列
+        tableData.columns = [
+          { title: '设备类型', key: 'name' },
+          { title: '总数', key: 'total', width: 60 },
+          ...statuses.map((s) => ({ title: s, key: s, width: 60 })),
+        ];
+        // 生成行数据
+        tableData.rows = list.map((item: DeviceTypeStatusVO) => {
+          const statusList = item.data || [];
+          const total = statusList.reduce((sum, sc) => sum + (sc.count || 0), 0);
+          const row: Record<string, any> = {
+            name: item.typeName || '--',
+            total: String(total),
+          };
+          statuses.forEach((s) => {
+            const found = statusList.find((sc) => sc.status === s);
+            const count = found?.count ?? 0;
+            // 异常/故障类状态用红色，其他用绿色
+            const isAbnormal = /异常|故障|离线|告警/.test(s);
+            row[s] = { text: String(count), color: isAbnormal && count > 0 ? '#f87171' : '#4ade80' };
+          });
+          return row;
+        });
+      }
+    }
+  } catch (error) {
+    console.error('获取设备状态统计失败:', error);
+  }
+}
+
+/** 请求场馆运营实时数据并回填面板 */
+async function fetchVenueData() {
+  try {
+    const [onsiteRes, activityRes, visitorRes, pendingRes, peakFlowRes, monthlyActivityRes] = await Promise.all([
+      getCurrentOnSiteCount(),
+      getTodayActivityCount(),
+      getTodayVisitorCount(),
+      getPendingActivity(),
+      getPeakFlow(),
+      getActivityCount(),
+    ]);
+    // 当前在场 (metricCards[0])
+    const onsiteVal = onsiteRes?.value ?? onsiteRes;
+    if (onsiteVal != null) {
+      const num = parseInt(onsiteVal, 10) || 0;
+      rightPanels[VENUE_INDEX].metricCards[VENUE_ONSITE_IDX].value = String(num);
+    }
+    // 今日活动数 (metricCards[1])
+    const activityVal = activityRes?.value ?? activityRes;
+    if (activityVal != null) {
+      rightPanels[VENUE_INDEX].metricCards[VENUE_ACTIVITY_IDX].value = String(activityVal);
+    }
+    // 今日总客流 (metricRows[0])
+    const visitorVal = visitorRes?.value ?? visitorRes;
+    if (visitorVal != null) {
+      const num = parseInt(visitorVal, 10) || 0;
+      rightPanels[VENUE_INDEX].metricRows[VENUE_VISITOR_IDX].value = num.toLocaleString();
+    }
+    // 待筹备活动 (metricRows[1])
+    const pendingVal = pendingRes?.value ?? pendingRes;
+    if (pendingVal != null) {
+      rightPanels[VENUE_INDEX].metricRows[VENUE_PENDING_IDX].value = String(pendingVal);
+    }
+    // 峰值客流 (metricRows[2])
+    const peakFlowVal = peakFlowRes?.value ?? peakFlowRes;
+    if (peakFlowVal != null) {
+      const num = parseInt(peakFlowVal, 10) || 0;
+      rightPanels[VENUE_INDEX].metricRows[2].value = num.toLocaleString();
+    }
+    // 本月活动数 (metricRows[3])
+    const monthlyActivityVal = monthlyActivityRes?.value ?? monthlyActivityRes;
+    if (monthlyActivityVal != null) {
+      rightPanels[VENUE_INDEX].metricRows[3].value = String(monthlyActivityVal);
+    }
+  } catch (error) {
+    console.error('获取场馆运营数据失败:', error);
+  }
+}
+
+/** 请求安全防范实时数据并回填面板和弹窗 */
+async function fetchSecurityData() {
+  try {
+    // 监控点位 → totalCamera 接口；消防设备 → fireDevice 接口；今日告警 → todayAlarm 接口；门禁通行 → accessControl 接口
+    // 门禁设备总数 → accessDeviceTotal 接口；门禁点位总数 → accessPointTotal 接口
+    const [cameraRes, fireRes, alarmRes, accessRes, accessDeviceTotalRes, accessPointTotalRes] = await Promise.all([
+      getTotalCamera(),
+      getFireDevice(),
+      getTodayAlarm(),
+      getAccessControl(),
+      getAccessDeviceTotal(),
+      getAccessPointTotal(),
+    ]);
+    // 监控点位 (metricCards[0])，取 value 字段
+    const monitorVal = cameraRes?.value ?? cameraRes;
+    if (monitorVal != null) {
+      const num = parseInt(monitorVal, 10) || 0;
+      rightPanels[SECURITY_INDEX].metricCards[SEC_MONITOR_IDX].value = num.toLocaleString();
+    }
+    // 消防设备 (metricCards[1])，取 value 字段
+    const fireVal = fireRes?.value ?? fireRes;
+    if (fireVal != null) {
+      const num = parseInt(fireVal, 10) || 0;
+      rightPanels[SECURITY_INDEX].metricCards[SEC_FIREDEVICE_IDX].value = num.toLocaleString();
+    }
+    // 今日告警 (metricRows[0])，取 total 字段
+    const alarmData = alarmRes?.data || alarmRes?.result || alarmRes;
+    const alarmTotal = alarmData?.total ?? alarmData?.value;
+    if (alarmTotal != null) {
+      const num = parseInt(alarmTotal, 10) || 0;
+      rightPanels[SECURITY_INDEX].metricRows[SEC_ALARM_IDX].value = String(num);
+    }
+    // 门禁通行 (metricRows[1])，取 value 字段
+    const accessVal = accessRes?.value ?? accessRes;
+    if (accessVal != null) {
+      const num = parseInt(accessVal, 10) || 0;
+      rightPanels[SECURITY_INDEX].metricRows[SEC_ACCESS_IDX].value = num.toLocaleString();
+    }
+    // 门禁设备总数 (metricRows[2])，取 value 字段
+    const accessDeviceTotalVal = accessDeviceTotalRes?.value ?? accessDeviceTotalRes;
+    if (accessDeviceTotalVal != null) {
+      const num = parseInt(accessDeviceTotalVal, 10) || 0;
+      rightPanels[SECURITY_INDEX].metricRows[2].value = String(num);
+    }
+    // 门禁点位总数 (metricRows[3])，取 value 字段
+    const accessPointTotalVal = accessPointTotalRes?.value ?? accessPointTotalRes;
+    if (accessPointTotalVal != null) {
+      const num = parseInt(accessPointTotalVal, 10) || 0;
+      rightPanels[SECURITY_INDEX].metricRows[3].value = String(num);
+    }
+    // === 同步弹窗 stats ===
+    const securityModal = modalData['security'];
+    if (securityModal) {
+      if (monitorVal != null) {
+        const num = parseInt(monitorVal, 10) || 0;
+        securityModal.stats[0].value = num.toLocaleString();
+      }
+      if (fireVal != null) {
+        const num = parseInt(fireVal, 10) || 0;
+        securityModal.stats[1].value = num.toLocaleString();
+      }
+      if (alarmTotal != null) {
+        const num = parseInt(alarmTotal, 10) || 0;
+        securityModal.stats[2].value = String(num);
+      }
+    }
+  } catch (error) {
+    console.error('获取安全防范数据失败:', error);
+  }
+}
+
 async function handleOpenModal(key: string) {
-  // 点故障告警面板时先请求告警记录、统计数据和趋势再打开弹窗
-  if (key === 'alarm') {
+  // 点韧性安全面板时先请求设备状态统计再打开弹窗
+  if (key === 'resilience') {
+    await fetchDeviceStatusStatistics();
+    modalRef.value?.open(key, modalData);
+  } else if (key === 'alarm') {
+    // 点故障告警面板时先请求告警记录、统计数据和趋势再打开弹窗
     const [records, stats, trend] = await Promise.all([fetchAlarmRecords(), fetchAlarmStatistics(), fetchAlarmTrend()]);
     modalRef.value?.open(key, modalData, records, stats, trend);
   } else if (key === 'exhibition') {
@@ -210,33 +413,72 @@ async function handleOpenModal(key: string) {
   }
 }
 
-/** 请求今日数据量并回填（KB → GB） */
-async function fetchTodayDataSize() {
+/** 请求接入设备和数据采集点并回填物联网面板（同一接口，千分位） */
+async function fetchIotAccessAndCollect() {
   try {
-    const res = await getTodayDataSize();
-    const val = res?.value ?? res;
-    if (val != null) {
-      const kb = parseFloat(val) || 0;
-      const gb = kb / (1024 * 1024);
-      // 保留1位小数
-      leftPanels[IOT_INDEX].metricRows[1].value = gb.toFixed(1);
-    }
-  } catch (error) {
-    console.error('获取今日数据量失败:', error);
-  }
-}
-
-/** 请求数据采集点并回填（千分位） */
-async function fetchCollectionPoint() {
-  try {
-    const res = await getCollectionPointCount();
+    const res = await getAccessDevice();
     const val = res?.value ?? res;
     if (val != null) {
       const num = parseInt(val, 10) || 0;
-      leftPanels[IOT_INDEX].metricRows[0].value = num.toLocaleString();
+      // 接入设备 (metricCards[0])
+      leftPanels[IOT_INDEX].metricCards[IOT_DEVICE_IDX].value = num.toLocaleString();
+      // 数据采集点 (metricRows[0])
+      leftPanels[IOT_INDEX].metricRows[IOT_COLLECT_IDX].value = num.toLocaleString();
     }
   } catch (error) {
-    console.error('获取数据采集点失败:', error);
+    console.error('获取接入设备/数据采集点失败:', error);
+  }
+}
+
+/** 请求接口在线率并回填物联网面板 */
+async function fetchOnlineRate() {
+  try {
+    const res = await getOnlineRate();
+    const val = res?.value ?? res;
+    if (val != null) {
+      const num = parseFloat(val) || 0;
+      leftPanels[IOT_INDEX].metricCards[IOT_ONLINE_RATE_IDX].value = num + '%';
+    }
+  } catch (error) {
+    console.error('获取接口在线率失败:', error);
+  }
+}
+
+/** 请求系统对接数并回填物联网面板 */
+async function fetchSystemDocking() {
+  try {
+    const res = await getSystemDocking();
+    const val = res?.value ?? res;
+    if (val != null) {
+      const num = parseInt(val, 10) || 0;
+      leftPanels[IOT_INDEX].metricRows[IOT_DOCKING_IDX].value = String(num);
+    }
+  } catch (error) {
+    console.error('获取系统对接数失败:', error);
+  }
+}
+
+/** 请求今日采集量和数据完整率并回填物联网面板 */
+async function fetchIotCollectionAndCompleteRate() {
+  try {
+    const [collectionRes, completeRateRes] = await Promise.all([
+      getTodayCollectionAmount(),
+      getDataCompleteRate(),
+    ]);
+    // 今日采集量 (metricRows[2])
+    const collectionVal = collectionRes?.value ?? collectionRes;
+    if (collectionVal != null) {
+      const num = parseInt(collectionVal, 10) || 0;
+      leftPanels[IOT_INDEX].metricRows[2].value = String(num);
+    }
+    // 数据完整率 (metricRows[3])
+    const completeRateVal = completeRateRes?.value ?? completeRateRes;
+    if (completeRateVal != null) {
+      const num = parseFloat(completeRateVal) || 0;
+      leftPanels[IOT_INDEX].metricRows[3].value = num + '%';
+    }
+  } catch (error) {
+    console.error('获取今日采集量和数据完整率失败:', error);
   }
 }
 
@@ -254,7 +496,7 @@ async function fetchTodayTraffic() {
   }
 }
 
-/** 请求当前在场人数并回填（千分位） */
+/** 请求当前在馆人数并回填会展服务面板（千分位） */
 async function fetchCurrentOnSite() {
   try {
     const res = await getCurrentOnSite();
@@ -264,7 +506,52 @@ async function fetchCurrentOnSite() {
       rightPanels[EXHIBITION_INDEX].metricRows[0].value = num.toLocaleString();
     }
   } catch (error) {
+    console.error('获取当前在馆人数失败:', error);
+  }
+}
+
+/** 请求当前在场人数并回填韧性安全面板 */
+async function fetchCurrentEntryCount() {
+  try {
+    const res = await getCurrentEntryCount();
+    const val = res?.value ?? res;
+    if (val != null) {
+      const num = parseInt(val, 10) || 0;
+      leftPanels[ROW_ZERO].metricRows[RES_PEOPLE_IDX].value = String(num);
+    }
+  } catch (error) {
     console.error('获取当前在场人数失败:', error);
+  }
+}
+
+/** 请求在场车辆和剩余车位并回填韧性安全面板（总车位 = 在场车辆 + 剩余车位） */
+async function fetchVehicleAndParking() {
+  try {
+    const [vehicleRes, parkingRes] = await Promise.all([
+      getCurrentOnVehicle(),
+      getRemainingParkingSpace(),
+    ]);
+    const vehicleVal = parseInt((vehicleRes?.value ?? vehicleRes) as string, 10) || 0;
+    const parkingVal = parseInt((parkingRes?.value ?? parkingRes) as string, 10) || 0;
+    const total = vehicleVal + parkingVal;
+    leftPanels[ROW_ZERO].metricRows[RES_VEHICLE_IDX].value = `${vehicleVal}/${total}`;
+  } catch (error) {
+    console.error('获取在场车辆/总车位失败:', error);
+  }
+}
+
+/** 请求在线摄像头和总数并回填韧性安全面板 */
+async function fetchCameraStatus() {
+  try {
+    const [onlineRes, totalRes] = await Promise.all([
+      getOnlineCamera(),
+      getTotalCamera(),
+    ]);
+    const onlineVal = parseInt((onlineRes?.value ?? onlineRes) as string, 10) || 0;
+    const totalVal = parseInt((totalRes?.value ?? totalRes) as string, 10) || 0;
+    leftPanels[ROW_ZERO].metricRows[RES_CAMERA_IDX].value = `${onlineVal}/${totalVal}`;
+  } catch (error) {
+    console.error('获取在线摄像头/总数失败:', error);
   }
 }
 
@@ -335,15 +622,23 @@ onMounted(() => {
   window.addEventListener('resize', onResize);
   // 请求韧性安全实时数据
   fetchTodayCheck();
-  fetchAlarmException();
+  fetchCurrentEntryCount();
+  fetchVehicleAndParking();
+  fetchCameraStatus();
   // 请求告警统计数据
   fetchAlarmStatistics();
   // 请求物联网实时数据
-  fetchTodayDataSize();
-  fetchCollectionPoint();
+  fetchIotAccessAndCollect();
+  fetchOnlineRate();
+  fetchSystemDocking();
+  fetchIotCollectionAndCompleteRate();
   // 请求会展服务实时数据
   fetchTodayTraffic();
   fetchCurrentOnSite();
+  // 请求场馆运营实时数据
+  fetchVenueData();
+  // 请求安全防范实时数据
+  fetchSecurityData();
 });
 
 onUnmounted(() => {
@@ -379,7 +674,7 @@ onUnmounted(() => {
 .main {
   flex: 1;
   display: grid;
-  grid-template-columns: 580px 700px 580px;
+  grid-template-columns: 386px 1088px 386px;
   gap: 10px;
   padding: 8px 20px;
   min-height: 0;
