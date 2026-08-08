@@ -16,6 +16,8 @@
         <div class="center-col">
           <KpiBanner :kpiData="kpiData" @open="handleOpenModal" />
           <!-- <MapArea /> -->
+          <KpiBanner :kpiData="kpiData" :key="kpiKey" @open="handleOpenModal" />
+          <MapArea @open="handleOpenModal" />
         </div>
         <!-- 右侧面板 -->
         <div class="side-col">
@@ -43,7 +45,7 @@ import SidePanel from './components/SidePanel.vue';
 import MapArea from './components/MapArea.vue';
 import TickerBar from './components/TickerBar.vue';
 import DetailModal from './components/DetailModal.vue';
-import { leftPanels as rawLeftPanels, rightPanels as rawRightPanels, kpiData, tickerData } from './data/index';
+import { leftPanels as rawLeftPanels, rightPanels as rawRightPanels, kpiData as rawKpiData, tickerData } from './data/index';
 import { modalData as rawModalData } from './data/modalData';
 import {
   getTodayCheckCount,
@@ -79,8 +81,17 @@ import {
   getPendingSummaryExhibition,
   getSummarizedExhibition,
   getDeviceException,
+  getElectricityInTimePeriod,
+  getEnergyStatistics,
+  getAirConditioningUnitStatistics,
+  getFreshAirStatistics,
+  getPowerStatistics,
+  getEnergyConsumptionPSDElectricity,
+  getElectricityInVenue,
+  getEnergyStructure,
 } from './index.api';
 import type { CountVO, ParkingSpaceStatVO, DeviceTypeStatusVO, StatusCountVO } from './index.api';
+import type { ModalBarData, ModalBarItem, ModalTableData } from './data/modalData';
 
 defineOptions({ name: 'BigscreenPage' });
 
@@ -90,15 +101,25 @@ const innerStyle = ref<Record<string, string>>({});
 
 // 左侧面板数据（响应式，便于接口回填）
 const leftPanels = reactive(rawLeftPanels);
-
 // 右侧面板数据（响应式，便于接口回填）
 const rightPanels = reactive(rawRightPanels);
+// KPI 数据（响应式，便于接口回填）
+const kpiData = reactive(rawKpiData);
+// KPI 数据索引
+const KPI_POWER_INDEX = 0; // 今日用电量 kWh
+// KpiBanner 强制重载 key（API 回填后 +1 触发重新动画）
+const kpiKey = ref(0);
 
 /** 面板索引 */
 const IOT_INDEX = 1;
 const ALARM_INDEX = 2;
 const VENUE_INDEX = 1;       // rightPanels 中的场馆运营索引
 const EXHIBITION_INDEX = 2; // rightPanels 中的会展服务索引
+/** 右侧面板索引 */
+const ENERGY_RIGHT_INDEX = 0; // 节能低碳面板
+const AIR_CONDITIONING_ROW = 1; // 空调机组能耗行
+const FRESH_AIR_ROW = 2; // 新风机组能耗行
+const POWER_ROW = 3; // 配电系统能耗行
 // 弹窗数据（响应式，便于接口回填）
 const modalData = reactive(rawModalData);
 
@@ -212,6 +233,125 @@ async function fetchAlarmTrend(): Promise<any> {
   } catch (error) {
     console.error('获取告警趋势失败:', error);
     return null;
+  }
+}
+
+/** 请求用电分时数据，提取时段数组返回 */
+async function fetchElectricityInTimePeriod(): Promise<any[]> {
+  try {
+    const res = await getElectricityInTimePeriod();
+    const data = res?.data || res?.result || res;
+    if (Array.isArray(data)) return data;
+    return data?.timePeriodList || data?.records || data?.list || data?.rows || [];
+  } catch (error) {
+    console.error('获取用电分时数据失败:', error);
+    return [];
+  }
+}
+
+/** 请求能耗统计，返回原始数据供弹窗使用 */
+async function fetchEnergyStatisticsRaw(): Promise<any> {
+  try {
+    const res = await getEnergyStatistics();
+    return res?.data || res?.result || res;
+  } catch (error) {
+    console.error('获取能耗统计失败:', error);
+    return null;
+  }
+}
+
+/** 请求近7日用电趋势，返回原始数据供弹窗使用 */
+async function fetchEnergyConsumptionPSDElectricityRaw(): Promise<any> {
+  try {
+    const res = await getEnergyConsumptionPSDElectricity();
+    return res?.data || res?.result || res;
+  } catch (error) {
+    console.error('获取近7日用电趋势失败:', error);
+    return null;
+  }
+}
+
+/** 请求各场馆用电，提取场馆数组返回 */
+async function fetchElectricityInVenueRaw(): Promise<any[]> {
+  try {
+    const res = await getElectricityInVenue();
+    const data = res?.data || res?.result || res;
+    if (Array.isArray(data)) return data;
+    return data?.list || data?.records || data?.rows || [];
+  } catch (error) {
+    console.error('获取各场馆用电失败:', error);
+    return [];
+  }
+}
+
+/** 请求用能结构分析，返回原始数据供弹窗使用 */
+async function fetchEnergyStructureRaw(): Promise<any> {
+  try {
+    const res = await getEnergyStructure();
+    return res?.data || res?.result || res;
+  } catch (error) {
+    console.error('获取用能结构分析失败:', error);
+    return null;
+  }
+}
+
+/** 初始化时请求能耗统计，回填 kpiData 中今日用电量和右侧面板节能低碳 metricCards */
+async function fetchEnergyStatistics() {
+  try {
+    const res = await getEnergyStatistics();
+    const data = res?.data || res?.result || res;
+    if (data?.electricCount != null) {
+      kpiData[KPI_POWER_INDEX].number = Number(data.electricCount);
+      // 强制 KpiBanner 重载以触发数字动画
+      kpiKey.value++;
+      // 回填右侧面板节能低碳 metricCards 用电kWh
+      rightPanels[ENERGY_RIGHT_INDEX].metricCards[0].value = String(data.electricCount);
+    }
+    if (data?.waterCount != null) {
+      // 回填右侧面板节能低碳 metricCards 用水m³
+      rightPanels[ENERGY_RIGHT_INDEX].metricCards[1].value = String(data.waterCount);
+    }
+  } catch (error) {
+    console.error('获取能耗统计失败:', error);
+  }
+}
+
+/** 初始化时请求空调机组统计，回填右侧面板空调机组能耗 */
+async function fetchAirConditioningUnitStatistics() {
+  try {
+    const res = await getAirConditioningUnitStatistics();
+    const data = res?.data || res?.result || res;
+    if (data?.energyConsumption != null) {
+      rightPanels[ENERGY_RIGHT_INDEX].metricRows[AIR_CONDITIONING_ROW].value = String(data.energyConsumption);
+    }
+  } catch (error) {
+    console.error('获取空调机组统计失败:', error);
+  }
+}
+
+/** 初始化时请求新风机组统计，回填右侧面板新风机组能耗 */
+async function fetchFreshAirStatistics() {
+  try {
+    const res = await getFreshAirStatistics();
+    const data = res?.data || res?.result || res;
+    if (data?.energyConsumption != null) {
+      rightPanels[ENERGY_RIGHT_INDEX].metricRows[FRESH_AIR_ROW].value = String(data.energyConsumption);
+    }
+  } catch (error) {
+    console.error('获取新风机组统计失败:', error);
+  }
+}
+
+/** 初始化时请求配电系统统计，回填右侧面板配电系统能耗 */
+async function fetchPowerStatistics() {
+  try {
+    const res = await getPowerStatistics();
+    const data = res?.data || res?.result || res;
+    if (data?.energyConsumption != null) {
+      rightPanels[ENERGY_RIGHT_INDEX].metricRows[POWER_ROW].value = String(data.energyConsumption);
+    }
+  } catch (error) {
+    console.error('获取配电系统统计失败:', error);
   }
 }
 
@@ -426,6 +566,68 @@ async function handleOpenModal(key: string) {
     // 会展服务弹窗：先请求停车场实时状态再打开
     await fetchParkingLotStatus();
     modalRef.value?.open(key, modalData);
+  } else if (key === 'kpiPower') {
+    // 点今日用电量时请求用电分时、各场馆用电、近7日用电趋势和能耗统计
+    const [electricityData, venueData, trendData, energyStatsData] = await Promise.all([
+      fetchElectricityInTimePeriod(),
+      fetchElectricityInVenueRaw(),
+      fetchEnergyConsumptionPSDElectricityRaw(),
+      fetchEnergyStatisticsRaw(),
+    ]);
+    // 用电量弹窗：用电分时数据 → stats 峰值kW、平均kW
+    if (electricityData && electricityData.length > 0 && modalData.kpiPower) {
+      const values = electricityData
+        .map((item: any) => Number(item.electricity))
+        .filter((v: number) => !isNaN(v));
+      if (values.length > 0) {
+        modalData.kpiPower.stats[2].value = String(Math.max(...values));
+        modalData.kpiPower.stats[3].value = String(Math.round(values.reduce((a: number, b: number) => a + b, 0) / values.length));
+      }
+    }
+    modalRef.value?.open(key, modalData, undefined, undefined, undefined, electricityData, energyStatsData, trendData, venueData);
+  } else if (key === 'energy') {
+    // 点节能低碳时请求近7日能耗趋势、各场馆用电（用于用能结构分析）、能耗统计
+    const [trendData, venueData, energyStatsData] = await Promise.all([
+      fetchEnergyConsumptionPSDElectricityRaw(),
+      fetchElectricityInVenueRaw(),
+      fetchEnergyStatisticsRaw(),
+    ]);
+    // 能耗统计数据赋值给卡片
+    if (energyStatsData && modalData.energy) {
+      const stats = modalData.energy.stats;
+      if (energyStatsData.electricCount != null) stats[0].value = String(energyStatsData.electricCount);
+      if (energyStatsData.waterCount != null) stats[1].value = String(energyStatsData.waterCount);
+    }
+    // 将各场馆用电数据重组成 { name: electricity } 对象后赋值给左面板 ⚡ 用能结构分析
+    if (venueData && venueData.length > 0 && modalData.energy?.leftPanel.type === 'bar') {
+      // 组装为 { name: electricity } 对象
+      const venueMap: Record<string, any> = {};
+      venueData.forEach((item: any) => {
+        venueMap[item.name ?? ''] = item.electricity ?? '';
+      });
+      // 赋值给条形图
+      const barData = modalData.energy.leftPanel.data as ModalBarData;
+      const colorList = ['blue', 'green', 'orange', 'purple', 'cyan', 'red', 'yellow'];
+      const entries = Object.entries(venueMap) as [string, any][];
+      const total = entries.reduce((sum, [, v]) => sum + Number(v), 0);
+      barData.items = entries.map(([key, value], idx): ModalBarItem => ({
+        label: key,
+        color: colorList[idx % colorList.length],
+        percent: total > 0 ? Math.round((Number(value) / total) * 100) : 0,
+        value: `${value}`,
+      }));
+    }
+    // 各场馆用电数据赋值给右面板 📊 各场馆能耗对比表格
+    if (venueData && venueData.length > 0 && modalData.energy?.rightPanel.type === 'table') {
+      const tableData = modalData.energy.rightPanel.data as ModalTableData;
+      tableData.rows = venueData.map((item: any) => ({
+        name: item.name ?? '',
+        electricity: item.electricity ?? '',
+        electricityProportion: item.electricityProportion ?? '',
+        electricityMoM: typeof item.electricityMoM === 'object' ? item.electricityMoM : { text: item.electricityMoM ?? '', color: '' },
+      }));
+    }
+    modalRef.value?.open(key, modalData, undefined, undefined, undefined, undefined, undefined, trendData);
   } else {
     modalRef.value?.open(key, modalData);
   }
@@ -733,6 +935,14 @@ onMounted(() => {
   fetchVenueData();
   // 请求安全防范实时数据
   fetchSecurityData();
+  // 请求能耗统计，回填 KPI 数据
+  fetchEnergyStatistics();
+  // 请求空调机组统计，回填右侧面板
+  fetchAirConditioningUnitStatistics();
+  // 请求新风机组统计，回填右侧面板
+  fetchFreshAirStatistics();
+  // 请求配电系统统计，回填右侧面板
+  fetchPowerStatistics();
 });
 
 onUnmounted(() => {

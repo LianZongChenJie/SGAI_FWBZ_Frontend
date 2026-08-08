@@ -134,9 +134,9 @@ export const rightPanels: PanelData[] = [
     ],
     metricRows: [
       { label: '光伏发电', value: '2,450', valueClass: 'green', unit: 'kW' },
-      { label: '累计节能', value: '156,780', valueClass: 'green', unit: 'kWh' },
-      { label: '节能收益率', value: '23.5', valueClass: 'green', unit: '%' },
-      { label: '碳减排量', value: '89.6', valueClass: 'green', unit: '吨' },
+      { label: '空调机组能耗', value: '156,780', valueClass: 'green', unit: 'kWh' },
+      { label: '新风机组能耗', value: '23.5', valueClass: 'green', unit: '%' },
+      { label: '配电系统能耗', value: '89.6', valueClass: 'green', unit: '吨' },
     ],
   },
   {

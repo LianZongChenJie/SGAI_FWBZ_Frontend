@@ -43,7 +43,7 @@
                 <tbody>
                   <tr v-for="(row, ri) in leftTableRows" :key="ri">
                     <td v-for="(col, ci) in leftTableCols" :key="ci">
-                      <template v-if="typeof row[col.key] === 'object'">
+                      <template v-if="row[col.key] !== null && typeof row[col.key] === 'object'">
                         <span :style="{ color: row[col.key].color, fontWeight: 600 }">{{ row[col.key].text }}</span>
                       </template>
                       <template v-else>{{ row[col.key] }}</template>
@@ -76,7 +76,7 @@
                 <tbody>
                   <tr v-for="(row, ri) in rightTableRows" :key="ri">
                     <td v-for="(col, ci) in rightTableCols" :key="ci">
-                      <template v-if="typeof row[col.key] === 'object'">
+                      <template v-if="row[col.key] !== null && typeof row[col.key] === 'object'">
                         <span :style="{ color: row[col.key].color, fontWeight: 600 }">{{ row[col.key].text }}</span>
                       </template>
                       <template v-else>{{ row[col.key] }}</template>
@@ -185,7 +185,7 @@ function getLevelColor(level: string): string {
   return map[level] || '#38bdf8';
 }
 
-function open(key: string, data: Record<string, ModalContent>, alarmRecords?: any[], alarmStats?: any, alarmTrend?: any) {
+function open(key: string, data: Record<string, ModalContent>, alarmRecords?: any[], alarmStats?: any, alarmTrend?: any, electricityData?: any, energyStatsData?: any, trendData?: any, venueData?: any) {
   const content = data[key];
   if (content) {
     // 深拷贝避免修改原始 modalData
@@ -219,6 +219,59 @@ function open(key: string, data: Record<string, ModalContent>, alarmRecords?: an
         barData.footer = `平均响应时间: ${at}分钟 | 平均处理时间: ${at}分钟`;
       }
     }
+    // 节能低碳弹窗：用近7日能耗趋势接口数据渲染柱状图
+    else if (key === 'energy' && trendData && modalContent.value?.trend) {
+      const colorList = ['#38bdf8', '#fb923c', '#4ade80', '#f87171', '#a78bfa', '#eab308', '#ec4899'];
+      // 格式1: { xaxis, chatSeriesList }
+      if (trendData.xaxis && trendData.chatSeriesList) {
+        const xaxis: string[] = trendData.xaxis;
+        const chatSeriesList: any[] = trendData.chatSeriesList;
+        const allNums: number[] = [];
+        modalContent.value.trend.xAxis = xaxis;
+        modalContent.value.trend.series = chatSeriesList.map((s: any, idx: number) => {
+          const values: number[] = (s.data || []).map((v: any) => Number(v) || 0);
+          allNums.push(...values);
+          return { name: s.name || `系列${idx + 1}`, color: colorList[idx % colorList.length], values };
+        });
+        if (allNums.length > 0) {
+          const max = Math.max(...allNums);
+          modalContent.value.trend.bars = xaxis.flatMap((xl, xi) =>
+            (modalContent.value!.trend?.series ?? []).map((s) => ({
+              height: max > 0 ? Math.round(((s.values[xi] ?? 0) / max) * 100) : 0,
+              color: s.color,
+              label: xl,
+              value: s.values[xi] ?? 0,
+            })),
+          );
+        }
+      }
+      // 格式2: 纯数组 [val1, val2, ...]
+      else if (Array.isArray(trendData)) {
+        const values: number[] = trendData.map((v: any) => Number(v) || 0);
+        const max = Math.max(...values);
+        modalContent.value.trend.bars = values.map((v, i) => ({
+          height: max > 0 ? Math.round((v / max) * 100) : 0,
+          color: colorList[i % colorList.length],
+          label: `第${i + 1}天`,
+          value: v,
+        }));
+      }
+      // 格式3: { list/records/data: [{ date, value }, ...] }
+      else if (trendData.list || trendData.records || trendData.data) {
+        const list = trendData.list || trendData.records || trendData.data;
+        if (Array.isArray(list) && list.length > 0) {
+          const values: number[] = list.map((item: any) => Number(item.value || item.electricity || item.count || 0));
+          const labels = list.map((item: any, i: number) => item.date || item.label || item.name || `第${i + 1}天`);
+          const max = Math.max(...values, 1);
+          modalContent.value.trend.bars = values.map((v, i) => ({
+            height: max > 0 ? Math.round((v / max) * 100) : 0,
+            color: colorList[i % colorList.length],
+            label: labels[i],
+            value: v,
+          }));
+        }
+      }
+    }
     // 告警弹窗：用接口趋势数据覆盖底部柱状图（xaxis + chatSeriesList）
     if (key === 'alarm' && alarmTrend) {
       const xaxis: string[] = alarmTrend.xaxis ?? alarmTrend.xAxis ?? [];
@@ -247,6 +300,59 @@ function open(key: string, data: Record<string, ModalContent>, alarmRecords?: an
         }
       }
     }
+    // 节能低碳弹窗：用近7日能耗趋势接口数据渲染柱状图
+    else if (key === 'energy' && trendData && modalContent.value?.trend) {
+      const colorList = ['#38bdf8', '#fb923c', '#4ade80', '#f87171', '#a78bfa', '#eab308', '#ec4899'];
+      // 格式1: { xaxis, chatSeriesList }
+      if (trendData.xaxis && trendData.chatSeriesList) {
+        const xaxis: string[] = trendData.xaxis;
+        const chatSeriesList: any[] = trendData.chatSeriesList;
+        const allNums: number[] = [];
+        modalContent.value.trend.xAxis = xaxis;
+        modalContent.value.trend.series = chatSeriesList.map((s: any, idx: number) => {
+          const values: number[] = (s.data || []).map((v: any) => Number(v) || 0);
+          allNums.push(...values);
+          return { name: s.name || `系列${idx + 1}`, color: colorList[idx % colorList.length], values };
+        });
+        if (allNums.length > 0) {
+          const max = Math.max(...allNums);
+          modalContent.value.trend.bars = xaxis.flatMap((xl, xi) =>
+            (modalContent.value!.trend?.series ?? []).map((s) => ({
+              height: max > 0 ? Math.round(((s.values[xi] ?? 0) / max) * 100) : 0,
+              color: s.color,
+              label: xl,
+              value: s.values[xi] ?? 0,
+            })),
+          );
+        }
+      }
+      // 格式2: 纯数组 [val1, val2, ...]
+      else if (Array.isArray(trendData)) {
+        const values: number[] = trendData.map((v: any) => Number(v) || 0);
+        const max = Math.max(...values);
+        modalContent.value.trend.bars = values.map((v, i) => ({
+          height: max > 0 ? Math.round((v / max) * 100) : 0,
+          color: colorList[i % colorList.length],
+          label: `第${i + 1}天`,
+          value: v,
+        }));
+      }
+      // 格式3: { list/records/data: [{ date, value }, ...] }
+      else if (trendData.list || trendData.records || trendData.data) {
+        const list = trendData.list || trendData.records || trendData.data;
+        if (Array.isArray(list) && list.length > 0) {
+          const values: number[] = list.map((item: any) => Number(item.value || item.electricity || item.count || 0));
+          const labels = list.map((item: any, i: number) => item.date || item.label || item.name || `第${i + 1}天`);
+          const max = Math.max(...values, 1);
+          modalContent.value.trend.bars = values.map((v, i) => ({
+            height: max > 0 ? Math.round((v / max) * 100) : 0,
+            color: colorList[i % colorList.length],
+            label: labels[i],
+            value: v,
+          }));
+        }
+      }
+    }
     // 告警弹窗：用接口真实数据覆盖右栏表格
     if (alarmRecords && alarmRecords.length > 0 && key === 'alarm' && modalContent.value!.rightPanel.type === 'table') {
       const tableData = modalContent.value!.rightPanel.data as ModalTableData;
@@ -257,6 +363,87 @@ function open(key: string, data: Record<string, ModalContent>, alarmRecords?: an
         level: { text: r.alarmLevelName || '', color: getLevelColor(r.alarmLevelName) },
       }));
     }
+    // 用电量弹窗：能耗统计 → stats 今日用电kWh、环比昨日
+    if (key === 'kpiPower' && energyStatsData) {
+      const stats = modalContent.value!.stats;
+      if (energyStatsData.electricCount != null) stats[0].value = String(energyStatsData.electricCount);
+      if (energyStatsData.electricCountDoD != null) stats[1].value = String(energyStatsData.electricCountDoD);
+    }
+    // 用电量弹窗：用电分时数据 → leftPanel 各时段用电分布表格
+    if (key === 'kpiPower' && electricityData && electricityData.length > 0 && modalContent.value!.leftPanel.type === 'table') {
+      const tableData = modalContent.value!.leftPanel.data as ModalTableData;
+      tableData.rows = electricityData.map((item: any) => ({
+        timePeriod: item.timePeriod ?? '',
+        electricity: item.electricity ?? '',
+        proportion: item.proportion ?? '',
+        moM: typeof item.moM === 'object' ? item.moM : { text: item.moM ?? '', color: '' },
+      }));
+    }
+    // 用电量弹窗：各场馆用电数据 → rightPanel 各场馆用电对比表格
+    if (key === 'kpiPower' && venueData && venueData.length > 0 && modalContent.value!.rightPanel.type === 'table') {
+      const tableData = modalContent.value!.rightPanel.data as ModalTableData;
+      tableData.rows = venueData.map((item: any) => ({
+        name: item.name ?? '',
+        electricity: item.electricity ?? '',
+        electricityProportion: item.electricityProportion ?? '',
+        electricityMoM: typeof item.electricityMoM === 'object' ? item.electricityMoM : { text: item.electricityMoM ?? '', color: '' },
+      }));
+    }
+    // 节能低碳/用电量弹窗：用近7日能耗趋势接口数据渲染柱状图
+    if ((key === 'energy' || key === 'kpiPower') && trendData && modalContent.value?.trend) {
+      const colorList = ['#38bdf8', '#fb923c', '#4ade80', '#f87171', '#a78bfa', '#eab308', '#ec4899'];
+      // 格式1: { xaxis, chatSeriesList }
+      if (trendData.xaxis && trendData.chatSeriesList) {
+        const xaxis: string[] = trendData.xaxis;
+        const chatSeriesList: any[] = trendData.chatSeriesList;
+        const allNums: number[] = [];
+        modalContent.value.trend.xAxis = xaxis;
+        modalContent.value.trend.series = chatSeriesList.map((s: any, idx: number) => {
+          const values: number[] = (s.data || []).map((v: any) => Number(v) || 0);
+          allNums.push(...values);
+          return { name: s.name || `系列${idx + 1}`, color: colorList[idx % colorList.length], values };
+        });
+        if (allNums.length > 0) {
+          const max = Math.max(...allNums);
+          modalContent.value.trend.bars = xaxis.flatMap((xl, xi) =>
+            (modalContent.value!.trend?.series ?? []).map((s) => ({
+              height: max > 0 ? Math.round(((s.values[xi] ?? 0) / max) * 100) : 0,
+              color: s.color,
+              label: xl,
+              value: s.values[xi] ?? 0,
+            })),
+          );
+        }
+      }
+      // 格式2: 纯数组 [val1, val2, ...]
+      else if (Array.isArray(trendData)) {
+        const values: number[] = trendData.map((v: any) => Number(v) || 0);
+        const max = Math.max(...values);
+        modalContent.value.trend.bars = values.map((v, i) => ({
+          height: max > 0 ? Math.round((v / max) * 100) : 0,
+          color: colorList[i % colorList.length],
+          label: `第${i + 1}天`,
+          value: v,
+        }));
+      }
+      // 格式3: { list/records/data: [{ date, value }, ...] }
+      else if (trendData.list || trendData.records || trendData.data) {
+        const list = trendData.list || trendData.records || trendData.data;
+        if (Array.isArray(list) && list.length > 0) {
+          const values: number[] = list.map((item: any) => Number(item.value || item.electricity || item.count || 0));
+          const labels = list.map((item: any, i: number) => item.date || item.label || item.name || `第${i + 1}天`);
+          const max = Math.max(...values, 1);
+          modalContent.value.trend.bars = values.map((v, i) => ({
+            height: max > 0 ? Math.round((v / max) * 100) : 0,
+            color: colorList[i % colorList.length],
+            label: labels[i],
+            value: v,
+          }));
+        }
+      }
+    }
+    // 深拷贝触发 Vue 响应式，确保所有嵌套引用变更，computed 重新计算
+    modalContent.value = JSON.parse(JSON.stringify(modalContent.value!)) as ModalContent;
     visible.value = true;
   }
 }
