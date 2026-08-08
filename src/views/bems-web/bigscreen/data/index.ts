@@ -159,14 +159,14 @@ export const rightPanels: PanelData[] = [
     accent: '#facc15',
     title: '🎯 会展服务',
     metricCards: [
-      { icon: '👥', value: '12,580', valueColor: '#38bdf8', label: '今日客流' },
-      { icon: '🚗', value: '67%', valueColor: '#fb923c', label: '车位使用' },
+      { icon: '📋', value: '0', valueColor: '#38bdf8', label: '待筹备会展' },
+      { icon: '🎪', value: '0', valueColor: '#4ade80', label: '当前展会' },
     ],
     metricRows: [
-      { label: '当前在馆', value: '3,420', valueClass: 'orange', unit: '人次' },
-      { label: '峰值时段', value: '10:00-12:00', valueClass: 'purple' },
-      { label: '剩余车位', value: '820', valueClass: 'green', unit: '个' },
-      { label: 'A馆占用', value: '85', valueClass: 'blue', unit: '%' },
+      { label: '筹备完成率', value: '0%', valueClass: 'orange', unit: '' },
+      { label: '待总结展会', value: '0', valueClass: 'green', unit: '个' },
+      { label: '已总结展会', value: '0', valueClass: 'blue', unit: '个' },
+      { label: '设备异常', value: '0', valueClass: 'blue', unit: '个' },
     ],
   },
   {
@@ -181,7 +181,7 @@ export const rightPanels: PanelData[] = [
       { label: '今日告警', value: '5', valueClass: 'red', unit: '条' },
       { label: '门禁通行', value: '8,560', valueClass: 'blue', unit: '人次' },
       { label: '门禁设备总数', value: '0.35', valueClass: 'green', unit: '个' },
-      { label: '门禁点位总数', value: '1,558', valueClass: 'green', unit: '/1,560' },
+      { label: '门禁点位总数', value: '1,558', valueClass: 'green', unit: '个' },
     ],
   },
 ];
@@ -196,14 +196,13 @@ export const kpiData: KpiData[] = [
 
 // ===== 跑马灯数据 =====
 export const tickerData: TickerItem[] = [
-  { dotColor: 'green', text: '安全防范：监控 1,680点在线 | 消防 2,340台正常 | 烟感 1,558/1,560' },
-  { dotColor: 'green', text: '节能低碳：AI策略 18个运行 | 预计节能 15.8% | 光伏 2,450kW' },
-  { dotColor: 'green', text: '物联网：设备 12,580台 | 在线率 98.5% | 采集 45,680点' },
-  { dotColor: 'orange', text: '故障告警：今日 23条 | 已处理 18条 | 待处理 5条 | 严重 1条' },
-  { dotColor: 'green', text: '场馆运营：空调 86台 | 新风 45台 | 照明 1,245路 | 负荷 72%' },
-  { dotColor: 'green', text: '会展服务：在馆 3,420人 | 车位使用 67% | 剩余 820个' },
-  { dotColor: 'green', text: 'AI数据：负荷预测 94.5% | 智能调度 156次/日 | 模型 v3.2.1' },
-  { dotColor: 'green', text: '韧性安全：应急预案 8项 | 巡检完成 142项 | 完成率 95%' },
+  { dotColor: 'green', text: '韧性安全：当前在场人数 1人 | 在场车辆/总车位 98.2/100 | 今日巡检完成 142项 | 在线摄像头/总数 96/100' },
+  { dotColor: 'green', text: '物联网：数据采集点 45,680个 | 系统对接 2.8个 | 今日采集量 2.8KB | 数据完整率 2.8%' },
+  { dotColor: 'orange', text: '故障告警：已处理 18条 | 待处理 5条 | 严重告警 1条 | 平均处理时长 18分钟' },
+  { dotColor: 'green', text: 'AI数据：异常检测命中 87% | 智能调度 156次/日 | 模型版本 v3.2.1 | 训练数据量 12.5TB' },
+  { dotColor: 'green', text: '场馆运营：今日总客流 320人次 | 待筹备活动 4 | 峰值客流 1,245 | 本月活动数 72%' },
+  { dotColor: 'green', text: '会展服务：待筹备会展 0 | 当前展会 0 | 筹备完成率 0% | 待总结展会 0个 | 已总结展会 0个' },
+  { dotColor: 'green', text: '安全防范：今日告警 5条 | 门禁通行 8,560人次 | 门禁设备总数 0.35个 | 门禁点位总数 1,558个' },
 ];
 
 // ===== 地图标记数据 =====

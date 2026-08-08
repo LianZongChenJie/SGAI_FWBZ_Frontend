@@ -81,10 +81,10 @@ export const modalData: Record<string, ModalContent> = {
     title: '🛡️ 韧性安全详情',
     accent: '#f87171',
     stats: [
-      { value: '8', color: '#38bdf8', label: '应急预案' },
-      { value: '142', color: '#4ade80', label: '巡检完成' },
-      { value: '8', color: '#fb923c', label: '待巡检' },
-      { value: '95%', color: '#4ade80', label: '完成率' },
+      { value: '1', color: '#f87171', label: '当前在场人数' },
+      { value: '98.2/100', color: '#4ade80', label: '在场车辆/总车位' },
+      { value: '142', color: '#38bdf8', label: '今日巡检完成' },
+      { value: '96/100', color: '#38bdf8', label: '在线摄像头/总数' },
     ],
     leftPanel: {
       type: 'table',
@@ -140,10 +140,10 @@ export const modalData: Record<string, ModalContent> = {
     title: '🔗 物联网详情',
     accent: '#38bdf8',
     stats: [
-      { value: '12,580', color: '#38bdf8', label: '接入设备' },
-      { value: '98.5%', color: '#4ade80', label: '在线率' },
-      { value: '45,680', color: '#c084fc', label: '采集点' },
-      { value: '2.8GB', color: '#fb923c', label: '今日数据' },
+      { value: '45,680', color: '#38bdf8', label: '数据采集点' },
+      { value: '2.8', color: '#c084fc', label: '系统对接' },
+      { value: '2.8', color: '#c084fc', label: '今日采集量' },
+      { value: '2.8', color: '#c084fc', label: '数据完整率' },
     ],
     leftPanel: {
       type: 'bar',
@@ -242,10 +242,10 @@ export const modalData: Record<string, ModalContent> = {
     title: '🤖 AI数据详情',
     accent: '#c084fc',
     stats: [
-      { value: '18', color: '#c084fc', label: '策略运行' },
-      { value: '94.5%', color: '#4ade80', label: '预测准确率' },
       { value: '87%', color: '#38bdf8', label: '异常检测命中' },
-      { value: '156', color: '#fb923c', label: '调度次数/日' },
+      { value: '156', color: '#4ade80', label: '智能调度' },
+      { value: 'v3.2.1', color: '#38bdf8', label: '模型版本' },
+      { value: '12.5', color: '#c084fc', label: '训练数据量' },
     ],
     leftPanel: {
       type: 'table',
@@ -346,10 +346,10 @@ export const modalData: Record<string, ModalContent> = {
     title: '🏢 场馆运营详情',
     accent: '#38bdf8',
     stats: [
-      { value: '86', color: '#38bdf8', label: '空调机组' },
-      { value: '45', color: '#4ade80', label: '新风机组' },
-      { value: '320', color: '#38bdf8', label: '配电回路' },
-      { value: '72%', color: '#fb923c', label: '系统负荷' },
+      { value: '320', color: '#38bdf8', label: '今日总客流' },
+      { value: '4', color: '#4ade80', label: '待筹备活动' },
+      { value: '1,245', color: '#38bdf8', label: '峰值客流' },
+      { value: '72', color: '#fb923c', label: '本月活动数' },
     ],
     leftPanel: {
       type: 'table',
@@ -406,10 +406,10 @@ export const modalData: Record<string, ModalContent> = {
     title: '🎯 会展服务详情',
     accent: '#facc15',
     stats: [
-      { value: '12,580', color: '#38bdf8', label: '今日客流' },
-      { value: '3,420', color: '#fb923c', label: '当前在馆' },
-      { value: '820', color: '#4ade80', label: '剩余车位' },
-      { value: '67%', color: '#facc15', label: '车位使用' },
+      { value: '0%', color: '#fb923c', label: '筹备完成率' },
+      { value: '0', color: '#4ade80', label: '待总结展会' },
+      { value: '0', color: '#38bdf8', label: '已总结展会' },
+      { value: '0', color: '#38bdf8', label: '设备异常' },
     ],
     leftPanel: {
       type: 'bar',
@@ -457,10 +457,10 @@ export const modalData: Record<string, ModalContent> = {
     title: '🔒 安全防范详情',
     accent: '#f87171',
     stats: [
-      { value: '1,680', color: '#38bdf8', label: '监控点位' },
-      { value: '2,340', color: '#4ade80', label: '消防设备' },
       { value: '5', color: '#f87171', label: '今日告警' },
-      { value: '95%', color: '#4ade80', label: '巡检完成率' },
+      { value: '8,560', color: '#38bdf8', label: '门禁通行' },
+      { value: '0.35', color: '#4ade80', label: '门禁设备总数' },
+      { value: '1,558', color: '#4ade80', label: '门禁点位总数' },
     ],
     leftPanel: {
       type: 'table',

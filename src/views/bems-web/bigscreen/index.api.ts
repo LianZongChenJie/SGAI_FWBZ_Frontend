@@ -74,6 +74,20 @@ enum Api {
     cameraCoordinateGroup = '/sgai-fwbz-dev/fwbz/hikvision/camera/coordinateGroup',
     /** 人员热力分布数据 */
     personHeatMap = '/sgai-fwbz-dev/fwbz/venueVisitorFlow/hourly/areaHeat',
+    /** 待筹备会展 */
+    pendingCount = '/sgai-fwbz-dev/fwbz/preparationStatistics/pendingCount',
+    /** 当前展会 */
+    currentExhibition = '/sgai-fwbz-dev/fwbz/complaintStatistics/todayActiveMeet',
+    /** 筹备完成率 */
+    preparationCompleteRate = '/sgai-fwbz-dev/fwbz/preparationStatistics/completionRate',
+    /** 投诉建议 */
+    complaintSuggestion = '/sgai-fwbz-dev/fwbz/complaintStatistics/todayComplaint',
+    /** 待总结展会  */
+    pendingSummaryExhibition = '/sgai-fwbz-dev/fwbz/activeMeetReport/statistics/countPendingSummary',
+    /** 已总结展会 */
+    summarizedExhibition = '/sgai-fwbz-dev/fwbz/activeMeetReport/statistics/countSummarized',
+    /** 设备异常 */
+    deviceException = '/sgai-fwbz-dev/fwbz/complaintStatistics/todayAlarm',
 }
 
 /**
@@ -394,3 +408,24 @@ export const getCameraCoordinateGroup = () => defHttp.get({ url: Api.cameraCoord
 
 /** 人员热力分布数据 */
 export const getPersonHeatMap = () => defHttp.get({ url: `${Api.personHeatMap}?areaId=` });
+
+/** 待筹备会展 */
+export const getPendingCount = () => defHttp.get({ url: Api.pendingCount });
+
+/** 当前展会 */
+export const getCurrentExhibition = () => defHttp.get({ url: Api.currentExhibition });
+
+/** 筹备完成率 */
+export const getPreparationCompleteRate = () => defHttp.get({ url: Api.preparationCompleteRate });
+
+/** 投诉建议 */
+export const getComplaintSuggestion = () => defHttp.get({ url: Api.complaintSuggestion });
+
+/** 待总结展会 */
+export const getPendingSummaryExhibition = () => defHttp.get({ url: Api.pendingSummaryExhibition });
+
+/** 已总结展会 */
+export const getSummarizedExhibition = () => defHttp.get({ url: Api.summarizedExhibition });
+
+/** 设备异常 */
+export const getDeviceException = () => defHttp.get({ url: Api.deviceException });
