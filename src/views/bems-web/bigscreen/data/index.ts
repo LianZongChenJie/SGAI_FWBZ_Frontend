@@ -148,7 +148,7 @@ export const rightPanels: PanelData[] = [
       { icon: '🔢', value: '45', valueColor: '#4ade80', label: '今日活动数' },
     ],
     metricRows: [
-      { label: '今日总客流', value: '320', valueClass: 'blue', unit: '人' },
+      { label: '今日总客流', value: '320', valueClass: 'blue', unit: '人次' },
       { label: '待筹备活动', value: '4', valueClass: 'green', unit: '' },
       { label: '峰值客流', value: '1,245', valueClass: 'blue', unit: '' },
       { label: '本月活动数', value: '72', valueClass: 'orange', unit: '%' },
@@ -163,7 +163,7 @@ export const rightPanels: PanelData[] = [
       { icon: '🚗', value: '67%', valueColor: '#fb923c', label: '车位使用' },
     ],
     metricRows: [
-      { label: '当前在馆', value: '3,420', valueClass: 'orange', unit: '人' },
+      { label: '当前在馆', value: '3,420', valueClass: 'orange', unit: '人次' },
       { label: '峰值时段', value: '10:00-12:00', valueClass: 'purple' },
       { label: '剩余车位', value: '820', valueClass: 'green', unit: '个' },
       { label: 'A馆占用', value: '85', valueClass: 'blue', unit: '%' },
