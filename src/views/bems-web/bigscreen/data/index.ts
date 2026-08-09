@@ -194,15 +194,14 @@ export const kpiData: KpiData[] = [
   { key: 'kpiCarbon', icon: '🌍', number: 89.6, label: '碳减排 吨CO₂' },
 ];
 
-// ===== 跑马灯数据 =====
+// ===== 跑马灯数据（初始占位，由接口数据覆盖）=====
 export const tickerData: TickerItem[] = [
-  { dotColor: 'green', text: '韧性安全：当前在场人数 1人 | 在场车辆/总车位 98.2/100 | 今日巡检完成 142项 | 在线摄像头/总数 96/100' },
-  { dotColor: 'green', text: '物联网：数据采集点 45,680个 | 系统对接 2.8个 | 今日采集量 2.8KB | 数据完整率 2.8%' },
-  { dotColor: 'orange', text: '故障告警：已处理 18条 | 待处理 5条 | 严重告警 1条 | 平均处理时长 18分钟' },
-  { dotColor: 'green', text: 'AI数据：异常检测命中 87% | 智能调度 156次/日 | 模型版本 v3.2.1 | 训练数据量 12.5TB' },
-  { dotColor: 'green', text: '场馆运营：今日总客流 320人次 | 待筹备活动 4 | 峰值客流 1,245 | 本月活动数 72%' },
-  { dotColor: 'green', text: '会展服务：待筹备会展 0 | 当前展会 0 | 筹备完成率 0% | 待总结展会 0个 | 已总结展会 0个' },
-  { dotColor: 'green', text: '安全防范：今日告警 5条 | 门禁通行 8,560人次 | 门禁设备总数 0.35个 | 门禁点位总数 1,558个' },
+  { dotColor: 'green', text: '韧性安全：数据加载中...' },
+  { dotColor: 'green', text: '物联网：数据加载中...' },
+  { dotColor: 'green', text: '故障告警：数据加载中...' },
+  { dotColor: 'green', text: '场馆运营：数据加载中...' },
+  { dotColor: 'green', text: '会展服务：数据加载中...' },
+  { dotColor: 'green', text: '安全防范：数据加载中...' },
 ];
 
 // ===== 地图标记数据 =====

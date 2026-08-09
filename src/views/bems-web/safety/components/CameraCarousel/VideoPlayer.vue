@@ -1,14 +1,15 @@
 <template>
   <div class="video-player-wrap">
-    <video
-      ref="videoRef"
+    <iframe
+      v-if="url"
+      ref="iframeRef"
+      :src="url"
       class="video-player"
-      :muted="muted"
-      :autoplay="autoplay"
-      :loop="loop"
-      :controls="controls"
-      playsinline
-      webkit-playsinline
+      frameborder="0"
+      allow="autoplay; fullscreen; encrypted-media"
+      allowfullscreen
+      @load="handleLoad"
+      @error="handleError"
     />
     <div v-if="loading" class="video-loading">
       <a-spin size="small" />
@@ -21,8 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
-import Hls from 'hls.js'
+import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import { VideoCameraOutlined } from '@ant-design/icons-vue'
 
 const props = withDefaults(
@@ -41,82 +41,65 @@ const props = withDefaults(
   },
 )
 
-const videoRef = ref<HTMLVideoElement | null>(null)
+const iframeRef = ref<HTMLIFrameElement | null>(null)
 const loading = ref(true)
 const error = ref(false)
-let hls: Hls | null = null
+let loadTimer: ReturnType<typeof setTimeout> | null = null
 
-const destroyHls = () => {
-  if (hls) {
-    hls.destroy()
-    hls = null
-  }
-}
-
-const play = () => {
-  if (!videoRef.value || !props.url) {
+const startPlay = () => {
+  if (!props.url) {
     loading.value = false
     error.value = true
     return
   }
 
-  destroyHls()
   loading.value = true
   error.value = false
-  const video = videoRef.value
 
-  // 原生 HLS 支持（Safari / iOS）
-  if (video.canPlayType('application/vnd.apple.mpegurl')) {
-    video.src = props.url
-    video.addEventListener('loadedmetadata', () => {
-      loading.value = false
-      video.play().catch(() => {})
-    })
-    video.addEventListener('error', () => {
+  // 超时保护：15 秒未加载完成则显示错误
+  if (loadTimer) clearTimeout(loadTimer)
+  loadTimer = setTimeout(() => {
+    if (loading.value) {
       loading.value = false
       error.value = true
-    })
-    return
-  }
+    }
+  }, 15000)
+}
 
-  // 使用 hls.js 播放
-  if (Hls.isSupported()) {
-    hls = new Hls({
-      enableWorker: true,
-      lowLatencyMode: true,
-    })
-    hls.loadSource(props.url)
-    hls.attachMedia(video)
-    hls.on(Hls.Events.MANIFEST_PARSED, () => {
-      loading.value = false
-      video.play().catch(() => {})
-    })
-    hls.on(Hls.Events.ERROR, (_event, data) => {
-      if (data.fatal) {
-        loading.value = false
-        error.value = true
-        destroyHls()
-      }
-    })
-  } else {
-    loading.value = false
-    error.value = true
+const handleLoad = () => {
+  if (loadTimer) {
+    clearTimeout(loadTimer)
+    loadTimer = null
   }
+  loading.value = false
+  error.value = false
+}
+
+const handleError = () => {
+  if (loadTimer) {
+    clearTimeout(loadTimer)
+    loadTimer = null
+  }
+  loading.value = false
+  error.value = true
 }
 
 watch(
   () => props.url,
   () => {
-    play()
+    startPlay()
   },
 )
 
 onMounted(() => {
-  play()
+  startPlay()
 })
 
 onBeforeUnmount(() => {
-  destroyHls()
+  if (loadTimer) {
+    clearTimeout(loadTimer)
+    loadTimer = null
+  }
 })
 </script>
 
@@ -132,8 +115,8 @@ onBeforeUnmount(() => {
 .video-player {
   width: 100%;
   height: 100%;
-  object-fit: cover;
   display: block;
+  border: none;
 }
 
 .video-loading {

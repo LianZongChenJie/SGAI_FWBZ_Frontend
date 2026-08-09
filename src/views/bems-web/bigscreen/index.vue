@@ -14,8 +14,6 @@
         </div>
         <!-- 中间列：KPI + 地图 -->
         <div class="center-col">
-          <KpiBanner :kpiData="kpiData" @open="handleOpenModal" />
-          <!-- <MapArea /> -->
           <KpiBanner :kpiData="kpiData" :key="kpiKey" @open="handleOpenModal" />
           <MapArea @open="handleOpenModal" />
         </div>
@@ -45,7 +43,7 @@ import SidePanel from './components/SidePanel.vue';
 import MapArea from './components/MapArea.vue';
 import TickerBar from './components/TickerBar.vue';
 import DetailModal from './components/DetailModal.vue';
-import { leftPanels as rawLeftPanels, rightPanels as rawRightPanels, kpiData as rawKpiData, tickerData } from './data/index';
+import { leftPanels as rawLeftPanels, rightPanels as rawRightPanels, kpiData as rawKpiData, tickerData as rawTickerData } from './data/index';
 import { modalData as rawModalData } from './data/modalData';
 import {
   getTodayCheckCount,
@@ -89,8 +87,10 @@ import {
   getEnergyConsumptionPSDElectricity,
   getElectricityInVenue,
   getEnergyStructure,
+  getInterfaceStatusList,
+  getProtocolTypeList,
 } from './index.api';
-import type { CountVO, ParkingSpaceStatVO, DeviceTypeStatusVO, StatusCountVO } from './index.api';
+import type { CountVO, ParkingSpaceStatVO, DeviceTypeStatusVO, StatusCountVO, InterfaceInfo } from './index.api';
 import type { ModalBarData, ModalBarItem, ModalTableData } from './data/modalData';
 
 defineOptions({ name: 'BigscreenPage' });
@@ -107,6 +107,7 @@ const rightPanels = reactive(rawRightPanels);
 const kpiData = reactive(rawKpiData);
 // KPI 数据索引
 const KPI_POWER_INDEX = 0; // 今日用电量 kWh
+const KPI_PEOPLE_INDEX = 1; // 今日客流 人次
 // KpiBanner 强制重载 key（API 回填后 +1 触发重新动画）
 const kpiKey = ref(0);
 
@@ -122,6 +123,8 @@ const FRESH_AIR_ROW = 2; // 新风机组能耗行
 const POWER_ROW = 3; // 配电系统能耗行
 // 弹窗数据（响应式，便于接口回填）
 const modalData = reactive(rawModalData);
+// 跑马灯数据（响应式，便于接口回填）
+const tickerData = reactive(rawTickerData);
 
 /** 索引 */
 const ROW_ZERO = 0;  
@@ -373,8 +376,8 @@ async function fetchDeviceStatusStatistics() {
     const list: DeviceTypeStatusVO[] = res?.result || res?.data || res || [];
     if (Array.isArray(list) && list.length > 0) {
       const resilienceModal = modalData['resilience'];
-      if (resilienceModal && resilienceModal.rightPanel.type === 'table') {
-        const tableData = resilienceModal.rightPanel.data as any;
+      if (resilienceModal && resilienceModal?.rightPanel?.type === 'table') {
+        const tableData = resilienceModal?.rightPanel?.data as any;
         // 收集所有出现过的状态名称，用于动态生成列
         const statusSet = new Set<string>();
         list.forEach((item: DeviceTypeStatusVO) => {
@@ -382,7 +385,9 @@ async function fetchDeviceStatusStatistics() {
             if (sc.status) statusSet.add(sc.status);
           });
         });
-        const statuses = Array.from(statusSet);
+        const allStatuses = Array.from(statusSet);
+        // 最多展示5列：设备类型 + 总数 + 最多3个状态列
+        const statuses = allStatuses.slice(0, 3);
         // 动态生成列：设备类型 + 总数 + 各状态列
         tableData.columns = [
           { title: '设备类型', key: 'name' },
@@ -437,15 +442,21 @@ async function fetchVenueData() {
     }
     // === 同步弹窗 stats ===
     const venueModal = modalData['venue'];
-    if (venueModal) {
-      // 今日总客流 (metricRows[0]) → stats[0]
-      const visitorVal = visitorRes?.value ?? visitorRes;
-      if (visitorVal != null) {
-        const num = parseInt(visitorVal, 10) || 0;
-        const displayVal = num.toLocaleString();
-        rightPanels[VENUE_INDEX].metricRows[VENUE_VISITOR_IDX].value = displayVal;
+    // 今日总客流 → 同步到 KPI 数据并触发动画重载
+    const visitorVal = visitorRes?.value ?? visitorRes;
+    if (visitorVal != null) {
+      const num = parseInt(visitorVal, 10) || 0;
+      const displayVal = num.toLocaleString();
+      rightPanels[VENUE_INDEX].metricRows[VENUE_VISITOR_IDX].value = displayVal;
+      // === 同步 KPI 今日客流 ===
+      kpiData[KPI_PEOPLE_INDEX].number = num;
+      kpiKey.value++;
+      // === 同步弹窗 ===
+      if (venueModal) {
         venueModal.stats[0].value = displayVal;
       }
+    }
+    if (venueModal) {
       // 待筹备活动 (metricRows[1]) → stats[1]
       const pendingVal = pendingRes?.value ?? pendingRes;
       if (pendingVal != null) {
@@ -553,6 +564,17 @@ async function fetchSecurityData() {
   }
 }
 
+/** 请求接口状态监控列表，返回记录数组供弹窗使用 */
+async function fetchInterfaceStatusList(): Promise<InterfaceInfo[]> {
+  try {
+    const res = await getInterfaceStatusList({ pageNo: 1, pageSize: 50 });
+    return res?.records || [];
+  } catch (error) {
+    console.error('获取接口状态监控列表失败:', error);
+    return [];
+  }
+}
+
 async function handleOpenModal(key: string) {
   // 点韧性安全面板时先请求设备状态统计再打开弹窗
   if (key === 'resilience') {
@@ -599,7 +621,7 @@ async function handleOpenModal(key: string) {
       if (energyStatsData.waterCount != null) stats[1].value = String(energyStatsData.waterCount);
     }
     // 将各场馆用电数据重组成 { name: electricity } 对象后赋值给左面板 ⚡ 用能结构分析
-    if (venueData && venueData.length > 0 && modalData.energy?.leftPanel.type === 'bar') {
+    if (venueData && venueData.length > 0 && modalData?.energy?.leftPanel?.type === 'bar') {
       // 组装为 { name: electricity } 对象
       const venueMap: Record<string, any> = {};
       venueData.forEach((item: any) => {
@@ -618,7 +640,7 @@ async function handleOpenModal(key: string) {
       }));
     }
     // 各场馆用电数据赋值给右面板 📊 各场馆能耗对比表格
-    if (venueData && venueData.length > 0 && modalData.energy?.rightPanel.type === 'table') {
+    if (venueData && venueData.length > 0 && modalData?.energy?.rightPanel?.type === 'table') {
       const tableData = modalData.energy.rightPanel.data as ModalTableData;
       tableData.rows = venueData.map((item: any) => ({
         name: item.name ?? '',
@@ -628,6 +650,25 @@ async function handleOpenModal(key: string) {
       }));
     }
     modalRef.value?.open(key, modalData, undefined, undefined, undefined, undefined, undefined, trendData);
+  } else if (key === 'iot') {
+    // 物联网弹窗：请求接口状态监控列表 + 协议类型列表，将 protocolTypeId 映射为名称
+    const [interfaceList, protocolTypes] = await Promise.all([
+      fetchInterfaceStatusList(),
+      getProtocolTypeList().catch(() => []),
+    ]);
+    const protocolMap = new Map<number, string>();
+    const protoList: any[] = Array.isArray(protocolTypes) ? protocolTypes : protocolTypes?.records || [];
+    protoList.forEach((p: any) => {
+      if (p.id != null) protocolMap.set(p.id, p.typeName || '--');
+    });
+    // 将 protocolTypeId 映射为 protocolTypeName 供模板展示
+    interfaceList.forEach((item: any) => {
+      item.protocolTypeName = item.protocolTypeId != null
+        ? (protocolMap.get(item.protocolTypeId) || '--')
+        : '--';
+    });
+    (modalData.iot as any)._interfaceList = interfaceList;
+    modalRef.value?.open(key, modalData);
   } else {
     modalRef.value?.open(key, modalData);
   }
@@ -866,8 +907,8 @@ async function fetchParkingLotStatus() {
     const list: ParkingSpaceStatVO[] = res?.result || res?.data || res || [];
     if (Array.isArray(list) && list.length > 0) {
       const exhibitionModal = modalData['exhibition'];
-      if (exhibitionModal && exhibitionModal.rightPanel.type === 'table') {
-        const tableData = exhibitionModal.rightPanel.data as any;
+      if (exhibitionModal && exhibitionModal?.rightPanel?.type === 'table') {
+        const tableData = exhibitionModal?.rightPanel?.data as any;
         tableData.rows = list.map((item: ParkingSpaceStatVO) => {
           const total = item.total ?? 0;
           const used = item.used ?? 0;
@@ -885,6 +926,72 @@ async function fetchParkingLotStatus() {
     }
   } catch (error) {
     console.error('获取停车场实时状态失败:', error);
+  }
+}
+
+/** 请求所有模块数据并构建跑马灯真实数据 */
+async function fetchTickerData() {
+  try {
+    const [
+      entryRes, vehicleRes, parkingRes, checkRes, cameraOnlineRes, cameraTotalRes,
+      accessDeviceRes, dockingRes, collectionRes, completeRateRes,
+      alarmStatsRes,
+      visitorRes, pendingActRes, peakFlowRes, monthlyActRes,
+      pendingExhRes, currentExhRes, completeRateExhRes, pendingSummaryRes, summarizedRes,
+      todayAlarmRes, accessControlRes, accessDeviceTotalRes, accessPointTotalRes,
+    ] = await Promise.all([
+      getCurrentEntryCount(), getCurrentOnVehicle(), getRemainingParkingSpace(), getTodayCheckCount(), getOnlineCamera(), getTotalCamera(),
+      getAccessDevice(), getSystemDocking(), getTodayCollectionAmount(), getDataCompleteRate(),
+      getAlarmStatistics(),
+      getTodayVisitorCount(), getPendingActivity(), getPeakFlow(), getActivityCount(),
+      getPendingCount(), getCurrentExhibition(), getPreparationCompleteRate(), getPendingSummaryExhibition(), getSummarizedExhibition(),
+      getTodayAlarm(), getAccessControl(), getAccessDeviceTotal(), getAccessPointTotal(),
+    ]);
+
+    // 辅助函数：安全取值
+    const val = (r: any) => r?.value ?? r ?? '--';
+    const num = (r: any) => {
+      const v = val(r);
+      const n = parseInt(v, 10);
+      return isNaN(n) ? '--' : n;
+    };
+    const str = (r: any) => String(val(r));
+
+    // 在场车辆/总车位
+    const vehicleNum = num(vehicleRes);
+    const parkingNum = num(parkingRes);
+    const totalParking = (typeof vehicleNum === 'number' && typeof parkingNum === 'number') ? vehicleNum + parkingNum : '--';
+
+    // 告警统计
+    const alarmData = alarmStatsRes?.data || alarmStatsRes?.result || alarmStatsRes || {};
+
+    // 构建跑马灯数据
+    tickerData[0] = {
+      dotColor: 'green',
+      text: `韧性安全：当前在场人数 ${num(entryRes)}人 | 在场车辆/总车位 ${vehicleNum}/${totalParking} | 今日巡检完成 ${num(checkRes)}项 | 在线摄像头/总数 ${num(cameraOnlineRes)}/${num(cameraTotalRes)}`,
+    };
+    tickerData[1] = {
+      dotColor: 'green',
+      text: `物联网：数据采集点 ${num(accessDeviceRes).toLocaleString()}个 | 系统对接 ${num(dockingRes)}个 | 今日采集量 ${str(collectionRes)} | 数据完整率 ${str(completeRateRes)}%`,
+    };
+    tickerData[2] = {
+      dotColor: alarmData.untreatedCount > 0 ? 'orange' : 'green',
+      text: `故障告警：已处理 ${alarmData.completedCount ?? '--'}条 | 待处理 ${alarmData.untreatedCount ?? '--'}条 | 严重告警 ${alarmData.seriousCount ?? '--'}条 | 平均处理时长 ${alarmData.averageProcessingTime ?? '--'}分钟`,
+    };
+    tickerData[3] = {
+      dotColor: 'green',
+      text: `场馆运营：今日总客流 ${num(visitorRes).toLocaleString()}人次 | 待筹备活动 ${num(pendingActRes)} | 峰值客流 ${num(peakFlowRes).toLocaleString()} | 本月活动数 ${str(monthlyActRes)}`,
+    };
+    tickerData[4] = {
+      dotColor: 'green',
+      text: `会展服务：待筹备会展 ${num(pendingExhRes)} | 当前展会 ${num(currentExhRes)} | 筹备完成率 ${str(completeRateExhRes)}% | 待总结展会 ${num(pendingSummaryRes)}个 | 已总结展会 ${num(summarizedRes)}个`,
+    };
+    tickerData[5] = {
+      dotColor: 'green',
+      text: `安全防范：今日告警 ${str(todayAlarmRes)}条 | 门禁通行 ${str(accessControlRes)}人次 | 门禁设备总数 ${str(accessDeviceTotalRes)}个 | 门禁点位总数 ${str(accessPointTotalRes)}个`,
+    };
+  } catch (error) {
+    console.error('获取跑马灯数据失败:', error);
   }
 }
 
@@ -943,11 +1050,16 @@ onMounted(() => {
   fetchFreshAirStatistics();
   // 请求配电系统统计，回填右侧面板
   fetchPowerStatistics();
+  // 请求跑马灯真实数据
+  fetchTickerData();
 });
 
 onUnmounted(() => {
   window.removeEventListener('resize', onResize);
   if (resizeTimer) clearTimeout(resizeTimer);
+  // 恢复 html/body 的 overflow，避免大屏 overflow:hidden 残留导致操作台无法滚动
+  document.documentElement.style.removeProperty('overflow');
+  document.body.style.removeProperty('overflow');
 });
 </script>
 

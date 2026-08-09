@@ -1,140 +1,302 @@
 <template>
   <div class="ai-page">
+    <!-- 统计卡片行 -->
     <div class="stats-row">
-      <StatCard label="总碳排放量" :value="statData.totalCarbon" change-text="↓ 8.5% 较上月" trend="down" color="blue" :icon="EnvironmentOutlined" />
-      <StatCard label="电力碳排放" :value="statData.electricCarbon" change-text="↓ 5.2% 较上月" trend="down" color="green" :icon="ThunderboltOutlined" />
-      <StatCard label="天然气碳排放" :value="statData.gasCarbon" change-text="↓ 12.3% 较上月" trend="down" color="orange" :icon="FireOutlined" />
-      <StatCard label="碳减排量" :value="statData.carbonReduction" change-text="↑ 15.8% 较上月" trend="up" color="purple" :icon="CheckCircleOutlined" />
+      <StatCard label="监测能源类型" :value="4" change-text="电/水/气/热" color="blue" :icon="ThunderIcon" />
+      <StatCard label="今日碳排放" :value="28.5" change-text="↓ 3.2% 吨CO₂" trend="down" color="green" :icon="GlobeIcon" />
+      <StatCard label="本月累计碳排" :value="856.3" change-text="↓ 5.8% 吨CO₂" trend="down" color="orange" :icon="ChartDownIcon" />
+      <StatCard label="碳强度" :value="0.45" change-text="↓ 8.2% kgCO₂/㎡" trend="down" color="purple" :icon="ChartIcon" />
     </div>
 
+    <!-- AI报告卡片 -->
+    <div class="ai-report-card">
+      <div class="ai-report-header">
+        <span class="ai-badge">AI</span>
+        <span class="ai-report-title">多模态能碳计算报告 - 2026年6月</span>
+      </div>
+      <div class="ai-report-desc">
+        本报告基于会展小镇内电、水、气、热四类能源的实时计量数据，融合物理机理模型与机器学习算法，对园区能碳排放进行多维度精准核算。报告涵盖空间维度（场馆/楼层/区域）、时间维度（日/周/月/年）、用途维度（空调/照明/动力/生活）的能碳分析，并结合展会活动排期数据，识别能碳异常与优化空间。
+      </div>
+      <div class="ai-metrics">
+        <div class="ai-metric">
+          <div class="ai-metric-value">856.3</div>
+          <div class="ai-metric-label">本月碳排(吨CO₂)</div>
+        </div>
+        <div class="ai-metric">
+          <div class="ai-metric-value">-5.8%</div>
+          <div class="ai-metric-label">环比变化</div>
+        </div>
+        <div class="ai-metric">
+          <div class="ai-metric-value">0.45</div>
+          <div class="ai-metric-label">碳强度(kg/㎡)</div>
+        </div>
+        <div class="ai-metric">
+          <div class="ai-metric-value">12.3%</div>
+          <div class="ai-metric-label">减排潜力</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 两栏布局：碳排放结构分析 + 碳排放趋势 -->
     <div class="two-col">
       <div class="card">
-        <div class="card-header"><h3><BarChartOutlined /> 碳排放趋势分析</h3>
-          <div class="btn-group">
-            <a-button :type="period === 'month' ? 'primary' : 'default'" size="small" @click="period = 'month'">月度</a-button>
-            <a-button :type="period === 'quarter' ? 'primary' : 'default'" size="small" @click="period = 'quarter'">季度</a-button>
-            <a-button :type="period === 'year' ? 'primary' : 'default'" size="small" @click="period = 'year'">年度</a-button>
-          </div>
+        <div class="card-header">
+          <h3>🌍 碳排放结构分析</h3>
         </div>
         <div class="card-body">
-          <div class="chart-placeholder" style="min-height: 280px;">
-            <div class="chart-icon"><BarChartOutlined /></div>
-            <div class="chart-text">多模态能碳计算趋势图</div>
-            <div class="chart-sub">电力 | 天然气 | 水 | 其他能源碳排放</div>
+          <div class="chart-placeholder">
+            <div class="chart-icon">🍩</div>
+            <div class="chart-text">碳排放来源占比</div>
+            <div class="chart-sub">电力 68% | 天然气 22% | 热力 7% | 其他 3%</div>
           </div>
         </div>
       </div>
       <div class="card">
-        <div class="card-header"><h3><PieChartOutlined /> 碳排放结构分析</h3><span class="tag tag-blue">本月</span></div>
+        <div class="card-header">
+          <h3>📈 碳排放趋势</h3>
+        </div>
         <div class="card-body">
-          <div class="chart-placeholder" style="min-height: 280px;">
-            <div class="chart-icon"><PieChartOutlined /></div>
-            <div class="chart-text">各能源碳排放占比</div>
-            <div class="chart-sub">电力 65% | 天然气 22% | 水 8% | 其他 5%</div>
+          <div class="chart-placeholder">
+            <div class="chart-icon">📊</div>
+            <div class="chart-text">月度碳排放趋势与目标对比</div>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="two-col">
-      <div class="card">
-        <div class="card-header"><h3><DashboardOutlined /> 各场馆碳排放对比</h3></div>
-        <div class="card-body">
-          <div class="card-table">
-            <div class="compare-row" v-for="item in venueCarbonData" :key="item.name">
-              <div class="compare-name">{{ item.name }}</div>
-              <div class="compare-bar">
-                <div class="bar-fill" :style="{ width: item.percent + '%', background: item.color }"></div>
-              </div>
-              <div class="compare-value">{{ item.value }} tCO₂</div>
-              <div class="compare-change" :class="item.trend === 'down' ? 'down' : 'up'">{{ item.change }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-header"><h3><CalculatorOutlined /> 能碳计算模型</h3></div>
-        <div class="card-body">
-          <div class="model-list">
-            <div class="model-item" v-for="model in modelList" :key="model.name">
-              <div class="model-icon" :style="{ background: model.bgColor }">
-                <component :is="model.icon" />
-              </div>
-              <div class="model-info">
-                <div class="model-name">{{ model.name }}</div>
-                <div class="model-desc">{{ model.desc }}</div>
-              </div>
-              <span class="status-text" :class="model.status === '已启用' ? 'normal' : 'info'">{{ model.status }}</span>
-            </div>
-          </div>
-        </div>
+    <!-- 功能说明面板 -->
+    <div class="feature-panel">
+      <h4>📋 功能说明</h4>
+      <p>结合会展小镇内的能耗数据，通过不同场景开展能碳计算，并生成运行报告。多模态能碳计算功能，整合电、水、气等多类型能源数据，融合物理机理模型与机器学习算法，实现多维度能碳精准核算、实时监测与动态预测。可自动适配园区不同用能场景，快速生成能碳分析报告，支撑碳减排决策，助力园区实现能碳精细化管理与 "双碳" 目标落地。</p>
+      <div class="feature-list">
+        <div class="feature-list-item">电/水/气/热多能源碳排放因子库</div>
+        <div class="feature-list-item">物理机理模型与机器学习融合计算</div>
+        <div class="feature-list-item">多维度能碳精准核算（空间/时间/用途）</div>
+        <div class="feature-list-item">能碳实时监测与动态预测</div>
+        <div class="feature-list-item">场景自适应能碳计算引擎</div>
+        <div class="feature-list-item">能碳分析报告自动生成</div>
+        <div class="feature-list-item">碳减排路径规划与效果评估</div>
+        <div class="feature-list-item">双碳目标进度追踪看板</div>
       </div>
     </div>
-
-    
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { h } from 'vue'
 import { StatCard } from '/@/views/bems-web/components'
-import {
-  EnvironmentOutlined, ThunderboltOutlined, FireOutlined, CheckCircleOutlined,
-  BarChartOutlined, PieChartOutlined, DashboardOutlined, CalculatorOutlined,
-  InfoCircleOutlined,
-} from '@ant-design/icons-vue'
 
 defineOptions({ name: 'AiCarbonPage' })
 
-const period = ref('month')
-const statData = { totalCarbon: '1,280', electricCarbon: '832', gasCarbon: '282', carbonReduction: '156' }
-
-const venueCarbonData = [
-  { name: 'A馆', value: 520, percent: 100, color: '#1890ff', change: '-8.5%', trend: 'down' },
-  { name: 'B馆', value: 380, percent: 73, color: '#52c41a', change: '-5.2%', trend: 'down' },
-  { name: 'C馆', value: 260, percent: 50, color: '#faad14', change: '-12.3%', trend: 'down' },
-  { name: '多功能厅', value: 120, percent: 23, color: '#722ed1', change: '-3.8%', trend: 'down' },
-]
-
-const modelList = [
-  { name: '电力碳排放模型', desc: '基于实时电力数据计算碳排放', icon: ThunderboltOutlined, bgColor: '#e6f7ff', status: '已启用' },
-  { name: '天然气碳排放模型', desc: '基于天然气消耗量计算碳排放', icon: FireOutlined, bgColor: '#fff7e6', status: '已启用' },
-  { name: '综合能耗计算模型', desc: '多能源类型综合碳排放计算', icon: CalculatorOutlined, bgColor: '#f6ffed', status: '已启用' },
-  { name: '碳减排评估模型', desc: 'AI驱动的碳减排效果评估', icon: EnvironmentOutlined, bgColor: '#f9f0ff', status: '开发中' },
-]
+// emoji 图标
+const ThunderIcon = () => h('span', { style: 'font-size: 20px;' }, '⚡')
+const GlobeIcon = () => h('span', { style: 'font-size: 20px;' }, '🌍')
+const ChartDownIcon = () => h('span', { style: 'font-size: 20px;' }, '📉')
+const ChartIcon = () => h('span', { style: 'font-size: 20px;' }, '📊')
 </script>
 
 <style scoped lang="less">
 .ai-page { padding: 0; }
 
-.compare-row {
-  display: flex;
-  align-items: center;
-  padding: 10px 0;
-  border-bottom: 1px solid #f0f0f0;
-  &:last-child { border-bottom: none; }
-  .compare-name { width: 80px; font-size: 13px; color: #333; }
-  .compare-bar { flex: 1; height: 16px; background: #f0f0f0; border-radius: 8px; margin: 0 12px; overflow: hidden; }
-  .bar-fill { height: 100%; border-radius: 8px; transition: width 0.5s; }
-  .compare-value { width: 80px; font-size: 13px; color: #333; font-weight: 500; }
-  .compare-change { width: 60px; font-size: 12px; &.down { color: #52c41a; } &.up { color: #ff4d4f; } }
+// 统计卡片行
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-bottom: 20px;
 }
 
-.model-list {
-  .model-item {
+// 两栏布局
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+// 卡片
+.card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  margin-bottom: 20px;
+  overflow: hidden;
+
+  .card-header {
+    padding: 18px 22px;
+    border-bottom: 1px solid #f0f0f0;
     display: flex;
     align-items: center;
-    padding: 12px 0;
-    border-bottom: 1px solid #f0f0f0;
-    &:last-child { border-bottom: none; }
-    .model-icon {
-      width: 36px; height: 36px; border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 18px; margin-right: 12px;
+    justify-content: space-between;
+
+    h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #2d3748;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0;
     }
-    .model-info { flex: 1; }
-    .model-name { font-size: 14px; color: #333; font-weight: 500; }
-    .model-desc { font-size: 12px; color: #999; margin-top: 2px; }
+
+    .tag {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: 500;
+    }
+    .tag-green { background: #c6f6d5; color: #22543d; }
+    .tag-blue { background: #bee3f8; color: #2a4365; }
+    .tag-orange { background: #feebc8; color: #744210; }
+    .tag-red { background: #fed7d7; color: #742a2a; }
+    .tag-purple { background: #e9d8fd; color: #553c9a; }
   }
+
+  .card-body {
+    padding: 22px;
+  }
+}
+
+// 图表占位
+.chart-placeholder {
+  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  color: #a0aec0;
+  border: 2px dashed #e2e8f0;
+  min-height: 280px;
+  padding: 30px;
+
+  .chart-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+  }
+  .chart-text {
+    font-size: 14px;
+    color: #718096;
+    font-weight: 500;
+  }
+  .chart-sub {
+    font-size: 12px;
+    color: #a0aec0;
+    margin-top: 8px;
+  }
+}
+
+// AI报告卡片
+.ai-report-card {
+  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+  border-radius: 12px;
+  padding: 24px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 20px;
+
+  .ai-report-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+
+    .ai-badge {
+      background: linear-gradient(135deg, #805ad5, #6b46c1);
+      color: white;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .ai-report-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #2d3748;
+    }
+  }
+
+  .ai-report-desc {
+    font-size: 13px;
+    color: #718096;
+    line-height: 1.7;
+    margin-bottom: 16px;
+  }
+
+  .ai-metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+
+    .ai-metric {
+      background: white;
+      padding: 14px;
+      border-radius: 8px;
+      text-align: center;
+
+      .ai-metric-value {
+        font-size: 20px;
+        font-weight: 700;
+        color: #2d3748;
+      }
+      .ai-metric-label {
+        font-size: 11px;
+        color: #a0aec0;
+        margin-top: 4px;
+      }
+    }
+  }
+}
+
+// 功能说明面板
+.feature-panel {
+  background: linear-gradient(135deg, #ebf8ff 0%, #f7fafc 100%);
+  border-radius: 10px;
+  padding: 18px;
+  margin-bottom: 16px;
+  border: 1px solid #bee3f8;
+
+  h4 {
+    font-size: 14px;
+    color: #2a4365;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  p {
+    font-size: 13px;
+    color: #4a5568;
+    line-height: 1.7;
+  }
+
+  .feature-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-top: 12px;
+
+    .feature-list-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 12px;
+      color: #4a5568;
+      line-height: 1.5;
+
+      &::before {
+        content: '✓';
+        color: #38a169;
+        font-weight: 700;
+        flex-shrink: 0;
+      }
+    }
+  }
+}
+
+// 响应式
+@media (max-width: 1200px) {
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .two-col { grid-template-columns: 1fr; }
+  .ai-report-card .ai-metrics { grid-template-columns: repeat(2, 1fr); }
 }
 </style>

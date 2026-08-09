@@ -20,6 +20,7 @@
             v-for="(video, idx) in currentCameraGroup?.videos || []"
             :key="idx"
             class="camera-item"
+            @click="handleOpenCameraModal(currentCameraGroup!)"
           >
             <div class="camera-item-name">{{ video.name || video.shortName || '未命名摄像头' }}</div>
             <div class="camera-item-info">
@@ -33,6 +34,49 @@
         </div>
       </div>
     </transition>
+
+    <!-- 摄像头页面级弹窗 -->
+    <a-modal
+      v-model:open="cameraModalVisible"
+      :title="null"
+      :footer="null"
+      :closable="false"
+      width="70%"
+      :bodyStyle="{ padding: 0, overflow: 'hidden' }"
+      wrapClassName="camera-modal-wrapper"
+      @cancel="handleCloseCameraModal"
+    >
+      <div class="camera-modal-box">
+        <div class="camera-modal-top-bar"></div>
+        <div class="camera-modal-header">
+          <div class="camera-modal-title">📹 摄像头监控 ({{ cameraModalGroup?.count || cameraModalGroup?.videos?.length || 0 }}个)</div>
+          <button class="camera-modal-close" @click="handleCloseCameraModal">✕</button>
+        </div>
+        <div class="camera-modal-body">
+          <a-tabs v-model:activeKey="activeCameraTab" type="card" size="small">
+            <a-tab-pane
+              v-for="tab in cameraTabItems"
+              :key="tab.key"
+              :tab="tab.label"
+            >
+              <div class="camera-iframe-wrap">
+                <iframe
+                  v-if="cameraIframeUrl"
+                  :src="cameraIframeUrl"
+                  frameborder="0"
+                  allow="autoplay; fullscreen; encrypted-media"
+                  allowfullscreen
+                  class="camera-iframe"
+                />
+                <div v-else class="camera-iframe-placeholder">
+                  <span>暂无视频流</span>
+                </div>
+              </div>
+            </a-tab-pane>
+          </a-tabs>
+        </div>
+      </div>
+    </a-modal>
 
     <!-- 底部按钮 -->
     <div class="map-bottom-btns">
@@ -57,7 +101,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { loadMapScripts } from '/@/components/map/loadMapScripts';
 import { mapBtns } from '../data/index';
 import { getCameraCoordinateGroup, getPersonHeatMap } from '../index.api';
@@ -97,10 +141,34 @@ const loadingText = ref('加载中...');
 /** 摄像头信息面板 */
 const cameraPanelVisible = ref(false);
 const currentCameraGroup = ref<CameraGroup | null>(null);
+/** 摄像头弹窗：页面级弹窗 */
+const cameraModalVisible = ref(false);
+const cameraModalGroup = ref<CameraGroup | null>(null);
+const activeCameraTab = ref<string>('');
+/** 根据摄像头 systemId 构建 iframe URL */
+const CAMERA_IFRAME_BASE = 'http://10.168.47.23:4000/index.html?id=';
+const cameraIframeUrl = computed(() => {
+  const videos = cameraModalGroup.value?.videos || [];
+  const video = videos.find((v) => String(v.systemId) === activeCameraTab.value);
+  if (!video) return '';
+  // 去掉 systemId 中的 # 字符后再拼接
+  const cleanId = String(video.systemId).replace(/#/g, '');
+  return CAMERA_IFRAME_BASE + cleanId;
+});
+/** 摄像头弹窗 tab 列表 */
+const cameraTabItems = computed(() => {
+  const videos = cameraModalGroup.value?.videos || [];
+  return videos.map((v) => ({
+    key: String(v.systemId),
+    label: v.name || v.shortName || '未命名摄像头',
+  }));
+});
 
 // ==================== 标点存储 ====================
 /** 摄像头标点数组 */
 let cameraMarkerArr: any[] = [];
+/** 摄像头分组数据缓存（供 DOM 事件委托使用） */
+let cameraGroupCache: CameraGroup[] = [];
 /** 热力图标点数组 */
 let heatMarkerArr: any[] = [];
 /** 热力图覆盖物数组（polygon等） */
@@ -316,7 +384,25 @@ function clearAllMapOverlays() {
   clearMarkers(cameraMarkerArr);
   clearMarkers(heatMarkerArr);
   clearHeatOverlays();
+  cameraGroupCache = [];
   cameraPanelVisible.value = false;
+  cameraModalVisible.value = false;
+}
+
+/** 打开摄像头页面级弹窗 */
+function handleOpenCameraModal(group: CameraGroup) {
+  cameraModalGroup.value = group;
+  // 默认选中第一个摄像头的 tab
+  const firstVideo = group.videos?.[0];
+  activeCameraTab.value = firstVideo ? String(firstVideo.systemId) : '';
+  cameraModalVisible.value = true;
+}
+
+/** 关闭摄像头页面级弹窗 */
+function handleCloseCameraModal() {
+  cameraModalVisible.value = false;
+  cameraModalGroup.value = null;
+  activeCameraTab.value = '';
 }
 
 // ==================== 安防按钮：摄像头标点 ====================
@@ -324,7 +410,7 @@ function clearAllMapOverlays() {
 /**
  * 构建摄像头标点 DOM
  */
-function buildCameraMarkerDom(group: CameraGroup): string {
+function buildCameraMarkerDom(group: CameraGroup, idx: number): string {
   const count = group.count || (group.videos?.length || 0);
   const badgeHtml = count > 1
     ? `<span class="camera-badge" style="
@@ -347,7 +433,7 @@ function buildCameraMarkerDom(group: CameraGroup): string {
       ">${count}</span>`
     : '';
 
-  return `<div class="camera-marker" style="
+  return `<div class="camera-marker" data-camera-idx="${idx}" style="
     position: relative;
     width: 36px;
     height: 36px;
@@ -403,8 +489,10 @@ async function loadCameraMarkers() {
 
     // 清除之前的摄像头标点
     clearMarkers(cameraMarkerArr);
+    // 缓存分组数据，供 DOM 事件委托使用
+    cameraGroupCache = data;
 
-    data.forEach((group: CameraGroup) => {
+    data.forEach((group: CameraGroup, idx: number) => {
       const lon = Number(group.longitude);
       const lat = Number(group.latitude);
       if (isNaN(lon) || isNaN(lat)) {
@@ -412,17 +500,13 @@ async function loadCameraMarkers() {
         return;
       }
 
-      const domHtml = buildCameraMarkerDom(group);
+      const domHtml = buildCameraMarkerDom(group, idx);
+      // 不再使用 SDK 的 onClick 回调（存在延迟），改用 DOM 事件委托
       const marker = createDomMarker(
         domHtml,
         lon,
         lat,
         `摄像头分组(${group.count || group.videos?.length || 0})`,
-        () => {
-          // 点击摄像头标识，显示该分组下所有摄像头信息
-          currentCameraGroup.value = group;
-          cameraPanelVisible.value = true;
-        }
       );
 
       if (marker) {
@@ -443,32 +527,32 @@ async function loadCameraMarkers() {
 /**
  * 根据权重比例获取热力颜色
  * @param ratio 当前点人数 / 最大权重 (0~1)
- * @returns { color, glowColor } 颜色对象
+ * @returns 颜色对象，包含核心色、中间色、外层色
  */
-function getHeatColor(ratio: number): { color: string; glowColor: string; label: string } {
+function getHeatColor(ratio: number): { core: string; mid: string; outer: string; label: string } {
   if (ratio >= 0.85) {
-    return { color: 'rgba(255, 50, 50, 0.85)', glowColor: 'rgba(255, 50, 50, 0.35)', label: '极密' };
+    return { core: 'rgba(180, 0, 0, 1)', mid: 'rgba(200, 10, 10, 0.8)', outer: 'rgba(200, 10, 10, 0.4)', label: '极密' };
   }
   if (ratio >= 0.6) {
-    return { color: 'rgba(255, 120, 50, 0.8)', glowColor: 'rgba(255, 120, 50, 0.3)', label: '密集' };
+    return { core: 'rgba(200, 30, 10, 0.95)', mid: 'rgba(220, 50, 20, 0.75)', outer: 'rgba(220, 50, 20, 0.35)', label: '密集' };
   }
   if (ratio >= 0.4) {
-    return { color: 'rgba(255, 200, 50, 0.75)', glowColor: 'rgba(255, 200, 50, 0.25)', label: '适中' };
+    return { core: 'rgba(220, 100, 20, 0.9)', mid: 'rgba(240, 140, 40, 0.65)', outer: 'rgba(240, 140, 40, 0.3)', label: '适中' };
   }
   if (ratio >= 0.2) {
-    return { color: 'rgba(50, 220, 120, 0.7)', glowColor: 'rgba(50, 220, 120, 0.2)', label: '稀疏' };
+    return { core: 'rgba(60, 200, 120, 0.85)', mid: 'rgba(60, 200, 120, 0.55)', outer: 'rgba(60, 200, 120, 0.25)', label: '稀疏' };
   }
-  return { color: 'rgba(50, 150, 255, 0.65)', glowColor: 'rgba(50, 150, 255, 0.15)', label: '极少' };
+  return { core: 'rgba(50, 150, 255, 0.8)', mid: 'rgba(50, 150, 255, 0.5)', outer: 'rgba(50, 150, 255, 0.2)', label: '极少' };
 }
 
 /**
- * 构建热力点 DOM
+ * 构建热力点 DOM —— 模糊边界融合效果
+ * 使用大面积径向渐变 + filter:blur，让相邻热力点自然融合
  */
-function buildHeatMarkerDom(item: AreaHeatDataItemVO, ratio: number): string {
-  const { color, glowColor } = getHeatColor(ratio);
-  const count = item.count || 0;
-  // 圆形大小：基础30px + 按比例增长，范围 30~80px
-  const size = 30 + ratio * 50;
+function buildHeatMarkerDom(ratio: number): string {
+  const { core, mid, outer } = getHeatColor(ratio);
+  // 渲染尺寸：缩小范围，向坐标点聚拢
+  const size = 20 + ratio * 40;
 
   return `<div class="heat-marker" style="
     position: relative;
@@ -476,8 +560,9 @@ function buildHeatMarkerDom(item: AreaHeatDataItemVO, ratio: number): string {
     height: ${size}px;
     cursor: default;
     pointer-events: none;
+    filter: blur(3px);
   ">
-    <!-- 外层光晕 -->
+    <!-- 外层渐变（大面积模糊扩散，与相邻点融合） -->
     <div style="
       position: absolute;
       top: 50%;
@@ -485,37 +570,20 @@ function buildHeatMarkerDom(item: AreaHeatDataItemVO, ratio: number): string {
       transform: translate(-50%, -50%);
       width: 100%;
       height: 100%;
-      background: radial-gradient(circle, ${glowColor} 0%, transparent 70%);
+      background: radial-gradient(circle, ${mid} 0%, ${outer} 40%, transparent 75%);
       border-radius: 50%;
     "></div>
-    <!-- 主圆点 -->
+    <!-- 中层渐变（核心区域增强） -->
     <div style="
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 60%;
-      height: 60%;
-      background: ${color};
+      width: 50%;
+      height: 50%;
+      background: radial-gradient(circle, ${core} 0%, ${mid} 50%, transparent 100%);
       border-radius: 50%;
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      box-shadow: 0 0 12px ${color};
     "></div>
-    <!-- 人数标签 -->
-    <div style="
-      position: absolute;
-      top: -16px;
-      left: 50%;
-      transform: translateX(-50%);
-      white-space: nowrap;
-      font-size: 11px;
-      color: #e2e8f0;
-      background: rgba(6, 25, 50, 0.85);
-      padding: 1px 6px;
-      border-radius: 3px;
-      border: 1px solid rgba(56, 189, 248, 0.2);
-      font-weight: 600;
-    ">${count}人</div>
   </div>`;
 }
 
@@ -558,7 +626,7 @@ async function loadHeatMap() {
       }
 
       const ratio = maxWeight > 0 ? (item.count || 0) / maxWeight : 0;
-      const domHtml = buildHeatMarkerDom(item, ratio);
+      const domHtml = buildHeatMarkerDom(ratio);
 
       const marker = createDomMarker(
         domHtml,
@@ -567,6 +635,7 @@ async function loadHeatMap() {
         `热力点(${item.count}人)`,
       );
 
+      // 热力点不需要点击事件，创建后不响应交互
       if (marker) {
         heatMarkerArr.push(marker);
       }
@@ -615,8 +684,25 @@ function handleDocumentClick(e: MouseEvent) {
   const target = e.target as HTMLElement;
   if (target.closest('.camera-marker')) return;
   if (target.closest('.camera-info-panel')) return;
+  if (target.closest('.camera-modal-wrapper')) return;
+  if (target.closest('.ant-modal')) return;
   if (cameraPanelVisible.value) {
     cameraPanelVisible.value = false;
+  }
+}
+
+// ==================== DOM 级摄像头点击事件委托 ====================
+// 绕过 DaxiMap SDK 的 onClick 回调（存在延迟），直接在 DOM 层级监听点击
+function handleMapContainerClick(e: MouseEvent) {
+  const target = e.target as HTMLElement;
+  const markerEl = target.closest('.camera-marker') as HTMLElement | null;
+  if (!markerEl) return;
+  const idx = Number(markerEl.getAttribute('data-camera-idx'));
+  if (!isNaN(idx) && cameraGroupCache[idx]) {
+    // 立即打开弹窗，无延迟
+    handleOpenCameraModal(cameraGroupCache[idx]);
+    // 阻止事件冒泡，避免触发 handleDocumentClick
+    e.stopPropagation();
   }
 }
 
@@ -625,12 +711,21 @@ onMounted(async () => {
   await loadMapScripts();
   await initMap();
   document.addEventListener('click', handleDocumentClick, true);
+  // 在地图容器上注册 DOM 级点击事件委托，绕过 SDK 延迟
+  const mapContainer = document.getElementById('bigscreenMapContainer');
+  if (mapContainer) {
+    mapContainer.addEventListener('click', handleMapContainerClick);
+  }
 });
 
 onUnmounted(() => {
   clearAllMapOverlays();
   clearYellowArea();
   document.removeEventListener('click', handleDocumentClick, true);
+  const mapContainer = document.getElementById('bigscreenMapContainer');
+  if (mapContainer) {
+    mapContainer.removeEventListener('click', handleMapContainerClick);
+  }
   if (map) {
     map = null;
   }
@@ -946,5 +1041,124 @@ onUnmounted(() => {
   transform: translate(-50%, -50%) scale(1.2) !important;
   box-shadow: 0 0 16px rgba(56, 189, 248, 0.8) !important;
   border-color: #ffffff !important;
+}
+
+/* 摄像头页面级弹窗样式 */
+.camera-modal-wrapper .ant-modal {
+  top: 40px;
+}
+.camera-modal-wrapper .ant-modal-content {
+  background: transparent !important;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.5) !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+.camera-modal-wrapper .ant-modal-close {
+  display: none;
+}
+.camera-modal-wrapper .ant-modal-mask {
+  background: rgba(0, 0, 0, 0.75) !important;
+  backdrop-filter: blur(4px);
+}
+.camera-modal-box {
+  background: linear-gradient(135deg, rgba(10, 25, 50, 0.95) 0%, rgba(5, 15, 35, 0.98) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: 80vh;
+}
+.camera-modal-top-bar {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #38bdf8, transparent);
+  z-index: 3;
+}
+.camera-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+}
+.camera-modal-title {
+  color: #38bdf8;
+  font-size: 16px;
+  font-weight: 700;
+  text-shadow: 0 0 8px rgba(56, 189, 248, 0.5);
+}
+.camera-modal-close {
+  width: 30px;
+  height: 30px;
+  border-radius: 4px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(8, 20, 40, 0.6);
+  color: #94a3b8;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+.camera-modal-close:hover {
+  background: rgba(248, 113, 113, 0.15);
+  border-color: rgba(248, 113, 113, 0.3);
+  color: #f87171;
+}
+.camera-modal-body {
+  flex: 1;
+  padding: 12px 16px;
+  overflow: hidden;
+  position: relative;
+  z-index: 2;
+}
+.camera-modal-body .ant-tabs {
+  height: 100%;
+}
+/* 未选中的 tab 使用亮银色，选中 tab 保持 antd 默认颜色（白底可见） */
+.camera-modal-body .ant-tabs-tab:not(.ant-tabs-tab-active) {
+  color: #c0c8d4 !important;
+}
+.camera-modal-body .ant-tabs-tab:not(.ant-tabs-tab-active):hover {
+  color: #e8edf2 !important;
+}
+/* 更多摄像头时的省略号按钮：颜色与未选中 tab 一致，增大字号 */
+.camera-modal-body .ant-tabs-nav-more {
+  color: #c0c8d4 !important;
+  font-size: 18px !important;
+}
+.camera-modal-body .ant-tabs-nav-more:hover {
+  color: #e8edf2 !important;
+}
+.camera-modal-body .ant-tabs-content {
+  height: calc(100% - 40px);
+}
+.camera-modal-body .ant-tabs-tabpane {
+  height: 100%;
+}
+.camera-iframe-wrap {
+  width: 100%;
+  /* 使用 16:9 宽高比替代固定高度，让视频自适应铺满容器 */
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-radius: 6px;
+  overflow: hidden;
+}
+.camera-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+.camera-iframe-placeholder {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 14px;
 }
 </style>

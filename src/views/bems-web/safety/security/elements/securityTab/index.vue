@@ -104,6 +104,7 @@
       :title="patrolModalTitle"
       width="560px"
       :confirm-loading="patrolModalLoading"
+      :destroy-on-close="true"
       @ok="handlePatrolSubmit"
       @cancel="handlePatrolCancel"
     >
@@ -366,7 +367,7 @@ const resetPatrolForm = () => {
   patrolForm.executionCycle = ''
   patrolForm.indexCodes = []
   patrolForm.statusChecked = true
-  patrolFormRef.value?.resetFields()
+  patrolFormRef.value?.clearValidate()
 }
 
 /** 新增 */
@@ -412,6 +413,7 @@ const handlePatrolSubmit = async () => {
     }
 
     patrolModalVisible.value = false
+    resetPatrolForm()
     fetchPatrolData()
   } catch (error) {
     console.error('提交巡更计划失败:', error)
@@ -422,6 +424,7 @@ const handlePatrolSubmit = async () => {
 
 const handlePatrolCancel = () => {
   patrolModalVisible.value = false
+  resetPatrolForm()
 }
 
 // ===== 报警信息列表（AI视频分析事件） =====

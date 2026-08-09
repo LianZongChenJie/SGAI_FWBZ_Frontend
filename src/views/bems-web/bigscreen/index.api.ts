@@ -18,9 +18,9 @@ enum Api {
     /** 接入设备/数据采集点 */
     accessDevice = '/sgai-fwbz-dev/fwbz/dataCollection/collectionPointCount',
     /** 系统对接数 */
-    systemDocking = '/sgai-fwbz-dev/fwbz/securityStatistics/systemDocking',
+    systemDocking = '/sgai-fwbz-dev/fwbz/interfaceStatistics/connectedSystemCount',
     /** 接口在线率 */
-    onlineRate = '/sgai-fwbz-dev/fwbz/securityStatistics/onlineRate',
+    onlineRate = '/sgai-fwbz-dev/fwbz/interfaceStatistics/onlineRate',
     /** 设备状态统计 */
     deviceStatusStatistics = '/sgai-fwbz-dev/fwbz/fireDevice/smokeDetector/countByTypeAndStatus',
     /** 当前在场 */
@@ -104,6 +104,10 @@ enum Api {
     electricityInVenue = '/sgai-tp/fwbz/meterPointData/electricityInVenue',
     /** 用能结构分析 */
     energyStructure = '/sgai-tp/fwbz/meterPointData/energyStructure',
+    /** 接口状态监控列表 */
+    interfaceStatusList = '/sgai-fwbz-dev/fwbz/interfaceInfo/listPage',
+    /** 协议类型下拉 */
+    protocolTypeList = '/sgai-fwbz-dev/fwbz/protocolType/list',
 }
 
 /**
@@ -468,3 +472,29 @@ export const getElectricityInVenue = () => defHttp.get({ url: Api.electricityInV
 
 /** 用能结构分析 */
 export const getEnergyStructure = () => defHttp.get({ url: Api.energyStructure });
+
+/** 接口状态监控列表（分页，支持搜索） */
+export const getInterfaceStatusList = (params?: {
+    pageNo?: number;
+    pageSize?: number;
+    sysName?: string;
+    protocolTypeId?: number;
+    state?: number;
+}) => defHttp.get({ url: Api.interfaceStatusList, params });
+
+/** 协议类型下拉列表 */
+export const getProtocolTypeList = () => defHttp.get({ url: Api.protocolTypeList });
+
+/**
+ * 接口信息
+ */
+export interface InterfaceInfo {
+    id?: number;
+    sysName?: string;
+    protocolTypeId?: number;
+    interfacePath?: string;
+    state?: number;
+    responseTime?: number;
+    requestTime?: string;
+    [property: string]: any;
+}

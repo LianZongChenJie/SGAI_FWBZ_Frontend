@@ -69,10 +69,11 @@ export interface ModalContent {
   title: string;
   accent: string;
   stats: ModalStat[];
-  leftPanel: ModalPanel;
-  rightPanel: ModalPanel;
+  leftPanel?: ModalPanel;
+  rightPanel?: ModalPanel;
   trend?: ModalTrend;
   extraTable?: ModalTableData;
+  interfaceStatusList?: boolean;
 }
 
 // ===== 弹窗数据 =====
@@ -145,47 +146,9 @@ export const modalData: Record<string, ModalContent> = {
       { value: '2.8', color: '#c084fc', label: '今日采集量' },
       { value: '2.8', color: '#c084fc', label: '数据完整率' },
     ],
-    leftPanel: {
-      type: 'bar',
-      data: {
-        title: '📡 设备类型分布',
-        items: [
-          { label: '传感器', color: 'blue', percent: 42, value: '5,284' },
-          { label: '控制器', color: 'green', percent: 28, value: '3,522' },
-          { label: '执行器', color: 'orange', percent: 18, value: '2,264' },
-          { label: '网关', color: 'purple', percent: 8, value: '1,006' },
-          { label: '其他', color: 'red', percent: 4, value: '504' },
-        ],
-      },
-    },
-    rightPanel: {
-      type: 'table',
-      data: {
-        title: '📊 协议覆盖情况',
-        columns: [
-          { title: '协议', key: 'name' },
-          { title: '设备数', key: 'count', width: 80 },
-          { title: '占比', key: 'ratio', width: 70 },
-          { title: '状态', key: 'status', width: 70 },
-        ],
-        rows: [
-          { name: 'Modbus RTU', count: '4,560', ratio: '36.2%', status: { text: '正常', color: '#4ade80' } },
-          { name: 'BACnet/IP', count: '3,280', ratio: '26.1%', status: { text: '正常', color: '#4ade80' } },
-          { name: 'OPC UA', count: '2,150', ratio: '17.1%', status: { text: '正常', color: '#4ade80' } },
-          { name: 'MQTT', count: '1,680', ratio: '13.4%', status: { text: '正常', color: '#4ade80' } },
-          { name: 'HTTP/REST', count: '890', ratio: '7.1%', status: { text: '正常', color: '#4ade80' } },
-          { name: '其他', count: '20', ratio: '0.1%', status: { text: '正常', color: '#4ade80' } },
-        ],
-      },
-    },
-    trend: {
-      title: '📈 近7日数据采集趋势',
-      bars: [
-        { height: 60, color: '#38bdf8' }, { height: 75, color: '#38bdf8' }, { height: 55, color: '#38bdf8' },
-        { height: 80, color: '#38bdf8' }, { height: 70, color: '#38bdf8' }, { height: 85, color: '#38bdf8' }, { height: 90, color: '#38bdf8' },
-      ],
-      footer: '数据量: 2.1GB → 2.8GB | 峰值: 3.2GB (6月5日)',
-    },
+    leftPanel: { type: 'bar', data: { title: '', items: [] } },
+    rightPanel: { type: 'table', data: { title: '', columns: [], rows: [] } },
+    interfaceStatusList: true,
   },
 
   alarm: {

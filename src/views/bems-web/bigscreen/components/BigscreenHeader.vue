@@ -15,11 +15,9 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
-import { useRouter } from 'vue-router';
 
 defineOptions({ name: 'BigscreenHeader' });
 
-const router = useRouter();
 const clock = ref('--:--:--');
 
 let clockTimer: ReturnType<typeof setInterval> | null = null;
@@ -39,8 +37,13 @@ function toggleFullscreen() {
   }
 }
 
-function goConsole() {
-  router.push('/fwbz');
+async function goConsole() {
+  // 如果当前处于全屏模式，先退出全屏再跳转
+  if (document.fullscreenElement) {
+    await document.exitFullscreen().catch(() => {});
+  }
+  // 直接通过 location 跳转并重新加载页面，彻底清除大屏残留的样式状态
+  window.location.href = '/fwbz';
 }
 
 onMounted(() => {

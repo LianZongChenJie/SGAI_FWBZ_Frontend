@@ -3,10 +3,10 @@
     <a-carousel
       :autoplay="isPlaying"
       :autoplay-speed="10000"
-      :interval="true"
       :dots="true"
       :arrow="'hover'"
       @before-change="handleBeforeChange"
+      @after-change="handleAfterChange"
     >
       <template #prevArrow>
         <div class="custom-arrow prev">
@@ -31,7 +31,7 @@
             <template v-if="camera">
               <div class="camera-preview">
                 <VideoPlayer
-                  v-if="pageIndex === currentPage && camera.url"
+                  v-if="visitedPages.includes(pageIndex) && camera.url"
                   :url="camera.url"
                 />
                 <div v-else class="camera-preview-fallback">
@@ -118,6 +118,8 @@ const emit = defineEmits<{
 
 const isPlaying = ref(true)
 const currentPage = ref(0)
+/** 已访问过的页码集合：一旦页面被激活，其 VideoPlayer 持续保持挂载，避免轮播切换后视频不播放 */
+const visitedPages = ref<number[]>([0])
 const fullscreenCamera = ref<Camera | null>(null)
 
 // 根据布局计算每页数量
@@ -153,17 +155,29 @@ const paginatedCameras = computed(() => {
   return pages
 })
 
-// 布局切换时重置到第一页
+// 布局切换时重置到第一页并清空已访问页记录
 watch(
   () => props.layout,
   () => {
     currentPage.value = 0
+    visitedPages.value = [0]
   },
 )
 
-// 处理页面切换
+// 处理页面切换前：提前激活目标页，让 VideoPlayer 在过渡动画期间就开始加载
 const handleBeforeChange = (_from: number, to: number) => {
   currentPage.value = to
+  if (!visitedPages.value.includes(to)) {
+    visitedPages.value = [...visitedPages.value, to]
+  }
+}
+
+// 页面切换完成后：作为兜底，确保 currentPage 和 visitedPages 正确更新
+const handleAfterChange = (current: number) => {
+  currentPage.value = current
+  if (!visitedPages.value.includes(current)) {
+    visitedPages.value = [...visitedPages.value, current]
+  }
 }
 
 // 全屏查看

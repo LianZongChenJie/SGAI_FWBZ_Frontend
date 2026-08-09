@@ -4,7 +4,7 @@
     :title="null"
     :footer="null"
     :closable="false"
-    width="1100px"
+    width="70%"
     :bodyStyle="{ padding: 0, overflow: 'hidden' }"
     wrapClassName="bigscreen-modal"
     @cancel="handleClose"
@@ -28,8 +28,44 @@
             </div>
           </div>
 
-          <!-- 双栏内容 -->
-          <div class="modal-two-col">
+          <!-- 接口状态监控列表（物联网弹窗） -->
+          <div v-if="modalContent.interfaceStatusList" class="modal-panel" style="margin-bottom: 16px;">
+            <div class="modal-panel-title">📡 接口状态监控</div>
+            <div class="modal-table-wrap is-scroll">
+              <table class="modal-table">
+                <thead>
+                  <tr>
+                    <th>系统名称</th>
+                    <th style="width: 120px;">接口协议</th>
+                    <th>接口地址</th>
+                    <th style="width: 80px;">状态</th>
+                    <th style="width: 100px;">响应时间</th>
+                    <th style="width: 160px;">最后心跳</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(item, idx) in interfaceStatusData" :key="idx">
+                    <td>{{ item.sysName || '--' }}</td>
+                    <td>{{ item.protocolTypeName || '--' }}</td>
+                    <td style="word-break: break-all;">{{ item.interfacePath || '--' }}</td>
+                    <td>
+                      <span :style="{ color: getInterfaceStateColor(item.state), fontWeight: 600 }">
+                        {{ getInterfaceStateText(item.state) }}
+                      </span>
+                    </td>
+                    <td>{{ item.responseTime != null ? item.responseTime + 'ms' : '-' }}</td>
+                    <td>{{ item.requestTime || '--' }}</td>
+                  </tr>
+                  <tr v-if="interfaceStatusData.length === 0">
+                    <td colspan="6" style="text-align: center; color: #64748b; padding: 20px;">暂无数据</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- 双栏内容（物联网弹窗仅展示接口状态列表，隐藏双栏） -->
+          <div v-if="!modalContent.interfaceStatusList" class="modal-two-col">
             <!-- 左栏 -->
             <div class="modal-panel">
               <div class="modal-panel-title">{{ leftPanelData.title }}</div>
@@ -67,23 +103,25 @@
             <!-- 右栏 -->
             <div class="modal-panel">
               <div class="modal-panel-title">{{ rightPanelData.title }}</div>
-              <table v-if="modalContent.rightPanel.type === 'table'" class="modal-table">
-                <thead>
-                  <tr>
-                    <th v-for="(col, i) in rightTableCols" :key="i" :style="col.width ? { width: col.width + 'px' } : {}">{{ col.title }}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(row, ri) in rightTableRows" :key="ri">
-                    <td v-for="(col, ci) in rightTableCols" :key="ci">
-                      <template v-if="row[col.key] !== null && typeof row[col.key] === 'object'">
-                        <span :style="{ color: row[col.key].color, fontWeight: 600 }">{{ row[col.key].text }}</span>
-                      </template>
-                      <template v-else>{{ row[col.key] }}</template>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+              <div v-if="modalContent.rightPanel.type === 'table'" class="modal-table-wrap" :class="{ 'is-scroll': rightTableScrollable }">
+                <table class="modal-table">
+                  <thead>
+                    <tr>
+                      <th v-for="(col, i) in rightTableCols" :key="i" :style="col.width ? { width: col.width + 'px' } : {}">{{ col.title }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="(row, ri) in rightTableRows" :key="ri">
+                      <td v-for="(col, ci) in rightTableCols" :key="ci">
+                        <template v-if="row[col.key] !== null && typeof row[col.key] === 'object'">
+                          <span :style="{ color: row[col.key].color, fontWeight: 600 }">{{ row[col.key].text }}</span>
+                        </template>
+                        <template v-else>{{ row[col.key] }}</template>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
               <div v-else class="modal-hbar">
                 <div class="modal-hbar-item" v-for="(bar, i) in rightBarItems" :key="i">
                   <span class="modal-hbar-label">{{ bar.label }}</span>
@@ -175,6 +213,29 @@ defineOptions({ name: 'DetailModal' });
 
 const visible = ref(false);
 const modalContent = ref<ModalContent | null>(null);
+const currentModalKey = ref('');
+/** 接口状态监控列表数据（物联网弹窗） */
+const interfaceStatusData = ref<any[]>([]);
+
+/** 接口状态文本映射 */
+function getInterfaceStateText(state?: number): string {
+  switch (state) {
+    case 1: return '在线';
+    case 0: return '离线';
+    case 2: return '异常';
+    default: return '--';
+  }
+}
+
+/** 接口状态颜色映射 */
+function getInterfaceStateColor(state?: number): string {
+  switch (state) {
+    case 1: return '#4ade80';
+    case 0: return '#f87171';
+    case 2: return '#fb923c';
+    default: return '#94a3b8';
+  }
+}
 
 function getLevelColor(level: string): string {
   const map: Record<string, string> = {
@@ -188,6 +249,7 @@ function getLevelColor(level: string): string {
 function open(key: string, data: Record<string, ModalContent>, alarmRecords?: any[], alarmStats?: any, alarmTrend?: any, electricityData?: any, energyStatsData?: any, trendData?: any, venueData?: any) {
   const content = data[key];
   if (content) {
+    currentModalKey.value = key;
     // 深拷贝避免修改原始 modalData
     modalContent.value = JSON.parse(JSON.stringify(content));
     // 告警弹窗：用接口统计数据覆盖 stats 和左栏图表
@@ -444,6 +506,10 @@ function open(key: string, data: Record<string, ModalContent>, alarmRecords?: an
     }
     // 深拷贝触发 Vue 响应式，确保所有嵌套引用变更，computed 重新计算
     modalContent.value = JSON.parse(JSON.stringify(modalContent.value!)) as ModalContent;
+    // 物联网弹窗：从 modalContent 读取接口状态监控列表数据
+    if (key === 'iot' && (modalContent.value as any)._interfaceList) {
+      interfaceStatusData.value = (modalContent.value as any)._interfaceList;
+    }
     visible.value = true;
   }
 }
@@ -451,6 +517,8 @@ function open(key: string, data: Record<string, ModalContent>, alarmRecords?: an
 function handleClose() {
   visible.value = false;
   modalContent.value = null;
+  currentModalKey.value = '';
+  interfaceStatusData.value = [];
 }
 
 defineExpose({ open });
@@ -470,6 +538,9 @@ const rightBarItems = computed(() => (rightPanelData.value as ModalBarData)?.ite
 const rightBarFooter = computed(() => (rightPanelData.value as ModalBarData)?.footer);
 
 const extraTableCols = computed(() => modalContent.value?.extraTable?.columns || []);
+
+/** 右栏表格是否需要滚动（会展服务弹窗停车场状态表格） */
+const rightTableScrollable = computed(() => currentModalKey.value === 'exhibition');
 
 /** y轴刻度（最大值的 0%/25%/50%/75%/100%） */
 const yAxisTicks = computed(() => {
@@ -495,7 +566,7 @@ const trendMaxVal = computed(() => {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  max-height: 720px;
+  max-height: 80vh;
 }
 .modal-box-top-bar {
   position: absolute;
@@ -588,6 +659,8 @@ const trendMaxVal = computed(() => {
   border: 1px solid rgba(56, 189, 248, 0.1);
   border-radius: 6px;
   padding: 14px;
+  display: flex;
+  flex-direction: column;
 }
 .modal-panel-title {
   font-size: 14px;
@@ -621,16 +694,49 @@ const trendMaxVal = computed(() => {
   background: rgba(56, 189, 248, 0.04);
 }
 
+/* 表格滚动容器 */
+.modal-table-wrap {
+  width: 100%;
+}
+.modal-table-wrap.is-scroll {
+  max-height: 220px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(56, 189, 248, 0.3) transparent;
+}
+.modal-table-wrap.is-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.modal-table-wrap.is-scroll::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.3);
+  border-radius: 2px;
+}
+.modal-table-wrap.is-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+/* 滚动模式下表头固定 */
+.modal-table-wrap.is-scroll .modal-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: rgb(8, 20, 40);
+}
+
 /* 自定义横向条形图 */
 .modal-hbar {
   margin: 6px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
+  justify-content: center;
 }
 .modal-hbar-item {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 8px;
-  font-size: 12px;
+  font-size: 13px;
 }
 .modal-hbar-label {
   width: 80px;
@@ -640,14 +746,14 @@ const trendMaxVal = computed(() => {
 }
 .modal-hbar-track {
   flex: 1;
-  height: 16px;
+  height: 20px;
   background: rgba(148, 163, 184, 0.06);
-  border-radius: 3px;
+  border-radius: 4px;
   overflow: hidden;
 }
 .modal-hbar-fill {
   height: 100%;
-  border-radius: 3px;
+  border-radius: 4px;
   transition: width 0.8s ease;
 }
 .modal-hbar-fill.blue { background: linear-gradient(90deg, #0ea5e9, #38bdf8); }

@@ -172,6 +172,11 @@ const suggestions = [
 }
 
 .report-group {
+  background: #f9fafb;
+  border: 1px solid #eef0f3;
+  border-radius: 8px;
+  padding: 16px 14px;
+
   .group-title {
     font-size: 14px;
     font-weight: 600;
