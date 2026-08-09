@@ -530,19 +530,13 @@ async function loadCameraMarkers() {
  * @returns 颜色对象，包含核心色、中间色、外层色
  */
 function getHeatColor(ratio: number): { core: string; mid: string; outer: string; label: string } {
-  if (ratio >= 0.85) {
-    return { core: 'rgba(180, 0, 0, 1)', mid: 'rgba(200, 10, 10, 0.8)', outer: 'rgba(200, 10, 10, 0.4)', label: '极密' };
-  }
   if (ratio >= 0.6) {
-    return { core: 'rgba(200, 30, 10, 0.95)', mid: 'rgba(220, 50, 20, 0.75)', outer: 'rgba(220, 50, 20, 0.35)', label: '密集' };
+    return { core: 'rgba(180, 0, 0, 1)', mid: 'rgba(200, 10, 10, 0.8)', outer: 'rgba(200, 10, 10, 0.4)', label: '密集' };
   }
-  if (ratio >= 0.4) {
+  if (ratio >= 0.3) {
     return { core: 'rgba(220, 100, 20, 0.9)', mid: 'rgba(240, 140, 40, 0.65)', outer: 'rgba(240, 140, 40, 0.3)', label: '适中' };
   }
-  if (ratio >= 0.2) {
-    return { core: 'rgba(60, 200, 120, 0.85)', mid: 'rgba(60, 200, 120, 0.55)', outer: 'rgba(60, 200, 120, 0.25)', label: '稀疏' };
-  }
-  return { core: 'rgba(50, 150, 255, 0.8)', mid: 'rgba(50, 150, 255, 0.5)', outer: 'rgba(50, 150, 255, 0.2)', label: '极少' };
+  return { core: 'rgba(60, 200, 120, 0.85)', mid: 'rgba(60, 200, 120, 0.55)', outer: 'rgba(60, 200, 120, 0.25)', label: '稀疏' };
 }
 
 /**

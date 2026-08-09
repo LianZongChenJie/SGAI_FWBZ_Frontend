@@ -188,12 +188,17 @@ const getStateColor = (state?: string): string => {
   return '#52c41a'
 }
 
-/** 根据使用率获取热力颜色 */
-const getHeatColor = (rate: number): string => {
-  if (rate >= 80) return '#ff4d4f'
-  if (rate >= 60) return '#ff7a45'
-  if (rate >= 40) return '#faad14'
-  return '#52c41a'
+/** 根据使用率获取热力颜色（与大屏 getHeatColor 色值完全一致，3档：密集/适中/稀疏）
+ * 返回核心色、中间色、外层色，用于多层径向渐变 + blur 模糊边界融合 */
+const getHeatColorLayers = (rate: number): { core: string; mid: string; outer: string } => {
+  const ratio = rate / 100
+  if (ratio >= 0.6) {
+    return { core: 'rgba(180, 0, 0, 1)', mid: 'rgba(200, 10, 10, 0.8)', outer: 'rgba(200, 10, 10, 0.4)' }
+  }
+  if (ratio >= 0.3) {
+    return { core: 'rgba(220, 100, 20, 0.9)', mid: 'rgba(240, 140, 40, 0.65)', outer: 'rgba(240, 140, 40, 0.3)' }
+  }
+  return { core: 'rgba(60, 200, 120, 0.85)', mid: 'rgba(60, 200, 120, 0.55)', outer: 'rgba(60, 200, 120, 0.25)' }
 }
 
 /** 关闭当前展开的信息面板 */
@@ -211,63 +216,26 @@ function handleDocumentClick(e: MouseEvent) {
   closeAllInfo()
 }
 
-/** 构建停车场标点 DOM（含热力光晕 + 圆点标记） */
+/** 构建停车场标点 DOM（参考大屏客流渲染样式：大面积模糊边界融合） */
 function buildMarkerDom(item: ParkingSpaceStatVO): string {
   const color = getStateColor(item.state)
   const rate = item.usedRate ?? item.usageRate ?? 0
-  const heatColor = getHeatColor(rate)
-  const haloSize = 24 + (rate / 100) * 36
+  const { core, mid, outer } = getHeatColorLayers(rate)
+  // 光晕尺寸大幅增大，让标注点分散开
+  const haloSize = 60 + (rate / 100) * 50
   const domId = `parking-${item.id ?? Math.random().toString(36).slice(2)}`
-  return `<div class="parking-marker" id="${domId}" style="position: relative; cursor: pointer;">
-    <div class="marker-info-panel" style="
-      display: none;
-      position: absolute;
-      bottom: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      min-width: 160px;
-      background: rgba(10, 22, 40, 0.95);
-      border: 1px solid #2a4a6f;
-      border-radius: 6px;
-      padding: 8px 12px;
-      z-index: 1000;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.5);
-      font-size: 12px;
-      color: #e0e6ed;
-      white-space: nowrap;
-      margin-bottom: 4px;
-    ">
-      <div style="font-weight: 600; margin-bottom: 4px; color: #ffffff;">${item.name || '停车场'}</div>
+  return `<div class="parking-marker" id="${domId}">
+    <div class="marker-info-panel">
+      <div class="panel-title">${item.name || '停车场'}</div>
       <div>总车位: ${item.total ?? 0}</div>
       <div>已用: ${item.used ?? 0}</div>
       <div>剩余: ${item.shengyu ?? 0}</div>
       <div>使用率: ${rate}%</div>
       <div>状态: <span style="color: ${color}">${item.state || '正常'}</span></div>
     </div>
-    <div style="position: relative; width: 16px; height: 16px;">
-      <div style="
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: ${haloSize}px;
-        height: ${haloSize}px;
-        background: radial-gradient(circle, ${heatColor}55 0%, ${heatColor}22 50%, transparent 80%);
-        border-radius: 50%;
-        pointer-events: none;
-      "></div>
-      <div style="
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 16px;
-        height: 16px;
-        background: ${color};
-        border: 2px solid #fff;
-        border-radius: 50%;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-        transition: transform 0.2s;
-      "></div>
+    <div class="parking-heat-halo" style="width: ${haloSize}px; height: ${haloSize}px;">
+      <div class="heat-outer" style="background: radial-gradient(circle, ${mid} 0%, ${outer} 40%, transparent 75%);"></div>
+      <div class="heat-core" style="background: radial-gradient(circle, ${core} 0%, ${mid} 50%, transparent 100%);"></div>
     </div>
   </div>`
 }
@@ -540,5 +508,70 @@ onUnmounted(() => {
 
 .zoom-btn:active {
   background: #f0f0f0;
+}
+</style>
+
+<!-- 非scoped样式：SDK动态创建的DOM标点需要全局样式才能生效 -->
+<style>
+.parking-marker {
+  position: relative;
+  cursor: pointer;
+}
+
+/* 信息面板 */
+.parking-marker .marker-info-panel {
+  display: none;
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 160px;
+  background: rgba(10, 22, 40, 0.95);
+  border: 1px solid #2a4a6f;
+  border-radius: 6px;
+  padding: 8px 12px;
+  z-index: 1000;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+  font-size: 12px;
+  color: #e0e6ed;
+  white-space: nowrap;
+  margin-bottom: 4px;
+}
+.parking-marker .marker-info-panel .panel-title {
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: #ffffff;
+}
+
+/* 热力光晕层 —— 参考大屏客流渲染：大面积模糊边界融合 */
+.parking-marker .parking-heat-halo {
+  position: relative;
+  filter: blur(6px);
+}
+
+/* 外层渐变（大面积模糊扩散，与相邻标点自然融合） */
+.parking-marker .heat-outer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+/* 中层渐变（核心区域增强） */
+.parking-marker .heat-core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 50%;
+  height: 50%;
+  border-radius: 50%;
+}
+
+.parking-marker:hover .parking-heat-halo {
+  filter: blur(8px);
 }
 </style>

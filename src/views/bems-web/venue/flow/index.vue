@@ -25,12 +25,20 @@
         </div>
       </div>
       <div class="card">
-        <div class="card-header"><h3><BarChartOutlined /> 各场馆客流趋势</h3><span class="tag tag-blue">实时</span></div>
-        <div class="card-body">
-          <div class="chart-placeholder">
-            <div class="chart-icon"><BarChartOutlined /></div>
-            <div class="chart-text">今日分时客流趋势图</div>
+        <div class="card-header">
+          <h3><BarChartOutlined /> 各场馆客流趋势</h3>
+          <div class="header-right">
+            <a-radio-group v-model:value="trendPeriod" button-style="solid" size="small" @change="handleTrendChange">
+              <a-radio-button :value="0">今日</a-radio-button>
+              <a-radio-button :value="1">本周</a-radio-button>
+              <a-radio-button :value="2">本月</a-radio-button>
+            </a-radio-group>
           </div>
+        </div>
+        <div class="card-body">
+          <a-spin :spinning="trendLoading">
+            <div ref="trendChartRef" class="trend-chart"></div>
+          </a-spin>
         </div>
       </div>
     </div>
@@ -88,10 +96,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
+import type { Ref } from 'vue'
 import dayjs from 'dayjs'
 import { StatCard } from '/@/views/bems-web/components'
-import { getFlowSummary, getFlowList } from './index.api'
+import { useECharts } from '/@/hooks/web/useECharts'
+import { getFlowSummary, getFlowList, getFlowTrend } from './index.api'
 import type { StatItem, VenueFlowVO } from './index.api'
 import { getVenueList } from '../venueScheduling/index.api'
 import type { VenueItem } from '../venueScheduling/index.api'
@@ -169,10 +179,192 @@ const handleSearch = () => {
   fetchFlowData()
 }
 
+// ===== 客流趋势图（今日/本周/本月） =====
+const trendChartRef = ref<HTMLDivElement | null>(null)
+const { setOptions: setTrendChartOptions } = useECharts(trendChartRef as Ref<HTMLDivElement>)
+
+const trendPeriod = ref<number>(0) // 0=今日, 1=本周, 2=本月
+const trendLoading = ref(false)
+
+// 场馆颜色列表
+const venueColors = ['#3182ce', '#38a169', '#dd6b20', '#805ad5', '#e53e3e', '#319795', '#d69e2e', '#718096']
+
+/** 根据周期类型生成默认 X 轴标签（接口无 date 字段时使用） */
+function getDefaultXAxis(periodType: number): string[] {
+  if (periodType === 0) {
+    // 今日：0-23 时
+    return Array.from({ length: 24 }, (_, i) => `${String(i).padStart(2, '0')}:00`)
+  } else if (periodType === 1) {
+    // 本周：周一到周日
+    return ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+  } else {
+    // 本月：1-31 日
+    return Array.from({ length: dayjs().daysInMonth() }, (_, i) => `${i + 1}日`)
+  }
+}
+
+/** 处理后端返回的趋势数据，转为 ECharts series 格式
+ *
+ * 真实数据结构（本周/本月）：
+ * {
+ *   date: ["周一", "周二", ...],
+ *   "1号馆": [0, 0, 0, 490, 0, 0, 0],
+ *   "2号馆": [0, 0, 0, 272, 0, 0, 0],
+ *   "total": [0, 0, 0, 1715, 0, 0, 0],
+ *   todayInTotal: 0,
+ *   todayInOutTotal: 0
+ * }
+ */
+function parseTrendData(res: any, periodType: number) {
+  // 需要跳过的非场馆字段
+  const skipKeys = new Set(['date', 'total', 'todayInTotal', 'todayInOutTotal'])
+
+  let xAxisData: string[] = []
+  let series: { name: string; data: number[]; color?: string; isTotal?: boolean }[] = []
+
+  if (res && typeof res === 'object' && !Array.isArray(res)) {
+    // 直接使用后端返回的 date 作为 X 轴，如果没有则用默认
+    xAxisData = Array.isArray(res.date) && res.date.length > 0 ? res.date : getDefaultXAxis(periodType)
+
+    // 遍历所有字段，跳过 date/total/todayInTotal/todayInOutTotal
+    let venueIdx = 0
+    Object.keys(res).forEach((key) => {
+      if (skipKeys.has(key)) return
+      if (!Array.isArray(res[key])) return
+      series.push({
+        name: key,
+        data: res[key],
+        color: venueColors[venueIdx % venueColors.length],
+      })
+      venueIdx++
+    })
+
+    // 如果有 total 字段，作为合计折线单独展示
+    if (Array.isArray(res.total)) {
+      series.push({
+        name: '合计',
+        data: res.total,
+        color: '#e53e3e',
+        isTotal: true,
+      })
+    }
+  } else {
+    // 接口无数据时，使用默认 X 轴，生成空 series 以展示图表框架
+    xAxisData = getDefaultXAxis(periodType)
+  }
+
+  return { xAxisData, series }
+}
+
+/** 渲染趋势图 */
+function renderTrendChart(res: any) {
+  const { xAxisData, series } = parseTrendData(res, trendPeriod.value)
+
+  // 即使无数据也渲染图表框架（坐标轴 + 网格 + 空折线），保证页面不空白
+  setTrendChartOptions({
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: { type: 'cross' },
+    },
+    legend: {
+      bottom: '2%',
+      left: 'center',
+      textStyle: { fontSize: 12, color: '#4a5568' },
+      icon: 'roundRect',
+      data: series.map((s) => s.name),
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '15%',
+      top: '8%',
+      containLabel: true,
+    },
+    xAxis: {
+      type: 'category',
+      data: xAxisData,
+      boundaryGap: false,
+      axisLine: { lineStyle: { color: '#e2e8f0' } },
+      axisLabel: { color: '#718096', fontSize: 11 },
+    },
+    yAxis: {
+      type: 'value',
+      axisLine: { show: false },
+      axisTick: { show: false },
+      splitLine: { lineStyle: { color: '#f0f0f0', type: 'dashed' } },
+      axisLabel: { color: '#718096', fontSize: 11 },
+    },
+    series: series.length > 0 ? series.map((s) => {
+      // 合计线使用加粗虚线样式，不显示面积填充
+      if (s.isTotal) {
+        return {
+          name: s.name,
+          type: 'line',
+          smooth: true,
+          symbol: 'circle',
+          symbolSize: 7,
+          data: s.data,
+          lineStyle: { width: 3, color: s.color, type: 'dashed' },
+          itemStyle: { color: s.color },
+          z: 10,
+        }
+      }
+      // 各场馆折线带面积填充
+      return {
+        name: s.name,
+        type: 'line',
+        smooth: true,
+        symbol: 'circle',
+        symbolSize: 6,
+        data: s.data,
+        lineStyle: { width: 2, color: s.color },
+        itemStyle: { color: s.color },
+        areaStyle: {
+          color: {
+            type: 'linear',
+            x: 0, y: 0, x2: 0, y2: 1,
+            colorStops: [
+              { offset: 0, color: (s.color || '#3182ce') + '33' },
+              { offset: 1, color: (s.color || '#3182ce') + '05' },
+            ],
+          },
+        },
+      }
+    }) : [{
+      // 无数据时渲染一条空折线，保证图表框架可见
+      name: '暂无数据',
+      type: 'line',
+      data: new Array(xAxisData.length).fill(null),
+      lineStyle: { color: 'transparent' },
+      itemStyle: { color: 'transparent' },
+    }],
+  })
+}
+
+const fetchTrendData = async () => {
+  trendLoading.value = true
+  try {
+    const res = await getFlowTrend({ periodType: trendPeriod.value })
+    await nextTick()
+    renderTrendChart(res)
+  } catch (error) {
+    console.error('获取客流趋势数据失败:', error)
+    renderTrendChart(null)
+  } finally {
+    trendLoading.value = false
+  }
+}
+
+const handleTrendChange = () => {
+  fetchTrendData()
+}
+
+// ===== 初始化 =====
 onMounted(() => {
   fetchStatCards()
   fetchVenueOptions()
   fetchFlowData()
+  fetchTrendData()
 })
 </script>
 
@@ -232,6 +424,12 @@ onMounted(() => {
       flex-wrap: wrap;
       align-items: center;
     }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
   }
 
   .card-body { padding: 22px; }
@@ -252,6 +450,11 @@ onMounted(() => {
   .chart-icon { font-size: 48px; margin-bottom: 12px; }
   .chart-text { font-size: 14px; color: #718096; font-weight: 500; }
   .chart-sub { font-size: 12px; color: #a0aec0; margin-top: 8px; }
+}
+
+.trend-chart {
+  width: 100%;
+  height: 280px;
 }
 
 .status-text {

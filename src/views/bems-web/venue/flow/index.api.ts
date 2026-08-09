@@ -5,7 +5,21 @@ enum Api {
   sunnary = '/sgai-fwbz-dev/fwbz/venueVisitorFlow/summary',
   /** 客流统计列表 */
   flowList = '/sgai-fwbz-dev/fwbz/venueVisitorFlow/venueList',
+  /** 各场馆客流趋势 */
+  trend = '/sgai-fwbz-dev/fwbz/venueVisitorFlow/hourly/todayTrend',
+
 }
+
+ /** 各场馆客流趋势-请求参数 */
+export interface Request {
+    /**
+     * 统计周期: 0-本日, 1-本周, 2-本月
+     */
+    periodType: number;
+    [property: string]: any;
+}
+
+
 
 
 /**
@@ -132,3 +146,6 @@ export const getFlowSummary = () => defHttp.get({ url: Api.sunnary });
 
 /** 获取各场馆客流统计列表 */
 export const getFlowList = (params: FlowListRequest) => defHttp.get({ url: Api.flowList, params });
+
+/** 获取各场馆客流趋势（今日/本周/本月） */
+export const getFlowTrend = (params: Request) => defHttp.get({ url: Api.trend, params });

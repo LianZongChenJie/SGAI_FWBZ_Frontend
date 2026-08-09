@@ -2,72 +2,128 @@
   <div class="event-page">
     <!-- 统计卡片 -->
     <div class="stats-row">
-      <StatCard label="待总结展会" :value="statData.pendingSummary" change-text="需出具报告" trend="up" color="blue" :icon="ScheduleOutlined" />
-      <StatCard label="已总结展会" :value="statData.completedSummary" change-text="↑ 3 本月" trend="up" color="green" :icon="CheckCircleOutlined" />
-      <StatCard label="报告生成" :value="statData.reportMode" change-text="自动+人工" trend="up" color="orange" :icon="RobotOutlined" />
-      <StatCard label="知识库积累" :value="statData.knowledgeBase" change-text="↑ 12 条经验" trend="up" color="purple" :icon="BookOutlined" />
+      <a-spin :spinning="statLoading">
+        <div class="stats-inner">
+          <StatCard
+            v-for="(card, index) in statCards"
+            :key="index"
+            :label="card.title || '--'"
+            :value="formatStatValue(card.value)"
+            :change-text="card.context || ''"
+            :color="statCardConfigs[index]?.color || 'blue'"
+            :icon="statCardConfigs[index]?.icon"
+          />
+          <!-- 后端返回不足4张时用占位补齐 -->
+          <StatCard
+            v-for="n in Math.max(0, 4 - statCards.length)"
+            :key="'placeholder-' + n"
+            label="--"
+            value="--"
+            color="blue"
+          />
+        </div>
+      </a-spin>
     </div>
 
     <!-- 展会总结报告 -->
     <div class="card">
       <div class="card-header">
-        <h3><BarChartOutlined /> 展会总结报告 - 智能制造博览会</h3>
+        <h3><BarChartOutlined /> 展会总结报告{{ currentReport ? ' - ' + currentReport.activeName : '' }}</h3>
         <div class="header-actions">
-          <a-button>导出PDF</a-button>
+          
+          <a-button :loading="exportLoading" @click="handleExport">导出PDF</a-button>
           <a-button type="primary">AI生成</a-button>
         </div>
       </div>
       <div class="card-body">
-        <!-- 三栏数据 -->
-        <div class="three-col">
-          <!-- 人员服务 -->
-          <div class="report-group">
-            <h4 class="group-title">人员服务</h4>
-            <div class="info-list">
-              <div class="info-item" v-for="item in personnelData" :key="item.label">
-                <span class="info-label">{{ item.label }}</span>
-                <span class="info-value" :style="{ color: item.color || '#2d3748' }">{{ item.value }}</span>
+        <a-spin :spinning="detailLoading">
+          <!-- 无数据空状态 -->
+          <div v-if="!currentReport" class="empty-placeholder">
+            <div class="empty-icon"><InboxOutlined /></div>
+            <div class="empty-text">暂无报告数据</div>
+          </div>
+          <template v-else>
+            <!-- 三栏数据 -->
+            <div class="three-col">
+              <!-- 人员服务 -->
+              <div class="report-group">
+                <h4 class="group-title">人员服务</h4>
+                <div class="info-list">
+                  <div class="info-item">
+                    <span class="info-label">总服务人次</span>
+                    <span class="info-value">{{ formatNumber(currentReport.servicePersonnel) }}</span>
+                  </div>
+                  <div class="info-item">
+                    <span class="info-label">投诉数量</span>
+                    <span class="info-value" :style="{ color: '#dd6b20' }">{{ formatNumber(currentReport.complaintsTotal) }}</span>
+                  </div>
+                  <div class="info-item">
+                    <span class="info-label">建议数量</span>
+                    <span class="info-value">{{ formatNumber(currentReport.recommendedTotal) }}</span>
+                  </div>
+                </div>
+              </div>
+              <!-- 设备与能耗 -->
+              <div class="report-group">
+                <h4 class="group-title">设备与能耗</h4>
+                <div class="info-list">
+                  <div class="info-item">
+                    <span class="info-label">设备故障数</span>
+                    <span class="info-value" :style="{ color: '#dd6b20' }">{{ formatNumber(currentReport.deviceFailuresTotal) }}</span>
+                  </div>
+                  <div class="info-item">
+                    <span class="info-label">总用电量</span>
+                    <span class="info-value">{{ formatNumber(currentReport.consumptionElectricity) }} kWh</span>
+                  </div>
+                  <div class="info-item">
+                    <span class="info-label">单人次能耗</span>
+                    <span class="info-value" :style="{ color: '#38a169' }">{{ formatNumber(currentReport.personEnergyConsumption) }} kWh</span>
+                  </div>
+                </div>
+              </div>
+              <!-- 会展数据 -->
+              <div class="report-group">
+                <h4 class="group-title">会展数据</h4>
+                <div class="info-list">
+                  <div class="info-item">
+                    <span class="info-label">展会天数</span>
+                    <span class="info-value">{{ formatNumber(currentReport.dayNumber) }} 天</span>
+                  </div>
+                  <div class="info-item">
+                    <span class="info-label">总客流</span>
+                    <span class="info-value">{{ formatNumber(currentReport.passengerFlow) }}</span>
+                  </div>
+                  <div class="info-item">
+                    <span class="info-label">峰值客流</span>
+                    <span class="info-value">{{ formatNumber(currentReport.peakFlow) }}</span>
+                  </div>
+                  <div class="info-item">
+                    <span class="info-label">参展商数</span>
+                    <span class="info-value">{{ formatNumber(currentReport.exhibitors) }} 家</span>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-          <!-- 设备与能耗 -->
-          <div class="report-group">
-            <h4 class="group-title">设备与能耗</h4>
-            <div class="info-list">
-              <div class="info-item" v-for="item in deviceData" :key="item.label">
-                <span class="info-label">{{ item.label }}</span>
-                <span class="info-value" :style="{ color: item.color || '#2d3748' }">{{ item.value }}</span>
-              </div>
-            </div>
-          </div>
-          <!-- 会展数据 -->
-          <div class="report-group">
-            <h4 class="group-title">会展数据</h4>
-            <div class="info-list">
-              <div class="info-item" v-for="item in exhibitionData" :key="item.label">
-                <span class="info-label">{{ item.label }}</span>
-                <span class="info-value" :style="{ color: item.color || '#2d3748' }">{{ item.value }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
 
-        <!-- AI优化建议 -->
-        <div class="suggestions-section">
-          <h4 class="group-title">优化建议（AI生成）</h4>
-          <div class="suggestion-list">
-            <div class="suggestion-item" v-for="item in suggestions" :key="item">
-              {{ item }}
+            <!-- AI优化建议 -->
+            <div class="suggestions-section">
+              <h4 class="group-title">优化建议（AI生成）</h4>
+              <div class="suggestion-list">
+                <div class="suggestion-item" v-for="item in suggestions" :key="item">
+                  {{ item }}
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          </template>
+        </a-spin>
       </div>
     </div>
-
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { message } from 'ant-design-vue'
 import { StatCard } from '/@/views/bems-web/components'
 import {
   ScheduleOutlined,
@@ -75,59 +131,145 @@ import {
   RobotOutlined,
   BookOutlined,
   BarChartOutlined,
+  InboxOutlined,
 } from '@ant-design/icons-vue'
+import {
+  getSummary,
+  getReportList,
+  exportReportExcel,
+} from './index.api'
+import type { StatCardVO, ActiveMeetReport } from './index.api'
 
 defineOptions({ name: 'EventPostPage' })
 
-const statData = {
-  pendingSummary: 2,
-  completedSummary: 18,
-  reportMode: 'AI',
-  knowledgeBase: 156,
+// ===== 统计卡片配置（图标/颜色固定，数据来自后端） =====
+const statCardConfigs = [
+  { color: 'blue' as const, icon: ScheduleOutlined },
+  { color: 'green' as const, icon: CheckCircleOutlined },
+  { color: 'orange' as const, icon: RobotOutlined },
+  { color: 'purple' as const, icon: BookOutlined },
+]
+
+const statCards = ref<StatCardVO[]>([])
+const statLoading = ref(false)
+
+/** 后端返回的 value 可能是对象或基本类型，统一格式化 */
+function formatStatValue(val?: string | number | { [key: string]: any } | null): string | number {
+  if (val == null || val === '') return '--'
+  if (typeof val === 'string' || typeof val === 'number') return val
+  return (val as any).value ?? (val as any).num ?? (val as any).count ?? '--'
 }
 
-const colorGreen = '#38a169'
+const fetchSummary = async () => {
+  statLoading.value = true
+  try {
+    const res = await getSummary()
+    statCards.value = Array.isArray(res) ? res : []
+  } catch (error) {
+    console.error('获取卡片汇总失败:', error)
+  } finally {
+    statLoading.value = false
+  }
+}
 
-const personnelData: { label: string; value: string; color?: string }[] = [
-  { label: '总服务人次', value: '45,678' },
-  { label: '投诉数量', value: '5' },
-  { label: '建议数量', value: '23' },
-  { label: '满意度评分', value: '4.6/5.0', color: colorGreen },
-  { label: '安保出勤', value: '128人次/天' },
-]
+// ===== 展会总结报告 =====
+const reportList = ref<ActiveMeetReport[]>([])
+const reportListLoading = ref(false)
+const currentReport = ref<ActiveMeetReport | null>(null)
+const detailLoading = ref(false)
 
-const deviceData: { label: string; value: string; color?: string }[] = [
-  { label: '设备故障数', value: '12' },
-  { label: '平均修复时长', value: '18分钟' },
-  { label: '总用电量', value: '356,789 kWh' },
-  { label: '能耗预算比', value: '95.2%', color: colorGreen },
-  { label: '单人次能耗', value: '7.8 kWh' },
-]
+const fetchReportList = async () => {
+  reportListLoading.value = true
+  try {
+    const res = await getReportList({ pageNo: 1, pageSize: 100 })
+    if (Array.isArray(res)) {
+      reportList.value = res
+    } else {
+      reportList.value = res?.records || []
+    }
+    // 默认选择第一个
+    if (reportList.value.length > 0 && reportList.value[0].id != null) {
+      currentReport.value = reportList.value[0]
+    }
+  } catch (error) {
+    console.error('获取展会总结报告列表失败:', error)
+  } finally {
+    reportListLoading.value = false
+  }
+}
 
-const exhibitionData: { label: string; value: string; color?: string }[] = [
-  { label: '展会天数', value: '3天' },
-  { label: '总客流', value: '45,678' },
-  { label: '峰值客流', value: '8,234' },
-  { label: '参展商数', value: '256家' },
-  { label: '应急响应', value: '2次' },
-]
+const handleReportChange = (val: number) => {
+  const found = reportList.value.find((item) => item.id === val)
+  currentReport.value = found || null
+}
 
+// ===== 导出 =====
+const exportLoading = ref(false)
+
+const handleExport = async () => {
+  if (!currentReport.value) {
+    message.warning('暂无数据可导出')
+    return
+  }
+  exportLoading.value = true
+  try {
+    const res = await exportReportExcel({ pageNo: 1, pageSize: 100 })
+    if (!res || res.size === 0) {
+      message.warning('文件下载失败')
+      return
+    }
+    const url = window.URL.createObjectURL(new Blob([res], { type: 'application/vnd.ms-excel' }))
+    const link = document.createElement('a')
+    link.style.display = 'none'
+    link.href = url
+    link.setAttribute('download', '展会总结报告.xls')
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+    message.success('导出成功')
+  } catch (error) {
+    console.error('导出失败:', error)
+    message.error('导出失败')
+  } finally {
+    exportLoading.value = false
+  }
+}
+
+// ===== AI优化建议（静态，后续可接接口） =====
 const suggestions = [
   '建议A馆F2层空调提前30分钟预冷，可降低开展初期能耗峰值15%',
   'B馆会议室音响设备建议增加日常巡检频次，减少展会期间故障',
   'C馆室外广场建议增设临时遮阳设施，提升参展商满意度',
   '安保人员部署建议根据客流预测动态调整，可优化人力成本10%',
 ]
+
+// ===== 工具函数 =====
+function formatNumber(val?: number | string): string {
+  if (val == null || val === '') return '--'
+  const num = Number(val)
+  if (isNaN(num)) return String(val)
+  return num.toLocaleString()
+}
+
+// ===== 初始化 =====
+onMounted(() => {
+  fetchSummary()
+  fetchReportList()
+})
 </script>
 
 <style scoped lang="less">
 .event-page { padding: 0; }
 
 .stats-row {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 18px;
   margin-bottom: 20px;
+
+  .stats-inner {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+  }
 }
 
 .card {
@@ -159,6 +301,7 @@ const suggestions = [
     .header-actions {
       display: flex;
       gap: 8px;
+      align-items: center;
     }
   }
 
@@ -246,5 +389,34 @@ const suggestions = [
       flex-shrink: 0;
     }
   }
+}
+
+.empty-placeholder {
+  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  color: #a0aec0;
+  border: 2px dashed #e2e8f0;
+  min-height: 260px;
+  padding: 30px;
+
+  .empty-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+  }
+
+  .empty-text {
+    font-size: 14px;
+    color: #718096;
+    font-weight: 500;
+  }
+}
+
+@media (max-width: 1200px) {
+  .stats-row .stats-inner { grid-template-columns: repeat(2, 1fr); }
+  .three-col { grid-template-columns: 1fr; }
 }
 </style>
