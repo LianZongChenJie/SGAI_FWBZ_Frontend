@@ -1,45 +1,41 @@
 <template>
   <div class="iot-page">
     <div class="stats-row">
-      <StatCard label="链路总数" :value="statData.totalLinks" change-text="↑ 12 新增" trend="up" color="blue" :icon="LinkOutlined" />
-      <StatCard label="正常链路" :value="statData.normalLinks" change-text="96.4% 正常" trend="up" color="green" :icon="CheckCircleOutlined" />
-      <StatCard label="数据采集状态" :value="statData.collectionStatus" change-text="99.8% 完整" trend="up" color="orange" :icon="DownloadOutlined" />
-      <StatCard label="数据处理状态" :value="statData.processStatus" change-text="实时处理" trend="up" color="red" :icon="SettingOutlined" />
+      <StatCard
+        v-for="(item, index) in statCards"
+        :key="index"
+        :label="item.title"
+        :value="item.value"
+        :change-text="item.context"
+        :trend="item.trend"
+        :color="item.color"
+        :icon="item.icon"
+      />
     </div>
 
     <div class="card">
       <div class="card-header">
-        <h3><LinkOutlined /> 链路状态监控</h3>
+        <h3><ApiOutlined /> 设备状态监控</h3>
         <span class="tag tag-green">实时监控</span>
       </div>
       <div class="card-body">
-        <div class="device-grid">
-          <div class="device-card-item" v-for="link in linkData" :key="link.title">
-            <div class="device-card-header">
-              <div class="device-card-icon" :style="{ background: link.bgColor, color: link.iconColor }">
-                <component :is="link.icon" />
-              </div>
-              <div>
-                <div class="device-card-title">{{ link.title }}</div>
-                <div class="device-card-meta">{{ link.meta }}</div>
-              </div>
-            </div>
-            <div class="device-card-stats">
-              <div class="device-card-stat">
-                <div class="num">{{ link.status }}</div>
-                <div class="lbl">状态</div>
-              </div>
-              <div class="device-card-stat">
-                <div class="num">{{ link.latency }}</div>
-                <div class="lbl">延迟</div>
-              </div>
-              <div class="device-card-stat" :class="{ 'stat-highlight': link.uptime === '中断' || link.uptime.includes('min') }">
-                <div class="num">{{ link.uptime }}</div>
-                <div class="lbl">可用</div>
-              </div>
-            </div>
+        <a-spin :spinning="deviceLoading" tip="加载中...">
+          <div class="device-grid">
+            <DeviceCard
+              v-for="(item, index) in deviceList"
+              :key="index"
+              :title="item.title"
+              :meta="item.meta"
+              :icon="ApiOutlined"
+              :icon-bg="item.iconBg"
+              :icon-color="item.iconColor"
+              :stats="item.stats"
+            />
           </div>
-        </div>
+          <div v-if="!deviceLoading && deviceList.length === 0" class="empty-state">
+            暂无数据
+          </div>
+        </a-spin>
       </div>
     </div>
 
@@ -48,24 +44,112 @@
 </template>
 
 <script setup lang="ts">
-import { StatCard } from '/@/views/bems-web/components'
+import { ref, onMounted } from 'vue'
+import { StatCard, DeviceCard } from '/@/views/bems-web/components'
 import {
   LinkOutlined, CheckCircleOutlined, DownloadOutlined, SettingOutlined,
-  ApiOutlined, DatabaseOutlined, CloudServerOutlined,
+  ApiOutlined,
 } from '@ant-design/icons-vue'
+import { getSummary, getDeviceStatusMonitor } from './index.api'
+import type { StatCardVO, SystemDeviceStatVO } from './index.api'
 
 defineOptions({ name: 'IotOperationPage' })
 
-const statData = { totalLinks: 56, normalLinks: 54, collectionStatus: '正常', processStatus: '正常' }
+// ===== 顶部统计卡片 =====
+interface StatCardItem {
+  title: string
+  value: string | number
+  context?: string
+  trend: 'up' | 'down' | ''
+  color: 'blue' | 'green' | 'orange' | 'red' | 'purple' | 'cyan'
+  icon: any
+}
 
-const linkData = [
-  { title: '核心交换机链路', meta: '网络层', icon: ApiOutlined, bgColor: '#f0fff4', iconColor: '#38a169', status: '正常', latency: '1ms', uptime: '99.9%' },
-  { title: '数据库连接池', meta: '数据层', icon: DatabaseOutlined, bgColor: '#f0fff4', iconColor: '#38a169', status: '正常', latency: '12ms', uptime: '45 连接数' },
-  { title: '消息队列链路', meta: '中间件层', icon: CloudServerOutlined, bgColor: '#f0fff4', iconColor: '#38a169', status: '正常', latency: '5ms', uptime: '99.8%' },
-  { title: '安防系统链路', meta: '应用层', icon: LinkOutlined, bgColor: '#f0fff4', iconColor: '#38a169', status: '正常', latency: '45ms', uptime: '99.7%' },
-  { title: '照明系统链路', meta: '应用层', icon: LinkOutlined, bgColor: '#fff5f5', iconColor: '#e53e3e', status: '异常', latency: '2,345ms', uptime: '15min' },
-  { title: '停车系统链路', meta: '应用层', icon: LinkOutlined, bgColor: '#fff5f5', iconColor: '#e53e3e', status: '离线', latency: '-', uptime: '中断' },
+// 按顺序配置每张卡片的颜色与图标，与接口返回的 StatCardVO 列表一一对应
+const statCardConfig = [
+  { color: 'blue' as const, icon: LinkOutlined },
+  { color: 'green' as const, icon: CheckCircleOutlined },
+  { color: 'orange' as const, icon: DownloadOutlined },
+  { color: 'red' as const, icon: SettingOutlined },
 ]
+
+const statCards = ref<StatCardItem[]>([])
+const statLoading = ref(false)
+
+const loadSummary = async () => {
+  statLoading.value = true
+  try {
+    const res = await getSummary()
+    const list: StatCardVO[] = Array.isArray(res) ? res : (res?.data || res?.result || [])
+    statCards.value = (list || []).map((item, index) => {
+      const cfg = statCardConfig[index] || { color: 'blue' as const, icon: LinkOutlined }
+      // 根据 context 中的箭头方向推断趋势
+      const ctx = item.context || ''
+      let trend: 'up' | 'down' | '' = ''
+      if (ctx.includes('↑')) trend = 'up'
+      else if (ctx.includes('↓')) trend = 'down'
+      return {
+        title: item.title || '',
+        value: (item.value ?? '--'),
+        context: ctx,
+        trend,
+        color: cfg.color,
+        icon: cfg.icon,
+      }
+    })
+  } catch (e) {
+    console.error('加载卡片汇总失败:', e)
+  } finally {
+    statLoading.value = false
+  }
+}
+
+// ===== 设备状态监控 =====
+interface DeviceCardItem {
+  title: string
+  meta: string
+  iconBg: string
+  iconColor: string
+  stats: { label: string; value: string | number; highlight?: boolean }[]
+}
+
+const deviceList = ref<DeviceCardItem[]>([])
+const deviceLoading = ref(false)
+
+const loadDeviceStatus = async () => {
+  deviceLoading.value = true
+  try {
+    const res = await getDeviceStatusMonitor()
+    const list: SystemDeviceStatVO[] = Array.isArray(res) ? res : (res?.data || res?.result || [])
+    deviceList.value = (list || []).map((item) => {
+      const onlineRate = item.onlineRate ?? 0
+      const offline = (item.deviceCount ?? 0) - (item.online ?? 0)
+      // 在线率低于 100% 时高亮显示
+      const rateHighlight = onlineRate < 100
+      const normal = onlineRate >= 100
+      return {
+        title: item.systemName || '--',
+        meta: '设备状态',
+        iconBg: normal ? '#f0fff4' : '#fff5f5',
+        iconColor: normal ? '#38a169' : '#e53e3e',
+        stats: [
+          { label: '设备总数', value: item.deviceCount ?? 0 },
+          { label: '在线', value: item.online ?? 0 },
+          { label: '离线', value: offline, highlight: offline > 0 },
+        ],
+      }
+    })
+  } catch (e) {
+    console.error('加载设备状态监控失败:', e)
+  } finally {
+    deviceLoading.value = false
+  }
+}
+
+onMounted(() => {
+  loadSummary()
+  loadDeviceStatus()
+})
 </script>
 
 <style scoped lang="less">
@@ -84,21 +168,9 @@ const linkData = [
 
 .device-grid {
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
-  .device-card-item {
-    background: #fafafa; border-radius: 10px; padding: 18px 20px; transition: all 0.25s ease; border: 1px solid #f0f0f0;
-    &:hover { border-color: #d9d9d9; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-    .device-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px;
-      .device-card-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
-      .device-card-title { font-size: 14px; font-weight: 600; color: #1d2129; }
-      .device-card-meta { font-size: 12px; color: #86909c; margin-top: 2px; }
-    }
-    .device-card-stats { display: flex; gap: 16px; padding-top: 14px; border-top: 1px solid #f0f0f0;
-      .device-card-stat { text-align: center; flex: 1;
-        .num { font-size: 16px; font-weight: 700; color: #1d2129; line-height: 1.3; }
-        .lbl { font-size: 11px; color: #86909c; margin-top: 2px; }
-        &.stat-highlight .num { color: #ff4d4f; }
-      }
-    }
-  }
+}
+
+.empty-state {
+  text-align: center; color: #86909c; padding: 40px 0; font-size: 14px;
 }
 </style>

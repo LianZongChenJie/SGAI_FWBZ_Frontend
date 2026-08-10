@@ -7,6 +7,146 @@ enum Api {
     realTimeMonitor = '/sgai-fwbz-dev/fwbz/fireDevice/smokeDetector/list',
     /** 设备状态统计 */
     deviceStatusStatistics = '/sgai-fwbz-dev/fwbz/fireDevice/smokeDetector/countByStatus',
+    /** 消防设备类型 */
+    deviceTypeList = '/sgai-fwbz-dev/fwbz/fireDevice/smokeDetector/typeList',
+    /** 设备告警记录 */
+    alarmRecord = '/sgai-fwbz-dev/fwbz/fireDevice/smokeDetector/alarmRecords',
+    /** 消防设备分布图 */
+    distributionMap = '/sgai-fwbz-dev/fwbz/fireDevice/smokeDetector/countByVenue',
+}
+
+/**
+ * 场馆消防设备数量统计
+ *
+ * VenueDeviceCountVO
+ */
+export interface VenueDeviceCountVO {
+    /**
+     * 消防设备数量
+     */
+    deviceCount?: number;
+    /**
+     * 纬度
+     */
+    latitude?: number;
+    /**
+     * 经度
+     */
+    longitude?: number;
+    /**
+     * 场馆名称
+     */
+    venueName?: string;
+    [property: string]: any;
+}
+
+
+
+/**
+ * 设备告警记录
+ *
+ * IPageFireAlarmRecord
+ */
+export interface IPageFireAlarmRecord {
+    countId?: string;
+    current?: number;
+    maxLimit?: number;
+    optimizeCountSql?: boolean;
+    optimizeJoinOfCountSql?: boolean;
+    pages?: number;
+    records?: FireAlarmRecord[];
+    searchCount?: boolean;
+    size?: number;
+    total?: number;
+    [property: string]: any;
+}
+
+/**
+ * 消防设备报警记录
+ *
+ * FireAlarmRecord
+ */
+export interface FireAlarmRecord {
+    /**
+     * 报警内容描述
+     */
+    alarmContent?: string;
+    /**
+     * 报警日期
+     */
+    alarmDate?: string;
+    /**
+     * 报警级别: 1低 2中 3高 4紧急
+     */
+    alarmLevel?: number;
+    /**
+     * 报警位置
+     */
+    alarmLocation?: string;
+    /**
+     * 报警时间
+     */
+    alarmTime?: string;
+    /**
+     * 报警类型: 烟感报警/温感报警/手报报警/设备故障/低电量/离线
+     */
+    alarmType?: string;
+    /**
+     * 消防设备ID
+     */
+    deviceId?: string;
+    /**
+     * 创建时间
+     */
+    gmtCreate?: string;
+    /**
+     * 修改时间
+     */
+    gmtModified?: string;
+    /**
+     * 处理人
+     */
+    handler?: string;
+    /**
+     * 处理备注
+     */
+    handleRemark?: string;
+    /**
+     * 处理状态: 0未处理 1处理中 2已处理 3误报 4忽略
+     */
+    handleStatus?: number;
+    /**
+     * 处理时间
+     */
+    handleTime?: string;
+    /**
+     * 主键ID
+     */
+    id?: number;
+    /**
+     * 状态: 1正常 0删除
+     */
+    status?: number;
+    [property: string]: any;
+}
+
+
+
+/**
+ * 消防设备类型
+ *
+ * SmokeDetectorType
+ */
+export interface SmokeDetectorType {
+    /**
+     * 主键ID
+     */
+    id?: number;
+    /**
+     * 设备类型名称
+     */
+    typeName?: string;
+    [property: string]: any;
 }
 
 /** 卡片汇总信息 */
@@ -23,6 +163,16 @@ export const getRealTimeMonitor = (params?: {
 
 /** 设备状态统计 */
 export const getDeviceStatusStatistics = () => defHttp.get({ url: Api.deviceStatusStatistics });
+
+/** 消防设备类型列表 */
+export const getDeviceTypeList = () => defHttp.get({ url: Api.deviceTypeList });
+
+/** 设备告警记录（分页，入参 deviceId） */
+export const getAlarmRecordList = (params?: { deviceId: string | number; pageNo?: number; pageSize?: number }) =>
+    defHttp.get({ url: Api.alarmRecord, params });
+
+/** 消防设备分布图（按场馆统计设备数量） */
+export const getDistributionMap = () => defHttp.get({ url: Api.distributionMap });
 
 /**
  * 设备状态统计

@@ -40,11 +40,11 @@
             allow-clear
             @change="handleReportChange"
           />
-          <a-button :loading="exportLoading" @click="handleExport">导出Excel</a-button>
+          <a-button :loading="exportLoading" @click="handleExport"><DownloadOutlined /> 导出Excel</a-button>
           <a-button :loading="saveLoading" type="primary" @click="handleSave">
             <SaveOutlined /> 保存
           </a-button>
-          <a-button type="primary">AI生成</a-button>
+          <a-button type="primary"><ExperimentOutlined /> AI生成</a-button>
         </div>
       </div>
       <div class="card-body">
@@ -144,6 +144,9 @@ import {
   BookOutlined,
   BarChartOutlined,
   InboxOutlined,
+  SaveOutlined,
+  DownloadOutlined,
+  ExperimentOutlined,
 } from '@ant-design/icons-vue'
 import {
   getSummary,
@@ -153,7 +156,6 @@ import {
   saveReportStatistics,
 } from './index.api'
 import type { StatCardVO, ActiveMeetReport } from './index.api'
-import { SaveOutlined } from '@ant-design/icons-vue'
 
 defineOptions({ name: 'EventPostPage' })
 
