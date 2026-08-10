@@ -12,10 +12,10 @@
     <!-- right: action items -->
     <div :class="`${prefixCls}-action`">
       <!-- 告警 -->
-      <div class="topbar-item bell-out-lined">
+      <div class="topbar-item bell-out-lined" @click="goToAlertHandle">
         <span>🔔</span>
         <span>告警</span>
-        <span class="badge">12</span>
+        <span class="badge">{{ alarmCount }}</span>
       </div>
 
       <!-- 日期 -->
@@ -56,6 +56,8 @@
 
   import { useAppInject } from '/@/hooks/web/useAppInject';
   import { useDesign } from '/@/hooks/web/useDesign';
+
+  import { getAlarmStatistics } from '/@/views/bems-web/overview/index.api';
 
   import LoginSelect from '/@/views/sys/login/LoginSelect.vue';
   import { useUserStore } from '/@/store/modules/user';
@@ -158,8 +160,29 @@
         console.log('成功。。。。。');
       }
 
+      // 告警数量（待处理告警）
+      const alarmCount = ref(0);
+
+      // 获取待处理告警数量（取 untreatedCount 字段）
+      async function fetchAlarmCount() {
+        try {
+          const res = await getAlarmStatistics();
+          if (res != null) {
+            alarmCount.value = res.untreatedCount ?? 0;
+          }
+        } catch {
+          // 静默处理
+        }
+      }
+
+      // 跳转到告警处理页面
+      function goToAlertHandle() {
+        router.push('/fwbz/alert/handle');
+      }
+
       onMounted(() => {
         showLoginSelect();
+        fetchAlarmCount();
       });
 
       return {
@@ -172,8 +195,10 @@
         currentDate,
         userName,
         userNameInitial,
+        alarmCount,
         handleUserMenuClick,
         openBigscreen,
+        goToAlertHandle,
       };
     },
   });

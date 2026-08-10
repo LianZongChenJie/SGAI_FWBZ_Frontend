@@ -3,6 +3,10 @@ import { defHttp } from '/@/utils/http/axios';
 enum Api {
     /** 今日会展活动 */
     todayExhibitionActivity = '/sgai-fwbz-dev/fwbz/activeMeet/info/listPage',
+    /** 今日总客流 */
+    todayVisitorCount = '/sgai-fwbz-dev/fwbz/venueVisitorFlow/todayVisitorCount',
+    /** 告警统计（待处理告警数量） */
+    alarmStatistics = '/sgai-tp/fwbz/alarm/record/statistics',
 }
 
 /**
@@ -95,3 +99,9 @@ export interface ActiveMeetInfo {
 /** 获取今日会展活动列表（入参: { startDate: 'YYYY-MM-DD' }） */
 export const getTodayExhibitionActivity = (params?: { startDate?: string, endDate?: string }) =>
   defHttp.get({ url: Api.todayExhibitionActivity, params });
+
+/** 今日总客流 */
+export const getTodayVisitorCount = () => defHttp.get({ url: Api.todayVisitorCount });
+
+/** 告警统计（待处理告警数量取 untreatedCount 字段） */
+export const getAlarmStatistics = () => defHttp.get({ url: Api.alarmStatistics });

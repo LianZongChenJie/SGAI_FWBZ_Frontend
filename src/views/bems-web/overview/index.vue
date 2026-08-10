@@ -5,7 +5,6 @@
       <StatCard
         label="今日场馆客流"
         :value="statData.todayVisitors"
-        change-text="↑ 15.3% 较昨日"
         trend="up"
         color="blue"
         :icon="CrowdIcon"
@@ -13,7 +12,6 @@
       <StatCard
         label="设备在线率"
         :value="statData.deviceOnlineRate"
-        change-text="↑ 0.8% 较上周"
         trend="up"
         color="green"
         :icon="ThunderIcon"
@@ -21,7 +19,6 @@
       <StatCard
         label="今日能耗 (kWh)"
         :value="statData.todayEnergy"
-        change-text="↓ 8.2% 较昨日"
         trend="down"
         color="orange"
         :icon="EnergyIcon"
@@ -29,7 +26,6 @@
       <StatCard
         label="待处理告警"
         :value="statData.pendingAlerts"
-        change-text="↓ 3 较昨日"
         trend="down"
         color="red"
         :icon="AlertIcon"
@@ -191,7 +187,7 @@ import { ref, computed, onMounted, h, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import dayjs from 'dayjs'
 import { StatCard, DeviceCard } from '/@/views/bems-web/components'
-import { getTodayExhibitionActivity } from './index.api'
+import { getTodayExhibitionActivity, getTodayVisitorCount, getAlarmStatistics } from './index.api'
 import type { ActiveMeetInfo } from './index.api'
 import { getEquipmentOverview } from '/@/views/bems-web/energy/operational-support/elements/overviewTab/index.api'
 import { getAlarmRecordsListApi } from '/@/views/bems-web/alert/alarmManagement/Standardized.api'
@@ -257,11 +253,39 @@ defineOptions({ name: 'DashboardPage' })
 const router = useRouter()
 
 // ===== 统计数据 =====
-const statData = {
-  todayVisitors: '12,847',
+const statData = ref<{
+  todayVisitors: string | number
+  deviceOnlineRate: string | number
+  todayEnergy: string | number
+  pendingAlerts: string | number
+}>({
+  todayVisitors: '--',
   deviceOnlineRate: '98.6%',
   todayEnergy: '45,230',
-  pendingAlerts: 12,
+  pendingAlerts: '--',
+})
+
+/** 加载统计数据（今日场馆客流 + 待处理告警） */
+const fetchStatData = async () => {
+  try {
+    const [visitorRes, alarmRes] = await Promise.all([
+      getTodayVisitorCount(),
+      getAlarmStatistics(),
+    ])
+    // 今日场馆客流
+    const visitorVal = visitorRes?.value ?? visitorRes
+    if (visitorVal != null) {
+      const num = parseInt(visitorVal, 10) || 0
+      statData.value.todayVisitors = num.toLocaleString()
+    }
+    // 待处理告警（取 untreatedCount 字段）
+    if (alarmRes != null) {
+      const num = alarmRes.untreatedCount ?? 0
+      statData.value.pendingAlerts = num
+    }
+  } catch {
+    // 静默处理
+  }
 }
 
 // ===== 快捷入口 =====
@@ -576,6 +600,7 @@ const handleViewAllAlerts = () => {
 }
 
 onMounted(() => {
+  fetchStatData()
   fetchTodayEvents()
   fetchAlertList()
   loadEquipmentOverview()
