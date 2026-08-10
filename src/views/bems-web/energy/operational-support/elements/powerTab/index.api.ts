@@ -20,3 +20,8 @@ export const getActivePower = (params = {}) => defHttp.get({ url: Api.activePowe
  * 配电统计
  */
 export const getPowerStatistics = (params = {}) => defHttp.get({ url: Api.powerStatistics, params })
+
+/**
+ * 设备属性列表（按设备ID查询）
+ */
+export const getDeviceAttrList = (params = {}) => defHttp.get({ url: '/sgai-tp/fwbz/deviceAttribute/listByDeviceId', params })
