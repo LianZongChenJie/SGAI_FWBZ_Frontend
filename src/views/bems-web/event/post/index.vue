@@ -30,9 +30,21 @@
       <div class="card-header">
         <h3><BarChartOutlined /> 展会总结报告{{ currentReport ? ' - ' + currentReport.activeName : '' }}</h3>
         <div class="header-actions">
-          
-          <a-button :loading="exportLoading" @click="handleExport">导出PDF</a-button>
-          <a-button type="primary">AI生成</a-button>
+          <a-select
+            v-model:value="selectedReportId"
+            style="width: 240px"
+            placeholder="请选择展会"
+            :loading="reportListLoading"
+            :options="reportOptions"
+            :field-names="{ label: 'activeName', value: 'id' }"
+            allow-clear
+            @change="handleReportChange"
+          />
+          <a-button :loading="exportLoading" @click="handleExport"><DownloadOutlined /> 导出Excel</a-button>
+          <a-button :loading="saveLoading" type="primary" @click="handleSave">
+            <SaveOutlined /> 保存
+          </a-button>
+          <a-button type="primary"><ExperimentOutlined /> AI生成</a-button>
         </div>
       </div>
       <div class="card-body">
@@ -122,7 +134,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { message } from 'ant-design-vue'
 import { StatCard } from '/@/views/bems-web/components'
 import {
@@ -132,11 +144,16 @@ import {
   BookOutlined,
   BarChartOutlined,
   InboxOutlined,
+  SaveOutlined,
+  DownloadOutlined,
+  ExperimentOutlined,
 } from '@ant-design/icons-vue'
 import {
   getSummary,
   getReportList,
   exportReportExcel,
+  getReportStatistics,
+  saveReportStatistics,
 } from './index.api'
 import type { StatCardVO, ActiveMeetReport } from './index.api'
 
@@ -175,8 +192,13 @@ const fetchSummary = async () => {
 // ===== 展会总结报告 =====
 const reportList = ref<ActiveMeetReport[]>([])
 const reportListLoading = ref(false)
+const selectedReportId = ref<number | undefined>(undefined)
+const reportOptions = computed(() =>
+  reportList.value.map((item) => ({ ...item }))
+)
 const currentReport = ref<ActiveMeetReport | null>(null)
 const detailLoading = ref(false)
+const saveLoading = ref(false)
 
 const fetchReportList = async () => {
   reportListLoading.value = true
@@ -189,7 +211,8 @@ const fetchReportList = async () => {
     }
     // 默认选择第一个
     if (reportList.value.length > 0 && reportList.value[0].id != null) {
-      currentReport.value = reportList.value[0]
+      selectedReportId.value = reportList.value[0].id
+      await fetchReportStatistics(selectedReportId.value)
     }
   } catch (error) {
     console.error('获取展会总结报告列表失败:', error)
@@ -198,9 +221,49 @@ const fetchReportList = async () => {
   }
 }
 
-const handleReportChange = (val: number) => {
-  const found = reportList.value.find((item) => item.id === val)
-  currentReport.value = found || null
+/** 选择展会后调用 statistics 接口获取真实数据 */
+const handleReportChange = async (val: number | undefined) => {
+  if (val == null) {
+    currentReport.value = null
+    return
+  }
+  await fetchReportStatistics(val)
+}
+
+/** 调用 statistics 接口获取展会总结报告详情 */
+const fetchReportStatistics = async (id: number) => {
+  detailLoading.value = true
+  try {
+    const res = await getReportStatistics(id)
+    if (res) {
+      currentReport.value = res
+    } else {
+      currentReport.value = null
+    }
+  } catch (error) {
+    console.error('获取展会总结报告详情失败:', error)
+    currentReport.value = null
+  } finally {
+    detailLoading.value = false
+  }
+}
+
+/** 保存展会总结报告（入参为 statistics 接口返回的数据） */
+const handleSave = async () => {
+  if (!currentReport.value) {
+    message.warning('暂无数据可保存')
+    return
+  }
+  saveLoading.value = true
+  try {
+    await saveReportStatistics(currentReport.value)
+    message.success('保存成功')
+  } catch (error) {
+    console.error('保存失败:', error)
+    message.error('保存失败')
+  } finally {
+    saveLoading.value = false
+  }
 }
 
 // ===== 导出 =====

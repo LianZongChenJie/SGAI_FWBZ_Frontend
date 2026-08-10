@@ -3,7 +3,7 @@ import { defHttp } from '/@/utils/http/axios';
 enum Api {
   /** 卡片汇总 */
   summary = '/sgai-fwbz-dev/fwbz/hikvision/dashboard/stat/summary',
-  /** 人员轨迹查询 */
+  /** 新增人员轨迹查询 */
   trackList = '/sgai-fwbz-dev/fwbz/personnelTrajectory/query',
   /** 人员识别记录 */
   recognitionRecord = '/sgai-fwbz-dev/fwbz/hikvision/personRecognition/list',
@@ -11,7 +11,143 @@ enum Api {
   venueFlowTrend = '/sgai-fwbz-dev/fwbz/venueVisitorFlow/hourly/todayTrend',
   /** 场馆列表（全量） */
   venueList = '/sgai-fwbz-dev/fwbz/venueInfo/listAll',
+  /** 人员分布热力图 */
+  distributionMap = '/sgai-fwbz-dev/fwbz/venueVisitorFlow/hourly/heatmap',
 }
+
+/**
+ * 新增人员轨迹查询
+ *
+ * PersonnelTrajectoryResultVO
+ */
+export interface PersonnelTrajectoryResultVO {
+    /**
+     * 轨迹摄像头信息列表
+     */
+    cameraList?: PersonnelTrajectoryVO[];
+    /**
+     * 证件号码
+     */
+    certificateNum?: string;
+    /**
+     * 证件类别：111-身份证，OTHER-其它证件
+     * 证件类别
+     */
+    certificateType?: string;
+    /**
+     * 人脸分组人脸图片URL
+     */
+    faceUrl?: string;
+    /**
+     * 人脸分组匹配姓名
+     */
+    name?: string;
+    /**
+     * 人脸分组相似度
+     */
+    similarity?: string;
+    [property: string]: any;
+}
+
+/**
+ * 人员轨迹结果
+ *
+ * PersonnelTrajectoryVO
+ */
+export interface PersonnelTrajectoryVO {
+    /**
+     * 背景图片URL
+     */
+    bkgPicUrl?: string;
+    /**
+     * 摄像头唯一编码
+     */
+    cameraIndexCode?: string;
+    /**
+     * 摄像头名称
+     */
+    cameraName?: string;
+    /**
+     * 抓拍时间（ISO8601标准）
+     */
+    captureTime?: string;
+    /**
+     * 人脸图片URL
+     */
+    facePicUrl?: string;
+    /**
+     * 摄像头安装位置
+     */
+    installLocation?: string;
+    /**
+     * 纬度
+     */
+    latitude?: number;
+    /**
+     * 经度
+     */
+    longitude?: number;
+    /**
+     * 相似度
+     */
+    similarity?: string;
+    [property: string]: any;
+}
+
+
+/**
+ * 各场馆热力图数据项
+ *
+ * VenueHeatmapItemVO
+ */
+export interface VenueHeatmapItemVO {
+    /**
+     * 场馆ID
+     */
+    id?: number;
+    /**
+     * 纬度
+     */
+    lat?: number;
+    /**
+     * 经度
+     */
+    lng?: number;
+    /**
+     * 场馆名称
+     */
+    name?: string;
+    /**
+     * 剩余比例 = shengyu/total
+     */
+    saturation?: number;
+    /**
+     * 剩余容量
+     */
+    shengyu?: number;
+    /**
+     * 拥挤状态：宽松/适中/拥挤
+     */
+    state?: string;
+    /**
+     * 今日峰值（max_count），作为容量参考
+     */
+    total?: number;
+    /**
+     * 使用率百分比 = used/total * 100
+     */
+    usageRate?: number;
+    /**
+     * 当前在场人数（today_now_count）
+     */
+    used?: number;
+    /**
+     * 使用比例 = used/total
+     */
+    usedRate?: number;
+    [property: string]: any;
+}
+
 
 
 /** 客流趋势入参 */
@@ -211,83 +347,6 @@ export interface TrackQueryRequest {
   [property: string]: any;
 }
 
-/**
- * 人员轨迹列表（含摄像头名称、安装位置、经纬度信息）
- *
- * ResultListPersonnelTrajectoryVO
- */
-export interface Response {
-    /**
-     * 返回代码
-     */
-    code?: number;
-    /**
-     * 返回处理消息
-     */
-    message?: string;
-    /**
-     * 返回数据对象
-     */
-    result?: PersonnelTrajectoryVO[];
-    /**
-     * 成功标志
-     */
-    success?: boolean;
-    /**
-     * 时间戳
-     */
-    timestamp?: number;
-    [property: string]: any;
-}
-
-/**
- * 人员轨迹结果
- *
- * PersonnelTrajectoryVO
- */
-export interface PersonnelTrajectoryVO {
-    /**
-     * 背景图片URL
-     */
-    bkgPicUrl?: string;
-    /**
-     * 摄像头唯一编码
-     */
-    cameraIndexCode?: string;
-    /**
-     * 摄像头名称
-     */
-    cameraName?: string;
-    /**
-     * 抓拍时间（ISO8601标准）
-     * 抓拍时间
-     */
-    captureTime?: string;
-    /**
-     * 人脸图片URL
-     */
-    facePicUrl?: string;
-    /**
-     * 摄像头安装位置
-     */
-    installLocation?: string;
-    /**
-     * 纬度
-     */
-    latitude?: number;
-    /**
-     * 经度
-     */
-    longitude?: number;
-    /**
-     * 相似度
-     */
-    similarity?: string;
-    [property: string]: any;
-}
-
-
-/** 新增人员轨迹查询 */
 export const addTrackQuery = (params: TrackQueryRequest) => defHttp.post({ url: Api.trackList, params });
 
 /** 获取今日进场人数 */
@@ -303,3 +362,6 @@ export const getVenueList = () => defHttp.get({ url: Api.venueList });
 /** 获取场馆客流趋势数据 */
 export const getVenueFlowTrend = (params: VenueFlowTrendRequest) =>
     defHttp.get({ url: Api.venueFlowTrend, params });
+
+/** 人员分布热力图（各场馆热力数据） */
+export const getDistributionMap = () => defHttp.get({ url: Api.distributionMap });

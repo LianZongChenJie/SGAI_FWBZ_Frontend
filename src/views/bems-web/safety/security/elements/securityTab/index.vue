@@ -36,7 +36,7 @@
           <h3><ScheduleOutlined /> 视频巡更计划</h3>
           <a-button type="primary" @click="handleAddPatrol">+ 新增巡更</a-button>
         </div>
-        <div class="card-body">
+        <div class="card-body patrol-card-body">
           <a-table
             :columns="patrolColumns"
             :data-source="patrolData"
@@ -44,6 +44,7 @@
             :loading="patrolLoading"
             row-key="id"
             size="small"
+            :scroll="{ y: 240 }"
             @change="handlePatrolTableChange"
           >
             <template #bodyCell="{ column, record }">
@@ -530,6 +531,11 @@ const handleViewAllAIEvents = () => {
   .card-body {
     padding: 22px;
   }
+}
+
+.patrol-card-body {
+  max-height: 360px;
+  overflow-y: auto;
 }
 
 .ai-events-modal {

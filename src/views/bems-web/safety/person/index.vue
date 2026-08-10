@@ -21,21 +21,19 @@
           <span class="tag tag-blue">实时</span>
         </div>
         <div class="card-body">
-          <div class="map-placeholder">
-            <div class="map-icon"><HeatMapOutlined /></div>
-            <div class="map-text">场馆人员分布热力图</div>
-            <div class="map-sub">A馆 1,234人 | B馆 892人 | C馆 1,441人</div>
-          </div>
+          <a-spin :spinning="heatmapLoading">
+            <PersonHeatmapMapView :data="heatmapData" />
+          </a-spin>
         </div>
       </div>
       <div class="card">
         <div class="card-header">
           <h3><BarChartOutlined /> 各场馆客流趋势</h3>
-          <div class="btn-group">
-            <a-button :type="trendPeriod === 0 ? 'primary' : 'default'" size="small" @click="handleTrendPeriodChange(0)">今日</a-button>
-            <a-button :type="trendPeriod === 1 ? 'primary' : 'default'" size="small" @click="handleTrendPeriodChange(1)">本周</a-button>
-            <a-button :type="trendPeriod === 2 ? 'primary' : 'default'" size="small" @click="handleTrendPeriodChange(2)">本月</a-button>
-          </div>
+          <a-radio-group v-model:value="trendPeriod" button-style="solid" size="small" @change="handleTrendPeriodChange">
+            <a-radio-button :value="0">今日</a-radio-button>
+            <a-radio-button :value="1">本周</a-radio-button>
+            <a-radio-button :value="2">本月</a-radio-button>
+          </a-radio-group>
         </div>
         <div class="card-body">
           <a-spin :spinning="trendLoading">
@@ -60,7 +58,6 @@
             <a-select-option v-for="item in venueOptions" :key="item.id" :value="item.venueName">{{ item.venueName }}</a-select-option>
           </a-select>
           <a-button type="primary" @click="handleSearch"><SearchOutlined /> 查询</a-button>
-          <a-button><DownloadOutlined /> 导出</a-button>
         </div>
       </div>
       <div class="card-body">
@@ -97,35 +94,49 @@
         <a-button type="primary" @click="handleAddTrack">+ 新增查询</a-button>
       </div>
       <div class="card-body">
-        <div class="two-col">
-          <div>
-            <div class="info-list">
-              <div class="info-item">
-                <span class="info-label">查询人员</span>
-                <span class="info-value">张三 (EMP-1024)</span>
+        <!-- 无查询结果时展示占位 -->
+        <a-empty v-if="!trackResult" description="暂无数据，请点击新增查询" class="track-empty" />
+
+        <!-- 有查询结果时：上下结构 -->
+        <div v-else class="track-result">
+          <!-- 上部分：查询人员信息 -->
+          <div class="track-person-info">
+            <div class="person-avatar">
+              <img v-if="trackResult.faceUrl" :src="trackResult.faceUrl" alt="人脸照片" />
+              <UserOutlined v-else class="avatar-fallback" />
+            </div>
+            <div class="person-details">
+              <div class="person-name-row">
+                <span class="person-name">{{ trackResult.name || '--' }}</span>
+                <span v-if="trackResult.similarity" class="person-similarity">相似度: {{ trackResult.similarity }}</span>
               </div>
-              <div class="info-item">
-                <span class="info-label">查询时间段</span>
-                <span class="info-value">2026-06-09 08:00 - 14:00</span>
-              </div>
-              <div class="info-item">
-                <span class="info-label">轨迹点位数</span>
-                <span class="info-value">23 个</span>
-              </div>
-              <div class="info-item">
-                <span class="info-label">覆盖场馆</span>
-                <span class="info-value">A馆、B馆</span>
-              </div>
-              <div class="info-item">
-                <span class="info-label">停留最久区域</span>
-                <span class="info-value">A馆-F2-展厅 (2小时15分)</span>
+              <div class="person-meta-row">
+                <span class="meta-item"><span class="meta-label">证件类型:</span> {{ trackResult.certificateType || '--' }}</span>
+                <span class="meta-item"><span class="meta-label">证件号码:</span> {{ trackResult.certificateNum || '--' }}</span>
+                <span class="meta-item"><span class="meta-label">查询时间段:</span> {{ trackQueryTimeRange }}</span>
+                <span class="meta-item"><span class="meta-label">轨迹点位数:</span> {{ trackResult.cameraList?.length || 0 }} 个</span>
               </div>
             </div>
           </div>
-          <div class="map-placeholder" style="min-height: 250px;">
-            <div class="map-icon"><NodeIndexOutlined /></div>
-            <div class="map-text">人员轨迹路线图</div>
-            <div class="map-sub">东门 → A馆F1 → A馆F2 → B馆F1 → 南门</div>
+
+          <!-- 下部分：路径时间线（横向展示，支持横向滚动） -->
+          <div class="track-timeline-section">
+            <div class="timeline-title">轨迹路径</div>
+            <div class="track-timeline-scroll">
+              <div class="track-timeline" v-if="trackResult.cameraList && trackResult.cameraList.length > 0">
+                <div
+                  class="track-timeline-item"
+                  v-for="(point, idx) in trackResult.cameraList"
+                  :key="idx"
+                >
+                  <div class="timeline-dot" :class="{ 'timeline-dot-start': idx === 0, 'timeline-dot-end': idx === trackResult.cameraList!.length - 1 }"></div>
+                  <div class="timeline-time">{{ formatCaptureTime(point.captureTime) }}</div>
+                  <div class="timeline-camera">{{ point.cameraName || '--' }}</div>
+                  <div class="timeline-location">{{ point.installLocation || '--' }}</div>
+                </div>
+              </div>
+              <a-empty v-else description="无轨迹数据" />
+            </div>
           </div>
         </div>
       </div>
@@ -172,12 +183,12 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted, onUnmounted, shallowRef, nextTick } from 'vue'
-import { message } from 'ant-design-vue'
 import type { FormInstance, UploadFile } from 'ant-design-vue'
 import * as echarts from 'echarts'
 import { StatCard } from '/@/views/bems-web/components'
-import { addTrackQuery, getSummary, getRecognitionRecord, getVenueList, getVenueFlowTrend } from './index.api'
-import type { StatCard as StatCardVO, PersonRecognition, VenueItem, VenueFlowTrendVO } from './index.api'
+import { addTrackQuery, getSummary, getRecognitionRecord, getVenueList, getVenueFlowTrend, getDistributionMap } from './index.api'
+import type { StatCard as StatCardVO, PersonRecognition, VenueItem, VenueFlowTrendVO, VenueHeatmapItemVO, PersonnelTrajectoryResultVO } from './index.api'
+import PersonHeatmapMapView from './PersonHeatmapMapView.vue'
 import {
   UserOutlined,
   TeamOutlined,
@@ -186,8 +197,6 @@ import {
   HeatMapOutlined,
   BarChartOutlined,
   SearchOutlined,
-  DownloadOutlined,
-  NodeIndexOutlined,
   PlusOutlined,
 } from '@ant-design/icons-vue'
 
@@ -216,6 +225,7 @@ onMounted(() => {
   fetchStatCards()
   fetchVenueOptions()
   fetchRecognitionData()
+  fetchHeatmapData()
   // 初始化客流趋势图表并加载数据
   nextTick(() => {
     initChart()
@@ -228,6 +238,24 @@ onUnmounted(() => {
   window.removeEventListener('resize', resizeChart)
   chartInstance.value?.dispose()
 })
+
+// ===== 人员分布热力图 =====
+const heatmapLoading = ref(false)
+const heatmapData = ref<VenueHeatmapItemVO[]>([])
+
+/** 获取热力图数据 */
+const fetchHeatmapData = async () => {
+  heatmapLoading.value = true
+  try {
+    const res = await getDistributionMap()
+    heatmapData.value = Array.isArray(res) ? res : []
+  } catch (error) {
+    console.error('获取人员分布热力图数据失败:', error)
+    heatmapData.value = []
+  } finally {
+    heatmapLoading.value = false
+  }
+}
 
 // ===== 筛选条件 =====
 const searchKeyword = ref('')
@@ -315,9 +343,7 @@ const disposeChart = () => {
 }
 
 /** 切换统计周期 */
-const handleTrendPeriodChange = (period: number) => {
-  if (trendPeriod.value === period) return
-  trendPeriod.value = period
+const handleTrendPeriodChange = () => {
   fetchTrendData()
 }
 
@@ -463,11 +489,15 @@ const handleSearch = () => {
   fetchRecognitionData()
 }
 
-// ===== 新增查询弹窗 =====
+// ===== 人员轨迹查询 =====
 const trackModalVisible = ref(false)
 const trackModalLoading = ref(false)
 const trackFormRef = ref<FormInstance>()
 const fileList = ref<UploadFile[]>([])
+/** 轨迹查询结果 */
+const trackResult = ref<PersonnelTrajectoryResultVO | null>(null)
+/** 当前查询的时间段 */
+const trackQueryTimeRange = ref('')
 
 const trackForm = reactive({
   facePhoto: '',
@@ -477,6 +507,14 @@ const trackForm = reactive({
 const trackRules = {
   facePhoto: [{ required: true, message: '请上传人脸照片', trigger: 'change' }],
   timeRange: [{ required: true, type: 'array' as const, message: '请选择查询时间段', trigger: 'change' }],
+}
+
+/** 格式化抓拍时间，只展示时分 */
+const formatCaptureTime = (time?: string): string => {
+  if (!time) return '--'
+  // 兼容 ISO8601 和普通格式，提取 HH:mm
+  const match = time.match(/(\d{2}:\d{2})/)
+  return match ? match[1] : time
 }
 
 /** 打开新增查询弹窗 */
@@ -526,11 +564,14 @@ const handleTrackSubmit = async () => {
   try {
     await trackFormRef.value?.validate()
     trackModalLoading.value = true
-    await addTrackQuery({
+    const res = await addTrackQuery({
       facePhoto: trackForm.facePhoto,
       startTime: trackForm.timeRange[0],
       endTime: trackForm.timeRange[1],
     })
+    // 存储查询结果和时间范围
+    trackResult.value = res || null
+    trackQueryTimeRange.value = `${trackForm.timeRange[0]} ~ ${trackForm.timeRange[1]}`
     trackModalVisible.value = false
   } catch (error) {
     console.error('提交人员轨迹查询失败:', error)
@@ -654,21 +695,196 @@ const getPersonTypeClass = (type?: string) => {
   min-height: 300px;
 }
 
-.map-placeholder {
-  background: linear-gradient(135deg, #f0f4ff 0%, #e8f0fe 100%);
-  border-radius: 10px;
+.track-empty {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  flex-direction: column;
-  color: #a0aec0;
-  border: 2px dashed #d0d9f0;
-  min-height: 280px;
-  padding: 30px;
+  min-height: 200px;
+}
 
-  .map-icon { font-size: 48px; margin-bottom: 12px; }
-  .map-text { font-size: 14px; color: #5a6a8a; font-weight: 500; }
-  .map-sub { font-size: 12px; color: #8a9ab0; margin-top: 8px; }
+.track-result {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.track-person-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: linear-gradient(135deg, #f0f4ff 0%, #e8f0fe 100%);
+  border-radius: 10px;
+
+  .person-avatar {
+    flex-shrink: 0;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid #d0d9f0;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .avatar-fallback {
+      font-size: 32px;
+      color: #a0aec0;
+    }
+  }
+
+  .person-details {
+    flex: 1;
+    min-width: 0;
+
+    .person-name-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+
+      .person-name {
+        font-size: 16px;
+        font-weight: 600;
+        color: #2d3748;
+      }
+
+      .person-similarity {
+        font-size: 12px;
+        color: #718096;
+        background: #fff;
+        padding: 2px 8px;
+        border-radius: 4px;
+      }
+    }
+
+    .person-meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+
+      .meta-item {
+        font-size: 13px;
+        color: #4a5568;
+
+        .meta-label {
+          color: #718096;
+          margin-right: 4px;
+        }
+      }
+    }
+  }
+}
+
+.track-timeline-section {
+  .timeline-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 12px;
+  }
+}
+
+.track-timeline-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 10px 0 16px;
+
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-radius: 3px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #c0c0c0;
+    border-radius: 3px;
+    &:hover { background: #a0a0a0; }
+  }
+}
+
+.track-timeline {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  padding: 0 8px;
+  position: relative;
+  min-width: max-content;
+
+  /* 横向连接线 */
+  &::before {
+    content: '';
+    position: absolute;
+    top: 16px;
+    left: 8px;
+    right: 8px;
+    height: 2px;
+    background: #e2e8f0;
+    z-index: 0;
+  }
+}
+
+.track-timeline-item {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 120px;
+  padding: 0 8px;
+
+  .timeline-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #3182ce;
+    border: 2px solid white;
+    box-shadow: 0 0 0 2px #3182ce;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+  }
+
+  .timeline-dot-start {
+    background: #52c41a;
+    box-shadow: 0 0 0 2px #52c41a;
+  }
+
+  .timeline-dot-end {
+    background: #ff4d4f;
+    box-shadow: 0 0 0 2px #ff4d4f;
+  }
+
+  .timeline-time {
+    font-size: 12px;
+    color: #3182ce;
+    font-weight: 600;
+    margin-bottom: 4px;
+    white-space: nowrap;
+  }
+
+  .timeline-camera {
+    font-size: 13px;
+    color: #2d3748;
+    font-weight: 500;
+    text-align: center;
+    margin-bottom: 2px;
+    word-break: break-all;
+  }
+
+  .timeline-location {
+    font-size: 11px;
+    color: #a0aec0;
+    text-align: center;
+  }
 }
 
 .status-text {
