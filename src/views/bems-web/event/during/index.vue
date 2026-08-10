@@ -20,12 +20,26 @@
           <h3><DesktopOutlined /> 对屏指挥看板</h3>
           <span class="tag tag-blue">实时</span>
         </div>
-        <div class="card-body">
-          <div class="chart-placeholder" style="min-height: 350px;">
-            <div class="chart-icon"><DesktopOutlined /></div>
-            <div class="chart-text">指挥大屏实时数据展示</div>
-            <div class="chart-sub">客流/能耗/设备/告警/视频 多维度融合</div>
-          </div>
+        <div class="card-body device-card-body">
+          <a-spin :spinning="deviceLoading" tip="加载中...">
+            <div class="device-scroll">
+              <div class="device-grid">
+                <DeviceCard
+                  v-for="(item, index) in deviceList"
+                  :key="index"
+                  :title="item.title"
+                  :meta="item.meta"
+                  :icon="DesktopOutlined"
+                  :icon-bg="item.iconBg"
+                  :icon-color="item.iconColor"
+                  :stats="item.stats"
+                />
+              </div>
+              <div v-if="!deviceLoading && deviceList.length === 0" class="empty-state">
+                暂无数据
+              </div>
+            </div>
+          </a-spin>
         </div>
       </div>
       <div class="card">
@@ -35,7 +49,7 @@
         </div>
         <div class="card-body">
           <div class="control-grid">
-            <div class="control-card" v-for="item in controlPanels" :key="item.title">
+            <div class="control-card" v-for="item in controlPanels" :key="item.title" @click="handleControlClick(item)">
               <div class="control-card-header">
                 <div class="control-card-icon" :style="{ background: item.bgColor, color: item.iconColor }">
                   <component :is="item.icon" />
@@ -250,9 +264,10 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { message, Modal } from 'ant-design-vue'
 import type { FormInstance } from 'ant-design-vue'
-import { StatCard } from '/@/views/bems-web/components'
+import { StatCard, DeviceCard } from '/@/views/bems-web/components'
 import {
   PlayCircleOutlined,
   SendOutlined,
@@ -275,6 +290,7 @@ import {
   handleComplaint,
   deleteComplaint,
   getHandleRecordDetail,
+  getDeviceStat,
 } from './index.api'
 import type {
   StatCardVO,
@@ -282,6 +298,7 @@ import type {
   ComplaintType,
   ComplaintStatus,
   HandleRecordVO,
+  SystemDeviceStatVO,
 } from './index.api'
 
 defineOptions({ name: 'EventDuringPage' })
@@ -304,13 +321,68 @@ const fetchSummary = async () => {
   }
 }
 
-// ===== 对屏控制面板（静态配置） =====
-const controlPanels = [
-  { title: '空调控制', meta: '温度/模式/风速', icon: CloudOutlined, bgColor: '#ebf8ff', iconColor: '#3182ce' },
-  { title: '照明控制', meta: '开关/亮度/场景', icon: BulbOutlined, bgColor: '#f0fff4', iconColor: '#38a169' },
-  { title: '视频切换', meta: '监控画面/广播', icon: VideoCameraOutlined, bgColor: '#fffaf0', iconColor: '#dd6b20' },
-  { title: '应急控制', meta: '广播/疏散/联动', icon: AlertOutlined, bgColor: '#fff5f5', iconColor: '#e53e3e' },
+// ===== 对屏指挥看板（设备状态监控） =====
+interface DeviceCardItem {
+  title: string
+  meta: string
+  iconBg: string
+  iconColor: string
+  stats: { label: string; value: string | number; highlight?: boolean }[]
+}
+
+const deviceList = ref<DeviceCardItem[]>([])
+const deviceLoading = ref(false)
+
+const fetchDeviceStat = async () => {
+  deviceLoading.value = true
+  try {
+    const res = await getDeviceStat()
+    const list: SystemDeviceStatVO[] = Array.isArray(res) ? res : (res?.data || res?.result || [])
+    deviceList.value = (list || []).map((item) => {
+      const onlineRate = item.onlineRate ?? 0
+      const offline = (item.deviceCount ?? 0) - (item.online ?? 0)
+      const normal = onlineRate >= 100
+      return {
+        title: item.systemName || '--',
+        meta: '设备状态',
+        iconBg: normal ? '#ebf8ff' : '#fff5f5',
+        iconColor: normal ? '#3182ce' : '#e53e3e',
+        stats: [
+          { label: '设备总数', value: item.deviceCount ?? 0 },
+          { label: '在线', value: item.online ?? 0 },
+          { label: '离线', value: offline, highlight: offline > 0 },
+        ],
+      }
+    })
+  } catch (error) {
+    console.error('获取设备状态监控失败:', error)
+  } finally {
+    deviceLoading.value = false
+  }
+}
+
+// ===== 对屏控制面板（静态配置 + 路由跳转） =====
+const router = useRouter()
+
+interface ControlPanelItem {
+  title: string
+  meta: string
+  icon: any
+  bgColor: string
+  iconColor: string
+  route: string
+}
+
+const controlPanels: ControlPanelItem[] = [
+  { title: '空调控制', meta: '温度/模式/风速', icon: CloudOutlined, bgColor: '#ebf8ff', iconColor: '#3182ce', route: '/fwbz/equipment/equipmentManagement' },
+  { title: '照明控制', meta: '开关/亮度/场景', icon: BulbOutlined, bgColor: '#f0fff4', iconColor: '#38a169', route: '/fwbz/energy/smart-lighting' },
+  { title: '视频切换', meta: '监控画面/广播', icon: VideoCameraOutlined, bgColor: '#fffaf0', iconColor: '#dd6b20', route: '/fwbz/safety/security' },
+  { title: '应急控制', meta: '广播/疏散/联动', icon: AlertOutlined, bgColor: '#fff5f5', iconColor: '#e53e3e', route: '/fwbz/alert/handle' },
 ]
+
+const handleControlClick = (item: ControlPanelItem) => {
+  router.push(item.route)
+}
 
 // ===== 类型 / 状态下拉 =====
 const typeOptions = ref<ComplaintType[]>([])
@@ -611,6 +683,7 @@ const handleRecordDetail = async (record: ComplaintInfo) => {
 // ===== 初始化 =====
 onMounted(() => {
   fetchSummary()
+  fetchDeviceStat()
   fetchTypeOptions()
   fetchStatusOptions()
   fetchList()
@@ -700,6 +773,28 @@ onMounted(() => {
     color: #a0aec0;
     margin-top: 8px;
   }
+}
+
+.device-card-body {
+  padding: 22px;
+}
+
+.device-scroll {
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.device-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.empty-state {
+  text-align: center;
+  color: #86909c;
+  padding: 40px 0;
+  font-size: 14px;
 }
 
 .control-grid {

@@ -125,7 +125,6 @@ const loadDeviceStatus = async () => {
       const onlineRate = item.onlineRate ?? 0
       const offline = (item.deviceCount ?? 0) - (item.online ?? 0)
       // 在线率低于 100% 时高亮显示
-      const rateHighlight = onlineRate < 100
       const normal = onlineRate >= 100
       return {
         title: item.systemName || '--',

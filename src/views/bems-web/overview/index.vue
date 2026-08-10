@@ -144,7 +144,8 @@
           <span class="tag tag-green">进行中</span>
         </div>
         <div class="card-body">
-          <div class="timeline">
+          <div v-if="todayEvents.length === 0" class="empty-state">今日暂无会展活动</div>
+          <div class="timeline" v-else>
             <div class="timeline-item" v-for="event in todayEvents" :key="event.title">
               <div class="timeline-time">{{ event.time }}</div>
               <div class="timeline-content">

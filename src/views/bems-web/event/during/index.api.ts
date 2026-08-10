@@ -20,6 +20,9 @@ enum Api {
 
     /** 人员处理记录详情 */
     handleRecordDetail = '/sgai-fwbz-dev/fwbz/complaint/queryById',
+
+    /** 设备状态监控（各系统设备在线统计） */
+    deviceStat = '/sgai-fwbz-dev/fwbz/runGuarantee/deviceStat',
 }
 
 
@@ -377,6 +380,27 @@ export const deleteComplaint = (params: { id: number }) =>
 /** 查询投诉处理记录详情 */
 export const getHandleRecordDetail = (params: { id: number }) =>
     defHttp.get({ url: Api.handleRecordDetail, params });
+
+
+/**
+ * 各系统设备在线统计
+ *
+ * SystemDeviceStatVO
+ */
+export interface SystemDeviceStatVO {
+    /** 设备总数 */
+    deviceCount?: number;
+    /** 在线数量 */
+    online?: number;
+    /** 在线率（百分比整数，如100表示100%） */
+    onlineRate?: number;
+    /** 系统名称（对应设备类型名称） */
+    systemName?: string;
+    [property: string]: any;
+}
+
+/** 设备状态监控（各系统设备在线统计） */
+export const getDeviceStat = () => defHttp.get({ url: Api.deviceStat });
 
 
 

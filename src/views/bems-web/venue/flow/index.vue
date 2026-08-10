@@ -18,10 +18,9 @@
       <div class="card">
         <div class="card-header"><h3><ClockCircleOutlined /> 实时客流热力图</h3></div>
         <div class="card-body">
-          <div class="chart-placeholder" style="min-height: 240px;">
-            <div class="chart-icon"><ClockCircleOutlined /></div>
-            <div class="chart-text">客流时段分布热力图</div>
-          </div>
+          <a-spin :spinning="heatmapLoading">
+            <FlowHeatmapMapView :data="heatmapData" />
+          </a-spin>
         </div>
       </div>
       <div class="card">
@@ -101,14 +100,15 @@ import type { Ref } from 'vue'
 import dayjs from 'dayjs'
 import { StatCard } from '/@/views/bems-web/components'
 import { useECharts } from '/@/hooks/web/useECharts'
-import { getFlowSummary, getFlowList, getFlowTrend } from './index.api'
-import type { StatItem, VenueFlowVO } from './index.api'
+import { getFlowSummary, getFlowList, getFlowTrend, getHeatmap } from './index.api'
+import type { StatItem, VenueFlowVO, VenueHeatmapItemVO } from './index.api'
 import { getVenueList } from '../venueScheduling/index.api'
 import type { VenueItem } from '../venueScheduling/index.api'
 import {
   TeamOutlined, UserOutlined, RiseOutlined, ClockCircleOutlined,
   BarChartOutlined, SearchOutlined,
 } from '@ant-design/icons-vue'
+import FlowHeatmapMapView from './FlowHeatmapMapView.vue'
 
 defineOptions({ name: 'VenueFlowPage' })
 
@@ -359,12 +359,29 @@ const handleTrendChange = () => {
   fetchTrendData()
 }
 
+// ===== 实时客流热力图 =====
+const heatmapData = ref<VenueHeatmapItemVO[]>([])
+const heatmapLoading = ref(false)
+
+const fetchHeatmapData = async () => {
+  heatmapLoading.value = true
+  try {
+    const res = await getHeatmap()
+    heatmapData.value = Array.isArray(res) ? res : (res?.data || res?.result || [])
+  } catch (error) {
+    console.error('获取实时客流热力图数据失败:', error)
+  } finally {
+    heatmapLoading.value = false
+  }
+}
+
 // ===== 初始化 =====
 onMounted(() => {
   fetchStatCards()
   fetchVenueOptions()
   fetchFlowData()
   fetchTrendData()
+  fetchHeatmapData()
 })
 </script>
 

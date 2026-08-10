@@ -67,9 +67,10 @@
             style="width: 150px"
             placeholder="全部类型"
             allow-clear
-            :options="deviceTypeOptions"
             :field-names="{ label: 'typeName', value: 'id' }"
           >
+            <a-select-option value="">全部类型</a-select-option>
+            <a-select-option v-for="item in deviceTypeOptions" :key="item.id" :value="item.id">{{ item.typeName }}</a-select-option>
           </a-select>
           <a-button type="primary" @click="handleSearch"><SearchOutlined /> 查询</a-button>
         </div>

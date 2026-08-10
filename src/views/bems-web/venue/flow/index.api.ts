@@ -7,8 +7,64 @@ enum Api {
   flowList = '/sgai-fwbz-dev/fwbz/venueVisitorFlow/venueList',
   /** 各场馆客流趋势 */
   trend = '/sgai-fwbz-dev/fwbz/venueVisitorFlow/hourly/todayTrend',
+  /** 实时客流热力图 */
+  heatmap = '/sgai-fwbz-dev/fwbz/venueVisitorFlow/hourly/heatmap',
 
 }
+
+/**
+ * 实时客流热力图
+ *
+ * VenueHeatmapItemVO
+ */
+export interface VenueHeatmapItemVO {
+    /**
+     * 场馆ID
+     */
+    id?: number;
+    /**
+     * 纬度
+     */
+    lat?: number;
+    /**
+     * 经度
+     */
+    lng?: number;
+    /**
+     * 场馆名称
+     */
+    name?: string;
+    /**
+     * 剩余比例 = shengyu/total
+     */
+    saturation?: number;
+    /**
+     * 剩余容量
+     */
+    shengyu?: number;
+    /**
+     * 拥挤状态：宽松/适中/拥挤
+     */
+    state?: string;
+    /**
+     * 今日峰值（max_count），作为容量参考
+     */
+    total?: number;
+    /**
+     * 使用率百分比 = used/total * 100
+     */
+    usageRate?: number;
+    /**
+     * 当前在场人数（today_now_count）
+     */
+    used?: number;
+    /**
+     * 使用比例 = used/total
+     */
+    usedRate?: number;
+    [property: string]: any;
+}
+
 
  /** 各场馆客流趋势-请求参数 */
 export interface Request {
@@ -149,3 +205,6 @@ export const getFlowList = (params: FlowListRequest) => defHttp.get({ url: Api.f
 
 /** 获取各场馆客流趋势（今日/本周/本月） */
 export const getFlowTrend = (params: Request) => defHttp.get({ url: Api.trend, params });
+
+/** 获取实时客流热力图数据 */
+export const getHeatmap = () => defHttp.get({ url: Api.heatmap });
