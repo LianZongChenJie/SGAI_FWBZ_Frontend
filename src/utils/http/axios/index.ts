@@ -328,3 +328,12 @@ export const fwbzHttp = createAxios({
     joinPrefix: false,
   },
 });
+
+// fwbz 长超时实例（30s），用于 AI 分析等耗时较长的接口
+export const fwbzLongHttp = createAxios({
+  timeout: 30 * 1000,
+  requestOptions: {
+    apiUrl: '',
+    joinPrefix: false,
+  },
+});

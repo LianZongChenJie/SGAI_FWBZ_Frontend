@@ -251,12 +251,18 @@ function updateStatusChart() {
         center: ['50%', '45%'],
         avoidLabelOverlap: false,
         label: {
-          show: true,
-          formatter: '{b}\n{c}台',
-          fontSize: 13,
-          color: '#4a5568',
+          show: false,
         },
-        labelLine: { show: true, length: 10, length2: 10 },
+        labelLine: { show: false },
+        emphasis: {
+          label: {
+            show: true,
+            formatter: '{b}\n{c}台',
+            fontSize: 13,
+            color: '#4a5568',
+          },
+          labelLine: { show: true, length: 10, length2: 10 },
+        },
         data: chartData,
       },
     ],

@@ -1,119 +1,142 @@
 <template>
   <div class="ai-page">
-    <a-spin :spinning="loading">
+    <a-spin :spinning="queryLoading">
       <!-- 统计卡片行 -->
       <div class="stats-row">
         <StatCard
-          label="预测项数量"
-          :value="reportData?.predict_items?.length ?? 0"
-          change-text="AI预测"
-          trend="up"
-          color="blue"
-          :icon="BrainIcon"
+          label="总故障数"
+          :value="queryData?.fault_stats?.total_faults ?? 0"
+          change-text="故障统计"
+          color="red"
+          :icon="FireIcon"
         />
         <StatCard
-          label="预警项数量"
-          :value="reportData?.warning_items?.length ?? 0"
-          change-text="需关注"
+          label="涉及设备数"
+          :value="queryData?.fault_stats?.affected_devices ?? 0"
+          change-text="受影响设备"
           color="orange"
-          :icon="TargetIcon"
+          :icon="DeviceIcon"
         />
         <StatCard
-          label="平均置信度"
-          :value="avgConfidence + '%'"
-          change-text="预测可靠性"
+          label="故障类别数"
+          :value="queryData?.fault_stats?.category_count ?? 0"
+          change-text="分类统计"
+          color="blue"
+          :icon="ChartIcon"
+        />
+        <StatCard
+          label="未处理故障"
+          :value="queryData?.fault_stats?.unresolved_count ?? 0"
+          change-text="待处理"
           trend="up"
-          color="green"
-          :icon="ClockIcon"
-        />
-        <StatCard
-          label="优化建议数"
-          :value="reportData?.suggestions?.length ?? 0"
-          change-text="AI建议"
           color="purple"
-          :icon="HitIcon"
+          :icon="ClockIcon"
         />
       </div>
 
       <!-- AI报告卡片 -->
-      <div class="ai-report-card" v-if="reportData">
+      <div class="ai-report-card" v-if="analyzeData">
         <div class="ai-report-header">
           <span class="ai-badge">AI</span>
-          <span class="ai-report-title">{{ reportData.report_title || '设备运行趋势预测报告' }}</span>
+          <span class="ai-report-title">{{ analyzeData.report_title || '设备故障智能分析报告' }}</span>
         </div>
-        <div class="ai-report-desc">{{ reportData.summary }}</div>
+        <div class="ai-report-desc">{{ analyzeData.report_desc || analyzeData.summary }}</div>
         <div class="ai-metrics">
-          <div class="ai-metric" v-for="(item, index) in topPredictItems" :key="index">
-            <div class="ai-metric-value" :class="item.trend">{{ item.predict_value }}</div>
-            <div class="ai-metric-label">{{ item.item_name }}</div>
-            <div class="ai-metric-confidence">置信度 {{ (item.confidence * 100).toFixed(0) }}%</div>
+          <div class="ai-metric" v-for="(item, index) in analyzeData.metrics" :key="index">
+            <div class="ai-metric-value">{{ item.value }}</div>
+            <div class="ai-metric-label">{{ item.label }}</div>
           </div>
         </div>
       </div>
 
-      <!-- 两栏布局：能耗趋势预测 + 设备预警清单 -->
+      <!-- 两栏布局：故障分布统计 + 故障分析清单 -->
       <div class="two-col">
-        <div class="card">
+        <!-- 故障分布统计 -->
+        <div class="card fixed-card">
           <div class="card-header">
-            <h3>📈 能耗趋势预测</h3>
-            <span class="tag tag-purple">AI预测</span>
+            <h3>📊 故障分布统计</h3>
+            <span class="tag tag-blue">实时数据</span>
           </div>
-          <div class="card-body">
+          <div class="card-body card-body-scroll">
             <div ref="trendChartRef" class="chart-container"></div>
-            <!-- 预测项详情列表 -->
-            <div class="predict-list" v-if="reportData?.predict_items?.length">
-              <div
-                class="predict-item"
-                v-for="(item, index) in reportData.predict_items"
-                :key="index"
-              >
-                <div class="predict-item-header">
-                  <span class="predict-item-name">{{ item.item_name }}</span>
-                  <span class="predict-item-trend" :class="item.trend">
-                    <span v-if="item.trend === 'up'">↑</span>
-                    <span v-else-if="item.trend === 'down'">↓</span>
-                    <span v-else>→</span>
-                    {{ item.predict_value }}
-                  </span>
-                </div>
-                <div class="predict-item-desc">{{ item.description }}</div>
-                <div class="predict-item-confidence">
-                  置信度: {{ (item.confidence * 100).toFixed(0) }}%
-                </div>
-              </div>
-            </div>
           </div>
         </div>
-        <div class="card">
+
+        <!-- 故障分析清单 -->
+        <div class="card fixed-card">
           <div class="card-header">
-            <h3>⚠️ 设备预警清单</h3>
-            <span class="tag tag-red">需关注</span>
+            <h3>🔧 故障分析清单</h3>
+            <a-button
+              type="primary"
+              size="small"
+              :loading="analyzeLoading"
+              :disabled="analyzeLoading || !queryData"
+              @click="handleAnalyze"
+            >
+              <template #icon><ThunderboltOutlined /></template>
+              AI分析
+            </a-button>
           </div>
-          <div class="card-body">
-            <a-empty v-if="!reportData?.warning_items?.length" description="暂无预警" />
-            <template v-else>
+          <div class="card-body card-body-scroll">
+            <!-- 未触发分析时的提示 -->
+            <div v-if="!analyzeData && !analyzeLoading" class="analyze-placeholder">
+              <div class="analyze-placeholder-icon">🤖</div>
+              <div class="analyze-placeholder-text">点击右上角"AI分析"按钮，生成故障分析报告</div>
+            </div>
+            <!-- 分析中 -->
+            <div v-else-if="analyzeLoading" class="analyze-loading">
+              <a-spin size="large" />
+              <div class="analyze-loading-text">AI分析中，预估时间较长，请耐心等待...</div>
+            </div>
+            <!-- 分析结果 -->
+            <template v-else-if="analyzeData?.fault_items?.length">
               <div
                 class="alert-card"
-                v-for="(warning, index) in reportData.warning_items"
+                v-for="(item, index) in analyzeData.fault_items"
                 :key="index"
-                :class="getWarningClass(warning)"
+                :class="getFaultClass(item)"
               >
-                <div class="alert-icon">{{ getWarningIcon(warning) }}</div>
+                <div class="alert-icon">{{ getFaultIcon(item) }}</div>
                 <div class="alert-content">
-                  <div class="alert-title">{{ warning.device_name }} - {{ warning.warning_type }}</div>
-                  <div class="alert-desc">{{ warning.warning_content }}</div>
+                  <div class="alert-title">{{ item.device_name }} - {{ item.fault_type }}</div>
+                  <div class="alert-desc">原因: {{ item.cause }}</div>
+                  <div class="alert-solution">建议: {{ item.solution }}</div>
                   <div class="alert-time">
-                    预测置信度 {{ (warning.confidence * 100).toFixed(0) }}% | 建议处理时间: {{ warning.suggest_time }}
+                    故障时间: {{ formatTime(item.fault_time) }} | 持续: {{ item.duration || '--' }}
                   </div>
                 </div>
               </div>
             </template>
+            <a-empty v-else description="暂无分析数据" />
           </div>
         </div>
       </div>
 
+      <!-- 维保优先级 -->
+      <div class="card" v-if="analyzeData?.maintenance_priorities?.length">
+        <div class="card-header">
+          <h3>🔨 维保优先级</h3>
+          <span class="tag tag-orange">AI建议</span>
+        </div>
+        <div class="card-body">
+          <a-table
+            :columns="maintenanceColumns"
+            :data-source="analyzeData.maintenance_priorities"
+            row-key="device_name"
+            size="small"
+            :pagination="false"
+          >
+            <template #bodyCell="{ column, record }">
+              <template v-if="column.key === 'priority'">
+                <span class="priority-tag" :class="getPriorityClass(record.priority)">{{ record.priority }}</span>
+              </template>
+            </template>
+          </a-table>
+        </div>
+      </div>
+
       <!-- 优化建议 -->
-      <div class="card" v-if="reportData?.suggestions?.length">
+      <div class="card" v-if="analyzeData?.suggestions?.length">
         <div class="card-header">
           <h3>💡 AI优化建议</h3>
         </div>
@@ -121,7 +144,7 @@
           <div class="suggestion-list">
             <div
               class="suggestion-item"
-              v-for="(suggestion, index) in reportData.suggestions"
+              v-for="(suggestion, index) in analyzeData.suggestions"
               :key="index"
             >
               <span class="suggestion-index">{{ index + 1 }}</span>
@@ -130,103 +153,165 @@
           </div>
         </div>
       </div>
+
+      <!-- 故障明细列表 -->
+      <div class="card" v-if="queryData?.fault_list?.length">
+        <div class="card-header">
+          <h3>📋 故障明细列表</h3>
+          <span class="tag tag-red">最近{{ queryData.fault_list.length }}条</span>
+        </div>
+        <div class="card-body">
+          <AlertCard
+            v-for="(item, index) in queryData.fault_list"
+            :key="index"
+            :level="getAlertLevel(item.alarm_level_name)"
+            :title="`${item.device_name} - ${item.alarm_category_name}`"
+            :description="item.alarm_content"
+            :time="`告警时间: ${formatTime(item.alarm_time)}`"
+            :show-actions="false"
+          />
+        </div>
+      </div>
     </a-spin>
   </div>
 </template>
 
 <script setup lang="ts">
-import { h, ref, computed, onMounted, onUnmounted, nextTick, shallowRef } from 'vue'
-import { StatCard } from '/@/views/bems-web/components'
-import { getPredictReport, type PredictReport } from './index.api'
+import { h, ref, onMounted, onUnmounted, nextTick, shallowRef } from 'vue'
+import { StatCard, AlertCard } from '/@/views/bems-web/components'
+import { ThunderboltOutlined } from '@ant-design/icons-vue'
+import {
+  getFaultQuery,
+  getFaultAnalyze,
+  type FaultQueryResponse,
+  type FaultAnalyzeResponse,
+  type FaultAnalysisItem,
+} from './index.api'
 import * as echarts from 'echarts'
 
 defineOptions({ name: 'AiPredictPage' })
 
 // emoji 图标
-const BrainIcon = () => h('span', { style: 'font-size: 20px;' }, '🧠')
-const TargetIcon = () => h('span', { style: 'font-size: 20px;' }, '🎯')
+const FireIcon = () => h('span', { style: 'font-size: 20px;' }, '🔥')
+const DeviceIcon = () => h('span', { style: 'font-size: 20px;' }, '📡')
+const ChartIcon = () => h('span', { style: 'font-size: 20px;' }, '📊')
 const ClockIcon = () => h('span', { style: 'font-size: 20px;' }, '⏰')
-const HitIcon = () => h('span', { style: 'font-size: 20px;' }, '🎯')
 
-const loading = ref(false)
-const reportData = ref<PredictReport | null>(null)
+const queryLoading = ref(false)
+const analyzeLoading = ref(false)
+const queryData = ref<FaultQueryResponse | null>(null)
+const analyzeData = ref<FaultAnalyzeResponse | null>(null)
 
 // 图表引用
 const trendChartRef = ref<HTMLElement>()
 const trendChartInstance = shallowRef<echarts.ECharts>()
 
-// 平均置信度
-const avgConfidence = computed(() => {
-  const items = reportData.value?.predict_items ?? []
-  if (!items.length) return '0'
-  const sum = items.reduce((acc, item) => acc + item.confidence, 0)
-  return (sum / items.length * 100).toFixed(0)
-})
+// 维保优先级表格列
+const maintenanceColumns = [
+  { title: '优先级', dataIndex: 'priority', key: 'priority', width: 80 },
+  { title: '设备名称', dataIndex: 'device_name', key: 'device_name', width: 150 },
+  { title: '位置', dataIndex: 'location', key: 'location', width: 130 },
+  { title: '故障次数', dataIndex: 'fault_count', key: 'fault_count', width: 100 },
+  { title: 'AI风险评分', dataIndex: 'ai_risk_score', key: 'ai_risk_score', width: 100 },
+  { title: '建议操作', dataIndex: 'suggest_action', key: 'suggest_action', ellipsis: true },
+  { title: '建议时限', dataIndex: 'suggest_time', key: 'suggest_time', width: 90 },
+]
 
-// 取前4个预测项展示在指标卡片中
-const topPredictItems = computed(() => {
-  return (reportData.value?.predict_items ?? []).slice(0, 4)
-})
+// 格式化时间
+const formatTime = (time: string) => {
+  if (!time) return '--'
+  return time.replace('T', ' ').replace(/\.\d+Z$/, '').replace(/Z$/, '')
+}
 
-// 获取预警样式
-const getWarningClass = (warning: any) => {
-  const confidence = warning.confidence
-  if (confidence >= 0.9) return 'danger'
-  if (confidence >= 0.8) return 'warning'
+// 根据告警级别名称映射 AlertCard level
+type AlertLevel = 'danger' | 'warning' | 'info'
+const getAlertLevel = (levelName?: string): AlertLevel => {
+  if (!levelName) return 'info'
+  if (levelName.includes('非常紧急') || levelName.includes('紧急')) return 'danger'
+  if (levelName.includes('高') || levelName.includes('重要')) return 'warning'
   return 'info'
 }
 
-// 获取预警图标
-const getWarningIcon = (warning: any) => {
-  const type = warning.warning_type || ''
+// 获取故障分析项样式
+const getFaultClass = (item: FaultAnalysisItem) => {
+  const type = item.fault_type || ''
+  if (type.includes('异常') || type.includes('过载') || type.includes('报警')) return 'danger'
+  if (type.includes('不足') || type.includes('超标')) return 'warning'
+  return 'info'
+}
+
+// 获取故障分析项图标
+const getFaultIcon = (item: FaultAnalysisItem) => {
+  const type = item.fault_type || ''
+  if (type.includes('流速') || type.includes('流量')) return '💧'
+  if (type.includes('压力')) return '📊'
+  if (type.includes('温度')) return '🌡️'
   if (type.includes('电压') || type.includes('电气')) return '⚡'
-  if (type.includes('能耗') || type.includes('能效')) return '📊'
-  if (type.includes('水位') || type.includes('水')) return '💧'
-  if (type.includes('温度') || type.includes('温')) return '🌡️'
+  if (type.includes('能耗') || type.includes('能效')) return '📉'
   return '⚠️'
 }
 
-// 获取数据
+// 获取优先级样式
+const getPriorityClass = (priority?: string) => {
+  if (!priority) return ''
+  if (priority.includes('紧急')) return 'priority-urgent'
+  if (priority.includes('高')) return 'priority-high'
+  if (priority.includes('中')) return 'priority-medium'
+  return 'priority-low'
+}
+
+// 获取故障数据（快速查询）
 const fetchData = async () => {
-  loading.value = true
+  queryLoading.value = true
   try {
-    const res = await getPredictReport({
-      predict_type: 'all',
-      time_range: 'week',
-    })
-    // 兼容包装和非包装格式
+    const res = await getFaultQuery({ time_range: 'month' })
     const data = (res as any)?.result ?? res
-    reportData.value = data as PredictReport
+    queryData.value = data as FaultQueryResponse
 
     await nextTick()
-    renderTrendChart()
+    renderChart()
   } catch (error) {
-    console.error('获取AI预测报告失败:', error)
+    console.error('获取故障数据失败:', error)
   } finally {
-    loading.value = false
+    queryLoading.value = false
   }
 }
 
-// 渲染预测趋势图
-const renderTrendChart = () => {
+// 点击 AI分析 按钮
+const handleAnalyze = () => {
+  fetchAnalyze()
+}
+
+// AI故障分析（LLM推理，耗时较长）
+const fetchAnalyze = async () => {
+  if (!queryData.value) return
+  analyzeLoading.value = true
+  analyzeData.value = null
+  try {
+    const res = await getFaultAnalyze(queryData.value)
+    const data = (res as any)?.result ?? res
+    analyzeData.value = data as FaultAnalyzeResponse
+  } catch (error) {
+    console.error('AI故障分析失败:', error)
+  } finally {
+    analyzeLoading.value = false
+  }
+}
+
+// 渲染故障分布图
+const renderChart = () => {
   if (!trendChartRef.value) return
   if (!trendChartInstance.value) {
     trendChartInstance.value = echarts.init(trendChartRef.value)
   }
 
-  const items = reportData.value?.predict_items ?? []
-  if (!items.length) {
+  const categories = queryData.value?.fault_by_category ?? []
+  if (!categories.length) {
     trendChartInstance.value.clear()
     return
   }
 
-  const itemNames = items.map((item) => item.item_name)
-
-  const trendColors: Record<string, string> = {
-    up: '#E86452',
-    down: '#52C41A',
-    stable: '#5B8FF9',
-  }
+  const colors = ['#5B8FF9', '#5AD8A6', '#F6BD16', '#E86452', '#6DC8EC', '#945FB9']
 
   const option: any = {
     tooltip: {
@@ -237,12 +322,11 @@ const renderTrendChart = () => {
       textStyle: { color: '#2d3748', fontSize: 12 },
       extraCssText: 'box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-radius: 8px;',
       formatter: (params: any) => {
-        const item = items[params[0].dataIndex]
+        const item = categories[params[0].dataIndex]
         if (!item) return ''
-        return `<div style="font-weight:600;margin-bottom:6px;">${item.item_name}</div>
-          <div>预测值: ${item.predict_value}</div>
-          <div>置信度: ${(item.confidence * 100).toFixed(0)}%</div>
-          <div style="margin-top:4px;color:#718096;">${item.description}</div>`
+        return `<div style="font-weight:600;margin-bottom:6px;">${item.category}</div>
+          <div>故障数: ${item.count}次</div>
+          <div>占比: ${item.percentage}%</div>`
       },
     },
     grid: {
@@ -254,22 +338,20 @@ const renderTrendChart = () => {
     },
     xAxis: {
       type: 'category',
-      data: itemNames,
+      data: categories.map((c) => c.category),
       axisLine: { lineStyle: { color: '#e2e8f0' } },
       axisLabel: {
         color: '#718096',
         fontSize: 11,
         interval: 0,
-        rotate: itemNames.length > 3 ? 15 : 0,
-        formatter: (name: string) => name.length > 8 ? name.substring(0, 8) + '...' : name,
+        rotate: categories.length > 3 ? 15 : 0,
+        formatter: (name: string) => (name.length > 8 ? name.substring(0, 8) + '...' : name),
       },
       axisTick: { show: false },
     },
     yAxis: {
       type: 'value',
-      name: '置信度(%)',
-      max: 100,
-      min: 0,
+      name: '故障数',
       axisLine: { show: false },
       axisTick: { show: false },
       axisLabel: { color: '#a0aec0', fontSize: 11 },
@@ -278,12 +360,12 @@ const renderTrendChart = () => {
     series: [
       {
         type: 'bar',
-        data: items.map((item) => ({
-          value: parseFloat((item.confidence * 100).toFixed(1)),
+        data: categories.map((c, idx) => ({
+          value: c.count,
           itemStyle: {
             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: trendColors[item.trend] || '#5B8FF9' },
-              { offset: 1, color: (trendColors[item.trend] || '#5B8FF9') + '80' },
+              { offset: 0, color: colors[idx % colors.length] },
+              { offset: 1, color: colors[idx % colors.length] + '80' },
             ]),
             borderRadius: [6, 6, 0, 0],
           },
@@ -372,58 +454,71 @@ onUnmounted(() => {
   }
 }
 
-// 图表容器
-.chart-container {
-  width: 100%;
-  height: 240px;
-  margin-bottom: 16px;
-}
+// 固定高度卡片 + 内容滚动
+.fixed-card {
+  display: flex;
+  flex-direction: column;
+  max-height: 500px;
 
-// 预测项列表
-.predict-list {
-  .predict-item {
-    padding: 12px 0;
-    border-bottom: 1px solid #f0f0f0;
+  .card-header {
+    flex-shrink: 0;
+  }
 
-    &:last-child { border-bottom: none; }
-
-    .predict-item-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 6px;
-
-      .predict-item-name {
-        font-size: 13px;
-        font-weight: 600;
-        color: #2d3748;
-      }
-
-      .predict-item-trend {
-        font-size: 12px;
-        font-weight: 600;
-
-        &.up { color: #e53e3e; }
-        &.down { color: #389e0d; }
-        &.stable { color: #3182ce; }
-      }
-    }
-
-    .predict-item-desc {
-      font-size: 12px;
-      color: #718096;
-      line-height: 1.5;
-      margin-bottom: 4px;
-    }
-
-    .predict-item-confidence {
-      font-size: 11px;
-      color: #a0aec0;
-    }
+  .card-body-scroll {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
   }
 }
 
-// 告警卡片
+// 图表容器
+.chart-container {
+  width: 100%;
+  height: 380px;
+}
+
+// AI分析占位
+.analyze-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+
+  .analyze-placeholder-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+  }
+  .analyze-placeholder-text {
+    font-size: 14px;
+    color: #718096;
+    font-weight: 500;
+  }
+  .analyze-placeholder-sub {
+    font-size: 12px;
+    color: #a0aec0;
+    margin-top: 8px;
+  }
+}
+
+// AI分析加载中
+.analyze-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+
+  .analyze-loading-text {
+    font-size: 14px;
+    color: #718096;
+    margin-top: 16px;
+    white-space: nowrap;
+  }
+}
+
+// 告警卡片（故障分析清单）
 .alert-card {
   display: flex;
   align-items: flex-start;
@@ -473,6 +568,12 @@ onUnmounted(() => {
       font-size: 12px;
       color: #718096;
       line-height: 1.5;
+    }
+    .alert-solution {
+      font-size: 12px;
+      color: #389e0d;
+      line-height: 1.5;
+      margin-top: 4px;
     }
     .alert-time {
       font-size: 11px;
@@ -533,23 +634,27 @@ onUnmounted(() => {
         font-size: 20px;
         font-weight: 700;
         color: #2d3748;
-
-        &.up { color: #e53e3e; }
-        &.down { color: #389e0d; }
-        &.stable { color: #3182ce; }
       }
       .ai-metric-label {
         font-size: 11px;
         color: #a0aec0;
         margin-top: 4px;
       }
-      .ai-metric-confidence {
-        font-size: 10px;
-        color: #cbd5e0;
-        margin-top: 2px;
-      }
     }
   }
+}
+
+// 维保优先级标签
+.priority-tag {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+
+  &.priority-urgent { background: #ffccc7; color: #cf1322; }
+  &.priority-high { background: #fff2f0; color: #ff4d4f; }
+  &.priority-medium { background: #fff7e6; color: #fa8c16; }
+  &.priority-low { background: #f6ffed; color: #52c41a; }
 }
 
 // 建议列表

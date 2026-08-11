@@ -7,16 +7,13 @@
 | 组件名 | 说明 | 状态 |
 |--------|------|------|
 | StatCard | 统计卡片 - 展示数据统计值，含趋势变化 | ✅ 已完成 |
-| ChartContainer | 图表容器 - 基于 ECharts 封装 | 🚧 待开发 |
-| QuickLinks | 快捷入口 - 6宫格导航 | 🚧 待开发 |
-| AlertCard | 告警卡片 - 展示告警信息 | 🚧 待开发 |
-| DeviceCard | 设备/子系统卡片 - 展示设备信息 | 🚧 待开发 |
-| FilterBar | 搜索过滤栏 - 搜索与条件筛选 | 🚧 待开发 |
+| AlertCard | 告警卡片 - 展示告警信息 | ✅ 已完成 |
+| DeviceCard | 设备/子系统卡片 - 展示设备信息 | ✅ 已完成 |
 
 ## 引用方式
 
 ```ts
-import { StatCard, ChartContainer } from '@/views/bems-web/components'
+import { StatCard, AlertCard, DeviceCard } from '@/views/bems-web/components'
 // 或
 import StatCard from '@/views/bems-web/components/StatCard/index.vue'
 ```
