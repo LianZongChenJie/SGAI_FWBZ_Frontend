@@ -32,3 +32,13 @@ export const getFreshSupplyAirTemperature = (params = {}) => defHttp.get({ url: 
  * 新风回风温度
  */
 export const getFreshReturnAirTemperature = (params = {}) => defHttp.get({ url: Api.freshReturnAirTemperature, params })
+
+/**
+ * 设备属性列表（按设备ID查询）
+ */
+export const getDeviceAttrList = (params = {}) => defHttp.get({ url: '/sgai-tp/fwbz/deviceAttribute/listByDeviceId', params })
+
+/**
+ * 空调机组控制
+ */
+export const airControl = (data: any[]) => defHttp.post({ url: '/sgai-tp/fwbz/operationSupport/airControl', data })

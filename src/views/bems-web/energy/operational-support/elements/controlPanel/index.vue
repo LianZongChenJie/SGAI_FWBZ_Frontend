@@ -64,30 +64,48 @@
     <!-- 空调机组控制弹窗 -->
     <a-modal
       v-model:open="acModalVisible"
-      title="控制"
+      title="❄️ 空调机组控制"
+      width="800px"
       :mask-closable="false"
       @ok="handleAcSave"
       ok-text="保存"
       cancel-text="取消"
     >
-      <div class="ac-control-form">
-        <div class="control-row">
-          <span class="control-label">开关</span>
-          <a-switch v-model:checked="acSwitchValue" checked-children="开" un-checked-children="关" />
+      <a-spin :spinning="acAttrLoading">
+        <!-- 控制操作区 -->
+        <div class="control-actions">
+          <div class="control-actions__item">
+            <span class="control-actions__label">开关</span>
+            <a-switch v-model:checked="acSwitchValue" checked-children="开" un-checked-children="关" />
+          </div>
+          <div class="control-actions__item">
+            <span class="control-actions__label">设定温度</span>
+            <a-input-number v-model:value="acTempValue" :min="16" :max="30" :step="1" style="width: 200px" addon-after="°C" />
+          </div>
         </div>
-        <div class="control-row">
-          <span class="control-label">温度</span>
-          <a-input-number v-model:value="acTempValue" :min="16" :max="30" :step="1" style="width: 200px" addon-after="°C" />
-        </div>
-      </div>
+
+        <!-- 实时监测数据（只读） -->
+        <a-descriptions bordered :column="2" size="small" style="margin-top: 16px">
+          <a-descriptions-item label="机组编号">{{ acCurrentRecord?.deviceCode ?? '--' }}</a-descriptions-item>
+          <a-descriptions-item label="位置">{{ findTreeNodePath(spaceTreeData, acCurrentRecord?.spaceId) || acCurrentRecord?.spaceId || '--' }}</a-descriptions-item>
+          <a-descriptions-item label="运行状态">
+            <a-tag v-if="acCurrentRecord?.runStop === '1'" color="green">运行</a-tag>
+            <a-tag v-else color="red">停止</a-tag>
+          </a-descriptions-item>
+          <a-descriptions-item label="设定温度">{{ acCurrentRecord?.setTemperature ? acCurrentRecord.setTemperature + '°C' : '--' }}</a-descriptions-item>
+          <template v-for="item in acDisplayAttrs" :key="item.label">
+            <a-descriptions-item :label="item.label">{{ item.value ?? '--' }}<span v-if="item.unit">{{ item.unit }}</span></a-descriptions-item>
+          </template>
+        </a-descriptions>
+      </a-spin>
     </a-modal>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import type { AcControlItem, LightingControlItem } from './index.api'
-import { getAirList, airControl } from './index.api'
+import { getAirList, airControl, getDeviceAttributeList } from './index.api'
 import { spaceTree } from '/@/views/bems-web/equipment/equipmentManagement/elements/device/Device.api'
 
 // ===== Props =====
@@ -179,13 +197,39 @@ const acModalVisible = ref(false)
 const acSwitchValue = ref(false)
 const acTempValue = ref<number>(22)
 const acCurrentRecord = ref<any>(null)
+const acAttrLoading = ref(false)
+const acAttrData = ref<{ label: string; value: any; unit?: string }[]>([])
 
-const handleControl = (type: 'ac' | 'lighting', record: any) => {
+/** 需要展示的属性标签 */
+const DISPLAY_ATTR_LABELS = ['送风温度', '回风温度', '新风温度', '新风湿度']
+
+/** 从属性数据中筛选需要展示的项 */
+const acDisplayAttrs = computed(() => {
+  return acAttrData.value.filter(item => DISPLAY_ATTR_LABELS.includes(item.label))
+})
+
+const handleControl = async (type: 'ac' | 'lighting', record: any) => {
   if (type === 'ac') {
     acCurrentRecord.value = record
     acSwitchValue.value = record.runStop === '1'
     acTempValue.value = Number(record.setTemperature) || 22
+    acAttrData.value = []
     acModalVisible.value = true
+
+    // 调用接口获取设备属性
+    const deviceId = record.deviceId
+    if (deviceId) {
+      acAttrLoading.value = true
+      try {
+        const res: any = await getDeviceAttributeList(deviceId)
+        const list = res?.data || res?.records || res || []
+        acAttrData.value = Array.isArray(list) ? list : []
+      } catch (e) {
+        console.error('获取设备属性失败:', e)
+      } finally {
+        acAttrLoading.value = false
+      }
+    }
   } else {
     emit('control', type, record)
   }
@@ -244,18 +288,25 @@ onMounted(() => {
     border-radius: 12px;
     }
 
-.ac-control-form {
-  .control-row {
+.control-actions {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  padding: 12px 16px;
+  background: #f7f9fc;
+  border: 1px solid #e5e6eb;
+  border-radius: 8px;
+
+  &__item {
     display: flex;
     align-items: center;
-    gap: 16px;
-    margin-bottom: 20px;
+    gap: 12px;
   }
-  .control-label {
+
+  &__label {
     font-size: 14px;
     font-weight: 500;
     color: #1d2129;
-    width: 50px;
     flex-shrink: 0;
   }
 }

@@ -70,7 +70,7 @@
               <a-tag v-else color="red">离线</a-tag>
             </template>
             <template v-if="column.key === 'action'">
-              <a-button type="link" size="small">详情</a-button>
+              <a-button type="link" size="small" @click="handleDetail(record)">详情</a-button>
             </template>
           </template>
         </a-table>
@@ -131,6 +131,22 @@
         </div>
       </div>
     </div>
+    <!-- 详情弹窗 -->
+    <a-modal v-model:visible="detailVisible" title="详情" width="800px" :footer="null" :confirm-loading="detailLoading">
+      <a-spin :spinning="detailLoading">
+        <a-descriptions bordered :column="2" size="small">
+          <a-descriptions-item label="配电柜编号">{{ detailRecord?.deviceCode ?? '--' }}</a-descriptions-item>
+          <a-descriptions-item label="位置">{{ findTreeNodePath(spaceTreeData, detailRecord?.spaceId) || detailRecord?.spaceId || '--' }}</a-descriptions-item>
+          <a-descriptions-item label="运行状态">
+            <a-tag v-if="detailRecord?.runState === '在线'" color="green">在线</a-tag>
+            <a-tag v-else color="red">离线</a-tag>
+          </a-descriptions-item>
+          <template v-for="attr in detailAttributes" :key="attr.label">
+            <a-descriptions-item :label="attr.label">{{ attr.value ?? '--' }}</a-descriptions-item>
+          </template>
+        </a-descriptions>
+      </a-spin>
+    </a-modal>
   </div>
 </template>
 
@@ -138,7 +154,7 @@
 import { ref, reactive, computed, h, onMounted, nextTick } from 'vue'
 import { StatCard } from '/@/views/bems-web/components'
 import { spaceTree } from '/@/views/bems-web/equipment/equipmentManagement/elements/device/Device.api'
-import { getPowerUnitList, getActivePower, getPowerStatistics } from './index.api'
+import { getPowerUnitList, getActivePower, getPowerStatistics, getDeviceAttrList } from './index.api'
 import { useECharts } from '/@/hooks/web/useECharts'
 
 // 自定义 emoji 图标组件
@@ -280,6 +296,26 @@ const loadPowerUnitList = async (pageNo = pagination.current, pageSize = paginat
 const handleSearch = () => {
   pagination.current = 1
   loadPowerUnitList(1, pagination.pageSize, meterSpace.value, filterStatus.value)
+}
+
+// 详情弹窗
+const detailVisible = ref(false)
+const detailLoading = ref(false)
+const detailRecord = ref<any>(null)
+const detailAttributes = ref<any[]>([])
+const handleDetail = async (record: any) => {
+  detailRecord.value = record
+  detailVisible.value = true
+  detailLoading.value = true
+  try {
+    const res = await getDeviceAttrList({ deviceId: record.deviceId })
+    detailAttributes.value = res?.records || res?.data || res || []
+  } catch (e) {
+    console.error('查询设备属性失败:', e)
+    detailAttributes.value = []
+  } finally {
+    detailLoading.value = false
+  }
 }
 
 // 表格分页变化

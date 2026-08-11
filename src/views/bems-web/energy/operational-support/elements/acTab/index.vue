@@ -70,6 +70,7 @@
               <a-tag v-else color="red">停止</a-tag>
             </template>
             <template v-if="column.key === 'action'">
+              <a-button type="link" size="small" @click="handleControl(record)">控制</a-button>
               <a-button type="link" size="small" @click="handleDetail(record)">详情</a-button>
             </template>
           </template>
@@ -179,13 +180,53 @@
         </a-descriptions>
       </a-spin>
     </a-modal>
+
+    <!-- 控制弹窗 -->
+    <a-modal
+      v-model:open="controlVisible"
+      title="❄️ 空调机组控制"
+      width="800px"
+      :mask-closable="false"
+      @ok="handleControlSave"
+      ok-text="保存"
+      cancel-text="取消"
+    >
+      <a-spin :spinning="controlAttrLoading">
+        <!-- 控制操作区 -->
+        <div class="control-actions">
+          <div class="control-actions__item">
+            <span class="control-actions__label">开关</span>
+            <a-switch v-model:checked="controlSwitchValue" checked-children="开" un-checked-children="关" />
+          </div>
+          <div class="control-actions__item">
+            <span class="control-actions__label">设定温度</span>
+            <a-input-number v-model:value="controlTempValue" :min="16" :max="30" :step="1" style="width: 200px" addon-after="°C" />
+          </div>
+        </div>
+
+        <!-- 实时监测数据（只读） -->
+        <a-descriptions bordered :column="2" size="small" style="margin-top: 16px">
+          <a-descriptions-item label="机组编号">{{ controlRecord?.deviceCode ?? '--' }}</a-descriptions-item>
+          <a-descriptions-item label="位置">{{ findTreeNodePath(spaceTreeData, controlRecord?.spaceId) || controlRecord?.spaceId || '--' }}</a-descriptions-item>
+          <a-descriptions-item label="运行状态">
+            <a-tag v-if="controlRecord?.runStop === '1'" color="green">运行</a-tag>
+            <a-tag v-else color="red">停止</a-tag>
+          </a-descriptions-item>
+          <a-descriptions-item label="设定温度">{{ controlTempValue }}°C</a-descriptions-item>
+          <template v-for="item in controlDisplayAttrs" :key="item.label">
+            <a-descriptions-item :label="item.label">{{ item.value ?? '--' }}<span v-if="item.unit">{{ item.unit }}</span></a-descriptions-item>
+          </template>
+        </a-descriptions>
+      </a-spin>
+    </a-modal>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, computed, h, onMounted, nextTick } from 'vue'
+import { message } from 'ant-design-vue'
 import { StatCard } from '/@/views/bems-web/components'
 import { spaceTree } from '/@/views/bems-web/equipment/equipmentManagement/elements/device/Device.api'
-import { getAcUnitList, getAcUnitStatistics, getAirEnergyDay, getSupplyAirTemperature, getReturnAirTemperature, getDeviceAttrList } from './index.api'
+import { getAcUnitList, getAcUnitStatistics, getAirEnergyDay, getSupplyAirTemperature, getReturnAirTemperature, getDeviceAttrList, airControl } from './index.api'
 import { useECharts } from '/@/hooks/web/useECharts'
 
 // 自定义 emoji 图标组件
@@ -341,6 +382,65 @@ const handleDetail = async (record: any) => {
     detailAttributes.value = []
   } finally {
     detailLoading.value = false
+  }
+}
+
+// 控制弹窗
+const controlVisible = ref(false)
+const controlSwitchValue = ref(false)
+const controlTempValue = ref<number>(22)
+const controlRecord = ref<any>(null)
+const controlAttrLoading = ref(false)
+const controlAttrData = ref<{ label: string; value: any; unit?: string }[]>([])
+
+/** 需要展示的属性标签 */
+const CONTROL_DISPLAY_LABELS = ['送风温度', '回风温度', '新风温度', '新风湿度']
+
+/** 从属性数据中筛选需要展示的项 */
+const controlDisplayAttrs = computed(() => {
+  return controlAttrData.value.filter(item => CONTROL_DISPLAY_LABELS.includes(item.label))
+})
+
+const handleControl = async (record: any) => {
+  controlRecord.value = record
+  controlSwitchValue.value = record.runStop === '1'
+  controlTempValue.value = 22
+  controlAttrData.value = []
+  controlVisible.value = true
+
+  // 调用接口获取设备属性
+  const deviceId = record.deviceId
+  if (deviceId) {
+    controlAttrLoading.value = true
+    try {
+      const res: any = await getDeviceAttrList({ deviceId })
+      const list = res?.records || res?.data || res || []
+      controlAttrData.value = Array.isArray(list) ? list : []
+    } catch (e) {
+      console.error('获取设备属性失败:', e)
+    } finally {
+      controlAttrLoading.value = false
+    }
+  }
+}
+
+const handleControlSave = async () => {
+  const deviceId = controlRecord.value?.deviceId
+  if (!deviceId) return
+  const onOffValue = controlSwitchValue.value ? 2 : 1
+  const payload = [
+    { deviceId, attributeCode: 'UNIT_ON_OFF', value: onOffValue },
+    { deviceId, attributeCode: 'SA_TEMP_SETPOINT', value: controlTempValue.value },
+  ]
+  try {
+    await airControl(payload)
+    message.success('保存成功')
+  } catch (e) {
+    console.error('空调控制失败:', e)
+    message.error('保存失败')
+  } finally {
+    controlVisible.value = false
+    loadAcUnitList()
   }
 }
 
@@ -687,6 +787,29 @@ onMounted(() => {
     grid-template-columns: 1fr 1fr;
     gap: 20px;
     margin-bottom: 20px;
+  }
+}
+
+.control-actions {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  padding: 12px 16px;
+  background: #f7f9fc;
+  border: 1px solid #e5e6eb;
+  border-radius: 8px;
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  &__label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #1d2129;
+    flex-shrink: 0;
   }
 }
 </style>

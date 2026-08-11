@@ -11,7 +11,8 @@
     <div class="card">
       <div class="card-header">
         <h3>📋报警规则配置</h3>
-        <a-button v-if="hasPermission('bems:alarmRule:add')" type="primary" @click="addRuleStrategy"> 新增 </a-button>
+        <!-- <a-button v-if="hasPermission('bems:alarmRule:add')" type="primary" @click="addRuleStrategy"> 新增 </a-button> -->
+        <a-button type="primary" @click="addRuleStrategy"> 新增 </a-button>
       </div>
       <div class="card-body">
         <a-table
@@ -34,15 +35,20 @@
               {{ getRuleFrequency(record) }}
             </template>
             <template v-if="column.key === 'switchStatus'">
-              <a-switch
+              <!-- <a-switch
                 :checked="record.enabledStatus == '1'"
                 :disabled="(record.enabledStatus == '1') ? !hasPermission('bems:alarmRule:startRule') : !hasPermission('bems:alarmRule:stopRule')"
+                @change="(checked) => handleRuleStatusChange(record, checked)"
+              /> -->
+              <a-switch
+                :checked="record.enabledStatus == '1'"
                 @change="(checked) => handleRuleStatusChange(record, checked)"
               />
             </template>
             <template v-if="column.key === 'action'">
               <a-space>
-                <a-button type="link" size="small" v-if="hasPermission('bems:alarmRule:edit')" @click="handleRuleEdit(record)">编辑</a-button>
+                <!-- <a-button type="link" size="small" v-if="hasPermission('bems:alarmRule:edit')" @click="handleRuleEdit(record)">编辑</a-button> -->
+                <a-button type="link" size="small" @click="handleRuleEdit(record)">编辑</a-button>
                 <a-button type="link" size="small" @click="checkRuleDetail(record)">详情</a-button>
                 <a-popconfirm title="确认删除该条数据？" ok-text="确定" cancel-text="取消" @confirm="handleRuleDelete(record)">
                   <a-button type="link" size="small" danger>删除</a-button>
@@ -59,8 +65,12 @@
     <div class="card">
       <div class="card-header">
         <h3>📋报警类别</h3>
-        <a-button
+        <!-- <a-button
           v-if="hasPermission('bems:device_data:amend')"
+          type="primary"
+          @click="addAlarmCategory"
+        > 新增 </a-button> -->
+        <a-button
           type="primary"
           @click="addAlarmCategory"
         > 新增 </a-button>
@@ -82,7 +92,7 @@
             <template v-if="column.key === 'active'">
               <a-space>
                 <a-button type="link" size="small" @click="handleCategoryEdit(record)">编辑</a-button>
-                <a-popconfirm
+                <!-- <a-popconfirm
                   v-if="!Number(record.status) && hasPermission('bems:alarmCategory:startCategory')"
                   title="是否启用？"
                   ok-text="确定"
@@ -90,8 +100,17 @@
                   @confirm="handleCategoryEnable(record)"
                 >
                   <a-button type="link" size="small">启用</a-button>
-                </a-popconfirm>
+                </a-popconfirm> -->
                 <a-popconfirm
+                  v-if="!Number(record.status)"
+                  title="是否启用？"
+                  ok-text="确定"
+                  cancel-text="取消"
+                  @confirm="handleCategoryEnable(record)"
+                >
+                  <a-button type="link" size="small">启用</a-button>
+                </a-popconfirm>
+                <!-- <a-popconfirm
                   v-if="Number(record.status) && hasPermission('bems:alarmCategory:stopCategory')"
                   title="是否停用？"
                   ok-text="确定"
@@ -99,9 +118,26 @@
                   @confirm="handleCategoryDisable(record)"
                 >
                   <a-button type="link" size="small" danger>停用</a-button>
-                </a-popconfirm>
+                </a-popconfirm> -->
                 <a-popconfirm
+                  v-if="Number(record.status)"
+                  title="是否停用？"
+                  ok-text="确定"
+                  cancel-text="取消"
+                  @confirm="handleCategoryDisable(record)"
+                >
+                  <a-button type="link" size="small" danger>停用</a-button>
+                </a-popconfirm>
+                <!-- <a-popconfirm
                   v-if="hasPermission('bems:alarmCategory:delete')"
+                  title="是否删除？"
+                  ok-text="确定"
+                  cancel-text="取消"
+                  @confirm="handleCategoryDelete(record)"
+                >
+                  <a-button type="link" size="small" danger>删除</a-button>
+                </a-popconfirm> -->
+                <a-popconfirm
                   title="是否删除？"
                   ok-text="确定"
                   cancel-text="取消"
@@ -119,8 +155,12 @@
     <div class="card">
       <div class="card-header">
         <h3>📋报警级别</h3>
-        <a-button
+        <!-- <a-button
           v-if="hasPermission('bems:alarmLevel:add')"
+          type="primary"
+          @click="addAlarmLevel"
+        > 新增 </a-button> -->
+        <a-button
           type="primary"
           @click="addAlarmLevel"
         > 新增 </a-button>
@@ -142,7 +182,7 @@
             <template v-if="column.key === 'active'">
               <a-space>
                 <a-button type="link" size="small" @click="handleLevelEdit(record)">编辑</a-button>
-                <a-popconfirm
+                <!-- <a-popconfirm
                   v-if="!Number(record.status) && hasPermission('bems:alarmLevel:startLevel')"
                   title="是否启用？"
                   ok-text="确定"
@@ -150,8 +190,17 @@
                   @confirm="handleLevelEnable(record)"
                 >
                   <a-button type="link" size="small">启用</a-button>
-                </a-popconfirm>
+                </a-popconfirm> -->
                 <a-popconfirm
+                  v-if="!Number(record.status)"
+                  title="是否启用？"
+                  ok-text="确定"
+                  cancel-text="取消"
+                  @confirm="handleLevelEnable(record)"
+                >
+                  <a-button type="link" size="small">启用</a-button>
+                </a-popconfirm>
+                <!-- <a-popconfirm
                   v-if="Number(record.status) && hasPermission('bems:alarmLevel:stopLevel')"
                   title="是否停用？"
                   ok-text="确定"
@@ -159,9 +208,26 @@
                   @confirm="handleLevelDisable(record)"
                 >
                   <a-button type="link" size="small" danger>停用</a-button>
-                </a-popconfirm>
+                </a-popconfirm> -->
                 <a-popconfirm
+                  v-if="Number(record.status)"
+                  title="是否停用？"
+                  ok-text="确定"
+                  cancel-text="取消"
+                  @confirm="handleLevelDisable(record)"
+                >
+                  <a-button type="link" size="small" danger>停用</a-button>
+                </a-popconfirm>
+                <!-- <a-popconfirm
                   v-if="hasPermission('bems:alarmLevel:delete')"
+                  title="是否删除？"
+                  ok-text="确定"
+                  cancel-text="取消"
+                  @confirm="handleLevelDelete(record)"
+                >
+                  <a-button type="link" size="small" danger>删除</a-button>
+                </a-popconfirm> -->
+                <a-popconfirm
                   title="是否删除？"
                   ok-text="确定"
                   cancel-text="取消"

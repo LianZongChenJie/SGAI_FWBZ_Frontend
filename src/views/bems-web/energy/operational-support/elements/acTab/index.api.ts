@@ -38,3 +38,8 @@ export const getReturnAirTemperature = (params = {}) => defHttp.get({ url: Api.r
  * 设备属性列表（按设备ID查询）
  */
 export const getDeviceAttrList = (params = {}) => defHttp.get({ url: Api.listByDeviceId, params })
+
+/**
+ * 空调机组控制
+ */
+export const airControl = (data: any[]) => defHttp.post({ url: '/sgai-tp/fwbz/operationSupport/airControl', data })
