@@ -147,7 +147,6 @@
 <script setup lang="ts">
 import { ref, reactive, toRaw, createVNode, onMounted } from 'vue';
 import { PlusOutlined, MinusOutlined, ExclamationCircleOutlined } from '@ant-design/icons-vue';
-import { message } from 'ant-design-vue';
 import { Modal } from 'ant-design-vue';
 import {
   getAlarmLevelListApi,
@@ -356,7 +355,6 @@ const deleteRearPoint = (target) => {
     content: '删除不可恢复，是否确定删除?',
     onOk() {
       formState.points.pop();
-      message.success('删除成功！');
     },
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     onCancel() { },
@@ -442,7 +440,6 @@ const setDeviceName = async (type, record, index = null) => {
 // 提交表单
 const onSubmit = async () => {
   if (!formState.points.length) {
-    message.error('请添加设备');
     return;
   }
   formRef.value
@@ -451,25 +448,18 @@ const onSubmit = async () => {
       if (props.type === 'create') {
         let res = await addAlarmRulesApi(toRaw(formState));
         if (!res) {
-          message.success('新增成功！');
           resetForm();
           props.closeModal();
           open.value = false;
-        } else {
-          message.error('新增失败！');
         }
       } else {
         let res = await editAlarmRulesApi(toRaw(formState));
 
         if (!res) {
-          message.success('修改成功！');
           resetForm();
           props.closeModal();
           open.value = false;
-        } else {
-          message.error('修改失败！');
         }
-        // message.success('修改成功！');
       }
     })
     .catch((error) => {

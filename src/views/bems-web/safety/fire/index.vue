@@ -67,7 +67,6 @@
             style="width: 150px"
             placeholder="全部类型"
             allow-clear
-            :field-names="{ label: 'typeName', value: 'id' }"
           >
             <a-select-option value="">全部类型</a-select-option>
             <a-select-option v-for="item in deviceTypeOptions" :key="item.id" :value="item.id">{{ item.typeName }}</a-select-option>
@@ -315,6 +314,7 @@ const deviceTypeOptions = ref<SmokeDetectorType[]>([])
 const fetchDeviceTypeList = async () => {
   try {
     const res = await getDeviceTypeList()
+    console.log('获取消防设备类型列表成功:', res)
     deviceTypeOptions.value = Array.isArray(res) ? res : []
   } catch (error) {
     console.error('获取消防设备类型列表失败:', error)

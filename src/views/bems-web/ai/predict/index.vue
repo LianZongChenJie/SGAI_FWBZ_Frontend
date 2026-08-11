@@ -1,113 +1,144 @@
 <template>
   <div class="ai-page">
-    <!-- 统计卡片行 -->
-    <div class="stats-row">
-      <StatCard label="预测模型数" :value="12" change-text="↑ 3 新增" trend="up" color="blue" :icon="BrainIcon" />
-      <StatCard label="预测准确率" :value="'94.5%'" change-text="↑ 1.8% 较上月" trend="up" color="green" :icon="TargetIcon" />
-      <StatCard label="预警提前量" :value="'24-72h'" change-text="充足预警期" color="orange" :icon="ClockIcon" />
-      <StatCard label="本月预警命中" :value="'28/30'" change-text="93.3% 命中率" trend="up" color="purple" :icon="HitIcon" />
-    </div>
+    <a-spin :spinning="loading">
+      <!-- 统计卡片行 -->
+      <div class="stats-row">
+        <StatCard
+          label="预测项数量"
+          :value="reportData?.predict_items?.length ?? 0"
+          change-text="AI预测"
+          trend="up"
+          color="blue"
+          :icon="BrainIcon"
+        />
+        <StatCard
+          label="预警项数量"
+          :value="reportData?.warning_items?.length ?? 0"
+          change-text="需关注"
+          color="orange"
+          :icon="TargetIcon"
+        />
+        <StatCard
+          label="平均置信度"
+          :value="avgConfidence + '%'"
+          change-text="预测可靠性"
+          trend="up"
+          color="green"
+          :icon="ClockIcon"
+        />
+        <StatCard
+          label="优化建议数"
+          :value="reportData?.suggestions?.length ?? 0"
+          change-text="AI建议"
+          color="purple"
+          :icon="HitIcon"
+        />
+      </div>
 
-    <!-- AI报告卡片 -->
-    <div class="ai-report-card">
-      <div class="ai-report-header">
-        <span class="ai-badge">AI</span>
-        <span class="ai-report-title">设备运行趋势预测报告 - 未来7天</span>
-      </div>
-      <div class="ai-report-desc">
-        本报告基于LSTM时序预测模型与XGBoost回归模型，对园区核心设备的能耗趋势、关键运行参数趋势进行未来7天预测。模型综合考虑历史运行数据、天气预报、展会排期、节假日因素等多维特征，预测结果置信区间95%。当前预测显示下周因高温天气与大型展会叠加，空调能耗预计上升25%，建议提前调整冷机运行策略。
-      </div>
-      <div class="ai-metrics">
-        <div class="ai-metric">
-          <div class="ai-metric-value">+25%</div>
-          <div class="ai-metric-label">空调能耗预测</div>
+      <!-- AI报告卡片 -->
+      <div class="ai-report-card" v-if="reportData">
+        <div class="ai-report-header">
+          <span class="ai-badge">AI</span>
+          <span class="ai-report-title">{{ reportData.report_title || '设备运行趋势预测报告' }}</span>
         </div>
-        <div class="ai-metric">
-          <div class="ai-metric-value">+18%</div>
-          <div class="ai-metric-label">总用电量预测</div>
-        </div>
-        <div class="ai-metric">
-          <div class="ai-metric-value">3</div>
-          <div class="ai-metric-label">高风险设备</div>
-        </div>
-        <div class="ai-metric">
-          <div class="ai-metric-value">95%</div>
-          <div class="ai-metric-label">预测置信度</div>
+        <div class="ai-report-desc">{{ reportData.summary }}</div>
+        <div class="ai-metrics">
+          <div class="ai-metric" v-for="(item, index) in topPredictItems" :key="index">
+            <div class="ai-metric-value" :class="item.trend">{{ item.predict_value }}</div>
+            <div class="ai-metric-label">{{ item.item_name }}</div>
+            <div class="ai-metric-confidence">置信度 {{ (item.confidence * 100).toFixed(0) }}%</div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- 两栏布局：能耗趋势预测 + 设备预警清单 -->
-    <div class="two-col">
-      <div class="card">
+      <!-- 两栏布局：能耗趋势预测 + 设备预警清单 -->
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header">
+            <h3>📈 能耗趋势预测</h3>
+            <span class="tag tag-purple">AI预测</span>
+          </div>
+          <div class="card-body">
+            <div ref="trendChartRef" class="chart-container"></div>
+            <!-- 预测项详情列表 -->
+            <div class="predict-list" v-if="reportData?.predict_items?.length">
+              <div
+                class="predict-item"
+                v-for="(item, index) in reportData.predict_items"
+                :key="index"
+              >
+                <div class="predict-item-header">
+                  <span class="predict-item-name">{{ item.item_name }}</span>
+                  <span class="predict-item-trend" :class="item.trend">
+                    <span v-if="item.trend === 'up'">↑</span>
+                    <span v-else-if="item.trend === 'down'">↓</span>
+                    <span v-else>→</span>
+                    {{ item.predict_value }}
+                  </span>
+                </div>
+                <div class="predict-item-desc">{{ item.description }}</div>
+                <div class="predict-item-confidence">
+                  置信度: {{ (item.confidence * 100).toFixed(0) }}%
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3>⚠️ 设备预警清单</h3>
+            <span class="tag tag-red">需关注</span>
+          </div>
+          <div class="card-body">
+            <a-empty v-if="!reportData?.warning_items?.length" description="暂无预警" />
+            <template v-else>
+              <div
+                class="alert-card"
+                v-for="(warning, index) in reportData.warning_items"
+                :key="index"
+                :class="getWarningClass(warning)"
+              >
+                <div class="alert-icon">{{ getWarningIcon(warning) }}</div>
+                <div class="alert-content">
+                  <div class="alert-title">{{ warning.device_name }} - {{ warning.warning_type }}</div>
+                  <div class="alert-desc">{{ warning.warning_content }}</div>
+                  <div class="alert-time">
+                    预测置信度 {{ (warning.confidence * 100).toFixed(0) }}% | 建议处理时间: {{ warning.suggest_time }}
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+
+      <!-- 优化建议 -->
+      <div class="card" v-if="reportData?.suggestions?.length">
         <div class="card-header">
-          <h3>📈 能耗趋势预测</h3>
-          <span class="tag tag-purple">AI预测</span>
+          <h3>💡 AI优化建议</h3>
         </div>
         <div class="card-body">
-          <div class="chart-placeholder">
-            <div class="chart-icon">📊</div>
-            <div class="chart-text">未来7天能耗预测曲线</div>
-            <div class="chart-sub">实线=历史 | 虚线=预测 | 阴影=置信区间</div>
-          </div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-header">
-          <h3>⚠️ 设备预警清单</h3>
-          <span class="tag tag-red">需关注</span>
-        </div>
-        <div class="card-body">
-          <!-- 预警卡片 -->
-          <div class="alert-card warning">
-            <div class="alert-icon">❄️</div>
-            <div class="alert-content">
-              <div class="alert-title">AC-A-03 冷机效率衰减预警</div>
-              <div class="alert-desc">预测未来72小时内COP值将下降至3.8以下，建议安排维保检查</div>
-              <div class="alert-time">预测置信度 92% | 建议处理时间: 48h内</div>
-            </div>
-          </div>
-          <div class="alert-card warning">
-            <div class="alert-icon">⚡</div>
-            <div class="alert-content">
-              <div class="alert-title">PD-B-02 配电柜温度上升预警</div>
-              <div class="alert-desc">预测未来48小时内柜内温度将超过45°C，建议检查散热风扇</div>
-              <div class="alert-time">预测置信度 88% | 建议处理时间: 24h内</div>
-            </div>
-          </div>
-          <div class="alert-card info">
-            <div class="alert-icon">💡</div>
-            <div class="alert-content">
-              <div class="alert-title">LT-C-105 照明回路寿命预警</div>
-              <div class="alert-desc">基于运行时长与开关次数预测，该回路驱动器剩余寿命约30天</div>
-              <div class="alert-time">预测置信度 85% | 建议处理时间: 2周内</div>
+          <div class="suggestion-list">
+            <div
+              class="suggestion-item"
+              v-for="(suggestion, index) in reportData.suggestions"
+              :key="index"
+            >
+              <span class="suggestion-index">{{ index + 1 }}</span>
+              <span class="suggestion-text">{{ suggestion }}</span>
             </div>
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- 功能说明面板 -->
-    <div class="feature-panel">
-      <h4>📋 功能说明</h4>
-      <p>通过AI分析设备运行数据，预测设备运行趋势，包括能耗趋势、设备参数运行趋势（预警）等。平台依托 AI 算法对设备历史与实时运行数据进行深度挖掘，构建多维度预测模型，精准预判设备未来运行趋势：一方面智能预测能耗变化趋势，为节能调控提供依据；另一方面实时跟踪电压、电流、温度、压力等关键参数运行趋势，提前识别异常偏移并发出预警，有效降低故障风险，实现从被动运维向主动预测、智能管控转变。</p>
-      <div class="feature-list">
-        <div class="feature-list-item">能耗变化趋势智能预测</div>
-        <div class="feature-list-item">设备关键参数趋势跟踪</div>
-        <div class="feature-list-item">异常偏移提前识别预警</div>
-        <div class="feature-list-item">多维度预测模型构建</div>
-        <div class="feature-list-item">负荷预测与调控建议</div>
-        <div class="feature-list-item">故障风险概率评估</div>
-        <div class="feature-list-item">预测准确率持续学习优化</div>
-        <div class="feature-list-item">从被动运维到主动预测转变</div>
-      </div>
-    </div>
+    </a-spin>
   </div>
 </template>
 
 <script setup lang="ts">
-import { h } from 'vue'
+import { h, ref, computed, onMounted, onUnmounted, nextTick, shallowRef } from 'vue'
 import { StatCard } from '/@/views/bems-web/components'
+import { getPredictReport, type PredictReport } from './index.api'
+import * as echarts from 'echarts'
 
 defineOptions({ name: 'AiPredictPage' })
 
@@ -116,6 +147,168 @@ const BrainIcon = () => h('span', { style: 'font-size: 20px;' }, '🧠')
 const TargetIcon = () => h('span', { style: 'font-size: 20px;' }, '🎯')
 const ClockIcon = () => h('span', { style: 'font-size: 20px;' }, '⏰')
 const HitIcon = () => h('span', { style: 'font-size: 20px;' }, '🎯')
+
+const loading = ref(false)
+const reportData = ref<PredictReport | null>(null)
+
+// 图表引用
+const trendChartRef = ref<HTMLElement>()
+const trendChartInstance = shallowRef<echarts.ECharts>()
+
+// 平均置信度
+const avgConfidence = computed(() => {
+  const items = reportData.value?.predict_items ?? []
+  if (!items.length) return '0'
+  const sum = items.reduce((acc, item) => acc + item.confidence, 0)
+  return (sum / items.length * 100).toFixed(0)
+})
+
+// 取前4个预测项展示在指标卡片中
+const topPredictItems = computed(() => {
+  return (reportData.value?.predict_items ?? []).slice(0, 4)
+})
+
+// 获取预警样式
+const getWarningClass = (warning: any) => {
+  const confidence = warning.confidence
+  if (confidence >= 0.9) return 'danger'
+  if (confidence >= 0.8) return 'warning'
+  return 'info'
+}
+
+// 获取预警图标
+const getWarningIcon = (warning: any) => {
+  const type = warning.warning_type || ''
+  if (type.includes('电压') || type.includes('电气')) return '⚡'
+  if (type.includes('能耗') || type.includes('能效')) return '📊'
+  if (type.includes('水位') || type.includes('水')) return '💧'
+  if (type.includes('温度') || type.includes('温')) return '🌡️'
+  return '⚠️'
+}
+
+// 获取数据
+const fetchData = async () => {
+  loading.value = true
+  try {
+    const res = await getPredictReport({
+      predict_type: 'all',
+      time_range: 'week',
+    })
+    // 兼容包装和非包装格式
+    const data = (res as any)?.result ?? res
+    reportData.value = data as PredictReport
+
+    await nextTick()
+    renderTrendChart()
+  } catch (error) {
+    console.error('获取AI预测报告失败:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+// 渲染预测趋势图
+const renderTrendChart = () => {
+  if (!trendChartRef.value) return
+  if (!trendChartInstance.value) {
+    trendChartInstance.value = echarts.init(trendChartRef.value)
+  }
+
+  const items = reportData.value?.predict_items ?? []
+  if (!items.length) {
+    trendChartInstance.value.clear()
+    return
+  }
+
+  const itemNames = items.map((item) => item.item_name)
+
+  const trendColors: Record<string, string> = {
+    up: '#E86452',
+    down: '#52C41A',
+    stable: '#5B8FF9',
+  }
+
+  const option: any = {
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: { type: 'shadow' },
+      backgroundColor: 'rgba(255,255,255,0.95)',
+      borderColor: '#e2e8f0',
+      textStyle: { color: '#2d3748', fontSize: 12 },
+      extraCssText: 'box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-radius: 8px;',
+      formatter: (params: any) => {
+        const item = items[params[0].dataIndex]
+        if (!item) return ''
+        return `<div style="font-weight:600;margin-bottom:6px;">${item.item_name}</div>
+          <div>预测值: ${item.predict_value}</div>
+          <div>置信度: ${(item.confidence * 100).toFixed(0)}%</div>
+          <div style="margin-top:4px;color:#718096;">${item.description}</div>`
+      },
+    },
+    grid: {
+      left: '2%',
+      right: '5%',
+      bottom: '3%',
+      top: '10%',
+      containLabel: true,
+    },
+    xAxis: {
+      type: 'category',
+      data: itemNames,
+      axisLine: { lineStyle: { color: '#e2e8f0' } },
+      axisLabel: {
+        color: '#718096',
+        fontSize: 11,
+        interval: 0,
+        rotate: itemNames.length > 3 ? 15 : 0,
+        formatter: (name: string) => name.length > 8 ? name.substring(0, 8) + '...' : name,
+      },
+      axisTick: { show: false },
+    },
+    yAxis: {
+      type: 'value',
+      name: '置信度(%)',
+      max: 100,
+      min: 0,
+      axisLine: { show: false },
+      axisTick: { show: false },
+      axisLabel: { color: '#a0aec0', fontSize: 11 },
+      splitLine: { lineStyle: { color: '#f0f0f0', type: 'dashed' } },
+    },
+    series: [
+      {
+        type: 'bar',
+        data: items.map((item) => ({
+          value: parseFloat((item.confidence * 100).toFixed(1)),
+          itemStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: trendColors[item.trend] || '#5B8FF9' },
+              { offset: 1, color: (trendColors[item.trend] || '#5B8FF9') + '80' },
+            ]),
+            borderRadius: [6, 6, 0, 0],
+          },
+        })),
+        barWidth: '40%',
+      },
+    ],
+  }
+  trendChartInstance.value.setOption(option, true)
+}
+
+// 窗口大小调整
+const resizeChart = () => {
+  trendChartInstance.value?.resize()
+}
+
+onMounted(() => {
+  fetchData()
+  window.addEventListener('resize', resizeChart)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', resizeChart)
+  trendChartInstance.value?.dispose()
+})
 </script>
 
 <style scoped lang="less">
@@ -179,32 +372,54 @@ const HitIcon = () => h('span', { style: 'font-size: 20px;' }, '🎯')
   }
 }
 
-// 图表占位
-.chart-placeholder {
-  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  color: #a0aec0;
-  border: 2px dashed #e2e8f0;
-  min-height: 280px;
-  padding: 30px;
+// 图表容器
+.chart-container {
+  width: 100%;
+  height: 240px;
+  margin-bottom: 16px;
+}
 
-  .chart-icon {
-    font-size: 48px;
-    margin-bottom: 12px;
-  }
-  .chart-text {
-    font-size: 14px;
-    color: #718096;
-    font-weight: 500;
-  }
-  .chart-sub {
-    font-size: 12px;
-    color: #a0aec0;
-    margin-top: 8px;
+// 预测项列表
+.predict-list {
+  .predict-item {
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+
+    &:last-child { border-bottom: none; }
+
+    .predict-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+
+      .predict-item-name {
+        font-size: 13px;
+        font-weight: 600;
+        color: #2d3748;
+      }
+
+      .predict-item-trend {
+        font-size: 12px;
+        font-weight: 600;
+
+        &.up { color: #e53e3e; }
+        &.down { color: #389e0d; }
+        &.stable { color: #3182ce; }
+      }
+    }
+
+    .predict-item-desc {
+      font-size: 12px;
+      color: #718096;
+      line-height: 1.5;
+      margin-bottom: 4px;
+    }
+
+    .predict-item-confidence {
+      font-size: 11px;
+      color: #a0aec0;
+    }
   }
 }
 
@@ -318,59 +533,54 @@ const HitIcon = () => h('span', { style: 'font-size: 20px;' }, '🎯')
         font-size: 20px;
         font-weight: 700;
         color: #2d3748;
+
+        &.up { color: #e53e3e; }
+        &.down { color: #389e0d; }
+        &.stable { color: #3182ce; }
       }
       .ai-metric-label {
         font-size: 11px;
         color: #a0aec0;
         margin-top: 4px;
       }
+      .ai-metric-confidence {
+        font-size: 10px;
+        color: #cbd5e0;
+        margin-top: 2px;
+      }
     }
   }
 }
 
-// 功能说明面板
-.feature-panel {
-  background: linear-gradient(135deg, #ebf8ff 0%, #f7fafc 100%);
-  border-radius: 10px;
-  padding: 18px;
-  margin-bottom: 16px;
-  border: 1px solid #bee3f8;
-
-  h4 {
-    font-size: 14px;
-    color: #2a4365;
-    margin-bottom: 10px;
+// 建议列表
+.suggestion-list {
+  .suggestion-item {
     display: flex;
-    align-items: center;
-    gap: 8px;
-  }
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
 
-  p {
-    font-size: 13px;
-    color: #4a5568;
-    line-height: 1.7;
-  }
+    &:last-child { border-bottom: none; }
 
-  .feature-list {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    margin-top: 12px;
-
-    .feature-list-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
+    .suggestion-index {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #e9d8fd;
+      color: #6b46c1;
       font-size: 12px;
-      color: #4a5568;
-      line-height: 1.5;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-      &::before {
-        content: '✓';
-        color: #38a169;
-        font-weight: 700;
-        flex-shrink: 0;
-      }
+    .suggestion-text {
+      font-size: 13px;
+      color: #4a5568;
+      line-height: 1.6;
     }
   }
 }

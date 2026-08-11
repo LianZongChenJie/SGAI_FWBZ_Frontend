@@ -184,7 +184,6 @@
 <script setup lang="ts">
 import { StatCard } from '/@/views/bems-web/components'
 import { ref, computed, h, onMounted } from 'vue'
-import { message } from 'ant-design-vue'
 import { usePermissionStore } from '/@/store/modules/permission'
 import AddAlarmCategoryModal from '/@/views/bems-web/alert/alarmManagement/components/AddAlarmCategoryModal.vue'
 import AddAlarmLevelModal from '/@/views/bems-web/alert/alarmManagement/components/AddAlarmLevelModal.vue'
@@ -318,17 +317,14 @@ const closeRuleModal = () => {
 const handleRuleStatusChange = async (record, checked) => {
   if (checked) {
     await enableAlarmRuleslApi({ id: record.id })
-    message.success('启用成功！')
   } else {
     await disableAlarmRuleslApi({ id: record.id })
-    message.success('禁用成功！')
   }
   loadRuleList(ruleCurPage.value, ruleCurSize.value)
 }
 // 删除
 const handleRuleDelete = async (record) => {
   await deleteAlarmRulesApi({ id: record.id })
-  message.success('删除成功！')
   loadRuleList(ruleCurPage.value, ruleCurSize.value)
 }
 
@@ -395,19 +391,16 @@ const handleCategoryEdit = (record) => categoryModalRef.value.showModal('edit', 
 // 启用
 const handleCategoryEnable = async (record) => {
   await enableAlarmCategoryApi({ id: record.id })
-  message.success('启用成功！')
   reloadCategory()
 }
 // 停用
 const handleCategoryDisable = async (record) => {
   await disableAlarmCategoryApi({ id: record.id })
-  message.success('停用成功！')
   reloadCategory()
 }
 // 删除
 const handleCategoryDelete = async (record) => {
   await deleteAlarmCategoryApi({ id: record.id })
-  message.success('删除成功！')
   reloadCategory()
 }
 
@@ -464,19 +457,16 @@ const handleLevelEdit = (record) => levelModalRef.value.showModal('edit', record
 // 启用
 const handleLevelEnable = async (record) => {
   await enableAlarmLevelApi({ id: record.id })
-  message.success('启用成功！')
   reloadLevel()
 }
 // 停用
 const handleLevelDisable = async (record) => {
   await disableAlarmLevelApi({ id: record.id })
-  message.success('停用成功！')
   reloadLevel()
 }
 // 删除
 const handleLevelDelete = async (record) => {
   await deleteAlarmLevelApi({ id: record.id })
-  message.success('删除成功！')
   reloadLevel()
 }
 

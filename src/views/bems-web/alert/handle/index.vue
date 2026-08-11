@@ -69,7 +69,7 @@ import {
   getAlarmLevelListApi,
   getAlarmRecordStatisticsApi,
 } from '../alarmManagement/Standardized.api'
-import { message, Pagination } from 'ant-design-vue'
+import { Pagination } from 'ant-design-vue'
 
 // 自定义 emoji 图标组件
 const PendingAlertIcon = () => h('span', { style: 'font-size: 20px;' }, '🚨')
@@ -170,7 +170,7 @@ const fetchAlertList = async (page = currentPage.value) => {
     totalRecords.value = res.total || 0
     currentPage.value = page
   } catch {
-    message.error('获取告警列表失败')
+    // defHttp 已自动提示错误信息
   } finally {
     loading.value = false
   }

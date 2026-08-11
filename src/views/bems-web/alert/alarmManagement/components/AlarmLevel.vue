@@ -41,7 +41,6 @@ import { EditOutlined } from '@ant-design/icons-vue';
 import { usePermissionStore } from '/@/store/modules/permission';
 import AddAlarmLevelModal from './AddAlarmLevelModal.vue';
 import { getAlarmLevelPageListApi, deleteAlarmLevelApi, editAlarmLevelApi, enableAlarmLevelApi, disableAlarmLevelApi } from '../Standardized.api';
-import { message } from 'ant-design-vue';
 
 const showForm = ref<boolean>(false);
 
@@ -205,14 +204,12 @@ const closeStrategy = () => {
 // 启用
 const handleEnable = async (record) => {
   await enableAlarmLevelApi({ id: record.id });
-  message.success('启用成功！');
   reload();
 };
 
 // 停用
 const handleDisable = async (record) => {
   await disableAlarmLevelApi({ id: record.id });
-  message.success('停用成功！');
   reload();
 };
 
@@ -226,7 +223,6 @@ const checkDetail = (record) => {
 // 删除
 const handleDelete = async (record) => {
   await deleteAlarmLevelApi({ id: record.id });
-  message.success('删除成功！');
   // 刷新表格
   reload();
 };

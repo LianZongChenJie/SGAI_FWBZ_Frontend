@@ -18,6 +18,8 @@ enum Api {
   venueList = '/sgai-fwbz-dev/fwbz/venueInfo/listAll',
   /** 会展列表 */
   exhibitionList = '/sgai-fwbz-dev/fwbz/activeMeet/info/thisWeek',
+  /** 本月会展列表 */
+  exhibitionMonthList = '/sgai-fwbz-dev/fwbz/activeMeet/info/listPage',
   /** 删除会展活动 */
   delExhibition = '/sgai-fwbz-dev/fwbz/activeMeet/info/delete',
 }
@@ -210,6 +212,10 @@ export const addExhibition = (params: ExhibitionRequest) => defHttp.post({ url: 
 
 /** 获取本周会展活动列表 */
 export const getExhibitionList = () => defHttp.get({ url: Api.exhibitionList });
+
+/** 获取本月会展活动列表（入参 startDate、endDate） */
+export const getExhibitionMonthList = (params: { startDate: string; endDate: string }) =>
+  defHttp.get({ url: Api.exhibitionMonthList, params });
 
 /** 删除会展活动 */
 export const delExhibition = (params: { id: number }) => defHttp.delete({ url: `${Api.delExhibition}?id=${params.id}` });

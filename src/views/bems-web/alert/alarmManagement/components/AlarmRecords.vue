@@ -84,7 +84,6 @@ import {
   getAlarmCategoryListApi,
   getAlarmRecordsStatisticsApi,
 } from '../Standardized.api';
-import { message } from 'ant-design-vue';
 import DeviceTableModal from './DeviceTableModal.vue';
 
 const deviceRef = ref();
@@ -351,7 +350,6 @@ const selectDevice = (type: number, index: number) => {
 // 消除
 const eliminateAlarmRecords = async (record) => {
   await eliminateAlarmRecordsApi({ id: record.id });
-  message.success('消除成功！');
   // 刷新表格
   reload();
 };

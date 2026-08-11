@@ -163,7 +163,7 @@
       dataSource.value = res.records;
       total.value = res.total;
     } catch (error) {
-      message.error('获取数据列表失败');
+      // defHttp 已自动提示错误信息
     } finally {
       loading.value = false;
     }
@@ -304,13 +304,11 @@
             resetState();
           } catch (error) {
             console.error('保存公式失败', error);
-            message.error('保存失败，请重试');
           }
         },
       });
     } catch (error) {
       console.error('解析公式失败', error);
-      message.error('公式格式有误，请检查后重试');
     }
   };
 
@@ -333,7 +331,6 @@
       formulaDescription.value = res;
     } catch (error) {
       console.error('公式解析失败', error);
-      message.error('公式解析失败，请检查公式格式');
     }
   };
   const selectCategoryId = (value, item, val) => {

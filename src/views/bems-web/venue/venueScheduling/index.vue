@@ -13,11 +13,12 @@
         </div>
         <div class="event-schedule">
             <EventSchedule
-                title="📅 本周活动排期"
+                title="📅 活动排期"
                 :data="scheduleData"
                 :loading="scheduleLoading"
                 @add="handleAddEvent"
                 @delete="handleDeleteEvent"
+                @change-period="handlePeriodChange"
             />
         </div>
         <div class="venue-management">
@@ -41,14 +42,14 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import dayjs from 'dayjs'
 import { StatCard } from '/@/views/bems-web/components';
 import { EventSchedule, VenueManagement } from './elements/index';
 import VenueFormModal from './elements/venueManagement/VenueFormModal.vue';
-import { getVenueInfoList, getExhibitionList, delExhibition, getSummaryCardList } from './index.api';
+import { getVenueInfoList, getExhibitionList, getExhibitionMonthList, delExhibition, getSummaryCardList } from './index.api';
 import type { VenueItem, ActiveMeetInfo, StatItem } from './index.api';
 import type { DaySchedule } from './elements/eventSchedule/index.api';
 import EventFormModal from './elements/eventSchedule/EventFormModal.vue';
-import { message } from 'ant-design-vue'
 import {
     ThunderboltOutlined,
     ShopOutlined,
@@ -104,17 +105,42 @@ const fetchVenueData = async () => {
 // ===== 会展活动数据 =====
 const scheduleData = ref<DaySchedule[]>([])
 const scheduleLoading = ref(false)
+const schedulePeriod = ref<string>('week')
 
 const fetchScheduleData = async () => {
   scheduleLoading.value = true
   try {
-    const res = await getExhibitionList()
-    scheduleData.value = res || []
+    if (schedulePeriod.value === 'week') {
+      const res = await getExhibitionList()
+      scheduleData.value = res || []
+    } else {
+      // 本月：取第一天和最后一天作为入参
+      const startOfMonth = dayjs().startOf('month').format('YYYY-MM-DD')
+      const endOfMonth = dayjs().endOf('month').format('YYYY-MM-DD')
+      const res = await getExhibitionMonthList({ startDate: startOfMonth, endDate: endOfMonth })
+      // listPage 接口返回扁平的活动列表，需按 startDate 分组为 DaySchedule 格式
+      const rawList: any[] = Array.isArray(res) ? res : (res?.records || [])
+      const groupedMap = new Map<string, any[]>()
+      rawList.forEach((item: any) => {
+        const dateKey = item.startDate ? dayjs(item.startDate).format('YYYY-MM-DD') : ''
+        if (!dateKey) return
+        if (!groupedMap.has(dateKey)) {
+          groupedMap.set(dateKey, [])
+        }
+        groupedMap.get(dateKey)!.push(item)
+      })
+      scheduleData.value = Array.from(groupedMap.entries()).map(([date, list]) => ({ date, list }))
+    }
   } catch (error) {
     console.error('获取会展活动列表失败:', error)
   } finally {
     scheduleLoading.value = false
   }
+}
+
+const handlePeriodChange = (period: string) => {
+  schedulePeriod.value = period
+  fetchScheduleData()
 }
 
 onMounted(() => {

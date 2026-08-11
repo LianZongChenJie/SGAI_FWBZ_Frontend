@@ -262,7 +262,6 @@
       };
     } catch (error) {
       console.error('获取数据失败', error);
-      message.error('获取数据失败');
     } finally {
       loading.value = false;
     }
@@ -288,7 +287,6 @@
       unitList.value = unitRes;
     } catch (error) {
       console.error('获取数据失败', error);
-      message.error('获取数据失败');
     }
   };
 

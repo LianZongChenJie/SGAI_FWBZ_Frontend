@@ -103,7 +103,6 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { message } from 'ant-design-vue'
 import { StatCard } from '/@/views/bems-web/components'
 import {
   getAccessControlSummary,
@@ -201,7 +200,6 @@ const handleSyncAccessControlStatus = async () => {
     fetchDoorData()
   } catch (error) {
     console.error('同步门禁状态失败:', error)
-    message.error('同步门禁状态失败')
   } finally {
     syncLoading.value = false
   }

@@ -1,90 +1,162 @@
 <template>
   <div class="ai-page">
-    <!-- 统计卡片行 -->
-    <div class="stats-row">
-      <StatCard label="监测能源类型" :value="4" change-text="电/水/气/热" color="blue" :icon="ThunderIcon" />
-      <StatCard label="今日碳排放" :value="28.5" change-text="↓ 3.2% 吨CO₂" trend="down" color="green" :icon="GlobeIcon" />
-      <StatCard label="本月累计碳排" :value="856.3" change-text="↓ 5.8% 吨CO₂" trend="down" color="orange" :icon="ChartDownIcon" />
-      <StatCard label="碳强度" :value="0.45" change-text="↓ 8.2% kgCO₂/㎡" trend="down" color="purple" :icon="ChartIcon" />
-    </div>
+    <a-spin :spinning="loading">
+      <!-- 统计卡片行 -->
+      <div class="stats-row">
+        <StatCard
+          label="监测能源类型"
+          :value="reportData?.energy_structure?.categories?.length ?? 0"
+          :change-text="energyTypeText"
+          color="blue"
+          :icon="ThunderIcon"
+        />
+        <StatCard
+          label="今日用电量"
+          :value="reportData?.today_electricity?.value ?? 0"
+          :change-text="formatChange(reportData?.today_electricity?.change)"
+          trend="down"
+          color="green"
+          :icon="GlobeIcon"
+        />
+        <StatCard
+          label="今日用水量"
+          :value="reportData?.today_water?.value ?? 0"
+          :change-text="formatChange(reportData?.today_water?.change)"
+          trend="down"
+          color="orange"
+          :icon="ChartDownIcon"
+        />
+        <StatCard
+          label="表计在线率"
+          :value="reportData?.meter_online_rate ?? '-'"
+          :change-text="`表计总数 ${reportData?.meter_total ?? 0}`"
+          color="purple"
+          :icon="ChartIcon"
+        />
+      </div>
 
-    <!-- AI报告卡片 -->
-    <div class="ai-report-card">
-      <div class="ai-report-header">
-        <span class="ai-badge">AI</span>
-        <span class="ai-report-title">多模态能碳计算报告 - 2026年6月</span>
-      </div>
-      <div class="ai-report-desc">
-        本报告基于会展小镇内电、水、气、热四类能源的实时计量数据，融合物理机理模型与机器学习算法，对园区能碳排放进行多维度精准核算。报告涵盖空间维度（场馆/楼层/区域）、时间维度（日/周/月/年）、用途维度（空调/照明/动力/生活）的能碳分析，并结合展会活动排期数据，识别能碳异常与优化空间。
-      </div>
-      <div class="ai-metrics">
-        <div class="ai-metric">
-          <div class="ai-metric-value">856.3</div>
-          <div class="ai-metric-label">本月碳排(吨CO₂)</div>
+      <!-- AI报告卡片 -->
+      <div class="ai-report-card" v-if="reportData">
+        <div class="ai-report-header">
+          <span class="ai-badge">AI</span>
+          <span class="ai-report-title">{{ reportData.report_title }}</span>
+          <span class="ai-report-time">{{ reportData.report_time }}</span>
         </div>
-        <div class="ai-metric">
-          <div class="ai-metric-value">-5.8%</div>
-          <div class="ai-metric-label">环比变化</div>
-        </div>
-        <div class="ai-metric">
-          <div class="ai-metric-value">0.45</div>
-          <div class="ai-metric-label">碳强度(kg/㎡)</div>
-        </div>
-        <div class="ai-metric">
-          <div class="ai-metric-value">12.3%</div>
-          <div class="ai-metric-label">减排潜力</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 两栏布局：碳排放结构分析 + 碳排放趋势 -->
-    <div class="two-col">
-      <div class="card">
-        <div class="card-header">
-          <h3>🌍 碳排放结构分析</h3>
-        </div>
-        <div class="card-body">
-          <div class="chart-placeholder">
-            <div class="chart-icon">🍩</div>
-            <div class="chart-text">碳排放来源占比</div>
-            <div class="chart-sub">电力 68% | 天然气 22% | 热力 7% | 其他 3%</div>
+        <div class="ai-report-desc">{{ reportData.summary }}</div>
+        <div class="ai-metrics">
+          <div class="ai-metric">
+            <div class="ai-metric-value">{{ reportData.meter_total }}</div>
+            <div class="ai-metric-label">计费表计总数</div>
+          </div>
+          <div class="ai-metric">
+            <div class="ai-metric-value">{{ reportData.meter_online_rate }}</div>
+            <div class="ai-metric-label">表计在线率</div>
+          </div>
+          <div class="ai-metric">
+            <div class="ai-metric-value">{{ reportData.overview?.subsystem_count ?? 0 }}</div>
+            <div class="ai-metric-label">子系统数量</div>
+          </div>
+          <div class="ai-metric">
+            <div class="ai-metric-value">{{ reportData.air_condition?.total_count ?? 0 }}</div>
+            <div class="ai-metric-label">空调机组数量</div>
           </div>
         </div>
       </div>
-      <div class="card">
-        <div class="card-header">
-          <h3>📈 碳排放趋势</h3>
+
+      <!-- 两栏布局：用能结构分析 + 各场馆用电对比 -->
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header">
+            <h3>🌍 用能结构分析</h3>
+          </div>
+          <div class="card-body">
+            <div ref="structureChartRef" class="chart-container"></div>
+          </div>
         </div>
-        <div class="card-body">
-          <div class="chart-placeholder">
-            <div class="chart-icon">📊</div>
-            <div class="chart-text">月度碳排放趋势与目标对比</div>
+        <div class="card">
+          <div class="card-header">
+            <h3>📈 各场馆用电对比</h3>
+          </div>
+          <div class="card-body">
+            <div ref="compareChartRef" class="chart-container"></div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- 功能说明面板 -->
-    <div class="feature-panel">
-      <h4>📋 功能说明</h4>
-      <p>结合会展小镇内的能耗数据，通过不同场景开展能碳计算，并生成运行报告。多模态能碳计算功能，整合电、水、气等多类型能源数据，融合物理机理模型与机器学习算法，实现多维度能碳精准核算、实时监测与动态预测。可自动适配园区不同用能场景，快速生成能碳分析报告，支撑碳减排决策，助力园区实现能碳精细化管理与 "双碳" 目标落地。</p>
-      <div class="feature-list">
-        <div class="feature-list-item">电/水/气/热多能源碳排放因子库</div>
-        <div class="feature-list-item">物理机理模型与机器学习融合计算</div>
-        <div class="feature-list-item">多维度能碳精准核算（空间/时间/用途）</div>
-        <div class="feature-list-item">能碳实时监测与动态预测</div>
-        <div class="feature-list-item">场景自适应能碳计算引擎</div>
-        <div class="feature-list-item">能碳分析报告自动生成</div>
-        <div class="feature-list-item">碳减排路径规划与效果评估</div>
-        <div class="feature-list-item">双碳目标进度追踪看板</div>
+      <!-- 子系统概览 -->
+      <div class="card" v-if="reportData">
+        <div class="card-header">
+          <h3>⚙️ 子系统运行概览</h3>
+        </div>
+        <div class="card-body">
+          <div class="subsystem-grid">
+            <div class="subsystem-item">
+              <div class="subsystem-name">空调机组</div>
+              <div class="subsystem-stats">
+                <span class="stat-item">总数: {{ reportData.air_condition?.total_count ?? 0 }}</span>
+                <span class="stat-item running">运行: {{ reportData.air_condition?.running_count ?? 0 }}</span>
+                <span class="stat-item fault">故障: {{ reportData.air_condition?.fault_count ?? 0 }}</span>
+              </div>
+            </div>
+            <div class="subsystem-item">
+              <div class="subsystem-name">新风机组</div>
+              <div class="subsystem-stats">
+                <span class="stat-item">总数: {{ reportData.fresh_air?.total_count ?? 0 }}</span>
+                <span class="stat-item running">运行: {{ reportData.fresh_air?.running_count ?? 0 }}</span>
+                <span class="stat-item">PM2.5: {{ reportData.fresh_air?.avg_pm25 ?? '-' }}</span>
+              </div>
+            </div>
+            <div class="subsystem-item">
+              <div class="subsystem-name">配电系统</div>
+              <div class="subsystem-stats">
+                <span class="stat-item">总数: {{ reportData.power_distribution?.total_count ?? 0 }}</span>
+                <span class="stat-item running">运行: {{ reportData.power_distribution?.running_count ?? 0 }}</span>
+                <span class="stat-item">功率因数: {{ reportData.power_distribution?.power_factor ?? '-' }}</span>
+              </div>
+            </div>
+            <div class="subsystem-item">
+              <div class="subsystem-name">冷源系统</div>
+              <div class="subsystem-stats">
+                <span class="stat-item">总数: {{ reportData.cold_source?.total_count ?? 0 }}</span>
+                <span class="stat-item">COP: {{ reportData.cold_source?.avg_cop ?? '-' }}</span>
+                <span class="stat-item">今日制冷: {{ reportData.cold_source?.today_cooling ?? 0 }}</span>
+              </div>
+            </div>
+            <div class="subsystem-item">
+              <div class="subsystem-name">光伏系统</div>
+              <div class="subsystem-stats">
+                <span class="stat-item">装机容量: {{ reportData.photovoltaic?.installed_capacity ?? 0 }}kW</span>
+                <span class="stat-item">今日发电: {{ reportData.photovoltaic?.today_generation ?? 0 }}kWh</span>
+                <span class="stat-item">效率: {{ reportData.photovoltaic?.efficiency ?? 0 }}%</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+
+      <!-- 优化建议 -->
+      <div class="card" v-if="reportData?.suggestions?.length">
+        <div class="card-header">
+          <h3>💡 优化建议</h3>
+        </div>
+        <div class="card-body">
+          <div class="suggestion-list">
+            <div class="suggestion-item" v-for="(suggestion, index) in reportData.suggestions" :key="index">
+              <span class="suggestion-index">{{ index + 1 }}</span>
+              <span class="suggestion-text">{{ suggestion }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </a-spin>
   </div>
 </template>
 
 <script setup lang="ts">
-import { h } from 'vue'
+import { h, ref, onMounted, onUnmounted, nextTick, shallowRef } from 'vue'
 import { StatCard } from '/@/views/bems-web/components'
+import { getEnergyAnalysis, type EnergyAnalysisReport } from './index.api'
+import * as echarts from 'echarts'
 
 defineOptions({ name: 'AiCarbonPage' })
 
@@ -93,6 +165,198 @@ const ThunderIcon = () => h('span', { style: 'font-size: 20px;' }, '⚡')
 const GlobeIcon = () => h('span', { style: 'font-size: 20px;' }, '🌍')
 const ChartDownIcon = () => h('span', { style: 'font-size: 20px;' }, '📉')
 const ChartIcon = () => h('span', { style: 'font-size: 20px;' }, '📊')
+
+const loading = ref(false)
+const reportData = ref<EnergyAnalysisReport | null>(null)
+
+// 图表引用
+const structureChartRef = ref<HTMLElement>()
+const compareChartRef = ref<HTMLElement>()
+const structureChartInstance = shallowRef<echarts.ECharts>()
+const compareChartInstance = shallowRef<echarts.ECharts>()
+
+// 能源类型文本
+const energyTypeText = ref('')
+
+// 格式化变化率
+const formatChange = (change?: string) => {
+  if (!change) return ''
+  return `较上期 ${change}`
+}
+
+// 获取数据
+const fetchData = async () => {
+  loading.value = true
+  try {
+    const res = await getEnergyAnalysis({
+      system_type: 'overview',
+      time_range: 'day',
+    })
+    // 兼容包装和非包装格式
+    const data = (res as any)?.result ?? res
+    reportData.value = data as EnergyAnalysisReport
+
+    // 设置能源类型文本
+    const categories = reportData.value?.energy_structure?.categories ?? []
+    energyTypeText.value = categories.join('/')
+
+    await nextTick()
+    renderCharts()
+  } catch (error) {
+    console.error('获取能源分析报告失败:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+// 渲染图表
+const renderCharts = () => {
+  renderStructureChart()
+  renderCompareChart()
+}
+
+// 用能结构饼图
+const renderStructureChart = () => {
+  if (!structureChartRef.value) return
+  if (!structureChartInstance.value) {
+    structureChartInstance.value = echarts.init(structureChartRef.value)
+  }
+
+  const structure = reportData.value?.energy_structure
+  if (!structure) return
+
+  const categories = structure.categories || []
+  const data = structure.data || []
+
+  const pieColors = ['#5B8FF9', '#5AD8A6', '#F6BD16', '#E86452', '#6DC8EC', '#945FB9']
+
+  const option: any = {
+    tooltip: {
+      trigger: 'item',
+      formatter: '{b}: {c}% ({d}%)',
+    },
+    legend: {
+      orient: 'vertical',
+      right: '5%',
+      top: 'center',
+      textStyle: { color: '#666', fontSize: 12 },
+      itemWidth: 12,
+      itemHeight: 12,
+      itemGap: 12,
+    },
+    series: [
+      {
+        type: 'pie',
+        radius: ['45%', '70%'],
+        center: ['35%', '50%'],
+        avoidLabelOverlap: false,
+        itemStyle: {
+          borderRadius: 4,
+          borderColor: '#fff',
+          borderWidth: 2,
+        },
+        label: { show: false },
+        emphasis: {
+          label: {
+            show: true,
+            fontSize: 14,
+            fontWeight: 'bold',
+          },
+        },
+        data: categories.map((name, idx) => ({
+          name,
+          value: data[idx] || 0,
+          itemStyle: { color: pieColors[idx % pieColors.length] },
+        })),
+      },
+    ],
+  }
+  structureChartInstance.value.setOption(option, true)
+}
+
+// 各场馆用电对比柱状图
+const renderCompareChart = () => {
+  if (!compareChartRef.value) return
+  if (!compareChartInstance.value) {
+    compareChartInstance.value = echarts.init(compareChartRef.value)
+  }
+
+  const compare = reportData.value?.venue_electricity_compare
+  if (!compare) return
+
+  const categories = compare.categories || []
+  const dataMap = compare.data || {}
+
+  // 提取每个分类的值（取数组第一个元素）
+  const values = categories.map((cat) => {
+    const arr = dataMap[cat]
+    return Array.isArray(arr) && arr.length > 0 ? arr[0] : 0
+  })
+
+  const option: any = {
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: { type: 'shadow' },
+      backgroundColor: 'rgba(255,255,255,0.95)',
+      borderColor: '#e2e8f0',
+      textStyle: { color: '#2d3748', fontSize: 12 },
+      extraCssText: 'box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-radius: 8px;',
+    },
+    grid: {
+      left: '2%',
+      right: '5%',
+      bottom: '3%',
+      top: '10%',
+      containLabel: true,
+    },
+    xAxis: {
+      type: 'category',
+      data: categories,
+      axisLine: { lineStyle: { color: '#e2e8f0' } },
+      axisLabel: { color: '#718096', fontSize: 12, interval: 0, rotate: categories.length > 4 ? 15 : 0 },
+      axisTick: { show: false },
+    },
+    yAxis: {
+      type: 'value',
+      axisLine: { show: false },
+      axisTick: { show: false },
+      axisLabel: { color: '#a0aec0', fontSize: 11 },
+      splitLine: { lineStyle: { color: '#f0f0f0', type: 'dashed' } },
+    },
+    series: [
+      {
+        type: 'bar',
+        data: values,
+        barWidth: '40%',
+        itemStyle: {
+          borderRadius: [6, 6, 0, 0],
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: '#5B8FF9' },
+            { offset: 1, color: '#85B7FF' },
+          ]),
+        },
+      },
+    ],
+  }
+  compareChartInstance.value.setOption(option, true)
+}
+
+// 窗口大小调整
+const resizeCharts = () => {
+  structureChartInstance.value?.resize()
+  compareChartInstance.value?.resize()
+}
+
+onMounted(() => {
+  fetchData()
+  window.addEventListener('resize', resizeCharts)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', resizeCharts)
+  structureChartInstance.value?.dispose()
+  compareChartInstance.value?.dispose()
+})
 </script>
 
 <style scoped lang="less">
@@ -137,18 +401,6 @@ const ChartIcon = () => h('span', { style: 'font-size: 20px;' }, '📊')
       gap: 10px;
       margin: 0;
     }
-
-    .tag {
-      font-size: 11px;
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-weight: 500;
-    }
-    .tag-green { background: #c6f6d5; color: #22543d; }
-    .tag-blue { background: #bee3f8; color: #2a4365; }
-    .tag-orange { background: #feebc8; color: #744210; }
-    .tag-red { background: #fed7d7; color: #742a2a; }
-    .tag-purple { background: #e9d8fd; color: #553c9a; }
   }
 
   .card-body {
@@ -156,33 +408,10 @@ const ChartIcon = () => h('span', { style: 'font-size: 20px;' }, '📊')
   }
 }
 
-// 图表占位
-.chart-placeholder {
-  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  color: #a0aec0;
-  border: 2px dashed #e2e8f0;
-  min-height: 280px;
-  padding: 30px;
-
-  .chart-icon {
-    font-size: 48px;
-    margin-bottom: 12px;
-  }
-  .chart-text {
-    font-size: 14px;
-    color: #718096;
-    font-weight: 500;
-  }
-  .chart-sub {
-    font-size: 12px;
-    color: #a0aec0;
-    margin-top: 8px;
-  }
+// 图表容器
+.chart-container {
+  width: 100%;
+  height: 300px;
 }
 
 // AI报告卡片
@@ -211,6 +440,11 @@ const ChartIcon = () => h('span', { style: 'font-size: 20px;' }, '📊')
       font-size: 16px;
       font-weight: 600;
       color: #2d3748;
+    }
+    .ai-report-time {
+      font-size: 12px;
+      color: #a0aec0;
+      margin-left: auto;
     }
   }
 
@@ -246,49 +480,73 @@ const ChartIcon = () => h('span', { style: 'font-size: 20px;' }, '📊')
   }
 }
 
-// 功能说明面板
-.feature-panel {
-  background: linear-gradient(135deg, #ebf8ff 0%, #f7fafc 100%);
-  border-radius: 10px;
-  padding: 18px;
-  margin-bottom: 16px;
-  border: 1px solid #bee3f8;
+// 子系统网格
+.subsystem-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
 
-  h4 {
-    font-size: 14px;
-    color: #2a4365;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
+  .subsystem-item {
+    background: #f7fafc;
+    border-radius: 10px;
+    padding: 16px;
+    border: 1px solid #e2e8f0;
 
-  p {
-    font-size: 13px;
-    color: #4a5568;
-    line-height: 1.7;
-  }
+    .subsystem-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 10px;
+    }
 
-  .feature-list {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    margin-top: 12px;
-
-    .feature-list-item {
+    .subsystem-stats {
       display: flex;
-      align-items: flex-start;
-      gap: 8px;
-      font-size: 12px;
-      color: #4a5568;
-      line-height: 1.5;
+      flex-wrap: wrap;
+      gap: 10px;
 
-      &::before {
-        content: '✓';
-        color: #38a169;
-        font-weight: 700;
-        flex-shrink: 0;
+      .stat-item {
+        font-size: 12px;
+        color: #718096;
+        background: white;
+        padding: 4px 10px;
+        border-radius: 6px;
+
+        &.running { color: #389e0d; }
+        &.fault { color: #cf1322; }
       }
+    }
+  }
+}
+
+// 建议列表
+.suggestion-list {
+  .suggestion-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+
+    &:last-child { border-bottom: none; }
+
+    .suggestion-index {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #e6f4ff;
+      color: #1677ff;
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .suggestion-text {
+      font-size: 13px;
+      color: #4a5568;
+      line-height: 1.6;
     }
   }
 }

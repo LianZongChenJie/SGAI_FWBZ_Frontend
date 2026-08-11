@@ -72,7 +72,6 @@ import {
   enableAlarmCategoryApi,
   disableAlarmCategoryApi,
 } from '../Standardized.api';
-import { message } from 'ant-design-vue';
 
 const showForm = ref<boolean>(false);
 
@@ -232,14 +231,12 @@ const closeStrategy = () => {
 // 启用
 const handleEnable = async (record) => {
   await enableAlarmCategoryApi({ id: record.id });
-  message.success('启用成功！');
   reload();
 };
 
 // 停用
 const handleDisable = async (record) => {
   await disableAlarmCategoryApi({ id: record.id });
-  message.success('停用成功！');
   reload();
 };
 
@@ -253,7 +250,6 @@ const checkDetail = (record) => {
 // 删除
 const handleDelete = async (record) => {
   await deleteAlarmCategoryApi({ id: record.id });
-  message.success('删除成功！');
   // 刷新表格
   reload();
 };

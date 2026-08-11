@@ -86,7 +86,6 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { message } from 'ant-design-vue'
 import type { AcControlItem, LightingControlItem } from './index.api'
 import { getAirList, airControl } from './index.api'
 import { spaceTree } from '/@/views/bems-web/equipment/equipmentManagement/elements/device/Device.api'
@@ -202,10 +201,8 @@ const handleAcSave = async () => {
   ]
   try {
     await airControl(payload)
-    message.success('保存成功')
   } catch (e) {
     console.error('空调控制失败:', e)
-    message.error('保存失败')
   } finally {
     acModalVisible.value = false
     loadAirList()

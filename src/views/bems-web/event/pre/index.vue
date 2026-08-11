@@ -26,7 +26,9 @@
             @change="handleMeetChange"
           >
             <a-select-option v-for="item in meetList" :key="item.id" :value="item.id">
-              {{ item.activeName }}
+              <a-tooltip :title="item.activeName + '(' + item.startDate + ')' " placement="top">
+                {{ item.activeName }}（{{ item.startDate }}）
+              </a-tooltip>
             </a-select-option>
           </a-select>
         </div>

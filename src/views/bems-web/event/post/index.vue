@@ -257,10 +257,8 @@ const handleSave = async () => {
   saveLoading.value = true
   try {
     await saveReportStatistics(currentReport.value)
-    message.success('保存成功')
   } catch (error) {
     console.error('保存失败:', error)
-    message.error('保存失败')
   } finally {
     saveLoading.value = false
   }
@@ -290,10 +288,8 @@ const handleExport = async () => {
     link.click()
     document.body.removeChild(link)
     window.URL.revokeObjectURL(url)
-    message.success('导出成功')
   } catch (error) {
     console.error('导出失败:', error)
-    message.error('导出失败')
   } finally {
     exportLoading.value = false
   }

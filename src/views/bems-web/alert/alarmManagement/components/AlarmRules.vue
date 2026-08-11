@@ -54,7 +54,6 @@ import { EditOutlined } from '@ant-design/icons-vue';
 import { usePermissionStore } from '/@/store/modules/permission';
 import AlarmRulesModal from './AlarmRulesModal.vue'
 import { getAlarmRulesListApi, getAlarmLevelListApi, getAlarmCategoryListApi, enableAlarmRuleslApi, disableAlarmRuleslApi, deleteAlarmRulesApi } from '../Standardized.api'
-import { message } from 'ant-design-vue';
 
 const showForm = ref<boolean>(false);
 
@@ -281,14 +280,12 @@ const handleAutomaticAlgorithmChange = async (record, checked) => {
 // 启用
 const handleEnable = async (record) => {
   await enableAlarmRuleslApi({ id: record.id })
-  message.success('启用成功！');
   reload()
 }
 
 // 禁用
 const handleDisable = async (record) => {
   await disableAlarmRuleslApi({ id: record.id })
-  message.success('禁用成功！');
   reload()
 }
 
@@ -313,7 +310,6 @@ const closeModal = () => {
 
 const confirmDelete = async (record) => {
   await deleteAlarmRulesApi({id: record.id})
-  message.success('删除成功！');
   // 刷新表格
   reload();
 }

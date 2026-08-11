@@ -409,9 +409,8 @@
   };
   const deleteData = async (record) => {
     if (record.id) {
-      await deleteItem({ id: record.id });
-      message.success('删除成功！');
-      await getData(id.value);
+    await deleteItem({ id: record.id });
+    await getData(id.value);
     } else {
       delete editableData[record.key];
       dataSource.value.pop();

@@ -53,7 +53,6 @@
 <script setup lang="ts">
 import { ref, reactive, toRaw, onMounted } from 'vue';
 import { addAlarmLevelApi, editAlarmLevelApi } from '../Standardized.api';
-import { message } from 'ant-design-vue';
 
 const props = defineProps({
   targetItem: {
@@ -105,11 +104,9 @@ const handleOk = (e: MouseEvent) => {
     .then(async () => {
       if(type.value === 'create') {
         await addAlarmLevelApi(toRaw(formState))
-        message.success('创建成功！');
         props.reload()
       } else {
         await editAlarmLevelApi(toRaw(formState))
-        message.success('修改成功！');
         props.reload()
       }
       formRef.value.resetFields();
