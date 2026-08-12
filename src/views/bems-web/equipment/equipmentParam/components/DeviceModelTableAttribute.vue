@@ -12,9 +12,9 @@
         <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'active'">
           <a-space>
-            <a @click="handleedit(record)"> <EditOutlined />编辑 </a>
+            <a @click="handleedit(record)">编辑</a>
             <a-popconfirm title="确认删除该条数据？" ok-text="确定" cancel-text="取消" @confirm="confirmDelete(record)">
-              <a style="color: red"> <DeleteOutlined style="color: red" />删除 </a>
+              <a style="color: red">删除</a>
             </a-popconfirm>
           </a-space>
         </template>
@@ -106,6 +106,7 @@
       title: '操作',
       dataIndex: 'active',
       key: 'active',
+      width: 110,
     },
   ];
 
@@ -152,6 +153,8 @@
       columns: columns,
       showActionColumn: false,
       size: 'middle',
+      bordered: false,
+      canResize: false,
       showTableSetting: false,
       pagination: {
         pageSize: 10,
@@ -283,6 +286,16 @@
   .device-model {
     :deep(.ant-card) {
       border-radius: 8px;
+    }
+
+    :deep(.ant-table-wrapper) {
+      padding: 0;
+      background-color: transparent;
+      border-radius: 0;
+    }
+
+    :deep(.ant-pagination) {
+      margin: 15px 0 0;
     }
   }
 </style>

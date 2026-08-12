@@ -1,37 +1,44 @@
 <template>
-  <a-card title="⚙️ 设备信息管理" :bordered="false">
-    <template #extra>
-      <a-tree-select
-        v-model:value="categorySelectValue"
-        :tree-data="categorySelectTreeData"
-        :field-names="{ children: 'children', label: 'title', value: 'key', key: 'key' }"
-        placeholder="设备类型"
-        allow-clear
-        tree-default-expand-all
-        style="width: 200px; margin-right: 8px;"
-        @change="onCategorySelectChange"
-      />
-      <a-button type="primary" @click="handleCreate">新建</a-button>
-    </template>
-    <div class="device-space">
-      <div class="space-table">
-        <DeviceTable
-          ref="deviceTableRef"
-          :categoryKeys="checkedKeys"
-          :category-tree-data="treeData"
-          :space-tree-data="spaceTreeData"
-          @edit="handleEdit"
-          @delete="handleDelete"
-          @detail="handleDetail"
-          @add="handleCreate"
-          @refresh="handleRefresh"
-          @category-filter="onCategoryFilterSelect"
-        />
+  <div class="alert-page">
+    <div class="card">
+      <div class="card-header">
+        <h3>⚙️ 设备信息管理</h3>
+        <div class="header-actions">
+          <a-tree-select
+            v-model:value="categorySelectValue"
+            :tree-data="categorySelectTreeData"
+            :field-names="{ children: 'children', label: 'title', value: 'key', key: 'key' }"
+            placeholder="设备类型"
+            allow-clear
+            tree-default-expand-all
+            style="width: 200px; margin-right: 8px;"
+            @change="onCategorySelectChange"
+          />
+          <a-button type="primary" @click="handleCreate">新建</a-button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="device-space">
+          <div class="space-table">
+            <DeviceTable
+              ref="deviceTableRef"
+              :categoryKeys="checkedKeys"
+              :category-tree-data="treeData"
+              :space-tree-data="spaceTreeData"
+              @edit="handleEdit"
+              @delete="handleDelete"
+              @detail="handleDetail"
+              @add="handleCreate"
+              @refresh="handleRefresh"
+              @category-filter="onCategoryFilterSelect"
+            />
+          </div>
+        </div>
       </div>
     </div>
-  </a-card>
-  <DeviceModal @register="registerModal" @success="handleSuccess" />
-  <DetailModal ref="detailModalRef" />
+    <DeviceModal @register="registerModal" @success="handleSuccess" />
+    <DetailModal ref="detailModalRef" />
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -249,16 +256,51 @@
 </script>
 
 <style lang="less" scoped>
-  :deep(.ant-card) {
-    border-radius: 8px;
+  .alert-page {
+    padding: 0;
+  }
+
+  .card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    margin-bottom: 20px;
+    overflow: hidden;
+
+    .card-header {
+      padding: 18px 22px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+
+      h3 {
+        font-size: 16px;
+        font-weight: 600;
+        color: #2d3748;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0;
+      }
+    }
+
+    .card-body {
+      padding: 22px;
+    }
   }
 
   .device-space {
     display: flex;
     height: 100%;
+    width: 100%;
 
     .space-table {
       flex: 1;
+      min-width: 0;
+      overflow-x: auto;
     }
   }
 </style>

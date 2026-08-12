@@ -1,40 +1,44 @@
 <template>
   <div class="device-model">
-    <a-card :title="'🔧 设备模型'" :bordered="false">
-      <template #extra>
-        <a-button type="primary" @click="handleAdd">
-          <template #icon><PlusOutlined /></template>
-          新增
-        </a-button>
-      </template>
-
-      <BasicTable @register="registerTable" @row-click="selectTargetModel">
-        <template #form-categoryId="{ model, field }">
-        <a-tree-select
-          v-model:value="model[field]"
-          :tree-data="spaceTreeData"
-          placeholder="请选择位置"
-          :fieldNames="treeSelect"
-          show-search
-          allowClear
-          @change="handleCategoryChange"
-        />
-      </template>
-      <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'active'">
-          <a-space>
-            <a @click="handleedit(record)"> <EditOutlined />编辑 </a>
-            <a-popconfirm title="确认删除该条数据？" ok-text="确定" cancel-text="取消" @confirm="confirmDelete(record)">
-              <a style="color: red"> <DeleteOutlined style="color: red" />删除 </a>
-            </a-popconfirm>
-          </a-space>
+    <div class="card">
+      <div class="card-header">
+        <h3>🔧 设备模型</h3>
+        <div class="header-actions">
+          <a-button type="primary" @click="handleAdd">
+            <template #icon><PlusOutlined /></template>
+            新增
+          </a-button>
+        </div>
+      </div>
+      <div class="card-body">
+        <BasicTable @register="registerTable" @row-click="selectTargetModel">
+          <template #form-categoryId="{ model, field }">
+          <a-tree-select
+            v-model:value="model[field]"
+            :tree-data="spaceTreeData"
+            placeholder="请选择位置"
+            :fieldNames="treeSelect"
+            show-search
+            allowClear
+            @change="handleCategoryChange"
+          />
         </template>
-        <template v-if="column.key === 'categoryId'">
-          {{ getNodeNameById(categoryList, record.categoryId.toString()) }}
+        <template #bodyCell="{ column, record }">
+          <template v-if="column.key === 'active'">
+            <a-space>
+              <a @click="handleedit(record)">编辑</a>
+              <a-popconfirm title="确认删除该条数据？" ok-text="确定" cancel-text="取消" @confirm="confirmDelete(record)">
+                <a style="color: red">删除</a>
+              </a-popconfirm>
+            </a-space>
+          </template>
+          <template v-if="column.key === 'categoryId'">
+            {{ getNodeNameById(categoryList, record.categoryId.toString()) }}
+          </template>
         </template>
-      </template>
-    </BasicTable>
-    </a-card>
+      </BasicTable>
+      </div>
+    </div>
     <a-modal v-model:visible="modalVisible" :title="isUpdate ? '编辑模型' : '新增模型'" width="600px" @ok="handleSubmit" @cancel="handleCancel">
       <div>
         <a-form :model="formState" :label-col="{ span: 8 }" :wrapper-col="{ span: 16 }" layout="inline">
@@ -97,6 +101,7 @@
       title: '操作',
       dataIndex: 'active',
       key: 'active',
+      width: 110,
     },
   ];
 
@@ -164,6 +169,8 @@
       columns: columns,
       showActionColumn: false,
       size: 'middle',
+      bordered: false,
+      canResize: false,
       pagination: {
         pageSize: 10,
         showSizeChanger: true,
@@ -313,8 +320,36 @@
 
 <style scoped lang="less">
   .device-model {
-    :deep(.ant-card) {
-      border-radius: 8px;
+    .card {
+      // 父级 .model-box 已提供白底圆角卡片外观，此处仅承载内部布局
+      .card-header {
+        padding: 18px 22px;
+        border-bottom: 1px solid #f0f0f0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        h3 {
+          font-size: 16px;
+          font-weight: 600;
+          color: #2d3748;
+          margin: 0;
+        }
+      }
+
+      .card-body {
+        padding: 22px;
+
+        :deep(.ant-table-wrapper) {
+          padding: 0;
+          background-color: transparent;
+          border-radius: 0;
+        }
+
+        :deep(.ant-pagination) {
+          margin: 15px 0 0;
+        }
+      }
     }
   }
 </style>

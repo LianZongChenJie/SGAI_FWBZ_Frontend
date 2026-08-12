@@ -71,7 +71,7 @@
       title: '序号',
       dataIndex: 'index',
       key: 'index',
-      width: '80px',
+      width: '60px',
       customRender: ({ index }) => index + 1, // 显示序号，从 1 开始
     },
     {
@@ -79,7 +79,7 @@
       dataIndex: 'deviceName',
       key: 'deviceName',
       minWidth: 80,
-      width: 120,
+      width: 100,
       resizable: true,
       sorter: (a, b) => a.deviceName.localeCompare(b.deviceName), // 自定义排序函数
       sortDirections: ['ascend', 'descend'],
@@ -89,7 +89,7 @@
       dataIndex: 'deviceCode',
       key: 'deviceCode',
       minWidth: 80,
-      width: 120,
+      width: 100,
       resizable: true,
       sorter: (a, b) => a.deviceCode.localeCompare(b.deviceCode), // 自定义排序函数
       sortDirections: ['ascend', 'descend'],
@@ -103,7 +103,7 @@
         return findTreeNodeTitle(props.categoryTreeData, text) || text;
       },
       minWidth: 80,
-      width: 120,
+      width: 100,
       resizable: true,
     },
     {
@@ -115,7 +115,7 @@
         return findTreeNodeTitle(props.spaceTreeData, text) || text;
       },
       minWidth: 80,
-      width: 120,
+      width: 100,
       resizable: true,
     },
     {
@@ -123,7 +123,7 @@
       dataIndex: 'remark',
       key: 'remark',
       minWidth: 80,
-      width: 120,
+      width: 100,
       resizable: true,
     },
     {
@@ -131,13 +131,15 @@
       dataIndex: 'runState',
       key: 'runState',
       minWidth: 80,
-      width: 120,
+      width: 90,
       resizable: true,
     },
     {
       title: '最后通讯时间',
       dataIndex: 'lastGatherTime',
       key: 'lastGatherTime',
+      minWidth: 120,
+      width: 150,
       sorter: (a, b) => new Date(a.lastGatherTime).getTime() - new Date(b.lastGatherTime).getTime(), // 按时间戳排序
       sortDirections: ['ascend', 'descend'],
     },
@@ -149,11 +151,13 @@
     {
       title: '操作',
       key: 'action',
+      width: 110,
     },
     {
       title: '自动算法',
       dataIndex: 'automaticAlgorithm',
       key: 'automaticAlgorithm',
+      width: 100,
     },
   ]);
 
@@ -235,6 +239,8 @@
       columns: columns,
       showActionColumn: false,
       size: 'middle',
+      bordered: false,
+      canResize: false,
       pagination: {
         pageSize: 10,
         showSizeChanger: true,
@@ -330,4 +336,16 @@
   });
 </script>
 
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+  .device-table {
+    :deep(.ant-table-wrapper) {
+      padding: 0;
+      background-color: transparent;
+      border-radius: 0;
+    }
+
+    :deep(.ant-pagination) {
+      margin: 15px 0 0;
+    }
+  }
+</style>
