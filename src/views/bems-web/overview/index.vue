@@ -118,19 +118,19 @@
           <a-spin :spinning="alertLoading" tip="加载中...">
             <div v-if="alertList.length === 0 && !alertLoading" class="empty-state">暂无待处理告警</div>
             <div class="alert-list" v-else>
-              <div class="alert-card" :class="alert.level" v-for="alert in alertList" :key="alert.id">
+              <div class="alert-card" :class="item.level" v-for="item in alertList" :key="item.id">
                 <div class="alert-icon">
-                  <AlertVeryDangerIcon v-if="alert.level === 'veryDanger'" />
-                  <AlertDangerIcon v-else-if="alert.level === 'danger'" />
+                  <AlertVeryDangerIcon v-if="item.level === 'veryDanger'" />
+                  <AlertDangerIcon v-else-if="item.level === 'danger'" />
                   <AlertInfoIcon v-else />
                 </div>
                 <div class="alert-content">
-                  <div class="alert-title">{{ alert.description }} <span class="category-tag">{{ alert.alarmCategoryName }}</span> <span class="level-tag" :class="alert.level">{{ alert.levelLabel }}</span></div>
-                  <div class="alert-desc">{{ alert.title }}</div>
-                  <div class="alert-time">{{ alert.time }} | 持续 {{ alert.duration }}</div>
+                  <div class="alert-title">{{ item.description }} <span class="category-tag">{{ item.alarmCategoryName }}</span> <span class="level-tag" :class="item.level">{{ item.levelLabel }}</span></div>
+                  <div class="alert-desc">{{ item.title }}</div>
+                  <div class="alert-time">{{ item.time }} | 持续 {{ item.duration }}</div>
                   <div class="alert-actions">
-                    <a-button class="confirm-btn" :class="'confirm-' + alert.level" size="small">确认并处理</a-button>
-                    <a-button size="small">转工单</a-button>
+                    <a-button class="confirm-btn" :class="'confirm-' + item.level" size="small" @click="handleConfirm(item)">确认并处理</a-button>
+                    <a-button size="small" @click="handleTransfer(item)">转工单</a-button>
                   </div>
                 </div>
               </div>
@@ -180,18 +180,55 @@
         </div>
       </div>
     </div>
+
+    <!-- 转工单弹窗 -->
+    <a-modal
+      v-model:open="transferVisible"
+      title="📝 转工单"
+      width="800px"
+      :mask-closable="false"
+      @ok="handleTransferSave"
+      ok-text="提交"
+      cancel-text="取消"
+    >
+      <!-- 填写区 -->
+      <div class="transfer-actions">
+        <div class="transfer-actions__item">
+          <span class="transfer-actions__label">联系人</span>
+          <a-input v-model:value="transferForm.contractPeople" placeholder="请输入联系人" style="width: 200px" />
+        </div>
+        <div class="transfer-actions__item">
+          <span class="transfer-actions__label">联系电话</span>
+          <a-input v-model:value="transferForm.contractPhone" placeholder="请输入联系电话" style="width: 200px" />
+        </div>
+      </div>
+
+      <!-- 只读信息 -->
+      <a-descriptions bordered :column="2" size="small" style="margin-top: 16px">
+        <a-descriptions-item label="记录id">{{ transferForm.recordId || '--' }}</a-descriptions-item>
+        <a-descriptions-item label="空间id">{{ transferForm.spaceId || '--' }}</a-descriptions-item>
+        <a-descriptions-item label="空间全称">{{ transferForm.address || '--' }}</a-descriptions-item>
+        <a-descriptions-item label="区域名称">{{ transferForm.spaceName || '--' }}</a-descriptions-item>
+        <a-descriptions-item label="描述" :span="2">{{ transferForm.description || '--' }}</a-descriptions-item>
+      </a-descriptions>
+    </a-modal>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, h, nextTick } from 'vue'
+import { ref, reactive, computed, onMounted, h, nextTick } from 'vue'
+import { message } from 'ant-design-vue'
 import { useRouter } from 'vue-router'
 import dayjs from 'dayjs'
 import { StatCard, DeviceCard } from '/@/views/bems-web/components'
 import { getTodayExhibitionActivity, getTodayVisitorCount, getAlarmStatistics } from './index.api'
 import type { ActiveMeetInfo } from './index.api'
 import { getEquipmentOverview } from '/@/views/bems-web/energy/operational-support/elements/overviewTab/index.api'
-import { getAlarmRecordsListApi } from '/@/views/bems-web/alert/alarmManagement/Standardized.api'
+import {
+  getAlarmRecordsListApi,
+  confirmAlarmRecordApi,
+  transferEventAlarmRecordApi,
+} from '/@/views/bems-web/alert/alarmManagement/Standardized.api'
 import { useECharts } from '/@/hooks/web/useECharts'
 import {
   findDayByConfig,
@@ -376,6 +413,57 @@ const fetchAlertList = async () => {
     // 静默处理
   } finally {
     alertLoading.value = false
+  }
+}
+
+// 确认并处理
+const handleConfirm = async (alert: AlertRecord) => {
+  try {
+    await confirmAlarmRecordApi({ id: alert.id })
+    message.success('确认成功')
+    // 刷新最新告警列表和统计数据
+    fetchAlertList()
+    // fetchStatData()
+  } catch {
+    // defHttp 已自动提示错误信息
+  }
+}
+
+// 转工单弹窗
+const transferVisible = ref(false)
+const transferForm = reactive({
+  recordId: '',
+  spaceId: '',
+  address: '',
+  spaceName: '',
+  description: '',
+  contractPeople: '',
+  contractPhone: '',
+})
+
+// 打开转工单弹窗
+const handleTransfer = (alert: AlertRecord) => {
+  const record = alert._record || {}
+  transferForm.recordId = alert.id
+  transferForm.spaceId = record.spaceId ?? ''
+  transferForm.address = ''
+  transferForm.spaceName = record.spaceName ?? ''
+  transferForm.description = record.alarmContent ?? ''
+  transferForm.contractPeople = ''
+  transferForm.contractPhone = ''
+  transferVisible.value = true
+}
+
+// 提交转工单
+const handleTransferSave = async () => {
+  try {
+    await transferEventAlarmRecordApi({ ...transferForm })
+    message.success('转工单成功')
+    transferVisible.value = false
+    // 刷新最新告警列表
+    fetchAlertList()
+  } catch {
+    // defHttp 已自动提示错误信息
   }
 }
 
@@ -1000,6 +1088,30 @@ onMounted(() => {
         }
       }
     }
+  }
+}
+
+// 转工单填写区
+.transfer-actions {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  padding: 12px 16px;
+  background: #f7f9fc;
+  border: 1px solid #e5e6eb;
+  border-radius: 8px;
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  &__label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #1d2129;
+    flex-shrink: 0;
   }
 }
 

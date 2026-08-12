@@ -34,7 +34,9 @@ enum Api {
   getAlarmRecordStatisticsApi = '/sgai-tp/fwbz/alarm/record/statistics',
   getAlarmRecordsListApi = '/sgai-tp/fwbz/alarm/record/listPage',
   getAlarmRecordsStatisticsApi = '/sgai-tp/fwbz/alarm/record/levelStatistics',
+  confirmAlarmRecordApi = '/sgai-tp/fwbz/alarm/record/confirm',
   eliminateAlarmRecordsApi = '/sgai-tp/fwbz/alarm/record/elimination',
+  transferEventAlarmRecordApi = '/sgai-tp/fwbz/alarm/record/transferEvent',
 
   selectDevice = '/sgai-tp/fwbz/device/list',
   selectMeasuringDevice = '/sgai-tp/fwbz/device/measuring/list',
@@ -189,9 +191,19 @@ export const getAlarmRecordsListApi = (params) => defHttp.get({ url: Api.getAlar
 export const getAlarmRecordsStatisticsApi = (params) => defHttp.get({ url: Api.getAlarmRecordsStatisticsApi, params });
 
 /**
+ * 确认告警记录
+ */
+export const confirmAlarmRecordApi = (params) => defHttp.post({ url: Api.confirmAlarmRecordApi, params }, { joinParamsToUrl: true });
+
+/**
  * 消除告警记录
  */
 export const eliminateAlarmRecordsApi = (params) => defHttp.post({ url: Api.eliminateAlarmRecordsApi, params }, { joinParamsToUrl: true });
+
+/**
+ * 转工单
+ */
+export const transferEventAlarmRecordApi = (data) => defHttp.post({ url: Api.transferEventAlarmRecordApi, data });
 
 /**
  * 查询设备
