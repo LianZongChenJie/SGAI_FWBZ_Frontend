@@ -1,6 +1,6 @@
 import * as echarts from 'echarts/core';
 
-import { BarChart, LineChart, PieChart, MapChart, PictorialBarChart, RadarChart } from 'echarts/charts';
+import { BarChart, LineChart, PieChart, MapChart, PictorialBarChart, RadarChart, ScatterChart } from 'echarts/charts';
 
 import {
   TitleComponent,
@@ -17,6 +17,8 @@ import {
   TimelineComponent,
   CalendarComponent,
   GraphicComponent,
+  MarkAreaComponent,
+  MarkLineComponent,
 } from 'echarts/components';
 
 // TODO 如果想换成SVG渲染，就导出SVGRenderer，
@@ -39,6 +41,7 @@ echarts.use([
   // TODO 因为要兼容Online图表自适应打印，所以改成 CanvasRenderer，可能会模糊
   CanvasRenderer,
   PictorialBarChart,
+  ScatterChart,
   RadarComponent,
   ToolboxComponent,
   DataZoomComponent,
@@ -46,6 +49,8 @@ echarts.use([
   TimelineComponent,
   CalendarComponent,
   GraphicComponent,
+  MarkAreaComponent,
+  MarkLineComponent,
 ]);
 
 export default echarts;
