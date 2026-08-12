@@ -192,7 +192,7 @@ import * as echarts from 'echarts'
 defineOptions({ name: 'AiPredictPage' })
 
 // emoji 图标
-const FireIcon = () => h('span', { style: 'font-size: 20px;' }, '🔥')
+const FireIcon = () => h('span', { style: 'font-size: 20px;' }, '⚠️')
 const DeviceIcon = () => h('span', { style: 'font-size: 20px;' }, '📡')
 const ChartIcon = () => h('span', { style: 'font-size: 20px;' }, '📊')
 const ClockIcon = () => h('span', { style: 'font-size: 20px;' }, '⏰')
