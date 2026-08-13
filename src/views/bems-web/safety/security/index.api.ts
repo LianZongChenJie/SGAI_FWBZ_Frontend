@@ -14,6 +14,8 @@ enum Api {
   runningCameraList = '/sgai-fwbz-dev/fwbz/patrolPlan/runningPlan',
   /** 获取摄像头播放地址 */
   cameraPlayUrls = '/sgai-fwbz-dev/fwbz/hikvision/camera/playUrls',
+  /** 获取摄像头分组树形数据 */
+  cameraPackageGroup = '/sgai-fwbz-dev/fwbz/hikvision/camera/packageGroup',
   /** 是否是正在执行的计划 */
   isRunningPlan = '/sgai-fwbz-dev/fwbz/patrolPlan/isRunningPlan',
   /** 报警信息列表 */
@@ -501,6 +503,29 @@ export interface CameraItem {
   name: string
 }
 
+/** 摄像头分组树 - 摄像头对象 */
+export interface PackageVideo {
+  id: number
+  name: string
+  shortName?: string
+  videoCode?: string
+  systemId?: string
+  online?: boolean
+  url?: string
+  [property: string]: any
+}
+
+/** 摄像头分组树 - 分组对象（一级/二级通用） */
+export interface PackageGroup {
+  id: number
+  parentId: number
+  name: string
+  sortNum: number
+  videoList?: PackageVideo[]
+  children?: PackageGroup[]
+  [property: string]: any
+}
+
 /** 获取安防统计卡片汇总 */
 export const getSecuritySummary = (params?) => defHttp.get({ url: Api.summary, params });
 
@@ -515,6 +540,9 @@ export const addPatrolPlan = (params: Request) => defHttp.post({ url: Api.patrol
 
 /** 获取摄像头列表 */
 export const getCameraList = (params?) => defHttp.get({ url: Api.cameraList, params });
+
+/** 获取摄像头分组树形数据（两级分组 + 摄像头列表） */
+export const getCameraPackageGroup = (params?) => defHttp.get({ url: Api.cameraPackageGroup, params });
 
 /** 获取运行中的巡更计划摄像头（实时监控画面） */
 export const getRunningCameraList = (params?) => defHttp.get({ url: Api.runningCameraList, params });

@@ -7,7 +7,7 @@
       </div>
       <div class="station-title"><i></i><span>首钢园 · 2/3/4号场馆</span><em>分馆风冷系统</em></div>
       <div class="header-actions">
-        <div class="live-state" :class="{ connected }"><b></b>{{ connected ? '数据在线' : '演示数据' }}</div>
+        <!-- <div class="live-state" :class="{ connected }"><b></b>{{ connected ? '数据在线' : '演示数据' }}</div> -->
         <button class="icon-button" title="刷新" @click="refreshTime">↻</button>
         <div class="clock"><strong>{{ currentTime }}</strong><small>{{ currentDate }}</small></div>
       </div>

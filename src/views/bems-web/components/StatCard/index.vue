@@ -5,11 +5,7 @@
     <!-- 数值 -->
     <div class="stat-value">{{ value }}</div>
     <!-- 变化趋势 -->
-    <div v-if="changeText" class="stat-change" :class="trend">
-      <component
-        v-if="trend === 'up' || trend === 'down'"
-        :is="trend === 'up' ? ArrowUpOutlined : ArrowDownOutlined"
-      />
+    <div v-if="changeText" class="stat-change" :class="trendClass">
       {{ changeText }}
     </div>
     <!-- 右上角图标 -->
@@ -20,11 +16,11 @@
 </template>
 
 <script setup lang="ts">
-import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons-vue'
+import { computed } from 'vue'
 
 defineOptions({ name: 'StatCard' })
 
-defineProps({
+const props = defineProps({
   label: {
     type: String,
     required: true
@@ -37,10 +33,6 @@ defineProps({
     type: String,
     default: ''
   },
-  trend: {
-    type: String as () => 'up' | 'down' | '',
-    default: ''
-  },
   color: {
     type: String as () => 'blue' | 'green' | 'orange' | 'red' | 'purple' | 'cyan',
     default: 'blue'
@@ -49,6 +41,13 @@ defineProps({
     type: [String, Object],
     default: ''
   }
+})
+
+// 根据 changeText 中是否包含箭头判断趋势方向，用于渲染不同颜色
+const trendClass = computed(() => {
+  if (props.changeText.includes('↑')) return 'up'
+  if (props.changeText.includes('↓')) return 'down'
+  return ''
 })
 </script>
 
@@ -115,10 +114,6 @@ defineProps({
     // 无箭头时保持默认颜色
     &:not(.up):not(.down) {
       color: rgba(0, 0, 0, 0.45);
-    }
-
-    .anticon {
-      font-size: 12px;
     }
   }
 

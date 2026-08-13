@@ -32,10 +32,15 @@
               <div class="camera-preview">
                 <VideoPlayer
                   v-if="visitedPages.includes(pageIndex) && camera.url"
+                  :key="`${camera.id}-${refreshTickMap[camera.id] || 0}`"
                   :url="camera.url"
                 />
                 <div v-else class="camera-preview-fallback">
                   <video-camera-outlined class="fallback-icon" />
+                </div>
+                <!-- 刷新按钮 -->
+                <div class="refresh-btn" @click.stop="refreshCamera(camera)">
+                  <reload-outlined />
                 </div>
                 <!-- 全屏查看按钮 -->
                 <div class="fullscreen-btn" @click.stop="handleFullscreen(camera)">
@@ -84,13 +89,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
+import { ref, reactive, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import {
   VideoCameraOutlined,
   LeftOutlined,
   RightOutlined,
   FullscreenOutlined,
   CloseOutlined,
+  ReloadOutlined,
 } from '@ant-design/icons-vue'
 import VideoPlayer from './VideoPlayer.vue'
 
@@ -178,6 +184,12 @@ const handleAfterChange = (current: number) => {
   if (!visitedPages.value.includes(current)) {
     visitedPages.value = [...visitedPages.value, current]
   }
+}
+
+// 每路摄像头的刷新计数：变化时通过 :key 让 VideoPlayer 重新挂载、iframe 重新加载
+const refreshTickMap = reactive<Record<string | number, number>>({})
+const refreshCamera = (camera: Camera) => {
+  refreshTickMap[camera.id] = (refreshTickMap[camera.id] || 0) + 1
 }
 
 // 全屏查看
@@ -312,9 +324,9 @@ onBeforeUnmount(() => {
         }
       }
 
-      .fullscreen-btn {
+      .fullscreen-btn,
+      .refresh-btn {
         position: absolute;
-        right: 8px;
         bottom: 8px;
         width: 28px;
         height: 28px;
@@ -335,9 +347,18 @@ onBeforeUnmount(() => {
           color: #fff;
         }
       }
+
+      .fullscreen-btn {
+        right: 8px;
+      }
+
+      .refresh-btn {
+        right: 44px;
+      }
     }
 
-    &:hover .fullscreen-btn {
+    &:hover .fullscreen-btn,
+    &:hover .refresh-btn {
       opacity: 1;
     }
 
