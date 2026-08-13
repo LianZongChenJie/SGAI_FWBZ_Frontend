@@ -1,6 +1,6 @@
 import * as echarts from 'echarts/core';
 
-import { BarChart, LineChart, PieChart, MapChart, PictorialBarChart, RadarChart, ScatterChart } from 'echarts/charts';
+import { BarChart, LineChart, PieChart, MapChart, PictorialBarChart, RadarChart, ScatterChart, CustomChart } from 'echarts/charts';
 
 import {
   TitleComponent,
@@ -42,6 +42,7 @@ echarts.use([
   CanvasRenderer,
   PictorialBarChart,
   ScatterChart,
+  CustomChart,
   RadarComponent,
   ToolboxComponent,
   DataZoomComponent,

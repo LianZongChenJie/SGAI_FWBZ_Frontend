@@ -25,13 +25,13 @@
           </div>
           <div class="chart-legend">
             <span class="legend-item">
-              <span class="legend-color legend-color--band"></span>P90 置信带 (80%)
+              <span class="legend-color legend-color--band"></span>P90 置信带(80%)
             </span>
             <span class="legend-item">
               <span class="legend-color" style="background: #1f3a5f"></span>P50 预测
             </span>
             <span class="legend-item">
-              <span class="legend-color legend-color--dot" style="background: #fa8c16"></span>实测
+              <span class="legend-color legend-color--dot" style="background: #e8833a"></span>实测
             </span>
           </div>
         </div>
@@ -46,6 +46,36 @@
 
       <!-- 右侧栏 -->
       <div class="side-panel">
+        <!-- 设备在线概览（侧栏最上方，对应原型 order:-1） -->
+        <a-card class="side-card side-card--device" :bordered="false">
+          <div class="side-card__title side-card__title--full">
+            <span>设备在线概览</span>
+            <span class="side-card__extra">{{ chillers.length }} 冷机 · {{ totalHeatPump }} 热泵</span>
+          </div>
+          <div class="hp-grp-lab"><b>集中冷机</b><span>{{ chillers.length }} 台</span></div>
+          <div class="dev-grid dev-grid--chiller">
+            <div v-for="ch in chillers" :key="ch.name" class="dev-cell" :class="ch.online ? 'run' : 'stop'">
+              <div class="d-n">{{ ch.name }}</div>
+              <div class="d-s">{{ ch.online ? '运行' : '停止' }}</div>
+            </div>
+          </div>
+          <div class="hp-grp-lab" style="margin-top: 10px"><b>风冷热泵 · 分馆</b><span>{{ totalHeatPump }} 台</span></div>
+          <div v-for="grp in heatPumpGroups" :key="grp.name" class="hp-grp">
+            <div class="hp-grp-lab"><b>{{ grp.name }}</b><span>{{ grp.count }} 台</span></div>
+            <div class="dev-grid dev-grid--hp">
+              <div
+                v-for="i in grp.count"
+                :key="i"
+                class="dev-cell"
+                :class="grp.stops[i] ? 'stop' : 'run'"
+              >
+                <div class="d-n">{{ grp.prefix }}-{{ String(i).padStart(2, '0') }}</div>
+                <div class="d-s">{{ grp.stops[i] ? '停止' : '运行' }}</div>
+              </div>
+            </div>
+          </div>
+        </a-card>
+
         <!-- 本拍下发摘要 -->
         <a-card class="side-card" :bordered="false">
           <div class="side-card__title">
@@ -67,12 +97,12 @@
             </div>
             <div class="dispatch-row">
               <span class="dispatch-row__label">回退厂商</span>
-              <span class="dispatch-row__value">{{ dispatch.fallbackCount }}</span>
+              <span class="dispatch-row__value is-muted">{{ dispatch.fallbackCount }}</span>
             </div>
-          </div>
-          <div class="dispatch-action">
-            <span class="dispatch-action__label">最近动作</span>
-            <span class="dispatch-action__badge dispatch-action__badge--ok">{{ dispatch.lastAction }}</span>
+            <div class="dispatch-row">
+              <span class="dispatch-row__label">最近动作</span>
+              <span class="dispatch-badge dispatch-badge--ok">{{ dispatch.lastAction }}</span>
+            </div>
           </div>
         </a-card>
 
@@ -94,42 +124,8 @@
             </div>
             <div class="optimizer-meta">
               <div class="optimizer-meta__status">{{ optimizer.status }}</div>
-              <div class="optimizer-meta__row">模式：{{ optimizer.mode }}</div>
-              <div class="optimizer-meta__row">预测精度 {{ optimizer.accuracy }}</div>
-            </div>
-          </div>
-        </a-card>
-
-        <!-- 设备在线概览 -->
-        <a-card class="side-card side-card--device" :bordered="false">
-          <div class="side-card__title side-card__title--full">
-            <span>设备在线概览</span>
-            <span class="side-card__extra">{{ chillers.length }} 冷机 · {{ heatPumps.length }} 热泵</span>
-          </div>
-          <div class="device-section">
-            <div class="device-section__label">集中冷机 <span>（{{ chillers.length }} 台）</span></div>
-            <div class="chiller-list">
-              <div v-for="ch in chillers" :key="ch.name" class="chiller-item">
-                <span class="chiller-item__name">{{ ch.name }}</span>
-                <span class="chiller-item__status" :class="ch.online ? 'is-on' : 'is-off'">
-                  {{ ch.online ? '运行' : '停止' }}
-                </span>
-              </div>
-            </div>
-          </div>
-          <div class="device-section">
-            <div class="device-section__label">风冷热泵 <span>（{{ heatPumps.length }} 台）</span></div>
-            <div class="heatpump-grid">
-              <div
-                v-for="hp in heatPumps"
-                :key="hp.name"
-                class="heatpump-cell"
-                :class="hp.online ? 'is-on' : 'is-off'"
-              >
-                <span class="heatpump-cell__name">{{ hp.name }}</span>
-                <span class="heatpump-cell__status" :class="hp.online ? 'is-on' : 'is-off'">
-                  {{ hp.online ? '运行' : '停止' }}
-                </span>
+              <div class="optimizer-meta__row">
+                模式：{{ optimizer.mode }}<br />预测精度 {{ optimizer.accuracy }}
               </div>
             </div>
           </div>
@@ -144,7 +140,6 @@ import { ref, reactive, computed, onMounted, nextTick } from 'vue'
 import { useECharts } from '/@/hooks/web/useECharts'
 import {
   getEnergyAnalysisOverview,
-  getLoadChartData,
   getDispatchSummary,
   getOptimizerStatus,
   getDeviceStatus,
@@ -188,15 +183,6 @@ const kpiList = ref<KpiItem[]>([
     accent: 'navy',
   },
   {
-    key: 'saving',
-    label: '今日累计节能量',
-    value: '2,140',
-    unit: 'kWh',
-    sub: '节能率 12.3% · 影子期基线',
-    accent: 'green',
-    textColor: 'is-green',
-  },
-  {
     key: 'peakCut',
     label: '峰段移峰削减',
     value: '1,820',
@@ -238,7 +224,6 @@ const loadOverview = async () => {
       cop: { value: res.cop, tag: res.copTag, sub: res.copChange },
       load: { value: res.load, sub: res.loadRange },
       power: { value: res.power },
-      saving: { value: res.saving, sub: res.savingRate },
       peakCut: { value: res.peakCut },
       price: { value: res.pricePeriod, unit: res.priceUnit, sub: res.priceNext },
       mode: { value: res.mode, sub: res.modeDesc },
@@ -255,161 +240,139 @@ const loadChartRef = ref<HTMLDivElement>()
 const chartLoading = ref(false)
 const { setOptions: setLoadChartOptions } = useECharts(loadChartRef as any)
 
-/** 峰平谷电价时段（背景色带，按小时索引 0~24） */
-const pricePeriods = [
-  { name: '谷', start: 0, end: 6, color: 'rgba(82, 196, 26, 0.14)' },
-  { name: '平', start: 6, end: 8, color: 'rgba(0, 0, 0, 0.04)' },
-  { name: '峰', start: 8, end: 11, color: 'rgba(250, 140, 16, 0.14)' },
-  { name: '平', start: 11, end: 18, color: 'rgba(0, 0, 0, 0.04)' },
-  { name: '峰', start: 18, end: 22, color: 'rgba(250, 140, 16, 0.14)' },
-  { name: '谷', start: 22, end: 24, color: 'rgba(82, 196, 26, 0.14)' },
-]
+/** 峰平谷电价时段：0谷 1平 2峰（按小时索引 0~23，原型口径） */
+const tariffByHour = [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 2, 2, 2, 1, 1, 0]
+const tariffPrice: Record<number, number> = { 0: 0.33, 1: 0.79, 2: 1.26 }
+const tariffName: Record<number, string> = { 0: '谷', 1: '平', 2: '峰' }
 
-/** 预冷蓄冷 / 放冷滑行 动作标注 */
-const actionLines = [
-  { name: '预冷蓄冷', xAxis: 6 },
-  { name: '放冷滑行', xAxis: 13 },
-]
+/** 峰平谷色带（markArea 段，按小时边界切分） */
+const buildTariffBands = (withLabel: boolean): any[] => {
+  const hours = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'))
+  const segs: any[] = []
+  let start = 0
+  for (let i = 1; i <= 24; i++) {
+    const cur = i < 24 ? tariffByHour[i] : -1
+    if (i === 24 || cur !== tariffByHour[start]) {
+      const p = tariffByHour[start]
+      const color = p === 2 ? 'rgba(232,131,58,.12)' : p === 0 ? 'rgba(46,139,87,.10)' : 'rgba(0,0,0,.015)'
+      const item: any[] = [
+        { xAxis: hours[start], itemStyle: { color } },
+        { xAxis: i < 24 ? hours[i] : '23' },
+      ]
+      if (withLabel) {
+        item[0].label = {
+          show: true,
+          position: 'insideTop',
+          formatter: tariffName[p],
+          color: '#9aa3ad',
+          fontSize: 10,
+          fontWeight: 600,
+          distance: 2,
+        }
+      }
+      segs.push(item)
+      start = i
+    }
+  }
+  return segs
+}
 
-/** 模拟日负荷形状（kW） */
-const loadShape = [4300, 4200, 4100, 4050, 4100, 4300, 4700, 5400, 6100, 6600, 6800, 6700, 6450, 6250, 6100, 6000, 5900, 5800, 5700, 5600, 5300, 5000, 4800, 4500]
+/** 模拟日负荷 P50（kW）—— 会展+办公 夏季典型日（原型口径） */
+const loadP50 = [1620, 1540, 1480, 1420, 1420, 1520, 1920, 2820, 3820, 4920, 6020, 6820, 6620, 7020, 7420, 7320, 6920, 6220, 5820, 5420, 4920, 4020, 2820, 2020]
 
-/** 生成 24 小时模拟曲线数据 */
+/** 生成 24 小时模拟曲线数据（P90 带 ±，实测仅到演示时刻 14 时，对齐原型 NOW_HOUR=14） */
 const buildMockChartData = () => {
   const hours = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'))
-  const p50 = loadShape.map((v, i) => Math.round(v + Math.sin(i * 1.7) * 30))
-  const p90Upper = p50.map((v, i) => v + 480 + Math.round(Math.cos(i) * 120))
-  const actual = p50.map((v, i) => Math.round(v * (0.97 + ((i * 7) % 6) / 100)))
-  return { hours, p50, p90Upper, actual }
+  const now = 14
+  const p90hi = loadP50.map((v, i) => Math.round(v * (1.1 + 0.02 * Math.sin(i))))
+  const p90lo = loadP50.map((v, i) => Math.round(v * (0.9 - 0.02 * Math.sin(i))))
+  const actual = loadP50.map((v, i) => (i <= now ? Math.round(v * (1 + ((i % 3) - 1) * 0.012)) : null))
+  return { hours, p50: loadP50, p90hi, p90lo, actual }
 }
 
-/** 根据小时获取电价时段名 */
-const priceNameOf = (hour: string) => {
-  const h = parseInt(hour, 10)
-  if ((h >= 8 && h < 11) || (h >= 18 && h < 22)) return '峰'
-  if ((h >= 6 && h < 8) || (h >= 11 && h < 18)) return '平'
-  return '谷'
-}
-
-/** 电价数值（元/kWh） */
-const priceValueOf = (period: string) => {
-  if (period === '峰') return '1.26'
-  if (period === '平') return '0.85'
-  return '0.35'
-}
-
-/** 加载负荷预测图数据 */
+/** 加载负荷预测图数据（暂用静态模拟数据，不调用接口；恢复接口时改为请求 getLoadChartData 并映射 xaxis/P50/P90/实测） */
 const loadLoadChart = async () => {
   chartLoading.value = true
-  try {
-    const res = await getLoadChartData()
-    let hours: string[] = []
-    let p50: number[] = []
-    let p90Upper: number[] = []
-    let actual: number[] = []
-    // 兼容后端 { chat: { xaxis, chatSeriesList } } 返回格式
-    const chatData = res?.chat || res?.result?.chat || res?.data?.chat || res || {}
-    const seriesList = chatData.chatSeriesList || chatData.seriesList || []
-    if (Array.isArray(chatData.xaxis) && seriesList.length > 0) {
-      hours = chatData.xaxis
-      const findSeries = (name: string) =>
-        seriesList.find((s: any) => String(s.name).indexOf(name) > -1)?.data || []
-      p50 = findSeries('P50')
-      p90Upper = findSeries('P90')
-      actual = findSeries('实测')
-    } else {
-      const mock = buildMockChartData()
-      hours = mock.hours
-      p50 = mock.p50
-      p90Upper = mock.p90Upper
-      actual = mock.actual
-    }
-    chartLoading.value = false
-    await nextTick()
-    if (hours.length > 0 && p50.length > 0) {
-      renderLoadChart(hours, p50, p90Upper, actual)
-    }
-  } catch (e) {
-    console.error('加载负荷预测数据失败:', e)
-    chartLoading.value = false
-    await nextTick()
-    const mock = buildMockChartData()
-    renderLoadChart(mock.hours, mock.p50, mock.p90Upper, mock.actual)
-  }
+  const mock = buildMockChartData()
+  chartLoading.value = false
+  await nextTick()
+  renderLoadChart(mock.hours, mock.p50, mock.p90lo, mock.p90hi, mock.actual)
 }
 
-/** 渲染负荷预测与实测闭环图 */
-const renderLoadChart = (xaxis: string[], p50: number[], p90Upper: number[], actual: number[]) => {
-  // P90 置信带：P50 基线（stack 底层）+ 差值（上界 - P50），叠加出上下界之间的色带
-  const confidenceData = p90Upper.map((v, i) => Math.max(0, v - (p50[i] || 0)))
-  const priceMap: Record<string, string> = {}
-  xaxis.forEach((h) => (priceMap[h] = priceNameOf(h)))
+/** 渲染负荷预测与实测闭环图（参照原型：P90 置信带 + P50 预测 + 实测散点 + 峰平谷色带 + 阈值/蓄冷/放冷标注） */
+const renderLoadChart = (
+  xaxis: string[],
+  p50: number[],
+  p90lo: number[],
+  p90hi: number[],
+  actual: (number | null)[],
+) => {
+  // P90 置信带：stack 底层（下界）+ 差值（上界 - 下界）叠加出带
+  const bandData = p90hi.map((v, i) => Math.max(0, v - (p90lo[i] || 0)))
   setLoadChartOptions({
+    grid: { left: 54, right: 24, top: 34, bottom: 34 },
     tooltip: {
       trigger: 'axis',
-      axisPointer: { type: 'cross' },
+      backgroundColor: '#fff',
+      borderColor: '#dfe4ea',
+      textStyle: { color: '#1f2937', fontSize: 12 },
       formatter: (params: any[]) => {
         const idx = params[0]?.dataIndex ?? 0
-        const hour = params[0]?.axisValue || ''
-        const price = priceMap[hour] || '-'
-        const priceVal = priceValueOf(price)
-        const p50Val = Math.round(p50[idx] ?? 0)
-        const p90UpperVal = Math.round(p90Upper[idx] ?? 0)
-        const p90LowerVal = Math.round(2 * p50Val - p90UpperVal)
-        const actualVal = Math.round(actual[idx] ?? 0)
-        const row = (dotColor: string, label: string, value: string) =>
-          `<div style="display:flex;align-items:center;gap:6px;line-height:1.8;">
-            <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${dotColor};"></span>
-            <span style="color:#666;">${label}</span>
-            <span style="margin-left:auto;font-weight:600;padding-left:14px;">${value}</span>
-          </div>`
-        let html = `<div style="font-weight:600;margin-bottom:6px;">${hour} ${price}段 ${priceVal}元/kWh</div>`
-        html += row('#1f3a5f', 'P50 预测：', `${p50Val.toLocaleString()} kW`)
-        html += row('rgba(31,58,95,.15)', 'P90 带：', `${p90LowerVal.toLocaleString()} ~ ${p90UpperVal.toLocaleString()} kW`)
-        html += row('#fa8c16', '实测：', `${actualVal.toLocaleString()} kW`)
-        return html
+        const hour = xaxis[idx] || ''
+        const period = tariffByHour[idx] ?? 0
+        const hi = Math.round(p90hi[idx] ?? 0)
+        const lo = Math.round(p90lo[idx] ?? 0)
+        const act = actual[idx]
+        let s = `<b>${hour}:00</b>　${tariffName[period]}段 ${tariffPrice[period]}元/kWh<br>`
+        s += `P50 预测：<b>${Math.round(p50[idx] ?? 0).toLocaleString()} kW</b><br>`
+        s += `P90 带：${lo.toLocaleString()} ~ ${hi.toLocaleString()} kW`
+        if (act != null) s += `<br><span style="color:#E8833A">实测：${Math.round(act).toLocaleString()} kW</span>`
+        return s
       },
     },
-    grid: { left: 52, right: 24, top: 34, bottom: 34, containLabel: true },
     xAxis: {
       type: 'category',
       data: xaxis,
       boundaryGap: false,
-      axisLine: { lineStyle: { color: '#e5e5e5' } },
+      axisLine: { lineStyle: { color: '#c3c2b7' } },
       axisTick: { show: false },
-      axisLabel: { color: '#666', fontSize: 12, interval: 0 },
+      axisLabel: { color: '#898781', fontSize: 11 },
     },
     yAxis: {
       type: 'value',
       name: '冷负荷 (kW)',
+      min: 0,
       max: 8400,
-      interval: 2000,
-      nameTextStyle: { color: '#999', fontSize: 12 },
-      splitLine: { lineStyle: { color: '#f0f2f5' } },
-      axisLabel: { color: '#666', fontSize: 12 },
+      nameTextStyle: { color: '#898781', fontSize: 11 },
+      axisLine: { show: false },
+      axisTick: { show: false },
+      splitLine: { lineStyle: { color: '#ebeae4' } },
+      axisLabel: { color: '#898781', fontSize: 11 },
     },
     series: [
       {
-        name: 'P50 基线',
+        name: 'P90 下界',
         type: 'line',
-        stack: 'conf',
-        data: p50,
+        stack: 'band',
+        data: p90lo,
         symbol: 'none',
         lineStyle: { opacity: 0 },
-        areaStyle: { opacity: 0 },
+        areaStyle: { color: 'transparent' },
         emphasis: { disabled: true },
         tooltip: { show: false },
+        z: 1,
       },
       {
         name: 'P90 置信带 (80%)',
         type: 'line',
-        stack: 'conf',
-        data: confidenceData,
+        stack: 'band',
+        data: bandData,
         symbol: 'none',
         lineStyle: { opacity: 0 },
-        areaStyle: { color: '#e8eef5' },
+        areaStyle: { color: 'rgba(42,120,214,.20)' },
         emphasis: { disabled: true },
         tooltip: { show: false },
+        z: 2,
       },
       {
         name: 'P50 预测',
@@ -417,42 +380,48 @@ const renderLoadChart = (xaxis: string[], p50: number[], p90Upper: number[], act
         data: p50,
         smooth: true,
         symbol: 'none',
-        lineStyle: { color: '#1f3a5f', width: 2.5 },
+        lineStyle: { color: '#1F3A5F', width: 2.2 },
+        z: 5,
         markArea: {
           silent: true,
-          label: {
-            show: true,
-            position: 'top',
-            color: '#999',
-            fontSize: 12,
-            offset: [0, -2],
-          },
-          data: pricePeriods.map((p) => [
-            { name: p.name, xAxis: p.start, itemStyle: { color: p.color } },
-            { xAxis: p.end },
-          ]),
+          data: buildTariffBands(true),
         },
         markLine: {
-          symbol: 'none',
           silent: true,
-          lineStyle: { type: 'dashed', color: '#52c41a', width: 1.5 },
-          label: {
-            position: 'end',
-            color: '#52c41a',
-            fontSize: 11,
-            rotate: 90,
-            formatter: '{b}',
-          },
-          data: actionLines,
+          symbol: 'none',
+          label: { color: '#2E8B57', fontSize: 10, fontWeight: 600 },
+          data: [
+            {
+              yAxis: 2500,
+              lineStyle: { color: '#4a3aa7', type: 'dashed', width: 1.5 },
+              label: {
+                formatter: '集中冷源阈值2500kW',
+                position: 'insideEndTop',
+                color: '#4a3aa7',
+                fontSize: 10,
+                fontWeight: 600,
+              },
+            },
+            {
+              xAxis: '06',
+              label: { formatter: '蓄冷 06:00–07:00', position: 'insideStartTop' },
+              lineStyle: { color: '#2E8B57', type: 'dashed' },
+            },
+            {
+              xAxis: '14',
+              label: { formatter: '放冷滑行 ↑', position: 'insideStartTop' },
+              lineStyle: { color: '#E8833A', type: 'dashed' },
+            },
+          ],
         },
-        z: 5,
       },
       {
         name: '实测',
         type: 'scatter',
         data: actual,
-        symbolSize: 7,
-        itemStyle: { color: '#fa8c16' },
+        symbol: 'circle',
+        symbolSize: 8,
+        itemStyle: { color: '#E8833A', borderColor: '#fff', borderWidth: 1.5 },
         z: 6,
       },
     ],
@@ -506,20 +475,29 @@ const loadOptimizer = async () => {
   }
 }
 
-// ===== 设备在线概览 =====
+// ===== 设备在线概览（原型：3 冷机 · 21 热泵，热泵按馆分组） =====
 const chillers = ref([
-  { name: '1#磁悬浮', type: '离心', online: true },
-  { name: '2#磁悬浮', type: '离心', online: true },
-  { name: '3#定频离心', type: '离心', online: false },
+  { name: '1# 磁悬浮', online: true },
+  { name: '2# 磁悬浮', online: true },
+  { name: '3# 定频离心', online: false },
 ])
 
-const heatPumps = computed(() => {
-  const offline = new Set(['HP13', 'HP20'])
-  return Array.from({ length: 21 }, (_, i) => {
-    const name = `HP${String(i + 1).padStart(2, '0')}`
-    return { name, online: !offline.has(name) }
-  })
-})
+/** 热泵按馆分组：1号馆12 / 2号馆3 / 3号馆3 / 4号馆3，stops 记录停机序号 */
+interface HeatPumpGroup {
+  name: string
+  prefix: string
+  count: number
+  stops: Record<number, boolean>
+}
+
+const heatPumpGroups = ref<HeatPumpGroup[]>([
+  { name: '1号馆', prefix: '1', count: 12, stops: { 6: true } },
+  { name: '2号馆', prefix: '2', count: 3, stops: {} },
+  { name: '3号馆', prefix: '3', count: 3, stops: {} },
+  { name: '4号馆', prefix: '4', count: 3, stops: { 2: true } },
+])
+
+const totalHeatPump = computed(() => heatPumpGroups.value.reduce((sum, g) => sum + g.count, 0))
 
 const loadDevices = async () => {
   try {
@@ -533,11 +511,11 @@ const loadDevices = async () => {
 }
 
 onMounted(() => {
-  loadOverview()
+  // loadOverview()
   loadLoadChart()
-  loadDispatch()
-  loadOptimizer()
-  loadDevices()
+  // loadDispatch()
+  // loadOptimizer()
+  // loadDevices()
 })
 </script>
 
@@ -546,12 +524,14 @@ onMounted(() => {
   // ===== KPI 条 =====
   .kpi-grid {
     display: grid;
-    grid-template-columns: repeat(8, 1fr);
+    width: 100%;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
     gap: 12px;
   }
 
   .kpi-card {
     position: relative;
+    min-width: 0;
     background: #fff;
     border-radius: 10px;
     padding: 12px 12px 10px;
@@ -633,7 +613,7 @@ onMounted(() => {
   // ===== 主图 + 右侧栏 =====
   .main-wrap {
     display: flex;
-    align-items: stretch;
+    align-items: flex-start;
     gap: 16px;
     margin-top: 20px;
   }
@@ -645,10 +625,7 @@ onMounted(() => {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 
     :deep(.ant-card-body) {
-      padding: 16px;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
+      padding: 0;
     }
 
     &__header {
@@ -656,8 +633,7 @@ onMounted(() => {
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      margin: -16px -16px 14px;
-      padding: 12px 16px;
+      padding: 11px 16px;
       border-bottom: 1px solid #f0f0f0;
     }
 
@@ -688,8 +664,8 @@ onMounted(() => {
     }
 
     &__body {
-      flex: 1;
-      height: 380px;
+      height: 360px;
+      padding: 8px 10px 12px;
     }
   }
 
@@ -711,20 +687,19 @@ onMounted(() => {
   .legend-color {
     display: inline-block;
     width: 14px;
-    height: 3px;
+    height: 8px;
     border-radius: 2px;
     background: #1f3a5f;
 
     &--band {
-      height: 10px;
-      background: #e8eef5;
-      border: 1px solid #d0dce8;
+      background: rgba(42, 120, 214, 0.22);
     }
 
     &--dot {
-      width: 10px;
-      height: 10px;
+      width: 9px;
+      height: 9px;
       border-radius: 50%;
+      background: #e8833a;
     }
   }
 
@@ -759,10 +734,6 @@ onMounted(() => {
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 
-    &:last-child {
-      flex: 1;
-    }
-
     :deep(.ant-card-body) {
       padding: 12px 16px;
     }
@@ -789,19 +760,9 @@ onMounted(() => {
       font-weight: 400;
       color: #999;
     }
-
-    // 设备在线概览：卡片被 flex:1 拉伸时，内容仍靠上，底部留 15px
-    &--device {
-      :deep(.ant-card-body) {
-        display: flex;
-        flex-direction: column;
-        padding: 12px 16px 15px;
-        height: 100%;
-      }
-    }
   }
 
-  // 本拍下发摘要
+  // 本拍下发摘要（原型：mini-stat 虚线行 + badge）
   .dispatch-list {
     padding: 0;
   }
@@ -810,65 +771,55 @@ onMounted(() => {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 5px 0;
-    border-bottom: 1px solid #f5f5f5;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px dashed #eef0f3;
 
     &:last-child {
       border-bottom: none;
     }
 
     &__label {
-      font-size: 14px;
-      color: #666;
+      flex: 1;
+      font-size: 12px;
+      color: #52514e;
     }
 
     &__value {
-      font-size: 17px;
+      font-size: 13px;
       font-weight: 600;
-      color: #333;
-      font-family: 'DIN Alternate', 'Helvetica Neue', Arial, sans-serif;
+      color: #1f2937;
+      font-variant-numeric: tabular-nums;
 
-      &.is-green { color: #389e0d; }
-      &.is-orange { color: #fa8c16; }
+      &.is-green { color: #0ca30c; }
+      &.is-orange { color: #e8833a; }
+      &.is-muted { color: #898781; }
     }
   }
 
-  .dispatch-action {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 5px 0 0;
-    border-top: 1px solid #f5f5f5;
+  .dispatch-badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 600;
 
-    &__label {
-      font-size: 14px;
-      color: #666;
-    }
-
-    &__badge {
-      font-size: 12px;
-      padding: 2px 10px;
-      border-radius: 12px;
-
-      &--ok {
-        color: #389e0d;
-        background: #f6ffed;
-        border: 1px solid #b7eb8f;
-      }
+    &--ok {
+      color: #0ca30c;
+      background: rgba(12, 163, 12, 0.12);
     }
   }
 
-  // 优化层状态
+  // 优化层状态（原型：status-ring 96px 环 + 状态文本）
   .optimizer-wrap {
     display: flex;
     align-items: center;
-    gap: 24px;
+    gap: 16px;
   }
 
   .optimizer-ring {
     position: relative;
-    width: 92px;
-    height: 92px;
+    width: 96px;
+    height: 96px;
     flex-shrink: 0;
 
     svg {
@@ -879,14 +830,14 @@ onMounted(() => {
 
     &__bg {
       fill: none;
-      stroke: #e8f5e9;
-      stroke-width: 10;
+      stroke: #eef0f3;
+      stroke-width: 9;
     }
 
     &__fg {
       fill: none;
-      stroke: #52c41a;
-      stroke-width: 10;
+      stroke: #0ca30c;
+      stroke-width: 9;
       stroke-linecap: round;
       stroke-dasharray: 263.89;
       transition: stroke-dashoffset 0.6s ease;
@@ -896,105 +847,83 @@ onMounted(() => {
   .optimizer-meta {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 4px;
 
     &__status {
-      font-size: 20px;
-      font-weight: 600;
-      color: #52c41a;
+      font-size: 18px;
+      font-weight: 700;
+      color: #0ca30c;
       margin-bottom: 0;
     }
 
     &__row {
-      font-size: 14px;
-      color: #666;
+      font-size: 12px;
+      color: #52514e;
       line-height: 1.6;
     }
   }
 
-  // 设备在线概览
-  .device-section {
-    & + & {
-      margin-top: 12px;
-      padding-top: 10px;
-      border-top: 1px dashed #f0f0f0;
-    }
-
-    &__label {
-      font-size: 13px;
-      font-weight: 600;
-      color: rgba(0, 0, 0, 0.75);
-      margin-bottom: 8px;
-
-      span {
-        font-size: 12px;
-        font-weight: 400;
-        color: #999;
-        margin-left: 4px;
-      }
-    }
-  }
-
-  .chiller-list {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-  }
-
-  .chiller-item {
-    background: #f4f6f9;
-    border: 1px solid #f0f0f0;
-    border-radius: 6px;
-    padding: 8px 10px;
+  // 设备在线概览（原型：dev-grid 点阵 + 分馆分组）
+  .hp-grp-lab {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 4px;
+    justify-content: space-between;
+    font-size: 11px;
+    color: #52514e;
+    margin: 0 0 4px;
 
-    &__name {
-      font-size: 13px;
-      color: #333;
-      white-space: nowrap;
-    }
-
-    &__status {
-      font-size: 12px;
-      font-weight: 500;
-
-      &.is-on { color: #52c41a; }
-      &.is-off { color: #999; }
+    b {
+      color: #1f3a5f;
+      font-weight: 600;
     }
   }
 
-  .heatpump-grid {
+  .hp-grp {
+    margin-bottom: 8px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .dev-grid {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     gap: 6px;
-  }
 
-  .heatpump-cell {
-    background: #f4f6f9;
-    border: 1px solid #f0f0f0;
-    border-radius: 4px;
-    padding: 4px 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 2px;
-    cursor: pointer;
-
-    &__name {
-      font-size: 12px;
-      color: #333;
+    &--chiller {
+      grid-template-columns: repeat(3, 1fr);
     }
 
-    &__status {
-      font-size: 11px;
-      font-weight: 500;
+    &--hp {
+      grid-template-columns: repeat(auto-fit, minmax(42px, 1fr));
+    }
+  }
 
-      &.is-on { color: #52c41a; }
-      &.is-off { color: #999; }
+  .dev-cell {
+    background: #f4f6f9;
+    border: 1px solid #e6ebf2;
+    border-radius: 5px;
+    padding: 6px 4px;
+    text-align: center;
+
+    .d-n {
+      font-size: 11px;
+      color: #52514e;
+    }
+
+    .d-s {
+      font-size: 11px;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    &.run .d-s {
+      color: #0ca30c;
+    }
+
+    &.stop .d-s {
+      color: #898781;
     }
   }
 }

@@ -4,6 +4,7 @@
       <a-tab-pane key="overview" tab="总览驾驶舱" />
       <a-tab-pane key="forecast" tab="负荷预测与优化决策" />
       <a-tab-pane key="setpoint" tab="设定值下发控制台" />
+      <a-tab-pane key="schedule" tab="馆区日程与预排程" />
     </a-tabs>
 
     <!-- 内容区域 -->
@@ -16,6 +17,9 @@
 
       <!-- 设定值下发控制台 -->
       <SetpointTab v-else-if="currentTab === 'setpoint'" :data="tabData.setpoint" />
+
+      <!-- 馆区日程与预排程 -->
+      <ScheduleTab v-else-if="currentTab === 'schedule'" :data="tabData.schedule" />
     </div>
   </div>
 </template>
@@ -25,6 +29,7 @@ import { ref, reactive, onMounted } from 'vue'
 import OverviewTab from './elements/overviewTab/index.vue'
 import ForecastTab from './elements/forecastTab/index.vue'
 import SetpointTab from './elements/setpointTab/index.vue'
+import ScheduleTab from './elements/scheduleTab/index.vue'
 
 // 当前激活的 Tab
 const currentTab = ref('overview')
@@ -34,6 +39,7 @@ const tabData = reactive({
   overview: {},
   forecast: {},
   setpoint: {},
+  schedule: {},
 })
 
 // Tab 切换事件
