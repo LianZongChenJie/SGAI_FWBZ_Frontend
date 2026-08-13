@@ -93,6 +93,64 @@ const bemsWeb: AppRouteModule = {
       ],
     },
 
+    // ===== 能源管理 =====
+    {
+      path: 'energy-management',
+      name: 'BemsWebEnergyManagement',
+      meta: { title: '能源管理' },
+      redirect: '/fwbz/energy-management/metering',
+      children: [
+        {
+          path: 'metering',
+          name: 'BemsWebEnergyManagementMetering',
+          component: () => import('/@/views/bems-web/energy-management/metering/index.vue'),
+          meta: { title: '能源计量' },
+        },
+        {
+          path: 'centralized-water',
+          name: 'BemsWebEnergyManagementCentralizedWater',
+          component: () => import('/@/views/bems-web/energy-management/centralized-water/index.vue'),
+          meta: { title: '集中水冷' },
+        },
+        {
+          path: 'centralized-air',
+          name: 'BemsWebEnergyManagementCentralizedAir',
+          component: () => import('/@/views/bems-web/energy-management/centralized-air/index.vue'),
+          meta: { title: '集中风冷' },
+        },
+        {
+          path: 'branch-air',
+          name: 'BemsWebEnergyManagementBranchAir',
+          component: () => import('/@/views/bems-web/energy-management/branch-air/index.vue'),
+          meta: { title: '分管风冷' },
+        },
+        {
+          path: 'cold-source',
+          name: 'BemsWebEnergyManagementColdSource',
+          component: () => import('/@/views/bems-web/energy-management/cold-source/index.vue'),
+          meta: { title: '冷源总览' },
+        },
+        {
+          path: 'load-forecast',
+          name: 'BemsWebEnergyManagementLoadForecast',
+          component: () => import('/@/views/bems-web/energy-management/load-forecast/index.vue'),
+          meta: { title: '负荷预测与优化决策' },
+        },
+        {
+          path: 'setpoint-control',
+          name: 'BemsWebEnergyManagementSetpointControl',
+          component: () => import('/@/views/bems-web/energy-management/setpoint-control/index.vue'),
+          meta: { title: '设定值下发控制台' },
+        },
+        {
+          path: 'schedule-energy',
+          name: 'BemsWebEnergyManagementScheduleEnergy',
+          component: () => import('/@/views/bems-web/energy-management/schedule-energy/index.vue'),
+          meta: { title: '场馆日程与能源对应' },
+        },
+      ],
+    },
+
     // ===== 物联网 =====
     {
       path: 'iot',

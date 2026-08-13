@@ -5,7 +5,7 @@
         label="照明回路总数"
         :value="statData.loopTotal"
         :change-text="statData.loopTotalChange"
-        trend="up"
+        trend=""
         color="blue"
         :icon="BulbIcon"
       />
@@ -21,7 +21,7 @@
         label="当前开启"
         :value="statData.openLoop"
         :change-text="statData.saveRate"
-        trend="down"
+        trend=""
         color="orange"
         :icon="SparkleIcon"
       />
@@ -29,7 +29,7 @@
         label="今日能耗"
         :value="statData.todayEnergy"
         :change-text="statData.todayEnergyChange"
-        trend="down"
+        trend=""
         color="purple"
         :icon="LightningIcon"
       />
