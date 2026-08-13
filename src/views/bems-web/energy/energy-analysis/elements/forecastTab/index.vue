@@ -8,11 +8,11 @@
           <span class="fc-card__tag">P50 / P90 置信带 · 背景为峰平谷电价</span>
         </div>
         <div class="fc-legend">
-          <span class="legend-item"><span class="legend-color" style="background: rgba(232, 131, 58, 0.35)"></span>峰段</span>
-          <span class="legend-item"><span class="legend-color" style="background: rgba(0, 0, 0, 0.12)"></span>平段</span>
-          <span class="legend-item"><span class="legend-color" style="background: rgba(46, 139, 87, 0.3)"></span>谷段</span>
-          <span class="legend-item"><span class="legend-dash" style="border-color: #2e8b57"></span>预冷蓄冷</span>
-          <span class="legend-item"><span class="legend-dash" style="border-color: #e8833a"></span>放冷滑行</span>
+          <span class="legend-item"><span class="legend-color" style="background: rgba(232, 131, 58, 0.12)"></span>峰段</span>
+          <span class="legend-item"><span class="legend-color" style="background: #eef0f3"></span>平段</span>
+          <span class="legend-item"><span class="legend-color" style="background: rgba(46, 139, 87, 0.1)"></span>谷段</span>
+          <span class="legend-item"><span class="legend-block" style="background: rgba(46, 139, 87, 0.35); border-color: #2e8b57"></span>蓄冷 06:00–07:00</span>
+          <span class="legend-item"><span class="legend-block" style="background: rgba(232, 131, 58, 0.35); border-color: #e8833a"></span>放冷滑行</span>
         </div>
       </div>
       <div class="fc-card__body">
@@ -259,17 +259,38 @@ const renderMainChart = () => {
           silent: true,
           itemStyle: {},
           data: tariffBands(true).concat([
-            [{ xAxis: '04', itemStyle: { color: 'rgba(46,139,87,.22)', borderColor: '#2E8B57', borderType: 'dashed' } }, { xAxis: '07' }],
-            [{ xAxis: '13', itemStyle: { color: 'rgba(232,131,58,.22)', borderColor: '#E8833A', borderType: 'dashed' } }, { xAxis: '16' }],
+            [
+              {
+                xAxis: '06',
+                itemStyle: { color: 'rgba(46,139,87,.22)', borderColor: '#2E8B57', borderType: 'dashed' },
+                label: { show: true, formatter: '蓄冷1h', position: 'insideTop', distance: 16, color: '#2E8B57', fontSize: 10, fontWeight: 600 },
+              },
+              { xAxis: '07' },
+            ],
+            [
+              {
+                xAxis: '13',
+                itemStyle: { color: 'rgba(232,131,58,.22)', borderColor: '#E8833A', borderType: 'dashed' },
+                label: { show: true, formatter: '放冷滑行', position: 'insideTop', distance: 16, color: '#E8833A', fontSize: 10, fontWeight: 600 },
+              },
+              { xAxis: '16' },
+            ],
           ]),
         },
         markLine: {
           silent: true,
           symbol: 'none',
-          label: { color: '#2E8B57', fontSize: 10, fontWeight: 600 },
           data: [
-            { xAxis: '06', label: { formatter: '预冷蓄冷 ↓', position: 'insideStartTop' }, lineStyle: { color: '#2E8B57', type: 'dashed' } },
-            { xAxis: '14', label: { formatter: '放冷滑行 ↑', position: 'insideStartTop' }, lineStyle: { color: '#E8833A', type: 'dashed' } },
+            {
+              yAxis: 2500,
+              lineStyle: { color: '#4a3aa7', type: 'dashed', width: 1.5 },
+              label: { formatter: '集中冷源切换阈值 2500kW（厂商联合制冷模式）', position: 'insideEndTop', color: '#4a3aa7', fontSize: 10, fontWeight: 600 },
+            },
+            {
+              xAxis: '07',
+              lineStyle: { color: '#4a3aa7', type: 'dotted', width: 1.5 },
+              label: { formatter: '预测07时越阈·知情迟滞预启', position: 'insideStartBottom', distance: 18, color: '#4a3aa7', fontSize: 10, fontWeight: 600 },
+            },
           ],
         },
       },
@@ -428,7 +449,7 @@ onMounted(async () => {
   renderMainChart()
   renderTempChart()
   renderHallChart()
-  loadApiData()
+  // loadApiData()
 })
 </script>
 
@@ -520,9 +541,11 @@ onMounted(async () => {
       display: inline-block;
     }
 
-    .legend-dash {
+    .legend-block {
       width: 14px;
-      border-top: 2px dashed;
+      height: 8px;
+      border-radius: 2px;
+      border: 1px dashed;
       display: inline-block;
     }
   }

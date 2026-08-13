@@ -183,7 +183,7 @@ const rowState = (idx: number, act: string) => {
 
 // 一键采纳全部
 const adoptAll = () => {
-  decisions.value.forEach((d, i) => rowState(i, 'adopt'))
+  decisions.value.forEach((_d, i) => rowState(i, 'adopt'))
   toast(`已全部采纳优化推荐值（${decisions.value.length} 条）`)
 }
 
@@ -320,7 +320,7 @@ const loadApiData = () => {
 
 onMounted(() => {
   loadApiData()
-  decisions.value.forEach((d, i) => rowState(i, 'adopt'))
+  decisions.value.forEach((_d, i) => rowState(i, 'adopt'))
 })
 </script>
 
