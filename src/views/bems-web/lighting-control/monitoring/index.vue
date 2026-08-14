@@ -1,59 +1,29 @@
+<!-- 照明监控 -->
 <template>
   <div class="lighting-monitoring">
     <div class="lighting-monitoring__box">
       <div class="lighting-monitoring__title">照明监控</div>
-      <div v-if="loading" class="lighting-monitoring__tip">正在登录照明监控系统，请稍候…</div>
-      <div v-else class="lighting-monitoring__error">登录失败，请检查网络或账号配置后重试</div>
+      <div class="lighting-monitoring__tip">正在打开照明监控系统，即将返回总览仪表盘…</div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 
-/** 登录接口地址 */
-const LOGIN_URL = 'http://10.22.154.2:888/prod-api/login'
-/** 登录成功后的跳转地址 */
-const REDIRECT_URL = 'http://10.22.154.2:888/appWebtopoPreview/appWebtopoPreview'
-/** 登录账号 */
-const LOGIN_USERNAME = 'user001'
-const LOGIN_PASSWORD = '123456'
+const router = useRouter()
 
-const loading = ref(true)
-
-/** 将 token 写入 cookie（path=/，默认 1 小时有效） */
-function setCookie(name: string, value: string, hours = 1): void {
-  const expires = new Date(Date.now() + hours * 60 * 60 * 1000).toUTCString()
-  document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`
-}
-
-/** 初始化：调用登录接口获取 token -> 写入 cookie -> 跳转目标页面 */
-async function initLogin(): Promise<void> {
-  try {
-    const resp = await fetch(LOGIN_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: LOGIN_USERNAME, password: LOGIN_PASSWORD }),
-    })
-    if (!resp.ok) {
-      throw new Error(`HTTP ${resp.status}`)
-    }
-    const data = await resp.json()
-    // 兼容 { result: { token } } / { token } / { data: { token } } 等返回结构
-    const token = data?.result?.token ?? data?.token ?? data?.data?.token
-    if (!token) {
-      throw new Error('响应中未找到 token 字段')
-    }
-    setCookie('token', token)
-    window.location.href = REDIRECT_URL
-  } catch (e) {
-    console.error('照明监控自动登录失败:', e)
-    loading.value = false
-  }
-}
+/** 照明监控系统地址（新开 tab 打开并登录） */
+const LIGHTING_URL = 'http://10.168.56.101:7545/appWebtopoPreview/appWebtopoPreview'
+/** 本页跳转的总览仪表盘路由 */
+const OVERVIEW_PATH = '/fwbz'
 
 onMounted(() => {
-  initLogin()
+  // 新开浏览器 tab 并访问照明监控系统
+  window.open(LIGHTING_URL, '_blank')
+  // 本 tab 跳转到总览仪表盘
+  router.push(OVERVIEW_PATH)
 })
 </script>
 
@@ -79,12 +49,5 @@ onMounted(() => {
     font-size: 14px;
     color: #8c8c8c;
   }
-
-  &__error {
-    margin-top: 12px;
-    font-size: 14px;
-    color: #e8833a;
-  }
 }
 </style>
-
