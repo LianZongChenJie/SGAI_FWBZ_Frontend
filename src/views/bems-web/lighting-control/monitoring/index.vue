@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!-- 照明监控 -->
 <template>
   <div class="lighting-monitoring">
@@ -51,3 +52,9 @@ onMounted(() => {
   }
 }
 </style>
+=======
+<template>
+    照明监控
+</template>
+
+>>>>>>> dev
