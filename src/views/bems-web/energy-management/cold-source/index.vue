@@ -136,7 +136,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, nextTick } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted, nextTick } from 'vue'
+import { bindingStore } from '/@/views/bems-web/energy-monitor/stores/bindingStore.js'
 import { useECharts } from '/@/hooks/web/useECharts'
 import {
   getEnergyAnalysisOverview,
@@ -516,6 +517,11 @@ onMounted(() => {
   // loadDispatch()
   // loadOptimizer()
   // loadDevices()
+  // 冷源实时数据 WebSocket 连接
+  bindingStore.connectColdSourceWs()
+})
+onUnmounted(() => {
+  bindingStore.disconnectColdSourceWs()
 })
 </script>
 

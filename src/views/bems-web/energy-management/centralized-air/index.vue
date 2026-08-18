@@ -217,7 +217,9 @@ onMounted(() => {
   clockTimer = setInterval(refreshTime, 1000)
   window.addEventListener('energy-point-values', onEnergyPoints)
   window.addEventListener('binding-value', onBindingValue)
-  loadSnapshot()
+  loadSnapshot().finally(() => applyPoints(bindingStore.getColdLatestValues()))
+  // 冷源实时数据 WebSocket：返回数据覆盖到 ENERGY_STATION_POINTS 对应字段
+  bindingStore.connectColdSourceWs()
 })
 onUnmounted(() => {
   clearInterval(clockTimer)
