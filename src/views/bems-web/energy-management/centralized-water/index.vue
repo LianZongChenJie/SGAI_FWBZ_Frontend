@@ -101,6 +101,7 @@ Content-Type: application/json
 
 <script setup>
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
+import { onBeforeRouteLeave } from 'vue-router'
 import { bindingStore } from '/@/views/bems-web/energy-monitor/stores/bindingStore.js'
 import { ENERGY_STATION_DEFAULTS, ENERGY_STATION_POINTS } from '/@/views/bems-web/energy-monitor/data/energyStationPoints.js'
 import { ENERGY_DEVICE_IDS, getEnergyDeviceProfile } from '/@/views/bems-web/energy-monitor/data/energyStationDevices.js'
@@ -217,12 +218,17 @@ onMounted(() => {
   clockTimer = setInterval(refreshTime, 1000)
   window.addEventListener('energy-point-values', onEnergyPoints)
   window.addEventListener('binding-value', onBindingValue)
-  loadSnapshot()
+  loadSnapshot().finally(() => applyPoints(bindingStore.getColdLatestValues()))
+  // 冷源实时数据 WebSocket：返回数据覆盖到 ENERGY_STATION_POINTS 对应字段
+  bindingStore.connectColdSourceWs()
 })
+// 点击其他路由页面时立即停止冷源 WebSocket 轮询
+onBeforeRouteLeave(() => bindingStore.disconnectColdSourceWs())
 onUnmounted(() => {
   clearInterval(clockTimer)
   window.removeEventListener('energy-point-values', onEnergyPoints)
   window.removeEventListener('binding-value', onBindingValue)
+  bindingStore.disconnectColdSourceWs()
 })
 </script>
 

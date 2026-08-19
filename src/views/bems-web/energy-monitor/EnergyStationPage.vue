@@ -275,7 +275,7 @@ onMounted(() => {
   window.addEventListener('energy-point-values', onEnergyPoints)
   window.addEventListener('binding-value', onBindingValue)
   window.EnergyStation = energyStationApi
-  loadSnapshot()
+  loadSnapshot().finally(() => applyPoints(bindingStore.getColdLatestValues()))
 })
 onUnmounted(() => {
   clearInterval(clockTimer)
