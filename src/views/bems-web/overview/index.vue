@@ -328,8 +328,8 @@ const fetchStatData = async () => {
 
 // ===== 快捷入口 =====
 const quickLinks = [
-  { title: '韧性安全', icon: ShieldIcon, bgColor: '#ebf8ff', iconColor: '#3182ce', route: '/fwbz/safety/person' },
-  { title: '节能低碳', icon: EcoIcon, bgColor: '#f0fff4', iconColor: '#38a169', route: '/fwbz/energy/operational-support' },
+  { title: '韧性安全', icon: ShieldIcon, bgColor: '#ebf8ff', iconColor: '#3182ce', route: '/fwbz/safety/security' },
+  { title: '能源机电', icon: EcoIcon, bgColor: '#f0fff4', iconColor: '#38a169', route: '/fwbz/energy/operational' },
   { title: '物联网', icon: AntennaIcon, bgColor: '#fffaf0', iconColor: '#dd6b20', route: '/fwbz/iot/interface' },
   { title: '故障告警', icon: SirenIcon, bgColor: '#fff5f5', iconColor: '#e53e3e', route: '/fwbz/alert/setting' },
   { title: '场馆运营', icon: StadiumIcon, bgColor: '#faf5ff', iconColor: '#805ad5', route: '/fwbz/venue/flow' },

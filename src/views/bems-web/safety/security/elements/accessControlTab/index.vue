@@ -13,6 +13,30 @@
       />
     </div>
 
+    <!-- 门禁设备列表 -->
+    <div class="card">
+      <div class="card-header">
+        <h3><ClusterOutlined /> 控制器列表</h3>
+      </div>
+      <div class="card-body">
+        <a-table
+          :columns="deviceColumns"
+          :data-source="deviceData"
+          :pagination="devicePagination"
+          :loading="deviceLoading"
+          row-key="indexCode"
+          size="small"
+          @change="handleDeviceTableChange"
+        >
+          <template #bodyCell="{ column, record }">
+            <template v-if="column.key === 'online'">
+              <a-badge :status="record.online === '1' ? 'success' : 'default'" :text="record.online === '1' ? '在线' : '离线'" />
+            </template>
+          </template>
+        </a-table>
+      </div>
+    </div>
+
     <!-- 门禁地点列表 -->
     <div class="card">
       <div class="card-header">
@@ -39,6 +63,17 @@
               </a-tag>
             </template>
             <template v-if="column.key === 'action'">
+              <!-- 门状态: 1=开门状态 → 渲染"关闭"和"常闭" -->
+              <template v-if="record.doorState === '1'">
+                <a-button type="link" size="small" :loading="switchLoadingMap[record.indexCode]" @click="handleDoorControl(record, 1)">关闭</a-button>
+                <a-button type="link" size="small" :loading="switchLoadingMap[record.indexCode]" @click="handleDoorControl(record, 3)">常闭</a-button>
+              </template>
+              <!-- 门状态: 2=关门状态 → 渲染"开启"和"常开" -->
+              <template v-else-if="record.doorState === '2'">
+                <a-button type="link" size="small" :loading="switchLoadingMap[record.indexCode]" @click="handleDoorControl(record, 2)">开启</a-button>
+                <a-button type="link" size="small" :loading="switchLoadingMap[record.indexCode]" @click="handleDoorControl(record, 0)">常开</a-button>
+              </template>
+              <!-- 其他状态（初始/离线）不显示控制按钮 -->
               <a-button type="link" size="small" @click="handleViewDoorDetail(record)">详情</a-button>
             </template>
           </template>
@@ -46,29 +81,7 @@
       </div>
     </div>
 
-    <!-- 门禁设备列表 -->
-    <div class="card">
-      <div class="card-header">
-        <h3><ClusterOutlined /> 门禁设备列表</h3>
-      </div>
-      <div class="card-body">
-        <a-table
-          :columns="deviceColumns"
-          :data-source="deviceData"
-          :pagination="devicePagination"
-          :loading="deviceLoading"
-          row-key="indexCode"
-          size="small"
-          @change="handleDeviceTableChange"
-        >
-          <template #bodyCell="{ column, record }">
-            <template v-if="column.key === 'online'">
-              <a-badge :status="record.online === '1' ? 'success' : 'default'" :text="record.online === '1' ? '在线' : '离线'" />
-            </template>
-          </template>
-        </a-table>
-      </div>
-    </div>
+    
 
     <!-- 门禁事件详情弹窗 -->
     <a-modal
@@ -102,7 +115,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
+import { message, Modal } from 'ant-design-vue'
 import { StatCard } from '/@/views/bems-web/components'
 import {
   getAccessControlSummary,
@@ -110,8 +124,9 @@ import {
   getAccessControlDeviceList,
   syncAccessControlStatus,
   getAccessControlEventList,
+  accessControlSwitch,
 } from '../../index.api'
-import type { StatItem, DoorListVO, AcsDeviceListVO, DoorEventListVO } from '../../index.api'
+import type { StatItem, DoorListVO, AcsDeviceListVO, DoorEventListVO, DoorControlRequest } from '../../index.api'
 import {
   CheckCircleOutlined,
   WarningOutlined,
@@ -145,10 +160,9 @@ const fetchAccessControlStatCards = async () => {
 const doorColumns = [
   { title: '门禁地点名称', dataIndex: 'name', key: 'name' },
   { title: '门禁地点编号', dataIndex: 'doorNo', key: 'doorNo' },
-  { title: '安装位置', dataIndex: 'installLocation', key: 'installLocation' },
   { title: '区域名称', dataIndex: 'regionName', key: 'regionName' },
   { title: '门状态', dataIndex: 'doorState', key: 'doorState' },
-  { title: '操作', key: 'action', width: 80 },
+  { title: '操作', key: 'action', width: 200 },
 ]
 
 /** 门状态映射 (0=初始状态, 1=开门状态, 2=关门状态, 3=离线状态) */
@@ -208,9 +222,7 @@ const handleSyncAccessControlStatus = async () => {
 /** 门禁设备列表 */
 const deviceColumns = [
   { title: '设备名称', dataIndex: 'name', key: 'name' },
-  { title: '设备编号', dataIndex: 'deviceCode', key: 'deviceCode' },
   { title: '设备IP', dataIndex: 'ip', key: 'ip' },
-  { title: '厂商', dataIndex: 'manufacturer', key: 'manufacturer' },
   { title: '区域名称', dataIndex: 'regionName', key: 'regionName' },
   { title: '在线状态', dataIndex: 'online', key: 'online' },
 ]
@@ -297,6 +309,45 @@ const handleEventTableChange = (pag: any) => {
   eventPagination.value.current = pag.current
   eventPagination.value.pageSize = pag.pageSize
   fetchEventData()
+}
+
+/** 门禁开关操作 */
+const switchLoadingMap = reactive<Record<string, boolean>>({})
+
+/**
+ * 门禁控制操作
+ * @param record 门禁点记录
+ * @param controlType 控制类型：0-常开，1-门闭，2-门开，3-常闭
+ */
+const handleDoorControl = (record: DoorListVO, controlType: number) => {
+  const actionTextMap: Record<number, string> = {
+    0: '常开',
+    1: '门闭',
+    2: '门开',
+    3: '常闭',
+  }
+  const actionText = actionTextMap[controlType] || '操作'
+
+  Modal.confirm({
+    title: '确认操作',
+    content: `确定要对「${record.name}」执行「${actionText}」操作吗？`,
+    onOk: async () => {
+      const key = record.indexCode || ''
+      switchLoadingMap[key] = true
+      try {
+        const params: DoorControlRequest = {
+          controlType,
+          doorIndexCodes: [key],
+        }
+        await accessControlSwitch(params)
+        // 刷新门禁地点列表
+        fetchDoorData()
+      }
+      finally {
+        switchLoadingMap[key] = false
+      }
+    },
+  })
 }
 
 const handleViewDoorDetail = (record: DoorListVO) => {

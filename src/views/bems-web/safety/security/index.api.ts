@@ -32,6 +32,25 @@ enum Api {
   syncAccessControlStatus = '/sgai-fwbz-dev/fwbz/hikvision/door/syncDoorStatus',
   /** 门禁事件列表 */
   accessControlEventList = '/sgai-fwbz-dev/fwbz/hikvision/doorEvent/list',
+    /** 门禁开关操作 */
+    accessControlSwitch = '/sgai-fwbz-dev/fwbz/hikvision/door/control',
+}
+
+/**
+ * 控制请求参数
+ *
+ * DoorControlRequest
+ */
+export interface DoorControlRequest {
+    /**
+     * 控制类型：0-常开，1-门闭，2-门开，3-常闭
+     */
+    controlType: number;
+    /**
+     * 门禁点唯一标识，最大支持10个门禁点
+     */
+    doorIndexCodes: string[];
+    [property: string]: any;
 }
 
 
@@ -503,25 +522,58 @@ export interface CameraItem {
   name: string
 }
 
-/** 摄像头分组树 - 摄像头对象 */
+/** 摄像头分组树 - 摄像头对象（海康资源树） */
 export interface PackageVideo {
-  id: number
+  /** 摄像头唯一编码 */
+  indexCode?: string
+  /** 摄像头名称 */
   name: string
-  shortName?: string
-  videoCode?: string
-  systemId?: string
-  online?: boolean
-  url?: string
+  /** 摄像头类型：0-普通摄像头 1-半球摄像机 */
+  cameraType?: number
+  /** 安装位置 */
+  installLocation?: string | null
+  /** 所属区域编码 */
+  regionIndexCode?: string
+  /** 所属区域名称 */
+  regionName?: string | null
+  longitude?: number | null
+  latitude?: number | null
+  /** 通道类型 */
+  channelType?: string
+  /** 在线状态：0-离线 1-在线 */
+  online?: number
+  externalIndexCode?: string | null
+  createTime?: string
+  updateTime?: string
   [property: string]: any
 }
 
-/** 摄像头分组树 - 分组对象（一级/二级通用） */
+/** 摄像头分组树 - 分组对象（区域/分组通用，海康资源树） */
 export interface PackageGroup {
-  id: number
-  parentId: number
+  /** 区域唯一编码 */
+  indexCode: string
+  /** 区域名称 */
   name: string
-  sortNum: number
+  /** 区域路径 */
+  regionPath?: string
+  /** 父区域编码 */
+  parentIndexCode?: string
+  /** 可用状态：0-不可用 1-可用 */
+  available?: number
+  /** 是否叶子：1-是（含摄像头） 0-否 */
+  leaf?: number
+  cascadeCode?: string
+  cascadeType?: number
+  /** 目录类型 */
+  catalogType?: number
+  externalIndexCode?: string | null
+  /** 排序 */
+  sort?: number
+  localQuantity?: number | null
+  totalQuantity?: number | null
+  /** 直接挂载的摄像头列表 */
   videoList?: PackageVideo[]
+  /** 子区域列表 */
   children?: PackageGroup[]
   [property: string]: any
 }
@@ -572,3 +624,7 @@ export const syncAccessControlStatus = () => defHttp.post({ url: Api.syncAccessC
 
 /** 获取门禁事件列表 */
 export const getAccessControlEventList = (params?) => defHttp.get({ url: Api.accessControlEventList, params });
+
+
+/** 门禁开关操作（控制类型：0-常开，1-门闭，2-门开，3-常闭） */
+export const accessControlSwitch = (params: DoorControlRequest) => defHttp.post({ url: Api.accessControlSwitch, params });

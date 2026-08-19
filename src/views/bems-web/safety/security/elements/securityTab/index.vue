@@ -463,7 +463,8 @@ const buildCameraTreeData = (groups: PackageGroup[]): any[] => {
     list
       .map((g) => {
         const leaves = (g.videoList || []).map((v) => {
-          const leafKey = `v-${(v.systemId || '').replace(/#/g, '') || v.id}`
+          // 新格式以 indexCode 为摄像头唯一编码；兼容旧格式 systemId/id
+          const leafKey = `v-${v.indexCode || (v.systemId || '').replace(/#/g, '') || v.id}`
           cameraLeafMap.set(leafKey, v)
           return { title: v.name, key: leafKey, isLeaf: true }
         })
@@ -471,7 +472,7 @@ const buildCameraTreeData = (groups: PackageGroup[]): any[] => {
         return {
           title: `${g.name}（${countGroupCameras(g)}）`,
           name: g.name,
-          key: `grp-${g.id}`,
+          key: `grp-${g.indexCode || g.id}`,
           disableCheckbox: true,
           children: [...leaves, ...subChildren],
         }
@@ -519,7 +520,7 @@ const openCameraDrawer = () => {
   drawerVisible.value = true
 }
 
-/** 摄像头播放地址前缀（拼接 systemId 去 # 后的编码） */
+/** 摄像头播放地址前缀（拼接摄像头 indexCode 编码） */
 const CAMERA_PLAY_URL = 'http://10.168.47.23:4000/index.html?id='
 
 /** 确认选择：叶子映射为上墙对象，缺编码忽略，超容量截断 */
@@ -534,13 +535,13 @@ const handleCameraSelectConfirm = () => {
   leafKeys.forEach((k) => {
     const v = cameraLeafMap.get(k)
     if (!v) return
-    const indexCode = (v.systemId || '').replace(/#/g, '')
+    const indexCode = v.indexCode || (v.systemId || '').replace(/#/g, '')
     if (!indexCode) {
       noIdNames.push(v.name)
       return
     }
     valid.push({
-      id: v.id,
+      id: v.indexCode || v.id,
       cameraName: v.name,
       url: `${CAMERA_PLAY_URL}${indexCode}`,
       indexCode,
@@ -673,9 +674,9 @@ const fetchCameraOptions = async () => {
     const groups: PackageGroup[] = Array.isArray(res) ? res : []
     cameraTreeData.value = buildCameraTreeData(groups)
     cameraExpandedKeys.value = cameraTreeData.value.map((n) => n.key)
-    // 统计摄像头总数与在线数（online === true），供统计卡片使用
+    // 统计摄像头总数与在线数（新格式 online 为数值 1-在线/0-离线，兼容旧格式布尔值），供统计卡片使用
     cameraTotalCount.value = cameraLeafMap.size
-    cameraOnlineCount.value = [...cameraLeafMap.values()].filter((v) => v.online === true).length
+    cameraOnlineCount.value = [...cameraLeafMap.values()].filter((v) => v.online === 1 || v.online).length
   } catch (error) {
     console.error('获取摄像头数据失败:', error)
   }
