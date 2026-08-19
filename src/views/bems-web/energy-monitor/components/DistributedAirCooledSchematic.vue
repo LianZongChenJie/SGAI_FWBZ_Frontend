@@ -1,3 +1,4 @@
+<!-- ===== 分馆风冷 · 各馆风冷群控示意图 ===== -->
 <template>
   <div ref="viewportRef" class="schematic-viewport">
     <div class="plant-canvas" :style="canvasStyle">
@@ -67,7 +68,7 @@ const pipes = halls.flatMap((hall, hallIndex) => {
   const unitYs = [119, 206, 293]
   return [
     // 冷冻回水（绿）：末端向下，经两台并联泵后向上进入三台风冷机组右侧入口。
-    { kind: 'return', x: x + 42, y: 101, w: 5, h: 267, dir: 'down' },
+    { kind: 'return', x: x + 42, y: 101, w: 5, h: 365, dir: 'down' },
     { kind: 'return', x: x + 42, y: 365, w: 86, h: 5, dir: 'right' },
     { kind: 'return', x: x + 42, y: 403, w: 310, h: 5, dir: 'right' },
     { kind: 'return', x: x + 42, y: 462, w: 310, h: 5, dir: 'right' },
