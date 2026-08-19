@@ -132,21 +132,21 @@ const canvasStyle = computed(() => ({ transform: `translate(${offsetX.value}px, 
 
 const pipes = [
   // 集水器上方四根回水立管（末端 → 集水器），riser/cap 保持原 vertical-risers 样式
-  { kind:'chw-return',x:90,y:280,w:3,h:78,dir:'down',riser:true,cap:true },
-  { kind:'chw-return',x:114,y:280,w:3,h:68,dir:'down',riser:true,cap:true },
-  { kind:'chw-return',x:136,y:280,w:3,h:64,dir:'down',riser:true,cap:true },
-  { kind:'chw-return',x:159,y:280,w:3,h:61,dir:'down',riser:true,cap:true },
+  { kind:'chw-return',x:90,y:280,w:5,h:78,dir:'down',riser:true,cap:true },
+  { kind:'chw-return',x:113,y:280,w:5,h:68,dir:'down',riser:true,cap:true },
+  { kind:'chw-return',x:135,y:280,w:5,h:64,dir:'down',riser:true,cap:true },
+  { kind:'chw-return',x:158,y:280,w:5,h:61,dir:'down',riser:true,cap:true },
   // 集水器四根立管顶部横管（绿色），连接四根回水立管
-  { kind:'chw-return',x:42,y:280,w:147,h:2,dir:'right',riser:true },
-  { kind:'chw-return',x:187,y:280,w:3,h:27,dir:'down',riser:true},
+  { kind:'chw-return',x:42,y:280,w:147,h:5,dir:'right',riser:true },
+  { kind:'chw-return',x:187,y:280,w:5,h:27,dir:'down',riser:true},
 
   // 分水器上方四根供水立管（分水器 → 末端），与集水器同样可配置
-  { kind:'chw-supply',x:237,y:288,w:3,h:70,dir:'down',riser:true,cap:true },
-  { kind:'chw-supply',x:262,y:288,w:3,h:60,dir:'down',riser:true,cap:true },
-  { kind:'chw-supply',x:285,y:288,w:3,h:56,dir:'down',riser:true,cap:true },
-  { kind:'chw-supply',x:308,y:288,w:3,h:53,dir:'down',riser:true,cap:true },
+  { kind:'chw-supply',x:237,y:288,w:5,h:70,dir:'down',riser:true,cap:true },
+  { kind:'chw-supply',x:260,y:288,w:5,h:60,dir:'down',riser:true,cap:true },
+  { kind:'chw-supply',x:283,y:288,w:5,h:56,dir:'down',riser:true,cap:true },
+  { kind:'chw-supply',x:305,y:288,w:5,h:53,dir:'down',riser:true,cap:true },
   // 分水器四根立管顶部横管（蓝色），连接四根供水立管
-  { kind:'chw-supply',x:237,y:288,w:75,h:2,dir:'right',riser:true },
+  { kind:'chw-supply',x:237,y:288,w:75,h:5,dir:'right',riser:true },
   // 集水器右口 → 分水器左口连接斜线（绿色），dx/dy 为终点相对起点的偏移
   { kind:'chw-return',x:180,y:355,dx:30,dy:25,h:4,dir:'right',riser:true,slant:true },
   // 冷冻回水：末端 → 集水器 → 冷冻泵 → 冷机蒸发器（绿色）

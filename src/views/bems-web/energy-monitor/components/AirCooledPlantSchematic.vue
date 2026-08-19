@@ -108,19 +108,19 @@ const unitXs = [414, 558, 702, 846, 990, 1134]
 
 const pipes = [
   // 集水器上方四根回水立管（末端 → 集水器），riser/cap 保持原 vertical-risers 样式
-  { kind:'return',x:92,y:350,w:3,h:95,dir:'down',riser:true,cap:true },
-  { kind:'return',x:116,y:350,w:3,h:92,dir:'down',riser:true,cap:true },
-  { kind:'return',x:136,y:350,w:3,h:88,dir:'down',riser:true,cap:true },
-  { kind:'return',x:159,y:350,w:3,h:85,dir:'down',riser:true,cap:true },
+  { kind:'return',x:92,y:350,w:5,h:95,dir:'down',riser:true,cap:true },
+  { kind:'return',x:116,y:350,w:5,h:92,dir:'down',riser:true,cap:true },
+  { kind:'return',x:136,y:350,w:5,h:88,dir:'down',riser:true,cap:true },
+  { kind:'return',x:159,y:350,w:5,h:85,dir:'down',riser:true,cap:true },
   // 集水器上方横管（绿色），连接最左侧回水竖线与四根回水立管
-  { kind:'return',x:42,y:350,w:160,h:2,dir:'right',riser:true },
+  { kind:'return',x:42,y:350,w:160,h:5,dir:'right',riser:true },
   // 分水器上方四根供水立管（分水器 → 末端），与集水器同样可配置
-  { kind:'supply',x:245,y:355,w:3,h:80,dir:'down',riser:true,cap:true },
-  { kind:'supply',x:271,y:355,w:3,h:77,dir:'down',riser:true,cap:true },
-  { kind:'supply',x:290,y:355,w:3,h:75,dir:'down',riser:true,cap:true },
-  { kind:'supply',x:313,y:355,w:3,h:70,dir:'down',riser:true,cap:true },
+  { kind:'supply',x:245,y:355,w:5,h:80,dir:'down',riser:true,cap:true },
+  { kind:'supply',x:271,y:355,w:5,h:77,dir:'down',riser:true,cap:true },
+  { kind:'supply',x:290,y:355,w:5,h:75,dir:'down',riser:true,cap:true },
+  { kind:'supply',x:313,y:355,w:5,h:70,dir:'down',riser:true,cap:true },
   // 分水器上方横管（蓝色），连接四根供水立管
-  { kind:'supply',x:245,y:355,w:71,h:2,dir:'right',riser:true },
+  { kind:'supply',x:245,y:355,w:71,h:5,dir:'right',riser:true },
   // 集水器右口 → 分水器左口连接斜线（绿色），dx/dy 为终点相对起点的偏移
   { kind:'return',x:190,y:440,dx:32,dy:25,h:4,dir:'right',riser:true,slant:true },
   // 冷冻回水：末端 → 集水器 → 水泵 → 风冷机组（绿色）
