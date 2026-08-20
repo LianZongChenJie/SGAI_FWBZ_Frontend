@@ -10,6 +10,8 @@ enum Api {
   patrolPlanAdd = '/sgai-fwbz-dev/fwbz/patrolPlan/add',
   /** 摄像头列表数据 */
   cameraList = '/sgai-fwbz-dev/fwbz/hikvision/camera/list',
+  /** 摄像头分页列表 */
+  cameraPage = '/sgai-fwbz-dev/fwbz/hikvision/camera/page',
   /** 获取运行中的巡更计划摄像头 */
   runningCameraList = '/sgai-fwbz-dev/fwbz/patrolPlan/runningPlan',
   /** 获取摄像头播放地址 */
@@ -592,6 +594,9 @@ export const addPatrolPlan = (params: Request) => defHttp.post({ url: Api.patrol
 
 /** 获取摄像头列表 */
 export const getCameraList = (params?) => defHttp.get({ url: Api.cameraList, params });
+
+/** 获取摄像头分页列表 */
+export const getCameraPageList = (params?) => defHttp.get({ url: Api.cameraPage, params });
 
 /** 获取摄像头分组树形数据（两级分组 + 摄像头列表） */
 export const getCameraPackageGroup = (params?) => defHttp.get({ url: Api.cameraPackageGroup, params });
