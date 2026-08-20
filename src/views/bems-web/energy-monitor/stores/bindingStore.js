@@ -28,6 +28,14 @@ function applyRealtimeValue(message) {
     window.dispatchEvent(new CustomEvent('energy-device-motion', { detail: message }))
     return
   }
+  if (message?.type === 'power-points') {
+    window.dispatchEvent(new CustomEvent('power-point-values', { detail: message.points || [] }))
+    return
+  }
+  if (message?.type === 'power-device-motion') {
+    window.dispatchEvent(new CustomEvent('power-device-motion', { detail: message }))
+    return
+  }
   if (message?.type === 'energy-optimization-points') {
     window.dispatchEvent(new CustomEvent('energy-optimization-values', { detail: message.points || [] }))
     return

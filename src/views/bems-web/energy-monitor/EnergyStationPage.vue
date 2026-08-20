@@ -1,5 +1,6 @@
 <template>
   <div class="energy-page" :class="{ standalone }">
+    <!-- 顶部"能源站管理系统"一行暂不显示（注释保留，后续可按需恢复）
     <header v-if="!embedded" class="topbar">
       <div class="brand-lockup">
         <div class="brand-mark"><span></span><span></span><span></span></div>
@@ -12,6 +13,20 @@
         <div class="clock"><strong>{{ currentTime }}</strong><small>{{ currentDate }}</small></div>
       </div>
     </header>
+    -->
+
+    <section class="system-overview">
+      <div v-for="group in overviewGroups" :key="group.key" class="overview-row">
+        <div class="overview-name" :class="group.key"><i></i><span>{{ group.title }}</span></div>
+        <div class="overview-cards">
+          <article v-for="metric in group.metrics" :key="metric.key" class="metric-card" :class="metric.tone">
+            <div class="metric-icon">{{ metric.icon }}</div>
+            <div class="metric-copy"><span>{{ metric.label }}</span><strong>{{ number(point(metric.key), metric.digits) }}<small>{{ metric.unit }}</small></strong><em>{{ metricNote(metric) }}</em></div>
+            <div class="mini-bars"><i v-for="n in 8" :key="n" :style="{ height: `${18 + ((n * 11 + metric.seed) % 28)}%` }"></i></div>
+          </article>
+        </div>
+      </div>
+    </section>
 
     <div class="subnav">
       <a-tabs :activeKey="activeSystem" @change="switchSystem">
@@ -157,6 +172,11 @@ const distributedMetrics = [
   { key: 'distributed.station.dailyEnergy', label: '今日累计用电', unit: 'kWh', digits: 0, icon: '↗', noteKey: 'distributed.station.forecastEnergy', notePrefix: '预测 ', noteUnit: ' kWh', tone: 'amber', seed: 23 }
 ]
 const metrics = computed(() => activeSystem.value === 'water' ? waterMetrics : activeSystem.value === 'air' ? airMetrics : distributedMetrics)
+const overviewGroups = computed(() => [
+  { key: 'water', title: '集中水冷', metrics: waterMetrics },
+  { key: 'air', title: '集中风冷', metrics: airMetrics },
+  { key: 'distributed', title: '分馆风冷', metrics: distributedMetrics },
+])
 const selectedDevice = computed(() => getEnergyDeviceProfile(selectedDeviceId.value))
 const deviceState = computed(() => {
   const device = selectedDevice.value
@@ -290,6 +310,7 @@ onUnmounted(() => {
 .standalone { width:100vw; height:100vh; }
 .embedded { width:100%; height:100%; }
 .embedded .dashboard-body { gap:12px; }
+/* 顶部"能源站管理系统"一行暂不显示，样式一并注释（后续可按需恢复）
 .topbar { height:68px; display:grid; grid-template-columns:270px 1fr 330px; align-items:center; padding:0 24px; border-bottom:1px solid var(--edge); background:#ffffff; z-index:2; }
 .brand-lockup { display:flex; align-items:center; gap:11px; }
 .brand-mark { width:34px; height:34px; display:flex; align-items:flex-end; gap:3px; transform:skew(-10deg); }
@@ -298,11 +319,33 @@ onUnmounted(() => {
 .brand-lockup strong { display:block; font-size:16px; letter-spacing:1.8px; color:#1e293b; }.brand-lockup small { display:block; margin-top:2px; font-size:8px; letter-spacing:2px; color:#94a3b8; }
 .station-title { justify-self:center; display:flex; align-items:center; gap:10px; }.station-title i { width:5px; height:5px; border-radius:50%; background:var(--green); }.station-title span { font-size:16px; font-weight:700; letter-spacing:1px; color:#1e293b; }.station-title em { font-style:normal; color:#64748b; border-left:1px solid #e2e8f0; padding-left:10px; }
 .header-actions { display:flex; justify-content:flex-end; align-items:center; gap:15px; }.live-state { color:#f59e0b; font-size:11px; padding:6px 10px; border:1px solid rgba(245,158,11,.28); border-radius:6px; }.live-state b { display:inline-block; width:6px; height:6px; margin-right:6px; border-radius:50%; background:#f59e0b; }.live-state.connected { color:var(--green); border-color:rgba(34,197,94,.25); }.live-state.connected b { background:var(--green); }.icon-button { width:30px; height:30px; border:1px solid var(--edge); background:#f8fafc; color:#64748b; border-radius:6px; font-size:18px; cursor:pointer; }.clock { border-left:1px solid var(--edge); padding-left:15px; text-align:right; }.clock strong { display:block; font-size:15px; letter-spacing:1px; color:#1e293b; }.clock small { display:block; color:var(--muted); font-size:9px; margin-top:2px; }
+*/
 /* a-tabs 白底风格覆盖 */
 .subnav :deep(.ant-tabs) { width:100%; }
 .subnav :deep(.ant-tabs-nav) { margin-bottom:0; }
 .subnav :deep(.ant-tabs-tab) { padding:10px 4px !important; font-size:14px; }
 .subnav :deep(.ant-tabs-ink-bar) { background:#3b82f6; }
+/* 系统总览：集中水冷 / 集中风冷 / 分馆风冷 三行指标卡片（样式取自原型 metrics 卡片） */
+.system-overview { --edge:#1e3d52; --cyan:#22d3ee; margin:20px 0 0; padding:14px 16px; display:flex; flex-direction:column; gap:10px; background:linear-gradient(180deg,#eef4f9,#f5f7fa); border-top:1px solid #e2e8f0; }
+.overview-row { display:grid; grid-template-columns:64px 1fr; gap:12px; align-items:stretch; }
+.overview-name { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; border:1px solid var(--edge); border-radius:10px; background:linear-gradient(135deg,rgba(15,38,55,.92),rgba(8,25,38,.78)); color:#dcebf5; font-size:13px; font-weight:600; letter-spacing:1px; writing-mode:vertical-rl; }
+.overview-name i { width:4px; height:18px; border-radius:2px; background:var(--cyan); box-shadow:0 0 8px var(--cyan); }
+.overview-name.water i { background:#3888ff; box-shadow:0 0 8px #3888ff; }
+.overview-name.air i { background:#17cbd2; box-shadow:0 0 8px #17cbd2; }
+.overview-name.distributed i { background:#31cf97; box-shadow:0 0 8px #31cf97; }
+.overview-cards { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; min-width:0; }
+.metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+.metric-card { min-height:86px; border:1px solid var(--edge); background:linear-gradient(135deg,rgba(15,38,55,.92),rgba(8,25,38,.78)); padding:14px 15px; display:flex; align-items:center; gap:12px; position:relative; overflow:hidden; }
+.metric-card::before { content:""; position:absolute; left:0; top:16px; bottom:16px; width:2px; background:var(--tone); box-shadow:0 0 10px var(--tone); }
+.metric-card.blue{--tone:#3888ff}.metric-card.cyan{--tone:#17cbd2}.metric-card.green{--tone:#31cf97}.metric-card.amber{--tone:#e6a452}
+.metric-icon { width:38px; height:38px; display:grid; place-items:center; color:var(--tone); background:color-mix(in srgb,var(--tone) 11%,transparent); border:1px solid color-mix(in srgb,var(--tone) 25%,transparent); font-size:19px; }
+.metric-copy { display:flex; flex-direction:column; min-width:130px; }
+.metric-copy>span { color:#7790a4; font-size:10px; letter-spacing:.5px; }
+.metric-copy strong { color:#f0f8ff; font-size:24px; line-height:1.15; margin-top:2px; font-variant-numeric:tabular-nums; }
+.metric-copy strong small { color:#728da1; font-size:9px; font-weight:400; margin-left:4px; }
+.metric-copy em { color:var(--tone); font-style:normal; font-size:9px; margin-top:3px; }
+.mini-bars { height:40px; flex:1; display:flex; align-items:flex-end; gap:3px; opacity:.5; }
+.mini-bars i { flex:1; min-width:2px; background:linear-gradient(to top,var(--tone),transparent); }
 .dashboard-body { flex:1; min-height:0; padding:0; position:relative; z-index:1; display:flex; flex-direction:column; gap:16px; margin: 20px 0 }
 .content-grid { flex:1; min-height:0; display:grid; grid-template-columns:1fr; gap:16px; }.panel { background:var(--panel-bg); border:1px solid var(--edge); border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,.08); overflow:hidden; }.topology-panel { min-height:0; display:flex; flex-direction:column; }.panel-heading { height:54px; padding:0 20px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #f0f0f0; }.eyebrow { display:block; color:#94a3b8; font-size:9px; font-weight:700; letter-spacing:2px; margin-bottom:3px; }.panel-heading h2,.compact-heading h3 { font-size:16px; font-weight:600; color:#2d3748; letter-spacing:.4px; margin:0; }.legend { display:flex; gap:14px; font-size:12px; color:#64748b; }.legend span { display:flex; align-items:center; gap:5px; }.dot { width:8px;height:8px;border-radius:50%; }.dot.running{background:#22c55e}.dot.stopped{background:#94a3b8}.dot.fault{background:#ef4444}.line{width:16px;height:3px;border-radius:2px}.line.supply{background:#3b82f6}.line.return{background:#22c55e}.line.cooling-supply{background:#f59e0b}.line.cooling-return{background:#eab308}
 .topology { flex:1; min-height:0; position:relative; overflow:hidden; background:#f8fafc; }

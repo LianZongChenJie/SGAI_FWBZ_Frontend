@@ -137,6 +137,18 @@ const bemsWeb: AppRouteModule = {
           meta: { title: '负荷预测与优化决策' },
         },
         {
+          path: 'analysis-startstop',
+          name: 'BemsWebEnergyManagementAnalysisStartstop',
+          component: () => import('/@/views/bems-web/energy-management/analysis-startstop/index.vue'),
+          meta: { title: '分析与启停求解' },
+        },
+        {
+          path: 'strategy-control',
+          name: 'BemsWebEnergyManagementStrategyControl',
+          component: () => import('/@/views/bems-web/energy-management/strategy-control/index.vue'),
+          meta: { title: '策略控制执行' },
+        },
+        {
           path: 'setpoint-control',
           name: 'BemsWebEnergyManagementSetpointControl',
           component: () => import('/@/views/bems-web/energy-management/setpoint-control/index.vue'),
