@@ -26,8 +26,7 @@ enum Api {
   deleteItem = '/sgai-tp/fwbz/deviceAttribute/delete',
 
   exportData = '/sgai-tp/fwbz/device/export',
-  getCategoryTree = '/sgai-tp/fwbz/equipmentCategory/getTree',
-  venueInfoList = '/sgai-tp/fwbz/venueInfo/listAll'
+  getCategoryTree = '/sgai-tp/fwbz/equipmentCategory/getTree'
 }
 
 /**
@@ -121,8 +120,3 @@ export const exportData = (params) => defHttp.get({ url: Api.exportData, params:
  * 获取设备类别树（下拉选择框用）
  */
 export const getCategoryTreeData = () => defHttp.get({ url: Api.getCategoryTree });
-
-/**
- * 获取场馆信息列表
- */
-export const getVenueInfoList = (params) => defHttp.get({ url: Api.venueInfoList, params });

@@ -195,7 +195,7 @@
     openModal(true, {
       isUpdate: false,
       showFooter: true,
-      categoryTreeData: props.treeData, // 设备类别树
+      categoryTreeData: categorySelectTreeData.value, // 设备类别树（与右侧设备类型下拉同源）
       spaceTreeData: props.spaceTreeData, // 设备位置树
     });
   }
@@ -206,7 +206,7 @@
       record,
       isUpdate: true,
       showFooter: true,
-      categoryTreeData: props.treeData, // 设备类别树
+      categoryTreeData: categorySelectTreeData.value, // 设备类别树（与右侧设备类型下拉同源）
       spaceTreeData: props.spaceTreeData, // 设备位置树
     });
   };
