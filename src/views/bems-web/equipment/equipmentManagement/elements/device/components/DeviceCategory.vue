@@ -56,7 +56,7 @@
                   </a-tag>
                 </template>
                 <template v-if="column.key === 'online'">
-                  <a-badge :status="record.online === '1' ? 'success' : 'default'" :text="record.online === '1' ? '在线' : '离线'" />
+                  <a-badge :status="Number(record.online) === 1 ? 'success' : 'default'" :text="Number(record.online) === 1 ? '在线' : '离线'" />
                 </template>
               </template>
             </a-table>
@@ -112,7 +112,7 @@
             >
               <template #bodyCell="{ column, record }">
                 <template v-if="column.key === 'online'">
-                  <a-badge :status="record.online === '1' ? 'success' : 'default'" :text="record.online === '1' ? '在线' : '离线'" />
+                  <a-badge :status="Number(record.online) === 1 ? 'success' : 'default'" :text="Number(record.online) === 1 ? '在线' : '离线'" />
                 </template>
               </template>
             </a-table>
