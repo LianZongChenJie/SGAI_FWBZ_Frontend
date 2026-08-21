@@ -63,7 +63,7 @@
   import { BasicForm, useForm } from '/@/components/Form/index';
   import { PlusOutlined } from '@ant-design/icons-vue';
   import { TreeSelect } from 'ant-design-vue';
-  import { saveOrUpdate, getDeviceAttribute, getListByDeviceId, saveData, addData, deleteItem, spaceTree, getVenueInfoList } from '../Device.api';
+  import { saveOrUpdate, getDeviceAttribute, getListByDeviceId, saveData, addData, deleteItem, spaceTree } from '../Device.api';
   import { cloneDeep } from 'lodash-es';
   import { message } from 'ant-design-vue';
   import type { UnwrapRef } from 'vue';
@@ -120,20 +120,6 @@
   ];
 
   const categoryOption = ref();
-  const venueOptions = ref([]);
-
-  // 获取场馆列表
-  const fetchVenueList = async () => {
-    try {
-      const res = await getVenueInfoList({});
-      venueOptions.value = res.map((item: any) => ({
-        value: item.id,
-        label: item.venueName || item.name || item.id,
-      }));
-    } catch (e) {
-      console.error('获取场馆列表失败:', e);
-    }
-  };
 
   const selectCategoryId = async (value, item, val) => {
     if (val.triggerNode.props.disableCheckbox) {
@@ -270,15 +256,6 @@
       field: 'remark',
       component: 'Input',
     },
-    {
-      label: '场馆',
-      field: 'venueId',
-      component: 'Select',
-      componentProps: {
-        options: venueOptions,
-        placeholder: '请选择场馆',
-      },
-    },
   ];
   const id = ref('');
   const [registerForm, { resetFields, setFieldsValue, validate, updateSchema }] = useForm({
@@ -291,8 +268,6 @@
 
   const [registerModal, { setModalProps, closeModal }] = useModalInner(async (data) => {
     const res = await spaceTree({});
-    // 获取场馆列表
-    await fetchVenueList();
     // 设置树形数据
     const { categoryTreeData, spaceTreeData } = data;
     formSchema.forEach((schema) => {

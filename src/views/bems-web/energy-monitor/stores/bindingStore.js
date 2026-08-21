@@ -28,6 +28,14 @@ function applyRealtimeValue(message) {
     window.dispatchEvent(new CustomEvent('energy-device-motion', { detail: message }))
     return
   }
+  if (message?.type === 'power-points') {
+    window.dispatchEvent(new CustomEvent('power-point-values', { detail: message.points || [] }))
+    return
+  }
+  if (message?.type === 'power-device-motion') {
+    window.dispatchEvent(new CustomEvent('power-device-motion', { detail: message }))
+    return
+  }
   if (message?.type === 'energy-optimization-points') {
     window.dispatchEvent(new CustomEvent('energy-optimization-values', { detail: message.points || [] }))
     return
@@ -70,15 +78,16 @@ function connectWebSocket() {
   socket.onclose = () => {
     state.socketConnected = false
     clearTimeout(reconnectTimer)
-    reconnectTimer = setTimeout(connectWebSocket, 3000)
+    reconnectTimer = setTimeout(connectWebSocket, 30000)
   }
 }
 
 // ===== 冷源实时数据 WebSocket（独立于同源 /ws） =====
-const COLD_SOURCE_WS_URL = 'ws://192.168.204.51:9999/sgai-tp/fwbz/coldSource/ws'
+// const COLD_SOURCE_WS_URL = 'ws://192.168.204.51:9999/sgai-tp/fwbz/coldSource/ws'
+const COLD_SOURCE_WS_URL = 'ws://10.168.56.101:9999/sgai-tp/fwbz/coldSource/ws'
+
 
 let coldSocket = null
-let coldPollTimer = null
 
 // ENERGY_STATION_POINTS 目录 key 集合，用于匹配统计
 const COLD_POINT_KEYS = new Set(ENERGY_STATION_POINTS.map(item => item.key))
@@ -191,6 +200,13 @@ function handleColdWsText(text) {
     `[冷源WS] 点位匹配 ${matched.length}/${keys.length}`,
     unmatched.length ? `，未匹配示例: ${unmatched.join(', ')}（目录中不存在或 key 命名不同）` : '，全部命中 ENERGY_STATION_POINTS 目录'
   )
+  // 打印未命中目录的点位及其原始值，用于确认页面显示 -- 的原因
+  if (unmatched.length) {
+    const unmatchedItems = Array.isArray(payload)
+      ? payload.filter(item => item && unmatched.includes(item.key || item.pointKey || item.id))
+      : Object.fromEntries(Object.entries(payload).filter(([k]) => unmatched.includes(k)))
+    console.log('[冷源WS] 未命中目录的点位及值:', unmatchedItems)
+  }
   if (!matched.length) {
     console.warn('[冷源WS] 无任何 key 命中目录，页面不会更新。请核对返回字段与 data/energyStationPoints.js 中 key 的对应关系')
     return
@@ -201,13 +217,17 @@ function handleColdWsText(text) {
   printColdSnapshot()
 }
 
-/** 建立一次连接并获取数据，收到数据后立即断开，等待下一轮 */
-function openColdSocketOnce() {
+/** 冷源数据 WebSocket：初始化时只连接一次，接收数据处理与之前完全一致 */
+function openColdSocket() {
+  // 全局一次性标记：即使模块因 HMR/重复加载被再次执行，也绝不再建第二条连接
+  if (globalThis.__COLD_WS_INITED__) return
+  // 已存在 CONNECTING(0)/OPEN(1) 连接则复用，不重复建连
   if (coldSocket && coldSocket.readyState <= 1) return
+  globalThis.__COLD_WS_INITED__ = true
   try {
     coldSocket = new WebSocket(COLD_SOURCE_WS_URL)
   } catch (err) {
-    console.warn('[冷源WS] 连接创建失败，等待下一轮重试:', err)
+    console.warn('[冷源WS] 连接创建失败:', err)
     return
   }
   coldSocket.onopen = () => {
@@ -219,41 +239,32 @@ function openColdSocketOnce() {
   coldSocket.onmessage = event => {
     decodeWsData(event.data, text => {
       handleColdWsText(text)
-      // 取到一次数据后断开，下一分钟再拉取
-      closeColdSocket()
     })
   }
-  coldSocket.onerror = () => {
-    console.warn('[冷源WS] 连接错误')
+  coldSocket.onerror = event => {
+    console.warn('[冷源WS] 连接错误:', event && event.message ? event.message : '未知错误')
     state.socketConnected = false
     state.serviceOnline = false
-    closeColdSocket()
   }
-  coldSocket.onclose = () => {
+  coldSocket.onclose = event => {
     coldSocket = null
+    state.socketConnected = false
+    console.warn('[冷源WS] 连接关闭 code=' + (event && event.code) + ' reason=' + (event && event.reason))
   }
 }
 
-function closeColdSocket() {
+/** 冷源数据 WebSocket：初始化时只调用一次，保持单条连接 */
+function connectColdSourceWs() {
+  openColdSocket()
+}
+
+function disconnectColdSourceWs() {
   if (!coldSocket) return
   try {
     coldSocket.onclose = null
     coldSocket.close()
   } catch {}
   coldSocket = null
-}
-
-/** 冷源数据改为每分钟轮询一次：建立连接 → 取一次数据 → 断开 */
-function connectColdSourceWs() {
-  openColdSocketOnce()
-  clearInterval(coldPollTimer)
-  coldPollTimer = setInterval(openColdSocketOnce, 3000)
-}
-
-function disconnectColdSourceWs() {
-  clearInterval(coldPollTimer)
-  coldPollTimer = null
-  closeColdSocket()
 }
 
 export function useBindingStore() {
@@ -321,3 +332,6 @@ export function getColdLatestValues() {
 }
 
 export const bindingStore = useBindingStore()
+
+// 冷源数据 WebSocket：模块初始化时只连接一次，保持单条长连接
+bindingStore.connectColdSourceWs()

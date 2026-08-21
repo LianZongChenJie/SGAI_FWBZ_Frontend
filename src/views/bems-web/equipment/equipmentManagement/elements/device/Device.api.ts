@@ -123,6 +123,6 @@ export const exportData = (params) => defHttp.get({ url: Api.exportData, params:
 export const getCategoryTreeData = () => defHttp.get({ url: Api.getCategoryTree });
 
 /**
- * 获取场馆信息列表
+ * 获取场馆信息列表（供能源计量总览等页面使用）
  */
 export const getVenueInfoList = (params) => defHttp.get({ url: Api.venueInfoList, params });
