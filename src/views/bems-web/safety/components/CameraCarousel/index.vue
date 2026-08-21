@@ -5,8 +5,8 @@
       :autoplay-speed="10000"
       :dots="true"
       :arrow="'hover'"
-      @before-change="handleBeforeChange"
-      @after-change="handleAfterChange"
+      :before-change="handleBeforeChange"
+      :after-change="handleAfterChange"
     >
       <template #prevArrow>
         <div class="custom-arrow prev">
@@ -161,12 +161,14 @@ const paginatedCameras = computed(() => {
   return pages
 })
 
-// 布局切换时重置到第一页并清空已访问页记录
+// 布局切换时重置到第一页并清空已访问页记录，同时刷新所有摄像头使其重新加载
 watch(
   () => props.layout,
   () => {
     currentPage.value = 0
     visitedPages.value = [0]
+    // 强制所有摄像头重新加载
+    refreshAllCameras()
   },
 )
 
@@ -176,6 +178,8 @@ const handleBeforeChange = (_from: number, to: number) => {
   if (!visitedPages.value.includes(to)) {
     visitedPages.value = [...visitedPages.value, to]
   }
+  // 切换到目标页时，刷新该页所有摄像头，确保 iframe 重新加载并自动播放
+  refreshPageCameras(to)
 }
 
 // 页面切换完成后：作为兜底，确保 currentPage 和 visitedPages 正确更新
@@ -184,12 +188,32 @@ const handleAfterChange = (current: number) => {
   if (!visitedPages.value.includes(current)) {
     visitedPages.value = [...visitedPages.value, current]
   }
+  // 切换完成后再刷新一次，确保视频在页面可见后开始播放
+  refreshPageCameras(current)
 }
 
 // 每路摄像头的刷新计数：变化时通过 :key 让 VideoPlayer 重新挂载、iframe 重新加载
 const refreshTickMap = reactive<Record<string | number, number>>({})
 const refreshCamera = (camera: Camera) => {
   refreshTickMap[camera.id] = (refreshTickMap[camera.id] || 0) + 1
+}
+
+/** 刷新指定页的所有摄像头，强制 VideoPlayer 重新挂载以确保视频自动播放 */
+const refreshPageCameras = (pageIndex: number) => {
+  const page = paginatedCameras.value[pageIndex]
+  if (!page) return
+  page.forEach((camera) => {
+    if (camera) {
+      refreshCamera(camera)
+    }
+  })
+}
+
+/** 刷新所有已挂载的摄像头（用于布局切换等场景） */
+const refreshAllCameras = () => {
+  props.cameras.forEach((camera) => {
+    refreshCamera(camera)
+  })
 }
 
 // 全屏查看
