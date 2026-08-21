@@ -24,14 +24,14 @@
 
         <div class="auxiliary-row">
           <div class="aux-device degasser interactive-device" :class="[runningClass(`${prefix(hall)}.degasser.running`, `${prefix(hall)}.degasser.fault`), motionClass(`distributed.${hall.id}.degasser`)]" @click="selectDevice(`distributed.${hall.id}.degasser`)"><img src="/equipment/vacuum-degasser-2_5d.png" alt="真空脱气机"><span>真空脱气机</span><small>液位 {{ value(`${prefix(hall)}.degasser.level`, 0) }}%</small></div>
-          <div class="aux-device treatment interactive-device" :class="[runningClass(`${prefix(hall)}.treatment.running`, `${prefix(hall)}.treatment.fault`), motionClass(`distributed.${hall.id}.treatment`)]" @click="selectDevice(`distributed.${hall.id}.treatment`)"><img src="/equipment/water-treatment-2_5d.png" alt="全程水处理器"><span>全程水处理</span><small>{{ statusText(`${prefix(hall)}.treatment.running`, `${prefix(hall)}.treatment.fault`) }}</small></div>
+          <div class="aux-device treatment interactive-device" :class="[runningClass(`${prefix(hall)}.treatment.running`, `${prefix(hall)}.treatment.fault`), motionClass(`distributed.${hall.id}.treatment`)]" @click="selectDevice(`distributed.${hall.id}.treatment`)"><img src="/equipment/water-treatment-2_5d.png" alt="旁通水处理器"><span>旁通水处理</span><small>{{ statusText(`${prefix(hall)}.treatment.running`, `${prefix(hall)}.treatment.fault`) }}</small></div>
         </div>
 
         <div v-for="no in 2" :key="`pump-${no}`" class="pump-device interactive-device" :class="[runningClass(`${prefix(hall)}.pump.${no}.running`, `${prefix(hall)}.pump.${no}.fault`), motionClass(`distributed.${hall.id}.pump.${no}`)]" :style="{ top: `${374 + (no - 1) * 59}px` }" @click="selectDevice(`distributed.${hall.id}.pump.${no}`)">
           <img src="/equipment/pump-2_5d.png" alt="冷水泵"><div><strong>{{ no }}#冷水泵</strong><span>{{ value(`${prefix(hall)}.pump.${no}.frequency`, 1) }} Hz</span><small>{{ statusText(`${prefix(hall)}.pump.${no}.running`, `${prefix(hall)}.pump.${no}.fault`) }}</small></div>
         </div>
 
-        <div class="makeup-row">
+        <div v-if="hall.id !== 'east'" class="makeup-row">
           <div class="makeup-device softener interactive-device" :class="[runningClass(`${prefix(hall)}.makeup.softenerRunning`), motionClass(`distributed.${hall.id}.softener`)]" @click="selectDevice(`distributed.${hall.id}.softener`)"><img src="/equipment/water-softener-2_5d.png" alt="软化水装置"><i class="makeup-coupler inlet"></i><i class="makeup-coupler outlet"></i><span>软化水装置</span></div>
           <div class="makeup-device tank interactive-device" :class="motionClass(`distributed.${hall.id}.tank`)" @click="selectDevice(`distributed.${hall.id}.tank`)"><img src="/equipment/water-tank-2_5d.png" alt="补水箱"><i class="makeup-coupler inlet"></i><i class="makeup-coupler outlet"></i><i class="tank-liquid" :style="{ height: `${tankLevel(hall) * .42}px` }"></i><b>{{ value(`${prefix(hall)}.makeup.tankLevel`, 0) }}%</b><span>补水箱</span></div>
           <div class="makeup-device skid interactive-device" :class="[runningClass(`${prefix(hall)}.makeup.pumpRunning`), motionClass(`distributed.${hall.id}.makeupPump`)]" @click="selectDevice(`distributed.${hall.id}.makeupPump`)"><img src="/equipment/makeup-pump-skid-2_5d.png" alt="定压补水泵组"><i class="makeup-coupler inlet"></i><i class="makeup-coupler outlet"></i><b>{{ value(`${prefix(hall)}.makeup.pressure`, 2) }} MPa</b><span>定压补水泵组</span></div>
@@ -82,16 +82,18 @@ const pipes = halls.flatMap((hall, hallIndex) => {
     // 水处理与脱气旁通均取自本馆回水主管并回到本馆回路。
     { kind: 'return', x: x + 43, y: 326, w: 91, h: 4, dir: 'right' },
     { kind: 'return', x: x + 130, y: 326, w: 4, h: 43, dir: 'down' },
-    // 独立补水：外部补水 → 软化水装置 → 补水箱 → 定压补水泵组 → 本馆回水主管。
-    { kind: 'makeup', x: x, y: 519, w: 22, h: 4, dir: 'right' },
-    { kind: 'makeup', x: x + 82, y: 519, w: 11, h: 4, dir: 'right' },
-    { kind: 'makeup', x: x + 89, y: 519, w: 4, h: 37, dir: 'down' },
-    { kind: 'makeup', x: x + 89, y: 552, w: 14, h: 4, dir: 'right' },
-    { kind: 'makeup', x: x + 156, y: 552, w: 15, h: 4, dir: 'right' },
-    { kind: 'makeup', x: x + 167, y: 543, w: 4, h: 13, dir: 'up' },
-    { kind: 'makeup', x: x + 167, y: 543, w: 18, h: 4, dir: 'right' },
-    { kind: 'makeup', x: x + 263, y: 543, w: 89, h: 4, dir: 'right' },
-    { kind: 'makeup', x: x + 347, y: 365, w: 5, h: 182, dir: 'up' }
+    // 独立补水管路（仅 2号馆 / 3号馆保留，东会议室已按需求移除）。
+    ...(hall.id !== 'east' ? [
+      { kind: 'makeup', x: x, y: 519, w: 22, h: 4, dir: 'right' },
+      { kind: 'makeup', x: x + 82, y: 519, w: 11, h: 4, dir: 'right' },
+      { kind: 'makeup', x: x + 89, y: 519, w: 4, h: 37, dir: 'down' },
+      { kind: 'makeup', x: x + 89, y: 552, w: 14, h: 4, dir: 'right' },
+      { kind: 'makeup', x: x + 156, y: 552, w: 15, h: 4, dir: 'right' },
+      { kind: 'makeup', x: x + 167, y: 543, w: 4, h: 13, dir: 'up' },
+      { kind: 'makeup', x: x + 167, y: 543, w: 18, h: 4, dir: 'right' },
+      { kind: 'makeup', x: x + 263, y: 543, w: 89, h: 4, dir: 'right' },
+      { kind: 'makeup', x: x + 347, y: 365, w: 5, h: 182, dir: 'up' }
+    ] : []),
   ]
 })
 
@@ -118,10 +120,11 @@ function onDeviceMotion(event) {
 function fitCanvas() {
   const el = viewportRef.value
   if (!el) return
-  const next = Math.min(el.clientWidth / 1320, el.clientHeight / 640)
-  scale.value = Math.max(.35, next)
-  offsetX.value = Math.max(0, (el.clientWidth - 1320 * scale.value) / 2)
-  offsetY.value = Math.max(0, (el.clientHeight - 640 * scale.value) / 2)
+  // 画布 1320×640：等比适配后整体放大 6%；宽度方向以卡片宽度为上限，画布宽度不超出卡片、居中显示
+  const fit = Math.min(el.clientWidth / 1320, el.clientHeight / 640)
+  scale.value = Math.max(.35, Math.min(fit * 1.06, el.clientWidth / 1320))
+  offsetX.value = (el.clientWidth - 1320 * scale.value) / 2
+  offsetY.value = (el.clientHeight - 640 * scale.value) / 2
 }
 
 onMounted(() => { observer = new ResizeObserver(fitCanvas); observer.observe(viewportRef.value); window.addEventListener('energy-device-motion', onDeviceMotion); fitCanvas() })

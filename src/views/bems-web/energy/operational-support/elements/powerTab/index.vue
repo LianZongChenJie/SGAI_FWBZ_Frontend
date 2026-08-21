@@ -57,7 +57,7 @@
           :dataSource="tableData"
           :columns="columns"
           :pagination="pagination"
-          :scroll="{ x: 1100 }"
+          :scroll="{ x: 1250 }"
           size="middle"
           @change="handleTableChange"
         >
@@ -170,7 +170,7 @@ defineProps<{
 }>()
 
 // 设备位置树数据
-const meterSpace = ref([])
+const meterSpace = ref<string | undefined>(undefined)
 const spaceTreeData = ref([])
 const loadSpaceTree = async () => {
   try {
@@ -244,6 +244,7 @@ const attributeColumns = ref<any[]>([])
 // 表格列定义（固定3列 + 动态列 + 操作列）
 const columns = computed(() => [
   { title: '配电柜编号', dataIndex: 'deviceCode', key: 'deviceCode', width: 110 },
+  { title: '配电柜名称', dataIndex: 'deviceName', key: 'deviceName', width: 130 },
   { title: '位置', dataIndex: 'spaceId', key: 'spaceId', width: 150 },
   { title: '运行状态', dataIndex: 'runState', key: 'runState', width: 100 },
   ...attributeColumns.value.map((attr: any) => ({
@@ -282,6 +283,7 @@ const loadPowerUnitList = async (pageNo = pagination.current, pageSize = paginat
       return {
         deviceId: item.deviceId,
         deviceCode: item.deviceCode ?? '--',
+        deviceName: item.deviceName ?? '--',
         spaceId: item.spaceId ?? '--',
         runState: item.runState ?? '--',
         ...attrs,

@@ -148,8 +148,12 @@ const pipes = [
   // 分水器四根立管顶部横管（蓝色），连接四根供水立管
   { kind:'chw-supply',x:212,y:288,w:73,h:5,dir:'right',riser:true },
 
-  // 集水器右口 → 分水器左口连接斜线（绿色），dx/dy 为终点相对起点的偏移
-  { kind:'chw-return',x:155,y:355,dx:30,dy:25,h:4,dir:'right',riser:true,slant:true },
+  // 集水器 → 分水器连接线：右（绿）→ 下（绿）→ 右（绿→蓝过渡）→ 上（蓝）
+  { kind:'chw-return',x:162,y:356,w:5,h:4,dir:'right',riser:true },
+  { kind:'chw-return',x:165,y:356,w:4,h:70,dir:'down',riser:true },
+  { kind:'chw-return',x:165,y:426,w:13,h:4,dir:'right',riser:true },
+  { kind:'chw-supply',x:177,y:426,w:13,h:4,dir:'right',riser:true },
+  { kind:'chw-supply',x:187,y:376,w:4,h:54,dir:'up',riser:true },
   // 冷冻回水：末端 → 集水器 → 冷冻泵 → 冷机蒸发器（绿色）
   { kind:'chw-return',x:17,y:280,w:5,h:105,dir:'down' },
   { kind:'chw-return',x:17,y:380,w:24,h:5,dir:'right' },
@@ -193,8 +197,11 @@ const pipes = [
   { kind:'cw-return',x:842,y:423,w:407,h:5,dir:'left' },
   { kind:'cw-return',x:842,y:531,w:407,h:5,dir:'left' },
   // 补水管（软化水装置 → 补水箱 → 定压补水泵）
-  { kind:'makeup',x:44,y:572,w:338,h:4,dir:'right' },
-  { kind:'makeup',x:377,y:530,w:3,h:45,dir:'up' },
+  { kind:'makeup',x:44,y:572,w:222,h:4,dir:'right' },
+  { kind:'makeup',x:265,y:560,w:3,h:15,dir:'up' },
+  { kind:'makeup',x:265,y:558,w:25,h:4,dir:'right' },
+
+  { kind:'makeup',x:377,y:530,w:3,h:25,dir:'up' },
   // 冷冻水全程水处理器旁通：回水主管取水 → 处理器 → 回到回水主管
   { kind:'chw-return',x:377,y:257,w:4,h:50,dir:'up' },
   // { kind:'chw-return',x:324,y:257,w:57,h:4,dir:'left' },
@@ -254,10 +261,11 @@ function pipeStyle(pipe) {
 function fitCanvas() {
   const el = viewportRef.value
   if (!el) return
-  const next = Math.min(el.clientWidth / 1320, el.clientHeight / 640)
-  scale.value = Math.max(.35, next)
-  offsetX.value = Math.max(0, (el.clientWidth - 1320 * scale.value) / 2)
-  offsetY.value = Math.max(0, (el.clientHeight - 640 * scale.value) / 2)
+  // 画布 1320×640：等比适配后整体放大 6%；宽度方向以卡片宽度为上限，画布宽度不超出卡片、居中显示
+  const fit = Math.min(el.clientWidth / 1320, el.clientHeight / 640)
+  scale.value = Math.max(.35, Math.min(fit * 1.06, el.clientWidth / 1320))
+  offsetX.value = (el.clientWidth - 1320 * scale.value) / 2
+  offsetY.value = (el.clientHeight - 640 * scale.value) / 2
 }
 
 onMounted(() => { observer = new ResizeObserver(fitCanvas); observer.observe(viewportRef.value); window.addEventListener('energy-device-motion', onDeviceMotion); fitCanvas() })
