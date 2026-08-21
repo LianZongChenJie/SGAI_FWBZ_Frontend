@@ -36,6 +36,45 @@ enum Api {
     accessControlSwitch = '/sgai-fwbz-dev/fwbz/hikvision/door/control',
 }
 
+/** 
+ * 门禁地点查询入参
+ */
+export interface Request {
+    /**
+     * 门禁点编号（精确查询）
+     */
+    doorNo?: string;
+    /**
+     * 门状态，0-初始，1-开门，2-关门，3-离线（精确查询）
+     */
+    doorState?: string;
+    /**
+     * 安装位置（模糊查询）
+     */
+    installLocation?: string;
+    /**
+     * 资源名称（模糊查询）
+     */
+    name?: string;
+    /**
+     * 当前页码
+     */
+    pageNo?: number;
+    /**
+     * 每页大小
+     */
+    pageSize?: number;
+    /**
+     * 区域名称（模糊查询）
+     */
+    regionName?: string;
+    /**
+     * 接入协议（精确查询）
+     */
+    treatyType?: string;
+}
+
+
 /**
  * 控制请求参数
  *

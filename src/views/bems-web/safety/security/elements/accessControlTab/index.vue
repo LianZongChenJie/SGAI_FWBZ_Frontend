@@ -41,10 +41,30 @@
     <div class="card">
       <div class="card-header">
         <h3><GatewayOutlined /> 门禁地点列表</h3>
-        <a-button type="primary" :loading="syncLoading" @click="handleSyncAccessControlStatus">
-          <SyncOutlined v-if="!syncLoading" />
-          同步门禁状态
-        </a-button>
+        <div class="header-right">
+          <a-input
+            v-model:value="doorSearchRegionName"
+            placeholder="区域名称"
+            allow-clear
+            style="width: 160px"
+            @pressEnter="handleDoorSearch"
+          />
+          <a-input
+            v-model:value="doorSearchName"
+            placeholder="门禁名称"
+            allow-clear
+            style="width: 160px"
+            @pressEnter="handleDoorSearch"
+          />
+          <a-button type="primary" @click="handleDoorSearch">
+            <template #icon><SearchOutlined /></template>
+            搜索
+          </a-button>
+          <a-button type="primary" :loading="syncLoading" @click="handleSyncAccessControlStatus">
+            <SyncOutlined v-if="!syncLoading" />
+            同步门禁状态
+          </a-button>
+        </div>
       </div>
       <div class="card-body">
         <a-table
@@ -133,6 +153,7 @@ import {
   GatewayOutlined,
   ClusterOutlined,
   SyncOutlined,
+  SearchOutlined,
 } from '@ant-design/icons-vue'
 
 defineOptions({ name: 'AccessControlTab' })
@@ -173,6 +194,10 @@ const doorStateMap: Record<string, { text: string; color: string }> = {
   '3': { text: '离线状态', color: 'red' },
 }
 
+/** 门禁地点搜索条件 */
+const doorSearchRegionName = ref('')
+const doorSearchName = ref('')
+
 const doorData = ref<DoorListVO[]>([])
 const doorLoading = ref(false)
 const doorPagination = ref({
@@ -187,6 +212,8 @@ const fetchDoorData = async () => {
     const res = await getAccessControlDoorList({
       pageNo: doorPagination.value.current,
       pageSize: doorPagination.value.pageSize,
+      regionName: doorSearchRegionName.value || undefined,
+      name: doorSearchName.value || undefined,
     })
     doorData.value = res.records || []
     doorPagination.value.total = res.total || 0
@@ -202,6 +229,12 @@ const fetchDoorData = async () => {
 const handleDoorTableChange = (pag: any) => {
   doorPagination.value.current = pag.current
   doorPagination.value.pageSize = pag.pageSize
+  fetchDoorData()
+}
+
+/** 门禁地点搜索 */
+const handleDoorSearch = () => {
+  doorPagination.value.current = 1
   fetchDoorData()
 }
 
@@ -387,6 +420,13 @@ onMounted(() => {
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 12px;
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
 
     h3 {
       font-size: 16px;
