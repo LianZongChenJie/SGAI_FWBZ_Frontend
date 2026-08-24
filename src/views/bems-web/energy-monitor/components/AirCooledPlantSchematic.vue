@@ -1,6 +1,6 @@
 <!-- ===== 集中风冷 · 风冷群控示意图 ===== -->
 <template>
-  <div ref="viewportRef" class="schematic-viewport">
+  <div ref="viewportRef" class="schematic-viewport" @mousedown="onPointerDown" @click.capture="onViewportClick">
     <div class="plant-canvas" :style="canvasStyle">
       <div class="paper-grid"></div>
 
@@ -246,12 +246,82 @@ function fitCanvas() {
   offsetY.value = (el.clientHeight - 640 * scale.value) / 2
 }
 
-onMounted(() => { observer = new ResizeObserver(fitCanvas); observer.observe(viewportRef.value); window.addEventListener('energy-device-motion', onDeviceMotion); fitCanvas() })
-onUnmounted(() => { observer?.disconnect(); clearTimeout(motionTimer); window.removeEventListener('energy-device-motion', onDeviceMotion) })
+// 鼠标滚轮缩放：以鼠标指针所在位置为中心进行缩放，缩放范围 0.35 ~ 3
+const MIN_SCALE = 0.35
+const MAX_SCALE = 3
+function onWheel(event) {
+  event.preventDefault()
+  const el = viewportRef.value
+  if (!el) return
+  const rect = el.getBoundingClientRect()
+  const mx = event.clientX - rect.left
+  const my = event.clientY - rect.top
+  const ratio = event.deltaY < 0 ? 1.1 : 1 / 1.1
+  const nextScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, scale.value * ratio))
+  // 保持鼠标指向的画布坐标点不变
+  offsetX.value = mx - (mx - offsetX.value) * (nextScale / scale.value)
+  offsetY.value = my - (my - offsetY.value) * (nextScale / scale.value)
+  scale.value = nextScale
+}
+
+// 鼠标拖拽平移：左键按下拖动画布，位移超过阈值视为拖拽（避免误触设备点击）
+let isDragging = false
+let dragMoved = false
+let dragStartX = 0
+let dragStartY = 0
+let dragOriginX = 0
+let dragOriginY = 0
+let suppressClick = false
+
+function onPointerDown(event) {
+  if (event.button !== 0) return
+  isDragging = true
+  dragMoved = false
+  dragStartX = event.clientX
+  dragStartY = event.clientY
+  dragOriginX = offsetX.value
+  dragOriginY = offsetY.value
+}
+
+function onWindowPointerMove(event) {
+  if (!isDragging) return
+  const dx = event.clientX - dragStartX
+  const dy = event.clientY - dragStartY
+  if (!dragMoved && Math.hypot(dx, dy) > 4) {
+    dragMoved = true
+    viewportRef.value?.classList.add('is-dragging')
+  }
+  if (dragMoved) {
+    offsetX.value = dragOriginX + dx
+    offsetY.value = dragOriginY + dy
+  }
+}
+
+function onWindowPointerUp() {
+  if (!isDragging) return
+  isDragging = false
+  viewportRef.value?.classList.remove('is-dragging')
+  // 拖拽结束后的 click 由捕获阶段拦截，避免误触设备选择
+  if (dragMoved) {
+    suppressClick = true
+    setTimeout(() => { suppressClick = false }, 0)
+  }
+}
+
+function onViewportClick(event) {
+  if (suppressClick) {
+    event.stopPropagation()
+    event.preventDefault()
+    suppressClick = false
+  }
+}
+
+onMounted(() => { observer = new ResizeObserver(fitCanvas); observer.observe(viewportRef.value); viewportRef.value.addEventListener('wheel', onWheel, { passive: false }); window.addEventListener('mousemove', onWindowPointerMove); window.addEventListener('mouseup', onWindowPointerUp); window.addEventListener('energy-device-motion', onDeviceMotion); fitCanvas() })
+onUnmounted(() => { observer?.disconnect(); clearTimeout(motionTimer); viewportRef.value?.removeEventListener('wheel', onWheel); window.removeEventListener('mousemove', onWindowPointerMove); window.removeEventListener('mouseup', onWindowPointerUp); window.removeEventListener('energy-device-motion', onDeviceMotion) })
 </script>
 
 <style scoped>
-.schematic-viewport{position:absolute;inset:0;overflow:hidden;background:#eef3f2}.plant-canvas{position:absolute;left:0;top:0;width:1320px;height:640px;transform-origin:top left;color:#34464a;font-family:"Microsoft YaHei","PingFang SC",sans-serif}.paper-grid{position:absolute;inset:0;background:linear-gradient(rgba(81,116,118,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(81,116,118,.035) 1px,transparent 1px),radial-gradient(circle at 48% 46%,#fff,#edf2f1);background-size:9px 9px,9px 9px,100% 100%}
+.schematic-viewport{position:absolute;inset:0;overflow:hidden;background:#eef3f2;cursor:grab;user-select:none}.schematic-viewport.is-dragging{cursor:grabbing}.schematic-viewport.is-dragging .interactive-device{pointer-events:none;transition:none}.plant-canvas{position:absolute;left:0;top:0;width:1320px;height:640px;transform-origin:top left;color:#34464a;font-family:"Microsoft YaHei","PingFang SC",sans-serif}.paper-grid{position:absolute;inset:0;background:linear-gradient(rgba(81,116,118,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(81,116,118,.035) 1px,transparent 1px),radial-gradient(circle at 48% 46%,#fff,#edf2f1);background-size:9px 9px,9px 9px,100% 100%}
 .interactive-device{cursor:pointer;transform-origin:center;transition:transform .18s ease,filter .18s ease,opacity .18s ease;outline:none}.interactive-device:hover{z-index:12!important;transform:translateY(-4px) scale(1.025);filter:brightness(1.06) drop-shadow(0 6px 5px rgba(27,68,70,.18))}.interactive-device::after{content:"";position:absolute;z-index:20;right:4px;top:4px;width:7px;height:7px;border:2px solid rgba(255,255,255,.85);border-radius:50%;background:#2a9ed1;box-shadow:0 0 7px rgba(42,158,209,.8)}.interactive-device.is-running::after{background:#39b94f;box-shadow:0 0 8px #39b94f}.interactive-device.is-stopped::after{background:#8b9697;box-shadow:none}.interactive-device.is-fault::after{background:#d63d46;box-shadow:0 0 9px #d63d46;animation:device-alert 1s infinite}.interactive-device.external-motion{animation:device-nudge .82s cubic-bezier(.2,.75,.3,1)}@keyframes device-nudge{0%,100%{transform:translate(0)}22%{transform:translateY(-8px) rotate(-1.2deg) scale(1.035)}45%{transform:translateY(1px) rotate(.7deg)}68%{transform:translateY(-4px) rotate(-.4deg)}}@keyframes device-alert{50%{opacity:.3}}
 .setting-panel{position:absolute;z-index:7;left:18px;width:355px;padding:10px 12px;background:rgba(213,221,219,.88);border:1px solid rgba(107,132,131,.18);box-shadow:0 1px 5px rgba(38,63,65,.13)}.public-settings{top:16px}.loop-settings{top:137px}.setting-panel h4{font-size:12px;margin:0 0 8px;color:#263b3d}.setting-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 9px}.setting-grid span{display:flex;justify-content:space-between;align-items:center;font-size:8px;color:#46595b;white-space:nowrap}.setting-grid b{min-width:71px;padding:2px 5px;text-align:center;background:rgba(255,255,255,.74);border:1px solid rgba(91,116,116,.15);font-weight:400;color:#506265}.setting-grid b.active{color:#168441;background:#dff4e6}.ambient-readouts{position:absolute;z-index:7;left:20px;top:260px;display:flex;gap:9px}.ambient-readouts span{font-size:8px;color:#506467}.ambient-readouts b{margin-left:5px;padding:2px 6px;background:#d0f0ed;color:#297d7e;font-weight:400}
 .pipe-layer{position:absolute;inset:0;z-index:1}.pipe{position:absolute;background:var(--pipe);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pipe) 70%,#314b4a),0 1px 1px rgba(0,0,0,.15);border-radius:2px}.pipe.supply,.legend-line.supply{--pipe:#0879d0}.pipe.return,.legend-line.return{--pipe:#51a82f}.pipe i{position:absolute;width:0;height:0;filter:drop-shadow(0 0 1px white)}.pipe.horizontal.right i{right:28%;top:-3px;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:8px solid #152b2d}.pipe.horizontal.left i{left:28%;top:-3px;border-top:5px solid transparent;border-bottom:5px solid transparent;border-right:8px solid #152b2d}.pipe.vertical.down i{left:-3px;top:45%;border-left:5px solid transparent;border-right:5px solid transparent;border-top:8px solid #152b2d}.pipe.vertical.up i{left:-3px;top:38%;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:8px solid #152b2d}.pipe.horizontal.right i{animation:pipe-right 2.1s linear infinite}.pipe.horizontal.left i{animation:pipe-left 2.1s linear infinite}.pipe.vertical.down i{animation:pipe-down 2.1s linear infinite}.pipe.vertical.up i{animation:pipe-up 2.1s linear infinite}.pipe::after{content:"";position:absolute;opacity:.24;border-radius:inherit}.pipe.horizontal::after{left:2px;right:2px;top:1px;height:1px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.9) 0 7px,transparent 7px 16px);animation:water-h 1.3s linear infinite}.pipe.vertical::after{top:2px;bottom:2px;left:1px;width:1px;background:repeating-linear-gradient(180deg,rgba(255,255,255,.9) 0 7px,transparent 7px 16px);animation:water-v 1.3s linear infinite}.pipe.horizontal.left::after,.pipe.vertical.up::after{animation-direction:reverse}@keyframes pipe-right{from{right:90%}to{right:5%}}@keyframes pipe-left{from{left:90%}to{left:5%}}@keyframes pipe-down{from{top:5%}to{top:84%}}@keyframes pipe-up{from{top:84%}to{top:5%}}@keyframes water-h{to{background-position:16px 0}}@keyframes water-v{to{background-position:0 16px}}
