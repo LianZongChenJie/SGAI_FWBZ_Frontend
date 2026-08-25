@@ -55,8 +55,8 @@
       <section class="header-vessels">
         <div class="header-unit collector interactive-device is-normal" :class="motionClass('air.collector')" data-device-id="air.collector" @click="selectDevice('air.collector')"><img src="/equipment/header-vessel-2_5d.png" alt="集水器"><span>集水器</span></div>
         <div class="header-unit distributor interactive-device is-normal" :class="motionClass('air.distributor')" data-device-id="air.distributor" @click="selectDevice('air.distributor')"><img src="/equipment/header-vessel-2_5d.png" alt="分水器"><span>分水器</span></div>
-        <div class="header-sensor collector-sensor">热水 <b>{{ value('air.loop.returnPressure', 2) }} MPa</b> <b>{{ value('air.loop.returnTemp', 1) }} ℃</b></div>
-        <div class="header-sensor distributor-sensor">热水 <b>{{ value('air.loop.supplyPressure', 2) }} MPa</b> <b>{{ value('air.loop.supplyTemp', 1) }} ℃</b></div>
+        <div class="header-sensor collector-sensor"> <b>{{ value('air.loop.returnPressure', 2) }} MPa</b> <b>{{ value('air.loop.returnTemp', 1) }} ℃</b></div>
+        <div class="header-sensor distributor-sensor"> <b>{{ value('air.loop.supplyPressure', 2) }} MPa</b> <b>{{ value('air.loop.supplyTemp', 1) }} ℃</b></div>
       </section>
 
       <div class="degasser interactive-device" :class="[runningClass('air.degasser.running', 'air.degasser.fault'), motionClass('air.degasser')]" data-device-id="air.degasser" @click="selectDevice('air.degasser')">
@@ -85,7 +85,7 @@
         </div>
       </section>
 
-      <div v-for="chip in chips" :key="chip.label" class="data-chip" :style="{ left: `${chip.x}px`, top: `${chip.y}px` }"><i>{{ chip.icon }}</i><b>{{ chip.label }}</b></div>
+      <div v-for="chip in chips" :key="chip.label" class="data-chip" :class="{ 'label-only': !chip.icon }" :style="{ left: `${chip.x}px`, top: `${chip.y}px` }"><i v-if="chip.icon">{{ chip.icon }}</i><b>{{ chip.label }}</b></div>
 
       <div class="plant-legend">
         <span>设备状态：</span><b><i class="legend-dot stopped"></i>停止</b><b><i class="legend-dot running"></i>运行</b><b><i class="legend-dot fault"></i>故障</b>
@@ -131,18 +131,18 @@ function groupStyle(group) {
 }
 
 const pipes = [
-  // 集水器上方四根回水立管（末端 → 集水器），黄色，showArrow 模式，顶部留出距离
-  { kind:'cw-return',x:93,y:370,w:5,h:78,dir:'down',showArrow:true },
-  { kind:'cw-return',x:117,y:370,w:5,h:72,dir:'down',showArrow:true },
-  { kind:'cw-return',x:139,y:370,w:5,h:68,dir:'down',showArrow:true },
-  { kind:'cw-return',x:162,y:370,w:5,h:64,dir:'down',showArrow:true },
-  // 集水器上方横管（绿色），连接最左侧回水竖线与四根回水立管
+  // 集水器上方四根回水立管（末端 → 集水器），第1根黄色、后3根绿色
+  { kind:'cw-return',x:93,y:380,w:5,h:58,dir:'down',showArrow:true },
+  { kind:'return',x:117,y:380,w:5,h:52,dir:'down',showArrow:true },
+  { kind:'return',x:139,y:380,w:5,h:48,dir:'down',showArrow:true },
+  { kind:'return',x:162,y:380,w:5,h:44,dir:'down',showArrow:true },
+  // 集水器四根立管顶部横管（绿色），连接四根回水立管
   { kind:'return',x:42,y:350,w:160,h:5,dir:'right',showArrow:true },
-  // 分水器上方四根供水立管（分水器 → 末端），橙色，showArrow 模式，向上箭头
-  { kind:'cw-supply',x:246,y:377,w:5,h:60,dir:'up',showArrow:true },
+  // 分水器上方四根供水立管（分水器 → 末端），第1根蓝色、第2根橙色、后2根蓝色
+  { kind:'supply',x:246,y:377,w:5,h:60,dir:'up',showArrow:true },
   { kind:'cw-supply',x:271,y:377,w:5,h:55,dir:'up',showArrow:true },
-  { kind:'cw-supply',x:292,y:377,w:5,h:52,dir:'up',showArrow:true },
-  { kind:'cw-supply',x:315,y:377,w:5,h:46,dir:'up',showArrow:true },
+  { kind:'supply',x:292,y:377,w:5,h:52,dir:'up',showArrow:true },
+  { kind:'supply',x:315,y:377,w:5,h:46,dir:'up',showArrow:true },
   // 集水器 → 分水器连接线：右（绿）→ 下（绿）→ 右（绿→蓝过渡）→ 上（蓝）
   { kind:'return',x:190,y:440,w:7,h:4,dir:'right',riser:true },
   { kind:'return',x:197,y:440,w:4,h:70,dir:'down',riser:true },
@@ -197,6 +197,17 @@ const pipes = [
 ]
 
 const chips = computed(() => [
+  // 集水器上方四根立管管顶标注（与集中水冷完全一致）
+  { x:81,y:361,icon:'',label:'热水' },
+  { x:100,y:361,icon:'',label:'东会议楼' },
+  { x:130,y:361,icon:'',label:'4号馆' },
+  { x:153,y:361,icon:'',label:'2,3号馆' },
+  // 分水器上方四根立管管顶标注（与集中水冷完全一致）
+  { x:233,y:361,icon:'',label:'2,3号馆' },
+  { x:261,y:361,icon:'',label:'热水' },
+  { x:280,y:361,icon:'',label:'东会议楼' },
+  { x:310,y:361,icon:'',label:'4号馆' },
+  // 数据标注
   { x:610,y:338,icon:'P',label:`${value('air.loop.supplyPressure',2)} MPa` },
   { x:684,y:338,icon:'T',label:`${value('air.loop.supplyTemp',1)} ℃` },
   { x:398,y:334,icon:'F',label:`${value('air.loop.flow',1)} m³/h` },
@@ -330,6 +341,6 @@ onUnmounted(() => { observer?.disconnect(); clearTimeout(motionTimer); viewportR
 .header-vessels{position:absolute;left:62px;top:353px;width:292px;height:158px;z-index:4}.header-unit{position:absolute;top:58px;width:138px;height:84px}.header-unit.collector{left:0}.header-unit.distributor{right:0}.header-unit img{position:absolute;left:-4px;top:-9px;width:146px;height:96px;object-fit:contain;filter:drop-shadow(3px 4px 3px rgba(48,69,66,.22))}.header-unit>span{position:absolute;left:0;right:0;bottom:-7px;text-align:center;font-size:8px;font-weight:600;color:#3d5050;text-shadow:0 1px white}.pipe.riser{box-shadow:none;border-radius:0;background:var(--pipe)}.pipe.riser::after{display:none}.pipe.riser>b{position:absolute;top:14px;left:-4px;width:11px;height:8px;background:#439849;border:2px solid #dde9df}.header-sensor{position:absolute;font-size:7px;color:#536466}.header-sensor b{padding:2px 4px;background:#caebe8;color:#337b78;font-weight:400}.collector-sensor{left:4px;top:22px}.distributor-sensor{right:0;top:31px}
 .degasser{position:absolute;z-index:5;left:370px;top:375px;width:118px;height:112px;text-align:center}.degasser>img{position:absolute;left:9px;top:0;width:100px;height:88px;object-fit:contain;filter:drop-shadow(3px 4px 3px rgba(38,61,56,.23))}.degasser span,.water-processor span{position:absolute;font-size:8px;font-weight:600;white-space:nowrap}.degasser span{left:0;right:0;top:82px}.degasser small,.water-processor small{position:absolute;font-size:7px;color:#566967;white-space:nowrap}.degasser small{left:0;right:0;top:95px}.water-processor{position:absolute;z-index:5;left:382px;top:486px;width:150px;height:100px}.water-processor>img{position:absolute;left:0;top:0;width:105px;height:83px;object-fit:contain;filter:drop-shadow(3px 4px 3px rgba(38,61,56,.22))}.water-processor span{left:95px;top:20px}.water-processor small{left:95px;top:37px}.water-processor small:last-child{top:52px}.water-processor small b{background:#2aa846;color:white;padding:1px 3px}
 .pump-bank{position:absolute;z-index:5;top:392px;height:205px}.pump-bank h4{position:absolute;top:0;left:0;font-size:9px;color:#3e5555}.chilled-pumps{left:565px;width:270px}.hot-pumps{left:875px;width:260px}.pump-line{position:absolute;left:0;width:100%;height:60px}.valve-symbol{position:absolute;left:0;top:21px;width:20px;height:15px}.valve-symbol::before,.valve-symbol::after{content:"";position:absolute;width:9px;height:9px;border:2px solid #4b8d4a;transform:rotate(45deg)}.valve-symbol::before{left:0}.valve-symbol::after{right:0}.valve-symbol i{position:absolute;left:8px;top:-8px;width:4px;height:10px;background:#579655}.pump-device{position:absolute;left:27px;top:0;width:91px;height:57px}.pump-device img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(3px 4px 3px rgba(30,58,39,.23))}.pump-device i{position:absolute;right:9px;bottom:4px;width:37px;height:4px;border-radius:50%;background:rgba(37,157,75,.22);filter:blur(4px)}.is-running .pump-device img{animation:pump-breathe 2s ease-in-out infinite}.pump-caption{position:absolute;left:121px;top:6px;width:130px;font-size:7px}.pump-caption strong{display:block;font-size:8px}.pump-caption span{display:inline-block;margin-top:4px;padding:2px 4px;background:#caebe8;color:#347a7a}.pump-caption em{display:inline-block;margin-left:3px;color:#617374;font-style:normal}@keyframes pump-breathe{50%{filter:drop-shadow(3px 4px 3px rgba(30,58,39,.2)) drop-shadow(0 0 4px rgba(47,173,83,.28)) brightness(1.03)}}
-.data-chip{position:absolute;z-index:7;display:flex;align-items:center;gap:3px;font-size:7px}.data-chip i{width:14px;height:14px;display:grid;place-items:center;background:#318f56;border:2px solid #d7e8dc;color:white;font-style:normal;font-size:6px}.data-chip b{font-weight:400;color:#377b7a;background:#caebe8;padding:2px 4px}.plant-legend{position:absolute;z-index:8;left:18px;right:18px;bottom:5px;height:22px;display:flex;align-items:center;gap:10px;padding:0 10px;background:rgba(202,210,207,.78);font-size:7px;color:#526261}.plant-legend>b{display:flex;align-items:center;gap:4px;font-weight:400}.plant-legend>em{width:1px;height:12px;background:#a9b6b2}.legend-dot{width:7px;height:7px;border-radius:50%;background:#89928e}.legend-dot.running{background:#4fa928}.legend-dot.fault{background:#c63b42}.legend-line{width:13px;height:3px;background:var(--pipe)}
+.data-chip{position:absolute;z-index:7;display:flex;align-items:center;gap:3px;font-size:7px}.data-chip i{width:14px;height:14px;display:grid;place-items:center;background:#318f56;border:2px solid #d7e8dc;color:white;font-style:normal;font-size:6px}.data-chip b{font-weight:400;color:#377b7a;background:#caebe8;padding:2px 4px}.data-chip.label-only b{background:rgba(255,255,255,.85);color:#3d5050;border:1px solid rgba(107,132,131,.25);white-space:nowrap;font-size:6px;padding:1px 3px}.plant-legend{position:absolute;z-index:8;left:18px;right:18px;bottom:5px;height:22px;display:flex;align-items:center;gap:10px;padding:0 10px;background:rgba(202,210,207,.78);font-size:7px;color:#526261}.plant-legend>b{display:flex;align-items:center;gap:4px;font-weight:400}.plant-legend>em{width:1px;height:12px;background:#a9b6b2}.legend-dot{width:7px;height:7px;border-radius:50%;background:#89928e}.legend-dot.running{background:#4fa928}.legend-dot.fault{background:#c63b42}.legend-line{width:13px;height:3px;background:var(--pipe)}
 @media (prefers-reduced-motion:reduce){.plant-canvas *{animation:none!important;transition:none!important}}
 </style>

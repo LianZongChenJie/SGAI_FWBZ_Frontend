@@ -53,8 +53,8 @@
           <img class="header-vessel-image" src="/equipment/header-vessel-2_5d.png" alt="分水器">
           <span class="header-vessel-name">分水器</span>
         </div>
-        <div class="header-sensor supply-sensor">热水 <b>{{ value('loop.chwReturnPressure', 2) }} MPa</b> <b>{{ value('station.returnTemp', 1) }} ℃</b></div>
-        <div class="header-sensor return-sensor">热水 <b>{{ value('loop.chwSupplyPressure', 2) }} MPa</b> <b>{{ value('station.supplyTemp', 1) }} ℃</b></div>
+        <div class="header-sensor supply-sensor"> <b>{{ value('loop.chwReturnPressure', 2) }} MPa</b> <b>{{ value('station.returnTemp', 1) }} ℃</b></div>
+        <div class="header-sensor return-sensor"> <b>{{ value('loop.chwSupplyPressure', 2) }} MPa</b> <b>{{ value('station.supplyTemp', 1) }} ℃</b></div>
       </section>
 
       <div class="water-processor chilled-processor interactive-device" :class="[runningClass('treatment.chilledRunning', 'treatment.chilledFault'), motionClass('water.treatment.chilled')]" data-device-id="water.treatment.chilled" @click="selectDevice('water.treatment.chilled')">
@@ -104,7 +104,7 @@
         <span>逼近度设定值 <b>{{ value('towerControl.approachSetpoint', 1) }} ℃</b></span><span>设定温度高限 <b>{{ value('towerControl.highTempLimit', 1) }} ℃</b></span><span>设定温度低限 <b>{{ value('towerControl.lowTempLimit', 1) }} ℃</b></span><span>加塔延时设定 <b>{{ value('towerControl.addDelay', 1) }} min</b></span><span>减塔延时设定 <b>{{ value('towerControl.removeDelay', 1) }} min</b></span><span>冷却塔高频 <b>{{ value('towerControl.highFrequency', 1) }} Hz</b></span><span>冷却塔低频 <b>{{ value('towerControl.lowFrequency', 1) }} Hz</b></span>
       </aside>
 
-      <div v-for="chip in chips" :key="chip.label" class="data-chip" :style="{ left: `${chip.x}px`, top: `${chip.y}px` }"><i>{{ chip.icon }}</i><b>{{ chip.label }}</b></div>
+      <div v-for="chip in chips" :key="chip.label" class="data-chip" :class="{ 'label-only': !chip.icon }" :style="{ left: `${chip.x}px`, top: `${chip.y}px` }"><i v-if="chip.icon">{{ chip.icon }}</i><b>{{ chip.label }}</b></div>
 
       <div class="plant-legend">
         <span>设备状态：</span><b><i class="legend-dot stopped"></i>停止</b><b><i class="legend-dot running"></i>运行</b><b><i class="legend-dot fault"></i>故障</b>
@@ -131,20 +131,20 @@ const motionDeviceId = ref('')
 const canvasStyle = computed(() => ({ transform: `translate(${offsetX.value}px, ${offsetY.value}px) scale(${scale.value})` }))
 
 const pipes = [
-  // 集水器上方四根回水立管（末端 → 集水器），终点在 cap 圆圈上
+  // 集水器上方四根回水立管（末端 → 集水器）
   { kind:'cw-return',x:65,y:297,w:5,h:61,dir:'down',showArrow:true },
-  { kind:'cw-return',x:88,y:297,w:5,h:51,dir:'down',showArrow:true },
-  { kind:'cw-return',x:110,y:297,w:5,h:47,dir:'down',showArrow:true },
-  { kind:'cw-return',x:133,y:297,w:5,h:44,dir:'down',showArrow:true },
+  { kind:'chw-return',x:88,y:297,w:5,h:51,dir:'down',showArrow:true },
+  { kind:'chw-return',x:110,y:297,w:5,h:47,dir:'down',showArrow:true },
+  { kind:'chw-return',x:133,y:297,w:5,h:44,dir:'down',showArrow:true },
   // 集水器四根立管顶部横管（绿色），连接四根回水立管
   { kind:'chw-return',x:17,y:263,w:317,h:5,dir:'right',riser:true,showArrow:true },
   // { kind:'chw-return',x:200,y:255,w:5,h:17,dir:'up',riser:true,showArrow:true},
 
   // 分水器上方四根供水立管（分水器 → 末端），底部对齐、顶部递减、向上箭头
-  { kind:'cw-supply',x:212,y:300,w:5,h:58,dir:'up' },
+  { kind:'chw-supply',x:212,y:300,w:5,h:58,dir:'up' },
   { kind:'cw-supply',x:235,y:300,w:5,h:48,dir:'up' },
-  { kind:'cw-supply',x:257,y:300,w:5,h:48,dir:'up' },
-  { kind:'cw-supply',x:279,y:300,w:5,h:40,dir:'up' },
+  { kind:'chw-supply',x:257,y:300,w:5,h:48,dir:'up' },
+  { kind:'chw-supply',x:279,y:300,w:5,h:40,dir:'up' },
 
   // 集水器 → 分水器连接线：右（绿）→ 下（绿）→ 右（绿→蓝过渡）→ 上（蓝）
   { kind:'chw-return',x:162,y:356,w:5,h:4,dir:'right',riser:true },
@@ -216,6 +216,17 @@ const pipes = [
 ]
 
 const chips = computed(() => [
+  // 集水器上方四根立管管顶标注（向右微调，避免重叠）
+  { x:53,y:278,icon:'',label:'热水' },
+  { x:72,y:278,icon:'',label:'东会议楼' },
+  { x:102,y:278,icon:'',label:'4号馆' },
+  { x:125,y:278,icon:'',label:'2,3号馆' },
+  // 分水器上方四根立管管顶标注（参照集水器样式，位于管顶上方）
+  { x:195,y:278,icon:'',label:'2,3号馆' },
+  { x:223,y:278,icon:'',label:'热水' },
+  { x:242,y:278,icon:'',label:'东会议楼' },
+  { x:272,y:278,icon:'',label:'4号馆' },
+  // 数据标注
   { x:560,y:235,icon:'P',label:`${value('loop.chwSupplyPressure',2)} MPa` },
   { x:566,y:342,icon:'T',label:`${value('station.supplyTemp',1)} ℃` },
   { x:356,y:485,icon:'F',label:`${value('loop.chwFlow',1)} m³/h` },
@@ -351,7 +362,7 @@ onUnmounted(() => { observer?.disconnect(); clearTimeout(motionTimer); viewportR
 .pump-bank{position:absolute;z-index:4;top:286px;height:300px}.chw-pump-bank{left:408px;width:196px}.cw-pump-bank{left:982px;width:164px}.pump-line{position:absolute;left:0;width:100%;height:83px}.meter-chip{position:absolute;left:0;top:-8px;padding:2px 4px;background:#caebe8;color:#337b78;font-size:7px}.valve-symbol{position:absolute;left:28px;top:18px;width:20px;height:16px}.valve-symbol::before,.valve-symbol::after{content:"";position:absolute;width:10px;height:10px;border:2px solid #4b8d4a;transform:rotate(45deg)}.valve-symbol::before{left:0}.valve-symbol::after{right:0}.valve-symbol i{position:absolute;left:8px;top:-8px;width:4px;height:10px;background:#579655}.inline-pump{position:absolute;left:55px;top:11px;width:51px;height:29px;border:2px solid #397849;border-radius:17px 7px 7px 17px;background:linear-gradient(#55a760,#2f8247)}.inline-pump::before{content:"";position:absolute;left:10px;top:5px;width:15px;height:15px;border:2px solid #2f7040;border-radius:50%}.inline-pump i{position:absolute;right:-8px;top:8px;width:9px;height:10px;background:#347444}.inline-pump b{position:absolute;left:19px;top:-8px;width:13px;height:9px;background:#4a9857}.is-running .inline-pump::before{animation:fan-spin 1s linear infinite;border-style:dashed}.line-caption{position:absolute;left:112px;top:0;width:82px}.line-caption span{display:block;font-size:8px}.line-caption b{display:block;font-size:7px;color:#347a7a;font-weight:400;margin-top:4px}.line-caption em{display:inline-block;font-size:7px;font-style:normal;color:#228343;background:#d9efdf;padding:1px 3px;margin-top:3px}.is-stopped .line-caption em{color:#667777;background:#e0e5e3}
 .chiller-bank{position:absolute;z-index:4;left:630px;top:278px;width:250px;height:310px}.chiller-line{position:absolute;left:0;width:245px;height:94px;cursor:pointer}.chiller-machine{position:absolute;left:12px;top:16px;width:128px;height:47px;display:flex;align-items:center}.chiller-head{width:25px;height:35px;border:2px solid #3f7945;border-radius:18px 4px 4px 18px;background:#4d9b56}.chiller-head i{display:block;width:13px;height:13px;border:2px dashed #2f713b;border-radius:50%;margin:9px 0 0 5px}.chiller-barrel{height:41px;flex:1;border:2px solid #3e7743;background:linear-gradient(#5ba866,#3e8b4c);position:relative;display:grid;place-items:center}.chiller-barrel::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 12px,rgba(26,93,43,.18) 13px)}.chiller-barrel span{position:absolute;left:4px;right:4px;top:7px;height:3px;background:#347840}.chiller-barrel b{font-size:8px;color:#dcebdd}.chiller-motor{width:38px;height:32px;border:2px solid #376f41;border-radius:4px 14px 14px 4px;background:#4d9b57;position:relative}.chiller-motor i{position:absolute;left:7px;top:-10px;width:18px;height:10px;background:#43884d}.chiller-feet{position:absolute;left:21px;right:10px;bottom:0;display:flex;justify-content:space-between}.chiller-feet i{width:14px;height:5px;background:#3b7142}.chiller-label{position:absolute;left:0;top:-3px;width:230px;display:flex;gap:8px;font-size:8px}.chiller-label strong{font-weight:500}.chiller-label span{color:#617374}.chiller-label em{font-style:normal;color:#258546;background:#dcf0e0;padding:1px 4px}.chiller-load{position:absolute;left:145px;top:34px}.chiller-load b{display:block;color:#357c79;background:#caebe8;padding:2px 5px;font-size:7px;font-weight:400;margin:3px}.is-stopped .chiller-load b{color:#6b7775;background:#e0e5e3}
 .makeup-system{position:absolute;z-index:4;left:48px;top:507px;width:350px;height:96px}.softener{position:absolute;left:-10px;top:12px;width:86px;height:75px}.softener>img{position:absolute;left:0;top:0;width:86px;height:68px;object-fit:contain;filter:drop-shadow(3px 4px 3px rgba(38,61,56,.22))}.softener span,.makeup-tank span,.makeup-pumps span{position:absolute;bottom:0;white-space:nowrap;font-size:7px}.softener span{left:18px}.makeup-tank{position:absolute;left:104px;top:0;width:83px;height:81px;border:1px solid #669398;background:linear-gradient(90deg,rgba(146,201,208,.35),rgba(221,240,240,.55));overflow:visible}.makeup-tank i{position:absolute;inset:6px;border-radius:50%;border-top:2px solid #85afb2}.makeup-tank>b{position:absolute;left:2px;right:2px;bottom:2px;max-height:74px;background:rgba(81,170,183,.35)}.makeup-tank span{left:25px;bottom:-13px}.makeup-tank em{position:absolute;left:8px;top:-13px;font-style:normal;font-size:7px;color:#397b7e;background:#caebe8;padding:2px 4px}.makeup-pumps{position:absolute;left:219px;top:5px;width:116px;height:79px}.makeup-pumps>img{position:absolute;left:0;top:0;width:116px;height:70px;object-fit:contain;filter:drop-shadow(3px 4px 3px rgba(30,58,39,.24))}.makeup-pumps span{left:31px;bottom:-1px}.makeup-pumps em{position:absolute;left:24px;top:-5px;font-style:normal;font-size:7px;color:#397b7e;background:#caebe8;padding:2px 4px}
-.control-panel{position:absolute;z-index:6;right:14px;top:328px;width:143px;padding:9px;background:rgba(205,213,210,.88);box-shadow:0 1px 4px rgba(46,66,64,.18)}.control-panel h4{font-size:10px;margin-bottom:7px;text-align:center}.control-panel span{display:flex;justify-content:space-between;font-size:7px;margin:5px 0;color:#526160}.control-panel b{min-width:48px;padding:2px 3px;background:rgba(255,255,255,.72);font-weight:400;text-align:center}.data-chip{position:absolute;z-index:7;display:flex;align-items:center;gap:3px;font-size:7px}.data-chip i{width:14px;height:14px;display:grid;place-items:center;background:#318f56;border:2px solid #d7e8dc;color:white;font-style:normal;font-size:6px}.data-chip b{font-weight:400;color:#377b7a;background:#caebe8;padding:2px 4px}
+.control-panel{position:absolute;z-index:6;right:14px;top:328px;width:143px;padding:9px;background:rgba(205,213,210,.88);box-shadow:0 1px 4px rgba(46,66,64,.18)}.control-panel h4{font-size:10px;margin-bottom:7px;text-align:center}.control-panel span{display:flex;justify-content:space-between;font-size:7px;margin:5px 0;color:#526160}.control-panel b{min-width:48px;padding:2px 3px;background:rgba(255,255,255,.72);font-weight:400;text-align:center}.data-chip{position:absolute;z-index:7;display:flex;align-items:center;gap:3px;font-size:7px}.data-chip i{width:14px;height:14px;display:grid;place-items:center;background:#318f56;border:2px solid #d7e8dc;color:white;font-style:normal;font-size:6px}.data-chip b{font-weight:400;color:#377b7a;background:#caebe8;padding:2px 4px}.data-chip.label-only b{background:rgba(255,255,255,.85);color:#3d5050;border:1px solid rgba(107,132,131,.25);white-space:nowrap;font-size:6px;padding:1px 3px}
 .plant-legend{position:absolute;z-index:7;left:18px;right:18px;bottom:5px;height:22px;display:flex;align-items:center;gap:10px;padding:0 10px;background:rgba(202,210,207,.72);font-size:7px;color:#526261}.plant-legend>b{display:flex;align-items:center;gap:4px;font-weight:400}.plant-legend em{width:1px;height:12px;background:#a9b6b2}.legend-dot{width:7px;height:7px;border-radius:50%;background:#89928e}.legend-dot.running{background:#4fa928}.legend-dot.fault{background:#c63b42}.legend-line{width:13px;height:3px;background:var(--pipe)}
 
 /* 2.5D 主设备素材：保留设备真实接口，管路延伸到图像下层形成接管效果 */
