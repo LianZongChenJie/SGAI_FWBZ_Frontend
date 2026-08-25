@@ -3,17 +3,17 @@ import { useMessage } from '/@/hooks/web/useMessage';
 
 const { createConfirm } = useMessage();
 enum Api {
-  getDeviceModelList = '/sgai-tp/fwbz/deviceModel/queryPage',
-  getCategoryTree = '/sgai-tp/fwbz/equipmentCategory/getTree',
-  // getCategoryTree = '/sgai-tp/fwbz/equipmentCategory/getPermissionTree',
-  addModel = '/sgai-tp/fwbz/deviceModel/add',
-  updateModel = '/sgai-tp/fwbz/deviceModel/edit',
-  deleteModel = '/sgai-tp/fwbz/deviceModel/delete',
-  deleteBatchModel = '/sgai-tp/fwbz/deviceModel/deleteBatch',
-  getDeviceModelAttribute = '/sgai-tp/fwbz/deviceModelAttribute/queryPage',
-  addModelAttribute = '/sgai-tp/fwbz/deviceModelAttribute/add',
-  updateModelAttribute = '/sgai-tp/fwbz/deviceModelAttribute/edit',
-  deleteModelAttribute = '/sgai-tp/fwbz/deviceModelAttribute/delete',
+  getDeviceModelList = '/sgai-fwbz-dev/fwbz/deviceModel/queryPage',
+  getCategoryTree = '/sgai-fwbz-dev/fwbz/equipmentCategory/getTree',
+  // getCategoryTree = '/sgai-fwbz-dev/fwbz/equipmentCategory/getPermissionTree',
+  addModel = '/sgai-fwbz-dev/fwbz/deviceModel/add',
+  updateModel = '/sgai-fwbz-dev/fwbz/deviceModel/edit',
+  deleteModel = '/sgai-fwbz-dev/fwbz/deviceModel/delete',
+  deleteBatchModel = '/sgai-fwbz-dev/fwbz/deviceModel/deleteBatch',
+  getDeviceModelAttribute = '/sgai-fwbz-dev/fwbz/deviceModelAttribute/queryPage',
+  addModelAttribute = '/sgai-fwbz-dev/fwbz/deviceModelAttribute/add',
+  updateModelAttribute = '/sgai-fwbz-dev/fwbz/deviceModelAttribute/edit',
+  deleteModelAttribute = '/sgai-fwbz-dev/fwbz/deviceModelAttribute/delete',
 }
 
 /**

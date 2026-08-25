@@ -1,7 +1,7 @@
 import { defHttp } from '/@/utils/http/axios'
 
 enum Api {
-  login1 = '/sgai-tp/fwbz/lighting/proxyLogin',
+  login1 = '/sgai-fwbz-dev/fwbz/lighting/proxyLogin',
 }
 
 /**

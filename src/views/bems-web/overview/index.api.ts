@@ -6,7 +6,7 @@ enum Api {
     /** 今日总客流 */
     todayVisitorCount = '/sgai-fwbz-dev/fwbz/venueVisitorFlow/todayVisitorCount',
     /** 告警统计（待处理告警数量） */
-    alarmStatistics = '/sgai-tp/fwbz/alarm/record/statistics',
+    alarmStatistics = '/sgai-fwbz-dev/fwbz/alarm/record/statistics',
 }
 
 /**

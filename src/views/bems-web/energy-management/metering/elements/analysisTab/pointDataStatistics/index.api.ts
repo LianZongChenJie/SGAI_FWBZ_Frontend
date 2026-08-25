@@ -3,17 +3,17 @@ import { useMessage } from '/@/hooks/web/useMessage';
 
 const { createConfirm } = useMessage();
 enum Api {
-  findHour = '/sgai-tp/fwbz/meterPointData/findMinute',
-  findDay = '/sgai-tp/fwbz/meterPointData/findDay',
-  findMonth = '/sgai-tp/fwbz/meterPointData/findMonth',
-  findYear = '/sgai-tp/fwbz/meterPointData/findYear',
-  statistics = '/sgai-tp/fwbz/meterPointData/statistics',
+  findHour = '/sgai-fwbz-dev/fwbz/meterPointData/findMinute',
+  findDay = '/sgai-fwbz-dev/fwbz/meterPointData/findDay',
+  findMonth = '/sgai-fwbz-dev/fwbz/meterPointData/findMonth',
+  findYear = '/sgai-fwbz-dev/fwbz/meterPointData/findYear',
+  statistics = '/sgai-fwbz-dev/fwbz/meterPointData/statistics',
   energyFlowType = '/sys/dict/getDictItems/energy_flow_type',
   // energyFlowTree = '/bems/meteringPoint/getTree',
-  energyFlowTree = '/sgai-tp/fwbz/meteringPoint/getPermissionTree',
-  // energyFlowTree = '/sgai-tp/fwbz/meteringPoint/getTree',
+  energyFlowTree = '/sgai-fwbz-dev/fwbz/meteringPoint/getPermissionTree',
+  // energyFlowTree = '/sgai-fwbz-dev/fwbz/meteringPoint/getTree',
 
-  test = '/sgai-tp/fwbz/test/test',
+  test = '/sgai-fwbz-dev/fwbz/test/test',
 }
 
 /**

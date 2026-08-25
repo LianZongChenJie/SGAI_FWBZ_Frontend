@@ -1,8 +1,8 @@
 import { defHttp } from '/@/utils/http/axios'
 
 enum Api {
-  overviewStatistics = '/sgai-tp/fwbz/operationSupport/overviewStatistics',
-  equipmentOverview = '/sgai-tp/fwbz/operationSupport/equipmentOverview',
+  overviewStatistics = '/sgai-fwbz-dev/fwbz/operationSupport/overviewStatistics',
+  equipmentOverview = '/sgai-fwbz-dev/fwbz/operationSupport/equipmentOverview',
 }
 
 /** 获取概览统计数据 */

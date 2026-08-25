@@ -1,8 +1,8 @@
 import { defHttp } from '/@/utils/http/axios'
 
 enum Api {
-  send = '/sgai-tp/fwbz/setpoint/send',
-  recordList = '/sgai-tp/fwbz/setpoint/recordList',
+  send = '/sgai-fwbz-dev/fwbz/setpoint/send',
+  recordList = '/sgai-fwbz-dev/fwbz/setpoint/recordList',
 }
 
 /**

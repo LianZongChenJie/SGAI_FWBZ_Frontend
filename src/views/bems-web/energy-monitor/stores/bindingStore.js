@@ -83,8 +83,8 @@ function connectWebSocket() {
 }
 
 // ===== 冷源实时数据 WebSocket（独立于同源 /ws） =====
-// const COLD_SOURCE_WS_URL = 'ws://192.168.204.51:9999/sgai-tp/fwbz/coldSource/ws'
-const COLD_SOURCE_WS_URL = 'ws://10.168.56.101:9999/sgai-tp/fwbz/coldSource/ws'
+// const COLD_SOURCE_WS_URL = 'ws://192.168.204.51:9999/sgai-fwbz-dev/fwbz/coldSource/ws'
+const COLD_SOURCE_WS_URL = 'ws://10.168.56.101:9999/sgai-fwbz-dev/fwbz/coldSource/ws'
 
 
 let coldSocket = null

@@ -1,11 +1,11 @@
 import { defHttp } from '/@/utils/http/axios'
 
 enum Api {
-  overview = '/sgai-tp/fwbz/energyAnalysis/overview',
-  loadChart = '/sgai-tp/fwbz/energyAnalysis/loadChart',
-  dispatchSummary = '/sgai-tp/fwbz/energyAnalysis/dispatchSummary',
-  optimizerStatus = '/sgai-tp/fwbz/energyAnalysis/optimizerStatus',
-  deviceStatus = '/sgai-tp/fwbz/energyAnalysis/deviceStatus',
+  overview = '/sgai-fwbz-dev/fwbz/energyAnalysis/overview',
+  loadChart = '/sgai-fwbz-dev/fwbz/energyAnalysis/loadChart',
+  dispatchSummary = '/sgai-fwbz-dev/fwbz/energyAnalysis/dispatchSummary',
+  optimizerStatus = '/sgai-fwbz-dev/fwbz/energyAnalysis/optimizerStatus',
+  deviceStatus = '/sgai-fwbz-dev/fwbz/energyAnalysis/deviceStatus',
 }
 
 /**

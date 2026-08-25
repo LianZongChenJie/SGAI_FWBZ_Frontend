@@ -4,27 +4,27 @@ import { useMessage } from '/@/hooks/web/useMessage';
 const { createConfirm } = useMessage();
 enum Api {
   // categoryTree = '/bems/equipmentCategory/measuring/getTree',
-  categoryTree = '/sgai-tp/fwbz/equipmentCategory/measuring/getPermissionTree',
-  // categoryTree = '/sgai-tp/fwbz/equipmentCategory/measuring/getTree',
+  categoryTree = '/sgai-fwbz-dev/fwbz/equipmentCategory/measuring/getPermissionTree',
+  // categoryTree = '/sgai-fwbz-dev/fwbz/equipmentCategory/measuring/getTree',
 
   // spaceTree = '/bems/space/getTree',
-  spaceTree = '/sgai-tp/fwbz/space/getPermissionTree',
-  // spaceTree = '/sgai-tp/fwbz/space/getTree',
+  spaceTree = '/sgai-fwbz-dev/fwbz/space/getPermissionTree',
+  // spaceTree = '/sgai-fwbz-dev/fwbz/space/getTree',
 
-  unitList = '/sgai-tp/fwbz/unitManagement/findAll',
-  analyticFormula = '/sgai-tp/fwbz/meteringPoint/analyticFormula',
-  saveFormula = '/sgai-tp/fwbz/meteringPoint/saveFormula',
+  unitList = '/sgai-fwbz-dev/fwbz/unitManagement/findAll',
+  analyticFormula = '/sgai-fwbz-dev/fwbz/meteringPoint/analyticFormula',
+  saveFormula = '/sgai-fwbz-dev/fwbz/meteringPoint/saveFormula',
   energyFlowType = '/sys/dict/getDictItems/energy_flow_type',
   // energyFlowTree = '/bems/meteringPoint/getTree',
-  energyFlowTree = '/sgai-tp/fwbz/meteringPoint/getPermissionTree',
-  // energyFlowTree = '/sgai-tp/fwbz/meteringPoint/getTree',
+  energyFlowTree = '/sgai-fwbz-dev/fwbz/meteringPoint/getPermissionTree',
+  // energyFlowTree = '/sgai-fwbz-dev/fwbz/meteringPoint/getTree',
 
-  addMeasureRule = '/sgai-tp/fwbz/meteringPoint/add',
-  deleteMeasureRule = '/sgai-tp/fwbz/meteringPoint/delete',
-  editMeasureRule = '/sgai-tp/fwbz/meteringPoint/edit',
-  ruleList = '/sgai-tp/fwbz/meteringPoint/list',
-  pointList = '/sgai-tp/fwbz/meteringPoint/listPoint',
-  treeNodeDetail = '/sgai-tp/fwbz/meteringPoint/getById',
+  addMeasureRule = '/sgai-fwbz-dev/fwbz/meteringPoint/add',
+  deleteMeasureRule = '/sgai-fwbz-dev/fwbz/meteringPoint/delete',
+  editMeasureRule = '/sgai-fwbz-dev/fwbz/meteringPoint/edit',
+  ruleList = '/sgai-fwbz-dev/fwbz/meteringPoint/list',
+  pointList = '/sgai-fwbz-dev/fwbz/meteringPoint/listPoint',
+  treeNodeDetail = '/sgai-fwbz-dev/fwbz/meteringPoint/getById',
 }
 
 /**

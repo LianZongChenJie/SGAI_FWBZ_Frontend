@@ -1,9 +1,9 @@
 import { defHttp } from '/@/utils/http/axios'
 
 enum Api {
-  powerDistributionSystemList = '/sgai-tp/fwbz/operationSupport/powerDistributionSystemList',
-  activePower = '/sgai-tp/fwbz/operationSupport/activePower',
-  powerStatistics = '/sgai-tp/fwbz/operationSupport/powerStatistics',
+  powerDistributionSystemList = '/sgai-fwbz-dev/fwbz/operationSupport/powerDistributionSystemList',
+  activePower = '/sgai-fwbz-dev/fwbz/operationSupport/activePower',
+  powerStatistics = '/sgai-fwbz-dev/fwbz/operationSupport/powerStatistics',
 }
 
 /**
@@ -24,4 +24,4 @@ export const getPowerStatistics = (params = {}) => defHttp.get({ url: Api.powerS
 /**
  * 设备属性列表（按设备ID查询）
  */
-export const getDeviceAttrList = (params = {}) => defHttp.get({ url: '/sgai-tp/fwbz/deviceAttribute/listByDeviceId', params })
+export const getDeviceAttrList = (params = {}) => defHttp.get({ url: '/sgai-fwbz-dev/fwbz/deviceAttribute/listByDeviceId', params })

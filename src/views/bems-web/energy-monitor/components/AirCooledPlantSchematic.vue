@@ -34,7 +34,7 @@
       </div>
 
       <div class="pipe-layer">
-        <div v-for="(pipe, index) in pipes" :key="index" class="pipe" :class="[pipe.kind, pipe.dir, pipe.w > pipe.h ? 'horizontal' : 'vertical', { 'riser': pipe.riser }]" :style="pipeStyle(pipe)"><i v-if="pipe.dir && !pipe.riser"></i><b v-if="pipe.cap"></b></div>
+        <div v-for="(pipe, index) in pipes" :key="index" class="pipe" :class="[pipe.kind, pipe.dir, pipe.w > pipe.h ? 'horizontal' : 'vertical', { 'riser': pipe.riser, 'show-arrow': pipe.showArrow, 'standalone-cap': pipe.standaloneCap }]" :style="pipeStyle(pipe)"><i v-if="pipe.dir && (!pipe.riser || pipe.showArrow)"></i><b v-if="pipe.cap"></b></div>
       </div>
 
       <section class="air-unit-groups">
@@ -55,8 +55,8 @@
       <section class="header-vessels">
         <div class="header-unit collector interactive-device is-normal" :class="motionClass('air.collector')" data-device-id="air.collector" @click="selectDevice('air.collector')"><img src="/equipment/header-vessel-2_5d.png" alt="集水器"><span>集水器</span></div>
         <div class="header-unit distributor interactive-device is-normal" :class="motionClass('air.distributor')" data-device-id="air.distributor" @click="selectDevice('air.distributor')"><img src="/equipment/header-vessel-2_5d.png" alt="分水器"><span>分水器</span></div>
-        <div class="header-sensor collector-sensor">冷冻回水 <b>{{ value('air.loop.returnPressure', 2) }} MPa</b> <b>{{ value('air.loop.returnTemp', 1) }} ℃</b></div>
-        <div class="header-sensor distributor-sensor">冷冻供水 <b>{{ value('air.loop.supplyPressure', 2) }} MPa</b> <b>{{ value('air.loop.supplyTemp', 1) }} ℃</b></div>
+        <div class="header-sensor collector-sensor">热水 <b>{{ value('air.loop.returnPressure', 2) }} MPa</b> <b>{{ value('air.loop.returnTemp', 1) }} ℃</b></div>
+        <div class="header-sensor distributor-sensor">热水 <b>{{ value('air.loop.supplyPressure', 2) }} MPa</b> <b>{{ value('air.loop.supplyTemp', 1) }} ℃</b></div>
       </section>
 
       <div class="degasser interactive-device" :class="[runningClass('air.degasser.running', 'air.degasser.fault'), motionClass('air.degasser')]" data-device-id="air.degasser" @click="selectDevice('air.degasser')">
@@ -89,7 +89,7 @@
 
       <div class="plant-legend">
         <span>设备状态：</span><b><i class="legend-dot stopped"></i>停止</b><b><i class="legend-dot running"></i>运行</b><b><i class="legend-dot fault"></i>故障</b>
-        <em></em><span>管路颜色：</span><b><i class="legend-line supply"></i>冷冻水供水</b><b><i class="legend-line return"></i>冷冻水回水</b>
+        <em></em><span>管路颜色：</span><b><i class="legend-line supply"></i>冷冻水供水</b><b><i class="legend-line return"></i>热水</b><b><i class="legend-line cw-return"></i>冷却水供水</b><b><i class="legend-line cw-supply"></i>冷却水回水</b>
       </div>
     </div>
   </div>
@@ -131,20 +131,18 @@ function groupStyle(group) {
 }
 
 const pipes = [
-  // 集水器上方四根回水立管（末端 → 集水器），riser/cap 保持原 vertical-risers 样式
-  { kind:'return',x:92,y:350,w:5,h:95,dir:'down',riser:true,cap:true },
-  { kind:'return',x:116,y:350,w:5,h:92,dir:'down',riser:true,cap:true },
-  { kind:'return',x:136,y:350,w:5,h:88,dir:'down',riser:true,cap:true },
-  { kind:'return',x:159,y:350,w:5,h:85,dir:'down',riser:true,cap:true },
+  // 集水器上方四根回水立管（末端 → 集水器），黄色，showArrow 模式，顶部留出距离
+  { kind:'cw-return',x:93,y:370,w:5,h:78,dir:'down',showArrow:true },
+  { kind:'cw-return',x:117,y:370,w:5,h:72,dir:'down',showArrow:true },
+  { kind:'cw-return',x:139,y:370,w:5,h:68,dir:'down',showArrow:true },
+  { kind:'cw-return',x:162,y:370,w:5,h:64,dir:'down',showArrow:true },
   // 集水器上方横管（绿色），连接最左侧回水竖线与四根回水立管
-  { kind:'return',x:42,y:350,w:160,h:5,dir:'right',riser:true },
-  // 分水器上方四根供水立管（分水器 → 末端），与集水器同样可配置
-  { kind:'supply',x:245,y:355,w:5,h:80,dir:'down',riser:true,cap:true },
-  { kind:'supply',x:271,y:355,w:5,h:77,dir:'down',riser:true,cap:true },
-  { kind:'supply',x:290,y:355,w:5,h:75,dir:'down',riser:true,cap:true },
-  { kind:'supply',x:313,y:355,w:5,h:70,dir:'down',riser:true,cap:true },
-  // 分水器上方横管（蓝色），连接四根供水立管
-  { kind:'supply',x:245,y:355,w:71,h:5,dir:'right',riser:true },
+  { kind:'return',x:42,y:350,w:160,h:5,dir:'right',showArrow:true },
+  // 分水器上方四根供水立管（分水器 → 末端），橙色，showArrow 模式，向上箭头
+  { kind:'cw-supply',x:246,y:377,w:5,h:60,dir:'up',showArrow:true },
+  { kind:'cw-supply',x:271,y:377,w:5,h:55,dir:'up',showArrow:true },
+  { kind:'cw-supply',x:292,y:377,w:5,h:52,dir:'up',showArrow:true },
+  { kind:'cw-supply',x:315,y:377,w:5,h:46,dir:'up',showArrow:true },
   // 集水器 → 分水器连接线：右（绿）→ 下（绿）→ 右（绿→蓝过渡）→ 上（蓝）
   { kind:'return',x:190,y:440,w:7,h:4,dir:'right',riser:true },
   { kind:'return',x:197,y:440,w:4,h:70,dir:'down',riser:true },
@@ -153,8 +151,8 @@ const pipes = [
   { kind:'supply',x:220,y:470,w:4,h:44,dir:'up',riser:true },
   
   // 冷冻回水：末端 → 集水器 → 水泵 → 风冷机组（绿色）
-  { kind:'return',x:42,y:350,w:5,h:115,dir:'down' },
-  { kind:'return',x:42,y:460,w:27,h:5,dir:'right' },
+  { kind:'return',x:42,y:350,w:5,h:115,dir:'up' },
+  { kind:'return',x:42,y:460,w:27,h:5,dir:'left' },
   // 集水器右端出水上翻后进入水泵总管，绕开分水器
   { kind:'return',x:200,y:335,w:5,h:18,dir:'up' }, 
   { kind:'return',x:200,y:335,w:350,h:5,dir:'right' },
@@ -192,10 +190,10 @@ const pipes = [
   { kind:'return',x:376,y:435,w:5,h:31,dir:'down' },
   { kind:'return',x:376,y:462,w:174,h:5,dir:'right' },
   // 全程水处理器旁通：脱气机下游取水 → 设备 → 回水主管
-  { kind:'return',x:477,y:530,w:73,h:5,dir:'left' },
-  { kind:'return',x:387,y:556,w:9,h:5,dir:'left' }, 
-  { kind:'return',x:387,y:556,w:5,h:26,dir:'down' },
-  { kind:'return',x:387,y:578,w:163,h:5,dir:'right' }
+  { kind:'return',x:477,y:550,w:73,h:5,dir:'left' },
+  { kind:'return',x:380,y:538,w:14,h:5,dir:'left' }, 
+  { kind:'return',x:380,y:538,w:5,h:44,dir:'down' },
+  { kind:'return',x:380,y:578,w:170,h:5,dir:'right' }
 ]
 
 const chips = computed(() => [
@@ -324,7 +322,7 @@ onUnmounted(() => { observer?.disconnect(); clearTimeout(motionTimer); viewportR
 .schematic-viewport{position:absolute;inset:0;overflow:hidden;background:#eef3f2;cursor:grab;user-select:none}.schematic-viewport.is-dragging{cursor:grabbing}.schematic-viewport.is-dragging .interactive-device{pointer-events:none;transition:none}.plant-canvas{position:absolute;left:0;top:0;width:1320px;height:640px;transform-origin:top left;color:#34464a;font-family:"Microsoft YaHei","PingFang SC",sans-serif}.paper-grid{position:absolute;inset:0;background:linear-gradient(rgba(81,116,118,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(81,116,118,.035) 1px,transparent 1px),radial-gradient(circle at 48% 46%,#fff,#edf2f1);background-size:9px 9px,9px 9px,100% 100%}
 .interactive-device{cursor:pointer;transform-origin:center;transition:transform .18s ease,filter .18s ease,opacity .18s ease;outline:none}.interactive-device:hover{z-index:12!important;transform:translateY(-4px) scale(1.025);filter:brightness(1.06) drop-shadow(0 6px 5px rgba(27,68,70,.18))}.interactive-device::after{content:"";position:absolute;z-index:20;right:4px;top:4px;width:7px;height:7px;border:2px solid rgba(255,255,255,.85);border-radius:50%;background:#2a9ed1;box-shadow:0 0 7px rgba(42,158,209,.8)}.interactive-device.is-running::after{background:#39b94f;box-shadow:0 0 8px #39b94f}.interactive-device.is-stopped::after{background:#8b9697;box-shadow:none}.interactive-device.is-fault::after{background:#d63d46;box-shadow:0 0 9px #d63d46;animation:device-alert 1s infinite}.interactive-device.external-motion{animation:device-nudge .82s cubic-bezier(.2,.75,.3,1)}@keyframes device-nudge{0%,100%{transform:translate(0)}22%{transform:translateY(-8px) rotate(-1.2deg) scale(1.035)}45%{transform:translateY(1px) rotate(.7deg)}68%{transform:translateY(-4px) rotate(-.4deg)}}@keyframes device-alert{50%{opacity:.3}}
 .setting-panel{position:absolute;z-index:7;left:18px;width:355px;padding:10px 12px;background:rgba(213,221,219,.88);border:1px solid rgba(107,132,131,.18);box-shadow:0 1px 5px rgba(38,63,65,.13)}.public-settings{top:16px}.loop-settings{top:137px}.setting-panel h4{font-size:12px;margin:0 0 8px;color:#263b3d}.setting-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 9px}.setting-grid span{display:flex;justify-content:space-between;align-items:center;font-size:8px;color:#46595b;white-space:nowrap}.setting-grid b{min-width:71px;padding:2px 5px;text-align:center;background:rgba(255,255,255,.74);border:1px solid rgba(91,116,116,.15);font-weight:400;color:#506265}.setting-grid b.active{color:#168441;background:#dff4e6}.ambient-readouts{position:absolute;z-index:7;left:20px;top:260px;display:flex;gap:9px}.ambient-readouts span{font-size:8px;color:#506467}.ambient-readouts b{margin-left:5px;padding:2px 6px;background:#d0f0ed;color:#297d7e;font-weight:400}
-.pipe-layer{position:absolute;inset:0;z-index:1}.pipe{position:absolute;background:var(--pipe);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pipe) 70%,#314b4a),0 1px 1px rgba(0,0,0,.15);border-radius:2px}.pipe.supply,.legend-line.supply{--pipe:#0879d0}.pipe.return,.legend-line.return{--pipe:#51a82f}.pipe i{position:absolute;width:0;height:0;filter:drop-shadow(0 0 1px white)}.pipe.horizontal.right i{right:28%;top:-3px;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:8px solid #152b2d}.pipe.horizontal.left i{left:28%;top:-3px;border-top:5px solid transparent;border-bottom:5px solid transparent;border-right:8px solid #152b2d}.pipe.vertical.down i{left:-3px;top:45%;border-left:5px solid transparent;border-right:5px solid transparent;border-top:8px solid #152b2d}.pipe.vertical.up i{left:-3px;top:38%;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:8px solid #152b2d}.pipe.horizontal.right i{animation:pipe-right 2.1s linear infinite}.pipe.horizontal.left i{animation:pipe-left 2.1s linear infinite}.pipe.vertical.down i{animation:pipe-down 2.1s linear infinite}.pipe.vertical.up i{animation:pipe-up 2.1s linear infinite}.pipe::after{content:"";position:absolute;opacity:.24;border-radius:inherit}.pipe.horizontal::after{left:2px;right:2px;top:1px;height:1px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.9) 0 7px,transparent 7px 16px);animation:water-h 1.3s linear infinite}.pipe.vertical::after{top:2px;bottom:2px;left:1px;width:1px;background:repeating-linear-gradient(180deg,rgba(255,255,255,.9) 0 7px,transparent 7px 16px);animation:water-v 1.3s linear infinite}.pipe.horizontal.left::after,.pipe.vertical.up::after{animation-direction:reverse}@keyframes pipe-right{from{right:90%}to{right:5%}}@keyframes pipe-left{from{left:90%}to{left:5%}}@keyframes pipe-down{from{top:5%}to{top:84%}}@keyframes pipe-up{from{top:84%}to{top:5%}}@keyframes water-h{to{background-position:16px 0}}@keyframes water-v{to{background-position:0 16px}}
+.pipe-layer{position:absolute;inset:0;z-index:1}.pipe{position:absolute;background:var(--pipe);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pipe) 70%,#314b4a),0 1px 1px rgba(0,0,0,.15);border-radius:2px}.pipe.supply,.legend-line.supply{--pipe:#0879d0}.pipe.return,.legend-line.return{--pipe:#51a82f}.pipe.cw-return,.legend-line.cw-return{--pipe:#d0bd00}.pipe.cw-supply,.legend-line.cw-supply{--pipe:#d87319}.pipe i{position:absolute;width:0;height:0;filter:drop-shadow(0 0 1px white)}.pipe.riser{box-shadow:none;border-radius:0;background:var(--pipe)}.pipe.riser::after{display:none}.pipe.riser.show-arrow::after{display:block}.pipe.vertical.down.show-arrow i{animation:pipe-down 1.7s linear infinite}.pipe.vertical.up.show-arrow i{animation:pipe-up 1.7s linear infinite}.pipe.horizontal.right.show-arrow i{animation:pipe-right 1.7s linear infinite}.pipe.horizontal.left.show-arrow i{animation:pipe-left 1.7s linear infinite}.pipe.horizontal.right i{right:28%;top:-3px;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:8px solid #152b2d}.pipe.horizontal.left i{left:28%;top:-3px;border-top:5px solid transparent;border-bottom:5px solid transparent;border-right:8px solid #152b2d}.pipe.vertical.down i{left:-3px;top:45%;border-left:5px solid transparent;border-right:5px solid transparent;border-top:8px solid #152b2d}.pipe.vertical.up i{left:-3px;top:38%;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:8px solid #152b2d}.pipe.horizontal.right i{animation:pipe-right 2.1s linear infinite}.pipe.horizontal.left i{animation:pipe-left 2.1s linear infinite}.pipe.vertical.down i{animation:pipe-down 2.1s linear infinite}.pipe.vertical.up i{animation:pipe-up 2.1s linear infinite}.pipe::after{content:"";position:absolute;opacity:.24;border-radius:inherit}.pipe.horizontal::after{left:2px;right:2px;top:1px;height:1px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.9) 0 7px,transparent 7px 16px);animation:water-h 1.3s linear infinite}.pipe.vertical::after{top:2px;bottom:2px;left:1px;width:1px;background:repeating-linear-gradient(180deg,rgba(255,255,255,.9) 0 7px,transparent 7px 16px);animation:water-v 1.3s linear infinite}.pipe.horizontal.left::after,.pipe.vertical.up::after{animation-direction:reverse}@keyframes pipe-right{from{right:90%}to{right:5%}}@keyframes pipe-left{from{left:90%}to{left:5%}}@keyframes pipe-down{from{top:5%}to{top:84%}}@keyframes pipe-up{from{top:84%}to{top:5%}}@keyframes water-h{to{background-position:16px 0}}@keyframes water-v{to{background-position:0 16px}}
 .air-unit-groups{position:absolute;inset:0;z-index:2;pointer-events:none}
 .unit-group{position:absolute;border:1.5px dashed rgba(38,99,84,.55);border-radius:6px;background:rgba(174,222,212,.06);box-shadow:inset 0 0 0 1px rgba(255,255,255,.35)}
 .group-label{position:absolute;left:8px;top:-12px;padding:1px 8px;font-size:9px;font-weight:600;color:#266b56;background:#eef3f2;border:1.5px dashed rgba(38,99,84,.55);border-radius:4px;line-height:14px;white-space:nowrap;letter-spacing:.5px}

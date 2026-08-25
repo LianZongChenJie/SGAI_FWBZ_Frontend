@@ -1,11 +1,11 @@
 import { defHttp } from '/@/utils/http/axios'
 
 enum Api {
-  freshAirHandlingUnitList = '/sgai-tp/fwbz/operationSupport/freshAirHandlingUnitList',
-  freshAirStatistics = '/sgai-tp/fwbz/operationSupport/freshAirStatistics',
-  pm25 = '/sgai-tp/fwbz/operationSupport/pm25',
-  freshSupplyAirTemperature = '/sgai-tp/fwbz/operationSupport/freshSupplyAirTemperature',
-  freshReturnAirTemperature = '/sgai-tp/fwbz/operationSupport/freshReturnAirTemperature',
+  freshAirHandlingUnitList = '/sgai-fwbz-dev/fwbz/operationSupport/freshAirHandlingUnitList',
+  freshAirStatistics = '/sgai-fwbz-dev/fwbz/operationSupport/freshAirStatistics',
+  pm25 = '/sgai-fwbz-dev/fwbz/operationSupport/pm25',
+  freshSupplyAirTemperature = '/sgai-fwbz-dev/fwbz/operationSupport/freshSupplyAirTemperature',
+  freshReturnAirTemperature = '/sgai-fwbz-dev/fwbz/operationSupport/freshReturnAirTemperature',
 }
 
 /**
@@ -36,9 +36,9 @@ export const getFreshReturnAirTemperature = (params = {}) => defHttp.get({ url: 
 /**
  * 设备属性列表（按设备ID查询）
  */
-export const getDeviceAttrList = (params = {}) => defHttp.get({ url: '/sgai-tp/fwbz/deviceAttribute/listByDeviceId', params })
+export const getDeviceAttrList = (params = {}) => defHttp.get({ url: '/sgai-fwbz-dev/fwbz/deviceAttribute/listByDeviceId', params })
 
 /**
  * 空调机组控制
  */
-export const airControl = (data: any[]) => defHttp.post({ url: '/sgai-tp/fwbz/operationSupport/airControl', data })
+export const airControl = (data: any[]) => defHttp.post({ url: '/sgai-fwbz-dev/fwbz/operationSupport/airControl', data })

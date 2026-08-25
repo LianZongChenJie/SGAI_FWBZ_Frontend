@@ -27,9 +27,9 @@ export interface DeviceAttributeItem {
 }
 
 enum Api {
-  airList = '/sgai-tp/fwbz/operationSupport/overview/airList',
-  airControl = '/sgai-tp/fwbz/operationSupport/airControl',
-  deviceAttributeList = '/sgai-tp/fwbz/deviceAttribute/listByDeviceId',
+  airList = '/sgai-fwbz-dev/fwbz/operationSupport/overview/airList',
+  airControl = '/sgai-fwbz-dev/fwbz/operationSupport/airControl',
+  deviceAttributeList = '/sgai-fwbz-dev/fwbz/deviceAttribute/listByDeviceId',
 }
 
 /** 获取空调机组列表 */

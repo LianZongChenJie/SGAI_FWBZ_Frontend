@@ -4,30 +4,30 @@ import { useMessage } from '/@/hooks/web/useMessage';
 const { createConfirm } = useMessage();
 enum Api {
   // categoryTree = '/bems/equipmentCategory/measuring/getTree',
-  categoryTree = '/sgai-tp/fwbz/equipmentCategory/measuring/getPermissionTree',
+  categoryTree = '/sgai-fwbz-dev/fwbz/equipmentCategory/measuring/getPermissionTree',
   // spaceTree = '/bems/space/getTree',
-  spaceTree = '/sgai-tp/fwbz/space/getPermissionTree',
+  spaceTree = '/sgai-fwbz-dev/fwbz/space/getPermissionTree',
   // spaceTree2 = '/bems/space/getTreeByDeviceType',
-  spaceTree2 = '/sgai-tp/fwbz/space/getPermissionTreeByDeviceType',
-  addDevice = '/sgai-tp/fwbz/device/measuring/add',
-  editDevice = '/sgai-tp/fwbz/device/edit',
-  deleteDevice = '/sgai-tp/fwbz/device/delete',
-  // selectDevice = '/sgai-tp/fwbz/device/measuring/list',
-  selectDevice = '/sgai-tp/fwbz/device/list',
+  spaceTree2 = '/sgai-fwbz-dev/fwbz/space/getPermissionTreeByDeviceType',
+  addDevice = '/sgai-fwbz-dev/fwbz/device/measuring/add',
+  editDevice = '/sgai-fwbz-dev/fwbz/device/edit',
+  deleteDevice = '/sgai-fwbz-dev/fwbz/device/delete',
+  // selectDevice = '/sgai-fwbz-dev/fwbz/device/measuring/list',
+  selectDevice = '/sgai-fwbz-dev/fwbz/device/list',
 
-  updateAutomation = '/sgai-tp/fwbz/device/updateAutomaticAlgorithm',
-  staticDataList = '/sgai-tp/fwbz/deviceStaticData/list',
-  staticDataSave = '/sgai-tp/fwbz/deviceStaticData/save',
-  attributeDataList = '/sgai-tp/fwbz/deviceAttribute/listByDeviceId',
-  getDeviceAttribute = '/sgai-tp/fwbz/deviceModel/queryByCategoryId',
-  getListByDeviceId = '/sgai-tp/fwbz/deviceAttribute/queryPage',
-  saveData = '/sgai-tp/fwbz/deviceAttribute/edit',
-  addDate = '/sgai-tp/fwbz/deviceAttribute/add',
-  deleteItem = '/sgai-tp/fwbz/deviceAttribute/delete',
+  updateAutomation = '/sgai-fwbz-dev/fwbz/device/updateAutomaticAlgorithm',
+  staticDataList = '/sgai-fwbz-dev/fwbz/deviceStaticData/list',
+  staticDataSave = '/sgai-fwbz-dev/fwbz/deviceStaticData/save',
+  attributeDataList = '/sgai-fwbz-dev/fwbz/deviceAttribute/listByDeviceId',
+  getDeviceAttribute = '/sgai-fwbz-dev/fwbz/deviceModel/queryByCategoryId',
+  getListByDeviceId = '/sgai-fwbz-dev/fwbz/deviceAttribute/queryPage',
+  saveData = '/sgai-fwbz-dev/fwbz/deviceAttribute/edit',
+  addDate = '/sgai-fwbz-dev/fwbz/deviceAttribute/add',
+  deleteItem = '/sgai-fwbz-dev/fwbz/deviceAttribute/delete',
 
-  exportData = '/sgai-tp/fwbz/device/export',
-  getCategoryTree = '/sgai-tp/fwbz/equipmentCategory/getTree',
-  venueInfoList = '/sgai-tp/fwbz/venueInfo/listAll'
+  exportData = '/sgai-fwbz-dev/fwbz/device/export',
+  getCategoryTree = '/sgai-fwbz-dev/fwbz/equipmentCategory/getTree',
+  venueInfoList = '/sgai-fwbz-dev/fwbz/venueInfo/listAll'
 }
 
 /**

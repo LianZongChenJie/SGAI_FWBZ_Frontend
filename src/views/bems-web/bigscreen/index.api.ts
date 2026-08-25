@@ -55,11 +55,11 @@ enum Api {
     
     /** 故障告警 */
     /** 告警记录分页列表 */
-    alarmRecordList = '/sgai-tp/fwbz/alarm/record/listPage',
+    alarmRecordList = '/sgai-fwbz-dev/fwbz/alarm/record/listPage',
     /** 告警统计 */
-    alarmStatistics = '/sgai-tp/fwbz/alarm/record/statistics',
+    alarmStatistics = '/sgai-fwbz-dev/fwbz/alarm/record/statistics',
     /** 告警趋势 */
-    alarmTrendRecently = '/sgai-tp/fwbz/alarm/record/alarmTrendRecently',
+    alarmTrendRecently = '/sgai-fwbz-dev/fwbz/alarm/record/alarmTrendRecently',
     /** 今日数据量 */
     todayDataSize = '/sgai-fwbz-dev/fwbz/interfaceStatistics/todayDataSize',
     /** 数据采集点 */
@@ -89,21 +89,21 @@ enum Api {
     /** 设备异常 */
     deviceException = '/sgai-fwbz-dev/fwbz/complaintStatistics/todayAlarm',
     /** 用电分时数据 */
-    electricityInTimePeriod = '/sgai-tp/fwbz/meterPointData/electricityInTimePeriod',
+    electricityInTimePeriod = '/sgai-fwbz-dev/fwbz/meterPointData/electricityInTimePeriod',
     /** 能耗计量统计 */
-    energyStatistics = '/sgai-tp/fwbz/energyMetering/statistics',
+    energyStatistics = '/sgai-fwbz-dev/fwbz/energyMetering/statistics',
     /** 空调机组统计 */
-    airConditioningUnitStatistics = '/sgai-tp/fwbz/operationSupport/airConditioningUnitStatistics',
+    airConditioningUnitStatistics = '/sgai-fwbz-dev/fwbz/operationSupport/airConditioningUnitStatistics',
     /** 新风机组统计 */
-    freshAirStatistics = '/sgai-tp/fwbz/operationSupport/freshAirStatistics',
+    freshAirStatistics = '/sgai-fwbz-dev/fwbz/operationSupport/freshAirStatistics',
     /** 配电系统统计 */
-    powerStatistics = '/sgai-tp/fwbz/operationSupport/powerStatistics',
+    powerStatistics = '/sgai-fwbz-dev/fwbz/operationSupport/powerStatistics',
     /** 近7日用电趋势 */
-    energyConsumptionPSDElectricity = '/sgai-tp/fwbz/meterPointData/energyConsumptionPSDElectricity',
+    energyConsumptionPSDElectricity = '/sgai-fwbz-dev/fwbz/meterPointData/energyConsumptionPSDElectricity',
     /** 各场馆用电 */
-    electricityInVenue = '/sgai-tp/fwbz/meterPointData/electricityInVenue',
+    electricityInVenue = '/sgai-fwbz-dev/fwbz/meterPointData/electricityInVenue',
     /** 用能结构分析 */
-    energyStructure = '/sgai-tp/fwbz/meterPointData/energyStructure',
+    energyStructure = '/sgai-fwbz-dev/fwbz/meterPointData/energyStructure',
     /** 接口状态监控列表 */
     interfaceStatusList = '/sgai-fwbz-dev/fwbz/interfaceInfo/listPage',
     /** 协议类型下拉 */

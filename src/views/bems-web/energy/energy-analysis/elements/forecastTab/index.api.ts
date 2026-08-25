@@ -1,8 +1,8 @@
 import { defHttp } from '/@/utils/http/axios'
 
 enum Api {
-  forecast = '/sgai-tp/fwbz/loadForecast/predict',
-  optimizeList = '/sgai-tp/fwbz/loadForecast/optimizeList',
+  forecast = '/sgai-fwbz-dev/fwbz/loadForecast/predict',
+  optimizeList = '/sgai-fwbz-dev/fwbz/loadForecast/optimizeList',
 }
 
 /**

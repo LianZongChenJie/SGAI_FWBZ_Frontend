@@ -2,8 +2,8 @@ import { defHttp } from '/@/utils/http/axios';
 import { defHttp } from '/@/utils/http/axios'
 
 enum Api {
-  venueInfoList = '/sgai-tp/fwbz/venueInfo/list',
-  deviceRunStateStatistics = '/sgai-tp/fwbz/device/deviceRunStateStatistics',
+  venueInfoList = '/sgai-fwbz-dev/fwbz/venueInfo/list',
+  deviceRunStateStatistics = '/sgai-fwbz-dev/fwbz/device/deviceRunStateStatistics',
 }
 
 /** 获取设备信息列表 */

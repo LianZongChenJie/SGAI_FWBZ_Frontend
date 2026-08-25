@@ -1,14 +1,14 @@
 import { defHttp } from '/@/utils/http/axios';
 
 enum Api {
-  statistics = '/sgai-tp/fwbz/energyMetering/statistics',
-  measuringListWithMouth = '/sgai-tp/fwbz/deviceData/measuringList',
-  findDayByConfig = '/sgai-tp/fwbz/meterPointData/findDayEnergyStructure',
-  findMonthByConfig = '/sgai-tp/fwbz/meterPointData/findMonthEnergyStructure',
-  findYearByConfig = '/sgai-tp/fwbz/meterPointData/findYearEnergyStructure',
-  findDayVenueElectricity = '/sgai-tp/fwbz/meterPointData/findDayVenueElectricity',
-  findMonthVenueElectricity = '/sgai-tp/fwbz/meterPointData/findMonthVenueElectricity',
-  findYearVenueElectricity = '/sgai-tp/fwbz/meterPointData/findYearVenueElectricity',
+  statistics = '/sgai-fwbz-dev/fwbz/energyMetering/statistics',
+  measuringListWithMouth = '/sgai-fwbz-dev/fwbz/deviceData/measuringList',
+  findDayByConfig = '/sgai-fwbz-dev/fwbz/meterPointData/findDayEnergyStructure',
+  findMonthByConfig = '/sgai-fwbz-dev/fwbz/meterPointData/findMonthEnergyStructure',
+  findYearByConfig = '/sgai-fwbz-dev/fwbz/meterPointData/findYearEnergyStructure',
+  findDayVenueElectricity = '/sgai-fwbz-dev/fwbz/meterPointData/findDayVenueElectricity',
+  findMonthVenueElectricity = '/sgai-fwbz-dev/fwbz/meterPointData/findMonthVenueElectricity',
+  findYearVenueElectricity = '/sgai-fwbz-dev/fwbz/meterPointData/findYearVenueElectricity',
 }
 
 /**

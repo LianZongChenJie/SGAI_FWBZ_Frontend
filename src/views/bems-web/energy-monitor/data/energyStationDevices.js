@@ -42,7 +42,7 @@ export function getEnergyDeviceProfile(id) {
   }
   if ((match = id.match(/^water\.chiller\.(\d+)$/))) {
     const no = match[1]
-    return { id, title: `${no}#冷水机组`, type: '离心式冷水机组', runningKey: `chiller.${no}.running`, faultKey: `chiller.${no}.fault`, fields: [field('累计运行', `chiller.${no}.hours`), field('输入功率', `chiller.${no}.power`), field('实时负载', `chiller.${no}.load`), field('冷冻出水', `chiller.${no}.supplyTemp`), field('冷冻回水', `chiller.${no}.returnTemp`), ...statusFields(`chiller.${no}`, { includeFrequency: false })] }
+    return { id, title: `${no}#冷水机组`, type: '离心式冷水机组', runningKey: `chiller.${no}.running`, faultKey: `chiller.${no}.fault`, fields: [field('累计运行', `chiller.${no}.hours`), field('实时负载', `chiller.${no}.load`), field('冷冻出水', `chiller.${no}.supplyTemp`), field('冷冻回水', `chiller.${no}.returnTemp`), ...statusFields(`chiller.${no}`, { includeFrequency: false })] }
   }
   if ((match = id.match(/^water\.(chwPump|cwPump)\.(\d+)$/))) {
     const [, kind, no] = match
@@ -63,13 +63,13 @@ export function getEnergyDeviceProfile(id) {
   }
   if (id === 'water.dosing') return { id, title: '加药装置', type: '冷却水加药', runningKey: 'dosing.running', faultKey: 'dosing.fault', fields: [field('运行状态', 'dosing.running', 'running'), field('故障状态', 'dosing.fault', 'fault'), field('冷却回水温度', 'loop.cwReturnTemp'), field('冷却水压力', 'loop.cwPressure')] }
   if (id === 'water.softener') return { id, title: '软化水装置', type: '补水预处理', runningKey: 'makeup.softenerRunning', fields: [field('运行状态', 'makeup.softenerRunning', 'running'), field('补水压力', 'makeup.pressure')] }
-  if (id === 'water.tank') return { id, title: '补水箱', type: '液位设备', tank: true, fields: [field('当前液位', 'makeup.tankLevel'), field('补水压力', 'makeup.pressure')] }
-  if (id === 'water.makeupPump') return { id, title: '定压补水泵组', type: '定压补水', runningKey: 'makeup.pumpRunning', fields: [field('运行状态', 'makeup.pumpRunning', 'running'), field('出口压力', 'makeup.pressure')] }
+  if (id === 'water.tank') return { id, title: '补水箱', type: '液位设备', tank: true, fields: [field('当前液位', 'makeup.tankLevel')] }
+  if (id === 'water.makeupPump') return { id, title: '定压补水泵组', type: '定压补水', runningKey: 'makeup.pumpRunning', fields: [field('运行状态', 'makeup.pumpRunning', 'running')] }
 
   if ((match = id.match(/^air\.unit\.(\d+)$/))) {
     const no = match[1]
     const prefix = `airUnit.${no}`
-    return { id, title: `${no}#风冷机组`, type: '模块式风冷机组', runningKey: `${prefix}.running`, faultKey: `${prefix}.fault`, fields: [field('累计运行', `${prefix}.hours`), field('输入功率', `${prefix}.power`), field('实时负载', `${prefix}.load`), ...statusFields(prefix, { frequencyKey: `${prefix}.fanFrequency` })] }
+    return { id, title: `${no}#风冷机组`, type: '模块式风冷机组', runningKey: `${prefix}.running`, faultKey: `${prefix}.fault`, fields: [field('累计运行', `${prefix}.hours`), field('实时负载', `${prefix}.load`), ...statusFields(prefix, { frequencyKey: `${prefix}.fanFrequency` })] }
   }
   if ((match = id.match(/^air\.(chwPump|hotPump)\.(\d+)$/))) {
     const [, kind, no] = match
@@ -87,7 +87,7 @@ export function getEnergyDeviceProfile(id) {
   if ((match = id.match(/^distributed\.(east|hall2|hall3)\.unit\.(\d+)$/))) {
     const [, hall, no] = match
     const prefix = `distributed.${hall}.unit.${no}`
-    return { id, title: `${distributedHallNames[hall]} ${no}#风冷机组`, type: '分馆模块式风冷机组', runningKey: `${prefix}.running`, faultKey: `${prefix}.fault`, fields: [field('累计运行', `${prefix}.hours`), field('输入功率', `${prefix}.power`), field('实时负载', `${prefix}.load`), ...statusFields(prefix, { frequencyKey: `${prefix}.fanFrequency` })] }
+    return { id, title: `${distributedHallNames[hall]} ${no}#风冷机组`, type: '分馆模块式风冷机组', runningKey: `${prefix}.running`, faultKey: `${prefix}.fault`, fields: [field('累计运行', `${prefix}.hours`), field('实时负载', `${prefix}.load`), ...statusFields(prefix, { frequencyKey: `${prefix}.fanFrequency` })] }
   }
   if ((match = id.match(/^distributed\.(east|hall2|hall3)\.pump\.(\d+)$/))) {
     const [, hall, no] = match
@@ -100,8 +100,8 @@ export function getEnergyDeviceProfile(id) {
     const hallName = distributedHallNames[hall]
     if (kind === 'degasser') return { id, title: `${hallName} 真空脱气机`, type: '真空脱气定压', runningKey: `${prefix}.degasser.running`, faultKey: `${prefix}.degasser.fault`, fields: [field('液位', `${prefix}.degasser.level`), field('运行状态', `${prefix}.degasser.running`, 'running'), field('故障状态', `${prefix}.degasser.fault`, 'fault'), field('回水压力', `${prefix}.loop.returnPressure`)] }
     if (kind === 'treatment') return { id, title: `${hallName} 全程水处理器`, type: '分馆冷冻水水处理', runningKey: `${prefix}.treatment.running`, faultKey: `${prefix}.treatment.fault`, fields: [field('运行状态', `${prefix}.treatment.running`, 'running'), field('故障状态', `${prefix}.treatment.fault`, 'fault'), field('回水压力', `${prefix}.loop.returnPressure`)] }
-    if (kind === 'tank') return { id, title: `${hallName} 补水箱`, type: '分馆补水液位设备', tank: true, tankKey: `${prefix}.makeup.tankLevel`, fields: [field('当前液位', `${prefix}.makeup.tankLevel`), field('补水压力', `${prefix}.makeup.pressure`)] }
-    if (kind === 'makeupPump') return { id, title: `${hallName} 定压补水泵组`, type: '分馆定压补水', runningKey: `${prefix}.makeup.pumpRunning`, fields: [field('运行状态', `${prefix}.makeup.pumpRunning`, 'running'), field('出口压力', `${prefix}.makeup.pressure`)] }
+    if (kind === 'tank') return { id, title: `${hallName} 补水箱`, type: '分馆补水液位设备', tank: true, tankKey: `${prefix}.makeup.tankLevel`, fields: [field('当前液位', `${prefix}.makeup.tankLevel`)] }
+    if (kind === 'makeupPump') return { id, title: `${hallName} 定压补水泵组`, type: '分馆定压补水', runningKey: `${prefix}.makeup.pumpRunning`, fields: [field('运行状态', `${prefix}.makeup.pumpRunning`, 'running')] }
     return { id, title: `${hallName} 软化水装置`, type: '分馆补水预处理', runningKey: `${prefix}.makeup.softenerRunning`, fields: [field('运行状态', `${prefix}.makeup.softenerRunning`, 'running'), field('补水压力', `${prefix}.makeup.pressure`)] }
   }
   return null

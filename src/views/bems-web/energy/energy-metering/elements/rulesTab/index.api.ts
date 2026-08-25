@@ -1,7 +1,7 @@
 import { defHttp } from '/@/utils/http/axios'
 
 enum Api {
-  statistics = '/sgai-tp/fwbz/meteringPoint/statistics',
+  statistics = '/sgai-fwbz-dev/fwbz/meteringPoint/statistics',
 }
 
 /**
