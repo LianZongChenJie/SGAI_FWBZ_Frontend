@@ -185,8 +185,8 @@ const pipes = [
   // { kind:'return',x:98,y:350,w:5,h:70,dir:'down' }, 
   // { kind:'supply',x:258,y:350,w:5,h:70,dir:'down' },
   // 真空脱气机旁通：回水主管取水并回到同一回路
-  { kind:'return',x:480,y:435,w:70,h:5,dir:'left' },
-  { kind:'return',x:376,y:435,w:9,h:5,dir:'left' }, 
+  { kind:'return',x:463,y:419,w:85,h:5,dir:'left' },
+  { kind:'return',x:376,y:435,w:18,h:5,dir:'left' }, 
   { kind:'return',x:376,y:435,w:5,h:31,dir:'down' },
   { kind:'return',x:376,y:462,w:174,h:5,dir:'right' },
   // 全程水处理器旁通：脱气机下游取水 → 设备 → 回水主管
