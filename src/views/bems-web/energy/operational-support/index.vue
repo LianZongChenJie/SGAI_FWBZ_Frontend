@@ -4,6 +4,10 @@
       <a-tab-pane key="overview" tab="概览" />
       <a-tab-pane key="ac" tab="空调机组" />
       <a-tab-pane key="fresh" tab="新风机组" />
+      <a-tab-pane key="supplyFan" tab="送补风机" />
+      <a-tab-pane key="fanCoil" tab="风机盘管" />
+      <a-tab-pane key="heatRecovery" tab="热回收机组" />
+      <a-tab-pane key="sumpPit" tab="集水坑" />
       <a-tab-pane key="power" tab="配电系统" />
       <a-tab-pane key="cold" tab="冷源系统" />
       <a-tab-pane key="pv" tab="光伏系统" />
@@ -19,6 +23,18 @@
 
       <!-- 新风机组 -->
       <FreshTab v-else-if="currentTab === 'fresh'" :data="tabData.fresh" />
+
+      <!-- 送补风机 -->
+      <SupplyFanTab v-else-if="currentTab === 'supplyFan'" :data="tabData.supplyFan" />
+
+      <!-- 风机盘管 -->
+      <FanCoilTab v-else-if="currentTab === 'fanCoil'" :data="tabData.fanCoil" />
+
+      <!-- 热回收机组 -->
+      <HeatRecoveryTab v-else-if="currentTab === 'heatRecovery'" :data="tabData.heatRecovery" />
+
+      <!-- 集水坑 -->
+      <SumpPitTab v-else-if="currentTab === 'sumpPit'" :data="tabData.sumpPit" />
 
       <!-- 配电系统 -->
       <PowerTab v-else-if="currentTab === 'power'" :data="tabData.power" />
@@ -37,6 +53,10 @@ import { ref, reactive, onMounted } from 'vue'
 import OverviewTab from './elements/overviewTab/index.vue'
 import AcTab from './elements/acTab/index.vue'
 import FreshTab from './elements/freshTab/index.vue'
+import SupplyFanTab from './elements/supplyFanTab/index.vue'
+import FanCoilTab from './elements/fanCoilTab/index.vue'
+import HeatRecoveryTab from './elements/heatRecoveryTab/index.vue'
+import SumpPitTab from './elements/sumpPitTab/index.vue'
 import PowerTab from './elements/powerTab/index.vue'
 import ColdTab from './elements/coldTab/index.vue'
 import PvTab from './elements/pvTab/index.vue'
@@ -49,6 +69,11 @@ const tabData = reactive({
   overview: {},
   ac: {},
   fresh: {},
+  acExhaust: {},
+  supplyFan: {},
+  fanCoil: {},
+  heatRecovery: {},
+  sumpPit: {},
   power: {},
   cold: {},
   pv: {

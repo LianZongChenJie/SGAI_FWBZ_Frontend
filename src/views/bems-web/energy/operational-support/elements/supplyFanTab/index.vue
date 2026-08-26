@@ -3,57 +3,50 @@
     <!-- 统计卡片 -->
     <div class="stat-cards">
       <StatCard
-        label="光伏组串数"
-        :value="data?.stats?.[0]?.value ?? 12"
-        :change-text="data?.stats?.[0]?.changeText ?? '↑ 4 新增'"
-        trend="up"
+        label="送补风机总数"
+        :value="statsData.count"
         color="blue"
-        :icon="PvStringCountIcon"
+        :icon="TotalIcon"
       />
       <StatCard
-        label="装机容量"
-        :value="data?.stats?.[1]?.value ?? '856'"
-        :change-text="data?.stats?.[1]?.changeText ?? 'kW'"
-        trend="up"
+        label="运行中"
+        :value="statsData.online"
         color="green"
-        :icon="InstalledCapacityIcon"
+        :icon="RunningIcon"
       />
       <StatCard
-        label="今日发电量"
-        :value="data?.stats?.[2]?.value ?? '3,456'"
-        :change-text="data?.stats?.[2]?.changeText ?? '↑ 12.3% kWh'"
-        trend="up"
+        label="今日能耗"
+        :value="statsData.energyConsumption"
+        unit="kWh"
         color="orange"
-        :icon="TodayGenerationIcon"
+        :icon="EnergyIcon"
       />
       <StatCard
-        label="发电效率"
-        :value="data?.stats?.[3]?.value ?? '18.5%'"
-        :change-text="data?.stats?.[3]?.changeText ?? '↑ 0.8% 较昨日'"
-        trend="up"
+        label="平均送风量"
+        :value="statsData.avgSupplyAir"
+        unit="m³/h"
         color="purple"
-        :icon="GenerationEfficiencyIcon"
+        :icon="AirVolumeIcon"
       />
     </div>
 
     <!-- 实时监测表格 -->
     <div class="card">
       <div class="card-header">
-        <h3>☀️光伏系统实时监测</h3>
+        <h3>🌬️送补风机实时监测</h3>
         <div class="header-right">
           <div class="filter-bar">
-          <a-select v-model:value="filterArea" placeholder="全部区域" style="width: 140px" allow-clear>
-            <a-select-option value="">全部区域</a-select-option>
-            <a-select-option value="A馆屋顶">A馆屋顶</a-select-option>
-            <a-select-option value="B馆屋顶">B馆屋顶</a-select-option>
-            <a-select-option value="C馆屋顶">C馆屋顶</a-select-option>
-            <a-select-option value="停车场车棚">停车场车棚</a-select-option>
+          <a-select v-model:value="filterStatus" placeholder="全部状态" style="width: 140px" allow-clear>
+            <a-select-option value="">全部状态</a-select-option>
+            <a-select-option value="运行">运行</a-select-option>
+            <a-select-option value="停止">停止</a-select-option>
+            <a-select-option value="故障">故障</a-select-option>
           </a-select>
           <a-button type="primary" @click="handleSearch">🔍 查询</a-button>
           </div>
           <button class="collapse-btn" @click="collapsedTable = !collapsedTable">
-<CaretDownOutlined v-if="!collapsedTable" />
-          <CaretUpOutlined v-else />
+            <CaretDownOutlined v-if="!collapsedTable" />
+            <CaretUpOutlined v-else />
           </button>
         </div>
       </div>
@@ -62,14 +55,14 @@
           :dataSource="filteredTableData"
           :columns="columns"
           :pagination="{ pageSize: 10 }"
-          :scroll="{ x: 1100 }"
+          :scroll="{ x: 1200 }"
           size="middle"
         >
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'status'">
-              <a-tag v-if="record.status === '发电'" color="green">发电</a-tag>
-              <a-tag v-else-if="record.status === '待机'" color="orange">待机</a-tag>
-              <a-tag v-else color="red">故障</a-tag>
+              <a-tag v-if="record.status === '运行'" color="green">运行</a-tag>
+              <a-tag v-else-if="record.status === '停止'" color="red">停止</a-tag>
+              <a-tag v-else color="orange">故障</a-tag>
             </template>
             <template v-if="column.key === 'action'">
               <a-button type="link" size="small">详情</a-button>
@@ -93,42 +86,42 @@
         <div class="analysis-card__header">
           <div class="analysis-card__title">
             <span class="analysis-card__icon">📈</span>
-            <span>光伏发电趋势</span>
+            <span>送补风系统能耗趋势</span>
           </div>
         </div>
         <div class="analysis-card__body">
           <div class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
-            <div class="chart-placeholder__text">今日光伏发电功率曲线</div>
+            <div class="chart-placeholder__text">各送补风机能耗趋势</div>
           </div>
         </div>
       </a-card>
       <a-card class="analysis-card" :bordered="false">
         <div class="analysis-card__header">
           <div class="analysis-card__title">
-            <span class="analysis-card__icon">🌤️</span>
-            <span>发电效率分析</span>
+            <span class="analysis-card__icon">💨</span>
+            <span>送补风压差分析</span>
           </div>
         </div>
         <div class="analysis-card__body">
           <div class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
-            <div class="chart-placeholder__text">辐照度-发电量关联分析</div>
+            <div class="chart-placeholder__text">送风与补风压差分析</div>
           </div>
         </div>
       </a-card>
     </div>
     </div>
 
-    <!-- 工艺图监控 - 光伏系统（只在光伏系统tab展示） -->
-    <div class="card">
+    <!-- 工艺图监控 - 送补风系统 -->
+    <div class="card" :class="{ 'process-fullscreen': processFullscreen }">
       <div class="card-header">
-        <h3>🏭工艺图监控 - 光伏系统</h3>
+        <h3>🏭工艺图监控 - 送补风系统</h3>
         <div class="header-right">
-          <a-tag color="green">实时</a-tag>
+          <a-tag color="blue">实时</a-tag>
           <button class="collapse-btn" @click="collapsedProcess = !collapsedProcess">
-<CaretDownOutlined v-if="!collapsedProcess" />
-          <CaretUpOutlined v-else />
+            <CaretDownOutlined v-if="!collapsedProcess" />
+            <CaretUpOutlined v-else />
           </button>
           <button class="collapse-btn" @click="toggleProcessFullscreen">
             <FullscreenOutlined v-if="!processFullscreen" />
@@ -136,31 +129,44 @@
           </button>
         </div>
       </div>
-      <div class="card-body" v-show="!collapsedProcess">
-        <div class="chart-placeholder" style="min-height: 300px">
-          <div class="chart-icon">🏭</div>
-          <div class="chart-text">光伏系统拓扑监控图</div>
-          <div style="font-size: 12px; color: #a0aec0; margin-top: 8px">
-            光伏组串 → 汇流箱 → 逆变器 → 交流配电柜 → 并网柜/储能 → 负载/电网 | 实时电压/功率/发电量叠加显示
+      <div class="card-body process-body" v-show="!collapsedProcess">
+        <div class="process-layout">
+          <!-- 左侧：空间位置树 -->
+          <div class="process-tree">
+            <div class="process-tree__header">设备位置</div>
+            <a-tree
+              v-model:selectedKeys="selectedSpaceKeys"
+              :tree-data="spaceTreeData"
+              :field-names="{ children: 'children', label: 'title', value: 'key', key: 'key' }"
+              default-expand-all
+              :style="{ maxHeight: '500px', overflow: 'auto' }"
+              @select="handleSpaceSelect"
+            />
+          </div>
+          <!-- 右侧：工艺图 -->
+          <div class="process-schematic">
+            <FanBox :values="{}" />
           </div>
         </div>
-    </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, h } from 'vue'
+import { ref, computed, h, onMounted } from 'vue'
 import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons-vue'
 import { StatCard } from '/@/views/bems-web/components'
+import { spaceTree } from './index.api'
+import FanBox from '../../building-automation/fan-box.vue'
 
 // 自定义 emoji 图标组件
-const PvStringCountIcon = () => h('span', { style: 'font-size: 20px;' }, '☀️')
-const InstalledCapacityIcon = () => h('span', { style: 'font-size: 20px;' }, '⚡')
-const TodayGenerationIcon = () => h('span', { style: 'font-size: 20px;' }, '🔋')
-const GenerationEfficiencyIcon = () => h('span', { style: 'font-size: 20px;' }, '📈')
+const TotalIcon = () => h('span', { style: 'font-size: 20px;' }, '🌬️')
+const RunningIcon = () => h('span', { style: 'font-size: 20px;' }, '✅')
+const EnergyIcon = () => h('span', { style: 'font-size: 20px;' }, '⚡')
+const AirVolumeIcon = () => h('span', { style: 'font-size: 20px;' }, '📊')
 
-defineOptions({ name: 'PvTab' })
+defineOptions({ name: 'SupplyFanTab' })
 
 // 折叠状态
 const collapsedTable = ref(false)
@@ -173,52 +179,101 @@ const toggleProcessFullscreen = () => {
   processFullscreen.value = !processFullscreen.value
 }
 
-const props = defineProps<{
+defineProps<{
   data?: any
 }>()
 
+// 工艺图 - 左侧树 & 右侧FanBox组件
+const selectedSpaceKeys = ref<string[]>([])
+const spaceTreeData = ref<any[]>([])
+
+/** 查找树中第一个叶子节点 */
+const findFirstLeafKey = (nodes: any[]): string | null => {
+  for (const node of nodes) {
+    if (!node.children || node.children.length === 0) {
+      return String(node.key)
+    }
+    const leafKey = findFirstLeafKey(node.children)
+    if (leafKey) return leafKey
+  }
+  return null
+}
+
+/** 加载空间位置树 */
+const loadSpaceTree = async () => {
+  try {
+    const res = await spaceTree()
+    spaceTreeData.value = Array.isArray(res) ? res : (res.data || res.records || [])
+    // 默认选中第一个叶子节点
+    if (spaceTreeData.value.length > 0) {
+      const firstKey = findFirstLeafKey(spaceTreeData.value)
+      if (firstKey) {
+        selectedSpaceKeys.value = [firstKey]
+      }
+    }
+  } catch (e) {
+    console.error('加载空间树数据失败:', e)
+  }
+}
+
+/** 根据选中的空间节点切换 */
+const handleSpaceSelect = (keys: (string | number)[]) => {
+  if (!keys || keys.length === 0) return
+  const key = String(keys[0])
+  selectedSpaceKeys.value = [key]
+}
+
+onMounted(() => {
+  loadSpaceTree()
+})
+
+// 统计数据
+const statsData = {
+  count: 12,
+  online: 11,
+  energyConsumption: '328',
+  avgSupplyAir: '6,500',
+}
+
 // 筛选条件
-const filterArea = ref('')
+const filterStatus = ref('')
 
 // 表格列定义
 const columns = [
-  { title: '组串编号', dataIndex: 'code', key: 'code', width: 110 },
+  { title: '机组编号', dataIndex: 'code', key: 'code', width: 110 },
   { title: '位置', dataIndex: 'location', key: 'location', width: 140 },
   { title: '运行状态', dataIndex: 'status', key: 'status', width: 100 },
-  { title: '直流电压', dataIndex: 'dcVoltage', key: 'dcVoltage', width: 100 },
-  { title: '直流电流', dataIndex: 'dcCurrent', key: 'dcCurrent', width: 100 },
-  { title: '直流功率', dataIndex: 'dcPower', key: 'dcPower', width: 100 },
-  { title: '交流功率', dataIndex: 'acPower', key: 'acPower', width: 100 },
-  { title: '辐照度', dataIndex: 'irradiance', key: 'irradiance', width: 100 },
-  { title: '板面温度', dataIndex: 'temp', key: 'temp', width: 90 },
-  { title: '今日发电', dataIndex: 'todayEnergy', key: 'todayEnergy', width: 110 },
+  { title: '送风量(m³/h)', dataIndex: 'supplyAir', key: 'supplyAir', width: 130 },
+  { title: '补风量(m³/h)', dataIndex: 'supplyAir2', key: 'supplyAir2', width: 130 },
+  { title: '送风压(Pa)', dataIndex: 'supplyPressure', key: 'supplyPressure', width: 120 },
+  { title: '补风压(Pa)', dataIndex: 'supplyPressure2', key: 'supplyPressure2', width: 120 },
+  { title: '功率(kW)', dataIndex: 'power', key: 'power', width: 100 },
+  { title: '今日能耗(kWh)', dataIndex: 'todayEnergy', key: 'todayEnergy', width: 130 },
   { title: '操作', dataIndex: 'action', key: 'action', width: 80, fixed: 'right' },
 ]
 
-// 表格数据 - 优先使用父级传入的 data，否则使用默认数据
-const defaultTableData = [
-  { code: 'PV-A-01', location: 'A馆屋顶-东', status: '发电', dcVoltage: '680V', dcCurrent: '45A', dcPower: '30.6 kW', acPower: '29.5 kW', irradiance: '850 W/㎡', temp: '45°C', todayEnergy: '156 kWh' },
-  { code: 'PV-A-02', location: 'A馆屋顶-西', status: '发电', dcVoltage: '675V', dcCurrent: '42A', dcPower: '28.4 kW', acPower: '27.3 kW', irradiance: '820 W/㎡', temp: '48°C', todayEnergy: '142 kWh' },
-  { code: 'PV-B-01', location: 'B馆屋顶', status: '发电', dcVoltage: '690V', dcCurrent: '48A', dcPower: '33.1 kW', acPower: '31.8 kW', irradiance: '880 W/㎡', temp: '43°C', todayEnergy: '168 kWh' },
-  { code: 'PV-C-01', location: 'C馆屋顶', status: '发电', dcVoltage: '685V', dcCurrent: '46A', dcPower: '31.5 kW', acPower: '30.2 kW', irradiance: '860 W/㎡', temp: '46°C', todayEnergy: '159 kWh' },
-  { code: 'PV-P-01', location: '停车场车棚', status: '发电', dcVoltage: '670V', dcCurrent: '40A', dcPower: '26.8 kW', acPower: '25.7 kW', irradiance: '800 W/㎡', temp: '50°C', todayEnergy: '128 kWh' },
+// 表格数据
+const tableData = [
+  { code: 'SF-A-01', location: 'A馆-B1-机房', status: '运行', supplyAir: '8,500', supplyAir2: '6,200', supplyPressure: '320', supplyPressure2: '260', power: '5.5', todayEnergy: '24' },
+  { code: 'SF-A-02', location: 'A馆-F1-大厅', status: '运行', supplyAir: '7,200', supplyAir2: '5,000', supplyPressure: '280', supplyPressure2: '220', power: '4.0', todayEnergy: '18' },
+  { code: 'SF-B-01', location: 'B馆-B1-机房', status: '运行', supplyAir: '9,000', supplyAir2: '6,500', supplyPressure: '340', supplyPressure2: '280', power: '6.0', todayEnergy: '26' },
+  { code: 'SF-B-02', location: 'B馆-F2-办公区', status: '运行', supplyAir: '6,500', supplyAir2: '4,500', supplyPressure: '250', supplyPressure2: '200', power: '3.5', todayEnergy: '15' },
+  { code: 'SF-C-01', location: 'C馆-B1-机房', status: '停止', supplyAir: '0', supplyAir2: '0', supplyPressure: '0', supplyPressure2: '0', power: '0', todayEnergy: '0' },
+  { code: 'SF-C-02', location: 'C馆-F1-大厅', status: '运行', supplyAir: '7,800', supplyAir2: '5,500', supplyPressure: '300', supplyPressure2: '240', power: '4.5', todayEnergy: '20' },
+  { code: 'SF-D-01', location: 'D馆-屋顶', status: '故障', supplyAir: '--', supplyAir2: '--', supplyPressure: '--', supplyPressure2: '--', power: '--', todayEnergy: '--' },
+  { code: 'SF-D-02', location: 'D馆-F3-办公区', status: '运行', supplyAir: '6,000', supplyAir2: '4,200', supplyPressure: '240', supplyPressure2: '190', power: '3.2', todayEnergy: '14' },
 ]
-
-// 使用父级传入的tableData或默认数据
-const tableData = computed(() => {
-  return props.data?.tableData?.length ? props.data.tableData : defaultTableData
-})
 
 // 筛选逻辑
 const filteredTableData = computed(() => {
-  return tableData.value.filter((item: any) => {
-    const matchArea = !filterArea.value || item.location.includes(filterArea.value)
-    return matchArea
+  return tableData.filter((item) => {
+    const matchStatus = !filterStatus.value || item.status === filterStatus.value
+    return matchStatus
   })
 })
 
 const handleSearch = () => {
-  console.log('查询:', { area: filterArea.value })
+  console.log('查询:', { status: filterStatus.value })
 }
 </script>
 
@@ -451,6 +506,62 @@ const handleSearch = () => {
   &:hover {
     color: #1677ff;
     border-color: #1677ff;
+  }
+}
+
+.process-fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  border-radius: 0;
+  margin: 0;
+  padding: 20px;
+  overflow: auto;
+  background: #fff;
+}
+
+.process-body {
+  .process-layout {
+    display: flex;
+    gap: 16px;
+    min-height: 500px;
+  }
+
+  .process-tree {
+    flex-shrink: 0;
+    width: 240px;
+    border: 1px solid #f0f0f0;
+    border-radius: 8px;
+    overflow: hidden;
+
+    &__header {
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1d2129;
+      background: #fafafa;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    :deep(.ant-tree) {
+      padding: 8px;
+    }
+  }
+
+  .process-schematic {
+    flex: 1;
+    position: relative;
+    border: 1px solid #e5e6e8;
+    border-radius: 8px;
+    overflow: hidden;
+    background: linear-gradient(rgba(53, 108, 132, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(53, 108, 132, 0.05) 1px, transparent 1px);
+    background-size: 18px 18px;
+    background-color: #082332;
+    min-height: 500px;
   }
 }
 </style>

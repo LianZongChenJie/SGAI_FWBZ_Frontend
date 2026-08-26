@@ -32,7 +32,8 @@
     <div class="card">
       <div class="card-header">
         <h3>❄️空调机组实时监测</h3>
-        <div class="filter-bar">
+        <div class="header-right">
+          <div class="filter-bar">
           <a-tree-select
             v-model:value="meterSpace"
             :tree-data="spaceTreeData"
@@ -49,9 +50,14 @@
             <a-select-option value="离线">离线</a-select-option>
           </a-select> -->
           <a-button type="primary" @click="handleSearch">🔍 查询</a-button>
+          </div>
+          <button class="collapse-btn" @click="collapsedTable = !collapsedTable">
+            <CaretDownOutlined v-if="!collapsedTable" />
+            <CaretUpOutlined v-else />
+          </button>
         </div>
       </div>
-      <div class="card-body">
+      <div class="card-body" v-show="!collapsedTable">
         <a-table
           :dataSource="tableData"
           :columns="columns"
@@ -79,7 +85,15 @@
     </div>
 
     <!-- 图表区域 -->
-    <div class="two-col">
+    <div class="collapse-row">
+      <div class="collapse-row__header">
+        <h3>📊 图表区域</h3>
+        <button class="collapse-btn" @click="collapsedCharts = !collapsedCharts">
+          <CaretDownOutlined v-if="!collapsedCharts" />
+          <CaretUpOutlined v-else />
+        </button>
+      </div>
+    <div class="two-col" v-show="!collapsedCharts">
       <a-card class="analysis-card" :bordered="false">
         <div class="analysis-card__header">
           <div class="analysis-card__title">
@@ -144,19 +158,41 @@
         </div>
       </a-card>
     </div>
+    </div>
 
     <!-- 工艺图监控 - 空调系统 -->
-    <div class="card">
+    <div class="card" :class="{ 'process-fullscreen': processFullscreen }">
       <div class="card-header">
         <h3>🏭 工艺图监控 - 空调系统</h3>
-        <a-tag color="blue">实时</a-tag>
+        <div class="header-right">
+          <a-tag color="blue">实时</a-tag>
+          <button class="collapse-btn" @click="collapsedProcess = !collapsedProcess">
+            <CaretDownOutlined v-if="!collapsedProcess" />
+            <CaretUpOutlined v-else />
+          </button>
+          <button class="collapse-btn" @click="toggleProcessFullscreen">
+            <FullscreenOutlined v-if="!processFullscreen" />
+            <FullscreenExitOutlined v-else />
+          </button>
+        </div>
       </div>
-      <div class="card-body">
-        <div class="chart-placeholder" style="min-height: 300px">
-          <div class="chart-icon">🏭</div>
-          <div class="chart-text">空调系统工艺流程监控图</div>
-          <div style="font-size: 12px; color: #a0aec0; margin-top: 8px">
-            新风入口 → 过滤 → 表冷器 → 送风机 → 送风出口 | 实时参数叠加显示
+      <div class="card-body process-body" v-show="!collapsedProcess">
+        <div class="process-layout">
+          <!-- 左侧：空间位置树 -->
+          <div class="process-tree">
+            <div class="process-tree__header">设备位置</div>
+            <a-tree
+              v-model:selectedKeys="selectedSpaceKeys"
+              :tree-data="spaceTreeData"
+              :field-names="{ children: 'children', label: 'title', value: 'key', key: 'key' }"
+              default-expand-all
+              :style="{ maxHeight: '500px', overflow: 'auto' }"
+              @select="handleSpaceSelect"
+            />
+          </div>
+          <!-- 右侧：工艺图 -->
+          <div class="process-schematic">
+            <Ahu :values="ahuValues" />
           </div>
         </div>
       </div>
@@ -223,11 +259,67 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, h, onMounted, nextTick } from 'vue'
+import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 import { StatCard } from '/@/views/bems-web/components'
 import { spaceTree } from '/@/views/bems-web/equipment/equipmentManagement/elements/device/Device.api'
 import { getAcUnitList, getAcUnitStatistics, getAirEnergyDay, getSupplyAirTemperature, getReturnAirTemperature, getDeviceAttrList, airControl } from './index.api'
 import { useECharts } from '/@/hooks/web/useECharts'
+import Ahu from '../../building-automation/ahu-1.vue'
+
+// 折叠状态
+const collapsedTable = ref(false)
+const collapsedCharts = ref(false)
+const collapsedProcess = ref(false)
+
+// 工艺图全屏
+const processFullscreen = ref(false)
+const toggleProcessFullscreen = () => {
+  processFullscreen.value = !processFullscreen.value
+}
+
+// 工艺图 - 左侧树 & 右侧Ahu组件
+const selectedSpaceKeys = ref<string[]>([])
+const ahuValues = ref<Record<string, any>>({})
+
+/** 查找树中第一个叶子节点 */
+const findFirstLeafKey = (nodes: any[]): string | null => {
+  for (const node of nodes) {
+    if (!node.children || node.children.length === 0) {
+      return String(node.key)
+    }
+    const leafKey = findFirstLeafKey(node.children)
+    if (leafKey) return leafKey
+  }
+  return null
+}
+
+/** 根据选中的空间节点加载工艺图数据 */
+const handleSpaceSelect = (keys: (string | number)[]) => {
+  if (!keys || keys.length === 0) return
+  const key = String(keys[0])
+  selectedSpaceKeys.value = [key]
+  // 切换地点后重新加载工艺图数据
+  // loadAhuValues(key)
+}
+
+/** 加载工艺图点位数据 */
+const loadAhuValues = async (spaceId: string) => {
+  try {
+    const res = await getDeviceAttrList({ spaceId })
+    const list = res?.records || res?.data || res || []
+    const values: Record<string, any> = {}
+    if (Array.isArray(list)) {
+      list.forEach((item: any) => {
+        if (item.attributeCode) values[item.attributeCode] = item.value
+      })
+    }
+    ahuValues.value = {}
+  } catch (e) {
+    console.error('加载工艺图数据失败:', e)
+    ahuValues.value = {}
+  }
+}
 
 // 自定义 emoji 图标组件
 const AcUnitTotalIcon = () => h('span', { style: 'font-size: 20px;' }, '❄️')
@@ -244,6 +336,14 @@ const loadSpaceTree = async () => {
   try {
     const res = await spaceTree()
     spaceTreeData.value = Array.isArray(res) ? res : (res.data || res.records || [])
+    // 默认选中第一个叶子节点
+    if (spaceTreeData.value.length > 0) {
+      const firstKey = findFirstLeafKey(spaceTreeData.value)
+      if (firstKey) {
+        selectedSpaceKeys.value = [firstKey]
+        // loadAhuValues(firstKey)
+      }
+    }
   } catch (e) {
     console.error('加载空间树数据失败:', e)
   }
@@ -326,7 +426,7 @@ const columns = computed(() => [
 const tableData = ref<any[]>([])
 
 // 加载空调机组列表
-const loadAcUnitList = async (pageNo = pagination.current, pageSize = pagination.pageSize, spaceId?: string, runStop?: string) => {
+const loadAcUnitList = async (pageNo = pagination.current, pageSize = pagination.pageSize, spaceId?: any, runStop?: string) => {
   try {
     const params: any = { pageNo, pageSize }
     if (spaceId) params.spaceId = spaceId
@@ -660,6 +760,14 @@ onMounted(() => {
         gap: 12px;
         flex-wrap: wrap;
       }
+
+      .header-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-left: auto;
+      }
     }
 
     .card-body {
@@ -788,7 +896,133 @@ onMounted(() => {
     gap: 20px;
     margin-bottom: 20px;
   }
+
+  .collapse-row {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    margin-bottom: 20px;
+
+    &__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 0 -24px 16px;
+      padding: 0 24px 12px;
+      border-bottom: 1px solid #f0f0f0;
+      flex-wrap: wrap;
+      gap: 12px;
+
+      h3 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: #1d2129;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+    }
+  }
 }
+
+.collapse-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #666;
+  transition: all 0.2s;
+  flex-shrink: 0;
+
+  &:hover {
+    color: #1677ff;
+    border-color: #1677ff;
+  }
+}
+
+.process-fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    border-radius: 0;
+    margin: 0;
+    padding: 20px;
+    overflow: auto;
+    background: #fff;
+  }
+
+  .process-body {
+    .process-layout {
+      display: flex;
+      gap: 16px;
+      min-height: 500px;
+    }
+
+    .process-tree {
+      flex-shrink: 0;
+      width: 240px;
+      border: 1px solid #f0f0f0;
+      border-radius: 8px;
+      overflow: hidden;
+
+      &__header {
+        padding: 10px 16px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #1d2129;
+        background: #fafafa;
+        border-bottom: 1px solid #f0f0f0;
+      }
+
+      :deep(.ant-tree) {
+        padding: 8px;
+      }
+    }
+
+    .process-schematic {
+      flex: 1;
+      position: relative;
+      border: 1px solid #e5e6e8;
+      border-radius: 8px;
+      overflow: hidden;
+      background: linear-gradient(rgba(53, 108, 132, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(53, 108, 132, 0.05) 1px, transparent 1px);
+      background-size: 18px 18px;
+      background-color: #082332;
+      min-height: 500px;
+    }
+
+    .process-empty {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #86909c;
+
+      .chart-icon {
+        font-size: 48px;
+        color: #1677ff;
+        margin-bottom: 12px;
+      }
+
+      .chart-text {
+        font-size: 14px;
+      }
+    }
+  }
 
 .control-actions {
   display: flex;

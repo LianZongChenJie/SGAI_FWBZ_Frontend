@@ -3,56 +3,50 @@
     <!-- 统计卡片 -->
     <div class="stat-cards">
       <StatCard
-        label="冷源机组总数"
-        :value="8"
-        change-text="↑ 2 新增"
-        trend="up"
+        label="风机盘管总数"
+        :value="statsData.count"
         color="blue"
-        :icon="ColdSourceTotalIcon"
+        :icon="TotalIcon"
       />
       <StatCard
         label="运行中"
-        :value="7"
-        change-text="87.5% 运行率"
-        trend="up"
+        :value="statsData.online"
         color="green"
         :icon="RunningIcon"
       />
       <StatCard
-        label="今日制冷量"
-        :value="'12,456'"
-        change-text="↑ 8.5% RT"
-        trend="up"
+        label="今日能耗"
+        :value="statsData.energyConsumption"
+        unit="kWh"
         color="orange"
-        :icon="TodayCoolingIcon"
+        :icon="EnergyIcon"
       />
       <StatCard
-        label="平均COP"
-        :value="'5.8'"
-        change-text="↑ 0.4 较上周"
-        trend="up"
+        label="平均温度"
+        :value="statsData.avgTemp"
+        unit="°C"
         color="purple"
-        :icon="AvgCopIcon"
+        :icon="TempIcon"
       />
     </div>
 
     <!-- 实时监测表格 -->
     <div class="card">
       <div class="card-header">
-        <h3>❄️冷源系统实时监测</h3>
+        <h3>🎛️风机盘管实时监测</h3>
         <div class="header-right">
           <div class="filter-bar">
-          <a-select v-model:value="filterType" placeholder="全部机组" style="width: 140px" allow-clear>
-            <a-select-option value="">全部机组</a-select-option>
-            <a-select-option value="离心机">离心机</a-select-option>
-            <a-select-option value="螺杆机">螺杆机</a-select-option>
-            <a-select-option value="磁悬浮">磁悬浮</a-select-option>
+          <a-select v-model:value="filterStatus" placeholder="全部状态" style="width: 140px" allow-clear>
+            <a-select-option value="">全部状态</a-select-option>
+            <a-select-option value="运行">运行</a-select-option>
+            <a-select-option value="停止">停止</a-select-option>
+            <a-select-option value="故障">故障</a-select-option>
           </a-select>
           <a-button type="primary" @click="handleSearch">🔍 查询</a-button>
           </div>
           <button class="collapse-btn" @click="collapsedTable = !collapsedTable">
-<CaretDownOutlined v-if="!collapsedTable" />
-          <CaretUpOutlined v-else />
+            <CaretDownOutlined v-if="!collapsedTable" />
+            <CaretUpOutlined v-else />
           </button>
         </div>
       </div>
@@ -61,14 +55,19 @@
           :dataSource="filteredTableData"
           :columns="columns"
           :pagination="{ pageSize: 10 }"
-          :scroll="{ x: 1100 }"
+          :scroll="{ x: 1200 }"
           size="middle"
         >
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'status'">
               <a-tag v-if="record.status === '运行'" color="green">运行</a-tag>
-              <a-tag v-else-if="record.status === '待机'" color="orange">待机</a-tag>
-              <a-tag v-else color="red">故障</a-tag>
+              <a-tag v-else-if="record.status === '停止'" color="red">停止</a-tag>
+              <a-tag v-else color="orange">故障</a-tag>
+            </template>
+            <template v-if="column.key === 'mode'">
+              <a-tag v-if="record.mode === '制冷'" color="blue">制冷</a-tag>
+              <a-tag v-else-if="record.mode === '制热'" color="orange">制热</a-tag>
+              <a-tag v-else color="default">通风</a-tag>
             </template>
             <template v-if="column.key === 'action'">
               <a-button type="link" size="small">详情</a-button>
@@ -92,42 +91,42 @@
         <div class="analysis-card__header">
           <div class="analysis-card__title">
             <span class="analysis-card__icon">📈</span>
-            <span>冷源系统能效趋势</span>
+            <span>风机盘管能耗趋势</span>
           </div>
         </div>
         <div class="analysis-card__body">
           <div class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
-            <div class="chart-placeholder__text">各冷机COP与负荷率趋势</div>
+            <div class="chart-placeholder__text">各区域风机盘管能耗趋势</div>
           </div>
         </div>
       </a-card>
       <a-card class="analysis-card" :bordered="false">
         <div class="analysis-card__header">
           <div class="analysis-card__title">
-            <span class="analysis-card__icon">🧊</span>
-            <span>冷冻水系统压差</span>
+            <span class="analysis-card__icon">🌡️</span>
+            <span>供回水温度曲线</span>
           </div>
         </div>
         <div class="analysis-card__body">
           <div class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
-            <div class="chart-placeholder__text">冷冻水供回水压差与流量</div>
+            <div class="chart-placeholder__text">冷冻水供回水温度曲线</div>
           </div>
         </div>
       </a-card>
     </div>
     </div>
 
-    <!-- 工艺图监控 - 冷源系统 -->
-    <div class="card">
+    <!-- 工艺图监控 - 风机盘管系统 -->
+    <div class="card" :class="{ 'process-fullscreen': processFullscreen }">
       <div class="card-header">
-        <h3>🏭工艺图监控 - 冷源系统</h3>
+        <h3>🏭工艺图监控 - 风机盘管系统</h3>
         <div class="header-right">
-          <a-tag color="purple">实时</a-tag>
+          <a-tag color="blue">实时</a-tag>
           <button class="collapse-btn" @click="collapsedProcess = !collapsedProcess">
-<CaretDownOutlined v-if="!collapsedProcess" />
-          <CaretUpOutlined v-else />
+            <CaretDownOutlined v-if="!collapsedProcess" />
+            <CaretUpOutlined v-else />
           </button>
           <button class="collapse-btn" @click="toggleProcessFullscreen">
             <FullscreenOutlined v-if="!processFullscreen" />
@@ -135,31 +134,44 @@
           </button>
         </div>
       </div>
-      <div class="card-body" v-show="!collapsedProcess">
-        <div class="chart-placeholder" style="min-height: 300px">
-          <div class="chart-icon">🏭</div>
-          <div class="chart-text">冷源系统工艺流程监控图</div>
-          <div style="font-size: 12px; color: #a0aec0; margin-top: 8px">
-            冷却塔 → 冷却水泵 → 冷水机组 → 冷冻水泵 → 分水器 → 末端空调 → 集水器 → 回冷水机组 | 实时水温/流量/压力叠加显示
+      <div class="card-body process-body" v-show="!collapsedProcess">
+        <div class="process-layout">
+          <!-- 左侧：空间位置树 -->
+          <div class="process-tree">
+            <div class="process-tree__header">设备位置</div>
+            <a-tree
+              v-model:selectedKeys="selectedSpaceKeys"
+              :tree-data="spaceTreeData"
+              :field-names="{ children: 'children', label: 'title', value: 'key', key: 'key' }"
+              default-expand-all
+              :style="{ maxHeight: '500px', overflow: 'auto' }"
+              @select="handleSpaceSelect"
+            />
+          </div>
+          <!-- 右侧：工艺图 -->
+          <div class="process-schematic">
+            <Fcu :values="{}" />
           </div>
         </div>
-    </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, h } from 'vue'
+import { ref, computed, h, onMounted } from 'vue'
 import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons-vue'
 import { StatCard } from '/@/views/bems-web/components'
+import { spaceTree } from './index.api'
+import Fcu from '../../building-automation/fcu.vue'
 
 // 自定义 emoji 图标组件
-const ColdSourceTotalIcon = () => h('span', { style: 'font-size: 20px;' }, '❄️')
+const TotalIcon = () => h('span', { style: 'font-size: 20px;' }, '🎛️')
 const RunningIcon = () => h('span', { style: 'font-size: 20px;' }, '✅')
-const TodayCoolingIcon = () => h('span', { style: 'font-size: 20px;' }, '🧊')
-const AvgCopIcon = () => h('span', { style: 'font-size: 20px;' }, '📈')
+const EnergyIcon = () => h('span', { style: 'font-size: 20px;' }, '⚡')
+const TempIcon = () => h('span', { style: 'font-size: 20px;' }, '🌡️')
 
-defineOptions({ name: 'ColdTab' })
+defineOptions({ name: 'FanCoilTab' })
 
 // 折叠状态
 const collapsedTable = ref(false)
@@ -176,43 +188,98 @@ defineProps<{
   data?: any
 }>()
 
+// 工艺图 - 左侧树 & 右侧Fcu组件
+const selectedSpaceKeys = ref<string[]>([])
+const spaceTreeData = ref<any[]>([])
+
+/** 查找树中第一个叶子节点 */
+const findFirstLeafKey = (nodes: any[]): string | null => {
+  for (const node of nodes) {
+    if (!node.children || node.children.length === 0) {
+      return String(node.key)
+    }
+    const leafKey = findFirstLeafKey(node.children)
+    if (leafKey) return leafKey
+  }
+  return null
+}
+
+/** 加载空间位置树 */
+const loadSpaceTree = async () => {
+  try {
+    const res = await spaceTree()
+    spaceTreeData.value = Array.isArray(res) ? res : (res.data || res.records || [])
+    // 默认选中第一个叶子节点
+    if (spaceTreeData.value.length > 0) {
+      const firstKey = findFirstLeafKey(spaceTreeData.value)
+      if (firstKey) {
+        selectedSpaceKeys.value = [firstKey]
+      }
+    }
+  } catch (e) {
+    console.error('加载空间树数据失败:', e)
+  }
+}
+
+/** 根据选中的空间节点切换 */
+const handleSpaceSelect = (keys: (string | number)[]) => {
+  if (!keys || keys.length === 0) return
+  const key = String(keys[0])
+  selectedSpaceKeys.value = [key]
+}
+
+onMounted(() => {
+  loadSpaceTree()
+})
+
+// 统计数据
+const statsData = {
+  count: 156,
+  online: 142,
+  energyConsumption: '1,856',
+  avgTemp: '24.5',
+}
+
 // 筛选条件
-const filterType = ref('')
+const filterStatus = ref('')
 
 // 表格列定义
 const columns = [
   { title: '机组编号', dataIndex: 'code', key: 'code', width: 110 },
-  { title: '类型', dataIndex: 'type', key: 'type', width: 90 },
+  { title: '位置', dataIndex: 'location', key: 'location', width: 140 },
   { title: '运行状态', dataIndex: 'status', key: 'status', width: 100 },
-  { title: '冷冻水出水', dataIndex: 'chilledOut', key: 'chilledOut', width: 110 },
-  { title: '冷冻水回水', dataIndex: 'chilledIn', key: 'chilledIn', width: 110 },
-  { title: '冷却水出水', dataIndex: 'coolingOut', key: 'coolingOut', width: 110 },
-  { title: '冷却水回水', dataIndex: 'coolingIn', key: 'coolingIn', width: 110 },
-  { title: '制冷量', dataIndex: 'capacity', key: 'capacity', width: 100 },
-  { title: '运行功率', dataIndex: 'power', key: 'power', width: 100 },
-  { title: 'COP', dataIndex: 'cop', key: 'cop', width: 80 },
+  { title: '运行模式', dataIndex: 'mode', key: 'mode', width: 100 },
+  { title: '室内温度(°C)', dataIndex: 'roomTemp', key: 'roomTemp', width: 130 },
+  { title: '设定温度(°C)', dataIndex: 'setTemp', key: 'setTemp', width: 130 },
+  { title: '风速', dataIndex: 'fanSpeed', key: 'fanSpeed', width: 100 },
+  { title: '水阀状态', dataIndex: 'valveStatus', key: 'valveStatus', width: 100 },
+  { title: '今日能耗(kWh)', dataIndex: 'todayEnergy', key: 'todayEnergy', width: 130 },
   { title: '操作', dataIndex: 'action', key: 'action', width: 80, fixed: 'right' },
 ]
 
 // 表格数据
 const tableData = [
-  { code: 'CH-A-01', type: '磁悬浮', status: '运行', chilledOut: '6°C', chilledIn: '12°C', coolingOut: '32°C', coolingIn: '28°C', capacity: '1,200 RT', power: '780 kW', cop: '6.2' },
-  { code: 'CH-A-02', type: '磁悬浮', status: '运行', chilledOut: '6°C', chilledIn: '12°C', coolingOut: '33°C', coolingIn: '29°C', capacity: '1,100 RT', power: '750 kW', cop: '5.9' },
-  { code: 'CH-B-01', type: '离心机', status: '运行', chilledOut: '7°C', chilledIn: '13°C', coolingOut: '34°C', coolingIn: '30°C', capacity: '1,500 RT', power: '1,100 kW', cop: '5.5' },
-  { code: 'CH-B-02', type: '离心机', status: '待机', chilledOut: '--', chilledIn: '--', coolingOut: '--', coolingIn: '--', capacity: '0 RT', power: '0 kW', cop: '--' },
-  { code: 'CH-C-01', type: '螺杆机', status: '运行', chilledOut: '7°C', chilledIn: '13°C', coolingOut: '35°C', coolingIn: '31°C', capacity: '800 RT', power: '620 kW', cop: '5.2' },
+  { code: 'FC-A-101', location: 'A馆-F1-101', status: '运行', mode: '制冷', roomTemp: '24.2', setTemp: '24', fanSpeed: '中', valveStatus: '开启', todayEnergy: '12.5' },
+  { code: 'FC-A-102', location: 'A馆-F1-102', status: '运行', mode: '制冷', roomTemp: '25.1', setTemp: '25', fanSpeed: '低', valveStatus: '开启', todayEnergy: '8.2' },
+  { code: 'FC-A-201', location: 'A馆-F2-201', status: '运行', mode: '制冷', roomTemp: '23.8', setTemp: '23', fanSpeed: '高', valveStatus: '开启', todayEnergy: '15.8' },
+  { code: 'FC-B-101', location: 'B馆-F1-101', status: '停止', mode: '通风', roomTemp: '26.5', setTemp: '24', fanSpeed: '关', valveStatus: '关闭', todayEnergy: '0' },
+  { code: 'FC-B-102', location: 'B馆-F1-102', status: '运行', mode: '制冷', roomTemp: '24.5', setTemp: '25', fanSpeed: '中', valveStatus: '开启', todayEnergy: '11.2' },
+  { code: 'FC-B-201', location: 'B馆-F2-201', status: '故障', mode: '--', roomTemp: '--', setTemp: '--', fanSpeed: '--', valveStatus: '--', todayEnergy: '--' },
+  { code: 'FC-C-101', location: 'C馆-F1-101', status: '运行', mode: '制冷', roomTemp: '25.3', setTemp: '25', fanSpeed: '低', valveStatus: '开启', todayEnergy: '7.8' },
+  { code: 'FC-C-102', location: 'C馆-F1-102', status: '运行', mode: '制冷', roomTemp: '24.0', setTemp: '24', fanSpeed: '中', valveStatus: '开启', todayEnergy: '10.5' },
+  { code: 'FC-D-101', location: 'D馆-F1-101', status: '运行', mode: '制热', roomTemp: '22.5', setTemp: '22', fanSpeed: '高', valveStatus: '开启', todayEnergy: '14.2' },
 ]
 
 // 筛选逻辑
 const filteredTableData = computed(() => {
   return tableData.filter((item) => {
-    const matchType = !filterType.value || item.type === filterType.value
-    return matchType
+    const matchStatus = !filterStatus.value || item.status === filterStatus.value
+    return matchStatus
   })
 })
 
 const handleSearch = () => {
-  console.log('查询:', { type: filterType.value })
+  console.log('查询:', { status: filterStatus.value })
 }
 </script>
 
@@ -445,6 +512,62 @@ const handleSearch = () => {
   &:hover {
     color: #1677ff;
     border-color: #1677ff;
+  }
+}
+
+.process-fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  border-radius: 0;
+  margin: 0;
+  padding: 20px;
+  overflow: auto;
+  background: #fff;
+}
+
+.process-body {
+  .process-layout {
+    display: flex;
+    gap: 16px;
+    min-height: 500px;
+  }
+
+  .process-tree {
+    flex-shrink: 0;
+    width: 240px;
+    border: 1px solid #f0f0f0;
+    border-radius: 8px;
+    overflow: hidden;
+
+    &__header {
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1d2129;
+      background: #fafafa;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    :deep(.ant-tree) {
+      padding: 8px;
+    }
+  }
+
+  .process-schematic {
+    flex: 1;
+    position: relative;
+    border: 1px solid #e5e6e8;
+    border-radius: 8px;
+    overflow: hidden;
+    background: linear-gradient(rgba(53, 108, 132, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(53, 108, 132, 0.05) 1px, transparent 1px);
+    background-size: 18px 18px;
+    background-color: #082332;
+    min-height: 500px;
   }
 }
 </style>

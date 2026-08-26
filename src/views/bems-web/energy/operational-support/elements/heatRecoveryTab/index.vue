@@ -3,57 +3,50 @@
     <!-- 统计卡片 -->
     <div class="stat-cards">
       <StatCard
-        label="光伏组串数"
-        :value="data?.stats?.[0]?.value ?? 12"
-        :change-text="data?.stats?.[0]?.changeText ?? '↑ 4 新增'"
-        trend="up"
+        label="热回收机组总数"
+        :value="statsData.count"
         color="blue"
-        :icon="PvStringCountIcon"
+        :icon="TotalIcon"
       />
       <StatCard
-        label="装机容量"
-        :value="data?.stats?.[1]?.value ?? '856'"
-        :change-text="data?.stats?.[1]?.changeText ?? 'kW'"
-        trend="up"
+        label="运行中"
+        :value="statsData.online"
         color="green"
-        :icon="InstalledCapacityIcon"
+        :icon="RunningIcon"
       />
       <StatCard
-        label="今日发电量"
-        :value="data?.stats?.[2]?.value ?? '3,456'"
-        :change-text="data?.stats?.[2]?.changeText ?? '↑ 12.3% kWh'"
-        trend="up"
+        label="今日能耗"
+        :value="statsData.energyConsumption"
+        unit="kWh"
         color="orange"
-        :icon="TodayGenerationIcon"
+        :icon="EnergyIcon"
       />
       <StatCard
-        label="发电效率"
-        :value="data?.stats?.[3]?.value ?? '18.5%'"
-        :change-text="data?.stats?.[3]?.changeText ?? '↑ 0.8% 较昨日'"
-        trend="up"
+        label="热回收效率"
+        :value="statsData.efficiency"
+        unit="%"
         color="purple"
-        :icon="GenerationEfficiencyIcon"
+        :icon="EfficiencyIcon"
       />
     </div>
 
     <!-- 实时监测表格 -->
     <div class="card">
       <div class="card-header">
-        <h3>☀️光伏系统实时监测</h3>
+        <h3>🔄热回收机组实时监测</h3>
         <div class="header-right">
           <div class="filter-bar">
-          <a-select v-model:value="filterArea" placeholder="全部区域" style="width: 140px" allow-clear>
-            <a-select-option value="">全部区域</a-select-option>
-            <a-select-option value="A馆屋顶">A馆屋顶</a-select-option>
-            <a-select-option value="B馆屋顶">B馆屋顶</a-select-option>
-            <a-select-option value="C馆屋顶">C馆屋顶</a-select-option>
-            <a-select-option value="停车场车棚">停车场车棚</a-select-option>
+          <a-select v-model:value="filterStatus" placeholder="全部状态" style="width: 140px" allow-clear>
+            <a-select-option value="">全部状态</a-select-option>
+            <a-select-option value="运行">运行</a-select-option>
+            <a-select-option value="停止">停止</a-select-option>
+            <a-select-option value="故障">故障</a-select-option>
           </a-select>
           <a-button type="primary" @click="handleSearch">🔍 查询</a-button>
           </div>
           <button class="collapse-btn" @click="collapsedTable = !collapsedTable">
-<CaretDownOutlined v-if="!collapsedTable" />
-          <CaretUpOutlined v-else />
+            <CaretDownOutlined v-if="!collapsedTable" />
+            <CaretUpOutlined v-else />
           </button>
         </div>
       </div>
@@ -62,14 +55,14 @@
           :dataSource="filteredTableData"
           :columns="columns"
           :pagination="{ pageSize: 10 }"
-          :scroll="{ x: 1100 }"
+          :scroll="{ x: 1300 }"
           size="middle"
         >
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'status'">
-              <a-tag v-if="record.status === '发电'" color="green">发电</a-tag>
-              <a-tag v-else-if="record.status === '待机'" color="orange">待机</a-tag>
-              <a-tag v-else color="red">故障</a-tag>
+              <a-tag v-if="record.status === '运行'" color="green">运行</a-tag>
+              <a-tag v-else-if="record.status === '停止'" color="red">停止</a-tag>
+              <a-tag v-else color="orange">故障</a-tag>
             </template>
             <template v-if="column.key === 'action'">
               <a-button type="link" size="small">详情</a-button>
@@ -93,42 +86,42 @@
         <div class="analysis-card__header">
           <div class="analysis-card__title">
             <span class="analysis-card__icon">📈</span>
-            <span>光伏发电趋势</span>
+            <span>热回收能耗趋势</span>
           </div>
         </div>
         <div class="analysis-card__body">
           <div class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
-            <div class="chart-placeholder__text">今日光伏发电功率曲线</div>
+            <div class="chart-placeholder__text">各机组热回收能耗趋势</div>
           </div>
         </div>
       </a-card>
       <a-card class="analysis-card" :bordered="false">
         <div class="analysis-card__header">
           <div class="analysis-card__title">
-            <span class="analysis-card__icon">🌤️</span>
-            <span>发电效率分析</span>
+            <span class="analysis-card__icon">🌡️</span>
+            <span>排风温度回收效率</span>
           </div>
         </div>
         <div class="analysis-card__body">
           <div class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
-            <div class="chart-placeholder__text">辐照度-发电量关联分析</div>
+            <div class="chart-placeholder__text">排风温度与回收效率分析</div>
           </div>
         </div>
       </a-card>
     </div>
     </div>
 
-    <!-- 工艺图监控 - 光伏系统（只在光伏系统tab展示） -->
+    <!-- 工艺图监控 - 热回收系统 -->
     <div class="card">
       <div class="card-header">
-        <h3>🏭工艺图监控 - 光伏系统</h3>
+        <h3>🏭工艺图监控 - 热回收系统</h3>
         <div class="header-right">
-          <a-tag color="green">实时</a-tag>
+          <a-tag color="blue">实时</a-tag>
           <button class="collapse-btn" @click="collapsedProcess = !collapsedProcess">
-<CaretDownOutlined v-if="!collapsedProcess" />
-          <CaretUpOutlined v-else />
+            <CaretDownOutlined v-if="!collapsedProcess" />
+            <CaretUpOutlined v-else />
           </button>
           <button class="collapse-btn" @click="toggleProcessFullscreen">
             <FullscreenOutlined v-if="!processFullscreen" />
@@ -139,9 +132,9 @@
       <div class="card-body" v-show="!collapsedProcess">
         <div class="chart-placeholder" style="min-height: 300px">
           <div class="chart-icon">🏭</div>
-          <div class="chart-text">光伏系统拓扑监控图</div>
+          <div class="chart-text">热回收系统工艺流程监控图</div>
           <div style="font-size: 12px; color: #a0aec0; margin-top: 8px">
-            光伏组串 → 汇流箱 → 逆变器 → 交流配电柜 → 并网柜/储能 → 负载/电网 | 实时电压/功率/发电量叠加显示
+            排风入口 → 热交换芯 → 新风出口 | 新风入口 → 热交换芯 → 送风出口 | 实时温度/湿度/效率叠加显示
           </div>
         </div>
     </div>
@@ -155,12 +148,12 @@ import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitO
 import { StatCard } from '/@/views/bems-web/components'
 
 // 自定义 emoji 图标组件
-const PvStringCountIcon = () => h('span', { style: 'font-size: 20px;' }, '☀️')
-const InstalledCapacityIcon = () => h('span', { style: 'font-size: 20px;' }, '⚡')
-const TodayGenerationIcon = () => h('span', { style: 'font-size: 20px;' }, '🔋')
-const GenerationEfficiencyIcon = () => h('span', { style: 'font-size: 20px;' }, '📈')
+const TotalIcon = () => h('span', { style: 'font-size: 20px;' }, '🔄')
+const RunningIcon = () => h('span', { style: 'font-size: 20px;' }, '✅')
+const EnergyIcon = () => h('span', { style: 'font-size: 20px;' }, '⚡')
+const EfficiencyIcon = () => h('span', { style: 'font-size: 20px;' }, '📈')
 
-defineOptions({ name: 'PvTab' })
+defineOptions({ name: 'HeatRecoveryTab' })
 
 // 折叠状态
 const collapsedTable = ref(false)
@@ -173,52 +166,58 @@ const toggleProcessFullscreen = () => {
   processFullscreen.value = !processFullscreen.value
 }
 
-const props = defineProps<{
+defineProps<{
   data?: any
 }>()
 
+// 统计数据
+const statsData = {
+  count: 8,
+  online: 7,
+  energyConsumption: '186',
+  efficiency: '72.5',
+}
+
 // 筛选条件
-const filterArea = ref('')
+const filterStatus = ref('')
 
 // 表格列定义
 const columns = [
-  { title: '组串编号', dataIndex: 'code', key: 'code', width: 110 },
+  { title: '机组编号', dataIndex: 'code', key: 'code', width: 110 },
   { title: '位置', dataIndex: 'location', key: 'location', width: 140 },
   { title: '运行状态', dataIndex: 'status', key: 'status', width: 100 },
-  { title: '直流电压', dataIndex: 'dcVoltage', key: 'dcVoltage', width: 100 },
-  { title: '直流电流', dataIndex: 'dcCurrent', key: 'dcCurrent', width: 100 },
-  { title: '直流功率', dataIndex: 'dcPower', key: 'dcPower', width: 100 },
-  { title: '交流功率', dataIndex: 'acPower', key: 'acPower', width: 100 },
-  { title: '辐照度', dataIndex: 'irradiance', key: 'irradiance', width: 100 },
-  { title: '板面温度', dataIndex: 'temp', key: 'temp', width: 90 },
-  { title: '今日发电', dataIndex: 'todayEnergy', key: 'todayEnergy', width: 110 },
+  { title: '排风温度(°C)', dataIndex: 'exhaustTemp', key: 'exhaustTemp', width: 130 },
+  { title: '新风温度(°C)', dataIndex: 'freshTemp', key: 'freshTemp', width: 130 },
+  { title: '送风温度(°C)', dataIndex: 'supplyTemp', key: 'supplyTemp', width: 130 },
+  { title: '回收效率(%)', dataIndex: 'efficiency', key: 'efficiency', width: 120 },
+  { title: '风量(m³/h)', dataIndex: 'airVolume', key: 'airVolume', width: 120 },
+  { title: '功率(kW)', dataIndex: 'power', key: 'power', width: 100 },
+  { title: '今日能耗(kWh)', dataIndex: 'todayEnergy', key: 'todayEnergy', width: 130 },
   { title: '操作', dataIndex: 'action', key: 'action', width: 80, fixed: 'right' },
 ]
 
-// 表格数据 - 优先使用父级传入的 data，否则使用默认数据
-const defaultTableData = [
-  { code: 'PV-A-01', location: 'A馆屋顶-东', status: '发电', dcVoltage: '680V', dcCurrent: '45A', dcPower: '30.6 kW', acPower: '29.5 kW', irradiance: '850 W/㎡', temp: '45°C', todayEnergy: '156 kWh' },
-  { code: 'PV-A-02', location: 'A馆屋顶-西', status: '发电', dcVoltage: '675V', dcCurrent: '42A', dcPower: '28.4 kW', acPower: '27.3 kW', irradiance: '820 W/㎡', temp: '48°C', todayEnergy: '142 kWh' },
-  { code: 'PV-B-01', location: 'B馆屋顶', status: '发电', dcVoltage: '690V', dcCurrent: '48A', dcPower: '33.1 kW', acPower: '31.8 kW', irradiance: '880 W/㎡', temp: '43°C', todayEnergy: '168 kWh' },
-  { code: 'PV-C-01', location: 'C馆屋顶', status: '发电', dcVoltage: '685V', dcCurrent: '46A', dcPower: '31.5 kW', acPower: '30.2 kW', irradiance: '860 W/㎡', temp: '46°C', todayEnergy: '159 kWh' },
-  { code: 'PV-P-01', location: '停车场车棚', status: '发电', dcVoltage: '670V', dcCurrent: '40A', dcPower: '26.8 kW', acPower: '25.7 kW', irradiance: '800 W/㎡', temp: '50°C', todayEnergy: '128 kWh' },
+// 表格数据
+const tableData = [
+  { code: 'HR-A-01', location: 'A馆-B1-机房', status: '运行', exhaustTemp: '26.5', freshTemp: '32.0', supplyTemp: '28.2', efficiency: '75', airVolume: '5,000', power: '3.5', todayEnergy: '24' },
+  { code: 'HR-A-02', location: 'A馆-F2-办公区', status: '运行', exhaustTemp: '25.0', freshTemp: '30.5', supplyTemp: '27.0', efficiency: '70', airVolume: '4,500', power: '3.0', todayEnergy: '20' },
+  { code: 'HR-B-01', location: 'B馆-B1-机房', status: '运行', exhaustTemp: '27.0', freshTemp: '33.0', supplyTemp: '29.0', efficiency: '73', airVolume: '5,500', power: '4.0', todayEnergy: '28' },
+  { code: 'HR-B-02', location: 'B馆-F3-会议区', status: '停止', exhaustTemp: '0', freshTemp: '0', supplyTemp: '0', efficiency: '0', airVolume: '0', power: '0', todayEnergy: '0' },
+  { code: 'HR-C-01', location: 'C馆-B1-机房', status: '运行', exhaustTemp: '26.0', freshTemp: '31.5', supplyTemp: '27.8', efficiency: '72', airVolume: '4,800', power: '3.2', todayEnergy: '22' },
+  { code: 'HR-C-02', location: 'C馆-F1-大厅', status: '故障', exhaustTemp: '--', freshTemp: '--', supplyTemp: '--', efficiency: '--', airVolume: '--', power: '--', todayEnergy: '--' },
+  { code: 'HR-D-01', location: 'D馆-屋顶', status: '运行', exhaustTemp: '25.5', freshTemp: '31.0', supplyTemp: '27.5', efficiency: '71', airVolume: '5,200', power: '3.6', todayEnergy: '25' },
+  { code: 'HR-D-02', location: 'D馆-F2-办公区', status: '运行', exhaustTemp: '24.5', freshTemp: '30.0', supplyTemp: '26.5', efficiency: '68', airVolume: '4,000', power: '2.8', todayEnergy: '19' },
 ]
-
-// 使用父级传入的tableData或默认数据
-const tableData = computed(() => {
-  return props.data?.tableData?.length ? props.data.tableData : defaultTableData
-})
 
 // 筛选逻辑
 const filteredTableData = computed(() => {
-  return tableData.value.filter((item: any) => {
-    const matchArea = !filterArea.value || item.location.includes(filterArea.value)
-    return matchArea
+  return tableData.filter((item) => {
+    const matchStatus = !filterStatus.value || item.status === filterStatus.value
+    return matchStatus
   })
 })
 
 const handleSearch = () => {
-  console.log('查询:', { area: filterArea.value })
+  console.log('查询:', { status: filterStatus.value })
 }
 </script>
 

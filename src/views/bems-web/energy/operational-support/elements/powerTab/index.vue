@@ -33,7 +33,8 @@
     <div class="card">
       <div class="card-header">
         <h3>⚡配电系统实时监测</h3>
-        <div class="filter-bar">
+        <div class="header-right">
+          <div class="filter-bar">
           <a-tree-select
             v-model:value="meterSpace"
             :tree-data="spaceTreeData"
@@ -50,9 +51,14 @@
             <a-select-option value="离线">离线</a-select-option>
           </a-select> -->
           <a-button type="primary" @click="handleSearch">🔍 查询</a-button>
+          </div>
+          <button class="collapse-btn" @click="collapsedTable = !collapsedTable">
+<CaretDownOutlined v-if="!collapsedTable" />
+          <CaretUpOutlined v-else />
+          </button>
         </div>
       </div>
-      <div class="card-body">
+      <div class="card-body" v-show="!collapsedTable">
         <a-table
           :dataSource="tableData"
           :columns="columns"
@@ -78,50 +84,75 @@
     </div>
 
     <!-- 图表区域 -->
-    <div class="two-col">
-      <div class="card">
-        <div class="card-header">
-          <h3>📈有功功率</h3>
+    <div class="collapse-row">
+      <div class="collapse-row__header">
+        <h3>📊 图表区域</h3>
+        <button class="collapse-btn" @click="collapsedCharts = !collapsedCharts">
+          <CaretDownOutlined v-if="!collapsedCharts" />
+          <CaretUpOutlined v-else />
+        </button>
+      </div>
+    <div class="two-col" v-show="!collapsedCharts">
+      <a-card class="analysis-card" :bordered="false">
+        <div class="analysis-card__header">
+          <div class="analysis-card__title">
+            <span class="analysis-card__icon">📈</span>
+            <span>有功功率</span>
+          </div>
         </div>
-        <div class="card-body chart-body">
+        <div class="analysis-card__body">
           <div v-show="activeLoading" class="chart-placeholder">
             <a-spin />
-            <div class="chart-text">加载中...</div>
+            <div class="chart-placeholder__text">加载中...</div>
           </div>
           <div
             v-show="!activeLoading && activeChartData.length === 0"
             class="chart-placeholder"
           >
-            <div class="chart-icon">📊</div>
-            <div class="chart-text">暂无数据</div>
+            <span class="analysis-card__icon2">📊</span>
+            <div class="chart-placeholder__text">暂无数据</div>
           </div>
           <div
             v-show="!activeLoading && activeChartData.length > 0"
             ref="activeChartRef"
-            class="power-chart"
+            class="venue-chart"
           ></div>
         </div>
-      </div>
-      <div class="card">
-        <div class="card-header">
-          <h3>🌡️柜内温度分布</h3>
-        </div>
-        <div class="card-body">
-          <div class="chart-placeholder">
-            <div class="chart-icon">📊</div>
-            <div class="chart-text">配电柜温度热力分布</div>
+      </a-card>
+      <a-card class="analysis-card" :bordered="false">
+        <div class="analysis-card__header">
+          <div class="analysis-card__title">
+            <span class="analysis-card__icon">🌡️</span>
+            <span>柜内温度分布</span>
           </div>
         </div>
-      </div>
+        <div class="analysis-card__body">
+          <div class="chart-placeholder">
+            <span class="analysis-card__icon2">📊</span>
+            <div class="chart-placeholder__text">配电柜温度热力分布</div>
+          </div>
+        </div>
+      </a-card>
+    </div>
     </div>
 
     <!-- 工艺图监控 - 配电系统 -->
     <div class="card">
       <div class="card-header">
         <h3>🏭工艺图监控 - 配电系统</h3>
-        <a-tag color="orange">实时</a-tag>
+        <div class="header-right">
+          <a-tag color="orange">实时</a-tag>
+          <button class="collapse-btn" @click="collapsedProcess = !collapsedProcess">
+<CaretDownOutlined v-if="!collapsedProcess" />
+          <CaretUpOutlined v-else />
+          </button>
+          <button class="collapse-btn" @click="toggleProcessFullscreen">
+            <FullscreenOutlined v-if="!processFullscreen" />
+            <FullscreenExitOutlined v-else />
+          </button>
+        </div>
       </div>
-      <div class="card-body">
+      <div class="card-body" v-show="!collapsedProcess">
         <div class="chart-placeholder" style="min-height: 300px">
           <div class="chart-icon">🏭</div>
           <div class="chart-text">配电系统单线拓扑监控图</div>
@@ -130,6 +161,7 @@
           </div>
         </div>
       </div>
+    </div>
     </div>
     <!-- 详情弹窗 -->
     <a-modal v-model:visible="detailVisible" title="详情" width="800px" :footer="null" :confirm-loading="detailLoading">
@@ -147,11 +179,11 @@
         </a-descriptions>
       </a-spin>
     </a-modal>
-  </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, computed, h, onMounted, nextTick } from 'vue'
+import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons-vue'
 import { StatCard } from '/@/views/bems-web/components'
 import { spaceTree } from '/@/views/bems-web/equipment/equipmentManagement/elements/device/Device.api'
 import { getPowerUnitList, getActivePower, getPowerStatistics, getDeviceAttrList } from './index.api'
@@ -164,6 +196,17 @@ const TodayPowerIcon = () => h('span', { style: 'font-size: 20px;' }, '🔌')
 const PowerFactorIcon = () => h('span', { style: 'font-size: 20px;' }, '📐')
 
 defineOptions({ name: 'PowerTab' })
+
+// 折叠状态
+const collapsedTable = ref(false)
+const collapsedCharts = ref(false)
+const collapsedProcess = ref(false)
+
+// 工艺图全屏
+const processFullscreen = ref(false)
+const toggleProcessFullscreen = () => {
+  processFullscreen.value = !processFullscreen.value
+}
 
 defineProps<{
   data?: any
@@ -408,6 +451,7 @@ onMounted(() => {
 
 <style scoped lang="less">
 .tab-page {
+
   .stat-cards {
     display: flex;
     flex-wrap: wrap;
@@ -447,6 +491,14 @@ onMounted(() => {
         align-items: center;
         gap: 12px;
         flex-wrap: wrap;
+      }
+
+      .header-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-left: auto;
       }
     }
 
@@ -497,11 +549,156 @@ onMounted(() => {
     }
   }
 
-  .two-col {
+  
+  .analysis-card {
+    flex: 1;
+    min-width: 300px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+
+    :deep(.ant-card-body) {
+      padding: 16px;
+    }
+
+    &__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 0 -16px 16px;
+      padding: 0 16px 12px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    &__title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      color: rgba(0, 0, 0, 0.85);
+    }
+
+    &__icon {
+      font-size: 18px;
+    }
+
+    &__icon2 {
+      font-size: 54px;
+    }
+
+    &__body {
+      height: 320px;
+      background: #f7f9fc;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .temp-tabs {
+      display: inline-flex;
+      border: 1px solid #d9d9d9;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .temp-tab {
+      padding: 4px 14px;
+      font-size: 13px;
+      color: rgba(0, 0, 0, 0.65);
+      background: #ffffff;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      &:hover {
+        color: #1890ff;
+      }
+
+      &.active {
+        color: #ffffff;
+        background: #1890ff;
+      }
+
+      &:not(:last-child) {
+        border-right: 1px solid #d9d9d9;
+      }
+    }
+
+    .chart-placeholder {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+
+      &__text {
+        font-size: 14px;
+        color: rgba(0, 0, 0, 0.45);
+      }
+    }
+
+    .venue-chart {
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+.two-col {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 20px;
     margin-bottom: 20px;
+  }
+
+  .collapse-row {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    margin-bottom: 20px;
+
+    &__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 0 -24px 16px;
+      padding: 0 24px 12px;
+      border-bottom: 1px solid #f0f0f0;
+      flex-wrap: wrap;
+      gap: 12px;
+
+      h3 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: #1d2129;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+    }
+  }
+}
+
+.collapse-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #666;
+  transition: all 0.2s;
+  flex-shrink: 0;
+
+  &:hover {
+    color: #1677ff;
+    border-color: #1677ff;
   }
 }
 </style>
