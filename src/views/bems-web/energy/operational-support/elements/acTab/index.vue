@@ -192,7 +192,7 @@
           </div>
           <!-- 右侧：工艺图 -->
           <div class="process-schematic">
-            <Ahu :values="ahuValues" />
+            <Ahu :values="ahuValues" :system-params="systemParams" :device-name="selectedDeviceName" />
           </div>
         </div>
       </div>
@@ -262,7 +262,7 @@ import { ref, reactive, computed, h, onMounted, nextTick } from 'vue'
 import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 import { StatCard } from '/@/views/bems-web/components'
-import { spaceTree } from '/@/views/bems-web/equipment/equipmentManagement/elements/device/Device.api'
+import { getSpaceTree } from './index.api'
 import { getAcUnitList, getAcUnitStatistics, getAirEnergyDay, getSupplyAirTemperature, getReturnAirTemperature, getDeviceAttrList, airControl } from './index.api'
 import { useECharts } from '/@/hooks/web/useECharts'
 import Ahu from '../../building-automation/ahu-1.vue'
@@ -281,43 +281,89 @@ const toggleProcessFullscreen = () => {
 // 工艺图 - 左侧树 & 右侧Ahu组件
 const selectedSpaceKeys = ref<string[]>([])
 const ahuValues = ref<Record<string, any>>({})
+const systemParams = ref<any[]>([])
+const selectedDeviceName = ref<string>('')
 
-/** 查找树中第一个叶子节点 */
-const findFirstLeafKey = (nodes: any[]): string | null => {
-  for (const node of nodes) {
-    if (!node.children || node.children.length === 0) {
-      return String(node.key)
+/** 将接口返回的树数据转换为 a-tree 格式 */
+const transformTreeData = (nodes: any[]): any[] => {
+  if (!nodes || !Array.isArray(nodes)) return []
+  return nodes.map((node) => {
+    const children = [
+      ...(node.child ? transformTreeData(node.child) : []),
+      ...(node.device ? node.device.map((d: any) => ({
+        key: `device-${d.id}`,
+        title: d.deviceName,
+        isLeaf: true,
+        rawDevice: d,
+      })) : []),
+    ]
+    return {
+      key: `space-${node.spaceId}`,
+      title: node.spaceName,
+      children,
+      rawSpace: node,
     }
-    const leafKey = findFirstLeafKey(node.children)
-    if (leafKey) return leafKey
+  })
+}
+
+/** 递归查找树中第一个设备节点 */
+const findFirstDeviceKey = (nodes: any[]): string | null => {
+  for (const node of nodes) {
+    if (node.isLeaf) return String(node.key)
+    if (node.children && node.children.length > 0) {
+      const deviceKey = findFirstDeviceKey(node.children)
+      if (deviceKey) return deviceKey
+    }
   }
   return null
 }
 
-/** 根据选中的空间节点加载工艺图数据 */
+/** 从树中根据 key 查找设备原始数据 */
+const findDeviceByKey = (nodes: any[], key: string): any | null => {
+  for (const node of nodes) {
+    if (String(node.key) === key) return node.rawDevice || null
+    if (node.children && node.children.length > 0) {
+      const found = findDeviceByKey(node.children, key)
+      if (found) return found
+    }
+  }
+  return null
+}
+
+/** 根据选中的节点加载工艺图数据（只有设备节点才加载） */
 const handleSpaceSelect = (keys: (string | number)[]) => {
   if (!keys || keys.length === 0) return
   const key = String(keys[0])
   selectedSpaceKeys.value = [key]
-  // 切换地点后重新加载工艺图数据
-  // loadAhuValues(key)
+  // 只有点击设备节点时才加载工艺图数据
+  if (!key.startsWith('device-')) return
+  // 更新选中的设备名称
+  const device = findDeviceByKey(spaceTreeData.value, key)
+  if (device) selectedDeviceName.value = device.deviceName || ''
+  loadAhuValues(key)
 }
 
 /** 加载工艺图点位数据 */
-const loadAhuValues = async (spaceId: string) => {
+const loadAhuValues = async (deviceKey: string) => {
+  // 从 key 中提取设备 ID（格式: device-4719）
+  const deviceId = deviceKey.replace('device-', '')
   try {
-    const res = await getDeviceAttrList({ spaceId })
+    const res = await getDeviceAttrList({ deviceId })
     const list = res?.records || res?.data || res || []
+    // 保留接口返回的原始数组用于系统参数渲染
+    systemParams.value = Array.isArray(list) ? list : []
+    // 同时构建 key-value 映射用于工艺图动效
     const values: Record<string, any> = {}
     if (Array.isArray(list)) {
       list.forEach((item: any) => {
-        if (item.attributeCode) values[item.attributeCode] = item.value
+        if (item.code) values[item.code] = item.value
       })
     }
-    ahuValues.value = {}
+    ahuValues.value = values
   } catch (e) {
     console.error('加载工艺图数据失败:', e)
     ahuValues.value = {}
+    systemParams.value = []
   }
 }
 
@@ -331,21 +377,24 @@ defineOptions({ name: 'AcTab' })
 
 // 设备位置树数据
 const meterSpace = ref([])
-const spaceTreeData = ref([])
+const spaceTreeData = ref<any[]>([])
 const loadSpaceTree = async () => {
   try {
-    const res = await spaceTree()
-    spaceTreeData.value = Array.isArray(res) ? res : (res.data || res.records || [])
-    // 默认选中第一个叶子节点
+    const res = await getSpaceTree()
+    const rawList = Array.isArray(res) ? res : (res.data || res.records || [])
+    spaceTreeData.value = transformTreeData(rawList)
+    // 默认选中第一个设备节点
     if (spaceTreeData.value.length > 0) {
-      const firstKey = findFirstLeafKey(spaceTreeData.value)
+      const firstKey = findFirstDeviceKey(spaceTreeData.value)
       if (firstKey) {
         selectedSpaceKeys.value = [firstKey]
-        // loadAhuValues(firstKey)
+        const device = findDeviceByKey(spaceTreeData.value, firstKey)
+        if (device) selectedDeviceName.value = device.deviceName || ''
+        loadAhuValues(firstKey)
       }
     }
   } catch (e) {
-    console.error('加载空间树数据失败:', e)
+    console.error('加载设备列表失败:', e)
   }
 }
 
@@ -963,10 +1012,11 @@ onMounted(() => {
   }
 
   .process-body {
+    height: 80%;
     .process-layout {
       display: flex;
       gap: 16px;
-      min-height: 500px;
+      min-height: 100%;
     }
 
     .process-tree {

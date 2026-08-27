@@ -1,10 +1,25 @@
 <template>
-  <div class="ba-schematic ahu ahu-1">
-    <div class="ahu-wrap device" @click="$emit('select-device','ba.ahu1')">
+  <div class="ba-page ahu-1">
+    <main>
+      <header>
+        <div>
+          <small>BUILDING AUTOMATION · 6.0F</small>
+          <h1>{{ deviceName || 'AHU-1 新风机组' }}</h1>
+          <p>单风道过滤、盘管与送风</p>
+        </div>
+        <div class="headline">
+          <span>设备状态</span>
+          <strong :class="stateTone">{{ stateText }}</strong>
+          <em>点位 {{ devicePoints.length }}</em>
+        </div>
+      </header>
+      <section class="schematic-card">
+        <div class="ba-schematic ahu ahu-1">
+          <div class="ahu-wrap device" @click="$emit('select-device','ba.ahu1')">
       <img class="ahu-asset" src="/equipment/ahu-process-v2-2_5d.png" alt="AHU-1 新风机组" />
       <div class="air-stream supply-flow" :class="{ active: p('ba.ahu1.running') }"><i v-for="x in 12" :key="`s${x}`"></i></div>
       <div class="fan-rotor ahu-supply-rotor" :class="{ running: p('ba.ahu1.running') }"><i></i></div>
-      <div class="valve-motion ahu-valve" :style="valveStyle(p('ba.ahu1.valve'))"><i></i></div>
+      <!-- <div class="valve-motion ahu-valve" :style="valveStyle(p('ba.ahu1.valve'))"><i></i></div> -->
       <div class="damper-motion ahu-fresh-damper" :style="valveStyle(p('ba.ahu1.freshDamper'))"><i v-for="x in 5" :key="`d${x}`"></i></div>
       <div class="instrument fresh-sensor" title="新风温湿度"><i>T/H</i></div>
       <div class="instrument supply-sensor" title="送风温湿度"><i>T/H</i></div>
@@ -23,36 +38,77 @@
       <PointBadge class="pt humid-point" label="加湿控制" :value="p('ba.ahu1.humidifier')?'开':'关'" />
       <PointBadge class="pt fan-point" label="送风机状态 / 频率" :value="`${p('ba.ahu1.running')?'运行':'停止'} · ${n('ba.ahu1.fanFrequency',1)}Hz`" :alarm="p('ba.ahu1.fault')" />
       <PointBadge class="pt supply-air" label="送风温湿度" :value="`${n('ba.ahu1.supplyTemp',1)}℃ · ${n('ba.ahu1.supplyHumidity',1)}%RH`" />
-    </div>
-    <div class="parameter-panel">
-      <h4>系统参数</h4>
-      <PointBadge label="系统启停" :value="p('ba.ahu1.systemEnable')?'开':'关'" />
-      <PointBadge label="季节模式" :value="p('ba.ahu1.season')" />
-      <PointBadge label="送风温度设定" :value="`${n('ba.ahu1.supplyTempSetpoint',1)}℃`" />
-      <PointBadge label="回风温度设定" :value="`${n('ba.ahu1.returnTempSetpoint',1)}℃`" />
-      <PointBadge label="CO₂设定" :value="`${n('ba.ahu1.co2Setpoint',0)} ppm`" />
-    </div>
+          </div>
+        </div>
+      </section>
+      <aside class="system-panel">
+        <header>系统参数</header>
+        <div v-for="item in displaySystemParams" :key="item.code || item.configId">
+          <span>{{ item.label }}</span>
+          <strong>{{ formatParam(item) }}</strong>
+        </div>
+      </aside>
+    </main>
   </div>
 </template>
 
 <script setup>
-import { reactive } from 'vue'
+import { reactive, computed } from 'vue'
 import PointBadge from './components/PointBadge.vue'
 import { createHelpers } from './components/utils.js'
+import { formatSystemParam } from './components/systemParamFormat.js'
+import { BUILDING_AUTOMATION_POINTS, BUILDING_AUTOMATION_DEFAULTS } from '../data/buildingAutomationPoints.js'
 
 const props = defineProps({
-  values: { type: Object, default: () => reactive({}) }
+  values: { type: Object, default: () => reactive({ ...BUILDING_AUTOMATION_DEFAULTS }) },
+  systemParams: { type: Array, default: () => [] },
+  deviceName: { type: String, default: '' }
 })
 defineEmits(['select-device'])
 
+const prefix = 'ba.ahu1'
 const { p, n, valveStyle } = createHelpers(props.values)
+
+const devicePoints = computed(() => BUILDING_AUTOMATION_POINTS.filter(pt => pt.key.startsWith(prefix + '.')))
+const running = computed(() => Boolean(props.values[`${prefix}.running`] ?? props.values[`${prefix}.fanEnable`]))
+const fault = computed(() => Boolean(props.values[`${prefix}.fault`]))
+const stateText = computed(() => fault.value ? '故障' : running.value ? '运行' : '停止')
+const stateTone = computed(() => fault.value ? 'fault' : running.value ? 'running' : 'stopped')
+
+/** 当接口返回了系统参数数组时优先使用，否则回退到默认点位 */
+const displaySystemParams = computed(() => {
+  return props.systemParams && props.systemParams.length > 0 ? props.systemParams : devicePoints.value.slice(-6)
+})
+
+function formatParam(item) {
+  return formatSystemParam(item)
+}
 </script>
 
 <style scoped>
+.ba-page{height:100%;display:flex;flex-direction:column;overflow:hidden;background:#06131d;color:#d9eaf3;font-family:"DIN Alternate","PingFang SC","Microsoft YaHei",sans-serif}
+main{flex:1;min-height:0;position:relative;padding:14px 16px 42px;background:radial-gradient(circle at 45% 42%,#123148,#07141e 62%)}
+main>header{height:60px;display:flex;align-items:flex-start;justify-content:space-between}
+main>header small{font-size:6px;letter-spacing:2px;color:#3d8197}
+h1{margin-top:3px;font-size:18px}
+main>header p{margin-top:3px;color:#597a8e;font-size:8px}
+.headline{display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid #1d4355;background:#092333;font-size:7px}
+.headline strong{padding:3px 7px}
+.running{color:#48dfa8!important}
+.stopped{color:#869ba7!important;filter:saturate(.45)}
+.fault{color:#ff7968!important}
+.schematic-card{position:absolute;left:16px;right:250px;top:77px;bottom:14px;overflow:hidden;border:1px solid rgba(78,141,167,.25);background:linear-gradient(rgba(63,117,142,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(63,117,142,.05) 1px,transparent 1px),rgba(5,20,30,.55);background-size:18px 18px}
+.system-panel{position:absolute;right:16px;top:77px;bottom:14px;width:222px;padding-bottom:8px;border:1px solid #234b5e;background:#08202e;overflow-y:auto;overflow-x:hidden}
+.system-panel header{height:29px;padding:8px 10px;border-bottom:1px solid #285267;background:#0d3041;color:#80c7d1;font-size:8px;position:sticky;top:0;z-index:2}
+.system-panel>div{height:34px;padding:0 9px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(52,91,109,.28);font-size:8px}
+.system-panel span{color:#6d8c9d}
+.system-panel strong{color:#d6e8f0}
+@media(max-width:1050px){.schematic-card{right:16px}.system-panel{display:none}}
+
 .ba-schematic{position:absolute;inset:0;overflow:hidden;color:#bcd3df;background:linear-gradient(rgba(53,108,132,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(53,108,132,.05) 1px,transparent 1px);background-size:18px 18px}
 .device{cursor:pointer;transition:.2s}
 .device:hover{filter:brightness(1.2);transform:translateY(-4px)}
-.ahu-wrap{position:absolute;left:1%;right:auto;top:7%;bottom:auto;width:78%;aspect-ratio:1.72;overflow:hidden}
+.ahu-wrap{position:absolute;left:1%;right:auto;top:7%;bottom:auto;width:100%;aspect-ratio:1.72;overflow:hidden}
 .ahu-asset{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 18px 22px rgba(0,0,0,.28))}
 .air-stream{position:absolute;display:flex;align-items:center;gap:12px;pointer-events:none;opacity:0;overflow:hidden}
 .air-stream i{position:relative;flex:0 0 34px;width:34px;height:13px;border:0;border-top:2px solid #8bf7f1;border-radius:50%;transform:none;filter:drop-shadow(0 0 4px #30e7e2)}
@@ -60,17 +116,17 @@ const { p, n, valveStyle } = createHelpers(props.values)
 .air-stream.active{opacity:.85}
 .air-stream.active i{animation:windCurve 1.8s linear infinite}
 .air-stream.active i:nth-child(2n){animation-delay:-.9s;opacity:.65}
-.supply-flow{left:21%;right:10%;top:56%;height:24px}
-.fan-rotor{position:absolute;width:58px;height:58px;border-radius:50%;pointer-events:none}
+.supply-flow{left:21%;right:10%;top:49%;height:24px;transform: rotate(3deg);}
+.fan-rotor{position:absolute;width:27px;height:27px;border-radius:50%;pointer-events:none}
 .fan-rotor i{position:absolute;inset:8%;border:2px solid rgba(90,236,202,.42);background:repeating-conic-gradient(from 0deg,rgba(83,244,203,.92) 0 13deg,transparent 13deg 42deg);-webkit-mask:radial-gradient(circle,transparent 0 17%,#000 19% 68%,transparent 70%);mask:radial-gradient(circle,transparent 0 17%,#000 19% 68%,transparent 70%)}
 .fan-rotor.running i{animation:spin .7s linear infinite;filter:drop-shadow(0 0 6px #34e1ba)}
-.ahu-supply-rotor{right:18.5%;top:49.5%}
+.ahu-supply-rotor{right:23.5%;top:49.5%}
 .valve-motion{position:absolute;width:30px;height:30px;border:3px solid #d5a542;border-radius:50%;pointer-events:none}
 .valve-motion i{position:absolute;left:47%;top:-20%;width:3px;height:140%;background:#ffe075;transform:rotate(var(--open));transition:transform .7s ease;transform-origin:center}
 .ahu-valve{left:51.5%;top:67%}
 .damper-motion{position:absolute;display:flex;justify-content:space-around;pointer-events:none}
 .damper-motion i{width:3px;background:#62d9df;transform:rotate(var(--open,42deg));transform-origin:center;transition:transform .65s ease,background .3s}
-.ahu-fresh-damper{left:22%;top:48%;width:7%;height:19%}
+.ahu-fresh-damper{left:22%;top:44%;width:7%;height:8%}
 .instrument{position:absolute;z-index:8;width:17px;height:22px;border-radius:5px 5px 2px 2px;background:linear-gradient(#48c9ee,#17658d);border:1px solid #76e7ff;box-shadow:0 0 8px rgba(57,209,245,.55);pointer-events:none}
 .instrument::after{content:"";position:absolute;left:7px;top:21px;width:2px;height:15px;background:#45b7d8}
 .instrument i{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:5px;font-style:normal;color:#eaffff}
@@ -94,9 +150,7 @@ const { p, n, valveStyle } = createHelpers(props.values)
 .humid-point{left:66%;top:41%}
 .fan-point{left:75%;top:41%}
 .supply-air{right:2%;top:70%}
-.parameter-panel{position:absolute;right:2%;top:10%;width:210px;padding:7px;border:1px solid #2b5a6d;background:#082332}
-.parameter-panel h4{padding:5px 7px;background:#0f4257;color:#7bd0db}
-.parameter-panel :deep(.point-badge){display:flex;justify-content:space-between;border-width:0 0 1px}
+
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes windCurve{0%{transform:translateX(-46px) scaleX(.8);opacity:0}20%{opacity:1}80%{opacity:1}100%{transform:translateX(46px) scaleX(1.1);opacity:0}}
 </style>

@@ -148,7 +148,7 @@
           </div>
           <!-- 右侧：工艺图 -->
           <div class="process-schematic">
-            <Sump :values="{}" />
+            <Sump :values="deviceValues" :system-params="systemParams" :device-name="selectedDeviceName" />
           </div>
         </div>
       </div>
@@ -160,7 +160,7 @@
 import { ref, computed, h, onMounted } from 'vue'
 import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons-vue'
 import { StatCard } from '/@/views/bems-web/components'
-import { spaceTree } from './index.api'
+import { getSpaceTree, getDeviceAttrList } from './index.api'
 import Sump from '../../building-automation/sump.vue'
 
 // 自定义 emoji 图标组件
@@ -189,41 +189,115 @@ defineProps<{
 // 工艺图 - 左侧树 & 右侧Sump组件
 const selectedSpaceKeys = ref<string[]>([])
 const spaceTreeData = ref<any[]>([])
+const deviceValues = ref<Record<string, any>>({})
+const selectedDeviceName = ref<string>('')
+const systemParams = ref<any[]>([])
 
-/** 查找树中第一个叶子节点 */
-const findFirstLeafKey = (nodes: any[]): string | null => {
+/** 从树中根据 key 查找设备原始数据 */
+const findDeviceByKey = (nodes: any[], key: string): any | null => {
   for (const node of nodes) {
-    if (!node.children || node.children.length === 0) {
-      return String(node.key)
+    if (String(node.key) === key) return node.rawDevice || null
+    if (node.children && node.children.length > 0) {
+      const found = findDeviceByKey(node.children, key)
+      if (found) return found
     }
-    const leafKey = findFirstLeafKey(node.children)
-    if (leafKey) return leafKey
   }
   return null
 }
 
-/** 加载空间位置树 */
-const loadSpaceTree = async () => {
-  try {
-    const res = await spaceTree()
-    spaceTreeData.value = Array.isArray(res) ? res : (res.data || res.records || [])
-    // 默认选中第一个叶子节点
-    if (spaceTreeData.value.length > 0) {
-      const firstKey = findFirstLeafKey(spaceTreeData.value)
-      if (firstKey) {
-        selectedSpaceKeys.value = [firstKey]
-      }
+/** 将接口返回的树数据转换为 a-tree 格式 */
+const transformTreeData = (nodes: any[]): any[] => {
+  if (!nodes || !Array.isArray(nodes)) return []
+  return nodes.map((node) => {
+    const children = [
+      ...(node.child ? transformTreeData(node.child) : []),
+      ...(node.device ? node.device.map((d: any) => ({
+        key: `device-${d.id}`,
+        title: d.deviceName,
+        isLeaf: true,
+        rawDevice: d,
+      })) : []),
+    ]
+    return {
+      key: `space-${node.spaceId}`,
+      title: node.spaceName,
+      children,
+      rawSpace: node,
     }
+  })
+}
+
+/** 递归查找树中第一个设备节点 */
+const findFirstDeviceKey = (nodes: any[]): string | null => {
+  for (const node of nodes) {
+    if (node.isLeaf) return String(node.key)
+    if (node.children && node.children.length > 0) {
+      const deviceKey = findFirstDeviceKey(node.children)
+      if (deviceKey) return deviceKey
+    }
+  }
+  return null
+}
+
+/** 加载设备属性信息 */
+const loadDeviceAttrList = async (deviceKey: string) => {
+  const deviceId = deviceKey.replace('device-', '')
+  try {
+    const res = await getDeviceAttrList({ deviceId })
+    const list = res?.records || res?.data || res || []
+    systemParams.value = Array.isArray(list) ? list : []
+    // 同时构建 key-value 映射用于工艺图动效
+    const values: Record<string, any> = {}
+    if (Array.isArray(list)) {
+      list.forEach((item: any) => {
+        if (item.code) values[item.code] = item.value
+      })
+    }
+    deviceValues.value = values
   } catch (e) {
-    console.error('加载空间树数据失败:', e)
+    console.error('加载设备属性失败:', e)
+    systemParams.value = []
+    deviceValues.value = {}
   }
 }
 
-/** 根据选中的空间节点切换 */
+/** 加载设备列表 */
+const loadSpaceTree = async () => {
+  try {
+    const res = await getSpaceTree()
+    const rawList = Array.isArray(res) ? res : (res.data || res.records || [])
+    spaceTreeData.value = transformTreeData(rawList)
+    // 默认选中第一个设备节点
+    if (spaceTreeData.value.length > 0) {
+      const firstKey = findFirstDeviceKey(spaceTreeData.value)
+      if (firstKey) {
+        selectedSpaceKeys.value = [firstKey]
+        const device = findDeviceByKey(spaceTreeData.value, firstKey)
+        if (device) {
+          deviceValues.value = device
+          selectedDeviceName.value = device.deviceName || ''
+        }
+        loadDeviceAttrList(firstKey)
+      }
+    }
+  } catch (e) {
+    console.error('加载设备列表失败:', e)
+  }
+}
+
+/** 根据选中的节点切换（只有设备节点才传值） */
 const handleSpaceSelect = (keys: (string | number)[]) => {
   if (!keys || keys.length === 0) return
   const key = String(keys[0])
   selectedSpaceKeys.value = [key]
+  // 只有点击设备节点时才传值
+  if (!key.startsWith('device-')) return
+  const device = findDeviceByKey(spaceTreeData.value, key)
+  if (device) {
+    deviceValues.value = device
+    selectedDeviceName.value = device.deviceName || ''
+  }
+  loadDeviceAttrList(key)
 }
 
 onMounted(() => {
@@ -520,9 +594,31 @@ const handleSearch = () => {
   z-index: 1000;
   border-radius: 0;
   margin: 0;
-  padding: 20px;
-  overflow: auto;
+  padding: 0;
+  overflow: hidden;
   background: #fff;
+  display: flex;
+  flex-direction: column;
+
+  .card-header {
+    padding: 12px 20px;
+    flex-shrink: 0;
+  }
+
+  .process-body {
+    flex: 1;
+    overflow: hidden;
+
+    .process-layout {
+      min-height: 0;
+      height: 100%;
+    }
+
+    .process-schematic {
+      min-height: 0;
+      height: 100%;
+    }
+  }
 }
 
 .process-body {

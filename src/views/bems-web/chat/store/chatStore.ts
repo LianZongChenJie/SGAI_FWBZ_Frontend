@@ -1,0 +1,289 @@
+import { defineStore } from 'pinia';
+import { streamChat } from '/@/api/chat';
+import { createTypewriter, TypewriterInstance } from '../utils/typewriterQueue';
+
+// localStorage 键名
+const STORAGE_KEY = 'hephaestus_chat_v1';
+const SAVE_DEBOUNCE_MS = 400;
+
+export interface ChatMessage {
+  role: string;
+  content: string;
+  status?: string;
+  sql?: string;
+  table?: { columns: any[]; rows: any[] } | null;
+  chart?: { chartType: string; chartId: string; option: Record<string, any> } | null;
+}
+
+export interface ChatSession {
+  id: string;
+  title: string;
+  messages: ChatMessage[];
+  updatedAt: number;
+}
+
+function uuid(): string {
+  return crypto.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function defaultSession(): ChatSession {
+  const now = Date.now();
+  return {
+    id: uuid(),
+    title: '新对话',
+    messages: [],
+    updatedAt: now,
+  };
+}
+
+function loadPersisted(): { sessions: ChatSession[]; currentSessionId: string; settings: any } | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+function patchAssistant(session: ChatSession, index: number, partial: Partial<ChatMessage>) {
+  const msg = session.messages[index];
+  if (!msg) return;
+  Object.assign(msg, partial);
+}
+
+interface ChatStoreState {
+  sessions: ChatSession[];
+  currentSessionId: string;
+  settings: { temperature: number; num_ctx: number };
+  isGenerating: boolean;
+  streamTick: number;
+  sidebarCollapsed: boolean;
+  _abortController: AbortController | null;
+  _saveTimer: ReturnType<typeof setTimeout> | null;
+  _typewriter: TypewriterInstance | null;
+}
+
+export const useChatStore = defineStore('chat', {
+  state: (): ChatStoreState => {
+    const defaultSettings = { temperature: 0.6, num_ctx: 2048 };
+    const saved = loadPersisted();
+    const sessions = saved?.sessions?.length ? saved.sessions : [defaultSession()];
+    const mergedSettings = saved?.settings
+      ? { ...defaultSettings, ...saved.settings }
+      : defaultSettings;
+    return {
+      sessions,
+      currentSessionId: saved?.currentSessionId || sessions[0].id,
+      settings: mergedSettings,
+      isGenerating: false,
+      streamTick: 0,
+      sidebarCollapsed: false,
+      _abortController: null,
+      _saveTimer: null,
+      _typewriter: null,
+    };
+  },
+
+  getters: {
+    currentSession(state): ChatSession {
+      return state.sessions.find((s) => s.id === state.currentSessionId) || state.sessions[0];
+    },
+  },
+
+  actions: {
+    persist() {
+      clearTimeout(this._saveTimer!);
+      this._saveTimer = setTimeout(() => {
+        const payload = {
+          sessions: this.sessions,
+          currentSessionId: this.currentSessionId,
+          settings: this.settings,
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+      }, SAVE_DEBOUNCE_MS);
+    },
+
+    createSession() {
+      const s = defaultSession();
+      this.sessions.unshift(s);
+      this.currentSessionId = s.id;
+      this.persist();
+    },
+
+    selectSession(id: string) {
+      this.currentSessionId = id;
+      this.persist();
+    },
+
+    deleteSession(id: string) {
+      const idx = this.sessions.findIndex((s) => s.id === id);
+      if (idx === -1) return;
+      this.sessions.splice(idx, 1);
+      if (!this.sessions.length) {
+        const s = defaultSession();
+        this.sessions.push(s);
+        this.currentSessionId = s.id;
+      } else if (this.currentSessionId === id) {
+        this.currentSessionId = this.sessions[0].id;
+      }
+      this.persist();
+    },
+
+    updateSettings(partial: Partial<ChatStoreState['settings']>) {
+      this.settings = { ...this.settings, ...partial };
+      this.persist();
+    },
+
+    toggleSidebar() {
+      this.sidebarCollapsed = !this.sidebarCollapsed;
+    },
+
+    setSidebarCollapsed(collapsed: boolean) {
+      this.sidebarCollapsed = collapsed;
+    },
+
+    _touchSession(session: ChatSession) {
+      session.updatedAt = Date.now();
+    },
+
+    _maybeSetTitle(session: ChatSession, userText: string) {
+      if (session.title === '新对话' || !session.title) {
+        const t = userText.trim().slice(0, 24);
+        session.title = t || `对话 ${new Date().toLocaleString()}`;
+      }
+    },
+
+    stopGenerating() {
+      this._abortController?.abort();
+      this._abortController = null;
+      const tw = this._typewriter;
+      if (tw) {
+        this._typewriter = null;
+        tw.cancel(() => {
+          this.isGenerating = false;
+          this.persist();
+        });
+      } else {
+        this.isGenerating = false;
+      }
+    },
+
+    async sendMessage(userText: string, { onError }: { onError?: (msg: string) => void } = {}) {
+      const text = userText.trim();
+      if (!text || this.isGenerating) return false;
+
+      const session = this.currentSession;
+      if (!session) return false;
+
+      session.messages.push({ role: 'user', content: text });
+      this._maybeSetTitle(session, text);
+      this._touchSession(session);
+      this.persist();
+
+      // 必须通过 messages 数组下标改 content，才能触发 Vue 响应式流式刷新
+      session.messages.push({
+        role: 'assistant',
+        content: '',
+        status: '',
+        sql: '',
+        table: null,
+        chart: null,
+      });
+      const assistantIndex = session.messages.length - 1;
+
+      this.isGenerating = true;
+      this._abortController = new AbortController();
+
+      const typewriter = createTypewriter({
+        onUpdate: (displayed) => {
+          const msg = session.messages[assistantIndex];
+          if (msg) msg.content = displayed;
+          this.streamTick += 1;
+        },
+        charsPerTick: 2,
+        tickMs: 16,
+      });
+      this._typewriter = typewriter;
+
+      const messagesForApi = session.messages
+        .slice(0, -1)
+        .map(({ role, content }) => ({ role, content: content || '' }));
+
+      await streamChat({
+        messages: messagesForApi,
+        temperature: this.settings.temperature,
+        num_ctx: this.settings.num_ctx,
+        signal: this._abortController!.signal,
+        onToken: (chunk) => {
+          typewriter.push(chunk);
+        },
+        onMode: ({ message }) => {
+          if (message) {
+            patchAssistant(session, assistantIndex, { status: message });
+            this.streamTick += 1;
+          }
+        },
+        onSql: (sql) => {
+          patchAssistant(session, assistantIndex, { sql });
+          this.streamTick += 1;
+        },
+        onTable: (table) => {
+          patchAssistant(session, assistantIndex, { table });
+          this.streamTick += 1;
+        },
+        onChart: (chart) => {
+          patchAssistant(session, assistantIndex, { chart });
+          this.streamTick += 1;
+        },
+        onSummary: (summary) => {
+          typewriter.push(summary);
+        },
+        onDone: () => {
+          const tw = this._typewriter;
+          if (!tw) return;
+          tw.finish(() => {
+            this._typewriter = null;
+            this.isGenerating = false;
+            this._abortController = null;
+            const msg = session.messages[assistantIndex];
+            if (msg) {
+              msg.status = '';
+              const hasStructured = !!(msg.table || msg.chart);
+              if (!msg.content.trim() && !hasStructured) {
+                msg.content = '（已停止或无内容返回）';
+              }
+            }
+            this._touchSession(session);
+            this.persist();
+          });
+        },
+        onError: (errMsg) => {
+          const tw = this._typewriter;
+          const finish = () => {
+            this._typewriter = null;
+            this.isGenerating = false;
+            this._abortController = null;
+            const msg = session.messages[assistantIndex];
+            if (msg) {
+              msg.status = '';
+              if (!msg.content.trim()) {
+                msg.content = `错误：${errMsg}`;
+              }
+            }
+            onError?.(errMsg);
+            this._touchSession(session);
+            this.persist();
+          };
+          if (!tw) {
+            finish();
+            return;
+          }
+          tw.finish(finish);
+        },
+      });
+
+      return true;
+    },
+  },
+});

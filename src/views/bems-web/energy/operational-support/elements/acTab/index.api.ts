@@ -7,8 +7,8 @@ enum Api {
   supplyAirTemperature = '/sgai-fwbz-dev/fwbz/operationSupport/supplyAirTemperature',
   returnAirTemperature = '/sgai-fwbz-dev/fwbz/operationSupport/returnAirTemperature',
   listByDeviceId = '/sgai-fwbz-dev/fwbz/deviceAttribute/listByDeviceId',
-  /** 空间位置 */
-  spaceTree = '/sgai-fwbz-dev/fwbz/space/getTree',
+  /** 设备空间位置 */
+  spaceTree = '/sgai-fwbz-dev/fwbz/device/findNameAndIdByCategory',
   /** 设备基础信息列表 */
   deviceBaseInfoList = '/sgai-fwbz-dev/fwbz/device/list',
 }
@@ -40,19 +40,6 @@ export interface Request {
     [property: string]: any;
 }
 
-/**
- * 空间位置返回值格式
- *
- */
-export interface SelectTreeModel {
-    children?: SelectTreeModel[];
-    isLeaf?: boolean;
-    key?: string;
-    parentId?: string;
-    title?: string;
-    value?: string;
-    [property: string]: any;
-}
 
 /** 设备信息列表 */
 export const getDeviceBaseInfoList = (params = {}) => defHttp.get({ url: Api.deviceBaseInfoList, params: {...params, categoryId: '8'} })
@@ -91,3 +78,6 @@ export const getDeviceAttrList = (params = {}) => defHttp.get({ url: Api.listByD
  * 空调机组控制
  */
 export const airControl = (data: any[]) => defHttp.post({ url: '/sgai-fwbz-dev/fwbz/operationSupport/airControl', data })
+
+/** 设备空间位置 */
+export const getSpaceTree = () => defHttp.get({ url: Api.spaceTree, params: {categoryIds: '8'} });

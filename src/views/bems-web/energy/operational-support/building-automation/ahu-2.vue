@@ -1,6 +1,21 @@
 <template>
-  <div class="ba-schematic ahu ahu-2">
-    <div class="ahu-wrap device" @click="$emit('select-device','ba.ahu2')">
+  <div class="ba-page ahu-2">
+    <main>
+      <header>
+        <div>
+          <small>BUILDING AUTOMATION · 6.0F</small>
+          <h1>{{ deviceName || 'AHU-2 回风机组' }}</h1>
+          <p>新回风混合与空气品质</p>
+        </div>
+        <div class="headline">
+          <span>设备状态</span>
+          <strong :class="stateTone">{{ stateText }}</strong>
+          <em>点位 {{ devicePoints.length }}</em>
+        </div>
+      </header>
+      <section class="schematic-card">
+        <div class="ba-schematic ahu ahu-2">
+          <div class="ahu-wrap device" @click="$emit('select-device','ba.ahu2')">
       <img class="ahu-asset" src="/equipment/ahu-process-v2-2_5d.png" alt="AHU-2 回风机组" />
       <div class="air-stream supply-flow" :class="{ active: p('ba.ahu2.running') }"><i v-for="x in 12" :key="`s${x}`"></i></div>
       <div class="air-stream return-flow" :class="{ active: p('ba.ahu2.running') }"><i v-for="x in 8" :key="`r${x}`"></i></div>
@@ -30,32 +45,73 @@
       <PointBadge class="pt return-temp" label="回风温湿度" :value="`${n('ba.ahu2.returnTemp',1)}℃ · ${n('ba.ahu2.returnHumidity',1)}%RH`" />
       <PointBadge class="pt return-data" label="回风 CO₂" :value="`${n('ba.ahu2.co2',0)} ppm`" />
       <PointBadge class="pt pm-point" label="回风 PM2.5" :value="`${n('ba.ahu2.pm25',1)} μg/m³`" />
-    </div>
-    <div class="parameter-panel">
-      <h4>系统参数</h4>
-      <PointBadge label="系统启停" :value="p('ba.ahu2.systemEnable')?'开':'关'" />
-      <PointBadge label="季节模式" :value="p('ba.ahu2.season')" />
-      <PointBadge label="送风温度设定" :value="`${n('ba.ahu2.supplyTempSetpoint',1)}℃`" />
-      <PointBadge label="回风温度设定" :value="`${n('ba.ahu2.returnTempSetpoint',1)}℃`" />
-      <PointBadge label="CO₂设定" :value="`${n('ba.ahu2.co2Setpoint',0)} ppm`" />
-    </div>
+          </div>
+        </div>
+      </section>
+      <aside class="system-panel">
+        <header>系统参数</header>
+        <div v-for="item in displaySystemParams" :key="item.code || item.configId">
+          <span>{{ item.label }}</span>
+          <strong>{{ formatParam(item) }}</strong>
+        </div>
+      </aside>
+    </main>
   </div>
 </template>
 
 <script setup>
-import { reactive } from 'vue'
+import { reactive, computed } from 'vue'
 import PointBadge from './components/PointBadge.vue'
 import { createHelpers } from './components/utils.js'
+import { formatSystemParam } from './components/systemParamFormat.js'
+import { BUILDING_AUTOMATION_POINTS, BUILDING_AUTOMATION_DEFAULTS } from '../data/buildingAutomationPoints.js'
 
 const props = defineProps({
-  values: { type: Object, default: () => reactive({}) }
+  values: { type: Object, default: () => reactive({ ...BUILDING_AUTOMATION_DEFAULTS }) },
+  systemParams: { type: Array, default: () => [] },
+  deviceName: { type: String, default: '' }
 })
 defineEmits(['select-device'])
 
+const prefix = 'ba.ahu2'
 const { p, n, valveStyle } = createHelpers(props.values)
+
+const devicePoints = computed(() => BUILDING_AUTOMATION_POINTS.filter(pt => pt.key.startsWith(prefix + '.')))
+const running = computed(() => Boolean(props.values[`${prefix}.running`] ?? props.values[`${prefix}.fanEnable`]))
+const fault = computed(() => Boolean(props.values[`${prefix}.fault`]))
+const stateText = computed(() => fault.value ? '故障' : running.value ? '运行' : '停止')
+const stateTone = computed(() => fault.value ? 'fault' : running.value ? 'running' : 'stopped')
+
+/** 当接口返回了系统参数数组时优先使用，否则回退到默认点位 */
+const displaySystemParams = computed(() => {
+  return props.systemParams && props.systemParams.length > 0 ? props.systemParams : devicePoints.value.slice(-6)
+})
+
+function formatParam(item) {
+  return formatSystemParam(item)
+}
 </script>
 
 <style scoped>
+.ba-page{height:100%;display:flex;flex-direction:column;overflow:hidden;background:#06131d;color:#d9eaf3;font-family:"DIN Alternate","PingFang SC","Microsoft YaHei",sans-serif}
+main{flex:1;min-height:0;position:relative;padding:14px 16px 42px;background:radial-gradient(circle at 45% 42%,#123148,#07141e 62%)}
+main>header{height:60px;display:flex;align-items:flex-start;justify-content:space-between}
+main>header small{font-size:6px;letter-spacing:2px;color:#3d8197}
+h1{margin-top:3px;font-size:18px}
+main>header p{margin-top:3px;color:#597a8e;font-size:8px}
+.headline{display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid #1d4355;background:#092333;font-size:7px}
+.headline strong{padding:3px 7px}
+.running{color:#48dfa8!important}
+.stopped{color:#869ba7!important;filter:saturate(.45)}
+.fault{color:#ff7968!important}
+.schematic-card{position:absolute;left:16px;right:250px;top:77px;bottom:14px;overflow:hidden;border:1px solid rgba(78,141,167,.25);background:linear-gradient(rgba(63,117,142,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(63,117,142,.05) 1px,transparent 1px),rgba(5,20,30,.55);background-size:18px 18px}
+.system-panel{position:absolute;right:16px;top:77px;bottom:14px;width:222px;padding-bottom:8px;border:1px solid #234b5e;background:#08202e;overflow-y:auto;overflow-x:hidden}
+.system-panel header{height:29px;padding:8px 10px;border-bottom:1px solid #285267;background:#0d3041;color:#80c7d1;font-size:8px;position:sticky;top:0;z-index:2}
+.system-panel>div{height:34px;padding:0 9px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(52,91,109,.28);font-size:8px}
+.system-panel span{color:#6d8c9d}
+.system-panel strong{color:#d6e8f0}
+@media(max-width:1050px){.schematic-card{right:16px}.system-panel{display:none}}
+
 .ba-schematic{position:absolute;inset:0;overflow:hidden;color:#bcd3df;background:linear-gradient(rgba(53,108,132,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(53,108,132,.05) 1px,transparent 1px);background-size:18px 18px}
 .device{cursor:pointer;transition:.2s}
 .device:hover{filter:brightness(1.2);transform:translateY(-4px)}
@@ -108,9 +164,6 @@ const { p, n, valveStyle } = createHelpers(props.values)
 .return-temp{left:38%;top:5%}
 .return-data{left:54%;top:5%}
 .pm-point{right:11%;top:17%}
-.parameter-panel{position:absolute;right:2%;top:10%;width:210px;padding:7px;border:1px solid #2b5a6d;background:#082332}
-.parameter-panel h4{padding:5px 7px;background:#0f4257;color:#7bd0db}
-.parameter-panel :deep(.point-badge){display:flex;justify-content:space-between;border-width:0 0 1px}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes windCurve{0%{transform:translateX(-46px) scaleX(.8);opacity:0}20%{opacity:1}80%{opacity:1}100%{transform:translateX(46px) scaleX(1.1);opacity:0}}
 </style>
