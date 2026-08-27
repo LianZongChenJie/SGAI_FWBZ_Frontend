@@ -4,13 +4,18 @@
 
 import axios from 'axios';
 
-/** 后端 AI 服务基础地址（开发环境直连，生产环境走相对路径） */
+/**
+ * 后端 AI 服务基础地址
+ * - 开发环境：直连后端，避免 Vite proxy 缓冲整段 SSE
+ * - 生产环境：也直连后端绝对地址，跳过 Nginx 代理
+ */
 function aiBaseUrl(): string {
-  // 开发环境：直连后端 AI 服务地址，避免 Vite proxy 缓冲整段 SSE
-  if (import.meta.env.DEV) {
-    return 'http://192.168.204.169:8000/api/ai-report';
+  // 生产环境直连后端 AI 服务
+  if (import.meta.env.PROD) {
+    return 'http://10.168.56.105:8000/xzqdd/api/ai-report';
   }
-  return '/api/ai-report';
+  // 开发环境直连后端 AI 服务地址，避免 Vite proxy 缓冲整段 SSE
+  return 'http://192.168.204.169:8000/xzqdd/api/ai-report';
 }
 
 /** 流式接口地址 */

@@ -248,7 +248,8 @@ const fetchVenueList = async () => {
 }
 
 const meterColumns = [
-  { title: '表计编号', dataIndex: 'deviceCode', key: 'deviceCode', width: 250},
+  { title: '表计编号', dataIndex: 'deviceCode', key: 'deviceCode', width: 150},
+  { title: '名称', dataIndex: 'deviceName', key: 'deviceName', width: 150},
   {
     title: '表计类型',
     dataIndex: 'categoryId',
@@ -272,6 +273,7 @@ const meterColumns = [
   { title: '今日读数', dataIndex: 'value', key: 'value', width: 100 },
   { title: '今日用量', dataIndex: 'dayTotal', key: 'dayTotal', width: 100 },
   { title: '本月累计', dataIndex: 'mouthTotal', key: 'mouthTotal', width: 100 },
+  { title: '备注', dataIndex: 'remark', key: 'remark', width: 100 },
   { title: '状态', dataIndex: 'runState', key: 'runState', width: 100 },
   { title: '操作', key: 'action', width: 100 },
 ]
@@ -373,6 +375,7 @@ const loadMeterData = async (pageNo = pagination.current, pageSize = pagination.
     meterData.value = (res.records || res || []).map((item: any, idx: number) => ({
       key: item.deviceId ?? idx,
       deviceCode: item.deviceCode ?? '-',
+      deviceName: item.deviceName ?? '-',
       categoryId: item.categoryId ?? '-',
       venueId: item.venueId ?? '-',
       spaceId: item.spaceId ?? '-',
@@ -380,6 +383,7 @@ const loadMeterData = async (pageNo = pagination.current, pageSize = pagination.
       dayTotal: item.dayTotal ?? '-',
       mouthTotal: item.mouthTotal ?? '-',
       runState: item.runState ?? '-',
+      remark: item.remark ?? '-',
     }))
   } catch (e) {
     console.error('加载计量表计数据失败:', e)

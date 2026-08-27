@@ -248,7 +248,8 @@ const fetchVenueList = async () => {
 }
 
 const meterColumns = [
-  { title: '表计编号', dataIndex: 'deviceCode', key: 'deviceCode', width: 250},
+  { title: '表计编号', dataIndex: 'deviceCode', key: 'deviceCode', width: 150},
+  { title: '名称', dataIndex: 'deviceName', key: 'deviceName', width: 150},
   {
     title: '表计类型',
     dataIndex: 'categoryId',

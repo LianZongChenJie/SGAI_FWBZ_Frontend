@@ -34,15 +34,17 @@
     spaceKeys?: string[]; // 空间树节点
     categoryTreeData: any[];
     spaceTreeData: any[];
+    searchParams?: {
+      deviceName?: string;
+      spaceName?: string;
+      remark?: string;
+      runState?: string;
+    };
   }>();
 
   const emit = defineEmits(['edit', 'delete', 'refresh', 'detail']);
 
-  // 搜索参数
-  const searchParams = ref({
-    deviceName: '',
-    runState: '',
-  });
+  // 搜索参数（由父组件传入）
 
   // 查找树节点的标题
   const findTreeNodeTitle = (treeData: any[], key: string | number): string => {
@@ -206,13 +208,14 @@
   const loadData = async (pageParams) => {
     const { pageNo, pageSize } = pageParams;
     try {
-      let { getFieldsValue } = getForm();
-      const searchData = getFieldsValue();
+      const sp = props.searchParams || {};
       const params = {
         pageNo: pageNo,
         pageSize: pageSize,
-        nameOrCode: searchData.deviceName ? searchData.deviceName.split('*')[1] : undefined,
-        runState: searchData.runState ? searchData.runState : undefined,
+        deviceName: sp.deviceName || undefined,
+        spaceName: sp.spaceName || undefined,
+        remark: sp.remark || undefined,
+        runState: sp.runState || undefined,
         categoryIds: props.categoryKeys ? props.categoryKeys.join(',') : undefined,
         spaceIds: props.spaceKeys ? props.spaceKeys.join(',') : undefined,
       };
@@ -229,7 +232,7 @@
   };
 
   async function customResetFunc() {
-    searchParams.value.deviceName = '';
+    // 重置由父组件控制
   }
 
   const { tableContext } = useListPage({
@@ -305,11 +308,12 @@
   };
 
   const handleExport = async () => {
-    let { getFieldsValue } = getForm();
-    const searchData = getFieldsValue();
+    const sp = props.searchParams || {};
     let res = await exportData({
-      nameOrCode: searchData.deviceName ? searchData.deviceName.split('*')[1] : undefined,
-      runState: searchData.runState ? searchData.runState : undefined,
+      deviceName: sp.deviceName || undefined,
+      spaceName: sp.spaceName || undefined,
+      remark: sp.remark || undefined,
+      runState: sp.runState || undefined,
       categoryIds: props.categoryKeys ? props.categoryKeys.join(',') : undefined,
       spaceIds: props.spaceKeys ? props.spaceKeys.join(',') : undefined,
       deviceType: '1',
@@ -330,8 +334,8 @@
 
   // 暴露 reload 方法给父组件
   defineExpose({
-    reload: () => {
-      loadData();
+    reload: (opt?: any) => {
+      reload(opt);
     },
   });
 </script>

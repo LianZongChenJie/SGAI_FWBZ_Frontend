@@ -19,7 +19,30 @@
                   style="width: 200px; margin-right: 8px;"
                   @change="onCategorySelectChange"
                 />
-                <a-button type="primary" @click="handleCreate">新建</a-button>
+                <a-input
+                  v-model:value="searchForm.deviceName"
+                  placeholder="设备名称"
+                  allow-clear
+                  style="width: 160px; margin-right: 8px;"
+                  @pressEnter="handleSearch"
+                />
+                <a-input
+                  v-model:value="searchForm.remark"
+                  placeholder="备注"
+                  allow-clear
+                  style="width: 160px; margin-right: 8px;"
+                  @pressEnter="handleSearch"
+                />
+                <a-select
+                  v-model:value="searchForm.runState"
+                  placeholder="状态"
+                  allow-clear
+                  style="width: 120px; margin-right: 8px;"
+                  :options="runStateOptions"
+                  @change="handleSearch"
+                />
+                <a-button type="primary" @click="handleSearch">搜索</a-button>
+                <a-button type="primary" @click="handleCreate" style="margin-left: 8px;">新建</a-button>
               </div>
             </div>
             <div class="device-space">
@@ -29,6 +52,7 @@
                   :categoryKeys="checkedKeys"
                   :category-tree-data="treeData"
                   :space-tree-data="spaceTreeData"
+                  :search-params="searchForm"
                   @edit="handleEdit"
                   @delete="handleDelete"
                   @detail="handleDetail"
@@ -169,6 +193,25 @@
   // 添加 deviceTableRef 定义
   const deviceTableRef = ref();
   const detailModalRef = ref();
+
+  // 搜索表单
+  const searchForm = reactive({
+    deviceName: '',
+    spaceName: '',
+    remark: '',
+    runState: undefined as string | undefined,
+  });
+
+  // 状态下拉选项
+  const runStateOptions = [
+    { label: '在线', value: '在线' },
+    { label: '离线', value: '离线' },
+  ];
+
+  // 搜索按钮：触发 DeviceTable 重新加载
+  const handleSearch = () => {
+    deviceTableRef.value?.reload();
+  };
 
   // 当前激活的 Tab（默认楼控设备）
   const activeTabKey = ref('loukong');
