@@ -17,11 +17,11 @@
         <div class="ba-schematic">
           <div class="fanbox-asset device" @click="$emit('select-device','ba.fanbox')">
             <img src="/equipment/fan-box-v2-2_5d.png" alt="送排风机箱" />
-            <div class="air-stream fanbox-flow" :class="{ active: p('ba.fanbox.running') }">
+            <div class="air-stream fanbox-flow" :class="{ active: isFanRunning() }">
               <i v-for="x in 7" :key="x"></i>
             </div>
-            <div class="fan-rotor fanbox-rotor" :class="{ running: p('ba.fanbox.running') }"><i></i></div>
-            <div class="damper-motion fanbox-damper" :class="{ closed: p('ba.fanbox.damperClosed') }">
+            <div class="fan-rotor fanbox-rotor" :class="{ running: isFanRunning() }"><i></i></div>
+            <div class="damper-motion fanbox-damper" :class="{ closed: isDamperClosed() }">
               <i v-for="x in 5" :key="x"></i>
             </div>
           </div>
@@ -88,6 +88,34 @@ function isAlarm(keyword) {
   if (!item) return false
   const str = String(item.value)
   return str === '1' || str === 'true'
+}
+
+/** 判断风机是否运行（风机启停=开 或 风机运行状态=运行） */
+function isFanRunning() {
+  return isParamOn('风机启停') || isParamValueIncludes('风机运行状态', '运行')
+}
+
+/** 判断密闭阀是否关闭 */
+function isDamperClosed() {
+  const val = getParamValue('密闭阀')
+  return val.includes('关')
+}
+
+/** 判断指定关键词的参数是否为开启状态 */
+function isParamOn(keyword) {
+  if (!props.systemParams || props.systemParams.length === 0) return false
+  const item = props.systemParams.find((it) => it.label && it.label.includes(keyword))
+  if (!item) return false
+  const str = String(item.value)
+  return str === '1' || str === 'true' || str.includes('开') || str.includes('运行')
+}
+
+/** 判断指定关键词的参数值是否包含指定文本 */
+function isParamValueIncludes(keyword, text) {
+  if (!props.systemParams || props.systemParams.length === 0) return false
+  const item = props.systemParams.find((it) => it.label && it.label.includes(keyword))
+  if (!item) return false
+  return String(item.value).includes(text)
 }
 
 function formatParam(item) {

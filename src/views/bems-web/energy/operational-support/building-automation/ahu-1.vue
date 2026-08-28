@@ -17,10 +17,10 @@
         <div class="ba-schematic ahu ahu-1">
           <div class="ahu-wrap device" @click="$emit('select-device','ba.ahu1')">
       <img class="ahu-asset" src="/equipment/ahu-process-v2-2_5d.png" alt="AHU-1 新风机组" />
-      <div class="air-stream supply-flow" :class="{ active: p('ba.ahu1.running') }"><i v-for="x in 12" :key="`s${x}`"></i></div>
-      <div class="fan-rotor ahu-supply-rotor" :class="{ running: p('ba.ahu1.running') }"><i></i></div>
+      <div class="air-stream supply-flow" :class="{ active: isFanRunning() }"><i v-for="x in 12" :key="`s${x}`"></i></div>
+      <div class="fan-rotor ahu-supply-rotor" :class="{ running: isFanRunning() }"><i></i></div>
       <!-- <div class="valve-motion ahu-valve" :style="valveStyle(p('ba.ahu1.valve'))"><i></i></div> -->
-      <div class="damper-motion ahu-fresh-damper" :style="valveStyle(p('ba.ahu1.freshDamper'))"><i v-for="x in 5" :key="`d${x}`"></i></div>
+      <div class="damper-motion ahu-fresh-damper" :class="{ closed: !isFanRunning() }"><i v-for="x in 5" :key="`d${x}`"></i></div>
       <!-- <div class="instrument home-sensor instrument-up" title="回风温湿度"><i>T/H</i></div>
       <div class="instrument home-adjust instrument-up" title="回风阀调节"><i>A</i></div>
       <div class="instrument home-fankui instrument-left" title="回风阀反馈"><i>F</i></div>
@@ -51,12 +51,12 @@
       <PointBadge class="pt humid-point" label="加湿控制" :value="p('ba.ahu1.humidifier')?'开':'关'" />
       <PointBadge class="pt fan-point" label="送风机状态 / 频率" :value="`${p('ba.ahu1.running')?'运行':'停止'} · ${n('ba.ahu1.fanFrequency',1)}Hz`" :alarm="p('ba.ahu1.fault')" />
       <PointBadge class="pt supply-air" label="送风温湿度" :value="`${n('ba.ahu1.supplyTemp',1)}℃ · ${n('ba.ahu1.supplyHumidity',1)}%RH`" /> -->
-      <PointBadge class="pt return-damper-control" label="回风阀调节" :value="getParamValue('回风阀调节')" />
+      <PointBadge class="pt return-damper-control" label="回风阀调节" :value="getParamValue('回风阀控制')" />
       <PointBadge class="pt return-damper-fb" label="回风阀反馈" :value="getParamValue('回风阀反馈')" />
       <PointBadge class="pt fresh-air-temp" label="新风温度" :value="getParamValue('新风温度')" />
       <PointBadge class="pt fresh-air-humidity" label="新风湿度" :value="getParamValue('新风湿度')" />
       <PointBadge class="pt fresh-damper-fb" label="新风阀反馈" :value="getParamValue('新风阀')" />
-      <PointBadge class="pt co2-sensor" label="CO₂传感器" :value="getParamValue('CO2')" />
+      <PointBadge class="pt co2-sensor" label="CO₂传感器" :value="getParamValue('二氧化碳')" />
       <PointBadge class="pt pm25-sensor" label="PM2.5传感器" :value="getParamValue('PM2.5')" />
       <PointBadge class="pt return-air-temp" label="回风温度" :value="getParamValue('回风温度')" />
       <PointBadge class="pt return-air-humidity" label="回风湿度" :value="getParamValue('回风湿度')" />
@@ -71,9 +71,9 @@
       <PointBadge class="pt fan-status" label="送风机状态" :value="getParamValue('送风机运行状态')" />
       <PointBadge class="pt fan-fault" label="送风机故障报警" :value="getParamValue('送风机故障')" />
       <PointBadge class="pt fan-control" label="送风机控制" :value="getParamValue('送风机启停控制')" />
-      <PointBadge class="pt fan-auto" label="送风机手自动" :value="getParamValue('送风机手自动')" />
+      <PointBadge class="pt fan-auto" label="送风机手自动" :value="getParamValue('送风机/自动')" />
       <PointBadge class="pt fan-freq-fb" label="送风机频率反馈" :value="getParamValue('送风机频率反馈')" />
-      <PointBadge class="pt fan-freq-adj" label="送风机频率调节" :value="getParamValue('送风机频率调节')" />
+      <PointBadge class="pt fan-freq-adj" label="送风机频率调节" :value="getParamValue('送风机频率控制')" />
       <PointBadge class="pt supply-air-temp" label="送风温度" :value="getParamValue('送风温度')" />
       <PointBadge class="pt supply-air-humidity" label="送风湿度" :value="getParamValue('送风湿度')" />
           </div>
@@ -127,6 +127,28 @@ function getParamValue(keyword) {
   return formatSystemParam(item)
 }
 
+/** 判断送风机是否运行（送风机运行状态=运行 或 送风机启停控制=开） */
+function isFanRunning() {
+  return isParamValueIncludes('送风机运行状态', '运行') || isParamOn('送风机启停')
+}
+
+/** 判断指定关键词的参数是否为开启状态 */
+function isParamOn(keyword) {
+  if (!props.systemParams || props.systemParams.length === 0) return false
+  const item = props.systemParams.find((it) => it.label && it.label.includes(keyword))
+  if (!item) return false
+  const str = String(item.value)
+  return str === '1' || str === 'true' || str.includes('开') || str.includes('运行')
+}
+
+/** 判断指定关键词的参数值是否包含指定文本 */
+function isParamValueIncludes(keyword, text) {
+  if (!props.systemParams || props.systemParams.length === 0) return false
+  const item = props.systemParams.find((it) => it.label && it.label.includes(keyword))
+  if (!item) return false
+  return String(item.value).includes(text)
+}
+
 function formatParam(item) {
   return formatSystemParam(item)
 }
@@ -173,6 +195,7 @@ main>header p{margin-top:3px;color:#597a8e;font-size:8px}
 .ahu-valve{left:51.5%;top:67%}
 .damper-motion{position:absolute;display:flex;justify-content:space-around;pointer-events:none}
 .damper-motion i{width:3px;background:#62d9df;transform:rotate(var(--open,42deg));transform-origin:center;transition:transform .65s ease,background .3s}
+.damper-motion.closed i{transform:rotate(5deg);background:#ff9477}
 .ahu-fresh-damper{left:22%;top:44%;width:7%;height:8%}
 .instrument{position:absolute;z-index:8;width:17px;height:22px;border-radius:5px 5px 2px 2px;background:linear-gradient(#48c9ee,#17658d);border:1px solid #76e7ff;box-shadow:0 0 8px rgba(57,209,245,.55);pointer-events:none}
 .instrument::after{content:"";position:absolute;left:7px;top:21px;width:2px;height:15px;background:#45b7d8}

@@ -150,6 +150,26 @@
         </div>
       </div>
     </div>
+
+    <!-- 详情弹窗 -->
+    <a-modal v-model:visible="detailVisible" title="详情" width="800px" :footer="null">
+      <a-spin :spinning="detailLoading">
+        <a-descriptions bordered :column="2" size="small">
+          <a-descriptions-item label="设备名称">{{ detailRecord?.deviceName ?? '--' }}</a-descriptions-item>
+          <a-descriptions-item label="设备编号">{{ detailRecord?.deviceCode ?? '--' }}</a-descriptions-item>
+          <a-descriptions-item label="设备位置">{{ detailRecord?.spaceName ?? '--' }}</a-descriptions-item>
+          <a-descriptions-item label="备注">{{ detailRecord?.remark ?? '--' }}</a-descriptions-item>
+          <a-descriptions-item label="状态">
+            <a-tag v-if="detailRecord?.runState === '在线'" color="green">在线</a-tag>
+            <a-tag v-else color="red">离线</a-tag>
+          </a-descriptions-item>
+          <a-descriptions-item label="最后通讯时间">{{ detailRecord?.lastGatherTime ?? '--' }}</a-descriptions-item>
+          <template v-for="attr in detailAttributes" :key="attr.code || attr.configId">
+            <a-descriptions-item :label="attr.label">{{ attr.value ?? '--' }}</a-descriptions-item>
+          </template>
+        </a-descriptions>
+      </a-spin>
+    </a-modal>
   </div>
 </template>
 
@@ -386,8 +406,24 @@ const handleTableChange = (pag: any) => {
   loadTableData()
 }
 
-const handleDetail = (record: any) => {
-  console.log('详情:', record)
+// 详情弹窗
+const detailVisible = ref(false)
+const detailLoading = ref(false)
+const detailRecord = ref<any>(null)
+const detailAttributes = ref<any[]>([])
+const handleDetail = async (record: any) => {
+  detailRecord.value = record
+  detailVisible.value = true
+  detailLoading.value = true
+  try {
+    const res = await getDeviceAttrList({ deviceId: record.id || record.deviceId })
+    detailAttributes.value = res?.records || res?.data || res || []
+  } catch (e) {
+    console.error('查询设备属性失败:', e)
+    detailAttributes.value = []
+  } finally {
+    detailLoading.value = false
+  }
 }
 </script>
 

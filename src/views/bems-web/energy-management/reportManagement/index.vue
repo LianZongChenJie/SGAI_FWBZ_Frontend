@@ -1,6 +1,6 @@
 <template>
   <div class="report-management">
-    <a-tabs v-model:activeKey="activeKey" centered class="full-height-tabs">
+    <a-tabs v-model:activeKey="activeKey" centered class="full-height-tabs" destroyInactiveTabPane>
       <a-tab-pane key="1" tab="水表">
         <fourGenerationWaterMeter :categoryId="'45'" />
       </a-tab-pane>
@@ -33,7 +33,6 @@
   .report-management {
     border-radius: 4px;
     height: calc(100% - 40px);
-    margin: 16px;
     background-color: #fff;
 
     :deep(.full-height-tabs) {

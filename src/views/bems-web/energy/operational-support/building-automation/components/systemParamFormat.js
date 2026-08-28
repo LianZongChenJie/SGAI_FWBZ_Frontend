@@ -6,7 +6,7 @@
 /** 根据 label 判断是否为告警类型（正常/告警） */
 const ALARM_LABELS = ['报警', '故障', '保护', '信号']
 /** 根据 label 判断是否为开关类型（开/关） */
-const SWITCH_LABELS = ['控制', '启停', '开关', '加湿', '运行状态', '密闭阀', '自动']
+const SWITCH_LABELS = ['控制', '启停', '开关', '加湿', '运行状态', '密闭阀']
 
 function isAlarmLabel(label) {
   return ALARM_LABELS.some(k => label.includes(k))
@@ -43,17 +43,21 @@ export function formatSystemParam(item) {
   const raw = item?.value
   if (raw === null || raw === undefined || raw === '') return '--'
   const label = item?.label || ''
+  console.log('label1', label, raw)
   const str = String(raw)
 
   // 0/1 类型
   if (str === '0' || str === '1') {
     const isOne = str === '1'
     // 故障状态信号：0=正常 1=故障
-    if (label.includes('故障')) return isOne ? '故障' : '正常'
+    if (label.includes('故障')) return isOne ? '正常' : '故障'
     // 报警/保护类
-    if (isAlarmLabel(label)) return isOne ? '告警' : '正常'
+    if (isAlarmLabel(label)) return isOne ? '正常' : '告警'
     // 开关控制类
     if (isSwitchLabel(label)) return isOne ? '开' : '关'
+    // 手动/自动类
+    // console.log('label2', label)
+    if (label.includes('自动')) return isOne ? '自动' : '手动'
     // 默认 0/1 按开关处理
     return isOne ? '开' : '关'
   }

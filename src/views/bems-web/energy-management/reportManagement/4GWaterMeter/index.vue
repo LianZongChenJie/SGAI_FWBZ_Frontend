@@ -1,6 +1,6 @@
 <template>
   <div class="jeecg-basic-table jeecg-basic-table-form-container">
-    <a-form ref="formSateRef" :model="formState" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
+    <a-form class="water-meter-form" ref="formSateRef" :model="formState" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
       <a-row>
         <a-col :span="6">
           <a-form-item label="设备名称" name="deviceName">
@@ -65,7 +65,6 @@
             <a-button type="primary" :icon="h(VerticalAlignBottomOutlined)" @click="handleExport">导出</a-button>
             &nbsp;
             <a-button v-if="props.categoryId === '45'" type="primary" :icon="h(VerticalAlignBottomOutlined)" @click="downloadReport">报表</a-button>
-            &nbsp;
             <a-button v-if="props.categoryId !== '45'" type="primary" :icon="h(VerticalAlignBottomOutlined)" @click="downloadReportDian('2')"
               >报表</a-button
             >
@@ -356,13 +355,7 @@
 
   const historyRecordsModalRef = ref();
 
-  const first = ref(0);
-
   const loadData = async (pageParams) => {
-    if (first.value === 0) {
-      first.value++;
-      return;
-    }
     const { pageNo, pageSize } = pageParams;
     // let { getFieldsValue } = getForm();
     // const searchData = getFieldsValue();
@@ -594,7 +587,7 @@
 
       const spaceRes = await getSpaceTree();
       spaceTreeData.value = spaceRes;
-      // reload();
+      reload();
     } catch (error) {
       console.error('获取数据失败:', error);
     }
@@ -612,5 +605,11 @@
     background-color: #fff;
     display: flex;
     align-items: center;
+  }
+
+  .water-meter-form {
+    :deep(.ant-col-18) {
+      max-width: 100%;
+    }
   }
 </style>

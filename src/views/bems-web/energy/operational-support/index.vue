@@ -24,7 +24,7 @@
       <!-- 新风机组 -->
       <FreshTab v-else-if="currentTab === 'fresh'" :data="tabData.fresh" />
 
-      <!-- 送补风机 -->
+      <!-- 排风机 -->
       <SupplyFanTab v-else-if="currentTab === 'supplyFan'" :data="tabData.supplyFan" />
 
       <!-- 风机盘管 -->

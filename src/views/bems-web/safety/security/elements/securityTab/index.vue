@@ -141,7 +141,7 @@
             mode="multiple"
             placeholder="请选择摄像头"
             :options="cameraOptions"
-            :field-names="{ label: 'name', value: 'indexCode' }"
+            :field-names="{ label: 'name', value: 'systemId' }"
             show-search
             :filter-option="filterCameraOption"
             allow-clear

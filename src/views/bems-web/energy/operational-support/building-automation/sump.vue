@@ -23,18 +23,18 @@
             <div
               v-for="no in [1, 2]"
               :key="no"
-              :class="['pump-motion', `pump-motion-${no}`, { running: p(`ba.sump.pump${no}.running`), fault: p(`ba.sump.pump${no}.fault`) }]"
+              :class="['pump-motion', `pump-motion-${no}`, { running: isPumpRunning(no), fault: isPumpFault(no) }]"
             >
-              <div class="fan-rotor" :class="[`fan-rotor-${no}`,{ running: p(`ba.sump.pump${no}.running`) }]"><i></i></div>
-              <em>{{ p(`ba.sump.pump${no}.running`) ? '运行' : '停止' }}</em>
+              <div class="fan-rotor" :class="[`fan-rotor-${no}`,{ running: isPumpRunning(no) }]"><i></i></div>
+              <em>{{ isPumpRunning(no) ? '运行' : '停止' }}</em>
             </div>
             <strong class="level-readout">{{ getParamValue('液位') }}</strong>
           </div>
-          <PointBadge class="sump-alarm" label="液位报警" :value="getParamValue('液位报警')" :alarm="isAlarm('液位报警')" />
+          <PointBadge class="sump-alarm" label="液位报警" :value="getParamValue('液位')" :alarm="isAlarm('液位报警')" />
           <div v-for="no in [1, 2]" :key="`pb${no}`" :class="`pump-points pump-${no}`">
-            <PointBadge :label="`${no}#泵运行`" :value="getParamValue(`${no}#泵运行`)" />
-            <PointBadge :label="`${no}#泵故障`" :value="getParamValue(`${no}#泵故障`)" :alarm="isAlarm(`${no}#泵故障`)" />
-            <PointBadge :label="`${no}#泵手自动`" :value="getParamValue(`${no}#泵手自动`)" />
+            <PointBadge :label="`${no}#泵运行`" :value="getParamValue(`泵${no}运行`)" />
+            <PointBadge :label="`${no}#泵故障`" :value="getParamValue(`泵${no}故障`)" :alarm="isAlarm(`${no}#泵故障`)" />
+            <PointBadge :label="`${no}#泵手自动`" :value="getParamValue(`泵${no}手/自动`)" />
           </div>
         </div>
       </section>
@@ -92,6 +92,25 @@ function isAlarm(keyword) {
   if (!item) return false
   const str = String(item.value)
   return str === '1' || str === 'true'
+}
+
+/** 判断指定编号的泵是否运行 */
+function isPumpRunning(no) {
+  return isParamOn(`泵${no}运行`)
+}
+
+/** 判断指定编号的泵是否故障 */
+function isPumpFault(no) {
+  return isAlarm(`${no}#泵故障`)
+}
+
+/** 判断指定关键词的参数是否为开启状态 */
+function isParamOn(keyword) {
+  if (!props.systemParams || props.systemParams.length === 0) return false
+  const item = props.systemParams.find((it) => it.label && it.label.includes(keyword))
+  if (!item) return false
+  const str = String(item.value)
+  return str === '1' || str === 'true' || str.includes('开') || str.includes('运行')
 }
 
 function formatParam(item) {

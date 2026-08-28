@@ -63,7 +63,7 @@
         </aside>
       </section>
 
-      <section class="expert-card schedule-card">
+      <!-- <section class="expert-card schedule-card">
         <header>
           <div><span class="section-no">02</span><div><h2>活动排期驱动启停求解</h2><p>活动开闭馆为硬边界 · 历史降温/温升梯度自学习 · 末端数据只分析不下控</p></div></div>
           <div class="schedule-tags"><span>排期硬约束</span><span class="analysis-only">末端只采集</span><b>置信度 {{ format('optimization.schedule.plant.confidence', 0) }}%</b></div>
@@ -93,7 +93,7 @@
             </tbody>
           </table>
         </div>
-      </section>
+      </section> -->
     </main>
 
     <div v-if="toast" class="optimization-toast">{{ toast }}</div>
