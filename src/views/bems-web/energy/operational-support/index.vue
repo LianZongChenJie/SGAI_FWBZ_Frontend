@@ -4,7 +4,7 @@
       <a-tab-pane key="overview" tab="概览" />
       <a-tab-pane key="ac" tab="空调机组" />
       <a-tab-pane key="fresh" tab="新风机组" />
-      <a-tab-pane key="supplyFan" tab="送补风机" />
+      <a-tab-pane key="supplyFan" tab="排风机" />
       <a-tab-pane key="fanCoil" tab="风机盘管" />
       <a-tab-pane key="heatRecovery" tab="热回收机组" />
       <a-tab-pane key="sumpPit" tab="集水坑" />

@@ -23,7 +23,7 @@ export interface ResultListDevice {
 }
 
 /** 设备空间位置 */
-export const getSpaceTree = () => defHttp.get({ url: Api.spaceTree, params: { categoryIds: '40' } })
+export const getSpaceTree = () => defHttp.get({ url: Api.spaceTree, params: { categoryIds: '37' } })
 
 /**
  * 设备属性列表（按设备ID查询）
@@ -31,6 +31,6 @@ export const getSpaceTree = () => defHttp.get({ url: Api.spaceTree, params: { ca
 export const getDeviceAttrList = (params = {}) => defHttp.get({ url: Api.listByDeviceId, params })
 
 /**
- * 设备列表（风机盘管 categoryIds=40）
+ * 设备列表（热回收机组 categoryIds=37）
  */
 export const selectDevice = (params = {}) => defHttp.get({ url: Api.deviceList, params })

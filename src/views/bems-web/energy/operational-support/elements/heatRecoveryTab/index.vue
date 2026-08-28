@@ -36,11 +36,10 @@
         <h3>🔄热回收机组实时监测</h3>
         <div class="header-right">
           <div class="filter-bar">
-          <a-select v-model:value="filterStatus" placeholder="全部状态" style="width: 140px" allow-clear>
-            <a-select-option value="">全部状态</a-select-option>
-            <a-select-option value="运行">运行</a-select-option>
-            <a-select-option value="停止">停止</a-select-option>
-            <a-select-option value="故障">故障</a-select-option>
+          <a-input v-model:value="searchForm.deviceName" placeholder="设备名称" allow-clear style="width: 160px" @pressEnter="handleSearch" />
+          <a-select v-model:value="searchForm.runState" placeholder="状态" allow-clear style="width: 120px" @change="handleSearch">
+            <a-select-option value="在线">在线</a-select-option>
+            <a-select-option value="离线">离线</a-select-option>
           </a-select>
           <a-button type="primary" @click="handleSearch">🔍 查询</a-button>
           </div>
@@ -52,20 +51,21 @@
       </div>
       <div class="card-body" v-show="!collapsedTable">
         <a-table
-          :dataSource="filteredTableData"
+          :dataSource="tableData"
           :columns="columns"
-          :pagination="{ pageSize: 10 }"
+          :pagination="pagination"
+          :loading="tableLoading"
           :scroll="{ x: 1300 }"
           size="middle"
+          @change="handleTableChange"
         >
           <template #bodyCell="{ column, record }">
-            <template v-if="column.key === 'status'">
-              <a-tag v-if="record.status === '运行'" color="green">运行</a-tag>
-              <a-tag v-else-if="record.status === '停止'" color="red">停止</a-tag>
-              <a-tag v-else color="orange">故障</a-tag>
+            <template v-if="column.key === 'runState'">
+              <a-tag v-if="record.runState === '在线'" color="green">在线</a-tag>
+              <a-tag v-else color="red">离线</a-tag>
             </template>
             <template v-if="column.key === 'action'">
-              <a-button type="link" size="small">详情</a-button>
+              <a-button type="link" size="small" @click="handleDetail(record)">详情</a-button>
             </template>
           </template>
         </a-table>
@@ -143,9 +143,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, h } from 'vue'
+import { ref, reactive, computed, onMounted, h } from 'vue'
 import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons-vue'
 import { StatCard } from '/@/views/bems-web/components'
+import { selectDevice } from './index.api'
 
 // 自定义 emoji 图标组件
 const TotalIcon = () => h('span', { style: 'font-size: 20px;' }, '🔄')
@@ -171,54 +172,96 @@ defineProps<{
 }>()
 
 // 统计数据
-const statsData = {
-  count: 8,
-  online: 7,
-  energyConsumption: '186',
-  efficiency: '72.5',
-}
+const statsData = ref({
+  count: 0,
+  online: 0,
+  energyConsumption: '--',
+  efficiency: '--',
+})
 
-// 筛选条件
-const filterStatus = ref('')
+// 搜索表单
+const searchForm = reactive({
+  deviceName: '',
+  runState: undefined as string | undefined,
+})
 
-// 表格列定义
+// 表格列定义（参考楼控设备列表）
 const columns = [
-  { title: '机组编号', dataIndex: 'code', key: 'code', width: 110 },
-  { title: '位置', dataIndex: 'location', key: 'location', width: 140 },
-  { title: '运行状态', dataIndex: 'status', key: 'status', width: 100 },
-  { title: '排风温度(°C)', dataIndex: 'exhaustTemp', key: 'exhaustTemp', width: 130 },
-  { title: '新风温度(°C)', dataIndex: 'freshTemp', key: 'freshTemp', width: 130 },
-  { title: '送风温度(°C)', dataIndex: 'supplyTemp', key: 'supplyTemp', width: 130 },
-  { title: '回收效率(%)', dataIndex: 'efficiency', key: 'efficiency', width: 120 },
-  { title: '风量(m³/h)', dataIndex: 'airVolume', key: 'airVolume', width: 120 },
-  { title: '功率(kW)', dataIndex: 'power', key: 'power', width: 100 },
-  { title: '今日能耗(kWh)', dataIndex: 'todayEnergy', key: 'todayEnergy', width: 130 },
-  { title: '操作', dataIndex: 'action', key: 'action', width: 80, fixed: 'right' },
+  {
+    title: '序号',
+    dataIndex: 'index',
+    key: 'index',
+    width: 60,
+    customRender: ({ index }: { index: number }) => index + 1,
+  },
+  { title: '设备名称', dataIndex: 'deviceName', key: 'deviceName', width: 120 },
+  { title: '设备编号', dataIndex: 'deviceCode', key: 'deviceCode', width: 120 },
+  { title: '设备位置', dataIndex: 'spaceName', key: 'spaceName', width: 140 },
+  { title: '备注', dataIndex: 'remark', key: 'remark', width: 100 },
+  { title: '状态', dataIndex: 'runState', key: 'runState', width: 90 },
+  { title: '最后通讯时间', dataIndex: 'lastGatherTime', key: 'lastGatherTime', width: 160 },
+  { title: '操作', key: 'action', width: 80, fixed: 'right' as const },
 ]
 
 // 表格数据
-const tableData = [
-  { code: 'HR-A-01', location: 'A馆-B1-机房', status: '运行', exhaustTemp: '26.5', freshTemp: '32.0', supplyTemp: '28.2', efficiency: '75', airVolume: '5,000', power: '3.5', todayEnergy: '24' },
-  { code: 'HR-A-02', location: 'A馆-F2-办公区', status: '运行', exhaustTemp: '25.0', freshTemp: '30.5', supplyTemp: '27.0', efficiency: '70', airVolume: '4,500', power: '3.0', todayEnergy: '20' },
-  { code: 'HR-B-01', location: 'B馆-B1-机房', status: '运行', exhaustTemp: '27.0', freshTemp: '33.0', supplyTemp: '29.0', efficiency: '73', airVolume: '5,500', power: '4.0', todayEnergy: '28' },
-  { code: 'HR-B-02', location: 'B馆-F3-会议区', status: '停止', exhaustTemp: '0', freshTemp: '0', supplyTemp: '0', efficiency: '0', airVolume: '0', power: '0', todayEnergy: '0' },
-  { code: 'HR-C-01', location: 'C馆-B1-机房', status: '运行', exhaustTemp: '26.0', freshTemp: '31.5', supplyTemp: '27.8', efficiency: '72', airVolume: '4,800', power: '3.2', todayEnergy: '22' },
-  { code: 'HR-C-02', location: 'C馆-F1-大厅', status: '故障', exhaustTemp: '--', freshTemp: '--', supplyTemp: '--', efficiency: '--', airVolume: '--', power: '--', todayEnergy: '--' },
-  { code: 'HR-D-01', location: 'D馆-屋顶', status: '运行', exhaustTemp: '25.5', freshTemp: '31.0', supplyTemp: '27.5', efficiency: '71', airVolume: '5,200', power: '3.6', todayEnergy: '25' },
-  { code: 'HR-D-02', location: 'D馆-F2-办公区', status: '运行', exhaustTemp: '24.5', freshTemp: '30.0', supplyTemp: '26.5', efficiency: '68', airVolume: '4,000', power: '2.8', todayEnergy: '19' },
-]
+const tableData = ref<any[]>([])
+const tableLoading = ref(false)
+const currentPage = ref(1)
+const pageSize = ref(10)
+const tableTotal = ref(0)
 
-// 筛选逻辑
-const filteredTableData = computed(() => {
-  return tableData.filter((item) => {
-    const matchStatus = !filterStatus.value || item.status === filterStatus.value
-    return matchStatus
-  })
-})
+const pagination = computed(() => ({
+  current: currentPage.value,
+  pageSize: pageSize.value,
+  total: tableTotal.value,
+  showSizeChanger: true,
+  showTotal: (total: number) => `共 ${total} 条`,
+}))
+
+/** 加载表格数据 */
+const loadTableData = async () => {
+  tableLoading.value = true
+  try {
+    const res = await selectDevice({
+      pageNo: currentPage.value,
+      pageSize: pageSize.value,
+      categoryIds: '37',
+      deviceName: searchForm.deviceName || undefined,
+      runState: searchForm.runState || undefined,
+    })
+    const list = res?.records || []
+    tableData.value = list
+    tableTotal.value = res?.total || 0
+    // 更新统计数据
+    statsData.value.count = tableTotal.value
+    statsData.value.online = list.filter((item: any) => item.runState === '在线').length
+  } catch (error) {
+    console.error('加载热回收机组列表失败:', error)
+    tableData.value = []
+    tableTotal.value = 0
+  } finally {
+    tableLoading.value = false
+  }
+}
 
 const handleSearch = () => {
-  console.log('查询:', { status: filterStatus.value })
+  currentPage.value = 1
+  loadTableData()
 }
+
+const handleTableChange = (pag: any) => {
+  currentPage.value = pag.current
+  pageSize.value = pag.pageSize
+  loadTableData()
+}
+
+const handleDetail = (record: any) => {
+  console.log('详情:', record)
+}
+
+onMounted(() => {
+  loadTableData()
+})
 </script>
 
 <style scoped lang="less">

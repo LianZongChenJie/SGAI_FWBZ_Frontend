@@ -5,6 +5,8 @@ enum Api {
   spaceTree = '/sgai-fwbz-dev/fwbz/device/findNameAndIdByCategory',
   /** 设备属性列表（按设备ID查询） */
   listByDeviceId = '/sgai-fwbz-dev/fwbz/deviceAttribute/listByDeviceId',
+  /** 设备列表 */
+  deviceList = '/sgai-fwbz-dev/fwbz/device/list',
 }
 
 /**
@@ -27,3 +29,8 @@ export const getSpaceTree = () => defHttp.get({ url: Api.spaceTree, params: { ca
  * 设备属性列表（按设备ID查询）
  */
 export const getDeviceAttrList = (params = {}) => defHttp.get({ url: Api.listByDeviceId, params })
+
+/**
+ * 设备列表（集水坑 categoryIds=34）
+ */
+export const selectDevice = (params = {}) => defHttp.get({ url: Api.deviceList, params })

@@ -25,12 +25,12 @@
               <i v-for="x in 5" :key="x"></i>
             </div>
           </div>
-          <PointBadge class="fan-damper-point" label="密闭阀状态" :value="p('ba.fanbox.damperClosed') ? '关闭' : '开启'" />
+            <PointBadge class="fan-damper-point" label="密闭阀状态" :value="getParamValue('密闭阀')" />
           <div class="fan-points">
-            <PointBadge label="风机启停" :value="p('ba.fanbox.running') ? '开' : '关'" />
-            <PointBadge label="风机故障" :value="p('ba.fanbox.fault') ? '故障' : '正常'" :alarm="p('ba.fanbox.fault')" />
-            <PointBadge label="风机状态" :value="p('ba.fanbox.running') ? '运行' : '停止'" />
-            <PointBadge label="风机手自动" :value="p('ba.fanbox.auto') ? '自动' : '手动'" />
+            <PointBadge label="风机启停" :value="getParamValue('风机启停')" />
+            <PointBadge label="风机故障" :value="getParamValue('风机故障')" :alarm="isAlarm('风机故障')" />
+            <PointBadge label="风机状态" :value="getParamValue('风机运行状态')" />
+            <PointBadge label="风机手自动" :value="getParamValue('手自动')" />
           </div>
         </div>
       </section>
@@ -72,6 +72,23 @@ const stateTone = computed(() => fault.value ? 'fault' : running.value ? 'runnin
 const displaySystemParams = computed(() => {
   return props.systemParams && props.systemParams.length > 0 ? props.systemParams : devicePoints.value.slice(-6)
 })
+
+/** 从系统参数数组中按 label 关键词查找对应项并格式化值 */
+function getParamValue(keyword) {
+  if (!props.systemParams || props.systemParams.length === 0) return '--'
+  const item = props.systemParams.find((it) => it.label && it.label.includes(keyword))
+  if (!item) return '--'
+  return formatSystemParam(item)
+}
+
+/** 判断指定关键词的参数是否为告警状态 */
+function isAlarm(keyword) {
+  if (!props.systemParams || props.systemParams.length === 0) return false
+  const item = props.systemParams.find((it) => it.label && it.label.includes(keyword))
+  if (!item) return false
+  const str = String(item.value)
+  return str === '1' || str === 'true'
+}
 
 function formatParam(item) {
   return formatSystemParam(item)

@@ -36,11 +36,10 @@
         <h3>🎛️风机盘管实时监测</h3>
         <div class="header-right">
           <div class="filter-bar">
-          <a-select v-model:value="filterStatus" placeholder="全部状态" style="width: 140px" allow-clear>
-            <a-select-option value="">全部状态</a-select-option>
-            <a-select-option value="运行">运行</a-select-option>
-            <a-select-option value="停止">停止</a-select-option>
-            <a-select-option value="故障">故障</a-select-option>
+          <a-input v-model:value="searchForm.deviceName" placeholder="设备名称" allow-clear style="width: 160px" @pressEnter="handleSearch" />
+          <a-select v-model:value="searchForm.runState" placeholder="状态" allow-clear style="width: 120px" @change="handleSearch">
+            <a-select-option value="在线">在线</a-select-option>
+            <a-select-option value="离线">离线</a-select-option>
           </a-select>
           <a-button type="primary" @click="handleSearch">🔍 查询</a-button>
           </div>
@@ -52,25 +51,21 @@
       </div>
       <div class="card-body" v-show="!collapsedTable">
         <a-table
-          :dataSource="filteredTableData"
+          :dataSource="tableData"
           :columns="columns"
-          :pagination="{ pageSize: 10 }"
+          :pagination="pagination"
+          :loading="tableLoading"
           :scroll="{ x: 1200 }"
           size="middle"
+          @change="handleTableChange"
         >
           <template #bodyCell="{ column, record }">
-            <template v-if="column.key === 'status'">
-              <a-tag v-if="record.status === '运行'" color="green">运行</a-tag>
-              <a-tag v-else-if="record.status === '停止'" color="red">停止</a-tag>
-              <a-tag v-else color="orange">故障</a-tag>
-            </template>
-            <template v-if="column.key === 'mode'">
-              <a-tag v-if="record.mode === '制冷'" color="blue">制冷</a-tag>
-              <a-tag v-else-if="record.mode === '制热'" color="orange">制热</a-tag>
-              <a-tag v-else color="default">通风</a-tag>
+            <template v-if="column.key === 'runState'">
+              <a-tag v-if="record.runState === '在线'" color="green">在线</a-tag>
+              <a-tag v-else color="red">离线</a-tag>
             </template>
             <template v-if="column.key === 'action'">
-              <a-button type="link" size="small">详情</a-button>
+              <a-button type="link" size="small" @click="handleDetail(record)">详情</a-button>
             </template>
           </template>
         </a-table>
@@ -159,10 +154,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, h, onMounted } from 'vue'
+import { ref, reactive, computed, h, onMounted } from 'vue'
 import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons-vue'
 import { StatCard } from '/@/views/bems-web/components'
-import { getSpaceTree, getDeviceAttrList } from './index.api'
+import { getSpaceTree, getDeviceAttrList, selectDevice } from './index.api'
 import Fcu from '../../building-automation/fcu.vue'
 
 // 自定义 emoji 图标组件
@@ -304,56 +299,95 @@ const handleSpaceSelect = (keys: (string | number)[]) => {
 
 onMounted(() => {
   loadSpaceTree()
+  loadTableData()
 })
 
 // 统计数据
-const statsData = {
-  count: 156,
-  online: 142,
-  energyConsumption: '1,856',
-  avgTemp: '24.5',
-}
+const statsData = ref({
+  count: 0,
+  online: 0,
+  energyConsumption: '--',
+  avgTemp: '--',
+})
 
-// 筛选条件
-const filterStatus = ref('')
+// 搜索表单
+const searchForm = reactive({
+  deviceName: '',
+  runState: undefined as string | undefined,
+})
 
-// 表格列定义
+// 表格列定义（参考楼控设备列表）
 const columns = [
-  { title: '机组编号', dataIndex: 'code', key: 'code', width: 110 },
-  { title: '位置', dataIndex: 'location', key: 'location', width: 140 },
-  { title: '运行状态', dataIndex: 'status', key: 'status', width: 100 },
-  { title: '运行模式', dataIndex: 'mode', key: 'mode', width: 100 },
-  { title: '室内温度(°C)', dataIndex: 'roomTemp', key: 'roomTemp', width: 130 },
-  { title: '设定温度(°C)', dataIndex: 'setTemp', key: 'setTemp', width: 130 },
-  { title: '风速', dataIndex: 'fanSpeed', key: 'fanSpeed', width: 100 },
-  { title: '水阀状态', dataIndex: 'valveStatus', key: 'valveStatus', width: 100 },
-  { title: '今日能耗(kWh)', dataIndex: 'todayEnergy', key: 'todayEnergy', width: 130 },
-  { title: '操作', dataIndex: 'action', key: 'action', width: 80, fixed: 'right' },
+  {
+    title: '序号',
+    dataIndex: 'index',
+    key: 'index',
+    width: 60,
+    customRender: ({ index }: { index: number }) => index + 1,
+  },
+  { title: '设备名称', dataIndex: 'deviceName', key: 'deviceName', width: 120 },
+  { title: '设备编号', dataIndex: 'deviceCode', key: 'deviceCode', width: 120 },
+  { title: '设备位置', dataIndex: 'spaceName', key: 'spaceName', width: 140 },
+  { title: '备注', dataIndex: 'remark', key: 'remark', width: 100 },
+  { title: '状态', dataIndex: 'runState', key: 'runState', width: 90 },
+  { title: '最后通讯时间', dataIndex: 'lastGatherTime', key: 'lastGatherTime', width: 160 },
+  { title: '操作', key: 'action', width: 80, fixed: 'right' as const },
 ]
 
 // 表格数据
-const tableData = [
-  { code: 'FC-A-101', location: 'A馆-F1-101', status: '运行', mode: '制冷', roomTemp: '24.2', setTemp: '24', fanSpeed: '中', valveStatus: '开启', todayEnergy: '12.5' },
-  { code: 'FC-A-102', location: 'A馆-F1-102', status: '运行', mode: '制冷', roomTemp: '25.1', setTemp: '25', fanSpeed: '低', valveStatus: '开启', todayEnergy: '8.2' },
-  { code: 'FC-A-201', location: 'A馆-F2-201', status: '运行', mode: '制冷', roomTemp: '23.8', setTemp: '23', fanSpeed: '高', valveStatus: '开启', todayEnergy: '15.8' },
-  { code: 'FC-B-101', location: 'B馆-F1-101', status: '停止', mode: '通风', roomTemp: '26.5', setTemp: '24', fanSpeed: '关', valveStatus: '关闭', todayEnergy: '0' },
-  { code: 'FC-B-102', location: 'B馆-F1-102', status: '运行', mode: '制冷', roomTemp: '24.5', setTemp: '25', fanSpeed: '中', valveStatus: '开启', todayEnergy: '11.2' },
-  { code: 'FC-B-201', location: 'B馆-F2-201', status: '故障', mode: '--', roomTemp: '--', setTemp: '--', fanSpeed: '--', valveStatus: '--', todayEnergy: '--' },
-  { code: 'FC-C-101', location: 'C馆-F1-101', status: '运行', mode: '制冷', roomTemp: '25.3', setTemp: '25', fanSpeed: '低', valveStatus: '开启', todayEnergy: '7.8' },
-  { code: 'FC-C-102', location: 'C馆-F1-102', status: '运行', mode: '制冷', roomTemp: '24.0', setTemp: '24', fanSpeed: '中', valveStatus: '开启', todayEnergy: '10.5' },
-  { code: 'FC-D-101', location: 'D馆-F1-101', status: '运行', mode: '制热', roomTemp: '22.5', setTemp: '22', fanSpeed: '高', valveStatus: '开启', todayEnergy: '14.2' },
-]
+const tableData = ref<any[]>([])
+const tableLoading = ref(false)
+const currentPage = ref(1)
+const pageSize = ref(10)
+const tableTotal = ref(0)
 
-// 筛选逻辑
-const filteredTableData = computed(() => {
-  return tableData.filter((item) => {
-    const matchStatus = !filterStatus.value || item.status === filterStatus.value
-    return matchStatus
-  })
-})
+const pagination = computed(() => ({
+  current: currentPage.value,
+  pageSize: pageSize.value,
+  total: tableTotal.value,
+  showSizeChanger: true,
+  showTotal: (total: number) => `共 ${total} 条`,
+}))
+
+/** 加载表格数据 */
+const loadTableData = async () => {
+  tableLoading.value = true
+  try {
+    const res = await selectDevice({
+      pageNo: currentPage.value,
+      pageSize: pageSize.value,
+      categoryIds: '40',
+      deviceName: searchForm.deviceName || undefined,
+      runState: searchForm.runState || undefined,
+    })
+    const list = res?.records || []
+    tableData.value = list
+    tableTotal.value = res?.total || 0
+    // 更新统计数据
+    statsData.value.count = tableTotal.value
+    statsData.value.online = list.filter((item: any) => item.runState === '在线').length
+  } catch (error) {
+    console.error('加载风机盘管列表失败:', error)
+    tableData.value = []
+    tableTotal.value = 0
+  } finally {
+    tableLoading.value = false
+  }
+}
 
 const handleSearch = () => {
-  console.log('查询:', { status: filterStatus.value })
+  currentPage.value = 1
+  loadTableData()
+}
+
+const handleTableChange = (pag: any) => {
+  currentPage.value = pag.current
+  pageSize.value = pag.pageSize
+  loadTableData()
+}
+
+const handleDetail = (record: any) => {
+  console.log('详情:', record)
 }
 </script>
 

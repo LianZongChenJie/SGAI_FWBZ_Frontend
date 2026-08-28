@@ -34,11 +34,10 @@
         <h3>🕳️集水坑实时监测</h3>
         <div class="header-right">
           <div class="filter-bar">
-          <a-select v-model:value="filterStatus" placeholder="全部状态" style="width: 140px" allow-clear>
-            <a-select-option value="">全部状态</a-select-option>
-            <a-select-option value="正常">正常</a-select-option>
-            <a-select-option value="高液位">高液位</a-select-option>
-            <a-select-option value="故障">故障</a-select-option>
+          <a-input v-model:value="searchForm.deviceName" placeholder="设备名称" allow-clear style="width: 160px" @pressEnter="handleSearch" />
+          <a-select v-model:value="searchForm.runState" placeholder="状态" allow-clear style="width: 120px" @change="handleSearch">
+            <a-select-option value="在线">在线</a-select-option>
+            <a-select-option value="离线">离线</a-select-option>
           </a-select>
           <a-button type="primary" @click="handleSearch">🔍 查询</a-button>
           </div>
@@ -50,25 +49,21 @@
       </div>
       <div class="card-body" v-show="!collapsedTable">
         <a-table
-          :dataSource="filteredTableData"
+          :dataSource="tableData"
           :columns="columns"
-          :pagination="{ pageSize: 10 }"
+          :pagination="pagination"
+          :loading="tableLoading"
           :scroll="{ x: 1100 }"
           size="middle"
+          @change="handleTableChange"
         >
           <template #bodyCell="{ column, record }">
-            <template v-if="column.key === 'status'">
-              <a-tag v-if="record.status === '正常'" color="green">正常</a-tag>
-              <a-tag v-else-if="record.status === '高液位'" color="orange">高液位</a-tag>
-              <a-tag v-else color="red">故障</a-tag>
-            </template>
-            <template v-if="column.key === 'pumpStatus'">
-              <a-tag v-if="record.pumpStatus === '运行'" color="green">运行</a-tag>
-              <a-tag v-else-if="record.pumpStatus === '停止'" color="red">停止</a-tag>
-              <a-tag v-else color="orange">故障</a-tag>
+            <template v-if="column.key === 'runState'">
+              <a-tag v-if="record.runState === '在线'" color="green">在线</a-tag>
+              <a-tag v-else color="red">离线</a-tag>
             </template>
             <template v-if="column.key === 'action'">
-              <a-button type="link" size="small">详情</a-button>
+              <a-button type="link" size="small" @click="handleDetail(record)">详情</a-button>
             </template>
           </template>
         </a-table>
@@ -157,10 +152,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, h, onMounted } from 'vue'
+import { ref, reactive, computed, h, onMounted } from 'vue'
 import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons-vue'
 import { StatCard } from '/@/views/bems-web/components'
-import { getSpaceTree, getDeviceAttrList } from './index.api'
+import { getSpaceTree, getDeviceAttrList, selectDevice } from './index.api'
 import Sump from '../../building-automation/sump.vue'
 
 // 自定义 emoji 图标组件
@@ -302,54 +297,95 @@ const handleSpaceSelect = (keys: (string | number)[]) => {
 
 onMounted(() => {
   loadSpaceTree()
+  loadTableData()
 })
 
 // 统计数据
-const statsData = {
-  count: 14,
-  online: 11,
-  alarm: 2,
-  fault: 1,
-}
+const statsData = ref({
+  count: 0,
+  online: 0,
+  alarm: 0,
+  fault: 0,
+})
 
-// 筛选条件
-const filterStatus = ref('')
+// 搜索表单
+const searchForm = reactive({
+  deviceName: '',
+  runState: undefined as string | undefined,
+})
 
-// 表格列定义
+// 表格列定义（参考楼控设备列表）
 const columns = [
-  { title: '集水坑编号', dataIndex: 'code', key: 'code', width: 120 },
-  { title: '位置', dataIndex: 'location', key: 'location', width: 150 },
-  { title: '运行状态', dataIndex: 'status', key: 'status', width: 100 },
-  { title: '当前液位(m)', dataIndex: 'level', key: 'level', width: 130 },
-  { title: '高液位阈值(m)', dataIndex: 'highLevel', key: 'highLevel', width: 140 },
-  { title: '排水泵1', dataIndex: 'pump1', key: 'pump1', width: 110 },
-  { title: '排水泵2', dataIndex: 'pump2', key: 'pump2', width: 110 },
-  { title: '今日排水量(m³)', dataIndex: 'todayDrainage', key: 'todayDrainage', width: 150 },
-  { title: '操作', dataIndex: 'action', key: 'action', width: 80, fixed: 'right' },
+  {
+    title: '序号',
+    dataIndex: 'index',
+    key: 'index',
+    width: 60,
+    customRender: ({ index }: { index: number }) => index + 1,
+  },
+  { title: '设备名称', dataIndex: 'deviceName', key: 'deviceName', width: 120 },
+  { title: '设备编号', dataIndex: 'deviceCode', key: 'deviceCode', width: 120 },
+  { title: '设备位置', dataIndex: 'spaceName', key: 'spaceName', width: 140 },
+  { title: '备注', dataIndex: 'remark', key: 'remark', width: 100 },
+  { title: '状态', dataIndex: 'runState', key: 'runState', width: 90 },
+  { title: '最后通讯时间', dataIndex: 'lastGatherTime', key: 'lastGatherTime', width: 160 },
+  { title: '操作', key: 'action', width: 80, fixed: 'right' as const },
 ]
 
 // 表格数据
-const tableData = [
-  { code: 'SP-A-01', location: 'A馆-B2-车库', status: '正常', level: '0.8', highLevel: '1.5', pump1: '停止', pump2: '停止', todayDrainage: '12.5' },
-  { code: 'SP-A-02', location: 'A馆-B1-设备间', status: '高液位', level: '1.6', highLevel: '1.5', pump1: '运行', pump2: '停止', todayDrainage: '28.0' },
-  { code: 'SP-B-01', location: 'B馆-B2-车库', status: '正常', level: '0.6', highLevel: '1.5', pump1: '停止', pump2: '停止', todayDrainage: '8.2' },
-  { code: 'SP-B-02', location: 'B馆-B1-机房', status: '正常', level: '0.9', highLevel: '1.5', pump1: '停止', pump2: '停止', todayDrainage: '15.5' },
-  { code: 'SP-C-01', location: 'C馆-B2-车库', status: '故障', level: '--', highLevel: '1.5', pump1: '故障', pump2: '停止', todayDrainage: '0' },
-  { code: 'SP-C-02', location: 'C馆-B1-设备间', status: '正常', level: '0.7', highLevel: '1.5', pump1: '停止', pump2: '停止', todayDrainage: '10.8' },
-  { code: 'SP-D-01', location: 'D馆-B2-车库', status: '高液位', level: '1.7', highLevel: '1.5', pump1: '运行', pump2: '运行', todayDrainage: '45.0' },
-  { code: 'SP-D-02', location: 'D馆-B1-机房', status: '正常', level: '0.5', highLevel: '1.5', pump1: '停止', pump2: '停止', todayDrainage: '6.5' },
-]
+const tableData = ref<any[]>([])
+const tableLoading = ref(false)
+const currentPage = ref(1)
+const pageSize = ref(10)
+const tableTotal = ref(0)
 
-// 筛选逻辑
-const filteredTableData = computed(() => {
-  return tableData.filter((item) => {
-    const matchStatus = !filterStatus.value || item.status === filterStatus.value
-    return matchStatus
-  })
-})
+const pagination = computed(() => ({
+  current: currentPage.value,
+  pageSize: pageSize.value,
+  total: tableTotal.value,
+  showSizeChanger: true,
+  showTotal: (total: number) => `共 ${total} 条`,
+}))
+
+/** 加载表格数据 */
+const loadTableData = async () => {
+  tableLoading.value = true
+  try {
+    const res = await selectDevice({
+      pageNo: currentPage.value,
+      pageSize: pageSize.value,
+      categoryIds: '34',
+      deviceName: searchForm.deviceName || undefined,
+      runState: searchForm.runState || undefined,
+    })
+    const list = res?.records || []
+    tableData.value = list
+    tableTotal.value = res?.total || 0
+    // 更新统计数据
+    statsData.value.count = tableTotal.value
+    statsData.value.online = list.filter((item: any) => item.runState === '在线').length
+  } catch (error) {
+    console.error('加载集水坑列表失败:', error)
+    tableData.value = []
+    tableTotal.value = 0
+  } finally {
+    tableLoading.value = false
+  }
+}
 
 const handleSearch = () => {
-  console.log('查询:', { status: filterStatus.value })
+  currentPage.value = 1
+  loadTableData()
+}
+
+const handleTableChange = (pag: any) => {
+  currentPage.value = pag.current
+  pageSize.value = pag.pageSize
+  loadTableData()
+}
+
+const handleDetail = (record: any) => {
+  console.log('详情:', record)
 }
 </script>
 

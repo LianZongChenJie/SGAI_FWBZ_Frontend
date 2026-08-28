@@ -3,7 +3,7 @@
     <!-- 统计卡片 -->
     <div class="stat-cards">
       <StatCard
-        label="送补风机总数"
+        label="排风机总数"
         :value="statsData.count"
         color="blue"
         :icon="TotalIcon"
@@ -33,14 +33,13 @@
     <!-- 实时监测表格 -->
     <div class="card">
       <div class="card-header">
-        <h3>🌬️送补风机实时监测</h3>
+        <h3>🌬️排风机实时监测</h3>
         <div class="header-right">
           <div class="filter-bar">
-          <a-select v-model:value="filterStatus" placeholder="全部状态" style="width: 140px" allow-clear>
-            <a-select-option value="">全部状态</a-select-option>
-            <a-select-option value="运行">运行</a-select-option>
-            <a-select-option value="停止">停止</a-select-option>
-            <a-select-option value="故障">故障</a-select-option>
+          <a-input v-model:value="searchForm.deviceName" placeholder="设备名称" allow-clear style="width: 160px" @pressEnter="handleSearch" />
+          <a-select v-model:value="searchForm.runState" placeholder="状态" allow-clear style="width: 120px" @change="handleSearch">
+            <a-select-option value="在线">在线</a-select-option>
+            <a-select-option value="离线">离线</a-select-option>
           </a-select>
           <a-button type="primary" @click="handleSearch">🔍 查询</a-button>
           </div>
@@ -52,20 +51,21 @@
       </div>
       <div class="card-body" v-show="!collapsedTable">
         <a-table
-          :dataSource="filteredTableData"
+          :dataSource="tableData"
           :columns="columns"
-          :pagination="{ pageSize: 10 }"
-          :scroll="{ x: 1200 }"
+          :pagination="pagination"
+          :loading="tableLoading"
+          :scroll="{ x: 1100 }"
           size="middle"
+          @change="handleTableChange"
         >
           <template #bodyCell="{ column, record }">
-            <template v-if="column.key === 'status'">
-              <a-tag v-if="record.status === '运行'" color="green">运行</a-tag>
-              <a-tag v-else-if="record.status === '停止'" color="red">停止</a-tag>
-              <a-tag v-else color="orange">故障</a-tag>
+            <template v-if="column.key === 'runState'">
+              <a-tag v-if="record.runState === '在线'" color="green">在线</a-tag>
+              <a-tag v-else color="red">离线</a-tag>
             </template>
             <template v-if="column.key === 'action'">
-              <a-button type="link" size="small">详情</a-button>
+              <a-button type="link" size="small" @click="handleDetail(record)">详情</a-button>
             </template>
           </template>
         </a-table>
@@ -86,13 +86,13 @@
         <div class="analysis-card__header">
           <div class="analysis-card__title">
             <span class="analysis-card__icon">📈</span>
-            <span>送补风系统能耗趋势</span>
+            <span>排风系统能耗趋势</span>
           </div>
         </div>
         <div class="analysis-card__body">
           <div class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
-            <div class="chart-placeholder__text">各送补风机能耗趋势</div>
+            <div class="chart-placeholder__text">各排风机能耗趋势</div>
           </div>
         </div>
       </a-card>
@@ -100,23 +100,23 @@
         <div class="analysis-card__header">
           <div class="analysis-card__title">
             <span class="analysis-card__icon">💨</span>
-            <span>送补风压差分析</span>
+            <span>排风压差分析</span>
           </div>
         </div>
         <div class="analysis-card__body">
           <div class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
-            <div class="chart-placeholder__text">送风与补风压差分析</div>
+            <div class="chart-placeholder__text">送排风压差分析</div>
           </div>
         </div>
       </a-card>
     </div>
     </div>
 
-    <!-- 工艺图监控 - 送补风系统 -->
+    <!-- 工艺图监控 - 排风系统 -->
     <div class="card" :class="{ 'process-fullscreen': processFullscreen }">
       <div class="card-header">
-        <h3>🏭工艺图监控 - 送补风系统</h3>
+        <h3>🏭工艺图监控 - 排风系统</h3>
         <div class="header-right">
           <a-tag color="blue">实时</a-tag>
           <button class="collapse-btn" @click="collapsedProcess = !collapsedProcess">
@@ -154,10 +154,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, h, onMounted } from 'vue'
+import { ref, reactive, computed, h, onMounted } from 'vue'
 import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons-vue'
 import { StatCard } from '/@/views/bems-web/components'
-import { getSpaceTree, getDeviceAttrList } from './index.api'
+import { getSpaceTree, getDeviceAttrList, selectDevice } from './index.api'
 import FanBox from '../../building-automation/fan-box.vue'
 
 // 自定义 emoji 图标组件
@@ -299,55 +299,95 @@ const handleSpaceSelect = (keys: (string | number)[]) => {
 
 onMounted(() => {
   loadSpaceTree()
+  loadTableData()
 })
 
 // 统计数据
-const statsData = {
-  count: 12,
-  online: 11,
-  energyConsumption: '328',
-  avgSupplyAir: '6,500',
-}
+const statsData = ref({
+  count: 0,
+  online: 0,
+  energyConsumption: '--',
+  avgSupplyAir: '--',
+})
 
-// 筛选条件
-const filterStatus = ref('')
+// 搜索表单
+const searchForm = reactive({
+  deviceName: '',
+  runState: undefined as string | undefined,
+})
 
-// 表格列定义
+// 表格列定义（参考楼控设备列表）
 const columns = [
-  { title: '机组编号', dataIndex: 'code', key: 'code', width: 110 },
-  { title: '位置', dataIndex: 'location', key: 'location', width: 140 },
-  { title: '运行状态', dataIndex: 'status', key: 'status', width: 100 },
-  { title: '送风量(m³/h)', dataIndex: 'supplyAir', key: 'supplyAir', width: 130 },
-  { title: '补风量(m³/h)', dataIndex: 'supplyAir2', key: 'supplyAir2', width: 130 },
-  { title: '送风压(Pa)', dataIndex: 'supplyPressure', key: 'supplyPressure', width: 120 },
-  { title: '补风压(Pa)', dataIndex: 'supplyPressure2', key: 'supplyPressure2', width: 120 },
-  { title: '功率(kW)', dataIndex: 'power', key: 'power', width: 100 },
-  { title: '今日能耗(kWh)', dataIndex: 'todayEnergy', key: 'todayEnergy', width: 130 },
-  { title: '操作', dataIndex: 'action', key: 'action', width: 80, fixed: 'right' },
+  {
+    title: '序号',
+    dataIndex: 'index',
+    key: 'index',
+    width: 60,
+    customRender: ({ index }: { index: number }) => index + 1,
+  },
+  { title: '设备名称', dataIndex: 'deviceName', key: 'deviceName', width: 120 },
+  { title: '设备编号', dataIndex: 'deviceCode', key: 'deviceCode', width: 120 },
+  { title: '设备位置', dataIndex: 'spaceName', key: 'spaceName', width: 140 },
+  { title: '备注', dataIndex: 'remark', key: 'remark', width: 100 },
+  { title: '状态', dataIndex: 'runState', key: 'runState', width: 90 },
+  { title: '最后通讯时间', dataIndex: 'lastGatherTime', key: 'lastGatherTime', width: 160 },
+  { title: '操作', key: 'action', width: 80, fixed: 'right' as const },
 ]
 
 // 表格数据
-const tableData = [
-  { code: 'SF-A-01', location: 'A馆-B1-机房', status: '运行', supplyAir: '8,500', supplyAir2: '6,200', supplyPressure: '320', supplyPressure2: '260', power: '5.5', todayEnergy: '24' },
-  { code: 'SF-A-02', location: 'A馆-F1-大厅', status: '运行', supplyAir: '7,200', supplyAir2: '5,000', supplyPressure: '280', supplyPressure2: '220', power: '4.0', todayEnergy: '18' },
-  { code: 'SF-B-01', location: 'B馆-B1-机房', status: '运行', supplyAir: '9,000', supplyAir2: '6,500', supplyPressure: '340', supplyPressure2: '280', power: '6.0', todayEnergy: '26' },
-  { code: 'SF-B-02', location: 'B馆-F2-办公区', status: '运行', supplyAir: '6,500', supplyAir2: '4,500', supplyPressure: '250', supplyPressure2: '200', power: '3.5', todayEnergy: '15' },
-  { code: 'SF-C-01', location: 'C馆-B1-机房', status: '停止', supplyAir: '0', supplyAir2: '0', supplyPressure: '0', supplyPressure2: '0', power: '0', todayEnergy: '0' },
-  { code: 'SF-C-02', location: 'C馆-F1-大厅', status: '运行', supplyAir: '7,800', supplyAir2: '5,500', supplyPressure: '300', supplyPressure2: '240', power: '4.5', todayEnergy: '20' },
-  { code: 'SF-D-01', location: 'D馆-屋顶', status: '故障', supplyAir: '--', supplyAir2: '--', supplyPressure: '--', supplyPressure2: '--', power: '--', todayEnergy: '--' },
-  { code: 'SF-D-02', location: 'D馆-F3-办公区', status: '运行', supplyAir: '6,000', supplyAir2: '4,200', supplyPressure: '240', supplyPressure2: '190', power: '3.2', todayEnergy: '14' },
-]
+const tableData = ref<any[]>([])
+const tableLoading = ref(false)
+const currentPage = ref(1)
+const pageSize = ref(10)
+const tableTotal = ref(0)
 
-// 筛选逻辑
-const filteredTableData = computed(() => {
-  return tableData.filter((item) => {
-    const matchStatus = !filterStatus.value || item.status === filterStatus.value
-    return matchStatus
-  })
-})
+const pagination = computed(() => ({
+  current: currentPage.value,
+  pageSize: pageSize.value,
+  total: tableTotal.value,
+  showSizeChanger: true,
+  showTotal: (total: number) => `共 ${total} 条`,
+}))
+
+/** 加载表格数据 */
+const loadTableData = async () => {
+  tableLoading.value = true
+  try {
+    const res = await selectDevice({
+      pageNo: currentPage.value,
+      pageSize: pageSize.value,
+      categoryIds: '38',
+      deviceName: searchForm.deviceName || undefined,
+      runState: searchForm.runState || undefined,
+    })
+    const list = res?.records || []
+    tableData.value = list
+    tableTotal.value = res?.total || 0
+    // 更新统计数据
+    statsData.value.count = tableTotal.value
+    statsData.value.online = list.filter((item: any) => item.runState === '在线').length
+  } catch (error) {
+    console.error('加载排风机列表失败:', error)
+    tableData.value = []
+    tableTotal.value = 0
+  } finally {
+    tableLoading.value = false
+  }
+}
 
 const handleSearch = () => {
-  console.log('查询:', { status: filterStatus.value })
+  currentPage.value = 1
+  loadTableData()
+}
+
+const handleTableChange = (pag: any) => {
+  currentPage.value = pag.current
+  pageSize.value = pag.pageSize
+  loadTableData()
+}
+
+const handleDetail = (record: any) => {
+  console.log('详情:', record)
 }
 </script>
 

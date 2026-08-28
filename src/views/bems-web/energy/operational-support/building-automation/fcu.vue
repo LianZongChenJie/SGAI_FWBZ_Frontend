@@ -22,18 +22,18 @@
             <!-- <div class="valve-motion fcu-valve" :style="valveStyle(p('ba.fcu.valve'))"><i></i></div> -->
             <b class="fcu-air-label fcu-ra">RA ↑</b>
             <b class="fcu-air-label fcu-da">DA →</b>
-            <PointBadge class="fcu-valve-feedback" label="水阀反馈" :value="`${n('ba.fcu.valve',1)}%`" />
+            <PointBadge class="fcu-valve-feedback" label="水阀状态" :value="getParamValue('水阀状态')" />
           </div>
-          <PointBadge class="fcu-on" label="开关机" :value="p('ba.fcu.onOff') ? '开机' : '关机'" />
-          <div class="fcu-panel">
+          <PointBadge class="fcu-on" label="开关机" :value="getParamValue('开关机')" />
+          <!-- <div class="fcu-panel">
             <h4>风盘参数</h4>
-            <PointBadge label="温度" :value="`${n('ba.fcu.roomTemp',1)} ℃`" />
-            <PointBadge label="设定温度" :value="`${n('ba.fcu.setpoint',1)} ℃`" />
-            <PointBadge label="水阀状态" :value="p('ba.fcu.valveClosed') ? '关闭' : '开启'" />
-            <PointBadge label="模式" :value="p('ba.fcu.mode')" />
-            <PointBadge label="风速" :value="speedText()" />
-            <PointBadge label="键盘锁" :value="p('ba.fcu.keyboardLock') ? '锁定' : '关闭'" />
-          </div>
+            <PointBadge label="温度" :value="getParamValue('温度')" />
+            <PointBadge label="设定温度" :value="getParamValue('设定温度')" />
+            <PointBadge label="水阀状态" :value="getParamValue('水阀状态')" />
+            <PointBadge label="模式" :value="getParamValue('模式')" />
+            <PointBadge label="风速" :value="getParamValue('风速')" />
+            <PointBadge label="键盘锁" :value="getParamValue('键盘锁')" />
+          </div> -->
         </div>
       </section>
       <aside class="system-panel">
@@ -74,6 +74,14 @@ const stateTone = computed(() => fault.value ? 'fault' : running.value ? 'runnin
 const displaySystemParams = computed(() => {
   return props.systemParams && props.systemParams.length > 0 ? props.systemParams : devicePoints.value.slice(-6)
 })
+
+/** 从系统参数数组中按 label 关键词查找对应项并格式化值 */
+function getParamValue(keyword) {
+  if (!props.systemParams || props.systemParams.length === 0) return '--'
+  const item = props.systemParams.find((it) => it.label && it.label.includes(keyword))
+  if (!item) return '--'
+  return formatSystemParam(item)
+}
 
 function formatParam(item) {
   return formatSystemParam(item)
