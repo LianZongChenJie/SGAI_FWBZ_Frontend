@@ -151,6 +151,7 @@ const flowData = ref<VenueFlowVO[]>([])
 const flowLoading = ref(false)
 
 const flowColumns = [
+  { title: '序号', key: 'index', width: 70, customRender: ({ index }) => index + 1 },
   { title: '场馆', dataIndex: 'venueName', key: 'venueName', width: 120 },
   { title: '今日进场', dataIndex: 'todayInCount', key: 'todayInCount', width: 100 },
   { title: '当前在场', dataIndex: 'todayNowCount', key: 'todayNowCount', width: 100 },

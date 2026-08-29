@@ -27,7 +27,6 @@
   import { selectDevice, updateAutomaticAlgorithm, exportData } from '../Device.api';
   import { BasicColumn, BasicTable, FormSchema } from '/@/components/Table';
   import { useListPage } from '/@/hooks/system/useListPage';
-  import { useMethods } from '@/hooks/system/useMethods.ts';
 
   const props = defineProps<{
     categoryKeys?: string[]; // 类别树节点
@@ -41,6 +40,8 @@
       runState?: string;
     };
   }>();
+
+  
 
   const emit = defineEmits(['edit', 'delete', 'refresh', 'detail']);
 
@@ -69,13 +70,6 @@
 
   // 表格列配置
   const columns = ref<any[]>([
-    {
-      title: '序号',
-      dataIndex: 'index',
-      key: 'index',
-      width: '60px',
-      customRender: ({ index }) => index + 1, // 显示序号，从 1 开始
-    },
     {
       title: '设备名称',
       dataIndex: 'deviceName',
@@ -155,12 +149,7 @@
       key: 'action',
       width: 110,
     },
-    {
-      title: '自动算法',
-      dataIndex: 'automaticAlgorithm',
-      key: 'automaticAlgorithm',
-      width: 100,
-    },
+    
   ]);
 
   //表单搜索字段
@@ -241,6 +230,7 @@
       api: loadData,
       columns: columns,
       showActionColumn: false,
+      showIndexColumn: true,
       size: 'middle',
       bordered: false,
       canResize: false,

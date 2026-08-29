@@ -60,6 +60,7 @@ const emit = defineEmits<{
 
 // ===== 表格列定义 =====
 const columns = [
+  { title: '序号', key: 'index', width: 70, customRender: ({ index }) => index + 1 },
   { title: '场馆名称', dataIndex: 'venueName', key: 'venueName', width: 100 },
   { title: '位置', dataIndex: 'location', key: 'location', width: 120 },
   { title: '朝向', dataIndex: 'orientation', key: 'orientation', width: 100 },

@@ -13,6 +13,9 @@
       <a-tab-pane key="4" tab="流量传感器">
         <sensorPage :categoryId="'36'" />
       </a-tab-pane>
+      <a-tab-pane key="5" tab="冷源">
+        <coldSourcePage />
+      </a-tab-pane>
     </a-tabs>
   </div>
 </template>
@@ -21,6 +24,7 @@
   import { ref, onMounted } from 'vue';
   import fourGenerationWaterMeter from './4GWaterMeter/index.vue';
   import sensorPage from './sensorPage/index.vue';
+  import coldSourcePage from './coldSource/index.vue';
 
   const activeKey = ref('1');
   const categoryTreeData = ref([]);
@@ -35,11 +39,15 @@
     height: calc(100% - 40px);
     background-color: #fff;
 
+
+
     :deep(.full-height-tabs) {
       height: 100%;
       display: flex;
       flex-direction: column;
-
+      .ant-tabs-nav-wrap {
+        justify-content: left;
+      }
       .ant-tabs-nav {
         margin-bottom: 0;
       }

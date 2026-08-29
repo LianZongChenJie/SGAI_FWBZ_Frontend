@@ -169,21 +169,12 @@
             />
           </div>
           <!-- 右侧：工艺图 -->
-          <div
-            class="process-schematic"
-            @wheel.prevent="handleProcessZoom"
-            @mousedown.prevent="startProcessPan"
-            :style="{ cursor: processPanning ? 'grabbing' : 'grab' }"
-          >
-            <div class="process-schematic__inner" :style="{ transform: `translate(${panX}px, ${panY}px) scale(${processZoom})` }">
-              <Ahu :values="ahuValues" :system-params="systemParams" :device-name="selectedDeviceName" />
-            </div>
-            <div class="process-schematic__controls">
-              <button class="zoom-btn" @click="zoomOut">−</button>
-              <span class="zoom-label">{{ Math.round(processZoom * 100) }}%</span>
-              <button class="zoom-btn" @click="zoomIn">+</button>
-              <button class="zoom-btn" @click="resetProcessZoom">重置</button>
-            </div>
+          <div class="process-schematic">
+            <Ahu
+              :values="ahuValues"
+              :system-params="systemParams"
+              :device-name="selectedDeviceName"
+            />
           </div>
         </div>
       </div>
@@ -269,51 +260,6 @@ const collapsedProcess = ref(false)
 const processFullscreen = ref(false)
 const toggleProcessFullscreen = () => {
   processFullscreen.value = !processFullscreen.value
-}
-
-// 工艺图缩放与平移
-const processZoom = ref(1)
-const panX = ref(0)
-const panY = ref(0)
-const processPanning = ref(false)
-let panStartX = 0
-let panStartY = 0
-let panOriginX = 0
-let panOriginY = 0
-
-const handleProcessZoom = (e: WheelEvent) => {
-  const delta = e.deltaY > 0 ? -0.1 : 0.1
-  processZoom.value = Math.min(3, Math.max(0.5, +(processZoom.value + delta).toFixed(2)))
-}
-const zoomIn = () => {
-  processZoom.value = Math.min(3, +(processZoom.value + 0.2).toFixed(2))
-}
-const zoomOut = () => {
-  processZoom.value = Math.max(0.5, +(processZoom.value - 0.2).toFixed(2))
-}
-const startProcessPan = (e: MouseEvent) => {
-  processPanning.value = true
-  panStartX = e.clientX
-  panStartY = e.clientY
-  panOriginX = panX.value
-  panOriginY = panY.value
-  window.addEventListener('mousemove', onProcessPan)
-  window.addEventListener('mouseup', stopProcessPan)
-}
-const onProcessPan = (e: MouseEvent) => {
-  if (!processPanning.value) return
-  panX.value = panOriginX + (e.clientX - panStartX)
-  panY.value = panOriginY + (e.clientY - panStartY)
-}
-const stopProcessPan = () => {
-  processPanning.value = false
-  window.removeEventListener('mousemove', onProcessPan)
-  window.removeEventListener('mouseup', stopProcessPan)
-}
-const resetProcessZoom = () => {
-  processZoom.value = 1
-  panX.value = 0
-  panY.value = 0
 }
 
 // 工艺图 - 左侧树 & 右侧Ahu组件
@@ -990,35 +936,53 @@ onMounted(() => {
       position: relative;
       border: 1px solid #e5e6e8;
       border-radius: 8px;
-      overflow: auto;
+      overflow: hidden;
       background: linear-gradient(rgba(53, 108, 132, 0.05) 1px, transparent 1px),
         linear-gradient(90deg, rgba(53, 108, 132, 0.05) 1px, transparent 1px);
       background-size: 18px 18px;
       background-color: #082332;
       min-height: 500px;
+      display: flex;
+      flex-direction: column;
 
-      .process-schematic__inner {
-        width: 100%;
-        min-height: 500px;
-        position: relative;
-        transform-origin: 0 0;
-        transition: transform 0.05s ease-out;
+      .process-schematic__toolbar {
+        flex-shrink: 0;
+        height: 44px;
+        padding: 0 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: rgba(8, 35, 50, 0.95);
+        border-bottom: 1px solid rgba(78, 141, 167, 0.25);
+        z-index: 10;
       }
 
-      .process-schematic__controls {
-        position: sticky;
-        bottom: 12px;
-        right: 12px;
-        margin-left: auto;
-        width: fit-content;
+      .process-schematic__title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #d9eaf3;
+      }
+
+      .process-schematic__actions {
         display: flex;
         align-items: center;
         gap: 4px;
-        background: rgba(255, 255, 255, 0.9);
-        border-radius: 6px;
-        padding: 4px 8px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-        z-index: 10;
+      }
+
+      .process-schematic__inner {
+        flex: 1;
+        min-height: 0;
+        overflow: auto;
+        position: relative;
+      }
+
+      :deep(.hide-system-panel) {
+        .system-panel {
+          display: none;
+        }
+        .schematic-card {
+          right: 16px;
+        }
       }
     }
 
@@ -1067,25 +1031,26 @@ onMounted(() => {
 }
 
 .zoom-btn {
-  border: 1px solid #d9d9d9;
-  background: #fff;
-  color: #595959;
+  border: 1px solid #3d8197;
+  background: rgba(13, 48, 65, 0.8);
+  color: #80c7d1;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 12px;
   line-height: 1;
-  padding: 4px 8px;
+  padding: 5px 10px;
   transition: all 0.2s;
 
   &:hover {
-    color: #1677ff;
-    border-color: #1677ff;
+    color: #48dfa8;
+    border-color: #48dfa8;
+    background: rgba(72, 223, 168, 0.1);
   }
 }
 
 .zoom-label {
   font-size: 12px;
-  color: #595959;
+  color: #80c7d1;
   min-width: 40px;
   text-align: center;
 }

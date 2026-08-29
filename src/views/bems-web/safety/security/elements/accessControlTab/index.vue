@@ -28,7 +28,10 @@
           size="small"
           @change="handleDeviceTableChange"
         >
-          <template #bodyCell="{ column, record }">
+          <template #bodyCell="{ column, record, index }">
+            <template v-if="column.key === 'index'">
+              {{ (devicePagination.current - 1) * devicePagination.pageSize + index + 1 }}
+            </template>
             <template v-if="column.key === 'online'">
               <a-badge :status="record.online === '1' ? 'success' : 'default'" :text="record.online === '1' ? '在线' : '离线'" />
             </template>
@@ -76,7 +79,10 @@
           size="small"
           @change="handleDoorTableChange"
         >
-          <template #bodyCell="{ column, record }">
+          <template #bodyCell="{ column, record, index }">
+            <template v-if="column.key === 'index'">
+              {{ (doorPagination.current - 1) * doorPagination.pageSize + index + 1 }}
+            </template>
             <template v-if="column.key === 'doorState'">
               <a-tag :color="doorStateMap[record.doorState]?.color">
                 {{ doorStateMap[record.doorState]?.text }}
@@ -120,7 +126,10 @@
           size="small"
           @change="handleEventTableChange"
         >
-          <template #bodyCell="{ column, record }">
+          <template #bodyCell="{ column, record, index }">
+            <template v-if="column.key === 'index'">
+              {{ (eventPagination.current - 1) * eventPagination.pageSize + index + 1 }}
+            </template>
             <template v-if="column.key === 'inAndOutType'">
               <a-tag :color="inAndOutTypeMap[record.inAndOutType]?.color">
                 {{ inAndOutTypeMap[record.inAndOutType]?.text }}
@@ -179,6 +188,7 @@ const fetchAccessControlStatCards = async () => {
 
 /** 门禁地点列表 */
 const doorColumns = [
+  { title: '序号', key: 'index', width: 70 },
   { title: '门禁地点名称', dataIndex: 'name', key: 'name' },
   { title: '门禁地点编号', dataIndex: 'doorNo', key: 'doorNo' },
   { title: '区域名称', dataIndex: 'regionName', key: 'regionName' },
@@ -254,6 +264,7 @@ const handleSyncAccessControlStatus = async () => {
 
 /** 门禁设备列表 */
 const deviceColumns = [
+  { title: '序号', key: 'index', width: 70 },
   { title: '设备名称', dataIndex: 'name', key: 'name' },
   { title: '设备IP', dataIndex: 'ip', key: 'ip' },
   { title: '区域名称', dataIndex: 'regionName', key: 'regionName' },
@@ -304,6 +315,7 @@ const eventPagination = ref({
 const currentDeviceIndexCode = ref('')
 
 const eventColumns = [
+  { title: '序号', key: 'index', width: 70 },
   { title: '事件名称', dataIndex: 'eventName', key: 'eventName' },
   { title: '门禁地点名称', dataIndex: 'doorName', key: 'doorName' },
   { title: '人员姓名', dataIndex: 'personName', key: 'personName' },

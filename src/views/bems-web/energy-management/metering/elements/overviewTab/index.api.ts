@@ -53,3 +53,13 @@ export const findMonthVenueElectricity = (params = {}) => defHttp.get({ url: Api
  * 各场馆用电 - 年查询
  */
 export const findYearVenueElectricity = (params = {}) => defHttp.get({ url: Api.findYearVenueElectricity, params });
+
+enum DeviceApi {
+  /** 设备属性列表（按设备ID查询） */
+  listByDeviceId = '/sgai-fwbz-dev/fwbz/deviceAttribute/listByDeviceId',
+}
+
+/**
+ * 设备属性列表（按设备ID查询）
+ */
+export const getDeviceAttrList = (params = {}) => defHttp.get({ url: DeviceApi.listByDeviceId, params });

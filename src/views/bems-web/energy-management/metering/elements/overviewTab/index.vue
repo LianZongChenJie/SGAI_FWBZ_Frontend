@@ -169,11 +169,41 @@
             </span>
           </template>
           <template v-if="column.key === 'action'">
-            <a-button type="link" size="small">详情</a-button>
+            <a-button type="link" size="small" @click="handleDetail(record)">详情</a-button>
           </template>
         </template>
       </a-table>
     </a-card>
+    <!-- 详情弹窗 -->
+    <a-modal v-model:visible="detailVisible" title="详情" width="800px" :footer="null">
+      <a-spin :spinning="detailLoading">
+        <a-descriptions bordered :column="2" size="small">
+          <a-descriptions-item label="表计编号">{{ detailRecord?.deviceCode ?? '--' }}</a-descriptions-item>
+          <a-descriptions-item label="名称">{{ detailRecord?.deviceName ?? '--' }}</a-descriptions-item>
+          <a-descriptions-item label="表计类型">{{ findTreeNodeTitle(categoryTreeData, detailRecord?.categoryId) || detailRecord?.categoryId || '--' }}</a-descriptions-item>
+          <a-descriptions-item label="安装位置">{{ findTreeNodePath(spaceTreeData, detailRecord?.spaceId) || detailRecord?.spaceId || '--' }}</a-descriptions-item>
+          <a-descriptions-item label="备注">{{ detailRecord?.remark ?? '--' }}</a-descriptions-item>
+          <a-descriptions-item label="最后采集时间">{{ detailRecord?.lastGatherTime ?? '--' }}</a-descriptions-item>
+          <a-descriptions-item label="今日读数">{{ detailRecord?.value ?? '--' }}</a-descriptions-item>
+          <a-descriptions-item label="今日用量">{{ detailRecord?.dayTotal ?? '--' }}</a-descriptions-item>
+          <a-descriptions-item label="本月累计">{{ detailRecord?.mouthTotal ?? '--' }}</a-descriptions-item>
+          <a-descriptions-item label="状态">
+            <span
+              class="status-tag"
+              :class="{
+                'status-tag--normal':  detailRecord?.runState === '在线',
+                'status-tag--offline': detailRecord?.runState === '离线'
+              }"
+            >
+              {{ detailRecord?.runState ?? '--' }}
+            </span>
+          </a-descriptions-item>
+          <template v-for="attr in detailAttributes" :key="attr.code || attr.configId">
+            <a-descriptions-item :label="attr.label || attr.name || '--'">{{ attr.value ?? '--' }}</a-descriptions-item>
+          </template>
+        </a-descriptions>
+      </a-spin>
+    </a-modal>
   </div>
 </template>
 
@@ -202,6 +232,7 @@ import {
   findDayVenueElectricity,
   findMonthVenueElectricity,
   findYearVenueElectricity,
+  getDeviceAttrList,
 } from './index.api'
 import { getVenueInfoList, getCategoryTreeData, spaceTree } from '/@/views/bems-web/equipment/equipmentManagement/elements/device/Device.api'
 
@@ -444,6 +475,26 @@ const handleTableChange = (pag: any) => {
   pagination.current = pag.current
   pagination.pageSize = pag.pageSize
   loadMeterData(pag.current, pag.pageSize)
+}
+
+// 详情弹窗
+const detailVisible = ref(false)
+const detailLoading = ref(false)
+const detailRecord = ref<any>(null)
+const detailAttributes = ref<any[]>([])
+const handleDetail = async (record: any) => {
+  detailRecord.value = record
+  detailVisible.value = true
+  detailLoading.value = true
+  try {
+    const res = await getDeviceAttrList({ deviceId: record.key || record.deviceId })
+    detailAttributes.value = res?.records || res?.data || res || []
+  } catch (e) {
+    console.error('查询设备属性失败:', e)
+    detailAttributes.value = []
+  } finally {
+    detailLoading.value = false
+  }
 }
 
 // 加载概览数据

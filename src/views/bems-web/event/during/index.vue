@@ -81,7 +81,10 @@
           size="small"
           @change="handleTableChange"
         >
-          <template #bodyCell="{ column, record }">
+          <template #bodyCell="{ column, record, index }">
+            <template v-if="column.key === 'index'">
+              {{ (pagination.current - 1) * pagination.pageSize + index + 1 }}
+            </template>
             <template v-if="column.key === 'complaintTime'">
               {{ record.complaintDate || '--' }} {{ record.complaintTime || '' }}
             </template>
@@ -455,6 +458,7 @@ const handleTableChange = (pag: any) => {
 
 // ===== 列定义 =====
 const columns = [
+  { title: '序号', key: 'index', width: 70 },
   { title: '标题', dataIndex: 'title', key: 'title', width: 180 },
   { title: '时间', key: 'complaintTime', width: 180 },
   { title: '类型', dataIndex: 'typeName', key: 'typeName', width: 90 },

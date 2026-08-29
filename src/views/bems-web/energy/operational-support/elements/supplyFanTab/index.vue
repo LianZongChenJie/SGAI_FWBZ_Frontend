@@ -148,21 +148,12 @@
             />
           </div>
           <!-- 右侧：工艺图 -->
-          <div
-            class="process-schematic"
-            @wheel.prevent="handleProcessZoom"
-            @mousedown.prevent="startProcessPan"
-            :style="{ cursor: processPanning ? 'grabbing' : 'grab' }"
-          >
-            <div class="process-schematic__inner" :style="{ transform: `translate(${panX}px, ${panY}px) scale(${processZoom})` }">
-              <FanBox :values="deviceValues" :system-params="systemParams" :device-name="selectedDeviceName" />
-            </div>
-            <div class="process-schematic__controls">
-              <button class="zoom-btn" @click="zoomOut">−</button>
-              <span class="zoom-label">{{ Math.round(processZoom * 100) }}%</span>
-              <button class="zoom-btn" @click="zoomIn">+</button>
-              <button class="zoom-btn" @click="resetProcessZoom">重置</button>
-            </div>
+          <div class="process-schematic">
+            <FanBox
+              :values="deviceValues"
+              :system-params="systemParams"
+              :device-name="selectedDeviceName"
+            />
           </div>
         </div>
       </div>
@@ -217,51 +208,6 @@ const collapsedProcess = ref(false)
 const processFullscreen = ref(false)
 const toggleProcessFullscreen = () => {
   processFullscreen.value = !processFullscreen.value
-}
-
-// 工艺图缩放与平移
-const processZoom = ref(1)
-const panX = ref(0)
-const panY = ref(0)
-const processPanning = ref(false)
-let panStartX = 0
-let panStartY = 0
-let panOriginX = 0
-let panOriginY = 0
-
-const handleProcessZoom = (e: WheelEvent) => {
-  const delta = e.deltaY > 0 ? -0.1 : 0.1
-  processZoom.value = Math.min(3, Math.max(0.5, +(processZoom.value + delta).toFixed(2)))
-}
-const zoomIn = () => {
-  processZoom.value = Math.min(3, +(processZoom.value + 0.2).toFixed(2))
-}
-const zoomOut = () => {
-  processZoom.value = Math.max(0.5, +(processZoom.value - 0.2).toFixed(2))
-}
-const startProcessPan = (e: MouseEvent) => {
-  processPanning.value = true
-  panStartX = e.clientX
-  panStartY = e.clientY
-  panOriginX = panX.value
-  panOriginY = panY.value
-  window.addEventListener('mousemove', onProcessPan)
-  window.addEventListener('mouseup', stopProcessPan)
-}
-const onProcessPan = (e: MouseEvent) => {
-  if (!processPanning.value) return
-  panX.value = panOriginX + (e.clientX - panStartX)
-  panY.value = panOriginY + (e.clientY - panStartY)
-}
-const stopProcessPan = () => {
-  processPanning.value = false
-  window.removeEventListener('mousemove', onProcessPan)
-  window.removeEventListener('mouseup', stopProcessPan)
-}
-const resetProcessZoom = () => {
-  processZoom.value = 1
-  panX.value = 0
-  panY.value = 0
 }
 
 defineProps<{
@@ -817,58 +763,49 @@ const handleDetail = async (record: any) => {
     border: 1px solid #e5e6e8;
     border-radius: 8px;
     overflow: auto;
-    background: linear-gradient(rgba(53, 108, 132, 0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(53, 108, 132, 0.05) 1px, transparent 1px);
-    background-size: 18px 18px;
-    background-color: #082332;
+    background-color: #06131d;
     min-height: 500px;
-
-    &__inner {
-      width: 100%;
-      min-height: 500px;
-      position: relative;
-      transform-origin: 0 0;
-      transition: transform 0.05s ease-out;
-    }
 
     &__controls {
       position: sticky;
-      bottom: 12px;
-      right: 12px;
-      margin-left: auto;
-      width: fit-content;
+      bottom: 0;
+      right: 0;
+      align-self: flex-end;
       display: flex;
       align-items: center;
       gap: 4px;
-      background: rgba(255, 255, 255, 0.9);
-      border-radius: 6px;
-      padding: 4px 8px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      padding: 6px 12px;
+      background: rgba(8, 35, 50, 0.95);
+      border: 1px solid rgba(78, 141, 167, 0.25);
+      border-radius: 6px 6px 0 0;
       z-index: 10;
+      margin-left: auto;
+      width: fit-content;
     }
   }
 }
 
 .zoom-btn {
-  border: 1px solid #d9d9d9;
-  background: #fff;
-  color: #595959;
+  border: 1px solid #3d8197;
+  background: rgba(13, 48, 65, 0.8);
+  color: #80c7d1;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 12px;
   line-height: 1;
-  padding: 4px 8px;
+  padding: 5px 10px;
   transition: all 0.2s;
 
   &:hover {
-    color: #1677ff;
-    border-color: #1677ff;
+    color: #48dfa8;
+    border-color: #48dfa8;
+    background: rgba(72, 223, 168, 0.1);
   }
 }
 
 .zoom-label {
   font-size: 12px;
-  color: #595959;
+  color: #80c7d1;
   min-width: 40px;
   text-align: center;
 }
