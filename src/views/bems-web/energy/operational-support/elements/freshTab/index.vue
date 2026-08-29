@@ -107,24 +107,14 @@
             <span class="analysis-card__icon">💨</span>
             <span>各机组PM2.5分布</span>
           </div>
+          <span class="card-note">今日均值 μg/m³ · 虚线=GB 3095 二级 35</span>
         </div>
         <div class="analysis-card__body">
-          <div v-show="pm25Loading" class="chart-placeholder">
-            <a-spin />
-            <div class="chart-placeholder__text">加载中...</div>
-          </div>
-          <div
-            v-show="!pm25Loading && pm25ChartData.length === 0"
-            class="chart-placeholder"
-          >
+          <div v-if="hasPm25Data" ref="pm25ChartRef" class="venue-chart"></div>
+          <div v-else class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
             <div class="chart-placeholder__text">暂无数据</div>
           </div>
-          <div
-            v-show="!pm25Loading && pm25ChartData.length > 0"
-            ref="pm25ChartRef"
-            class="venue-chart"
-          ></div>
         </div>
       </a-card>
       <a-card class="analysis-card" :bordered="false">
@@ -143,22 +133,11 @@
           </div>
         </div>
         <div class="analysis-card__body">
-          <div v-show="tempLoading" class="chart-placeholder">
-            <a-spin />
-            <div class="chart-placeholder__text">加载中...</div>
-          </div>
-          <div
-            v-show="!tempLoading && tempChartData.length === 0"
-            class="chart-placeholder"
-          >
+          <div v-if="hasTempData" ref="tempChartRef" class="venue-chart"></div>
+          <div v-else class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
             <div class="chart-placeholder__text">暂无数据</div>
           </div>
-          <div
-            v-show="!tempLoading && tempChartData.length > 0"
-            ref="tempChartRef"
-            class="venue-chart"
-          ></div>
         </div>
       </a-card>
     </div>
@@ -255,8 +234,10 @@ import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitO
 import { StatCard } from '/@/views/bems-web/components'
 import { spaceTree } from '/@/views/bems-web/equipment/equipmentManagement/elements/device/Device.api'
 import { message } from 'ant-design-vue'
-import { getFreshAirUnitList, getFreshAirStatistics, getPm25, getFreshSupplyAirTemperature, getFreshReturnAirTemperature, getDeviceAttrList, airControl } from './index.api'
+import { getFreshAirUnitList, getFreshAirStatistics, getDeviceAttrList, airControl } from './index.api'
 import { useECharts } from '/@/hooks/web/useECharts'
+import { getFreshPm25Data, getFreshSupplyData, getFreshReturnData } from '../chartData'
+import { buildBarOption, buildTrendOption } from '../chartOptions'
 
 // 自定义 emoji 图标组件
 const FreshUnitTotalIcon = () => h('span', { style: 'font-size: 20px;' }, '🌀')
@@ -355,6 +336,14 @@ const attributeColumns = ref<any[]>([])
 
 // 表格列定义（固定3列 + 动态列 + 操作列）
 const columns = computed(() => [
+  {
+    title: '序号',
+    dataIndex: 'index',
+    key: 'index',
+    width: 70,
+    customRender: ({ index }: { index: number }) =>
+      (pagination.current - 1) * pagination.pageSize + index + 1,
+  },
   { title: '机组编号', dataIndex: 'deviceCode', key: 'deviceCode', width: 110 },
   { title: '位置', dataIndex: 'spaceId', key: 'spaceId', width: 150 },
   { title: '运行状态', dataIndex: 'runState', key: 'runState', width: 100 },
@@ -499,167 +488,55 @@ const handleTableChange = (pag: any) => {
 
 // 各机组PM2.5分布柱状图
 const pm25ChartRef = ref<HTMLDivElement>()
-const pm25ChartData = ref<any[]>([])
-const pm25Loading = ref(false)
+const hasPm25Data = ref(false)
 const { setOptions: setPm25ChartOptions } = useECharts(pm25ChartRef as any)
 
-/** 加载各机组PM2.5分布数据 */
-const loadPm25Chart = async () => {
-  pm25Loading.value = true
-  try {
-    const res = await getPm25()
-    // 响应格式：{ result: { chat: { xaxis, chatSeriesList } } } 或 { chat: { ... } }
-    const chatData = res?.chat || res?.result?.chat || res?.data?.chat || {}
-    const xaxis = chatData.xaxis || []
-    const seriesList = (chatData.chatSeriesList || chatData.seriesList || []) as any[]
-    const filteredList = seriesList.filter((item: any) => item.name !== '合计')
-    pm25ChartData.value = filteredList
-    pm25Loading.value = false
-    await nextTick()
-    if (xaxis.length > 0 && filteredList.length > 0) {
-      renderPm25Chart(xaxis, filteredList)
-    }
-  } catch (e) {
-    console.error('加载各机组PM2.5分布失败:', e)
-    pm25Loading.value = false
+/** 渲染各机组PM2.5分布柱状图（mock 数据） */
+const renderPm25Chart = async () => {
+  const data = getFreshPm25Data()
+  if (!data.categories.length || !data.series.length) {
+    hasPm25Data.value = false
+    return
   }
-}
-
-/** 渲染各机组PM2.5分布柱状图 */
-const renderPm25Chart = (xaxis: string[], seriesList: { name: string; data: number[] }[]) => {
-  setPm25ChartOptions({
-    tooltip: { trigger: 'axis', show: true },
-    legend: {
-      type: 'scroll',
-      data: seriesList.map((item) => item.name),
-      bottom: 4,
-      padding: [4, 0, 0, 0],
-    },
-    grid: {
-      left: '3%',
-      right: '4%',
-      bottom: '22%',
-      top: '8%',
-      containLabel: true,
-    },
-    xAxis: {
-      type: 'category',
-      data: xaxis,
-      axisLabel: {
-        color: '#666',
-        fontSize: 12,
-        rotate: xaxis.length > 6 ? 30 : 0,
-      },
-    },
-    yAxis: {
-      type: 'value',
-      name: '',
-      axisLabel: {
-        margin: 15,
-        overflow: 'truncate',
-        color: '#666',
-        fontSize: 12,
-      },
-    },
-    series: seriesList.map((item) => ({
-      name: item.name,
-      type: 'bar',
-      data: item.data,
-      barMaxWidth: 40,
-    })),
-  })
+  hasPm25Data.value = true
+  await nextTick()
+  setPm25ChartOptions(buildBarOption(data.categories, data.series, data.unit, data.threshold, data.thresholdLabel))
 }
 
 // 送回风温度曲线
 const tempChartRef = ref<HTMLDivElement>()
-const tempChartData = ref<any[]>([])
-const tempLoading = ref(false)
-const tempActive = ref('supply')
-const tempTabs = [
-  { key: 'supply', label: '送风' },
-  { key: 'return', label: '回风' },
+const hasTempData = ref(false)
+const tempActive = ref<'supply' | 'return'>('supply')
+const tempTabs: { key: 'supply' | 'return'; label: string }[] = [
+  { key: 'supply', label: '送温' },
+  { key: 'return', label: '回温' },
 ]
 const { setOptions: setTempChartOptions } = useECharts(tempChartRef as any)
 
-const handleTempTabChange = (key: string) => {
+const handleTempTabChange = (key: 'supply' | 'return') => {
   tempActive.value = key
-  loadTempChart()
+  renderTempChart()
 }
 
-/** 加载送回风温度曲线数据 */
-const loadTempChart = async () => {
-  tempLoading.value = true
-  tempChartData.value = []
-  try {
-    const apiFn = tempActive.value === 'supply' ? getFreshSupplyAirTemperature : getFreshReturnAirTemperature
-    const res = await apiFn()
-    const chatData = res?.chat || res?.result?.chat || res?.data?.chat || {}
-    const xaxis = chatData.xaxis || []
-    const seriesList = (chatData.chatSeriesList || chatData.seriesList || []) as any[]
-    const filteredList = seriesList.filter((item: any) => item.name !== '合计')
-    tempChartData.value = filteredList
-    tempLoading.value = false
-    await nextTick()
-    if (xaxis.length > 0 && filteredList.length > 0) {
-      renderTempChart(xaxis, filteredList)
-    }
-  } catch (e) {
-    console.error('加载送回风温度曲线失败:', e)
-    tempLoading.value = false
+/** 渲染送回风温度曲线（mock 数据，送温/回温切换） */
+const renderTempChart = async () => {
+  const data = tempActive.value === 'return' ? getFreshReturnData() : getFreshSupplyData()
+  const series = (data.chatSeriesList || []).filter((s: any) => s.name !== '合计')
+  if (!data.xaxis.length || !series.length) {
+    hasTempData.value = false
+    return
   }
-}
-
-/** 渲染送回风温度折线图 */
-const renderTempChart = (xaxis: string[], seriesList: { name: string; data: number[] }[]) => {
-  setTempChartOptions({
-    tooltip: { trigger: 'axis', show: true },
-    legend: {
-      type: 'scroll',
-      data: seriesList.map((item) => item.name),
-      bottom: 0,
-    },
-    grid: {
-      left: '3%',
-      right: '4%',
-      bottom: '15%',
-      top: '8%',
-      containLabel: true,
-    },
-    xAxis: {
-      type: 'category',
-      boundaryGap: false,
-      data: xaxis,
-      axisLabel: {
-        color: '#666',
-        fontSize: 12,
-        rotate: xaxis.length > 6 ? 30 : 0,
-      },
-    },
-    yAxis: {
-      type: 'value',
-      name: '',
-      axisLabel: {
-        margin: 15,
-        overflow: 'truncate',
-        color: '#666',
-        fontSize: 12,
-      },
-    },
-    series: seriesList.map((item) => ({
-      name: item.name,
-      type: 'line',
-      data: item.data,
-      smooth: true,
-    })),
-  })
+  hasTempData.value = true
+  await nextTick()
+  setTempChartOptions(buildTrendOption(data.xaxis, series, '℃', true))
 }
 
 onMounted(() => {
   loadSpaceTree()
   loadStatistics()
   loadFreshAirUnitList()
-  loadPm25Chart()
-  loadTempChart()
+  renderPm25Chart()
+  renderTempChart()
 })
 </script>
 
@@ -775,6 +652,12 @@ onMounted(() => {
 
     &__icon2 {
       font-size: 54px;
+    }
+
+    .card-note {
+      color: rgba(0, 0, 0, 0.45);
+      font-size: 12px;
+      text-align: right;
     }
 
     &__body {

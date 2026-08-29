@@ -3,14 +3,7 @@
     <main>
       <header>
         <div>
-          <small>BUILDING AUTOMATION · 6.0F</small>
           <h1>{{ deviceName || '风机盘管' }}</h1>
-          <p>盘管阀门与风速控制</p>
-        </div>
-        <div class="headline">
-          <span>设备状态</span>
-          <strong :class="stateTone">{{ stateText }}</strong>
-          <em>点位 {{ devicePoints.length }}</em>
         </div>
       </header>
       <section class="schematic-card">

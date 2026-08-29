@@ -88,26 +88,22 @@
             <span class="analysis-card__icon">📈</span>
             <span>排风系统能耗趋势</span>
           </div>
+          <span class="card-note">今日 00:00–23:00 · 逐时 kWh</span>
         </div>
         <div class="analysis-card__body">
-          <div class="chart-placeholder">
-            <span class="analysis-card__icon2">📊</span>
-            <div class="chart-placeholder__text">各排风机能耗趋势</div>
-          </div>
+          <div ref="energyChartRef" class="venue-chart"></div>
         </div>
       </a-card>
       <a-card class="analysis-card" :bordered="false">
         <div class="analysis-card__header">
           <div class="analysis-card__title">
-            <span class="analysis-card__icon">🌬️</span>
-            <span>各机组风量分布</span>
+            <span class="analysis-card__icon">📊</span>
+            <span>排风压差分析</span>
           </div>
+          <span class="card-note">各排风机风管压差 · 逐时 Pa</span>
         </div>
         <div class="analysis-card__body">
-          <div class="chart-placeholder">
-            <span class="analysis-card__icon2">📊</span>
-            <div class="chart-placeholder__text">各排风机风量分布</div>
-          </div>
+          <div ref="pressureChartRef" class="venue-chart"></div>
         </div>
       </a-card>
     </div>
@@ -163,10 +159,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, h } from 'vue'
+import { ref, reactive, computed, onMounted, nextTick, h } from 'vue'
 import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons-vue'
 import { StatCard } from '/@/views/bems-web/components'
 import { selectDevice, getDeviceAttrList } from './index.api'
+import { useECharts } from '/@/hooks/web/useECharts'
+import { getExhaustEnergyData, getExhaustPressureData } from '../chartData'
+import { buildTrendOption } from '../chartOptions'
 
 // 自定义 emoji 图标组件
 const TotalIcon = () => h('span', { style: 'font-size: 20px;' }, '💨')
@@ -212,7 +211,8 @@ const columns = [
     dataIndex: 'index',
     key: 'index',
     width: 60,
-    customRender: ({ index }: { index: number }) => index + 1,
+    customRender: ({ index }: { index: number }) =>
+      (currentPage.value - 1) * pageSize.value + index + 1,
   },
   { title: '设备名称', dataIndex: 'deviceName', key: 'deviceName', width: 120 },
   { title: '设备编号', dataIndex: 'deviceCode', key: 'deviceCode', width: 120 },
@@ -295,8 +295,31 @@ const handleDetail = async (record: any) => {
   }
 }
 
+// 排风系统能耗趋势图表
+const energyChartRef = ref<HTMLDivElement>()
+const { setOptions: setEnergyChartOptions } = useECharts(energyChartRef as any)
+
+// 排风压差分析图表
+const pressureChartRef = ref<HTMLDivElement>()
+const { setOptions: setPressureChartOptions } = useECharts(pressureChartRef as any)
+
+/** 渲染排风系统能耗趋势与压差分析图表（mock 数据） */
+const loadCharts = async () => {
+  await nextTick()
+  // 图1 能耗趋势
+  const energyData = getExhaustEnergyData()
+  const energySeries = (energyData.chatSeriesList || []).filter((s: any) => s.name !== '合计')
+  setEnergyChartOptions(buildTrendOption(energyData.xaxis, energySeries, 'kWh'))
+
+  // 图2 压差分析
+  const pressData = getExhaustPressureData()
+  const pressSeries = (pressData.chatSeriesList || []).filter((s: any) => s.name !== '合计')
+  setPressureChartOptions(buildTrendOption(pressData.xaxis, pressSeries, 'Pa'))
+}
+
 onMounted(() => {
   loadTableData()
+  loadCharts()
 })
 </script>
 
@@ -413,6 +436,12 @@ onMounted(() => {
 
     &__icon2 {
       font-size: 54px;
+    }
+
+    .card-note {
+      color: rgba(0, 0, 0, 0.45);
+      font-size: 12px;
+      text-align: right;
     }
 
     &__body {

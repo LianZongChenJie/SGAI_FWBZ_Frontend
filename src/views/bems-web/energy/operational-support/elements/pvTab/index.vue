@@ -93,27 +93,31 @@
         <div class="analysis-card__header">
           <div class="analysis-card__title">
             <span class="analysis-card__icon">📈</span>
-            <span>光伏发电趋势</span>
+            <span>今日光伏发电功率曲线</span>
           </div>
+          <span class="card-note">各逆变区逐时 kW · 装机 272/208/119 kWp</span>
         </div>
         <div class="analysis-card__body">
-          <div class="chart-placeholder">
+          <div v-if="hasPowerData" ref="powerChartRef" class="venue-chart"></div>
+          <div v-else class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
-            <div class="chart-placeholder__text">今日光伏发电功率曲线</div>
+            <div class="chart-placeholder__text">暂无数据</div>
           </div>
         </div>
       </a-card>
       <a-card class="analysis-card" :bordered="false">
         <div class="analysis-card__header">
           <div class="analysis-card__title">
-            <span class="analysis-card__icon">🌤️</span>
-            <span>发电效率分析</span>
+            <span class="analysis-card__icon">📊</span>
+            <span>辐照度-发电量关联分析</span>
           </div>
+          <span class="card-note">逐时发电量 kWh · 随辐照度（与左图同源）</span>
         </div>
         <div class="analysis-card__body">
-          <div class="chart-placeholder">
+          <div v-if="hasCorrelationData" ref="correlationChartRef" class="venue-chart"></div>
+          <div v-else class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
-            <div class="chart-placeholder__text">辐照度-发电量关联分析</div>
+            <div class="chart-placeholder__text">暂无数据</div>
           </div>
         </div>
       </a-card>
@@ -150,9 +154,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, h } from 'vue'
+import { ref, computed, h, onMounted, nextTick } from 'vue'
 import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons-vue'
 import { StatCard } from '/@/views/bems-web/components'
+import { useECharts } from '/@/hooks/web/useECharts'
+import { getPvPowerData, getPvCorrelationData } from '../chartData'
+import { buildTrendOption, buildScatterOption } from '../chartOptions'
 
 // 自定义 emoji 图标组件
 const PvStringCountIcon = () => h('span', { style: 'font-size: 20px;' }, '☀️')
@@ -182,6 +189,13 @@ const filterArea = ref('')
 
 // 表格列定义
 const columns = [
+  {
+    title: '序号',
+    dataIndex: 'index',
+    key: 'index',
+    width: 70,
+    customRender: ({ index }: { index: number }) => index + 1,
+  },
   { title: '组串编号', dataIndex: 'code', key: 'code', width: 110 },
   { title: '位置', dataIndex: 'location', key: 'location', width: 140 },
   { title: '运行状态', dataIndex: 'status', key: 'status', width: 100 },
@@ -220,6 +234,45 @@ const filteredTableData = computed(() => {
 const handleSearch = () => {
   console.log('查询:', { area: filterArea.value })
 }
+
+// 光伏发电功率图表
+const powerChartRef = ref<HTMLDivElement>()
+const hasPowerData = ref(false)
+const { setOptions: setPowerChartOptions } = useECharts(powerChartRef as any)
+
+// 辐照度-发电量关联分析图表
+const correlationChartRef = ref<HTMLDivElement>()
+const hasCorrelationData = ref(false)
+const { setOptions: setCorrelationChartOptions } = useECharts(correlationChartRef as any)
+
+/** 渲染光伏发电趋势与关联分析图表（mock 数据） */
+const loadCharts = async () => {
+  await nextTick()
+  // 图1 发电功率趋势
+  const powerData = getPvPowerData()
+  const powerSeries = (powerData.chatSeriesList || []).filter((s: any) => s.name !== '合计')
+  if (!powerData.xaxis.length || !powerSeries.length) {
+    hasPowerData.value = false
+  } else {
+    hasPowerData.value = true
+    await nextTick()
+    setPowerChartOptions(buildTrendOption(powerData.xaxis, powerSeries, 'kW'))
+  }
+
+  // 图2 辐照度-发电量散点
+  const corrData = getPvCorrelationData()
+  if (!corrData.series.length) {
+    hasCorrelationData.value = false
+  } else {
+    hasCorrelationData.value = true
+    await nextTick()
+    setCorrelationChartOptions(buildScatterOption(corrData.series, corrData.xUnit, corrData.yUnit))
+  }
+}
+
+onMounted(() => {
+  loadCharts()
+})
 </script>
 
 <style scoped lang="less">
@@ -336,6 +389,12 @@ const handleSearch = () => {
 
     &__icon2 {
       font-size: 54px;
+    }
+
+    .card-note {
+      color: rgba(0, 0, 0, 0.45);
+      font-size: 12px;
+      text-align: right;
     }
 
     &__body {

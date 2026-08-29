@@ -36,7 +36,7 @@
     </div>
 
     <!-- 能耗趋势分析模块 -->
-    <div class="trend-analysis-card">
+    <div class="trend-analysis-card" :class="{ 'trend-fullscreen': fullscreen }">
       <div class="card-header">
         <div class="card-title-wrap">
           <span class="card-title">📈 能耗趋势分析</span>
@@ -51,6 +51,10 @@
           <a-date-picker v-model:value="date" :picker="dateType" valueFormat="YYYY-MM-DD" />
           <a-button type="primary" @click="handleQuery">查询</a-button>
           <a-button @click="handleExport">导出</a-button>
+          <button class="collapse-btn" @click="fullscreen = !fullscreen">
+            <FullscreenOutlined v-if="!fullscreen" />
+            <FullscreenExitOutlined v-else />
+          </button>
         </div>
       </div>
       <div class="card-body">
@@ -67,6 +71,7 @@
 
 <script setup lang="ts">
 import { reactive, onMounted, h, ref } from 'vue'
+import { FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons-vue'
 import { StatCard } from '/@/views/bems-web/components'
 import PointDataStatistics from './pointDataStatistics/index.vue'
 import { getStatistics } from './pointDataStatistics/index.api'
@@ -88,6 +93,9 @@ const statData = reactive({
   energySaving: '--',
   energySavingMom: '',
 })
+
+// 全屏查看
+const fullscreen = ref(false)
 
 // 能耗趋势分析查询参数
 const dateType = ref<string>('month')
@@ -193,6 +201,41 @@ onMounted(() => {
       min-height: 120px;
       padding: 22px;
     }
+  }
+
+  .collapse-btn {
+    width: 28px;
+    height: 28px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    background: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #666;
+    transition: all 0.2s;
+    flex-shrink: 0;
+
+    &:hover {
+      color: #1677ff;
+      border-color: #1677ff;
+    }
+  }
+
+  .trend-fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    border-radius: 0;
+    margin: 0;
+    padding: 20px;
+    overflow: auto;
+    background: #fff;
   }
 }
 </style>

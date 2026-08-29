@@ -3,14 +3,7 @@
     <main>
       <header>
         <div>
-          <small>BUILDING AUTOMATION · 6.0F</small>
           <h1>AHU机组总览</h1>
-          <p>AHU 1 / AHU 2 运行总览</p>
-        </div>
-        <div class="headline">
-          <span>设备状态</span>
-          <strong :class="stateTone">{{ stateText }}</strong>
-          <em>点位 {{ devicePoints.length }}</em>
         </div>
       </header>
       <section class="schematic-card">

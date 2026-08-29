@@ -20,7 +20,7 @@
 
       <article class="topology-panel">
         <header>
-          <div><span>SINGLE-LINE DIAGRAM</span><h2>服贸会核心区总配电室实时一次系统图</h2></div>
+          <h2>服贸会核心区总配电室实时一次系统图</h2>
           <div class="header-data">
             <span><b></b>10kV 4#母线 {{ display('power.hv.bus.4.voltage') }}</span>
             <span><b></b>10kV 5#母线 {{ display('power.hv.bus.5.voltage') }}</span>

@@ -248,6 +248,14 @@ const fetchVenueList = async () => {
 }
 
 const meterColumns = [
+  {
+    title: '序号',
+    dataIndex: 'index',
+    key: 'index',
+    width: 70,
+    customRender: ({ index }: { index: number }) =>
+      (pagination.current - 1) * pagination.pageSize + index + 1,
+  },
   { title: '表计编号', dataIndex: 'deviceCode', key: 'deviceCode', width: 150},
   { title: '名称', dataIndex: 'deviceName', key: 'deviceName', width: 150},
   {
@@ -275,7 +283,8 @@ const meterColumns = [
   { title: '本月累计', dataIndex: 'mouthTotal', key: 'mouthTotal', width: 100 },
   { title: '备注', dataIndex: 'remark', key: 'remark', width: 100 },
   { title: '状态', dataIndex: 'runState', key: 'runState', width: 100 },
-  { title: '操作', key: 'action', width: 100 },
+  { title: '最后采集时间', dataIndex: 'lastGatherTime', key: 'lastGatherTime', width: 120 },
+  { title: '操作', key: 'action', width: 100, fixed: 'right' },
 ]
 
 // 分类树数据（表计类型映射）
@@ -384,6 +393,8 @@ const loadMeterData = async (pageNo = pagination.current, pageSize = pagination.
       mouthTotal: item.mouthTotal ?? '-',
       runState: item.runState ?? '-',
       remark: item.remark ?? '-',
+      lastGatherTime: item.lastGatherTime ?? '-',
+
     }))
   } catch (e) {
     console.error('加载计量表计数据失败:', e)

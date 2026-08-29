@@ -10,7 +10,7 @@
       <a-tab-pane key="sumpPit" tab="集水坑" />
       <a-tab-pane key="power" tab="配电系统" />
       <a-tab-pane key="cold" tab="冷源系统" />
-      <a-tab-pane key="pv" tab="光伏系统" />
+      <a-tab-pane key="pv" tab="光伏系统（待开发）" />
     </a-tabs>
 
     <!-- 内容区域 -->

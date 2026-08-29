@@ -92,27 +92,31 @@
         <div class="analysis-card__header">
           <div class="analysis-card__title">
             <span class="analysis-card__icon">📈</span>
-            <span>冷源系统能效趋势</span>
+            <span>冷源系统能效趋势(COP)</span>
           </div>
+          <span class="card-note">逐时 COP · 停机无数据 · 轴范围 2~10</span>
         </div>
         <div class="analysis-card__body">
-          <div class="chart-placeholder">
+          <div v-if="hasCopData" ref="copChartRef" class="venue-chart"></div>
+          <div v-else class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
-            <div class="chart-placeholder__text">各冷机COP与负荷率趋势</div>
+            <div class="chart-placeholder__text">暂无数据</div>
           </div>
         </div>
       </a-card>
       <a-card class="analysis-card" :bordered="false">
         <div class="analysis-card__header">
           <div class="analysis-card__title">
-            <span class="analysis-card__icon">🧊</span>
-            <span>冷冻水系统压差</span>
+            <span class="analysis-card__icon">📊</span>
+            <span>制冷量</span>
           </div>
+          <span class="card-note">逐时制冷量 kW · 额定 4400/2500 kW</span>
         </div>
         <div class="analysis-card__body">
-          <div class="chart-placeholder">
+          <div v-if="hasCapacityData" ref="capacityChartRef" class="venue-chart"></div>
+          <div v-else class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
-            <div class="chart-placeholder__text">冷冻水供回水压差与流量</div>
+            <div class="chart-placeholder__text">暂无数据</div>
           </div>
         </div>
       </a-card>
@@ -149,9 +153,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, h } from 'vue'
+import { ref, computed, h, onMounted, nextTick } from 'vue'
 import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons-vue'
 import { StatCard } from '/@/views/bems-web/components'
+import { useECharts } from '/@/hooks/web/useECharts'
+import { getColdCopData, getColdCapacityData } from '../chartData'
+import { buildTrendOption } from '../chartOptions'
 
 // 自定义 emoji 图标组件
 const ColdSourceTotalIcon = () => h('span', { style: 'font-size: 20px;' }, '❄️')
@@ -181,6 +188,13 @@ const filterType = ref('')
 
 // 表格列定义
 const columns = [
+  {
+    title: '序号',
+    dataIndex: 'index',
+    key: 'index',
+    width: 70,
+    customRender: ({ index }: { index: number }) => index + 1,
+  },
   { title: '机组编号', dataIndex: 'code', key: 'code', width: 110 },
   { title: '类型', dataIndex: 'type', key: 'type', width: 90 },
   { title: '运行状态', dataIndex: 'status', key: 'status', width: 100 },
@@ -214,6 +228,46 @@ const filteredTableData = computed(() => {
 const handleSearch = () => {
   console.log('查询:', { type: filterType.value })
 }
+
+// 冷源系统能效趋势(COP)图表
+const copChartRef = ref<HTMLDivElement>()
+const hasCopData = ref(false)
+const { setOptions: setCopChartOptions } = useECharts(copChartRef as any)
+
+// 制冷量图表
+const capacityChartRef = ref<HTMLDivElement>()
+const hasCapacityData = ref(false)
+const { setOptions: setCapacityChartOptions } = useECharts(capacityChartRef as any)
+
+/** 渲染冷源 COP 与制冷量图表（mock 数据） */
+const loadCharts = async () => {
+  await nextTick()
+  // 图1 COP 趋势
+  const copData = getColdCopData()
+  const copSeries = (copData.chatSeriesList || []).filter((s: any) => s.name !== '合计')
+  if (!copData.xaxis.length || !copSeries.length) {
+    hasCopData.value = false
+  } else {
+    hasCopData.value = true
+    await nextTick()
+    setCopChartOptions(buildTrendOption(copData.xaxis, copSeries, 'COP', false, undefined, 2, 10))
+  }
+
+  // 图2 制冷量
+  const capData = getColdCapacityData()
+  const capSeries = (capData.chatSeriesList || []).filter((s: any) => s.name !== '合计')
+  if (!capData.xaxis.length || !capSeries.length) {
+    hasCapacityData.value = false
+  } else {
+    hasCapacityData.value = true
+    await nextTick()
+    setCapacityChartOptions(buildTrendOption(capData.xaxis, capSeries, 'kW'))
+  }
+}
+
+onMounted(() => {
+  loadCharts()
+})
 </script>
 
 <style scoped lang="less">
@@ -330,6 +384,12 @@ const handleSearch = () => {
 
     &__icon2 {
       font-size: 54px;
+    }
+
+    .card-note {
+      color: rgba(0, 0, 0, 0.45);
+      font-size: 12px;
+      text-align: right;
     }
 
     &__body {
