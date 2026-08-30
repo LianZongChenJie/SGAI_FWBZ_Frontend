@@ -7,6 +7,8 @@ enum Api {
   listByDeviceId = '/sgai-fwbz-dev/fwbz/deviceAttribute/listByDeviceId',
   /** 设备列表 */
   deviceList = '/sgai-fwbz-dev/fwbz/device/list',
+  /** 风机盘管汇总统计 */
+  fanCoilStatistics = '/sgai-fwbz-dev/fwbz/operationSupport/fanCoilStatistics',
 }
 
 /**
@@ -34,3 +36,8 @@ export const getDeviceAttrList = (params = {}) => defHttp.get({ url: Api.listByD
  * 设备列表（风机盘管 categoryIds=40）
  */
 export const selectDevice = (params = {}) => defHttp.get({ url: Api.deviceList, params })
+
+/**
+ * 风机盘管汇总统计数据
+ */
+export const getFanCoilStatistics = (params = {}) => defHttp.get({ url: Api.fanCoilStatistics, params })

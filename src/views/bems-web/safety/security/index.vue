@@ -1,18 +1,18 @@
 <template>
   <div class="security-page">
-    <a-tabs v-model:activeKey="currentTab" @change="handleTabChange">
+    <!-- <a-tabs v-model:activeKey="currentTab" @change="handleTabChange">
       <a-tab-pane key="security" tab="安防" />
       <a-tab-pane key="accessControl" tab="门禁" />
-    </a-tabs>
+    </a-tabs> -->
 
     <!-- 内容区域 -->
-    <div class="tab-content">
+    <!-- <div class="tab-content"> -->
       <!-- 安防 -->
       <SecurityTab v-if="currentTab === 'security'" />
 
       <!-- 门禁 -->
-      <AccessControlTab v-else-if="currentTab === 'accessControl'" />
-    </div>
+      <!-- <AccessControlTab v-else-if="currentTab === 'accessControl'" /> -->
+    <!-- </div> -->
   </div>
 </template>
 

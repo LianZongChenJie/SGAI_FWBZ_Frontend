@@ -202,8 +202,8 @@ main>header h1{margin:0;font-size:14px;font-weight:600;color:#d9eaf3}
 .water-level b{animation-delay:-1.1s;opacity:.55}
 .level-readout{position:absolute;right:20%;bottom:25%;padding:5px 8px;border:1px solid #42dce7;background:#062a3b;color:#9af4fb}
 .pump-motion{position:absolute;top:38%;width:11%;height:29%;border-radius:12px;transition:.25s;display:flex;align-items:center;justify-content:center}
-.pump-motion-1{left:35.5%}
-.pump-motion-2{left:55.5%}
+.pump-motion-1{left:37.5%}
+.pump-motion-2{left:52.5%}
 .pump-motion .fan-rotor{position:relative;width:36px;height:36px;border-radius:50%;pointer-events:none;margin-top:106px;margin-left:-6px;}
 .pump-motion-2 .fan-rotor{position:relative;width:36px;height:36px;border-radius:50%;pointer-events:none;margin-top:80px;margin-left:35px;}
 .pump-motion .fan-rotor i{position:absolute;inset:8%;border:2px solid rgba(90,236,202,.42);background:repeating-conic-gradient(from 0deg,rgba(83,244,203,.92) 0 13deg,transparent 13deg 42deg);-webkit-mask:radial-gradient(circle,transparent 0 17%,#000 19% 68%,transparent 70%);mask:radial-gradient(circle,transparent 0 17%,#000 19% 68%,transparent 70%)}

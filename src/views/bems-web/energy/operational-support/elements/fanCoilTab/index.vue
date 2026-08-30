@@ -185,7 +185,7 @@
 import { ref, reactive, computed, h, onMounted, nextTick } from 'vue'
 import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons-vue'
 import { StatCard } from '/@/views/bems-web/components'
-import { getSpaceTree, getDeviceAttrList, selectDevice } from './index.api'
+import { getSpaceTree, getDeviceAttrList, selectDevice, getFanCoilStatistics } from './index.api'
 import Fcu from '../../building-automation/fcu.vue'
 import { useECharts } from '/@/hooks/web/useECharts'
 import { getFcuEnergyData, getFcuWaterData } from '../chartData'
@@ -329,6 +329,7 @@ const handleSpaceSelect = (keys: (string | number)[]) => {
 }
 
 onMounted(() => {
+  loadStatistics()
   loadSpaceTree()
   loadTableData()
   loadCharts()
@@ -372,11 +373,25 @@ const loadCharts = async () => {
 
 // 统计数据
 const statsData = ref({
-  count: 0,
-  online: 0,
+  count: '--',
+  online: '--',
   energyConsumption: '--',
   avgTemp: '--',
 })
+
+/** 加载汇总统计数据 */
+const loadStatistics = async () => {
+  try {
+    const res = await getFanCoilStatistics()
+    const data = res?.data ?? res ?? {}
+    statsData.value.count = data.count ?? '--'
+    statsData.value.online = data.online ?? '--'
+    statsData.value.energyConsumption = data.energyConsumption ?? '--'
+    statsData.value.avgTemp = data.avgTemp ?? '--'
+  } catch (e) {
+    console.error('获取风机盘管统计数据失败:', e)
+  }
+}
 
 // 搜索表单
 const searchForm = reactive({
@@ -432,9 +447,6 @@ const loadTableData = async () => {
     const list = res?.records || []
     tableData.value = list
     tableTotal.value = res?.total || 0
-    // 更新统计数据
-    statsData.value.count = tableTotal.value
-    statsData.value.online = list.filter((item: any) => item.runState === '在线').length
   } catch (error) {
     console.error('加载风机盘管列表失败:', error)
     tableData.value = []

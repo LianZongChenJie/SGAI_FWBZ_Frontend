@@ -162,7 +162,7 @@
 import { ref, reactive, computed, onMounted, nextTick, h } from 'vue'
 import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons-vue'
 import { StatCard } from '/@/views/bems-web/components'
-import { selectDevice, getDeviceAttrList } from './index.api'
+import { selectDevice, getDeviceAttrList, getExhaustFanStatistics } from './index.api'
 import { useECharts } from '/@/hooks/web/useECharts'
 import { getExhaustEnergyData, getExhaustPressureData } from '../chartData'
 import { buildTrendOption } from '../chartOptions'
@@ -192,11 +192,25 @@ defineProps<{
 
 // 统计数据
 const statsData = ref({
-  count: 0,
-  online: 0,
+  count: '--',
+  online: '--',
   energyConsumption: '--',
   avgAirVolume: '--',
 })
+
+/** 加载汇总统计数据 */
+const loadStatistics = async () => {
+  try {
+    const res = await getExhaustFanStatistics()
+    const data = res?.data ?? res ?? {}
+    statsData.value.count = data.count ?? '--'
+    statsData.value.online = data.online ?? '--'
+    statsData.value.energyConsumption = data.energyConsumption ?? '--'
+    statsData.value.avgAirVolume = data.avgAirVolume ?? '--'
+  } catch (e) {
+    console.error('获取排风机统计数据失败:', e)
+  }
+}
 
 // 搜索表单
 const searchForm = reactive({
@@ -252,9 +266,6 @@ const loadTableData = async () => {
     const list = res?.records || []
     tableData.value = list
     tableTotal.value = res?.total || 0
-    // 更新统计数据
-    statsData.value.count = tableTotal.value
-    statsData.value.online = list.filter((item: any) => item.runState === '在线').length
   } catch (error) {
     console.error('加载排风机列表失败:', error)
     tableData.value = []
@@ -318,6 +329,7 @@ const loadCharts = async () => {
 }
 
 onMounted(() => {
+  loadStatistics()
   loadTableData()
   loadCharts()
 })

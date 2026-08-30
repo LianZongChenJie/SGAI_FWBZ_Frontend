@@ -1021,6 +1021,57 @@ function onResize() {
   resizeTimer = setTimeout(calcScale, 100);
 }
 
+// ==================== 定时刷新（1分钟一次，分批次每次10个） ====================
+/** 所有需要定时调用的接口函数 */
+const refreshFns: Array<() => Promise<any>> = [
+  fetchTodayCheck,
+  fetchCurrentEntryCount,
+  fetchVehicleAndParking,
+  fetchCameraStatus,
+  fetchAlarmStatistics,
+  fetchIotAccessAndCollect,
+  fetchOnlineRate,
+  fetchSystemDocking,
+  fetchIotCollectionAndCompleteRate,
+  fetchExhibitionData,
+  fetchVenueData,
+  fetchSecurityData,
+  fetchEnergyStatistics,
+  fetchAirConditioningUnitStatistics,
+  fetchFreshAirStatistics,
+  fetchPowerStatistics,
+  fetchTickerData,
+];
+
+const BATCH_SIZE = 10;
+const REFRESH_INTERVAL = 60 * 1000; // 1分钟
+let refreshTimer: ReturnType<typeof setTimeout> | null = null;
+
+/** 分批次执行所有接口：每次 BATCH_SIZE 个，间隔 500ms */
+async function runBatchRefresh() {
+  for (let i = 0; i < refreshFns.length; i += BATCH_SIZE) {
+    const batch = refreshFns.slice(i, i + BATCH_SIZE);
+    // 并发执行当前批次的接口
+    await Promise.allSettled(batch.map((fn) => fn()));
+    // 批次之间间隔 500ms，避免瞬间并发过多
+    if (i + BATCH_SIZE < refreshFns.length) {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+  }
+}
+
+function startAutoRefresh() {
+  stopAutoRefresh();
+  refreshTimer = setInterval(runBatchRefresh, REFRESH_INTERVAL);
+}
+
+function stopAutoRefresh() {
+  if (refreshTimer) {
+    clearInterval(refreshTimer);
+    refreshTimer = null;
+  }
+}
+
 onMounted(() => {
   nextTick(calcScale);
   window.addEventListener('resize', onResize);
@@ -1052,11 +1103,15 @@ onMounted(() => {
   fetchPowerStatistics();
   // 请求跑马灯真实数据
   fetchTickerData();
+  // 启动定时刷新
+  startAutoRefresh();
 });
 
 onUnmounted(() => {
   window.removeEventListener('resize', onResize);
   if (resizeTimer) clearTimeout(resizeTimer);
+  // 停止定时刷新
+  stopAutoRefresh();
   // 恢复 html/body 的 overflow，避免大屏 overflow:hidden 残留导致操作台无法滚动
   document.documentElement.style.removeProperty('overflow');
   document.body.style.removeProperty('overflow');

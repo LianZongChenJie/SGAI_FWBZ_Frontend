@@ -420,7 +420,7 @@ const handleRuleExport = async () => {
   ruleExportLoading.value = true
   try {
     const res = await defHttp.get({
-      url: '/fwbz/deviceData/deviceExport',
+      url: '/sgai-fwbz-dev/fwbz/alarm/rule/export',
       responseType: 'blob',
     }, { isTransformResponse: false })
     const blobOptions = { type: 'application/vnd.ms-excel' }
@@ -523,7 +523,7 @@ const handleCategoryExport = async () => {
   categoryExportLoading.value = true
   try {
     const res = await defHttp.get({
-      url: '/fwbz/deviceData/deviceExport',
+      url: '/sgai-fwbz-dev/fwbz/alarm/category/export',
       responseType: 'blob',
     }, { isTransformResponse: false })
     const blobOptions = { type: 'application/vnd.ms-excel' }
@@ -616,7 +616,7 @@ const handleLevelExport = async () => {
   levelExportLoading.value = true
   try {
     const res = await defHttp.get({
-      url: '/fwbz/deviceData/deviceExport',
+      url: '/sgai-fwbz-dev/fwbz/alarm/level/export',
       responseType: 'blob',
     }, { isTransformResponse: false })
     const blobOptions = { type: 'application/vnd.ms-excel' }

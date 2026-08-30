@@ -84,6 +84,16 @@
       </div>
     </div>
 
+    <!-- 摄像头分布地图 -->
+    <div class="card">
+      <div class="card-header">
+        <h3><EnvironmentOutlined /> 摄像头分布地图</h3>
+      </div>
+      <div class="card-body">
+        <SecurityCameraMap />
+      </div>
+    </div>
+
     <!-- AI事件详情弹窗 -->
     <a-modal
       v-model:visible="aiEventsModalVisible"
@@ -245,6 +255,7 @@ import { message } from 'ant-design-vue'
 import type { FormInstance } from 'ant-design-vue'
 import { StatCard, AlertCard } from '/@/views/bems-web/components'
 import CameraCarousel from '../../../components/CameraCarousel/index.vue'
+import SecurityCameraMap from './SecurityCameraMap.vue'
 import {
   getSecuritySummary,
   getPatrolPlanList,
@@ -263,6 +274,7 @@ import {
   ScheduleOutlined,
   WarningOutlined,
   ApartmentOutlined,
+  EnvironmentOutlined,
 } from '@ant-design/icons-vue'
 
 defineOptions({ name: 'SecurityTab' })
@@ -819,7 +831,6 @@ const handleViewAllAIEvents = () => {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
-  margin-bottom: 20px;
 }
 
 .card {

@@ -40,18 +40,18 @@ export function createPermissionGuard(router: Router) {
   let homePathJumpCount = 0;
 
   router.beforeEach(async (to, from, next) => {
-    if (
-      // 【#6861】跳转到自定义首页的逻辑，只跳转一次即可
-      homePathJumpCount < 1 &&
-      from.path === ROOT_PATH &&
-      to.path === PageEnum.BASE_HOME &&
-      userStore.getUserInfo.homePath &&
-      userStore.getUserInfo.homePath !== PageEnum.BASE_HOME
-    ) {
-      homePathJumpCount++;
-      next(userStore.getUserInfo.homePath);
-      return;
-    }
+    // 注释掉后台自定义首页跳转逻辑，本项目始终使用 BASE_HOME（/fwbz/...）作为默认首页
+    // if (
+    //   homePathJumpCount < 1 &&
+    //   from.path === ROOT_PATH &&
+    //   to.path === PageEnum.BASE_HOME &&
+    //   userStore.getUserInfo.homePath &&
+    //   userStore.getUserInfo.homePath !== PageEnum.BASE_HOME
+    // ) {
+    //   homePathJumpCount++;
+    //   next(userStore.getUserInfo.homePath);
+    //   return;
+    // }
 
     const token = userStore.getToken;
 
@@ -165,7 +165,8 @@ export function createPermissionGuard(router: Router) {
       if (isOAuth2DingAppEnv()) {
         next(OAUTH2_LOGIN_PAGE_PATH);
       } else {
-        next(userStore.getUserInfo.homePath || PageEnum.BASE_HOME);
+        // 忽略后台返回的 homePath，始终使用 BASE_HOME
+        next(PageEnum.BASE_HOME);
       }
       //update-end---author:wangshuai---date:2024-11-08---for:【TV360X-2958】钉钉登录后打开了敲敲云，换其他账号登录后，再打开敲敲云显示的是原来账号的应用---
       return;
@@ -173,8 +174,9 @@ export function createPermissionGuard(router: Router) {
     //==============================【首次登录并且是企业微信或者钉钉的情况下才会调用】==================
     // update-begin--author:liaozhiyang---date:202401127---for：【issues/7500】vue-router4.5.0版本路由name:PageNotFound同名导致登录进不去
     // Jump to the 404 page after processing the login
-    if (from.path === LOGIN_PATH && to.name === PAGE_NOT_FOUND_NAME_404 && to.fullPath !== (userStore.getUserInfo.homePath || PageEnum.BASE_HOME)) {
-      next(userStore.getUserInfo.homePath || PageEnum.BASE_HOME);
+    if (from.path === LOGIN_PATH && to.name === PAGE_NOT_FOUND_NAME_404 && to.fullPath !== PageEnum.BASE_HOME) {
+      // 忽略后台返回的 homePath，始终使用 BASE_HOME
+      next(PageEnum.BASE_HOME);
       return;
     }
     // update-end--author:liaozhiyang---date:202401127---for：【issues/7500】vue-router4.5.0版本路由name:PageNotFound同名导致登录进不去

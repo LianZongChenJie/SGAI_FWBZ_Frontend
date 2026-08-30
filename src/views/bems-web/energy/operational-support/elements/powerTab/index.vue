@@ -129,7 +129,7 @@
     </div>
 
     <!-- 工艺图监控 - 配电系统 -->
-    <div class="card">
+    <!-- <div class="card">
       <div class="card-header">
         <h3>🏭工艺图监控 - 配电系统</h3>
         <div class="header-right">
@@ -153,7 +153,7 @@
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
     </div>
     <!-- 详情弹窗 -->
     <a-modal v-model:visible="detailVisible" title="详情" width="800px" :footer="null" :confirm-loading="detailLoading">

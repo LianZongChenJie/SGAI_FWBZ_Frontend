@@ -22,6 +22,8 @@ enum Api {
   isRunningPlan = '/sgai-fwbz-dev/fwbz/patrolPlan/isRunningPlan',
   /** 报警信息列表 */
   alarmInfoList = '/sgai-fwbz-dev/fwbz/hikvision/eventNotify/list',
+  /** 摄像头坐标分组分布 */
+  cameraCoordinateGroup = '/sgai-fwbz-dev/fwbz/hikvision/camera/coordinateGroupList',
 
   // 门禁
   /** 门禁汇总数据 */
@@ -651,6 +653,9 @@ export const checkIsRunningPlan = (params) => defHttp.get({ url: Api.isRunningPl
 
 /** 获取报警信息列表 */
 export const getAlarmInfoList = (params?) => defHttp.get({ url: Api.alarmInfoList, params });
+
+/** 获取摄像头坐标分组分布 */
+export const getCameraCoordinateGroup = () => defHttp.get({ url: Api.cameraCoordinateGroup });
 
 // ==================== 门禁相关接口 ====================
 

@@ -7,6 +7,8 @@ enum Api {
   listByDeviceId = '/sgai-fwbz-dev/fwbz/deviceAttribute/listByDeviceId',
   /** 设备列表 */
   deviceList = '/sgai-fwbz-dev/fwbz/device/list',
+  /** 热回收机组汇总统计 */
+  heatRecoveryStatistics = '/sgai-fwbz-dev/fwbz/operationSupport/heatRecoveryStatistics',
 }
 
 /**
@@ -34,3 +36,8 @@ export const getDeviceAttrList = (params = {}) => defHttp.get({ url: Api.listByD
  * 设备列表（热回收机组 categoryIds=37）
  */
 export const selectDevice = (params = {}) => defHttp.get({ url: Api.deviceList, params })
+
+/**
+ * 热回收机组汇总统计数据
+ */
+export const getHeatRecoveryStatistics = (params = {}) => defHttp.get({ url: Api.heatRecoveryStatistics, params })

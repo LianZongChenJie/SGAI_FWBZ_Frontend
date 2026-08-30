@@ -1,14 +1,14 @@
 <template>
   <div class="operation-page">
     <a-tabs v-model:activeKey="currentTab" @change="handleTabChange">
-      <a-tab-pane key="overview" tab="概览" />
+      <!-- <a-tab-pane key="overview" tab="概览" /> -->
       <a-tab-pane key="ac" tab="空调机组" />
       <a-tab-pane key="fresh" tab="新风机组" />
       <a-tab-pane key="supplyFan" tab="排风机" />
       <a-tab-pane key="fanCoil" tab="风机盘管" />
       <a-tab-pane key="heatRecovery" tab="热回收机组" />
       <a-tab-pane key="sumpPit" tab="集水坑" />
-      <a-tab-pane key="power" tab="配电系统" />
+      <!-- <a-tab-pane key="power" tab="配电系统" /> -->
       <a-tab-pane key="cold" tab="冷源系统" />
       <a-tab-pane key="pv" tab="光伏系统（待开发）" />
     </a-tabs>
@@ -37,13 +37,13 @@
       <SumpPitTab v-else-if="currentTab === 'sumpPit'" :data="tabData.sumpPit" />
 
       <!-- 配电系统 -->
-      <PowerTab v-else-if="currentTab === 'power'" :data="tabData.power" />
+      <!-- <PowerTab v-else-if="currentTab === 'power'" :data="tabData.power" /> -->
 
       <!-- 冷源系统 -->
       <ColdTab v-else-if="currentTab === 'cold'" :data="tabData.cold" />
 
       <!-- 光伏系统 -->
-      <PvTab v-else-if="currentTab === 'pv'" :data="tabData.pv" />
+      <!-- <PvTab v-else-if="currentTab === 'pv'" :data="tabData.pv" /> -->
     </div>
   </div>
 </template>
