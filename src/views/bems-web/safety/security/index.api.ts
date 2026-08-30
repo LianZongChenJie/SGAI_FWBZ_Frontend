@@ -34,8 +34,8 @@ enum Api {
   syncAccessControlStatus = '/sgai-fwbz-dev/fwbz/hikvision/door/syncDoorStatus',
   /** 门禁事件列表 */
   accessControlEventList = '/sgai-fwbz-dev/fwbz/hikvision/doorEvent/list',
-    /** 门禁开关操作 */
-    accessControlSwitch = '/sgai-fwbz-dev/fwbz/hikvision/door/control',
+  /** 门禁开关操作 */
+  accessControlSwitch = '/sgai-fwbz-dev/fwbz/hikvision/door/control',
 }
 
 /** 

@@ -72,6 +72,10 @@
               />
               <a-button type="primary" @click="handleSearch">搜索</a-button>
               <a-button type="primary" @click="handleCreate" style="margin-left: 8px;">新建</a-button>
+              <a-button type="primary" :loading="deviceTableExportLoading" @click="handleDeviceTableExport" style="margin-left: 8px;">
+                <DownloadOutlined v-if="!deviceTableExportLoading" />
+                导出
+              </a-button>
             </div>
           </div>
           <div class="device-space">
@@ -94,6 +98,29 @@
 
         <!-- 摄像头 -->
         <div v-show="activeCategoryKey === 'camera'">
+          <div class="table-toolbar">
+            <div class="header-actions">
+              <a-input
+                v-model:value="cameraSearchForm.regionName"
+                placeholder="区域名称"
+                allow-clear
+                style="width: 160px; margin-right: 8px;"
+                @pressEnter="handleCameraSearch"
+              />
+              <a-input
+                v-model:value="cameraSearchForm.name"
+                placeholder="摄像头名称"
+                allow-clear
+                style="width: 160px; margin-right: 8px;"
+                @pressEnter="handleCameraSearch"
+              />
+              <a-button type="primary" @click="handleCameraSearch">搜索</a-button>
+              <a-button type="primary" :loading="cameraExportLoading" @click="handleCameraExport" style="margin-left: 8px;">
+                <DownloadOutlined v-if="!cameraExportLoading" />
+                导出
+              </a-button>
+            </div>
+          </div>
           <a-table
             :columns="cameraColumns"
             :data-source="cameraData"
@@ -122,10 +149,31 @@
         <!-- 门禁通道 -->
         <div v-show="activeCategoryKey === 'door'">
           <div class="table-toolbar">
-            <a-button type="primary" :loading="syncLoading" @click="handleSyncAccessControlStatus">
-              <SyncOutlined v-if="!syncLoading" />
-              同步门禁状态
-            </a-button>
+            <div class="header-actions">
+              <a-input
+                v-model:value="doorSearchForm.regionName"
+                placeholder="区域名称"
+                allow-clear
+                style="width: 160px; margin-right: 8px;"
+                @pressEnter="handleDoorSearch"
+              />
+              <a-input
+                v-model:value="doorSearchForm.name"
+                placeholder="门禁地点名称"
+                allow-clear
+                style="width: 160px; margin-right: 8px;"
+                @pressEnter="handleDoorSearch"
+              />
+              <a-button type="primary" @click="handleDoorSearch">搜索</a-button>
+              <a-button type="primary" :loading="syncLoading" @click="handleSyncAccessControlStatus" style="margin-left: 8px;">
+                <SyncOutlined v-if="!syncLoading" />
+                同步门禁状态
+              </a-button>
+              <a-button type="primary" :loading="doorExportLoading" @click="handleDoorExport" style="margin-left: 8px;">
+                <DownloadOutlined v-if="!doorExportLoading" />
+                导出
+              </a-button>
+            </div>
           </div>
           <a-table
             :columns="doorColumns"
@@ -162,6 +210,29 @@
 
         <!-- 门禁控制器 -->
         <div v-show="activeCategoryKey === 'door-controller'">
+          <div class="table-toolbar">
+            <div class="header-actions">
+              <a-input
+                v-model:value="deviceSearchForm.regionName"
+                placeholder="区域名称"
+                allow-clear
+                style="width: 160px; margin-right: 8px;"
+                @pressEnter="handleDeviceSearch"
+              />
+              <a-input
+                v-model:value="deviceSearchForm.name"
+                placeholder="设备名称"
+                allow-clear
+                style="width: 160px; margin-right: 8px;"
+                @pressEnter="handleDeviceSearch"
+              />
+              <a-button type="primary" @click="handleDeviceSearch">搜索</a-button>
+              <a-button type="primary" :loading="deviceExportLoading" @click="handleDeviceExport" style="margin-left: 8px;">
+                <DownloadOutlined v-if="!deviceExportLoading" />
+                导出
+              </a-button>
+            </div>
+          </div>
           <a-table
             :columns="deviceColumns"
             :data-source="deviceData"
@@ -220,6 +291,7 @@
   import DeviceModal from './DeviceModal.vue';
   import DetailModal from './DetailModal.vue';
   import { Modal } from 'ant-design-vue';
+  import { defHttp } from '/@/utils/http/axios';
   import { deleteDevice, getCategoryTreeData } from '../Device.api';
   import {
     getAccessControlDeviceList,
@@ -229,7 +301,22 @@
     syncAccessControlStatus,
     getCameraPageList,
   } from '/@/views/bems-web/safety/security/index.api';
-  import { SyncOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons-vue';
+  import { SyncOutlined, LeftOutlined, RightOutlined, DownloadOutlined } from '@ant-design/icons-vue';
+
+  /** 通用导出方法 */
+  const downloadBlob = (res: any, name: string) => {
+    const blobOptions = { type: 'application/vnd.ms-excel' };
+    const fileSuffix = '.xlsx';
+    const url = window.URL.createObjectURL(new Blob([res], blobOptions));
+    const link = document.createElement('a');
+    link.style.display = 'none';
+    link.href = url;
+    link.setAttribute('download', name + fileSuffix);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  };
 
   // 添加 deviceTableRef 定义
   const deviceTableRef = ref();
@@ -314,6 +401,32 @@
     deviceTableRef.value?.reload();
   };
 
+  // 楼控设备导出 loading
+  const deviceTableExportLoading = ref(false);
+
+  /** 楼控设备导出 */
+  const handleDeviceTableExport = async () => {
+    deviceTableExportLoading.value = true;
+    try {
+      const sp = searchForm;
+      const res = await defHttp.get({
+        url: '/fwbz/deviceData/deviceExport',
+        params: {
+          deviceName: sp.deviceName || undefined,
+          remark: sp.remark || undefined,
+          runState: sp.runState || undefined,
+          categoryIds: activeCategoryKeys.value ? activeCategoryKeys.value.join(',') : undefined,
+        },
+        responseType: 'blob',
+      }, { isTransformResponse: false });
+      downloadBlob(res, '设备列表');
+    } catch (error) {
+      console.error('导出设备列表失败:', error);
+    } finally {
+      deviceTableExportLoading.value = false;
+    }
+  };
+
   const props = defineProps<{
     treeData: any[]; // categoryTreeData
     spaceTreeData: any[]; // spaceTreeData
@@ -389,6 +502,11 @@
     pageSize: 10,
     total: 0,
   });
+  const cameraSearchForm = reactive({
+    regionName: '',
+    name: '',
+  });
+  const cameraExportLoading = ref(false);
 
   /** 获取摄像头列表 */
   const fetchCameraData = async () => {
@@ -397,6 +515,8 @@
       const res = await getCameraPageList({
         pageNo: cameraPagination.value.current,
         pageSize: cameraPagination.value.pageSize,
+        regionName: cameraSearchForm.regionName || undefined,
+        name: cameraSearchForm.name || undefined,
       });
       cameraData.value = res.records || [];
       cameraPagination.value.total = res.total || 0;
@@ -406,6 +526,32 @@
       console.error('获取摄像头列表失败:', error);
     } finally {
       cameraLoading.value = false;
+    }
+  };
+
+  /** 摄像头搜索 */
+  const handleCameraSearch = () => {
+    cameraPagination.value.current = 1;
+    fetchCameraData();
+  };
+
+  /** 摄像头导出 */
+  const handleCameraExport = async () => {
+    cameraExportLoading.value = true;
+    try {
+      const res = await defHttp.get({
+        url: '/sgai-fwbz-dev/fwbz/hikvision/camera/export',
+        params: {
+          regionName: cameraSearchForm.regionName || undefined,
+          name: cameraSearchForm.name || undefined,
+        },
+        responseType: 'blob',
+      }, { isTransformResponse: false });
+      downloadBlob(res, '摄像头列表');
+    } catch (error) {
+      console.error('导出摄像头列表失败:', error);
+    } finally {
+      cameraExportLoading.value = false;
     }
   };
 
@@ -434,6 +580,11 @@
     pageSize: 10,
     total: 0,
   });
+  const deviceSearchForm = reactive({
+    regionName: '',
+    name: '',
+  });
+  const deviceExportLoading = ref(false);
 
   /** 获取门禁控制器列表 */
   const fetchDeviceData = async () => {
@@ -442,6 +593,8 @@
       const res = await getAccessControlDeviceList({
         pageNo: devicePagination.value.current,
         pageSize: devicePagination.value.pageSize,
+        regionName: deviceSearchForm.regionName || undefined,
+        name: deviceSearchForm.name || undefined,
       });
       deviceData.value = res.records || [];
       devicePagination.value.total = res.total || 0;
@@ -451,6 +604,32 @@
       console.error('获取门禁控制器列表失败:', error);
     } finally {
       deviceLoading.value = false;
+    }
+  };
+
+  /** 控制器搜索 */
+  const handleDeviceSearch = () => {
+    devicePagination.value.current = 1;
+    fetchDeviceData();
+  };
+
+  /** 控制器导出 */
+  const handleDeviceExport = async () => {
+    deviceExportLoading.value = true;
+    try {
+      const res = await defHttp.get({
+        url: '/sgai-fwbz-dev/fwbz/hikvision/acsDevice/export',
+        params: {
+          regionName: deviceSearchForm.regionName || undefined,
+          name: deviceSearchForm.name || undefined,
+        },
+        responseType: 'blob',
+      }, { isTransformResponse: false });
+      downloadBlob(res, '门禁控制器列表');
+    } catch (error) {
+      console.error('导出门禁控制器列表失败:', error);
+    } finally {
+      deviceExportLoading.value = false;
     }
   };
 
@@ -488,6 +667,11 @@
     pageSize: 10,
     total: 0,
   });
+  const doorSearchForm = reactive({
+    regionName: '',
+    name: '',
+  });
+  const doorExportLoading = ref(false);
 
   /** 获取门禁地点列表 */
   const fetchDoorData = async () => {
@@ -496,6 +680,8 @@
       const res = await getAccessControlDoorList({
         pageNo: doorPagination.value.current,
         pageSize: doorPagination.value.pageSize,
+        regionName: doorSearchForm.regionName || undefined,
+        name: doorSearchForm.name || undefined,
       });
       doorData.value = res.records || [];
       doorPagination.value.total = res.total || 0;
@@ -505,6 +691,32 @@
       console.error('获取门禁地点列表失败:', error);
     } finally {
       doorLoading.value = false;
+    }
+  };
+
+  /** 门禁地点搜索 */
+  const handleDoorSearch = () => {
+    doorPagination.value.current = 1;
+    fetchDoorData();
+  };
+
+  /** 门禁通道导出 */
+  const handleDoorExport = async () => {
+    doorExportLoading.value = true;
+    try {
+      const res = await defHttp.get({
+        url: '/sgai-fwbz-dev/fwbz/hikvision/door/export',
+        params: {
+          regionName: doorSearchForm.regionName || undefined,
+          name: doorSearchForm.name || undefined,
+        },
+        responseType: 'blob',
+      }, { isTransformResponse: false });
+      downloadBlob(res, '门禁通道列表');
+    } catch (error) {
+      console.error('导出门禁通道列表失败:', error);
+    } finally {
+      doorExportLoading.value = false;
     }
   };
 

@@ -11,8 +11,14 @@
     <div class="card">
       <div class="card-header">
         <h3>📋报警规则配置</h3>
-        <!-- <a-button v-if="hasPermission('bems:alarmRule:add')" type="primary" @click="addRuleStrategy"> 新增 </a-button> -->
-        <a-button type="primary" @click="addRuleStrategy"> 新增 </a-button>
+        <div style="display: flex; gap: 8px;">
+          <a-button type="primary" :loading="ruleExportLoading" @click="handleRuleExport">
+            <DownloadOutlined v-if="!ruleExportLoading" />
+            导出
+          </a-button>
+          <!-- <a-button v-if="hasPermission('bems:alarmRule:add')" type="primary" @click="addRuleStrategy"> 新增 </a-button> -->
+          <a-button type="primary" @click="addRuleStrategy"> 新增 </a-button>
+        </div>
       </div>
       <div class="card-body">
         <a-table
@@ -65,15 +71,21 @@
     <div class="card">
       <div class="card-header">
         <h3>📋报警类别</h3>
-        <!-- <a-button
-          v-if="hasPermission('bems:device_data:amend')"
-          type="primary"
-          @click="addAlarmCategory"
-        > 新增 </a-button> -->
-        <a-button
-          type="primary"
-          @click="addAlarmCategory"
-        > 新增 </a-button>
+        <div style="display: flex; gap: 8px;">
+          <a-button type="primary" :loading="categoryExportLoading" @click="handleCategoryExport">
+            <DownloadOutlined v-if="!categoryExportLoading" />
+            导出
+          </a-button>
+          <!-- <a-button
+            v-if="hasPermission('bems:device_data:amend')"
+            type="primary"
+            @click="addAlarmCategory"
+          > 新增 </a-button> -->
+          <a-button
+            type="primary"
+            @click="addAlarmCategory"
+          > 新增 </a-button>
+        </div>
       </div>
       <div class="card-body">
         <a-table
@@ -155,15 +167,21 @@
     <div class="card">
       <div class="card-header">
         <h3>📋报警级别</h3>
-        <!-- <a-button
-          v-if="hasPermission('bems:alarmLevel:add')"
-          type="primary"
-          @click="addAlarmLevel"
-        > 新增 </a-button> -->
-        <a-button
-          type="primary"
-          @click="addAlarmLevel"
-        > 新增 </a-button>
+        <div style="display: flex; gap: 8px;">
+          <a-button type="primary" :loading="levelExportLoading" @click="handleLevelExport">
+            <DownloadOutlined v-if="!levelExportLoading" />
+            导出
+          </a-button>
+          <!-- <a-button
+            v-if="hasPermission('bems:alarmLevel:add')"
+            type="primary"
+            @click="addAlarmLevel"
+          > 新增 </a-button> -->
+          <a-button
+            type="primary"
+            @click="addAlarmLevel"
+          > 新增 </a-button>
+        </div>
       </div>
       <div class="card-body">
         <a-table
@@ -250,6 +268,8 @@
 <script setup lang="ts">
 import { StatCard } from '/@/views/bems-web/components'
 import { ref, computed, h, onMounted } from 'vue'
+import { defHttp } from '/@/utils/http/axios'
+import { DownloadOutlined } from '@ant-design/icons-vue'
 import { usePermissionStore } from '/@/store/modules/permission'
 import AddAlarmCategoryModal from '/@/views/bems-web/alert/alarmManagement/components/AddAlarmCategoryModal.vue'
 import AddAlarmLevelModal from '/@/views/bems-web/alert/alarmManagement/components/AddAlarmLevelModal.vue'
@@ -394,6 +414,33 @@ const handleRuleDelete = async (record) => {
   loadRuleList(ruleCurPage.value, ruleCurSize.value)
 }
 
+/** 导出报警规则 */
+const ruleExportLoading = ref(false)
+const handleRuleExport = async () => {
+  ruleExportLoading.value = true
+  try {
+    const res = await defHttp.get({
+      url: '/fwbz/deviceData/deviceExport',
+      responseType: 'blob',
+    }, { isTransformResponse: false })
+    const blobOptions = { type: 'application/vnd.ms-excel' }
+    const fileSuffix = '.xlsx'
+    const url = window.URL.createObjectURL(new Blob([res], blobOptions))
+    const link = document.createElement('a')
+    link.style.display = 'none'
+    link.href = url
+    link.setAttribute('download', '报警规则配置' + fileSuffix)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+  } catch (error) {
+    console.error('导出失败:', error)
+  } finally {
+    ruleExportLoading.value = false
+  }
+}
+
 // ===== 报警类别 =====
 const categoryModalRef = ref()
 
@@ -470,6 +517,33 @@ const handleCategoryDelete = async (record) => {
   reloadCategory()
 }
 
+/** 导出报警类别 */
+const categoryExportLoading = ref(false)
+const handleCategoryExport = async () => {
+  categoryExportLoading.value = true
+  try {
+    const res = await defHttp.get({
+      url: '/fwbz/deviceData/deviceExport',
+      responseType: 'blob',
+    }, { isTransformResponse: false })
+    const blobOptions = { type: 'application/vnd.ms-excel' }
+    const fileSuffix = '.xlsx'
+    const url = window.URL.createObjectURL(new Blob([res], blobOptions))
+    const link = document.createElement('a')
+    link.style.display = 'none'
+    link.href = url
+    link.setAttribute('download', '报警类别' + fileSuffix)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+  } catch (error) {
+    console.error('导出失败:', error)
+  } finally {
+    categoryExportLoading.value = false
+  }
+}
+
 // ===== 报警级别 =====
 const levelModalRef = ref()
 
@@ -534,6 +608,33 @@ const handleLevelDisable = async (record) => {
 const handleLevelDelete = async (record) => {
   await deleteAlarmLevelApi({ id: record.id })
   reloadLevel()
+}
+
+/** 导出报警级别 */
+const levelExportLoading = ref(false)
+const handleLevelExport = async () => {
+  levelExportLoading.value = true
+  try {
+    const res = await defHttp.get({
+      url: '/fwbz/deviceData/deviceExport',
+      responseType: 'blob',
+    }, { isTransformResponse: false })
+    const blobOptions = { type: 'application/vnd.ms-excel' }
+    const fileSuffix = '.xlsx'
+    const url = window.URL.createObjectURL(new Blob([res], blobOptions))
+    const link = document.createElement('a')
+    link.style.display = 'none'
+    link.href = url
+    link.setAttribute('download', '报警级别' + fileSuffix)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+  } catch (error) {
+    console.error('导出失败:', error)
+  } finally {
+    levelExportLoading.value = false
+  }
 }
 
 onMounted(() => {
