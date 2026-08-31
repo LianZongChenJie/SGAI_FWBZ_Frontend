@@ -120,14 +120,18 @@ const trendClass = computed(() => {
   .stat-icon {
     position: absolute;
     right: 18px;
-    top: 18px;
-    width: 44px;
-    height: 44px;
+    top: 35px;
+    width: 68px;
+    height: 68px;
     border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
+    font-size: 32px;
+
+    & span {
+      font-size: 32px !important;
+    }
 
     &.blue   { background: #e6f4ff; color: #1677ff; }
     &.green  { background: #f6ffed; color: #52c41a; }

@@ -283,7 +283,7 @@ const handleExport = async () => {
     const link = document.createElement('a')
     link.style.display = 'none'
     link.href = url
-    link.setAttribute('download', '展会总结报告.xls')
+    link.setAttribute('download', '展会总结报告.xlsx')
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)

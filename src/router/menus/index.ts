@@ -51,15 +51,29 @@ const staticMenus: Menu[] = [];
   }
 })();
 
+// 需要在左侧菜单中隐藏的路径（后台配置的默认首页，本项目不需要）
+const HIDDEN_MENU_PATHS = ['/largeScreenDisplay'];
+
+function filterHiddenMenus(menus: Menu[]): Menu[] {
+  return menus
+    .filter((item) => !HIDDEN_MENU_PATHS.includes(item.path))
+    .map((item) => ({
+      ...item,
+      children: item.children ? filterHiddenMenus(item.children) : item.children,
+    }));
+}
+
 async function getAsyncMenus() {
   const permissionStore = usePermissionStore();
   if (isBackMode()) {
-    return permissionStore.getBackMenuList.filter((item) => !item.meta?.hideMenu && !item.hideMenu);
+    const list = permissionStore.getBackMenuList.filter((item) => !item.meta?.hideMenu && !item.hideMenu);
+    return filterHiddenMenus(list);
   }
   if (isRouteMappingMode()) {
-    return permissionStore.getFrontMenuList.filter((item) => !item.hideMenu);
+    const list = permissionStore.getFrontMenuList.filter((item) => !item.hideMenu);
+    return filterHiddenMenus(list);
   }
-  return staticMenus;
+  return filterHiddenMenus(staticMenus);
 }
 
 export const getMenus = async (): Promise<Menu[]> => {

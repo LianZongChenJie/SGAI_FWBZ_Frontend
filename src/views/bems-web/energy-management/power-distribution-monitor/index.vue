@@ -1,68 +1,137 @@
 <template>
   <div class="power-page">
-    <nav class="power-subnav">
-      <button class="active"><span>ϟ</span> 总配电室一次系统</button>
-      <div class="system-meta">
-        <span><i :class="{ online: connected }"></i>{{ connected ? '采集链路在线' : '采集链路离线' }}</span>
-        <b>{{ livePointCount ? `实时点位 ${livePointCount}` : '演示默认值' }}</b>
-        <em>10kV / 0.4kV</em>
-      </div>
-    </nav>
+    <!-- 统计卡片行 -->
+    <div class="stat-cards">
+      <StatCard
+        label="实时总负荷"
+        :value="formatNumber(value('power.station.totalLoad'), 1)"
+        change-text="kW · 两段低压母线合计"
+        trend=""
+        color="cyan"
+        :icon="BoltIcon"
+      />
+      <StatCard
+        label="今日累计用电"
+        :value="formatNumber(value('power.station.dailyEnergy'), 0)"
+        change-text="kWh · 高压计量口径"
+        trend=""
+        color="blue"
+        :icon="EnergyIcon"
+      />
+      <StatCard
+        label="本月最大需量"
+        :value="formatNumber(value('power.station.maxDemand'), 0)"
+        change-text="kW · 需量越限预警已启用"
+        trend=""
+        color="orange"
+        :icon="DashboardIcon"
+      />
+      <StatCard
+        label="综合功率因数"
+        :value="formatNumber(value('power.station.powerFactor'), 2)"
+        change-text="无功补偿联动监测"
+        trend=""
+        color="green"
+        :icon="CheckCircleIcon"
+      />
+    </div>
 
-    <main class="power-body">
-      <section class="metrics">
-        <article v-for="metric in metrics" :key="metric.key" :class="metric.tone">
-          <div class="metric-icon">{{ metric.icon }}</div>
-          <div><span>{{ metric.label }}</span><strong>{{ formatNumber(value(metric.key), metric.digits) }}<small>{{ metric.unit }}</small></strong><em>{{ metric.note }}</em></div>
-          <i class="metric-spark"><b v-for="n in 10" :key="n" :style="{ height: `${20 + ((n * 13 + metric.seed) % 55)}%` }"></b></i>
-        </article>
-      </section>
-
-      <article class="topology-panel">
-        <header>
-          <div><span>SINGLE-LINE DIAGRAM</span><h2>服贸会核心区总配电室实时一次系统图</h2></div>
-          <div class="header-data">
-            <span><b></b>10kV 4#母线 {{ display('power.hv.bus.4.voltage') }}</span>
-            <span><b></b>10kV 5#母线 {{ display('power.hv.bus.5.voltage') }}</span>
-            <button @click="showApi = true">数据接入说明</button>
-          </div>
-        </header>
-        <div class="topology">
-          <PowerSingleLineSchematic :values="values" @select-device="openDevice" />
-          <Transition name="device-panel">
-            <section v-if="selectedDevice" class="device-inspector" @click.stop>
-              <header>
-                <div><span>ELECTRICAL DEVICE</span><h3>{{ selectedDevice.title }}</h3><small>{{ selectedDevice.type }}</small><code>{{ selectedDevice.id }}</code></div>
-                <button aria-label="关闭设备数据面板" @click="closeDevice">×</button>
-              </header>
-              <div class="device-summary" :class="deviceState.tone">
-                <i></i><div><span>当前状态</span><strong>{{ deviceState.label }}</strong></div>
-                <button @click="nudgeSelected">动效测试</button>
-              </div>
-              <div class="device-data-list">
-                <div v-for="row in selectedDevice.fields" :key="row.key" :class="deviceRowTone(row)"><span>{{ row.label }}</span><strong>{{ deviceRowValue(row) }}</strong></div>
-              </div>
-              <footer><i></i><span>后台点位实时推送</span><code>{{ selectedDevice.fields[0]?.key }}</code></footer>
-            </section>
-          </Transition>
+    <!-- 服贸会核心区总配电室实时一次系统图 -->
+    <div class="card topology-card" :class="{ 'fullscreen-mode': schematicFullscreen }">
+      <div class="card-header">
+        <h3>
+          <ApartmentOutlined />
+          服贸会核心区总配电室实时一次系统图
+        </h3>
+        <div class="header-right">
+          <span class="bus-info">
+            <i class="dot dot-hv"></i>
+            10kV 4#母线 {{ display('power.hv.bus.4.voltage') }}
+          </span>
+          <span class="bus-info">
+            <i class="dot dot-hv"></i>
+            10kV 5#母线 {{ display('power.hv.bus.5.voltage') }}
+          </span>
+          <a-button size="small" @click="toggleSchematicFullscreen">
+            <FullscreenExitOutlined v-if="schematicFullscreen" />
+            <FullscreenOutlined v-else />
+          </a-button>
         </div>
-      </article>
-    </main>
+      </div>
+      <div class="card-body">
+        <!-- 缩放控制条 -->
+        <div class="zoom-toolbar">
+          <button class="zoom-tool-btn" title="放大" @click="zoomIn">＋</button>
+          <span class="zoom-level">{{ Math.round(schematicScale * 100) }}%</span>
+          <button class="zoom-tool-btn" title="缩小" @click="zoomOut">－</button>
+          <button class="zoom-tool-btn reset-btn" title="重置" @click="resetZoom">↺</button>
+          <span class="zoom-tip">滚轮缩放· 拖拽平移</span>
+        </div>
 
-    <footer class="statusbar">
-      <span><i :class="{ online: connected }"></i>更新时间 {{ lastUpdate }}</span>
+        <!-- 可缩放/拖拽的示意图容器 -->
+        <div
+          ref="schematicViewportRef"
+          class="schematic-viewport"
+          @wheel.prevent="handleWheel"
+          @mousedown="onDragStart"
+        >
+          <PowerSingleLineSchematic
+            ref="schematicRef"
+            :values="values"
+            :scale="schematicScale"
+            :translate-x="schematicTranslate.x"
+            :translate-y="schematicTranslate.y"
+            @select-device="openDevice"
+          />
+        </div>
+
+        <!-- 设备详情面板 -->
+        <transition name="device-panel">
+          <section v-if="selectedDevice" class="device-inspector" @click.stop>
+            <div class="device-inspector-header">
+              <h3>{{ selectedDevice.title }}</h3>
+              <button class="close-btn" @click="closeDevice">×</button>
+            </div>
+            <div class="device-summary" :class="deviceState.tone">
+              <i class="state-dot"></i>
+              <div>
+                <span>当前状态</span>
+                <strong>{{ deviceState.label }}</strong>
+              </div>
+              <button class="test-btn" @click="nudgeSelected">动效测试</button>
+            </div>
+            <div class="device-data-list">
+              <div v-for="row in selectedDevice.fields" :key="row.key" :class="deviceRowTone(row)">
+                <span>{{ row.label }}</span>
+                <strong>{{ deviceRowValue(row) }}</strong>
+              </div>
+            </div>
+            <div class="device-footer">
+              <i class="live-dot"></i>
+              <span>后台点位实时推送</span>
+              <code>{{ selectedDevice.fields[0]?.key }}</code>
+            </div>
+          </section>
+        </transition>
+      </div>
+    </div>
+
+    <!-- 状态栏 -->
+    <div class="status-bar">
+      <span><i :class="['status-light', { online: connected }]"></i>更新时间 {{ lastUpdate }}</span>
       <span>点位目录 <b>{{ catalog.length }}</b></span>
       <span>设备及回路 <b>{{ deviceIds.length }}</b></span>
-      <span>API <code>POST /api/power-distribution/points</code></span>
-      <button @click="showApi = true">查看接口</button>
-    </footer>
+    </div>
 
-    <div v-if="showApi" class="modal-mask" @click.self="showApi = false">
-      <div class="api-modal">
-        <button class="modal-close" @click="showApi = false">×</button>
-        <span class="eyebrow">DATA INTEGRATION</span><h2>变配电实时数据接入</h2>
-        <p>按点位编码推送即可。页面收到数据后会同步刷新母线、开关、变压器、馈线状态及弹窗测量值。</p>
-        <pre>POST /api/power-distribution/points
+    <!-- 数据接入说明弹窗 -->
+    <a-modal
+      v-model:open="showApi"
+      title="变配电实时数据接入"
+      :footer="null"
+      width="600px"
+    >
+      <p>按点位编码推送即可。页面收到数据后会同步刷新母线、开关、变压器、馈线状态及弹窗测量值。</p>
+      <pre class="api-pre">POST /api/power-distribution/points
 Content-Type: application/json
 
 {
@@ -72,24 +141,36 @@ Content-Type: application/json
     "power.lv.feeder.cold-1.breakerClosed": true
   }
 }</pre>
-        <div class="api-notes">
-          <span><b>点位目录</b><small>GET /api/power-distribution/catalog</small></span>
-          <span><b>WebSocket</b><small>/ws · 消息类型 power-points</small></span>
-          <span><b>设备动效</b><small>POST /api/power-distribution/device-motion</small></span>
-          <span><b>浏览器 API</b><small>window.PowerDistribution</small></span>
-        </div>
-        <button class="primary-button" @click="copyExample">{{ copied ? '已复制示例' : '复制 curl 示例' }}</button>
+      <div class="api-notes">
+        <div class="api-note-item"><b>点位目录</b><small>GET /api/power-distribution/catalog</small></div>
+        <div class="api-note-item"><b>WebSocket</b><small>/ws · 消息类型 power-points</small></div>
+        <div class="api-note-item"><b>设备动效</b><small>POST /api/power-distribution/device-motion</small></div>
+        <div class="api-note-item"><b>浏览器 API</b><small>window.PowerDistribution</small></div>
       </div>
-    </div>
+      <a-button type="primary" block @click="copyExample">{{ copied ? '已复制示例' : '复制 curl 示例' }}</a-button>
+    </a-modal>
   </div>
 </template>
 
 <script setup>
-import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
+import { computed, onMounted, onUnmounted, reactive, ref, h } from 'vue'
+import { StatCard } from '/@/views/bems-web/components'
+import {
+  ApartmentOutlined,
+  FullscreenOutlined,
+  FullscreenExitOutlined,
+  ThunderboltOutlined,
+} from '@ant-design/icons-vue'
 import { bindingStore } from '/@/views/bems-web/energy-monitor/stores/bindingStore.js'
 import PowerSingleLineSchematic from './components/PowerSingleLineSchematic.vue'
 import { POWER_DISTRIBUTION_DEFAULTS, POWER_DISTRIBUTION_POINTS } from './data/powerDistributionPoints.js'
 import { POWER_DEVICE_IDS, getPowerDeviceProfile } from './data/powerDistributionDevices.js'
+
+// 自定义 emoji 图标
+const BoltIcon = () => h('span', { style: 'font-size: 20px;' }, '⚡')
+const EnergyIcon = () => h('span', { style: 'font-size: 20px;' }, '🔋')
+const DashboardIcon = () => h('span', { style: 'font-size: 20px;' }, '📊')
+const CheckCircleIcon = () => h('span', { style: 'font-size: 20px;' }, '✅')
 
 const values = reactive({ ...POWER_DISTRIBUTION_DEFAULTS })
 const quality = reactive({})
@@ -99,16 +180,10 @@ const showApi = ref(false)
 const copied = ref(false)
 const catalog = POWER_DISTRIBUTION_POINTS
 const deviceIds = POWER_DEVICE_IDS
-const pointMap = Object.fromEntries(catalog.map(item => [item.key, item]))
+const pointMap = Object.fromEntries(catalog.map((item) => [item.key, item]))
 const connected = computed(() => bindingStore.state.socketConnected)
-const livePointCount = computed(() => Object.keys(quality).length)
 const selectedDevice = computed(() => getPowerDeviceProfile(selectedDeviceId.value))
-const metrics = [
-  { key: 'power.station.totalLoad', label: '实时总负荷', unit: 'kW', digits: 1, icon: 'ϟ', note: '两段低压母线合计', tone: 'cyan', seed: 4 },
-  { key: 'power.station.dailyEnergy', label: '今日累计用电', unit: 'kWh', digits: 0, icon: '∑', note: '高压计量口径', tone: 'blue', seed: 9 },
-  { key: 'power.station.maxDemand', label: '本月最大需量', unit: 'kW', digits: 0, icon: 'M', note: '需量越限预警已启用', tone: 'amber', seed: 15 },
-  { key: 'power.station.powerFactor', label: '综合功率因数', unit: '', digits: 2, icon: 'cosφ', note: '无功补偿联动监测', tone: 'green', seed: 21 }
-]
+
 const deviceState = computed(() => {
   const device = selectedDevice.value
   if (!device) return { label: '正常', tone: 'normal' }
@@ -120,13 +195,101 @@ const deviceState = computed(() => {
   return running ? { label: '运行', tone: 'running' } : { label: '停止', tone: 'stopped' }
 })
 
-function value(key) { return values[key] ?? '--' }
-function formatNumber(input, digits = 1) { const number = Number(input); return Number.isFinite(number) ? number.toLocaleString('zh-CN', { minimumFractionDigits: digits, maximumFractionDigits: digits }) : '--' }
+// ==================== 系统图全屏 & 缩放 ====================
+const schematicFullscreen = ref(false)
+const schematicScale = ref(1)
+const schematicTranslate = reactive({ x: 0, y: 0 })
+const schematicRef = ref(null)
+const schematicViewportRef = ref(null)
+let isDragging = false
+let dragStartX = 0
+let dragStartY = 0
+let dragStartTransX = 0
+let dragStartTransY = 0
+
+const SCALE_MIN = 0.2
+const SCALE_MAX = 4
+
+function toggleSchematicFullscreen() {
+  schematicFullscreen.value = !schematicFullscreen.value
+  if (!schematicFullscreen.value) {
+    resetZoom()
+  }
+}
+
+function zoomIn() {
+  schematicScale.value = Math.min(SCALE_MAX, schematicScale.value + 0.2)
+}
+function zoomOut() {
+  schematicScale.value = Math.max(SCALE_MIN, schematicScale.value - 0.2)
+}
+function resetZoom() {
+  schematicScale.value = 1
+  schematicTranslate.x = 0
+  schematicTranslate.y = 0
+}
+
+// 跟随鼠标缩放
+function handleWheel(e) {
+  const delta = e.deltaY > 0 ? -0.1 : 0.1
+  const newScale = Math.max(SCALE_MIN, Math.min(SCALE_MAX, schematicScale.value + delta))
+  if (newScale === schematicScale.value) return
+
+  const rect = schematicViewportRef.value?.getBoundingClientRect()
+  if (!rect) return
+
+  // 鼠标相对于 viewport 的偏移
+  const mouseX = e.clientX - rect.left
+  const mouseY = e.clientY - rect.top
+
+  // 鼠标在画布坐标系中的位置（缩放前）
+  const canvasX = (mouseX - schematicTranslate.x) / schematicScale.value
+  const canvasY = (mouseY - schematicTranslate.y) / schematicScale.value
+
+  // 缩放后调整 translate，使鼠标对应的画布点保持在屏幕同一位置
+  schematicTranslate.x = mouseX - canvasX * newScale
+  schematicTranslate.y = mouseY - canvasY * newScale
+  schematicScale.value = newScale
+}
+
+// 拖拽平移
+function onDragStart(e) {
+  if (e.button !== 0) return
+  isDragging = true
+  dragStartX = e.clientX
+  dragStartY = e.clientY
+  dragStartTransX = schematicTranslate.x
+  dragStartTransY = schematicTranslate.y
+  document.addEventListener('mousemove', onDragMove)
+  document.addEventListener('mouseup', onDragEnd)
+}
+
+function onDragMove(e) {
+  if (!isDragging) return
+  schematicTranslate.x = dragStartTransX + (e.clientX - dragStartX)
+  schematicTranslate.y = dragStartTransY + (e.clientY - dragStartY)
+}
+
+function onDragEnd() {
+  isDragging = false
+  document.removeEventListener('mousemove', onDragMove)
+  document.removeEventListener('mouseup', onDragEnd)
+}
+
+// ==================== 数据工具函数 ====================
+function value(key) {
+  return values[key] ?? '--'
+}
+function formatNumber(input, digits = 1) {
+  const number = Number(input)
+  return Number.isFinite(number) ? number.toLocaleString('zh-CN', { minimumFractionDigits: digits, maximumFractionDigits: digits }) : '--'
+}
 function display(key) {
   const meta = pointMap[key]
   if (!meta) return String(value(key))
   if (meta.type === 'boolean') return Boolean(value(key)) ? '是' : '否'
-  const raw = Number(value(key)); const digits = Number.isFinite(raw) && Math.abs(raw) < 10 ? 2 : 1
+  const raw = Number(value(key))
+  const digits = Number.isFinite(raw) && Math.abs(raw) < 10 ? 2 : 1
   return `${formatNumber(raw, digits)}${meta.unit ? ` ${meta.unit}` : ''}`
 }
 function deviceRowValue(row) {
@@ -148,10 +311,10 @@ function normalizePoints(payload) {
   if (Array.isArray(payload)) return payload
   const source = payload.points || payload
   if (Array.isArray(source)) return source
-  return Object.entries(source).map(([key, item]) => item && typeof item === 'object' && !Array.isArray(item) ? { key, ...item } : { key, value: item })
+  return Object.entries(source).map(([key, item]) => (item && typeof item === 'object' && !Array.isArray(item) ? { key, ...item } : { key, value: item }))
 }
 function applyPoints(payload) {
-  normalizePoints(payload).forEach(item => {
+  normalizePoints(payload).forEach((item) => {
     const key = item.key || item.pointKey || item.id
     if (!key || !(key in pointMap)) return
     values[key] = item.value
@@ -159,36 +322,493 @@ function applyPoints(payload) {
   })
   lastUpdate.value = new Date().toLocaleTimeString('zh-CN', { hour12: false })
 }
-function openDevice(id) { if (!POWER_DEVICE_IDS.includes(id)) return false; selectedDeviceId.value = id; return true }
-function closeDevice() { selectedDeviceId.value = '' }
+function openDevice(id) {
+  if (!POWER_DEVICE_IDS.includes(id)) return false
+  selectedDeviceId.value = id
+  return true
+}
+function closeDevice() {
+  selectedDeviceId.value = ''
+}
 function triggerDeviceMotion(deviceId, duration = 900) {
   if (!POWER_DEVICE_IDS.includes(deviceId)) return false
   window.dispatchEvent(new CustomEvent('power-device-motion', { detail: { deviceId, duration } }))
   return true
 }
-function nudgeSelected() { if (selectedDeviceId.value) triggerDeviceMotion(selectedDeviceId.value) }
-function onPowerPoints(event) { applyPoints(event.detail) }
-async function loadSnapshot() { try { const response = await fetch('/api/power-distribution/points'); if (response.ok) applyPoints(await response.json()) } catch {} }
+function nudgeSelected() {
+  if (selectedDeviceId.value) triggerDeviceMotion(selectedDeviceId.value)
+}
+function onPowerPoints(event) {
+  applyPoints(event.detail)
+}
+async function loadSnapshot() {
+  try {
+    const response = await fetch('/api/power-distribution/points')
+    if (response.ok) applyPoints(await response.json())
+  } catch {}
+}
 async function copyExample() {
   const text = `curl -X POST ${location.origin}/api/power-distribution/points -H "Content-Type: application/json" -d '{"points":{"power.station.totalLoad":2520.6,"power.transformer.1.loadRate":53.2,"power.lv.feeder.cold-1.breakerClosed":true}}'`
-  await navigator.clipboard?.writeText(text); copied.value = true; setTimeout(() => { copied.value = false }, 1600)
+  await navigator.clipboard?.writeText(text)
+  copied.value = true
+  setTimeout(() => {
+    copied.value = false
+  }, 1600)
 }
 
 const powerApi = {
   updatePoint: (key, nextValue, options = {}) => applyPoints([{ key, value: nextValue, ...options }]),
   updatePoints: applyPoints,
   getSnapshot: () => ({ ...values }),
-  getPointCatalog: () => catalog.map(item => ({ ...item })),
-  getDeviceCatalog: () => POWER_DEVICE_IDS.map(id => ({ ...getPowerDeviceProfile(id) })),
+  getPointCatalog: () => catalog.map((item) => ({ ...item })),
+  getDeviceCatalog: () => POWER_DEVICE_IDS.map((id) => ({ ...getPowerDeviceProfile(id) })),
   openDevicePanel: openDevice,
   closeDevicePanel: closeDevice,
-  triggerDeviceMotion
+  triggerDeviceMotion,
 }
 
-onMounted(() => { window.addEventListener('power-point-values', onPowerPoints); window.PowerDistribution = powerApi; loadSnapshot() })
-onUnmounted(() => { window.removeEventListener('power-point-values', onPowerPoints); if (window.PowerDistribution === powerApi) delete window.PowerDistribution })
+onMounted(() => {
+  window.addEventListener('power-point-values', onPowerPoints)
+  window.PowerDistribution = powerApi
+  loadSnapshot()
+})
+onUnmounted(() => {
+  window.removeEventListener('power-point-values', onPowerPoints)
+  if (window.PowerDistribution === powerApi) delete window.PowerDistribution
+  document.removeEventListener('mousemove', onDragMove)
+  document.removeEventListener('mouseup', onDragEnd)
+})
 </script>
 
-<style scoped>
-.power-page{--ink:#2d3748;--muted:#64748b;--edge:#e2e8f0;--panel:#ffffff;--cyan:#0ea5e9;--green:#22c55e;--blue:#3b82f6;--amber:#f59e0b;--red:#ef4444;min-width:0;min-height:0;height:100%;display:flex;flex-direction:column;overflow:hidden;color:var(--ink);background:#f5f7fa;font-family:"PingFang SC","Microsoft YaHei",sans-serif;position:relative}.power-page::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.35;background:linear-gradient(rgba(148,163,184,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(148,163,184,.06) 1px,transparent 1px);background-size:24px 24px}.power-subnav{z-index:2;height:38px;flex:none;padding:0 14px;display:flex;align-items:stretch;border-bottom:1px solid var(--edge);background:#ffffff}.power-subnav>button{min-width:154px;border:0;border-bottom:2px solid #0ea5e9;background:rgba(14,165,233,.08);color:#0284c7;font-size:10px;font-weight:500}.power-subnav>button span{margin-right:7px;color:#0ea5e9}.system-meta{margin-left:auto;display:flex;align-items:center;gap:14px;font-size:8px;color:#94a3b8}.system-meta span i{display:inline-block;width:5px;height:5px;margin-right:5px;border-radius:50%;background:#f59e0b}.system-meta span i.online{background:#22c55e;box-shadow:0 0 6px rgba(34,197,94,.5)}.system-meta b{padding:4px 7px;border:1px solid #e2e8f0;color:#475569;font-weight:400;border-radius:4px;background:#f8fafc}.system-meta em{font-style:normal;color:#d97706}.power-body{z-index:1;flex:1;min-height:0;padding:10px 0;display:flex;flex-direction:column;gap:9px}.metrics{height:77px;flex:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}.metrics article{--tone:#0ea5e9;min-width:0;padding:10px 12px;display:flex;align-items:center;gap:10px;border:1px solid var(--edge);background:#ffffff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.08);position:relative;overflow:hidden}.metrics article::before{content:"";position:absolute;left:0;top:13px;bottom:13px;width:2px;background:var(--tone)}.metrics article.blue{--tone:#3b82f6}.metrics article.amber{--tone:#f59e0b}.metrics article.green{--tone:#22c55e}.metric-icon{width:34px;height:34px;flex:none;display:grid;place-items:center;border:1px solid color-mix(in srgb,var(--tone) 25%,transparent);background:color-mix(in srgb,var(--tone) 10%,transparent);color:var(--tone);font-size:12px;border-radius:8px}.metrics article>div:nth-child(2){min-width:108px}.metrics span{display:block;color:#94a3b8;font-size:8px}.metrics strong{display:block;margin-top:2px;color:#1e293b;font-size:20px;font-variant-numeric:tabular-nums}.metrics strong small{margin-left:4px;color:#94a3b8;font-size:7px;font-weight:400}.metrics em{display:block;margin-top:2px;color:var(--tone);font-size:7px;font-style:normal}.metric-spark{height:34px;flex:1;display:flex;align-items:flex-end;gap:2px;opacity:.5}.metric-spark b{flex:1;background:color-mix(in srgb,var(--tone) 45%,transparent)}.topology-panel{flex:1;min-height:0;display:flex;flex-direction:column;border:1px solid var(--edge);background:#ffffff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.08);overflow:hidden}.topology-panel>header{height:51px;flex:none;padding:0 15px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #f0f0f0}.topology-panel>header span:first-child{display:block;color:#94a3b8;font-size:6px;letter-spacing:1.8px}.topology-panel h2{margin-top:2px;font-size:12px;color:#1e293b}.header-data{display:flex;align-items:center;gap:13px}.header-data span{color:#64748b!important;font-size:7px!important;letter-spacing:0!important}.header-data span b{display:inline-block;width:5px;height:5px;margin-right:5px;border-radius:50%;background:#f59e0b;box-shadow:0 0 6px rgba(245,158,11,.5)}.header-data button{padding:5px 8px;border:1px solid #bae6fd;background:#f0f9ff;color:#0284c7;font-size:8px;border-radius:6px}.topology{flex:1;min-height:0;position:relative;overflow:hidden}.device-inspector{position:absolute;z-index:18;right:16px;top:16px;width:292px;max-height:calc(100% - 32px);display:flex;flex-direction:column;color:#2d3748;border:1px solid #e2e8f0;background:#ffffff;border-radius:12px;box-shadow:0 20px 50px rgba(15,23,42,.22);backdrop-filter:blur(10px)}.device-inspector>header{padding:14px 15px 11px;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between}.device-inspector>header span{font-size:6px;letter-spacing:1.8px;color:#0284c7}.device-inspector>header h3{margin:3px 0 2px;font-size:14px;color:#1e293b}.device-inspector>header small,.device-inspector>header code{display:block;color:#94a3b8;font-size:7px}.device-inspector>header code{margin-top:3px;color:#64748b}.device-inspector>header button{align-self:flex-start;border:0;background:transparent;color:#94a3b8;font-size:20px}.device-summary{margin:11px 13px 8px;padding:8px 9px;display:flex;align-items:center;gap:8px;border:1px solid #e2e8f0;background:#f8fafc;border-radius:8px}.device-summary>i{width:8px;height:8px;border-radius:50%;background:#94a3b8}.device-summary div{display:flex;flex-direction:column}.device-summary span{font-size:6px;color:#94a3b8}.device-summary strong{font-size:11px;color:#334155}.device-summary button{margin-left:auto;padding:5px 7px;border:1px solid #bae6fd;background:#f0f9ff;color:#0284c7;font-size:7px;border-radius:6px}.device-summary.running{border-color:rgba(34,197,94,.4)}.device-summary.running>i{background:#22c55e;box-shadow:0 0 9px rgba(34,197,94,.5)}.device-summary.fault{border-color:rgba(239,68,68,.5);background:rgba(239,68,68,.06)}.device-summary.fault>i{background:#ef4444;box-shadow:0 0 9px rgba(239,68,68,.5)}.device-data-list{margin:0 13px 11px;overflow:auto;border:1px solid #e2e8f0;border-radius:8px}.device-data-list>div{min-height:26px;padding:0 8px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #f0f0f0;background:#ffffff}.device-data-list>div:last-child{border-bottom:0}.device-data-list span{font-size:7px;color:#64748b}.device-data-list strong{min-width:86px;padding:3px 5px;text-align:center;color:#475569;background:#f1f5f9;border-radius:4px;font-size:8px;font-weight:500}.device-data-list .good strong{color:#16a34a;background:rgba(34,197,94,.1)}.device-data-list .idle strong{color:#64748b;background:rgba(148,163,184,.14)}.device-data-list .bad strong{color:#dc2626;background:rgba(239,68,68,.1)}.device-data-list .control strong{color:#0284c7;background:rgba(14,165,233,.1)}.device-inspector>footer{padding:8px 13px 9px;display:grid;grid-template-columns:6px auto 1fr;gap:6px;align-items:center;border-top:1px solid #f0f0f0;font-size:6px;color:#94a3b8}.device-inspector>footer i{width:5px;height:5px;border-radius:50%;background:#22c55e}.device-inspector>footer code{text-align:right;color:#0284c7;overflow:hidden;text-overflow:ellipsis}.device-panel-enter-active,.device-panel-leave-active{transition:.22s ease}.device-panel-enter-from,.device-panel-leave-to{opacity:0;transform:translateX(18px)}.statusbar{z-index:2;height:28px;flex:none;padding:0 17px;display:flex;align-items:center;gap:22px;border-top:1px solid var(--edge);background:#ffffff;color:#94a3b8;font-size:7px}.statusbar span:first-child{margin-right:auto}.statusbar i{display:inline-block;width:5px;height:5px;margin-right:5px;border-radius:50%;background:#f59e0b}.statusbar i.online{background:#22c55e;box-shadow:0 0 6px rgba(34,197,94,.5)}.statusbar b{color:#475569}.statusbar code{color:#0284c7}.statusbar button{border:0;background:transparent;color:#0284c7;font-size:7px}.modal-mask{position:absolute;inset:0;z-index:30;display:grid;place-items:center;background:rgba(15,23,42,.45);backdrop-filter:blur(7px)}.api-modal{width:min(570px,90vw);padding:25px;border:1px solid var(--edge);background:#ffffff;border-radius:12px;box-shadow:0 30px 80px rgba(0,0,0,.18);position:relative}.modal-close{position:absolute;right:13px;top:9px;border:0;background:transparent;color:#94a3b8;font-size:22px}.eyebrow{color:#0284c7;font-size:6px;font-weight:700;letter-spacing:2px}.api-modal h2{margin:4px 0 8px;font-size:18px;color:#1e293b}.api-modal p{color:#64748b;font-size:10px;line-height:1.7}.api-modal pre{margin:13px 0;padding:13px;overflow:auto;border:1px solid #e2e8f0;background:#f8fafc;border-radius:8px;color:#0284c7;font-size:9px;line-height:1.55}.api-notes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:13px}.api-notes span{padding:9px;border:1px solid #e2e8f0;background:#f8fafc;border-radius:8px}.api-notes b{display:block;font-size:9px;color:#334155}.api-notes small{display:block;margin-top:3px;color:#94a3b8;font-size:7px}.primary-button{padding:7px 13px;border:1px solid #0ea5e9;background:#0284c7;border-radius:6px;color:#ffffff;font-size:9px}@media(max-width:980px){.metrics strong{font-size:16px}.metric-spark{display:none}.header-data span{display:none}.statusbar span:nth-child(4){display:none}}
+<style scoped lang="less">
+.power-page {
+  padding: 0;
+  background: #f0f2f5;
+  min-height: calc(100vh - 120px);
+
+  .stat-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    margin-bottom: 20px;
+    overflow: hidden;
+
+    .card-header {
+      padding: 18px 22px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+
+      h3 {
+        font-size: 16px;
+        font-weight: 600;
+        color: #2d3748;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0;
+      }
+
+      .header-right {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+
+        .bus-info {
+          font-size: 13px;
+          color: #64748b;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+
+          .dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+
+            &.dot-hv {
+              background: #f59e0b;
+              box-shadow: 0 0 6px rgba(245, 158, 11, 0.5);
+            }
+          }
+        }
+      }
+    }
+
+    .card-body {
+      padding: 16px;
+      position: relative;
+    }
+  }
+
+  // 系统图全屏模式
+  .topology-card.fullscreen-mode {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    margin: 0;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+
+    .card-body {
+      flex: 1;
+      overflow: hidden;
+      padding: 0;
+    }
+  }
+
+  // 缩放工具条
+  .zoom-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    background: #fafbfc;
+
+    .zoom-tool-btn {
+      width: 32px;
+      height: 32px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      background: #fff;
+      color: #475569;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+
+      &:hover {
+        border-color: #0ea5e9;
+        color: #0ea5e9;
+      }
+
+      &.reset-btn {
+        font-size: 18px;
+      }
+    }
+
+    .zoom-level {
+      min-width: 50px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    .zoom-tip {
+      margin-left: auto;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+  }
+
+  // 可缩放/拖拽视口
+  .schematic-viewport {
+    position: relative;
+    width: 100%;
+    height: 600px;
+    overflow: hidden;
+    background: #eef2f6;
+    cursor: grab;
+    user-select: none;
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+
+  .fullscreen-mode .schematic-viewport {
+    height: calc(100vh - 120px);
+  }
+
+  // 设备详情面板
+  .device-inspector {
+    position: absolute;
+    z-index: 18;
+    right: 16px;
+    top: 16px;
+    width: 292px;
+    max-height: calc(100% - 32px);
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.22);
+    overflow: hidden;
+
+    .device-inspector-header {
+      padding: 14px 15px 11px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      h3 {
+        font-size: 14px;
+        color: #1e293b;
+        margin: 0;
+      }
+
+      .close-btn {
+        border: 0;
+        background: transparent;
+        color: #94a3b8;
+        font-size: 20px;
+        cursor: pointer;
+        line-height: 1;
+
+        &:hover {
+          color: #ef4444;
+        }
+      }
+    }
+
+    .device-summary {
+      margin: 11px 13px 8px;
+      padding: 8px 9px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
+      border-radius: 8px;
+
+      .state-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #94a3b8;
+        flex-shrink: 0;
+      }
+
+      div {
+        display: flex;
+        flex-direction: column;
+
+        span {
+          font-size: 11px;
+          color: #94a3b8;
+        }
+
+        strong {
+          font-size: 13px;
+          color: #334155;
+        }
+      }
+
+      .test-btn {
+        margin-left: auto;
+        padding: 4px 8px;
+        border: 1px solid #bae6fd;
+        background: #f0f9ff;
+        color: #0284c7;
+        font-size: 11px;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+
+      &.running {
+        border-color: rgba(34, 197, 94, 0.4);
+
+        .state-dot {
+          background: #22c55e;
+          box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+        }
+      }
+
+      &.fault {
+        border-color: rgba(239, 68, 68, 0.5);
+        background: rgba(239, 68, 68, 0.06);
+
+        .state-dot {
+          background: #ef4444;
+          box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+        }
+      }
+    }
+
+    .device-data-list {
+      margin: 0 13px 11px;
+      overflow: auto;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+
+      & > div {
+        min-height: 36px;
+        padding: 0 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid #f0f0f0;
+        background: #fff;
+
+        &:last-child {
+          border-bottom: 0;
+        }
+
+        span {
+          font-size: 12px;
+          color: #64748b;
+        }
+
+        strong {
+          min-width: 86px;
+          padding: 3px 8px;
+          text-align: center;
+          color: #475569;
+          background: #f1f5f9;
+          border-radius: 4px;
+          font-size: 12px;
+          font-weight: 500;
+        }
+
+        &.good strong {
+          color: #16a34a;
+          background: rgba(34, 197, 94, 0.1);
+        }
+
+        &.idle strong {
+          color: #64748b;
+          background: rgba(148, 163, 184, 0.14);
+        }
+
+        &.bad strong {
+          color: #dc2626;
+          background: rgba(239, 68, 68, 0.1);
+        }
+
+        &.control strong {
+          color: #0284c7;
+          background: rgba(14, 165, 233, 0.1);
+        }
+      }
+    }
+
+    .device-footer {
+      padding: 8px 13px 9px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border-top: 1px solid #f0f0f0;
+      font-size: 11px;
+      color: #94a3b8;
+
+      .live-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #22c55e;
+        flex-shrink: 0;
+      }
+
+      code {
+        margin-left: auto;
+        color: #0ea5e9;
+        font-size: 10px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 120px;
+      }
+    }
+  }
+
+  .device-panel-enter-active,
+  .device-panel-leave-active {
+    transition: 0.22s ease;
+  }
+
+  .device-panel-enter-from,
+  .device-panel-leave-to {
+    opacity: 0;
+    transform: translateX(18px);
+  }
+
+  // 状态栏
+  .status-bar {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    padding: 12px 0;
+    color: #94a3b8;
+    font-size: 12px;
+
+    .status-light {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      margin-right: 5px;
+      border-radius: 50%;
+      background: #f59e0b;
+
+      &.online {
+        background: #22c55e;
+        box-shadow: 0 0 6px rgba(34, 197, 94, 0.5);
+      }
+    }
+
+    b {
+      color: #475569;
+    }
+  }
+
+  // API 弹窗
+  .api-pre {
+    margin: 13px 0;
+    padding: 13px;
+    overflow: auto;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    border-radius: 8px;
+    color: #0284c7;
+    font-size: 12px;
+    line-height: 1.55;
+  }
+
+  .api-notes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 13px;
+
+    .api-note-item {
+      padding: 9px;
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
+      border-radius: 8px;
+
+      b {
+        display: block;
+        font-size: 13px;
+        color: #334155;
+      }
+
+      small {
+        display: block;
+        margin-top: 3px;
+        color: #94a3b8;
+        font-size: 11px;
+      }
+    }
+  }
+}
 </style>

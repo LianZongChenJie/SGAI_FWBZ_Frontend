@@ -504,7 +504,7 @@
     });
     let name = '4G水表';
     let blobOptions = { type: 'application/vnd.ms-excel' };
-    let fileSuffix = '.xls';
+    let fileSuffix = '.xlsx';
     let url = window.URL.createObjectURL(new Blob([res], blobOptions));
     let link = document.createElement('a');
     link.style.display = 'none';

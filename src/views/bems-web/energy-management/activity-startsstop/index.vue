@@ -2,9 +2,7 @@
   <div class="event-schedule-page">
     <header class="schedule-header">
       <div>
-        <span class="eyebrow">EVENT SCHEDULE DRIVEN START / STOP</span>
         <h1>活动排期驱动启停求解</h1>
-        <p>服贸小镇活动排期 · 分馆能耗 · 设备启停联动 · 开闭馆硬边界</p>
       </div>
       <div class="header-state">
         <span class="tag-hard">排期硬约束</span>
@@ -371,7 +369,7 @@ onUnmounted(() => {
 
 <style scoped>
 .event-schedule-page{--ink:#2d3748;--muted:#64748b;--edge:#e2e8f0;--panel-bg:#ffffff;--cyan:#0ea5e9;--green:#22c55e;--blue:#3b82f6;--amber:#f59e0b;--red:#ef4444;height:100%;min-height:0;display:flex;flex-direction:column;color:var(--ink);background:#f5f7fa;font-family:"PingFang SC","Microsoft YaHei",sans-serif;position:relative}
-.schedule-header{height:72px;flex:none;padding:0 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--edge);background:#ffffff}
+.schedule-header{height:54px;flex:none;padding:0 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--edge);background:#ffffff}
 .schedule-header .eyebrow{color:#94a3b8;font-size:9px;font-weight:700;letter-spacing:2px}
 .schedule-header h1{font-size:19px;margin:2px 0 1px;color:#1e293b}
 .schedule-header p{font-size:9px;color:#94a3b8}

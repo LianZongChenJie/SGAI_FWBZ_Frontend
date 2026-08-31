@@ -15,11 +15,20 @@
 
     <!-- 两栏布局：热力图 + 客流趋势 -->
     <div class="two-col">
-      <div class="card">
-        <div class="card-header"><h3><ClockCircleOutlined /> 实时客流热力图</h3></div>
-        <div class="card-body">
-          <a-spin :spinning="heatmapLoading">
-            <FlowHeatmapMapView :data="heatmapData" />
+      <div class="card" :class="{ 'heatmap-fullscreen': heatmapFullscreen }">
+        <div class="card-header">
+          <h3><ClockCircleOutlined /> 实时客流热力图</h3>
+          <div class="header-right">
+            <a-button size="small" @click="toggleHeatmapFullscreen">
+              <FullscreenExitOutlined v-if="heatmapFullscreen" />
+              <FullscreenOutlined v-else />
+              <!-- {{ heatmapFullscreen ? '退出全屏' : '全屏预览' }} -->
+            </a-button>
+          </div>
+        </div>
+        <div class="card-body" :class="{ 'heatmap-fullscreen-body': heatmapFullscreen }">
+          <a-spin :spinning="heatmapLoading" :class="{ 'spin-fullscreen': heatmapFullscreen }">
+            <FlowHeatmapMapView :data="heatmapData" :fullscreen="heatmapFullscreen" />
           </a-spin>
         </div>
       </div>
@@ -106,7 +115,7 @@ import { getVenueList } from '../venueScheduling/index.api'
 import type { VenueItem } from '../venueScheduling/index.api'
 import {
   TeamOutlined, UserOutlined, RiseOutlined, ClockCircleOutlined,
-  BarChartOutlined, SearchOutlined,
+  BarChartOutlined, SearchOutlined, FullscreenOutlined, FullscreenExitOutlined,
 } from '@ant-design/icons-vue'
 import FlowHeatmapMapView from './FlowHeatmapMapView.vue'
 
@@ -151,6 +160,7 @@ const flowData = ref<VenueFlowVO[]>([])
 const flowLoading = ref(false)
 
 const flowColumns = [
+  { title: '序号', key: 'index', width: 70, customRender: ({ index }) => index + 1 },
   { title: '场馆', dataIndex: 'venueName', key: 'venueName', width: 120 },
   { title: '今日进场', dataIndex: 'todayInCount', key: 'todayInCount', width: 100 },
   { title: '当前在场', dataIndex: 'todayNowCount', key: 'todayNowCount', width: 100 },
@@ -267,7 +277,8 @@ function renderTrendChart(res: any) {
       axisPointer: { type: 'cross' },
     },
     legend: {
-      bottom: '2%',
+      type: 'scroll',
+      top: '2%',
       left: 'center',
       textStyle: { fontSize: 12, color: '#4a5568' },
       icon: 'roundRect',
@@ -276,8 +287,8 @@ function renderTrendChart(res: any) {
     grid: {
       left: '3%',
       right: '4%',
-      bottom: '15%',
-      top: '8%',
+      bottom: '8%',
+      top: '15%',
       containLabel: true,
     },
     xAxis: {
@@ -362,6 +373,11 @@ const handleTrendChange = () => {
 // ===== 实时客流热力图 =====
 const heatmapData = ref<VenueHeatmapItemVO[]>([])
 const heatmapLoading = ref(false)
+const heatmapFullscreen = ref(false)
+
+const toggleHeatmapFullscreen = () => {
+  heatmapFullscreen.value = !heatmapFullscreen.value
+}
 
 const fetchHeatmapData = async () => {
   heatmapLoading.value = true
@@ -472,6 +488,35 @@ onMounted(() => {
 .trend-chart {
   width: 100%;
   height: 280px;
+}
+
+.heatmap-fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  margin: 0;
+  border-radius: 0;
+  overflow: auto;
+  background: #fff;
+
+  .card-body.heatmap-fullscreen-body {
+    height: calc(100% - 60px);
+    padding: 10px;
+    overflow: hidden;
+
+    .spin-fullscreen {
+      width: 100%;
+      height: 100%;
+
+      :deep(.ant-spin-container) {
+        width: 100%;
+        height: 100%;
+      }
+    }
+  }
 }
 
 .status-text {

@@ -236,9 +236,11 @@ export const useUserStore = defineStore({
         //update-begin---author:wangshuai---date:2024-04-03---for:【issues/1102】设置单点登录后页面，进入首页提示404，也没有绘制侧边栏 #1102---
         let ticket = getUrlParam('ticket');
         if(ticket){
-          goHome && (window.location.replace((userInfo && userInfo.homePath) || PageEnum.BASE_HOME));
+          // 忽略后台返回的 homePath，始终使用 BASE_HOME 作为默认首页
+          goHome && (window.location.replace(PageEnum.BASE_HOME));
         }else{
-          goHome && (await router.replace((userInfo && userInfo.homePath) || PageEnum.BASE_HOME));
+          // 忽略后台返回的 homePath，始终使用 BASE_HOME 作为默认首页
+          goHome && (await router.replace(PageEnum.BASE_HOME));
         }
         //update-end---author:wangshuai---date:2024-04-03---for:【issues/1102】设置单点登录后页面，进入首页提示404，也没有绘制侧边栏 #1102---
       }

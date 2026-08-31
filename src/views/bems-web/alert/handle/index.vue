@@ -15,6 +15,10 @@
           <a-select v-model:value="levelFilter" style="width: 120px" placeholder="报警等级" :options="levelOption" allowClear @change="onQuery" />
           <a-select v-model:value="typeFilter" style="width: 130px" placeholder="报警类型" :options="categoryOption" allowClear @change="onQuery" />
           <a-button type="primary" @click="onQuery">🔍查询</a-button>
+          <a-button type="primary" :loading="exportLoading" @click="handleExport">
+            <DownloadOutlined v-if="!exportLoading" />
+            导出
+          </a-button>
         </div>
       </div>
       <div class="card-body">
@@ -92,6 +96,8 @@
 
 <script setup lang="ts">
 import { ref, reactive, h, onMounted } from 'vue'
+import { defHttp } from '/@/utils/http/axios'
+import { DownloadOutlined } from '@ant-design/icons-vue'
 import { StatCard } from '/@/views/bems-web/components'
 import {
   getAlarmRecordsListApi,
@@ -223,6 +229,37 @@ const onPageSizeChange = (_page: number, size: number) => {
 // 查询（重置到第一页）
 const onQuery = () => {
   fetchAlertList(1)
+}
+
+/** 导出告警记录 */
+const exportLoading = ref(false)
+const handleExport = async () => {
+  exportLoading.value = true
+  try {
+    const params: any = { alarmStatus: '1' }
+    if (levelFilter.value) params.alarmLevelId = levelFilter.value
+    if (typeFilter.value) params.alarmCategoryId = typeFilter.value
+    const res = await defHttp.get({
+      url: '/sgai-fwbz-dev/fwbz/alarm/record/export',
+      params,
+      responseType: 'blob',
+    }, { isTransformResponse: false })
+    const blobOptions = { type: 'application/vnd.ms-excel' }
+    const fileSuffix = '.xlsx'
+    const url = window.URL.createObjectURL(new Blob([res], blobOptions))
+    const link = document.createElement('a')
+    link.style.display = 'none'
+    link.href = url
+    link.setAttribute('download', '告警记录' + fileSuffix)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+  } catch (error) {
+    console.error('导出失败:', error)
+  } finally {
+    exportLoading.value = false
+  }
 }
 
 // 确认并处理

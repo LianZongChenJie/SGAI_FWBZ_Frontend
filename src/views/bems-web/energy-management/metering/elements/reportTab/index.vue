@@ -128,22 +128,22 @@ const statData = reactive({
 
 // 能源报表列表列
 const reportColumns = [
-  { title: '报表名称', dataIndex: 'name', key: 'name', width: 120, ellipsis: true },
+  { title: '报表名称', dataIndex: 'name', key: 'name', width: 100, ellipsis: true },
   { title: '报表类型', dataIndex: 'type', key: 'type', width: 80   },
   { title: '统计周期', dataIndex: 'period', key: 'period', width: 80 },
   { title: '生成时间', dataIndex: 'generatedAt', key: 'generatedAt', width: 100 },
-  { title: '状态', key: 'status', width: 80, align: 'center' },
-  { title: '操作', key: 'action', width: 80, align: 'center' },
+  { title: '状态', key: 'status', width: 60, align: 'center' },
+  { title: '操作', key: 'action', width: 80, align: 'center', fixed: 'right' },
 ]
 
 // 定时报表任务列
 const taskColumns = [
-  { title: '任务名称', dataIndex: 'name', key: 'name', width: 120, ellipsis: true },
-  { title: '报表模板', dataIndex: 'template', key: 'template', width: 120, ellipsis: true },
+  { title: '任务名称', dataIndex: 'name', key: 'name', width: 100, ellipsis: true },
+  { title: '报表模板', dataIndex: 'template', key: 'template', width: 100, ellipsis: true },
   { title: '执行周期', dataIndex: 'cycle', key: 'cycle', width: 80 },
   { title: '下次执行', dataIndex: 'nextRun', key: 'nextRun', width: 100 },
-  { title: '状态', key: 'status', width: 80, align: 'center' },
-  { title: '操作', key: 'action', width: 80, align: 'center' },
+  { title: '状态', key: 'status', width: 60, align: 'center' },
+  { title: '操作', key: 'action', width: 80, align: 'center', fixed: 'right' },
 ]
 
 // 能源报表列表数据

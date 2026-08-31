@@ -17,6 +17,10 @@
     <div class="card">
       <div class="card-header">
         <h3><ClusterOutlined /> 控制器列表</h3>
+        <a-button type="primary" :loading="deviceExportLoading" @click="handleDeviceExport">
+          <DownloadOutlined v-if="!deviceExportLoading" />
+          导出
+        </a-button>
       </div>
       <div class="card-body">
         <a-table
@@ -28,7 +32,10 @@
           size="small"
           @change="handleDeviceTableChange"
         >
-          <template #bodyCell="{ column, record }">
+          <template #bodyCell="{ column, record, index }">
+            <template v-if="column.key === 'index'">
+              {{ (devicePagination.current - 1) * devicePagination.pageSize + index + 1 }}
+            </template>
             <template v-if="column.key === 'online'">
               <a-badge :status="record.online === '1' ? 'success' : 'default'" :text="record.online === '1' ? '在线' : '离线'" />
             </template>
@@ -64,6 +71,10 @@
             <SyncOutlined v-if="!syncLoading" />
             同步门禁状态
           </a-button>
+          <a-button type="primary" :loading="doorExportLoading" @click="handleDoorExport">
+            <DownloadOutlined v-if="!doorExportLoading" />
+            导出
+          </a-button>
         </div>
       </div>
       <div class="card-body">
@@ -76,7 +87,10 @@
           size="small"
           @change="handleDoorTableChange"
         >
-          <template #bodyCell="{ column, record }">
+          <template #bodyCell="{ column, record, index }">
+            <template v-if="column.key === 'index'">
+              {{ (doorPagination.current - 1) * doorPagination.pageSize + index + 1 }}
+            </template>
             <template v-if="column.key === 'doorState'">
               <a-tag :color="doorStateMap[record.doorState]?.color">
                 {{ doorStateMap[record.doorState]?.text }}
@@ -120,7 +134,10 @@
           size="small"
           @change="handleEventTableChange"
         >
-          <template #bodyCell="{ column, record }">
+          <template #bodyCell="{ column, record, index }">
+            <template v-if="column.key === 'index'">
+              {{ (eventPagination.current - 1) * eventPagination.pageSize + index + 1 }}
+            </template>
             <template v-if="column.key === 'inAndOutType'">
               <a-tag :color="inAndOutTypeMap[record.inAndOutType]?.color">
                 {{ inAndOutTypeMap[record.inAndOutType]?.text }}
@@ -137,6 +154,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { message, Modal } from 'ant-design-vue'
+import { defHttp } from '/@/utils/http/axios'
 import { StatCard } from '/@/views/bems-web/components'
 import {
   getAccessControlSummary,
@@ -154,9 +172,25 @@ import {
   ClusterOutlined,
   SyncOutlined,
   SearchOutlined,
+  DownloadOutlined,
 } from '@ant-design/icons-vue'
 
 defineOptions({ name: 'AccessControlTab' })
+
+/** 通用导出方法 */
+const downloadBlob = (res: any, name: string) => {
+  const blobOptions = { type: 'application/vnd.ms-excel' }
+  const fileSuffix = '.xlsx'
+  const url = window.URL.createObjectURL(new Blob([res], blobOptions))
+  const link = document.createElement('a')
+  link.style.display = 'none'
+  link.href = url
+  link.setAttribute('download', name + fileSuffix)
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  window.URL.revokeObjectURL(url)
+}
 
 /** 门禁卡片颜色与图标配置 */
 const accessControlCardConfig = [
@@ -179,6 +213,7 @@ const fetchAccessControlStatCards = async () => {
 
 /** 门禁地点列表 */
 const doorColumns = [
+  { title: '序号', key: 'index', width: 70 },
   { title: '门禁地点名称', dataIndex: 'name', key: 'name' },
   { title: '门禁地点编号', dataIndex: 'doorNo', key: 'doorNo' },
   { title: '区域名称', dataIndex: 'regionName', key: 'regionName' },
@@ -252,8 +287,30 @@ const handleSyncAccessControlStatus = async () => {
   }
 }
 
+/** 门禁地点导出 */
+const doorExportLoading = ref(false)
+const handleDoorExport = async () => {
+  doorExportLoading.value = true
+  try {
+    const res = await defHttp.get({
+      url: '/sgai-fwbz-dev/fwbz/hikvision/door/export',
+      params: {
+        regionName: doorSearchRegionName.value || undefined,
+        name: doorSearchName.value || undefined,
+      },
+      responseType: 'blob',
+    }, { isTransformResponse: false })
+    downloadBlob(res, '门禁地点列表')
+  } catch (error) {
+    console.error('导出门禁地点列表失败:', error)
+  } finally {
+    doorExportLoading.value = false
+  }
+}
+
 /** 门禁设备列表 */
 const deviceColumns = [
+  { title: '序号', key: 'index', width: 70 },
   { title: '设备名称', dataIndex: 'name', key: 'name' },
   { title: '设备IP', dataIndex: 'ip', key: 'ip' },
   { title: '区域名称', dataIndex: 'regionName', key: 'regionName' },
@@ -292,6 +349,23 @@ const handleDeviceTableChange = (pag: any) => {
   fetchDeviceData()
 }
 
+/** 门禁设备导出 */
+const deviceExportLoading = ref(false)
+const handleDeviceExport = async () => {
+  deviceExportLoading.value = true
+  try {
+    const res = await defHttp.get({
+      url: '/sgai-fwbz-dev/fwbz/hikvision/acsDevice/export',
+      responseType: 'blob',
+    }, { isTransformResponse: false })
+    downloadBlob(res, '门禁控制器列表')
+  } catch (error) {
+    console.error('导出门禁控制器列表失败:', error)
+  } finally {
+    deviceExportLoading.value = false
+  }
+}
+
 /** 门禁事件弹窗 */
 const eventModalVisible = ref(false)
 const eventData = ref<DoorEventListVO[]>([])
@@ -304,6 +378,7 @@ const eventPagination = ref({
 const currentDeviceIndexCode = ref('')
 
 const eventColumns = [
+  { title: '序号', key: 'index', width: 70 },
   { title: '事件名称', dataIndex: 'eventName', key: 'eventName' },
   { title: '门禁地点名称', dataIndex: 'doorName', key: 'doorName' },
   { title: '人员姓名', dataIndex: 'personName', key: 'personName' },

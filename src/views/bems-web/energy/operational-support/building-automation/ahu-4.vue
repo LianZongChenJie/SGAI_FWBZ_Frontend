@@ -3,14 +3,7 @@
     <main>
       <header>
         <div>
-          <small>BUILDING AUTOMATION · 6.0F</small>
           <h1>{{ deviceName || 'AHU-4 转轮新风机组' }}</h1>
-          <p>转轮热回收与双风机</p>
-        </div>
-        <div class="headline">
-          <span>设备状态</span>
-          <strong :class="stateTone">{{ stateText }}</strong>
-          <em>点位 {{ devicePoints.length }}</em>
         </div>
       </header>
       <section class="schematic-card">

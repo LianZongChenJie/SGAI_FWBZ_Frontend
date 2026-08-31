@@ -41,7 +41,10 @@
           size="middle"
           @change="handleTableChange"
         >
-          <template #bodyCell="{ column, record }">
+          <template #bodyCell="{ column, record, index }">
+            <template v-if="column.key === 'index'">
+              {{ (pagination.current - 1) * pagination.pageSize + index + 1 }}
+            </template>
             <template v-if="column.key === 'protocolTypeName'">
               {{ getProtocolName(record.protocolTypeId) }}
             </template>
@@ -221,6 +224,7 @@ const handleTableChange = (pag: any) => {
 
 // ===== 列定义 =====
 const columns = [
+  { title: '序号', key: 'index', width: 70 },
   { title: '系统名称', dataIndex: 'sysName', key: 'sysName' },
   { title: '接口协议', key: 'protocolTypeName', width: 120 },
   { title: '接口地址', dataIndex: 'interfacePath', key: 'interfacePath' },

@@ -81,7 +81,10 @@
           size="small"
           @change="handleTableChange"
         >
-          <template #bodyCell="{ column, record }">
+          <template #bodyCell="{ column, record, index }">
+            <template v-if="column.key === 'index'">
+              {{ (pagination.current - 1) * pagination.pageSize + index + 1 }}
+            </template>
             <template v-if="column.key === 'complaintTime'">
               {{ record.complaintDate || '--' }} {{ record.complaintTime || '' }}
             </template>
@@ -374,10 +377,9 @@ interface ControlPanelItem {
 }
 
 const controlPanels: ControlPanelItem[] = [
-  { title: '空调控制', meta: '温度/模式/风速', icon: CloudOutlined, bgColor: '#ebf8ff', iconColor: '#3182ce', route: '/fwbz/equipment/equipmentManagement' },
-  { title: '照明控制', meta: '开关/亮度/场景', icon: BulbOutlined, bgColor: '#f0fff4', iconColor: '#38a169', route: '/fwbz/energy/smart-lighting' },
+  { title: '空调控制', meta: '温度/模式/风速', icon: CloudOutlined, bgColor: '#ebf8ff', iconColor: '#3182ce', route: '/fwbz/operational' },
+  { title: '照明控制', meta: '开关/亮度/场景', icon: BulbOutlined, bgColor: '#f0fff4', iconColor: '#38a169', route: '/fwbz/northAreaLightingSys/comprehensivePreview' },
   { title: '视频切换', meta: '监控画面/广播', icon: VideoCameraOutlined, bgColor: '#fffaf0', iconColor: '#dd6b20', route: '/fwbz/safety/security' },
-  { title: '应急控制', meta: '广播/疏散/联动', icon: AlertOutlined, bgColor: '#fff5f5', iconColor: '#e53e3e', route: '/fwbz/alert/handle' },
 ]
 
 const handleControlClick = (item: ControlPanelItem) => {
@@ -455,6 +457,7 @@ const handleTableChange = (pag: any) => {
 
 // ===== 列定义 =====
 const columns = [
+  { title: '序号', key: 'index', width: 70 },
   { title: '标题', dataIndex: 'title', key: 'title', width: 180 },
   { title: '时间', key: 'complaintTime', width: 180 },
   { title: '类型', dataIndex: 'typeName', key: 'typeName', width: 90 },

@@ -24,10 +24,10 @@
     </section>
 
     <main class="dashboard-body">
-      <section class="content-grid">
+      <section class="content-grid">  
         <article class="panel topology-panel">
           <div class="panel-heading">
-            <div><span class="eyebrow">REAL-TIME TOPOLOGY</span><h2>东会议室 / 2号馆 / 3号馆分馆风冷监控</h2></div>
+            <h2>东会议室 / 2号馆 / 3号馆分馆风冷监控</h2>
             <div class="legend"><span><i class="dot running"></i>运行</span><span><i class="dot stopped"></i>停止</span><span><i class="dot fault"></i>故障</span><span><i class="line supply"></i>冷冻供水</span><span><i class="line return"></i>冷冻回水</span></div>
           </div>
 

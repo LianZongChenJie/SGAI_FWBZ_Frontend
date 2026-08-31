@@ -97,39 +97,31 @@
         <div class="analysis-card__header">
           <div class="analysis-card__title">
             <span class="analysis-card__icon">📈</span>
-            <span>有功功率</span>
+            <span>正向有功</span>
           </div>
+          <span class="card-note">逐时电能 kWh · 今日合计 875.40（参考值）</span>
         </div>
         <div class="analysis-card__body">
-          <div v-show="activeLoading" class="chart-placeholder">
-            <a-spin />
-            <div class="chart-placeholder__text">加载中...</div>
-          </div>
-          <div
-            v-show="!activeLoading && activeChartData.length === 0"
-            class="chart-placeholder"
-          >
+          <div v-if="hasActiveData" ref="activeChartRef" class="venue-chart"></div>
+          <div v-else class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
             <div class="chart-placeholder__text">暂无数据</div>
           </div>
-          <div
-            v-show="!activeLoading && activeChartData.length > 0"
-            ref="activeChartRef"
-            class="venue-chart"
-          ></div>
         </div>
       </a-card>
       <a-card class="analysis-card" :bordered="false">
         <div class="analysis-card__header">
           <div class="analysis-card__title">
-            <span class="analysis-card__icon">🌡️</span>
-            <span>柜内温度分布</span>
+            <span class="analysis-card__icon">📊</span>
+            <span>正向无功</span>
           </div>
+          <span class="card-note">逐时电能 kWh · 今日合计 159.60（参考值）</span>
         </div>
         <div class="analysis-card__body">
-          <div class="chart-placeholder">
+          <div v-if="hasReactiveData" ref="reactiveChartRef" class="venue-chart"></div>
+          <div v-else class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
-            <div class="chart-placeholder__text">配电柜温度热力分布</div>
+            <div class="chart-placeholder__text">暂无数据</div>
           </div>
         </div>
       </a-card>
@@ -137,7 +129,7 @@
     </div>
 
     <!-- 工艺图监控 - 配电系统 -->
-    <div class="card">
+    <!-- <div class="card">
       <div class="card-header">
         <h3>🏭工艺图监控 - 配电系统</h3>
         <div class="header-right">
@@ -161,7 +153,7 @@
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
     </div>
     <!-- 详情弹窗 -->
     <a-modal v-model:visible="detailVisible" title="详情" width="800px" :footer="null" :confirm-loading="detailLoading">
@@ -186,8 +178,10 @@ import { ref, reactive, computed, h, onMounted, nextTick } from 'vue'
 import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons-vue'
 import { StatCard } from '/@/views/bems-web/components'
 import { spaceTree } from '/@/views/bems-web/equipment/equipmentManagement/elements/device/Device.api'
-import { getPowerUnitList, getActivePower, getPowerStatistics, getDeviceAttrList } from './index.api'
+import { getPowerUnitList, getPowerStatistics, getDeviceAttrList } from './index.api'
 import { useECharts } from '/@/hooks/web/useECharts'
+import { getForwardActiveData, getForwardReactiveData } from '../chartData'
+import { buildBarOption } from '../chartOptions'
 
 // 自定义 emoji 图标组件
 const PowerCabinetTotalIcon = () => h('span', { style: 'font-size: 20px;' }, '⚡')
@@ -286,6 +280,14 @@ const attributeColumns = ref<any[]>([])
 
 // 表格列定义（固定3列 + 动态列 + 操作列）
 const columns = computed(() => [
+  {
+    title: '序号',
+    dataIndex: 'index',
+    key: 'index',
+    width: 70,
+    customRender: ({ index }: { index: number }) =>
+      (pagination.current - 1) * pagination.pageSize + index + 1,
+  },
   { title: '配电柜编号', dataIndex: 'deviceCode', key: 'deviceCode', width: 110 },
   { title: '配电柜名称', dataIndex: 'deviceName', key: 'deviceName', width: 130 },
   { title: '位置', dataIndex: 'spaceId', key: 'spaceId', width: 150 },
@@ -372,80 +374,43 @@ const handleTableChange = (pag: any) => {
 
 // 有功功率柱状图
 const activeChartRef = ref<HTMLDivElement>()
-const activeChartData = ref<any[]>([])
-const activeLoading = ref(false)
+const hasActiveData = ref(false)
 const { setOptions: setActiveChartOptions } = useECharts(activeChartRef as any)
 
-/** 加载有功功率数据 */
-const loadActiveChart = async () => {
-  activeLoading.value = true
-  try {
-    const res = await getActivePower()
-    const chatData = res?.chat || res?.result?.chat || res?.data?.chat || {}
-    const xaxis = chatData.xaxis || []
-    const seriesList = (chatData.chatSeriesList || chatData.seriesList || []) as any[]
-    const filteredList = seriesList.filter((item: any) => item.name !== '合计')
-    activeChartData.value = filteredList
-    activeLoading.value = false
-    await nextTick()
-    if (xaxis.length > 0 && filteredList.length > 0) {
-      renderActiveChart(xaxis, filteredList)
-    }
-  } catch (e) {
-    console.error('加载有功功率失败:', e)
-    activeLoading.value = false
-  }
-}
+// 正向无功柱状图
+const reactiveChartRef = ref<HTMLDivElement>()
+const hasReactiveData = ref(false)
+const { setOptions: setReactiveChartOptions } = useECharts(reactiveChartRef as any)
 
-/** 渲染有功功率柱状图 */
-const renderActiveChart = (xaxis: string[], seriesList: { name: string; data: number[] }[]) => {
-  setActiveChartOptions({
-    tooltip: { trigger: 'axis', show: true },
-    legend: {
-      type: 'scroll',
-      data: seriesList.map((item) => item.name),
-      bottom: 0,
-    },
-    grid: {
-      left: '3%',
-      right: '4%',
-      bottom: '15%',
-      top: '8%',
-      containLabel: true,
-    },
-    xAxis: {
-      type: 'category',
-      data: xaxis,
-      axisLabel: {
-        color: '#666',
-        fontSize: 12,
-        rotate: xaxis.length > 6 ? 30 : 0,
-      },
-    },
-    yAxis: {
-      type: 'value',
-      name: '',
-      axisLabel: {
-        margin: 15,
-        overflow: 'truncate',
-        color: '#666',
-        fontSize: 12,
-      },
-    },
-    series: seriesList.map((item) => ({
-      name: item.name,
-      type: 'bar',
-      data: item.data,
-      barMaxWidth: 40,
-    })),
-  })
+/** 渲染正向有功与正向无功图表（mock 数据） */
+const loadPowerCharts = async () => {
+  await nextTick()
+  // 图1 正向有功
+  const activeData = getForwardActiveData()
+  if (!activeData.categories.length || !activeData.series.length) {
+    hasActiveData.value = false
+  } else {
+    hasActiveData.value = true
+    await nextTick()
+    setActiveChartOptions(buildBarOption(activeData.categories, activeData.series, activeData.unit))
+  }
+
+  // 图2 正向无功
+  const reactiveData = getForwardReactiveData()
+  if (!reactiveData.categories.length || !reactiveData.series.length) {
+    hasReactiveData.value = false
+  } else {
+    hasReactiveData.value = true
+    await nextTick()
+    setReactiveChartOptions(buildBarOption(reactiveData.categories, reactiveData.series, reactiveData.unit))
+  }
 }
 
 onMounted(() => {
   loadSpaceTree()
   loadStatistics()
   loadPowerUnitList()
-  loadActiveChart()
+  loadPowerCharts()
 })
 </script>
 
@@ -584,6 +549,12 @@ onMounted(() => {
 
     &__icon2 {
       font-size: 54px;
+    }
+
+    .card-note {
+      color: rgba(0, 0, 0, 0.45);
+      font-size: 12px;
+      text-align: right;
     }
 
     &__body {

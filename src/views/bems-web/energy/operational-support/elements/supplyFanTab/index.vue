@@ -88,25 +88,29 @@
             <span class="analysis-card__icon">📈</span>
             <span>排风系统能耗趋势</span>
           </div>
+          <span class="card-note">今日 00:00–23:00 · 逐时 kWh</span>
         </div>
         <div class="analysis-card__body">
-          <div class="chart-placeholder">
+          <div v-if="hasEnergyData" ref="energyChartRef" class="venue-chart"></div>
+          <div v-else class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
-            <div class="chart-placeholder__text">各排风机能耗趋势</div>
+            <div class="chart-placeholder__text">暂无数据</div>
           </div>
         </div>
       </a-card>
       <a-card class="analysis-card" :bordered="false">
         <div class="analysis-card__header">
           <div class="analysis-card__title">
-            <span class="analysis-card__icon">💨</span>
+            <span class="analysis-card__icon">📊</span>
             <span>排风压差分析</span>
           </div>
+          <span class="card-note">各排风机风管压差 · 逐时 Pa</span>
         </div>
         <div class="analysis-card__body">
-          <div class="chart-placeholder">
+          <div v-if="hasPressureData" ref="pressureChartRef" class="venue-chart"></div>
+          <div v-else class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
-            <div class="chart-placeholder__text">送排风压差分析</div>
+            <div class="chart-placeholder__text">暂无数据</div>
           </div>
         </div>
       </a-card>
@@ -145,7 +149,11 @@
           </div>
           <!-- 右侧：工艺图 -->
           <div class="process-schematic">
-            <FanBox :values="deviceValues" :system-params="systemParams" :device-name="selectedDeviceName" />
+            <FanBox
+              :values="deviceValues"
+              :system-params="systemParams"
+              :device-name="selectedDeviceName"
+            />
           </div>
         </div>
       </div>
@@ -174,11 +182,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, h, onMounted } from 'vue'
+import { ref, reactive, computed, h, onMounted, nextTick } from 'vue'
 import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons-vue'
 import { StatCard } from '/@/views/bems-web/components'
 import { getSpaceTree, getDeviceAttrList, selectDevice } from './index.api'
 import FanBox from '../../building-automation/fan-box.vue'
+import { useECharts } from '/@/hooks/web/useECharts'
+import { getExhaustEnergyData, getExhaustPressureData } from '../chartData'
+import { buildTrendOption } from '../chartOptions'
 
 // 自定义 emoji 图标组件
 const TotalIcon = () => h('span', { style: 'font-size: 20px;' }, '🌬️')
@@ -317,9 +328,47 @@ const handleSpaceSelect = (keys: (string | number)[]) => {
   loadDeviceAttrList(key)
 }
 
+// 排风系统能耗趋势图表
+const energyChartRef = ref<HTMLDivElement>()
+const hasEnergyData = ref(false)
+const { setOptions: setEnergyChartOptions } = useECharts(energyChartRef as any)
+
+// 排风压差分析图表
+const pressureChartRef = ref<HTMLDivElement>()
+const hasPressureData = ref(false)
+const { setOptions: setPressureChartOptions } = useECharts(pressureChartRef as any)
+
+/** 渲染排风系统能耗趋势（mock 数据） */
+const renderEnergyChart = async () => {
+  const data = getExhaustEnergyData()
+  const series = (data.chatSeriesList || []).filter((s: any) => s.name !== '合计')
+  if (!data.xaxis.length || !series.length) {
+    hasEnergyData.value = false
+    return
+  }
+  hasEnergyData.value = true
+  await nextTick()
+  setEnergyChartOptions(buildTrendOption(data.xaxis, series, 'kWh'))
+}
+
+/** 渲染排风压差分析（mock 数据） */
+const renderPressureChart = async () => {
+  const data = getExhaustPressureData()
+  const series = (data.chatSeriesList || []).filter((s: any) => s.name !== '合计')
+  if (!data.xaxis.length || !series.length) {
+    hasPressureData.value = false
+    return
+  }
+  hasPressureData.value = true
+  await nextTick()
+  setPressureChartOptions(buildTrendOption(data.xaxis, series, 'Pa'))
+}
+
 onMounted(() => {
   loadSpaceTree()
   loadTableData()
+  renderEnergyChart()
+  renderPressureChart()
 })
 
 // 统计数据
@@ -343,7 +392,8 @@ const columns = [
     dataIndex: 'index',
     key: 'index',
     width: 60,
-    customRender: ({ index }: { index: number }) => index + 1,
+    customRender: ({ index }: { index: number }) =>
+      (currentPage.value - 1) * pageSize.value + index + 1,
   },
   { title: '设备名称', dataIndex: 'deviceName', key: 'deviceName', width: 120 },
   { title: '设备编号', dataIndex: 'deviceCode', key: 'deviceCode', width: 120 },
@@ -543,6 +593,12 @@ const handleDetail = async (record: any) => {
       font-size: 54px;
     }
 
+    .card-note {
+      color: rgba(0, 0, 0, 0.45);
+      font-size: 12px;
+      text-align: right;
+    }
+
     &__body {
       height: 320px;
       background: #f7f9fc;
@@ -706,12 +762,51 @@ const handleDetail = async (record: any) => {
     position: relative;
     border: 1px solid #e5e6e8;
     border-radius: 8px;
-    overflow: hidden;
-    background: linear-gradient(rgba(53, 108, 132, 0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(53, 108, 132, 0.05) 1px, transparent 1px);
-    background-size: 18px 18px;
-    background-color: #082332;
+    overflow: auto;
+    background-color: #06131d;
     min-height: 500px;
+
+    &__controls {
+      position: sticky;
+      bottom: 0;
+      right: 0;
+      align-self: flex-end;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 12px;
+      background: rgba(8, 35, 50, 0.95);
+      border: 1px solid rgba(78, 141, 167, 0.25);
+      border-radius: 6px 6px 0 0;
+      z-index: 10;
+      margin-left: auto;
+      width: fit-content;
+    }
   }
+}
+
+.zoom-btn {
+  border: 1px solid #3d8197;
+  background: rgba(13, 48, 65, 0.8);
+  color: #80c7d1;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  padding: 5px 10px;
+  transition: all 0.2s;
+
+  &:hover {
+    color: #48dfa8;
+    border-color: #48dfa8;
+    background: rgba(72, 223, 168, 0.1);
+  }
+}
+
+.zoom-label {
+  font-size: 12px;
+  color: #80c7d1;
+  min-width: 40px;
+  text-align: center;
 }
 </style>

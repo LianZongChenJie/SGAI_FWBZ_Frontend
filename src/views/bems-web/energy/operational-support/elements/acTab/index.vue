@@ -97,28 +97,17 @@
       <a-card class="analysis-card" :bordered="false">
         <div class="analysis-card__header">
           <div class="analysis-card__title">
-            <span class="analysis-card__icon">📈</span>
-            <span>空调能耗趋势</span>
+            <span class="analysis-card__icon">🌫️</span>
+            <span>回风二氧化碳</span>
           </div>
-
+          <span class="card-note">今日 00:00–23:00 · 逐时 ppm · 虚线=设定 800</span>
         </div>
         <div class="analysis-card__body">
-          <div v-show="energyLoading" class="chart-placeholder">
-            <a-spin />
-            <div class="chart-placeholder__text">加载中...</div>
-          </div>
-          <div
-            v-show="!energyLoading && energyChartData.length === 0"
-            class="chart-placeholder"
-          >
+          <div v-if="hasCo2Data" ref="co2ChartRef" class="venue-chart"></div>
+          <div v-else class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
             <div class="chart-placeholder__text">暂无数据</div>
           </div>
-          <div
-            v-show="!energyLoading && energyChartData.length > 0"
-            ref="energyChartRef"
-            class="venue-chart"
-          ></div>
         </div>
       </a-card>
       <a-card class="analysis-card" :bordered="false">
@@ -139,22 +128,11 @@
           </div>
         </div>
         <div class="analysis-card__body">
-          <div v-show="tempLoading" class="chart-placeholder">
-            <a-spin />
-            <div class="chart-placeholder__text">加载中...</div>
-          </div>
-          <div
-            v-show="!tempLoading && tempChartData.length === 0"
-            class="chart-placeholder"
-          >
+          <div v-if="hasTempData" ref="tempChartRef" class="venue-chart"></div>
+          <div v-else class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
             <div class="chart-placeholder__text">暂无数据</div>
           </div>
-          <div
-            v-show="!tempLoading && tempChartData.length > 0"
-            ref="tempChartRef"
-            class="venue-chart"
-          ></div>
         </div>
       </a-card>
     </div>
@@ -192,7 +170,11 @@
           </div>
           <!-- 右侧：工艺图 -->
           <div class="process-schematic">
-            <Ahu :values="ahuValues" :system-params="systemParams" :device-name="selectedDeviceName" />
+            <Ahu
+              :values="ahuValues"
+              :system-params="systemParams"
+              :device-name="selectedDeviceName"
+            />
           </div>
         </div>
       </div>
@@ -263,9 +245,11 @@ import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitO
 import { message } from 'ant-design-vue'
 import { StatCard } from '/@/views/bems-web/components'
 import { getSpaceTree } from './index.api'
-import { getAcUnitList, getAcUnitStatistics, getAirEnergyDay, getSupplyAirTemperature, getReturnAirTemperature, getDeviceAttrList, airControl } from './index.api'
+import { getAcUnitList, getAcUnitStatistics, getDeviceAttrList, airControl } from './index.api'
 import { useECharts } from '/@/hooks/web/useECharts'
 import Ahu from '../../building-automation/ahu-1.vue'
+import { getAcCo2Data, getAcSupplyData, getAcReturnData } from '../chartData'
+import { buildTrendOption } from '../chartOptions'
 
 // 折叠状态
 const collapsedTable = ref(false)
@@ -459,6 +443,14 @@ const attributeColumns = ref<any[]>([])
 
 // 表格列定义（固定3列 + 动态列 + 操作列）
 const columns = computed(() => [
+  {
+    title: '序号',
+    dataIndex: 'index',
+    key: 'index',
+    width: 70,
+    customRender: ({ index }: { index: number }) =>
+      (pagination.current - 1) * pagination.pageSize + index + 1,
+  },
   { title: '机组编号', dataIndex: 'deviceCode', key: 'deviceCode', width: 110 },
   { title: '位置', dataIndex: 'spaceId', key: 'spaceId', width: 150 },
   { title: '运行状态', dataIndex: 'runStop', key: 'runStop', width: 100 },
@@ -600,16 +592,14 @@ const handleTableChange = (pag: any) => {
   loadAcUnitList(pag.current, pag.pageSize, meterSpace.value, filterStatus.value)
 }
 
-// 空调能耗趋势图表
-const energyChartRef = ref<HTMLDivElement>()
-const energyChartData = ref<any[]>([])
-const energyLoading = ref(false)
-const { setOptions: setEnergyChartOptions } = useECharts(energyChartRef as any)
+// 回风二氧化碳图表
+const co2ChartRef = ref<HTMLDivElement>()
+const hasCo2Data = ref(false)
+const { setOptions: setCo2ChartOptions } = useECharts(co2ChartRef as any)
 
 // 供回风温度趋势图表
 const tempChartRef = ref<HTMLDivElement>()
-const tempChartData = ref<any[]>([])
-const tempLoading = ref(false)
+const hasTempData = ref(false)
 const { setOptions: setTempChartOptions } = useECharts(tempChartRef as any)
 
 const tempTabs: { key: 'supply' | 'return'; label: string }[] = [
@@ -620,149 +610,44 @@ const tempActive = ref<'supply' | 'return'>('supply')
 
 const handleTempTabChange = (key: 'supply' | 'return') => {
   tempActive.value = key
-  loadTempChart()
+  renderTempChart()
 }
 
-/** 加载空调能耗趋势数据 */
-const loadEnergyChart = async () => {
-  energyLoading.value = true
-  try {
-    const res = await getAirEnergyDay()
-    // 响应格式：{ result: { chat: { xaxis, chatSeriesList } } } 或 { chat: { ... } }
-    const chatData = res?.chat || res?.result?.chat || res?.data?.chat || {}
-    const xaxis = chatData.xaxis || []
-    const seriesList = (chatData.chatSeriesList || chatData.seriesList || []) as any[]
-    const filteredList = seriesList.filter((item: any) => item.name !== '合计')
-    energyChartData.value = filteredList
-    energyLoading.value = false
-    await nextTick()
-    if (xaxis.length > 0 && filteredList.length > 0) {
-      renderEnergyChart(xaxis, filteredList)
-    }
-  } catch (e) {
-    console.error('加载空调能耗趋势失败:', e)
-    energyLoading.value = false
+/** 渲染回风二氧化碳图表（mock 数据） */
+const renderCo2Chart = async () => {
+  const data = getAcCo2Data()
+  const series = (data.chatSeriesList || []).filter((s: any) => s.name !== '合计')
+  if (!data.xaxis.length || !series.length) {
+    hasCo2Data.value = false
+    return
   }
+  hasCo2Data.value = true
+  await nextTick()
+  setCo2ChartOptions(buildTrendOption(
+    data.xaxis, series, 'ppm', true,
+    { lines: [{ y: 800, label: 'CO2 设定值 800 ppm' }] },
+    400, 880,
+  ))
 }
 
-/** 加载供回风温度趋势数据 */
-const loadTempChart = async () => {
-  tempLoading.value = true
-  try {
-    const apiFn = tempActive.value === 'supply' ? getSupplyAirTemperature : getReturnAirTemperature
-    const res = await apiFn()
-    // 响应格式：{ result: { chat: { xaxis, chatSeriesList } } } 或 { chat: { ... } }
-    const chatData = res?.chat || res?.result?.chat || res?.data?.chat || {}
-    const xaxis = chatData.xaxis || []
-    const seriesList = (chatData.chatSeriesList || chatData.seriesList || []) as any[]
-    const filteredList = seriesList.filter((item: any) => item.name !== '合计')
-    tempChartData.value = filteredList
-    tempLoading.value = false
-    await nextTick()
-    if (xaxis.length > 0 && filteredList.length > 0) {
-      renderTempChart(xaxis, filteredList)
-    }
-  } catch (e) {
-    console.error('加载供回风温度趋势失败:', e)
-    tempLoading.value = false
+/** 渲染供回风温度趋势图表（mock 数据，送温/回温切换） */
+const renderTempChart = async () => {
+  const data = tempActive.value === 'return' ? getAcReturnData() : getAcSupplyData()
+  const series = (data.chatSeriesList || []).filter((s: any) => s.name !== '合计')
+  if (!data.xaxis.length || !series.length) {
+    hasTempData.value = false
+    return
   }
-}
-
-/** 渲染空调能耗趋势折线图 */
-const renderEnergyChart = (xaxis: string[], seriesList: { name: string; data: number[] }[]) => {
-  setEnergyChartOptions({
-    tooltip: { trigger: 'axis', show: true },
-    legend: {
-      type: 'scroll',
-      data: seriesList.map((item) => item.name),
-      bottom: 0,
-    },
-    grid: {
-      left: '3%',
-      right: '4%',
-      bottom: '15%',
-      top: '8%',
-      containLabel: true,
-    },
-    xAxis: {
-      type: 'category',
-      boundaryGap: false,
-      data: xaxis,
-      axisLabel: {
-        color: '#666',
-        fontSize: 12,
-        rotate: xaxis.length > 6 ? 30 : 0,
-      },
-    },
-    yAxis: {
-      type: 'value',
-      name: '',
-      axisLabel: {
-        margin: 15,
-        overflow: 'truncate',
-        color: '#666',
-        fontSize: 12,
-      },
-    },
-    series: seriesList.map((item) => ({
-      name: item.name,
-      type: 'line',
-      data: item.data,
-      smooth: true,
-    })),
-  })
-}
-
-/** 渲染供回风温度趋势折线图 */
-const renderTempChart = (xaxis: string[], seriesList: { name: string; data: number[] }[]) => {
-  setTempChartOptions({
-    tooltip: { trigger: 'axis', show: true },
-    legend: {
-      type: 'scroll',
-      data: seriesList.map((item) => item.name),
-      bottom: 0,
-    },
-    grid: {
-      left: '3%',
-      right: '4%',
-      bottom: '15%',
-      top: '8%',
-      containLabel: true,
-    },
-    xAxis: {
-      type: 'category',
-      boundaryGap: false,
-      data: xaxis,
-      axisLabel: {
-        color: '#666',
-        fontSize: 12,
-        rotate: xaxis.length > 6 ? 30 : 0,
-      },
-    },
-    yAxis: {
-      type: 'value',
-      name: '',
-      axisLabel: {
-        margin: 15,
-        overflow: 'truncate',
-        color: '#666',
-        fontSize: 12,
-      },
-    },
-    series: seriesList.map((item) => ({
-      name: item.name,
-      type: 'line',
-      data: item.data,
-      smooth: true,
-    })),
-  })
+  hasTempData.value = true
+  await nextTick()
+  setTempChartOptions(buildTrendOption(data.xaxis, series, '℃', true))
 }
 
 onMounted(() => {
   loadSpaceTree()
   loadStatistics()
-  loadEnergyChart()
-  loadTempChart()
+  renderCo2Chart()
+  renderTempChart()
   loadAcUnitList()
 })
 </script>
@@ -879,6 +764,12 @@ onMounted(() => {
 
     &__icon2 {
       font-size: 54px;
+    }
+
+    .card-note {
+      color: rgba(0, 0, 0, 0.45);
+      font-size: 12px;
+      text-align: right;
     }
 
     &__body {
@@ -1051,6 +942,48 @@ onMounted(() => {
       background-size: 18px 18px;
       background-color: #082332;
       min-height: 500px;
+      display: flex;
+      flex-direction: column;
+
+      .process-schematic__toolbar {
+        flex-shrink: 0;
+        height: 44px;
+        padding: 0 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: rgba(8, 35, 50, 0.95);
+        border-bottom: 1px solid rgba(78, 141, 167, 0.25);
+        z-index: 10;
+      }
+
+      .process-schematic__title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #d9eaf3;
+      }
+
+      .process-schematic__actions {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .process-schematic__inner {
+        flex: 1;
+        min-height: 0;
+        overflow: auto;
+        position: relative;
+      }
+
+      :deep(.hide-system-panel) {
+        .system-panel {
+          display: none;
+        }
+        .schematic-card {
+          right: 16px;
+        }
+      }
     }
 
     .process-empty {
@@ -1095,5 +1028,30 @@ onMounted(() => {
     color: #1d2129;
     flex-shrink: 0;
   }
+}
+
+.zoom-btn {
+  border: 1px solid #3d8197;
+  background: rgba(13, 48, 65, 0.8);
+  color: #80c7d1;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  padding: 5px 10px;
+  transition: all 0.2s;
+
+  &:hover {
+    color: #48dfa8;
+    border-color: #48dfa8;
+    background: rgba(72, 223, 168, 0.1);
+  }
+}
+
+.zoom-label {
+  font-size: 12px;
+  color: #80c7d1;
+  min-width: 40px;
+  text-align: center;
 }
 </style>

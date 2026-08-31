@@ -88,11 +88,13 @@
             <span class="analysis-card__icon">📈</span>
             <span>风机盘管能耗趋势</span>
           </div>
+          <span class="card-note">各馆 FCU 群 · 逐时 kWh</span>
         </div>
         <div class="analysis-card__body">
-          <div class="chart-placeholder">
+          <div v-if="hasEnergyData" ref="energyChartRef" class="venue-chart"></div>
+          <div v-else class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
-            <div class="chart-placeholder__text">各区域风机盘管能耗趋势</div>
+            <div class="chart-placeholder__text">暂无数据</div>
           </div>
         </div>
       </a-card>
@@ -102,11 +104,13 @@
             <span class="analysis-card__icon">🌡️</span>
             <span>供回水温度曲线</span>
           </div>
+          <span class="card-note">冷冻水供/回水总管 · ℃</span>
         </div>
         <div class="analysis-card__body">
-          <div class="chart-placeholder">
+          <div v-if="hasWaterData" ref="waterChartRef" class="venue-chart"></div>
+          <div v-else class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
-            <div class="chart-placeholder__text">冷冻水供回水温度曲线</div>
+            <div class="chart-placeholder__text">暂无数据</div>
           </div>
         </div>
       </a-card>
@@ -145,7 +149,11 @@
           </div>
           <!-- 右侧：工艺图 -->
           <div class="process-schematic">
-            <Fcu :values="deviceValues" :system-params="systemParams" :device-name="selectedDeviceName" />
+            <Fcu
+              :values="deviceValues"
+              :system-params="systemParams"
+              :device-name="selectedDeviceName"
+            />
           </div>
         </div>
       </div>
@@ -174,11 +182,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, h, onMounted } from 'vue'
+import { ref, reactive, computed, h, onMounted, nextTick } from 'vue'
 import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons-vue'
 import { StatCard } from '/@/views/bems-web/components'
-import { getSpaceTree, getDeviceAttrList, selectDevice } from './index.api'
+import { getSpaceTree, getDeviceAttrList, selectDevice, getFanCoilStatistics } from './index.api'
 import Fcu from '../../building-automation/fcu.vue'
+import { useECharts } from '/@/hooks/web/useECharts'
+import { getFcuEnergyData, getFcuWaterData } from '../chartData'
+import { buildTrendOption } from '../chartOptions'
 
 // 自定义 emoji 图标组件
 const TotalIcon = () => h('span', { style: 'font-size: 20px;' }, '🎛️')
@@ -318,17 +329,69 @@ const handleSpaceSelect = (keys: (string | number)[]) => {
 }
 
 onMounted(() => {
+  loadStatistics()
   loadSpaceTree()
   loadTableData()
+  loadCharts()
 })
+
+// 风机盘管能耗趋势图表
+const energyChartRef = ref<HTMLDivElement>()
+const hasEnergyData = ref(false)
+const { setOptions: setEnergyChartOptions } = useECharts(energyChartRef as any)
+
+// 供回水温度曲线图表
+const waterChartRef = ref<HTMLDivElement>()
+const hasWaterData = ref(false)
+const { setOptions: setWaterChartOptions } = useECharts(waterChartRef as any)
+
+/** 渲染风机盘管能耗趋势与供回水温度图表（mock 数据） */
+const loadCharts = async () => {
+  await nextTick()
+  // 图1 能耗趋势
+  const energyData = getFcuEnergyData()
+  const energySeries = (energyData.chatSeriesList || []).filter((s: any) => s.name !== '合计')
+  if (!energyData.xaxis.length || !energySeries.length) {
+    hasEnergyData.value = false
+  } else {
+    hasEnergyData.value = true
+    await nextTick()
+    setEnergyChartOptions(buildTrendOption(energyData.xaxis, energySeries, 'kWh'))
+  }
+
+  // 图2 供回水温度
+  const waterData = getFcuWaterData()
+  const waterSeries = (waterData.chatSeriesList || []).filter((s: any) => s.name !== '合计')
+  if (!waterData.xaxis.length || !waterSeries.length) {
+    hasWaterData.value = false
+  } else {
+    hasWaterData.value = true
+    await nextTick()
+    setWaterChartOptions(buildTrendOption(waterData.xaxis, waterSeries, '℃', true))
+  }
+}
 
 // 统计数据
 const statsData = ref({
-  count: 0,
-  online: 0,
+  count: '--',
+  online: '--',
   energyConsumption: '--',
   avgTemp: '--',
 })
+
+/** 加载汇总统计数据 */
+const loadStatistics = async () => {
+  try {
+    const res = await getFanCoilStatistics()
+    const data = res?.data ?? res ?? {}
+    statsData.value.count = data.count ?? '--'
+    statsData.value.online = data.online ?? '--'
+    statsData.value.energyConsumption = data.energyConsumption ?? '--'
+    statsData.value.avgTemp = data.avgTemp ?? '--'
+  } catch (e) {
+    console.error('获取风机盘管统计数据失败:', e)
+  }
+}
 
 // 搜索表单
 const searchForm = reactive({
@@ -343,7 +406,8 @@ const columns = [
     dataIndex: 'index',
     key: 'index',
     width: 60,
-    customRender: ({ index }: { index: number }) => index + 1,
+    customRender: ({ index }: { index: number }) =>
+      (currentPage.value - 1) * pageSize.value + index + 1,
   },
   { title: '设备名称', dataIndex: 'deviceName', key: 'deviceName', width: 120 },
   { title: '设备编号', dataIndex: 'deviceCode', key: 'deviceCode', width: 120 },
@@ -383,9 +447,6 @@ const loadTableData = async () => {
     const list = res?.records || []
     tableData.value = list
     tableTotal.value = res?.total || 0
-    // 更新统计数据
-    statsData.value.count = tableTotal.value
-    statsData.value.online = list.filter((item: any) => item.runState === '在线').length
   } catch (error) {
     console.error('加载风机盘管列表失败:', error)
     tableData.value = []
@@ -541,6 +602,12 @@ const handleDetail = async (record: any) => {
 
     &__icon2 {
       font-size: 54px;
+    }
+
+    .card-note {
+      color: rgba(0, 0, 0, 0.45);
+      font-size: 12px;
+      text-align: right;
     }
 
     &__body {
@@ -712,6 +779,73 @@ const handleDetail = async (record: any) => {
     background-size: 18px 18px;
     background-color: #082332;
     min-height: 500px;
+    display: flex;
+    flex-direction: column;
+
+    &__toolbar {
+      flex-shrink: 0;
+      height: 44px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(8, 35, 50, 0.95);
+      border-bottom: 1px solid rgba(78, 141, 167, 0.25);
+      z-index: 10;
+    }
+
+    &__title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #d9eaf3;
+    }
+
+    &__actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    &__inner {
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      position: relative;
+    }
+
+    :deep(.hide-system-panel) {
+      .system-panel {
+        display: none;
+      }
+      .schematic-card {
+        right: 16px;
+      }
+    }
   }
+}
+
+.zoom-btn {
+  border: 1px solid #3d8197;
+  background: rgba(13, 48, 65, 0.8);
+  color: #80c7d1;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  padding: 5px 10px;
+  transition: all 0.2s;
+
+  &:hover {
+    color: #48dfa8;
+    border-color: #48dfa8;
+    background: rgba(72, 223, 168, 0.1);
+  }
+}
+
+.zoom-label {
+  font-size: 12px;
+  color: #80c7d1;
+  min-width: 40px;
+  text-align: center;
 }
 </style>

@@ -88,11 +88,13 @@
             <span class="analysis-card__icon">📈</span>
             <span>热回收能耗趋势</span>
           </div>
+          <span class="card-note">逐时回收热量 kWh · 停机无数据</span>
         </div>
         <div class="analysis-card__body">
-          <div class="chart-placeholder">
+          <div v-if="hasEnergyData" ref="energyChartRef" class="venue-chart"></div>
+          <div v-else class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
-            <div class="chart-placeholder__text">各机组热回收能耗趋势</div>
+            <div class="chart-placeholder__text">暂无数据</div>
           </div>
         </div>
       </a-card>
@@ -102,11 +104,13 @@
             <span class="analysis-card__icon">🌡️</span>
             <span>排风温度回收效率</span>
           </div>
+          <span class="card-note">温度回收效率 % · 停机无数据</span>
         </div>
         <div class="analysis-card__body">
-          <div class="chart-placeholder">
+          <div v-if="hasEffData" ref="effChartRef" class="venue-chart"></div>
+          <div v-else class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
-            <div class="chart-placeholder__text">排风温度与回收效率分析</div>
+            <div class="chart-placeholder__text">暂无数据</div>
           </div>
         </div>
       </a-card>
@@ -163,10 +167,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, h } from 'vue'
+import { ref, reactive, computed, onMounted, nextTick, h } from 'vue'
 import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons-vue'
 import { StatCard } from '/@/views/bems-web/components'
-import { selectDevice, getDeviceAttrList } from './index.api'
+import { selectDevice, getDeviceAttrList, getHeatRecoveryStatistics } from './index.api'
+import { useECharts } from '/@/hooks/web/useECharts'
+import { getHeatRecoveryEnergyData, getHeatRecoveryEffData } from '../chartData'
+import { buildTrendOption } from '../chartOptions'
 
 // 自定义 emoji 图标组件
 const TotalIcon = () => h('span', { style: 'font-size: 20px;' }, '🔄')
@@ -193,11 +200,25 @@ defineProps<{
 
 // 统计数据
 const statsData = ref({
-  count: 0,
-  online: 0,
+  count: '--',
+  online: '--',
   energyConsumption: '--',
   efficiency: '--',
 })
+
+/** 加载汇总统计数据 */
+const loadStatistics = async () => {
+  try {
+    const res = await getHeatRecoveryStatistics()
+    const data = res?.data ?? res ?? {}
+    statsData.value.count = data.count ?? '--'
+    statsData.value.online = data.online ?? '--'
+    statsData.value.energyConsumption = data.energyConsumption ?? '--'
+    statsData.value.efficiency = data.efficiency ?? '--'
+  } catch (e) {
+    console.error('获取热回收机组统计数据失败:', e)
+  }
+}
 
 // 搜索表单
 const searchForm = reactive({
@@ -212,7 +233,8 @@ const columns = [
     dataIndex: 'index',
     key: 'index',
     width: 60,
-    customRender: ({ index }: { index: number }) => index + 1,
+    customRender: ({ index }: { index: number }) =>
+      (currentPage.value - 1) * pageSize.value + index + 1,
   },
   { title: '设备名称', dataIndex: 'deviceName', key: 'deviceName', width: 120 },
   { title: '设备编号', dataIndex: 'deviceCode', key: 'deviceCode', width: 120 },
@@ -252,9 +274,6 @@ const loadTableData = async () => {
     const list = res?.records || []
     tableData.value = list
     tableTotal.value = res?.total || 0
-    // 更新统计数据
-    statsData.value.count = tableTotal.value
-    statsData.value.online = list.filter((item: any) => item.runState === '在线').length
   } catch (error) {
     console.error('加载热回收机组列表失败:', error)
     tableData.value = []
@@ -296,8 +315,46 @@ const handleDetail = async (record: any) => {
 }
 
 onMounted(() => {
+  loadStatistics()
   loadTableData()
+  loadCharts()
 })
+
+// 热回收能耗趋势图表
+const energyChartRef = ref<HTMLDivElement>()
+const hasEnergyData = ref(false)
+const { setOptions: setEnergyChartOptions } = useECharts(energyChartRef as any)
+
+// 排风温度回收效率图表
+const effChartRef = ref<HTMLDivElement>()
+const hasEffData = ref(false)
+const { setOptions: setEffChartOptions } = useECharts(effChartRef as any)
+
+/** 渲染热回收能耗趋势与回收效率图表（mock 数据） */
+const loadCharts = async () => {
+  await nextTick()
+  // 图1 能耗趋势
+  const energyData = getHeatRecoveryEnergyData()
+  const energySeries = (energyData.chatSeriesList || []).filter((s: any) => s.name !== '合计')
+  if (!energyData.xaxis.length || !energySeries.length) {
+    hasEnergyData.value = false
+  } else {
+    hasEnergyData.value = true
+    await nextTick()
+    setEnergyChartOptions(buildTrendOption(energyData.xaxis, energySeries, 'kWh'))
+  }
+
+  // 图2 回收效率
+  const effData = getHeatRecoveryEffData()
+  const effSeries = (effData.chatSeriesList || []).filter((s: any) => s.name !== '合计')
+  if (!effData.xaxis.length || !effSeries.length) {
+    hasEffData.value = false
+  } else {
+    hasEffData.value = true
+    await nextTick()
+    setEffChartOptions(buildTrendOption(effData.xaxis, effSeries, '%', true))
+  }
+}
 </script>
 
 <style scoped lang="less">
@@ -414,6 +471,12 @@ onMounted(() => {
 
     &__icon2 {
       font-size: 54px;
+    }
+
+    .card-note {
+      color: rgba(0, 0, 0, 0.45);
+      font-size: 12px;
+      text-align: right;
     }
 
     &__body {

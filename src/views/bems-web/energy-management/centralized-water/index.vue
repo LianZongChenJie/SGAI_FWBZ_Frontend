@@ -27,7 +27,7 @@
       <section class="content-grid">
         <article class="panel topology-panel">
           <div class="panel-heading">
-            <div><span class="eyebrow">REAL-TIME TOPOLOGY</span><h2>集中水冷系统实时监控</h2></div>
+            <h2>集中水冷系统实时监控</h2>
             <div class="legend"><span><i class="dot running"></i>运行</span><span><i class="dot stopped"></i>停止</span><span><i class="dot fault"></i>故障</span><span><i class="line supply"></i>冷冻供水</span><span><i class="line return"></i>冷冻回水</span><span><i class="line cooling-return"></i>冷却供水</span><span><i class="line cooling-supply"></i>冷却回水</span></div>
           </div>
 

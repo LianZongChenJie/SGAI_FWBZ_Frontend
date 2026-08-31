@@ -1,5 +1,5 @@
 <template>
-  <div class="heatmap-map-wrapper">
+  <div class="heatmap-map-wrapper" :class="{ fullscreen: props.fullscreen }">
     <div id="flowHeatmapContainer" class="map-container"></div>
     <!-- 缩放控制按钮 -->
     <div class="map-zoom-controls">
@@ -10,13 +10,15 @@
 </template>
 
 <script setup lang="ts">
-import { onActivated, onDeactivated, onMounted, onUnmounted, ref, watch } from 'vue'
+import { onActivated, onDeactivated, onMounted, onUnmounted, watch, nextTick } from 'vue'
+import type { PropType } from 'vue'
 import { loadMapScripts } from '/@/components/map/loadMapScripts'
 import type { VenueHeatmapItemVO } from './index.api'
 
-const props = defineProps<{
-  data: VenueHeatmapItemVO[]
-}>()
+const props = defineProps({
+  data: { type: Array as PropType<VenueHeatmapItemVO[]>, default: () => [] },
+  fullscreen: { type: Boolean, default: false },
+})
 
 // 地图相关状态
 let map: any = null
@@ -396,6 +398,32 @@ watch(
   { deep: true },
 )
 
+// 监听全屏状态变化，调整容器高度并触发地图 resize，全屏时放大地图比例
+watch(
+  () => props.fullscreen,
+  async () => {
+    await nextTick()
+    if (!map) return
+    // 等待 DOM 完成高度过渡后再触发 resize
+    setTimeout(() => {
+      try {
+        const underlyingMap = map.g || map.getMapBoxMap?.() || map
+        if (typeof underlyingMap.resize === 'function') {
+          underlyingMap.resize()
+        }
+        // 全屏时放大地图到更大的缩放级别
+        if (props.fullscreen) {
+          map.setZoom(15)
+        } else {
+          map.setZoom(14)
+        }
+      } catch (e) {
+        console.warn('[FlowHeatmap] resize/zoom failed:', e)
+      }
+    }, 300)
+  },
+)
+
 // ===================== 缩放控制 =====================
 
 function zoomIn() {
@@ -455,6 +483,12 @@ onUnmounted(() => {
   touch-action: pan-y;
 }
 
+/* 全屏模式：撑满父容器，让地图 canvas 正确计算尺寸 */
+.heatmap-map-wrapper.fullscreen {
+  width: 100vw;
+  height: calc(100vh - 110px);
+}
+
 .map-container {
   width: 100%;
   height: 100%;
@@ -466,7 +500,7 @@ onUnmounted(() => {
 .map-zoom-controls {
   position: absolute;
   right: 12px;
-  bottom: 12px;
+  top: 12px;
   display: flex;
   flex-direction: column;
   gap: 6px;

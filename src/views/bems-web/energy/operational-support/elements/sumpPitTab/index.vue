@@ -86,11 +86,13 @@
             <span class="analysis-card__icon">📈</span>
             <span>液位趋势曲线</span>
           </div>
+          <span class="card-note">逐时液位 m · 虚线=启/停泵液位</span>
         </div>
         <div class="analysis-card__body">
-          <div class="chart-placeholder">
+          <div v-if="hasLevelData" ref="levelChartRef" class="venue-chart"></div>
+          <div v-else class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
-            <div class="chart-placeholder__text">各集水坑液位趋势</div>
+            <div class="chart-placeholder__text">暂无数据</div>
           </div>
         </div>
       </a-card>
@@ -100,11 +102,13 @@
             <span class="analysis-card__icon">💧</span>
             <span>排水泵运行统计</span>
           </div>
+          <span class="card-note">今日运行时长 h · 悬停见启动次数</span>
         </div>
         <div class="analysis-card__body">
-          <div class="chart-placeholder">
+          <div v-if="hasPumpData" ref="pumpChartRef" class="venue-chart"></div>
+          <div v-else class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
-            <div class="chart-placeholder__text">各排水泵运行时长统计</div>
+            <div class="chart-placeholder__text">暂无数据</div>
           </div>
         </div>
       </a-card>
@@ -143,7 +147,11 @@
           </div>
           <!-- 右侧：工艺图 -->
           <div class="process-schematic">
-            <Sump :values="deviceValues" :system-params="systemParams" :device-name="selectedDeviceName" />
+            <Sump
+              :values="deviceValues"
+              :system-params="systemParams"
+              :device-name="selectedDeviceName"
+            />
           </div>
         </div>
       </div>
@@ -172,11 +180,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, h, onMounted } from 'vue'
+import { ref, reactive, computed, h, onMounted, nextTick } from 'vue'
 import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons-vue'
 import { StatCard } from '/@/views/bems-web/components'
 import { getSpaceTree, getDeviceAttrList, selectDevice } from './index.api'
 import Sump from '../../building-automation/sump.vue'
+import { useECharts } from '/@/hooks/web/useECharts'
+import { getSumpLevelData, getSumpPumpData, TAB_REF } from '../chartData'
+import { buildTrendOption, buildBarOption } from '../chartOptions'
 
 // 自定义 emoji 图标组件
 const TotalIcon = () => h('span', { style: 'font-size: 20px;' }, '🕳️')
@@ -318,7 +329,43 @@ const handleSpaceSelect = (keys: (string | number)[]) => {
 onMounted(() => {
   loadSpaceTree()
   loadTableData()
+  loadCharts()
 })
+
+// 液位趋势图表
+const levelChartRef = ref<HTMLDivElement>()
+const hasLevelData = ref(false)
+const { setOptions: setLevelChartOptions } = useECharts(levelChartRef as any)
+
+// 排水泵运行统计图表
+const pumpChartRef = ref<HTMLDivElement>()
+const hasPumpData = ref(false)
+const { setOptions: setPumpChartOptions } = useECharts(pumpChartRef as any)
+
+/** 渲染液位趋势与排水泵统计图表（mock 数据） */
+const loadCharts = async () => {
+  await nextTick()
+  // 图1 液位趋势
+  const levelData = getSumpLevelData()
+  const levelSeries = (levelData.chatSeriesList || []).filter((s: any) => s.name !== '合计')
+  if (!levelData.xaxis.length || !levelSeries.length) {
+    hasLevelData.value = false
+  } else {
+    hasLevelData.value = true
+    await nextTick()
+    setLevelChartOptions(buildTrendOption(levelData.xaxis, levelSeries, 'm', true, TAB_REF.sump_level))
+  }
+
+  // 图2 排水泵统计（柱状）
+  const pumpData = getSumpPumpData()
+  if (!pumpData.categories.length || !pumpData.series.length) {
+    hasPumpData.value = false
+  } else {
+    hasPumpData.value = true
+    await nextTick()
+    setPumpChartOptions(buildBarOption(pumpData.categories, pumpData.series, pumpData.unit))
+  }
+}
 
 // 统计数据
 const statsData = ref({
@@ -341,7 +388,8 @@ const columns = [
     dataIndex: 'index',
     key: 'index',
     width: 60,
-    customRender: ({ index }: { index: number }) => index + 1,
+    customRender: ({ index }: { index: number }) =>
+      (currentPage.value - 1) * pageSize.value + index + 1,
   },
   { title: '设备名称', dataIndex: 'deviceName', key: 'deviceName', width: 120 },
   { title: '设备编号', dataIndex: 'deviceCode', key: 'deviceCode', width: 120 },
@@ -541,6 +589,12 @@ const handleDetail = async (record: any) => {
       font-size: 54px;
     }
 
+    .card-note {
+      color: rgba(0, 0, 0, 0.45);
+      font-size: 12px;
+      text-align: right;
+    }
+
     &__body {
       height: 320px;
       background: #f7f9fc;
@@ -732,6 +786,73 @@ const handleDetail = async (record: any) => {
     background-size: 18px 18px;
     background-color: #082332;
     min-height: 500px;
+    display: flex;
+    flex-direction: column;
+
+    .process-schematic__toolbar {
+      flex-shrink: 0;
+      height: 44px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(8, 35, 50, 0.95);
+      border-bottom: 1px solid rgba(78, 141, 167, 0.25);
+      z-index: 10;
+    }
+
+    .process-schematic__title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #d9eaf3;
+    }
+
+    .process-schematic__actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .process-schematic__inner {
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      position: relative;
+    }
+
+    :deep(.hide-system-panel) {
+      .system-panel {
+        display: none;
+      }
+      .schematic-card {
+        right: 16px;
+      }
+    }
   }
+}
+
+.zoom-btn {
+  border: 1px solid #3d8197;
+  background: rgba(13, 48, 65, 0.8);
+  color: #80c7d1;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  padding: 5px 10px;
+  transition: all 0.2s;
+
+  &:hover {
+    color: #48dfa8;
+    border-color: #48dfa8;
+    background: rgba(72, 223, 168, 0.1);
+  }
+}
+
+.zoom-label {
+  font-size: 12px;
+  color: #80c7d1;
+  min-width: 40px;
+  text-align: center;
 }
 </style>
