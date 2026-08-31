@@ -81,3 +81,6 @@ export const airControl = (data: any[]) => defHttp.post({ url: '/sgai-fwbz-dev/f
 
 /** 设备空间位置 */
 export const getSpaceTree = () => defHttp.get({ url: Api.spaceTree, params: {categoryIds: '8'} });
+
+/** 设备列表导出 */
+export const exportData = (params) => defHttp.get({ url: '/sgai-fwbz-dev/fwbz/device/export', params: params, responseType: 'blob' }, { isTransformResponse: false });

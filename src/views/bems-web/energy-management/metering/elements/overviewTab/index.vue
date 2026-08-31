@@ -146,9 +146,14 @@
             </template>
             📥导出报表
           </a-button>
+          <button class="collapse-btn" @click="meterCollapsed = !meterCollapsed">
+            <CaretDownOutlined v-if="!meterCollapsed" />
+            <CaretUpOutlined v-else />
+          </button>
         </div>
       </div>
       <a-table
+        v-show="!meterCollapsed"
         :columns="meterColumns"
         :data-source="meterData"
         :pagination="pagination"
@@ -215,6 +220,8 @@ import {
   CheckCircleOutlined,
   SearchOutlined,
   ExportOutlined,
+  CaretDownOutlined,
+  CaretUpOutlined,
 } from '@ant-design/icons-vue'
 // 引用一次，抑制 vetur 未使用警告（仅用于模板）
 void ThunderboltOutlined
@@ -239,6 +246,9 @@ import { getVenueInfoList, getCategoryTreeData, spaceTree } from '/@/views/bems-
 // 自定义 emoji 图标组件（插头和水滴）
 const PlugIcon = () => h('span', { style: 'font-size: 20px;' }, '🔌')
 const WaterDropIcon = () => h('span', { style: 'font-size: 20px;' }, '💧')
+
+// 折叠状态
+const meterCollapsed = ref(false)
 
 // 统计数据（预留接口，当前为模拟数据）
 const statData = reactive({
@@ -909,6 +919,27 @@ onMounted(() => {
       &--offline {
         color: #cf1322;
         background: #fff1f0;
+      }
+    }
+
+    .collapse-btn {
+      width: 28px;
+      height: 28px;
+      border: 1px solid #d9d9d9;
+      border-radius: 4px;
+      background: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: #666;
+      transition: all 0.2s;
+      flex-shrink: 0;
+
+      &:hover {
+        color: #1677ff;
+        border-color: #1677ff;
       }
     }
 

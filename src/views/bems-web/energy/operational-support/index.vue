@@ -9,17 +9,14 @@
       <a-tab-pane key="heatRecovery" tab="热回收机组" />
       <a-tab-pane key="sumpPit" tab="集水坑" />
       <!-- <a-tab-pane key="power" tab="配电系统" /> -->
-      <a-tab-pane key="cold" tab="冷源系统" />
+      <!-- <a-tab-pane key="cold" tab="冷源系统" /> -->
       <a-tab-pane key="pv" tab="光伏系统（待开发）" />
     </a-tabs>
 
     <!-- 内容区域 -->
     <div class="tab-content">
-      <!-- 概览 -->
-      <OverviewTab v-if="currentTab === 'overview'" :data="tabData.overview" />
-
       <!-- 空调机组 -->
-      <AcTab v-else-if="currentTab === 'ac'" :data="tabData.ac" />
+      <AcTab v-if="currentTab === 'ac'" :data="tabData.ac" />
 
       <!-- 新风机组 -->
       <FreshTab v-else-if="currentTab === 'fresh'" :data="tabData.fresh" />
@@ -40,7 +37,7 @@
       <!-- <PowerTab v-else-if="currentTab === 'power'" :data="tabData.power" /> -->
 
       <!-- 冷源系统 -->
-      <ColdTab v-else-if="currentTab === 'cold'" :data="tabData.cold" />
+      <!-- <ColdTab v-else-if="currentTab === 'cold'" :data="tabData.cold" /> -->
 
       <!-- 光伏系统 -->
       <!-- <PvTab v-else-if="currentTab === 'pv'" :data="tabData.pv" /> -->
@@ -62,7 +59,7 @@ import ColdTab from './elements/coldTab/index.vue'
 import PvTab from './elements/pvTab/index.vue'
 
 // 当前激活的 Tab
-const currentTab = ref('overview')
+const currentTab = ref('ac')
 
 // Tab 数据
 const tabData = reactive({
@@ -168,8 +165,17 @@ onMounted(() => {
 
 <style scoped lang="less">
 .operation-page {
+  padding: 0;
   background: #f0f2f5;
   min-height: calc(100vh - 120px);
+
+  :deep(.ant-tabs-nav-wrap) {
+    padding-left: 12px;
+  }
+
+  :deep(.ant-tabs-nav) {
+    margin-bottom: 0;
+  }
 }
 
 .tab-content {

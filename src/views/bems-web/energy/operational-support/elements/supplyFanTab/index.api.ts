@@ -31,6 +31,11 @@ export const getSpaceTree = () => defHttp.get({ url: Api.spaceTree, params: { ca
 export const selectDevice = (params = {}) => defHttp.get({ url: Api.deviceList, params })
 
 /**
+ * 设备列表导出
+ */
+export const exportData = (params) => defHttp.get({ url: '/sgai-fwbz-dev/fwbz/device/export', params: params, responseType: 'blob' }, { isTransformResponse: false });
+
+/**
  * 设备属性列表（按设备ID查询）
  */
 export const getDeviceAttrList = (params = {}) => defHttp.get({ url: Api.listByDeviceId, params })

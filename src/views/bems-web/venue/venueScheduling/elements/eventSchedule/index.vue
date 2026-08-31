@@ -321,11 +321,10 @@ const handleDelete = (event: any) => {
 }
 
 .schedule-day {
-  min-width: 220px;
-  max-width: 260px;
+  width: 180px;
   background: #fafafa;
   border-radius: 10px;
-  padding: 16px;
+  padding: 6px;
   border: 1px solid #f0f0f0;
   flex: 1;
 

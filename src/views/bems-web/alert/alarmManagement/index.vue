@@ -34,5 +34,14 @@ const activeKey = ref('4');
   .full-height-tabs {
     background-color: #fff !important;
   }
+
+  :deep(.ant-tabs-nav-wrap) {
+    padding-left: 12px;
+  }
+
+  :deep(.ant-tabs-nav) {
+    margin-bottom: 0;
+    padding-top: 4px;
+  }
 }
 </style>

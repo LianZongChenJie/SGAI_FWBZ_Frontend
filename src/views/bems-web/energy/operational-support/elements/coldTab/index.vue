@@ -124,7 +124,7 @@
     </div>
 
     <!-- 工艺图监控 - 冷源系统 -->
-    <div class="card">
+    <!-- <div class="card">
       <div class="card-header">
         <h3>🏭工艺图监控 - 冷源系统</h3>
         <div class="header-right">
@@ -147,8 +147,8 @@
             冷却塔 → 冷却水泵 → 冷水机组 → 冷冻水泵 → 分水器 → 末端空调 → 集水器 → 回冷水机组 | 实时水温/流量/压力叠加显示
           </div>
         </div>
-    </div>
-    </div>
+    </div> -->
+    <!-- </div> -->
   </div>
 </template>
 

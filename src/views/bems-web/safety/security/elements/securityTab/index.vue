@@ -27,9 +27,13 @@
             <a-radio-button :value="3">3×3</a-radio-button>
             <a-radio-button :value="4">4×4</a-radio-button>
           </a-radio-group>
+          <button class="collapse-btn" @click="monitorCollapsed = !monitorCollapsed">
+            <CaretDownOutlined v-if="!monitorCollapsed" />
+            <CaretUpOutlined v-else />
+          </button>
         </div>
       </div>
-      <div class="card-body">
+      <div v-show="!monitorCollapsed" class="card-body">
         <CameraCarousel :cameras="cameraList" :layout="gridLayout" />
       </div>
     </div>
@@ -88,8 +92,12 @@
     <div class="card">
       <div class="card-header">
         <h3><EnvironmentOutlined /> 摄像头分布地图</h3>
+        <button class="collapse-btn" @click="mapCollapsed = !mapCollapsed">
+          <CaretDownOutlined v-if="!mapCollapsed" />
+          <CaretUpOutlined v-else />
+        </button>
       </div>
-      <div class="card-body">
+      <div v-show="!mapCollapsed" class="card-body">
         <SecurityCameraMap />
       </div>
     </div>
@@ -275,9 +283,15 @@ import {
   WarningOutlined,
   ApartmentOutlined,
   EnvironmentOutlined,
+  CaretDownOutlined,
+  CaretUpOutlined,
 } from '@ant-design/icons-vue'
 
 defineOptions({ name: 'SecurityTab' })
+
+/** 折叠状态 */
+const monitorCollapsed = ref(false)
+const mapCollapsed = ref(false)
 
 /** 监控画面网格布局：1=1×1, 2=2×2, 3=3×3, 4=4×4 */
 const gridLayout = ref(2)
@@ -886,6 +900,27 @@ const handleViewAllAIEvents = () => {
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+.collapse-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #666;
+  transition: all 0.2s;
+  flex-shrink: 0;
+
+  &:hover {
+    color: #1677ff;
+    border-color: #1677ff;
+  }
 }
 
 .camera-tree-wrap {

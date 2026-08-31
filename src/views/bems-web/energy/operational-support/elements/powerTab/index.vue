@@ -52,9 +52,13 @@
           </a-select> -->
           <a-button type="primary" @click="handleSearch">🔍 查询</a-button>
           </div>
+          <a-button type="primary" :loading="exportLoading" @click="handleExport" class="export-btn">
+            <DownloadOutlined v-if="!exportLoading" />
+            导出
+          </a-button>
           <button class="collapse-btn" @click="collapsedTable = !collapsedTable">
-<CaretDownOutlined v-if="!collapsedTable" />
-          <CaretUpOutlined v-else />
+            <CaretDownOutlined v-if="!collapsedTable" />
+            <CaretUpOutlined v-else />
           </button>
         </div>
       </div>
@@ -175,10 +179,10 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, h, onMounted, nextTick } from 'vue'
-import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons-vue'
+import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined, DownloadOutlined } from '@ant-design/icons-vue'
 import { StatCard } from '/@/views/bems-web/components'
 import { spaceTree } from '/@/views/bems-web/equipment/equipmentManagement/elements/device/Device.api'
-import { getPowerUnitList, getPowerStatistics, getDeviceAttrList } from './index.api'
+import { getPowerUnitList, getPowerStatistics, getDeviceAttrList, exportData } from './index.api'
 import { useECharts } from '/@/hooks/web/useECharts'
 import { getForwardActiveData, getForwardReactiveData } from '../chartData'
 import { buildBarOption } from '../chartOptions'
@@ -343,6 +347,35 @@ const loadPowerUnitList = async (pageNo = pagination.current, pageSize = paginat
 const handleSearch = () => {
   pagination.current = 1
   loadPowerUnitList(1, pagination.pageSize, meterSpace.value, filterStatus.value)
+}
+
+// 导出loading
+const exportLoading = ref(false)
+
+/** 导出设备列表 */
+const handleExport = async () => {
+  exportLoading.value = true
+  try {
+    const res = await exportData({
+      categoryIds: '43',
+      spaceId: meterSpace.value || undefined,
+    })
+    const blobOptions = { type: 'application/vnd.ms-excel' }
+    const fileSuffix = '.xlsx'
+    const url = window.URL.createObjectURL(new Blob([res], blobOptions))
+    const link = document.createElement('a')
+    link.style.display = 'none'
+    link.href = url
+    link.setAttribute('download', '配电系统列表' + fileSuffix)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+  } catch (e) {
+    console.error('导出失败:', e)
+  } finally {
+    exportLoading.value = false
+  }
 }
 
 // 详情弹窗

@@ -25,3 +25,8 @@ export const getPowerStatistics = (params = {}) => defHttp.get({ url: Api.powerS
  * 设备属性列表（按设备ID查询）
  */
 export const getDeviceAttrList = (params = {}) => defHttp.get({ url: '/sgai-fwbz-dev/fwbz/deviceAttribute/listByDeviceId', params })
+
+/**
+ * 设备列表导出
+ */
+export const exportData = (params) => defHttp.get({ url: '/sgai-fwbz-dev/fwbz/device/export', params: params, responseType: 'blob' }, { isTransformResponse: false });

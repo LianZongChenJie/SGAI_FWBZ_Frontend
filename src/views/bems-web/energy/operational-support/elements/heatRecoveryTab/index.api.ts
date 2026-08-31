@@ -38,6 +38,11 @@ export const getDeviceAttrList = (params = {}) => defHttp.get({ url: Api.listByD
 export const selectDevice = (params = {}) => defHttp.get({ url: Api.deviceList, params })
 
 /**
+ * 设备列表导出
+ */
+export const exportData = (params) => defHttp.get({ url: '/sgai-fwbz-dev/fwbz/device/export', params: params, responseType: 'blob' }, { isTransformResponse: false });
+
+/**
  * 热回收机组汇总统计数据
  */
 export const getHeatRecoveryStatistics = (params = {}) => defHttp.get({ url: Api.heatRecoveryStatistics, params })

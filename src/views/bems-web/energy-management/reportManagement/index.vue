@@ -1,18 +1,18 @@
 <template>
   <div class="report-management">
     <a-tabs v-model:activeKey="activeKey" centered class="full-height-tabs" destroyInactiveTabPane>
-      <a-tab-pane key="1" tab="水表">
+      <!-- <a-tab-pane key="1" tab="水表">
         <fourGenerationWaterMeter :categoryId="'45'" />
-      </a-tab-pane>
+      </a-tab-pane> -->
       <a-tab-pane key="2" tab="电表">
         <fourGenerationWaterMeter :categoryId="'43'" />
       </a-tab-pane>
-      <a-tab-pane key="3" tab="压力变送器">
+      <!-- <a-tab-pane key="3" tab="压力变送器">
         <sensorPage :categoryId="'26'" />
       </a-tab-pane>
       <a-tab-pane key="4" tab="流量传感器">
         <sensorPage :categoryId="'36'" />
-      </a-tab-pane>
+      </a-tab-pane> -->
       <a-tab-pane key="5" tab="冷源">
         <coldSourcePage />
       </a-tab-pane>
@@ -26,7 +26,7 @@
   import sensorPage from './sensorPage/index.vue';
   import coldSourcePage from './coldSource/index.vue';
 
-  const activeKey = ref('1');
+  const activeKey = ref('2');
   const categoryTreeData = ref([]);
   const spaceTreeData = ref([]);
 
@@ -47,6 +47,7 @@
       flex-direction: column;
       .ant-tabs-nav-wrap {
         justify-content: left;
+        padding-left: 12px;
       }
       .ant-tabs-nav {
         margin-bottom: 0;

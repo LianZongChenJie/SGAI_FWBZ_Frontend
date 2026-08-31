@@ -8,6 +8,20 @@
           </a-form-item>
         </a-col>
         <a-col :span="6">
+          <a-form-item label="采集点" name="tagId">
+            <a-select
+              v-model:value="selectedTagId"
+              placeholder="请选择采集点"
+              show-search
+              allow-clear
+              style="width: 100%"
+              :options="pointOptions"
+              :field-names="{ label: 'label', value: 'value' }"
+              :filter-option="(input, option) => option.label.toLowerCase().includes(input.toLowerCase())"
+            ></a-select>
+          </a-form-item>
+        </a-col>
+        <a-col :span="6">
           <a-form-item label="起始时间" name="startTime">
             <a-date-picker
               style="width: 100%"
@@ -47,12 +61,32 @@
 <script lang="ts" setup>
   import { ref, onMounted, h } from 'vue';
   import { VerticalAlignBottomOutlined, RedoOutlined, SearchOutlined } from '@ant-design/icons-vue';
-  import { getList, exportData } from './index.api';
+  import { getList, exportData, coldSourcePoint } from './index.api';
   import { BasicColumn, BasicTable } from '/@/components/Table';
   import { useListPage } from '/@/hooks/system/useListPage';
 
-  // 固定采集点id
-  const TAG_ID = 587;
+
+  // 采集点下拉数据
+  const pointOptions = ref<{ label: string; value: string }[]>([]);
+  const selectedTagId = ref<string>('');
+
+  // 加载采集点下拉
+  const loadPointOptions = async () => {
+    try {
+      const res = await coldSourcePoint();
+      const list = Array.isArray(res) ? res : (res?.data || res?.records || []);
+      pointOptions.value = list.map((item: any) => ({
+        label: item.desc || item.tagId,
+        value: item.tagId,
+      }));
+      // 默认选中第一个
+      if (pointOptions.value.length > 0) {
+        selectedTagId.value = pointOptions.value[0].value;
+      }
+    } catch (e) {
+      console.error('加载采集点列表失败:', e);
+    }
+  };
 
   // 毫秒数转换为日期
   const formatTime = (timestamp) => {
@@ -139,7 +173,7 @@
     const params = {
       pageNo: pageNo,
       pageSize: pageSize,
-      tagId: TAG_ID,
+      tagId: selectedTagId.value || '',
       ...formState.value,
     };
     const res = await getList(params);
@@ -182,7 +216,7 @@
   const handleExport = async () => {
     let res = await exportData({
       ...formState.value,
-      tagId: TAG_ID,
+      tagId: selectedTagId.value || '',
     });
     let name = '冷源历史数据';
     let blobOptions = { type: 'application/vnd.ms-excel' };
@@ -199,6 +233,7 @@
   };
 
   onMounted(async () => {
+    await loadPointOptions();
     reload();
   });
 </script>

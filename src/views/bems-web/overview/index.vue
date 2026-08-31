@@ -223,7 +223,8 @@ import dayjs from 'dayjs'
 import { StatCard, DeviceCard } from '/@/views/bems-web/components'
 import { getTodayExhibitionActivity, getTodayVisitorCount, getAlarmStatistics } from './index.api'
 import type { ActiveMeetInfo } from './index.api'
-import { getEquipmentOverview } from '/@/views/bems-web/energy/operational-support/elements/overviewTab/index.api'
+import { getDeviceStat } from '/@/views/bems-web/event/during/index.api'
+import type { SystemDeviceStatVO } from '/@/views/bems-web/event/during/index.api'
 import {
   getAlarmRecordsListApi,
   confirmAlarmRecordApi,
@@ -234,11 +235,11 @@ import {
   findDayByConfig,
   findMonthByConfig,
   findYearByConfig,
-} from '/@/views/bems-web/energy/energy-metering/elements/overviewTab/index.api'
+} from '/@/views/bems-web/energy-management/metering/elements/overviewTab/index.api'
 import {
   PieChartOutlined,
 } from '@ant-design/icons-vue'
-import PointDataStatistics from '/@/views/bems-web/energy/energy-metering/elements/analysisTab/pointDataStatistics/index.vue'
+import PointDataStatistics from '/@/views/bems-web/energy-management/metering/elements/analysisTab/pointDataStatistics/index.vue'
 
 // 自定义 emoji 图标组件（统计卡片）
 const CrowdIcon = () => h('span', { style: 'font-size: 20px;' }, '👥')
@@ -529,33 +530,32 @@ const fetchTodayEvents = async () => {
   }
 }
 
-// ===== 设备总览 =====
+// ===== 设备总览（子系统对接状态） =====
 const allDeviceData = ref<any[]>([])
 const equipmentLoading = ref(false)
 
-/** 加载设备总览数据 */
+/** 加载设备总览数据（调用 deviceStat 接口） */
 const loadEquipmentOverview = async () => {
   equipmentLoading.value = true
   try {
-    const res = await getEquipmentOverview()
-    const list = res?.records || res?.data?.records || res?.data || res || []
-    const items = Array.isArray(list) ? list : []
-    allDeviceData.value = items.map((item: any) => {
-      const categoryName = item.category?.categoryName || item.title || item.name || ''
-      const cfg = iconConfig[categoryName] || { icon: AirConditionerIcon, iconBg: '#e6f4ff', iconColor: '#1677ff' }
+    const res = await getDeviceStat()
+    const list: SystemDeviceStatVO[] = Array.isArray(res) ? res : (res?.data || res?.result || [])
+    allDeviceData.value = (list || []).map((item) => {
+      const offline = (item.deviceCount ?? 0) - (item.online ?? 0)
+      const systemName = item.systemName || ''
+      const cfg = iconConfig[systemName] || { icon: AirConditionerIcon, iconBg: '#e6f4ff', iconColor: '#1677ff' }
       return {
-        title: categoryName,
-        meta: item.meta || item.system || '',
+        title: systemName || '--',
+        meta: '设备状态',
         icon: cfg.icon,
         iconBg: cfg.iconBg,
         iconColor: cfg.iconColor,
-        stats: item.stats || [
-          { label: '总数', value: item.count ?? 0 },
-          { label: '运行', value: item.online ?? 0 },
-          { label: '故障', value: item.offline ?? 0, highlight: (item.offline ?? 0) > 0 },
+        stats: [
+          { label: '设备总数', value: item.deviceCount ?? 0 },
+          { label: '在线', value: item.online ?? 0 },
+          { label: '离线', value: offline, highlight: offline > 0 },
         ],
-        system: item.system || item.meta || '',
-        venue: item.venue || '',
+        system: systemName,
       }
     })
   } catch {

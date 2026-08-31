@@ -11,16 +11,20 @@
     <div class="card">
       <div class="card-header">
         <h3>📋报警规则配置</h3>
-        <div style="display: flex; gap: 8px;">
+        <div style="display: flex; gap: 8px; align-items: center;">
           <a-button type="primary" :loading="ruleExportLoading" @click="handleRuleExport">
             <DownloadOutlined v-if="!ruleExportLoading" />
             导出
           </a-button>
           <!-- <a-button v-if="hasPermission('bems:alarmRule:add')" type="primary" @click="addRuleStrategy"> 新增 </a-button> -->
           <a-button type="primary" @click="addRuleStrategy"> 新增 </a-button>
+          <button class="collapse-btn" @click="ruleCollapsed = !ruleCollapsed">
+            <CaretDownOutlined v-if="!ruleCollapsed" />
+            <CaretUpOutlined v-else />
+          </button>
         </div>
       </div>
-      <div class="card-body">
+      <div v-show="!ruleCollapsed" class="card-body">
         <a-table
           :columns="ruleColumns2"
           :data-source="ruleTableData"
@@ -71,7 +75,7 @@
     <div class="card">
       <div class="card-header">
         <h3>📋报警类别</h3>
-        <div style="display: flex; gap: 8px;">
+        <div style="display: flex; gap: 8px; align-items: center;">
           <a-button type="primary" :loading="categoryExportLoading" @click="handleCategoryExport">
             <DownloadOutlined v-if="!categoryExportLoading" />
             导出
@@ -85,9 +89,13 @@
             type="primary"
             @click="addAlarmCategory"
           > 新增 </a-button>
+          <button class="collapse-btn" @click="categoryCollapsed = !categoryCollapsed">
+            <CaretDownOutlined v-if="!categoryCollapsed" />
+            <CaretUpOutlined v-else />
+          </button>
         </div>
       </div>
-      <div class="card-body">
+      <div v-show="!categoryCollapsed" class="card-body">
         <a-table
           :columns="categoryColumns"
           :data-source="categoryTableData"
@@ -167,7 +175,7 @@
     <div class="card">
       <div class="card-header">
         <h3>📋报警级别</h3>
-        <div style="display: flex; gap: 8px;">
+        <div style="display: flex; gap: 8px; align-items: center;">
           <a-button type="primary" :loading="levelExportLoading" @click="handleLevelExport">
             <DownloadOutlined v-if="!levelExportLoading" />
             导出
@@ -181,9 +189,13 @@
             type="primary"
             @click="addAlarmLevel"
           > 新增 </a-button>
+          <button class="collapse-btn" @click="levelCollapsed = !levelCollapsed">
+            <CaretDownOutlined v-if="!levelCollapsed" />
+            <CaretUpOutlined v-else />
+          </button>
         </div>
       </div>
-      <div class="card-body">
+      <div v-show="!levelCollapsed" class="card-body">
         <a-table
           :columns="levelColumns"
           :data-source="levelTableData"
@@ -269,7 +281,7 @@
 import { StatCard } from '/@/views/bems-web/components'
 import { ref, computed, h, onMounted } from 'vue'
 import { defHttp } from '/@/utils/http/axios'
-import { DownloadOutlined } from '@ant-design/icons-vue'
+import { DownloadOutlined, CaretDownOutlined, CaretUpOutlined } from '@ant-design/icons-vue'
 import { usePermissionStore } from '/@/store/modules/permission'
 import AddAlarmCategoryModal from '/@/views/bems-web/alert/alarmManagement/components/AddAlarmCategoryModal.vue'
 import AddAlarmLevelModal from '/@/views/bems-web/alert/alarmManagement/components/AddAlarmLevelModal.vue'
@@ -301,6 +313,11 @@ const AlertTypesIcon = () => h('span', { style: 'font-size: 20px;' }, '🏷️')
 const NotifyChannelIcon = () => h('span', { style: 'font-size: 20px;' }, '📢')
 
 defineOptions({ name: 'AlertSettingPage' })
+
+// 折叠状态
+const ruleCollapsed = ref(false)
+const categoryCollapsed = ref(false)
+const levelCollapsed = ref(false)
 
 const statData = ref({ count: "--", enableCount: "--", categoryCount: "--", levelCount: "--" })
 
@@ -660,5 +677,26 @@ onMounted(() => {
   &.warning { background: #feebc8; color: #744210; }
   &.danger { background: #fed7d7; color: #742a2a; }
   &.info { background: #bee3f8; color: #2a4365; }
+}
+
+.collapse-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #666;
+  transition: all 0.2s;
+  flex-shrink: 0;
+
+  &:hover {
+    color: #1677ff;
+    border-color: #1677ff;
+  }
 }
 </style>

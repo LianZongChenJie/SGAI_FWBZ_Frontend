@@ -1,14 +1,20 @@
 <template>
   <a-card class="stat-card" :class="color" :bordered="false" hoverable>
-    <!-- 标签 -->
-    <div class="stat-label">{{ label }}</div>
-    <!-- 数值 -->
-    <div class="stat-value">{{ value }}</div>
-    <!-- 变化趋势 -->
-    <div v-if="changeText" class="stat-change" :class="trendClass">
-      {{ changeText }}
+    <!-- 左侧信息区 -->
+    <div class="stat-info">
+      <!-- 标签 -->
+      <div class="stat-label">{{ label }}</div>
+      <!-- 数值 -->
+      <div class="stat-value">
+        {{ value }}
+        <span v-if="unit" class="stat-unit">{{ unit }}</span>
+      </div>
+      <!-- 变化趋势 -->
+      <div v-if="changeText" class="stat-change" :class="trendClass">
+        {{ changeText }}
+      </div>
     </div>
-    <!-- 右上角图标 -->
+    <!-- 右侧图标区 -->
     <div v-if="icon" class="stat-icon" :class="color">
       <component :is="icon" />
     </div>
@@ -40,7 +46,11 @@ const props = defineProps({
   icon: {
     type: [String, Object],
     default: ''
-  }
+  },
+  unit: {
+    type: String,
+    default: ''
+  },
 })
 
 // 根据 changeText 中是否包含箭头判断趋势方向，用于渲染不同颜色
@@ -86,12 +96,24 @@ const trendClass = computed(() => {
 
   :deep(.ant-card-body) {
     padding: 22px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .stat-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
   }
 
   .stat-label {
     font-size: 13px;
     color: rgba(0, 0, 0, 0.45);
-    margin-bottom: 10px;
+    margin: 0;
     font-weight: 400;
   }
 
@@ -99,8 +121,17 @@ const trendClass = computed(() => {
     font-size: 28px;
     font-weight: 700;
     color: rgba(0, 0, 0, 0.88);
-    margin-bottom: 8px;
+    margin: 0;
     line-height: 1.2;
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+  }
+
+  .stat-unit {
+    font-size: 14px;
+    font-weight: 400;
+    color: rgba(0, 0, 0, 0.45);
   }
 
   .stat-change {
@@ -118,19 +149,17 @@ const trendClass = computed(() => {
   }
 
   .stat-icon {
-    position: absolute;
-    right: 18px;
-    top: 35px;
-    width: 68px;
-    height: 68px;
+    flex-shrink: 0;
+    width: 56px;
+    height: 56px;
     border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 32px;
+    font-size: 28px;
 
     & span {
-      font-size: 32px !important;
+      font-size: 28px !important;
     }
 
     &.blue   { background: #e6f4ff; color: #1677ff; }

@@ -17,12 +17,18 @@
     <div class="card">
       <div class="card-header">
         <h3><ClusterOutlined /> 控制器列表</h3>
-        <a-button type="primary" :loading="deviceExportLoading" @click="handleDeviceExport">
-          <DownloadOutlined v-if="!deviceExportLoading" />
-          导出
-        </a-button>
+        <div class="header-right">
+          <a-button type="primary" :loading="deviceExportLoading" @click="handleDeviceExport">
+            <DownloadOutlined v-if="!deviceExportLoading" />
+            导出
+          </a-button>
+          <button class="collapse-btn" @click="deviceCollapsed = !deviceCollapsed">
+            <CaretDownOutlined v-if="!deviceCollapsed" />
+            <CaretUpOutlined v-else />
+          </button>
+        </div>
       </div>
-      <div class="card-body">
+      <div v-show="!deviceCollapsed" class="card-body">
         <a-table
           :columns="deviceColumns"
           :data-source="deviceData"
@@ -75,9 +81,13 @@
             <DownloadOutlined v-if="!doorExportLoading" />
             导出
           </a-button>
+          <button class="collapse-btn" @click="doorCollapsed = !doorCollapsed">
+            <CaretDownOutlined v-if="!doorCollapsed" />
+            <CaretUpOutlined v-else />
+          </button>
         </div>
       </div>
-      <div class="card-body">
+      <div v-show="!doorCollapsed" class="card-body">
         <a-table
           :columns="doorColumns"
           :data-source="doorData"
@@ -173,9 +183,15 @@ import {
   SyncOutlined,
   SearchOutlined,
   DownloadOutlined,
+  CaretDownOutlined,
+  CaretUpOutlined,
 } from '@ant-design/icons-vue'
 
 defineOptions({ name: 'AccessControlTab' })
+
+/** 折叠状态 */
+const deviceCollapsed = ref(false)
+const doorCollapsed = ref(false)
 
 /** 通用导出方法 */
 const downloadBlob = (res: any, name: string) => {
@@ -522,5 +538,26 @@ onMounted(() => {
 .event-modal-body {
   max-height: 60vh;
   overflow-y: auto;
+}
+
+.collapse-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #666;
+  transition: all 0.2s;
+  flex-shrink: 0;
+
+  &:hover {
+    color: #1677ff;
+    border-color: #1677ff;
+  }
 }
 </style>

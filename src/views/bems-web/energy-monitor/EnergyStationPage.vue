@@ -322,6 +322,7 @@ onUnmounted(() => {
 */
 /* a-tabs 白底风格覆盖 */
 .subnav :deep(.ant-tabs) { width:100%; }
+.subnav :deep(.ant-tabs-nav-wrap) { padding-left:12px; }
 .subnav :deep(.ant-tabs-nav) { margin-bottom:0; }
 .subnav :deep(.ant-tabs-tab) { padding:10px 4px !important; font-size:14px; }
 .subnav :deep(.ant-tabs-ink-bar) { background:#3b82f6; }

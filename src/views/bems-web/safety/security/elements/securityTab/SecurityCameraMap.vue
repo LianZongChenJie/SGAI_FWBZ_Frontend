@@ -10,30 +10,6 @@
 
     <div id="securityCameraMapContainer" class="map-container"></div>
 
-    <!-- 摄像头信息面板（点击摄像头标识后显示） -->
-    <transition name="slide-fade">
-      <div v-if="cameraPanelVisible" class="camera-info-panel">
-        <div class="camera-panel-header">
-          <span class="panel-title">摄像头详情 ({{ currentCameraGroup?.cameraCount || 0 }}个)</span>
-          <span class="camera-close-btn" @click="cameraPanelVisible = false">✕</span>
-        </div>
-        <div class="camera-panel-body">
-          <div
-            v-for="(video, idx) in currentCameraGroup?.cameraList || []"
-            :key="idx"
-            class="camera-item"
-            @click="openCameraModal(currentCameraGroup, video)"
-          >
-            <div class="camera-item-name">
-              <VideoCameraOutlined />
-              {{ video.name || '未命名摄像头' }}
-            </div>
-          </div>
-          <div v-if="!currentCameraGroup?.cameraList?.length" class="empty-text">暂无摄像头信息</div>
-        </div>
-      </div>
-    </transition>
-
     <!-- 摄像头播放弹窗 -->
     <a-modal
       v-model:open="cameraModalVisible"
@@ -125,8 +101,6 @@ let mapReady = false
 
 const loading = ref(false)
 const loadingText = ref('加载中...')
-const cameraPanelVisible = ref(false)
-const currentCameraGroup = ref<any | null>(null)
 const fullscreen = ref(false)
 
 /** 摄像头弹窗：页面级弹窗 */
@@ -417,17 +391,12 @@ async function loadCameraMarkers() {
 // ==================== 摄像头弹窗（参考大屏 MapArea 实现） ====================
 
 /** 打开摄像头播放弹窗 */
-function openCameraModal(group: any, video?: any) {
+function openCameraModal(group: any) {
   cameraModalGroup.value = group
-  // 如果指定了某个摄像头，默认选中它；否则选中第一个
-  if (video) {
-    activeCameraTab.value = String(video.systemId)
-  } else {
-    const firstVideo = group.cameraList?.[0]
-    activeCameraTab.value = firstVideo ? String(firstVideo.systemId) : ''
-  }
+  // 默认选中第一个摄像头
+  const firstVideo = group.cameraList?.[0]
+  activeCameraTab.value = firstVideo ? String(firstVideo.systemId) : ''
   cameraModalVisible.value = true
-  cameraPanelVisible.value = false
 }
 
 /** 关闭摄像头播放弹窗 */
@@ -468,8 +437,7 @@ function handleMapContainerClick(e: MouseEvent) {
   if (!markerEl) return
   const idx = Number(markerEl.getAttribute('data-camera-idx'))
   if (!isNaN(idx) && cameraGroupCache[idx]) {
-    currentCameraGroup.value = cameraGroupCache[idx]
-    cameraPanelVisible.value = true
+    openCameraModal(cameraGroupCache[idx])
     e.stopPropagation()
   }
 }
@@ -477,13 +445,9 @@ function handleMapContainerClick(e: MouseEvent) {
 function handleDocumentClick(e: MouseEvent) {
   const target = e.target as HTMLElement
   if (target.closest('.security-camera-marker')) return
-  if (target.closest('.camera-info-panel')) return
   if (target.closest('.camera-modal-wrapper-light')) return
   if (target.closest('.ant-modal')) return
   if (target.closest('.fullscreen-toggle')) return
-  if (cameraPanelVisible.value) {
-    cameraPanelVisible.value = false
-  }
 }
 
 // ==================== 生命周期 ====================
@@ -500,7 +464,6 @@ onMounted(async () => {
 onUnmounted(() => {
   clearMarkers(cameraMarkerArr)
   cameraGroupCache = []
-  cameraPanelVisible.value = false
   cameraModalVisible.value = false
   removeMapScrollCapture()
   document.removeEventListener('click', handleDocumentClick, true)
@@ -578,148 +541,6 @@ onUnmounted(() => {
   background: #f0f0f0;
 }
 
-/* 摄像头信息面板（白色风格） */
-.camera-info-panel {
-  position: absolute;
-  top: 50px;
-  right: 12px;
-  width: 280px;
-  max-height: 360px;
-  background: rgba(255, 255, 255, 0.97);
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  z-index: 20;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.camera-panel-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 14px;
-  background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.panel-title {
-  color: #0ea5e9;
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.camera-close-btn {
-  width: 22px;
-  height: 22px;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 4px;
-  color: #ef4444;
-  font-size: 14px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  flex-shrink: 0;
-}
-
-.camera-close-btn:hover {
-  background: #fee2e2;
-  transform: scale(1.1);
-}
-
-.camera-panel-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 8px;
-  max-height: 300px;
-}
-
-.camera-panel-body::-webkit-scrollbar {
-  width: 5px;
-}
-
-.camera-panel-body::-webkit-scrollbar-track {
-  background: #f1f5f9;
-}
-
-.camera-panel-body::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 3px;
-}
-
-.camera-item {
-  padding: 8px 10px;
-  margin-bottom: 4px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  transition: all 0.2s;
-  cursor: pointer;
-}
-
-.camera-item:hover {
-  background: #f0f9ff;
-  border-color: #bae6fd;
-}
-
-.camera-item-name {
-  color: #1e293b;
-  font-size: 12px;
-  font-weight: 600;
-  margin-bottom: 3px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.camera-item-info {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 6px;
-}
-
-.camera-path {
-  color: #64748b;
-  font-size: 11px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex: 1;
-}
-
-.camera-status {
-  font-size: 11px;
-  font-weight: 600;
-  flex-shrink: 0;
-  padding: 1px 6px;
-  border-radius: 3px;
-}
-
-.camera-status.online {
-  color: #16a34a;
-  background: #dcfce7;
-}
-
-.camera-status.offline {
-  color: #dc2626;
-  background: #fee2e2;
-}
-
-.empty-text {
-  text-align: center;
-  color: #94a3b8;
-  font-size: 12px;
-  padding: 20px 0;
-}
-
 /* 加载提示 */
 .map-loading {
   position: absolute;
@@ -753,24 +574,6 @@ onUnmounted(() => {
   }
 }
 
-/* 面板过渡动画 */
-.slide-fade-enter-active {
-  transition: all 0.3s ease;
-}
-
-.slide-fade-leave-active {
-  transition: all 0.2s ease;
-}
-
-.slide-fade-enter-from {
-  transform: translateX(20px);
-  opacity: 0;
-}
-
-.slide-fade-leave-to {
-  transform: translateX(20px);
-  opacity: 0;
-}
 </style>
 
 <!-- 全局样式：摄像头标点由 SDK 注入到组件作用域外 -->

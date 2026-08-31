@@ -338,6 +338,7 @@
     // 固定 tab 不需要设备列表接口，返回空数组避免触发 DeviceTable 的 watch
     if (FIXED_TAB_KEYS.includes(activeCategoryKey.value)) return [];
     const node = categoryTabList.value.find((n) => String(n.key) === String(activeCategoryKey.value));
+    console.log('node',node, categoryTabList.value);
     if (!node) return [activeCategoryKey.value];
     // 收集该节点及其所有子节点的 key
     const keys: string[] = [String(node.key)];
@@ -345,6 +346,7 @@
       if (!children) return;
       children.forEach((child) => {
         keys.push(String(child.key));
+        console.log('child',child);
         if (child.children && child.children.length > 0) {
           collectChildren(child.children);
         }
@@ -353,6 +355,8 @@
     if (node.children && node.children.length > 0) {
       collectChildren(node.children);
     }
+
+    console.log('keys',keys);
     return keys;
   });
 
@@ -453,8 +457,16 @@
     try {
       const res = await getCategoryTreeData();
       categorySelectTreeData.value = res || [];
+
+      const flattenTree = (list: any[]): any[] => {
+        return list.reduce((result, item) => {
+          // 解构时排除children，只保留需要的三个字段
+          const { children, ...rest } = item
+          return result.concat(rest, flattenTree(children || []))
+        }, [])
+}
       // 用接口返回的顶层节点生成 tab 列表
-      categoryTabList.value = (res || []).map((item: any) => ({
+      categoryTabList.value = (flattenTree(res) || []).map((item: any) => ({
         key: String(item.key),
         title: item.title,
         value: item.value,

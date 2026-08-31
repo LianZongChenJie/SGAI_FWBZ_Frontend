@@ -22,14 +22,23 @@
             />
         </div>
         <div class="venue-management">
-            <VenueManagement
-              title="🏢 场馆信息管理"
-              :data="venueData"
-              :loading="venueLoading"
-              @add="handleAddVenue"
-              @detail="handleVenueDetail"
-              @table-change="handleTableChange"
-            />
+            <div class="venue-management-header">
+                <h3>🏢 场馆信息管理</h3>
+                <button class="collapse-btn" @click="venueCollapsed = !venueCollapsed">
+                    <CaretDownOutlined v-if="!venueCollapsed" />
+                    <CaretUpOutlined v-else />
+                </button>
+            </div>
+            <div v-show="!venueCollapsed">
+                <VenueManagement
+                  title="🏢 场馆信息管理"
+                  :data="venueData"
+                  :loading="venueLoading"
+                  @add="handleAddVenue"
+                  @detail="handleVenueDetail"
+                  @table-change="handleTableChange"
+                />
+            </div>
         </div>
 
         <!-- 新增场馆弹窗 -->
@@ -55,6 +64,8 @@ import {
     ShopOutlined,
     CloudOutlined,
     SettingOutlined,
+    CaretDownOutlined,
+    CaretUpOutlined,
 } from '@ant-design/icons-vue'
 
 // ===== 统计卡片 =====
@@ -64,6 +75,9 @@ const cardConfig = [
   { color: 'orange' as const, icon: CloudOutlined },
   { color: 'purple' as const, icon: SettingOutlined },
 ]
+
+// 折叠状态
+const venueCollapsed = ref(false)
 
 const statCards = ref<StatItem[]>([])
 
@@ -200,6 +214,47 @@ const handleDeleteEvent = async (event: ActiveMeetInfo) => {
 }
 .event-schedule, .venue-management {
     margin-top: 20px;
+}
+
+.venue-management-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 22px;
+    border-bottom: 1px solid #f0f0f0;
+    background: white;
+    border-radius: 12px 12px 0 0;
+
+    h3 {
+        font-size: 16px;
+        font-weight: 600;
+        color: #2d3748;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0;
+    }
+}
+
+.collapse-btn {
+    width: 28px;
+    height: 28px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    background: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #666;
+    transition: all 0.2s;
+    flex-shrink: 0;
+
+    &:hover {
+        color: #1677ff;
+        border-color: #1677ff;
+    }
 }
   
  

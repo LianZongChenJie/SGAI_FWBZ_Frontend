@@ -36,7 +36,7 @@
     </div>
 
     <!-- 计量规则配置模块 -->
-    <div class="rule-config-card">
+    <div class="rule-config-card" :class="{ 'rule-fullscreen': ruleFullscreen }">
       <div class="card-header">
         <div class="card-title-wrap">
           <span class="card-title">📋计量规则配置</span>
@@ -45,9 +45,17 @@
           <a-button type="primary" :icon="h(PlusOutlined)" @click="measureRuleRef?.showAddModal()">新增</a-button>
           <a-button @click="measureRuleRef?.showEditModal()">编辑</a-button>
           <a-button danger @click="measureRuleRef?.handleDelete()">删除</a-button>
+          <button class="collapse-btn" @click="ruleFullscreen = !ruleFullscreen">
+            <FullscreenOutlined v-if="!ruleFullscreen" />
+            <FullscreenExitOutlined v-else />
+          </button>
+          <button class="collapse-btn" @click="ruleCollapsed = !ruleCollapsed">
+            <CaretDownOutlined v-if="!ruleCollapsed" />
+            <CaretUpOutlined v-else />
+          </button>
         </div>
       </div>
-      <div class="card-body">
+      <div v-show="!ruleCollapsed" class="card-body">
         <MeasureRule ref="measureRuleRef" />
       </div>
     </div>
@@ -56,12 +64,16 @@
 
 <script setup lang="ts">
 import { reactive, ref, onMounted, h } from 'vue'
-import { PlusOutlined } from '@ant-design/icons-vue'
+import { PlusOutlined, FullscreenOutlined, FullscreenExitOutlined, CaretDownOutlined, CaretUpOutlined } from '@ant-design/icons-vue'
 import { StatCard } from '/@/views/bems-web/components'
 import MeasureRule from './measureRule/index.vue'
 import { getRulesStatistics } from './index.api'
 
 const measureRuleRef = ref()
+
+// 全屏与折叠
+const ruleFullscreen = ref(false)
+const ruleCollapsed = ref(false)
 
 // 自定义 emoji 图标组件
 const ClipboardIcon = () => h('span', { style: 'font-size: 20px;' }, '📋')
@@ -142,6 +154,7 @@ onMounted(() => {
       .card-actions {
         display: flex;
         gap: 8px;
+        align-items: center;
       }
     }
 
@@ -149,6 +162,41 @@ onMounted(() => {
       min-height: 120px;
       padding: 22px;
     }
+  }
+
+  .collapse-btn {
+    width: 28px;
+    height: 28px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    background: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #666;
+    transition: all 0.2s;
+    flex-shrink: 0;
+
+    &:hover {
+      color: #1677ff;
+      border-color: #1677ff;
+    }
+  }
+
+  .rule-fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    border-radius: 0;
+    margin: 0;
+    padding: 20px;
+    overflow: auto;
+    background: #fff;
   }
 }
 </style>

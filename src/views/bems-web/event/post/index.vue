@@ -44,7 +44,6 @@
           <a-button :loading="saveLoading" type="primary" @click="handleSave">
             <SaveOutlined /> 保存
           </a-button>
-          <a-button type="primary"><ExperimentOutlined /> AI生成</a-button>
         </div>
       </div>
       <div class="card-body">

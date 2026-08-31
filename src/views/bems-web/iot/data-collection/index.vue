@@ -15,8 +15,12 @@
     <div class="card">
       <div class="card-header">
         <h3><RadarChartOutlined /> 数据采集状态</h3>
+        <button class="collapse-btn" @click="collectionCollapsed = !collectionCollapsed">
+          <CaretDownOutlined v-if="!collectionCollapsed" />
+          <CaretUpOutlined v-else />
+        </button>
       </div>
-      <div class="card-body">
+      <div v-show="!collectionCollapsed" class="card-body">
         <a-table
           :columns="columns"
           :data-source="tableData"
@@ -54,11 +58,16 @@ import {
   DownloadOutlined,
   CheckCircleOutlined,
   DatabaseOutlined,
+  CaretDownOutlined,
+  CaretUpOutlined,
 } from '@ant-design/icons-vue'
 import { getSummary, getDataCollectionList } from './index.api'
 import type { StatCardVO, InterfaceListVO } from './index.api'
 
 defineOptions({ name: 'IotDataCollectionPage' })
+
+// 折叠状态
+const collectionCollapsed = ref(false)
 
 // ===== 统计卡片配置（图标/颜色固定，数据来自后端） =====
 const statCardConfigs = [
@@ -177,5 +186,26 @@ onMounted(() => {
   &.normal { background: #c6f6d5; color: #22543d; }
   &.warning { background: #feebc8; color: #744210; }
   &.danger { background: #fed7d7; color: #742a2a; }
+}
+
+.collapse-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #666;
+  transition: all 0.2s;
+  flex-shrink: 0;
+
+  &:hover {
+    color: #1677ff;
+    border-color: #1677ff;
+  }
 }
 </style>

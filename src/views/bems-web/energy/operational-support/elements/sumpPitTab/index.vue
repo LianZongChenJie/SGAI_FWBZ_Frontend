@@ -41,6 +41,10 @@
           </a-select>
           <a-button type="primary" @click="handleSearch">🔍 查询</a-button>
           </div>
+          <a-button type="primary" :loading="exportLoading" @click="handleExport" class="export-btn">
+            <DownloadOutlined v-if="!exportLoading" />
+            导出
+          </a-button>
           <button class="collapse-btn" @click="collapsedTable = !collapsedTable">
             <CaretDownOutlined v-if="!collapsedTable" />
             <CaretUpOutlined v-else />
@@ -181,9 +185,9 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, h, onMounted, nextTick } from 'vue'
-import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons-vue'
+import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined, DownloadOutlined } from '@ant-design/icons-vue'
 import { StatCard } from '/@/views/bems-web/components'
-import { getSpaceTree, getDeviceAttrList, selectDevice } from './index.api'
+import { getSpaceTree, getDeviceAttrList, selectDevice, exportData } from './index.api'
 import Sump from '../../building-automation/sump.vue'
 import { useECharts } from '/@/hooks/web/useECharts'
 import { getSumpLevelData, getSumpPumpData, TAB_REF } from '../chartData'
@@ -438,6 +442,36 @@ const loadTableData = async () => {
     tableTotal.value = 0
   } finally {
     tableLoading.value = false
+  }
+}
+
+// 导出loading
+const exportLoading = ref(false)
+
+/** 导出设备列表 */
+const handleExport = async () => {
+  exportLoading.value = true
+  try {
+    const res = await exportData({
+      categoryIds: '34',
+      deviceName: searchForm.deviceName || undefined,
+      runState: searchForm.runState || undefined,
+    })
+    const blobOptions = { type: 'application/vnd.ms-excel' }
+    const fileSuffix = '.xlsx'
+    const url = window.URL.createObjectURL(new Blob([res], blobOptions))
+    const link = document.createElement('a')
+    link.style.display = 'none'
+    link.href = url
+    link.setAttribute('download', '集水坑列表' + fileSuffix)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+  } catch (e) {
+    console.error('导出失败:', e)
+  } finally {
+    exportLoading.value = false
   }
 }
 

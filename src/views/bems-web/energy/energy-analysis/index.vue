@@ -64,6 +64,14 @@ onMounted(() => {
 .energy-analysis-page {
   background: #f0f2f5;
   min-height: calc(100vh - 120px);
+
+  :deep(.ant-tabs-nav-wrap) {
+    padding-left: 12px;
+  }
+
+  :deep(.ant-tabs-nav) {
+    margin-bottom: 0;
+  }
 }
 
 .tab-content {

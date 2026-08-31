@@ -16,9 +16,15 @@
     <div class="card">
       <div class="card-header">
         <h3><ApiOutlined /> 设备状态监控</h3>
-        <span class="tag tag-green">实时监控</span>
+        <div class="header-right">
+          <span class="tag tag-green">实时监控</span>
+          <button class="collapse-btn" @click="deviceCollapsed = !deviceCollapsed">
+            <CaretDownOutlined v-if="!deviceCollapsed" />
+            <CaretUpOutlined v-else />
+          </button>
+        </div>
       </div>
-      <div class="card-body">
+      <div v-show="!deviceCollapsed" class="card-body">
         <a-spin :spinning="deviceLoading" tip="加载中...">
           <div class="device-grid">
             <DeviceCard
@@ -48,12 +54,15 @@ import { ref, onMounted } from 'vue'
 import { StatCard, DeviceCard } from '/@/views/bems-web/components'
 import {
   LinkOutlined, CheckCircleOutlined, DownloadOutlined, SettingOutlined,
-  ApiOutlined,
+  ApiOutlined, CaretDownOutlined, CaretUpOutlined,
 } from '@ant-design/icons-vue'
 import { getSummary, getDeviceStatusMonitor } from './index.api'
 import type { StatCardVO, SystemDeviceStatVO } from './index.api'
 
 defineOptions({ name: 'IotOperationPage' })
+
+// 折叠状态
+const deviceCollapsed = ref(false)
 
 // ===== 顶部统计卡片 =====
 interface StatCardItem {
@@ -165,11 +174,37 @@ onMounted(() => {
   .card-body { padding: 22px; }
 }
 
+.header-right {
+  display: flex;
+}
+
 .device-grid {
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
 }
 
 .empty-state {
   text-align: center; color: #86909c; padding: 40px 0; font-size: 14px;
+}
+
+.collapse-btn {
+  margin-left: 8px;
+  width: 28px;
+  height: 28px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #666;
+  transition: all 0.2s;
+  flex-shrink: 0;
+
+  &:hover {
+    color: #1677ff;
+    border-color: #1677ff;
+  }
 }
 </style>

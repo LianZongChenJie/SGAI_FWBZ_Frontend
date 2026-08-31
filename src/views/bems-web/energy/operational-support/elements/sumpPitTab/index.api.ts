@@ -34,3 +34,8 @@ export const getDeviceAttrList = (params = {}) => defHttp.get({ url: Api.listByD
  * 设备列表（集水坑 categoryIds=34）
  */
 export const selectDevice = (params = {}) => defHttp.get({ url: Api.deviceList, params })
+
+/**
+ * 设备列表导出
+ */
+export const exportData = (params) => defHttp.get({ url: '/sgai-fwbz-dev/fwbz/device/export', params: params, responseType: 'blob' }, { isTransformResponse: false });

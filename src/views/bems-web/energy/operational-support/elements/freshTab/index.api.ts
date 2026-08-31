@@ -39,6 +39,9 @@ export const getFreshReturnAirTemperature = (params = {}) => defHttp.get({ url: 
 export const getDeviceAttrList = (params = {}) => defHttp.get({ url: '/sgai-fwbz-dev/fwbz/deviceAttribute/listByDeviceId', params })
 
 /**
- * 空调机组控制
+ * 设备列表导出
  */
 export const airControl = (data: any[]) => defHttp.post({ url: '/sgai-fwbz-dev/fwbz/operationSupport/airControl', data })
+
+
+export const exportData = (params) => defHttp.get({ url: '/sgai-fwbz-dev/fwbz/device/export', params: params, responseType: 'blob' }, { isTransformResponse: false });

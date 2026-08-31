@@ -29,9 +29,13 @@
             <a-select-option :value="2">异常</a-select-option>
           </a-select>
           <a-button type="primary" @click="handleSearch"><SearchOutlined /> 查询</a-button>
+          <button class="collapse-btn" @click="interfaceCollapsed = !interfaceCollapsed">
+            <CaretDownOutlined v-if="!interfaceCollapsed" />
+            <CaretUpOutlined v-else />
+          </button>
         </div>
       </div>
-      <div class="card-body">
+      <div v-show="!interfaceCollapsed" class="card-body">
         <a-table
           :columns="columns"
           :data-source="tableData"
@@ -98,11 +102,16 @@ import {
   BarChartOutlined,
   ClockCircleOutlined,
   ReloadOutlined,
+  CaretDownOutlined,
+  CaretUpOutlined,
 } from '@ant-design/icons-vue';
 import { getSummary, getInterfaceStatusList, getProtocolTypeList } from './index.api';
 import type { StatCardVO, InterfaceInfo, ProtocolTypeInfo } from './index.api';
 
 defineOptions({ name: 'IotInterfacePage' });
+
+// 折叠状态
+const interfaceCollapsed = ref(false);
 
 // ===== 统计卡片配置（图标/颜色固定，数据来自后端） =====
 const statCardConfigs = [
@@ -263,5 +272,26 @@ onMounted(() => {
   &.normal { background: #c6f6d5; color: #22543d; }
   &.warning { background: #feebc8; color: #744210; }
   &.danger { background: #fed7d7; color: #742a2a; }
+}
+
+.collapse-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #666;
+  transition: all 0.2s;
+  flex-shrink: 0;
+
+  &:hover {
+    color: #1677ff;
+    border-color: #1677ff;
+  }
 }
 </style>

@@ -99,5 +99,9 @@ onMounted(() => {
 .device-tree-page {
   height: 100%;
   overflow: auto;
+
+  :deep(.ant-tabs-nav-wrap) {
+    padding-left: 12px;
+  }
 }
 </style>

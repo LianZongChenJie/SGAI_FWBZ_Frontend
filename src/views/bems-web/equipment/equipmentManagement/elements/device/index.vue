@@ -119,6 +119,10 @@
       display: flex;
       flex-direction: column;
 
+      .ant-tabs-nav-wrap {
+        padding-left: 12px;
+      }
+
       .ant-tabs-nav {
         margin-bottom: 0;
       }

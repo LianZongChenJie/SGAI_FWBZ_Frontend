@@ -74,9 +74,13 @@
             <a-select-option v-for="item in venueOptions" :key="item.id" :value="item.id">{{ item.venueName }}</a-select-option>
           </a-select>
           <a-button type="primary" @click="handleSearch"><SearchOutlined /> 查询</a-button>
+          <button class="collapse-btn" @click="flowCollapsed = !flowCollapsed">
+            <CaretDownOutlined v-if="!flowCollapsed" />
+            <CaretUpOutlined v-else />
+          </button>
         </div>
       </div>
-      <div class="card-body">
+      <div v-show="!flowCollapsed" class="card-body">
         <a-table
           :columns="flowColumns"
           :data-source="flowData"
@@ -116,10 +120,14 @@ import type { VenueItem } from '../venueScheduling/index.api'
 import {
   TeamOutlined, UserOutlined, RiseOutlined, ClockCircleOutlined,
   BarChartOutlined, SearchOutlined, FullscreenOutlined, FullscreenExitOutlined,
+  CaretDownOutlined, CaretUpOutlined,
 } from '@ant-design/icons-vue'
 import FlowHeatmapMapView from './FlowHeatmapMapView.vue'
 
 defineOptions({ name: 'VenueFlowPage' })
+
+// 折叠状态
+const flowCollapsed = ref(false)
 
 // ===== 卡片配置 =====
 const cardConfig = [
@@ -529,5 +537,26 @@ onMounted(() => {
 
   &.normal { background: #c6f6d5; color: #22543d; }
   &.danger { background: #fed7d7; color: #742a2a; }
+}
+
+.collapse-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #666;
+  transition: all 0.2s;
+  flex-shrink: 0;
+
+  &:hover {
+    color: #1677ff;
+    border-color: #1677ff;
+  }
 }
 </style>

@@ -36,11 +36,9 @@
     </div>
 
     <!-- 能耗趋势分析模块 -->
-    <div class="trend-analysis-card" :class="{ 'trend-fullscreen': fullscreen }">
+    <div class="card trend-analysis-card" :class="{ 'trend-fullscreen': fullscreen }">
       <div class="card-header">
-        <div class="card-title-wrap">
-          <span class="card-title">📈 能耗趋势分析</span>
-        </div>
+        <h3>📈 能耗趋势分析</h3>
         <div class="card-actions">
           <a-radio-group v-model:value="dateType" button-style="solid">
             <a-radio-button value="date">日能耗</a-radio-button>
@@ -55,9 +53,13 @@
             <FullscreenOutlined v-if="!fullscreen" />
             <FullscreenExitOutlined v-else />
           </button>
+          <button class="collapse-btn" @click="trendCollapsed = !trendCollapsed">
+            <CaretDownOutlined v-if="!trendCollapsed" />
+            <CaretUpOutlined v-else />
+          </button>
         </div>
       </div>
-      <div class="card-body">
+      <div v-show="!trendCollapsed" class="card-body">
         <PointDataStatistics
           ref="pointDataStatisticsRef"
           v-model:dateType="dateType"
@@ -71,7 +73,7 @@
 
 <script setup lang="ts">
 import { reactive, onMounted, h, ref } from 'vue'
-import { FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons-vue'
+import { FullscreenOutlined, FullscreenExitOutlined, CaretDownOutlined, CaretUpOutlined } from '@ant-design/icons-vue'
 import { StatCard } from '/@/views/bems-web/components'
 import PointDataStatistics from './pointDataStatistics/index.vue'
 import { getStatistics } from './pointDataStatistics/index.api'
@@ -96,6 +98,8 @@ const statData = reactive({
 
 // 全屏查看
 const fullscreen = ref(false)
+// 折叠
+const trendCollapsed = ref(false)
 
 // 能耗趋势分析查询参数
 const dateType = ref<string>('month')
@@ -144,62 +148,51 @@ onMounted(() => {
     gap: 16px;
   }
 
-  .trend-analysis-card {
-    margin-top: 10px;
-    background-color: #fff;
+  .card {
+    background: white;
     border-radius: 12px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    margin-bottom: 20px;
     overflow: hidden;
 
     .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
       padding: 18px 22px;
       border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
 
-      .card-title-wrap {
+      h3 {
+        font-size: 16px;
+        font-weight: 600;
+        color: #2d3748;
         display: flex;
         align-items: center;
-
-        .card-title {
-          font-size: 16px;
-          font-weight: 600;
-          color: #262626;
-        }
-      }
-
-      .card-actions {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-
-        .date-label {
-          font-size: 14px;
-          color: #595959;
-          margin-left: 8px;
-        }
-
-        :deep(.ant-radio-button-wrapper) {
-          color: #595959;
-        }
-
-        :deep(.ant-radio-button-wrapper-checked) {
-          color: #fff;
-          background-color: #1890ff;
-          border-color: #1890ff;
-        }
-
-        :deep(.ant-btn-primary) {
-          background-color: #1890ff;
-          border-color: #1890ff;
-        }
+        gap: 10px;
+        margin: 0;
       }
     }
 
     .card-body {
-      min-height: 120px;
       padding: 22px;
+    }
+  }
+
+  .trend-analysis-card {
+    margin-top: 10px;
+
+    .card-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      .date-label {
+        font-size: 14px;
+        color: #595959;
+        margin-left: 8px;
+      }
     }
   }
 

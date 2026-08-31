@@ -51,6 +51,10 @@
           </a-select> -->
           <a-button type="primary" @click="handleSearch">🔍 查询</a-button>
           </div>
+          <a-button type="primary" :loading="exportLoading" @click="handleExport" class="export-btn">
+            <DownloadOutlined v-if="!exportLoading" />
+            导出
+          </a-button>
           <button class="collapse-btn" @click="collapsedTable = !collapsedTable">
             <CaretDownOutlined v-if="!collapsedTable" />
             <CaretUpOutlined v-else />
@@ -241,11 +245,11 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, h, onMounted, nextTick } from 'vue'
-import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons-vue'
+import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined, DownloadOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 import { StatCard } from '/@/views/bems-web/components'
 import { getSpaceTree } from './index.api'
-import { getAcUnitList, getAcUnitStatistics, getDeviceAttrList, airControl } from './index.api'
+import { getAcUnitList, getAcUnitStatistics, getDeviceAttrList, airControl, exportData } from './index.api'
 import { useECharts } from '/@/hooks/web/useECharts'
 import Ahu from '../../building-automation/ahu-1.vue'
 import { getAcCo2Data, getAcSupplyData, getAcReturnData } from '../chartData'
@@ -582,6 +586,35 @@ const handleControlSave = async () => {
   } finally {
     controlVisible.value = false
     loadAcUnitList()
+  }
+}
+
+// 导出loading
+const exportLoading = ref(false)
+
+/** 导出设备列表 */
+const handleExport = async () => {
+  exportLoading.value = true
+  try {
+    const res = await exportData({
+      categoryIds: '8',
+      spaceId: meterSpace.value || undefined,
+    })
+    const blobOptions = { type: 'application/vnd.ms-excel' }
+    const fileSuffix = '.xlsx'
+    const url = window.URL.createObjectURL(new Blob([res], blobOptions))
+    const link = document.createElement('a')
+    link.style.display = 'none'
+    link.href = url
+    link.setAttribute('download', '空调机组列表' + fileSuffix)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+  } catch (e) {
+    console.error('导出失败:', e)
+  } finally {
+    exportLoading.value = false
   }
 }
 
