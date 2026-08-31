@@ -74,6 +74,7 @@
             <a-select-option v-for="item in venueOptions" :key="item.id" :value="item.id">{{ item.venueName }}</a-select-option>
           </a-select>
           <a-button type="primary" @click="handleSearch"><SearchOutlined /> 查询</a-button>
+          <a-button type="primary" :loading="flowExportLoading" @click="handleFlowExport"><DownloadOutlined /> 导出</a-button>
           <button class="collapse-btn" @click="flowCollapsed = !flowCollapsed">
             <CaretDownOutlined v-if="!flowCollapsed" />
             <CaretUpOutlined v-else />
@@ -113,14 +114,14 @@ import type { Ref } from 'vue'
 import dayjs from 'dayjs'
 import { StatCard } from '/@/views/bems-web/components'
 import { useECharts } from '/@/hooks/web/useECharts'
-import { getFlowSummary, getFlowList, getFlowTrend, getHeatmap } from './index.api'
+import { getFlowSummary, getFlowList, getFlowTrend, getHeatmap, exportData } from './index.api'
 import type { StatItem, VenueFlowVO, VenueHeatmapItemVO } from './index.api'
 import { getVenueList } from '../venueScheduling/index.api'
 import type { VenueItem } from '../venueScheduling/index.api'
 import {
   TeamOutlined, UserOutlined, RiseOutlined, ClockCircleOutlined,
   BarChartOutlined, SearchOutlined, FullscreenOutlined, FullscreenExitOutlined,
-  CaretDownOutlined, CaretUpOutlined,
+  CaretDownOutlined, CaretUpOutlined, DownloadOutlined,
 } from '@ant-design/icons-vue'
 import FlowHeatmapMapView from './FlowHeatmapMapView.vue'
 
@@ -195,6 +196,31 @@ const fetchFlowData = async () => {
 
 const handleSearch = () => {
   fetchFlowData()
+}
+
+// ===== 导出场馆客流统计数据 =====
+const flowExportLoading = ref(false)
+
+const handleFlowExport = async () => {
+  flowExportLoading.value = true
+  try {
+    const res = await exportData({ date: filterDate.value })
+    const blobOptions = { type: 'application/vnd.ms-excel' }
+    const fileSuffix = '.xlsx'
+    const url = window.URL.createObjectURL(new Blob([res], blobOptions))
+    const link = document.createElement('a')
+    link.style.display = 'none'
+    link.href = url
+    link.setAttribute('download', '场馆客流统计' + fileSuffix)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+  } catch (error) {
+    console.error('导出场馆客流数据失败:', error)
+  } finally {
+    flowExportLoading.value = false
+  }
 }
 
 // ===== 客流趋势图（今日/本周/本月） =====

@@ -304,7 +304,7 @@ async function fetchEnergyStatistics() {
     const res = await getEnergyStatistics();
     const data = res?.data || res?.result || res;
     if (data?.electricCount != null) {
-      kpiData[KPI_POWER_INDEX].number = Number(data.electricCount);
+      kpiData[KPI_POWER_INDEX].number = data.electricCount.replace(/[^0-9]/g, '');
       // 强制 KpiBanner 重载以触发数字动画
       kpiKey.value++;
       // 回填右侧面板节能低碳 metricCards 用电kWh

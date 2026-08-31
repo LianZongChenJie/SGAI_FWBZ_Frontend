@@ -10,6 +10,9 @@
             <a-radio-button value="week">本周</a-radio-button>
             <a-radio-button value="month">本月</a-radio-button>
           </a-radio-group>
+          <a-button type="primary" :loading="exportLoading" @click="handleExport">
+            <DownloadOutlined /> 导出
+          </a-button>
           <a-button type="primary" @click="handleAdd">
             + 新增排期
           </a-button>
@@ -102,7 +105,8 @@
 import { ref, computed } from 'vue'
 import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn'
-import { DeleteOutlined } from '@ant-design/icons-vue'
+import { DeleteOutlined, DownloadOutlined } from '@ant-design/icons-vue'
+import { exportData } from '../../index.api'
 import type { DaySchedule } from './index.api'
 
 dayjs.locale('zh-cn')
@@ -294,6 +298,47 @@ const handleAdd = () => {
 
 const handleDelete = (event: any) => {
   emit('delete', event)
+}
+
+// ===== 导出活动排期数据 =====
+const exportLoading = ref(false)
+
+const handleExport = async () => {
+  exportLoading.value = true
+  try {
+    let startDate: string
+    let endDate: string
+
+    if (period.value === 'week') {
+      // 本周：周一到周日
+      const today = dayjs()
+      const dayOfWeek = today.day() // 0=周日, 1=周一, ..., 6=周六
+      const monday = today.subtract(dayOfWeek === 0 ? 6 : dayOfWeek - 1, 'day')
+      startDate = monday.format('YYYY-MM-DD')
+      endDate = monday.add(6, 'day').format('YYYY-MM-DD')
+    } else {
+      // 本月：第一天到最后一天
+      startDate = dayjs().startOf('month').format('YYYY-MM-DD')
+      endDate = dayjs().endOf('month').format('YYYY-MM-DD')
+    }
+
+    const res = await exportData({ startDate, endDate })
+    const blobOptions = { type: 'application/vnd.ms-excel' }
+    const fileSuffix = '.xlsx'
+    const url = window.URL.createObjectURL(new Blob([res], blobOptions))
+    const link = document.createElement('a')
+    link.style.display = 'none'
+    link.href = url
+    link.setAttribute('download', '活动排期' + fileSuffix)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+  } catch (error) {
+    console.error('导出活动排期数据失败:', error)
+  } finally {
+    exportLoading.value = false
+  }
 }
 </script>
 

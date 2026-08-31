@@ -81,7 +81,7 @@ const bemsWeb: AppRouteModule = {
         {
           path: 'energy-metering',
           name: 'BemsWebEnergyMetering',
-          component: () => import('/@/views/bems-web/energy/energy-metering/index.vue'),
+          component: () => import('/@/views/bems-web/energy-management/metering/index.vue'),
           meta: { title: '能源计量' },
         },
         {

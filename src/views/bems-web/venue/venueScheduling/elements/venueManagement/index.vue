@@ -5,9 +5,14 @@
         <a-button type="primary" @click="handleAdd">
           + 新增场馆
         </a-button>
+        <a-button class="collapse-btn" @click="venueCollapsed = !venueCollapsed">
+            <CaretDownOutlined v-if="!venueCollapsed" />
+            <CaretUpOutlined v-else />
+        </a-button>
       </template>
 
       <a-table
+         v-show="!venueCollapsed"
         :columns="columns"
         :data-source="data"
         :pagination="pagination"
@@ -33,7 +38,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+
+// 折叠状态
+const venueCollapsed = ref(false)
+
+import {
+    CaretDownOutlined,
+    CaretUpOutlined,
+} from '@ant-design/icons-vue'
 import type { VenueItem } from './index.api'
 
 // ===== Props =====
@@ -96,3 +109,4 @@ const handleTableChange = (paginationData: any) => {
   emit('tableChange', paginationData)
 }
 </script>
+

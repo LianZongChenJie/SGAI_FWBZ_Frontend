@@ -22,14 +22,7 @@
             />
         </div>
         <div class="venue-management">
-            <div class="venue-management-header">
-                <h3>🏢 场馆信息管理</h3>
-                <button class="collapse-btn" @click="venueCollapsed = !venueCollapsed">
-                    <CaretDownOutlined v-if="!venueCollapsed" />
-                    <CaretUpOutlined v-else />
-                </button>
-            </div>
-            <div v-show="!venueCollapsed">
+            <div>
                 <VenueManagement
                   title="🏢 场馆信息管理"
                   :data="venueData"
@@ -76,8 +69,6 @@ const cardConfig = [
   { color: 'purple' as const, icon: SettingOutlined },
 ]
 
-// 折叠状态
-const venueCollapsed = ref(false)
 
 const statCards = ref<StatItem[]>([])
 
@@ -234,6 +225,13 @@ const handleDeleteEvent = async (event: ActiveMeetInfo) => {
         gap: 10px;
         margin: 0;
     }
+}
+
+.ant-card-extra {
+  display: flex;
+  .collapse-btn {
+    margin-left: 12px;
+  }
 }
 
 .collapse-btn {

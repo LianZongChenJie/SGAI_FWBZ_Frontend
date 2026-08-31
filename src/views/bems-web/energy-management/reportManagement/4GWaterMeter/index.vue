@@ -2,17 +2,17 @@
   <div class="jeecg-basic-table jeecg-basic-table-form-container">
     <a-form class="water-meter-form" ref="formSateRef" :model="formState" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
       <a-row>
-        <a-col :span="6">
+        <a-col :span="8">
           <a-form-item label="设备名称" name="deviceName">
             <a-input placeholder="请输入设备名称" v-model:value="formState.deviceName" />
           </a-form-item>
         </a-col>
-        <a-col :span="6">
+        <a-col :span="8">
           <a-form-item label="设备编号" name="deviceCode">
             <a-input placeholder="请输入设备编号" v-model:value="formState.deviceCode" />
           </a-form-item>
         </a-col>
-        <a-col :span="6">
+        <a-col :span="8">
           <a-form-item label="空间位置" name="spaceId">
             <a-tree-select
               v-model:value="formState.spaceId"
@@ -25,7 +25,7 @@
             />
           </a-form-item>
         </a-col>
-        <a-col :span="6">
+        <a-col :span="8">
           <a-form-item label="仪表状态" name="runState">
             <a-select v-model:value="formState.runState" placeholder="请选择仪表状态" allow-clear>
               <a-select-option value="在线">在线</a-select-option>
@@ -33,9 +33,7 @@
             </a-select>
           </a-form-item>
         </a-col>
-      </a-row>
-      <a-row>
-        <a-col :span="6">
+        <a-col :span="8">
           <a-form-item label="起始时间" name="startTime">
             <a-date-picker
               style="width: 100%"
@@ -45,7 +43,7 @@
             ></a-date-picker>
           </a-form-item>
         </a-col>
-        <a-col :span="6">
+        <a-col :span="8">
           <a-form-item label="结束时间" name="endTime">
             <a-date-picker
               style="width: 100%"
@@ -55,6 +53,9 @@
             ></a-date-picker>
           </a-form-item>
         </a-col>
+      </a-row>
+      <a-row>
+        
         <a-col :span="12">
           <a-form-item>
             &emsp;
@@ -612,4 +613,8 @@
       max-width: 100%;
     }
   }
+  .jeecg-basic-table {
+    padding: 12px 6px !important;
+  }
+  
 </style>

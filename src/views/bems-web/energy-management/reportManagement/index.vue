@@ -1,11 +1,13 @@
 <template>
   <div class="report-management">
-    <a-tabs v-model:activeKey="activeKey" centered class="full-height-tabs" destroyInactiveTabPane>
+    <a-tabs v-model:activeKey="activeKey" class="full-height-tabs" destroyInactiveTabPane>
       <!-- <a-tab-pane key="1" tab="水表">
         <fourGenerationWaterMeter :categoryId="'45'" />
       </a-tab-pane> -->
       <a-tab-pane key="2" tab="电表">
-        <fourGenerationWaterMeter :categoryId="'43'" />
+        <div class="tab-card">
+          <fourGenerationWaterMeter :categoryId="'43'" />
+        </div>
       </a-tab-pane>
       <!-- <a-tab-pane key="3" tab="压力变送器">
         <sensorPage :categoryId="'26'" />
@@ -14,7 +16,9 @@
         <sensorPage :categoryId="'36'" />
       </a-tab-pane> -->
       <a-tab-pane key="5" tab="冷源">
-        <coldSourcePage />
+        <div class="tab-card">
+          <coldSourcePage />
+        </div>
       </a-tab-pane>
     </a-tabs>
   </div>
@@ -37,14 +41,13 @@
   .report-management {
     border-radius: 4px;
     height: calc(100% - 40px);
-    background-color: #fff;
-
-
+    background-color: #f0f2f5;
 
     :deep(.full-height-tabs) {
       height: 100%;
       display: flex;
       flex-direction: column;
+
       .ant-tabs-nav-wrap {
         justify-content: left;
         padding-left: 12px;
@@ -56,11 +59,25 @@
       .ant-tabs-content {
         flex: 1;
         height: 100%;
+        overflow-y: auto;
 
         .ant-tabs-tabpane {
           height: 100%;
         }
       }
     }
+  }
+
+  .jeecg-basic-table-form-container {
+    padding: 0;
+  }
+
+  /* 卡片包裹，与其他页面风格统一 */
+  .tab-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    margin: 20px 0;
+    overflow: hidden;
   }
 </style>

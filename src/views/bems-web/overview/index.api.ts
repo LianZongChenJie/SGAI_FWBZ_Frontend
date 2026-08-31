@@ -5,6 +5,8 @@ enum Api {
     todayExhibitionActivity = '/sgai-fwbz-dev/fwbz/activeMeet/info/listPage',
     /** 今日总客流 */
     todayVisitorCount = '/sgai-fwbz-dev/fwbz/venueVisitorFlow/todayVisitorCount',
+    /** 今日能耗 */
+    todayStatistics = '/sgai-fwbz-dev/fwbz/energyMetering/statistics',
     /** 告警统计（待处理告警数量） */
     alarmStatistics = '/sgai-fwbz-dev/fwbz/alarm/record/statistics',
 }

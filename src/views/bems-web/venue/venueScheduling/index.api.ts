@@ -22,6 +22,8 @@ enum Api {
   exhibitionMonthList = '/sgai-fwbz-dev/fwbz/activeMeet/info/listPage',
   /** 删除会展活动 */
   delExhibition = '/sgai-fwbz-dev/fwbz/activeMeet/info/delete',
+  /** 导出场馆活动数据 */
+  exportData = '/sgai-fwbz-dev/fwbz/activeMeet/info/export',
 }
 
 /**
@@ -232,3 +234,7 @@ export interface StatItem {
 
 /** 获取统计卡片汇总 */
 export const getSummaryCardList = () => defHttp.get({ url: Api.summaryCardList });
+
+/** 导出场馆活动数据（入参 startDate、endDate） */
+export const exportData = (params: { startDate: string; endDate: string }) =>
+  defHttp.get({ url: Api.exportData, params, responseType: 'blob' }, { isTransformResponse: false });

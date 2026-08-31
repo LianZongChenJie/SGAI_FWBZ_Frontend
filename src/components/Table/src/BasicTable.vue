@@ -484,6 +484,10 @@
     }
   }
 
+  .jeecg-basic-table .ant-table-wrapper {
+    margin-top: -40px !important;
+  }
+
   .@{prefix-cls} {
     max-width: 100%;
 

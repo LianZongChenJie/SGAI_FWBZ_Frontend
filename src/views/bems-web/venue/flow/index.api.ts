@@ -9,6 +9,8 @@ enum Api {
   trend = '/sgai-fwbz-dev/fwbz/venueVisitorFlow/hourly/todayTrend',
   /** 实时客流热力图 */
   heatmap = '/sgai-fwbz-dev/fwbz/venueVisitorFlow/hourly/heatmap',
+  /** 导出场馆客流数据 */
+  exportData = '/sgai-fwbz-dev/fwbz/venueVisitorFlow/export',
 
 }
 
@@ -208,3 +210,7 @@ export const getFlowTrend = (params: Request) => defHttp.get({ url: Api.trend, p
 
 /** 获取实时客流热力图数据 */
 export const getHeatmap = () => defHttp.get({ url: Api.heatmap });
+
+/** 导出场馆客流数据（入参 date） */
+export const exportData = (params: { date: string }) =>
+  defHttp.get({ url: Api.exportData, params, responseType: 'blob' }, { isTransformResponse: false });

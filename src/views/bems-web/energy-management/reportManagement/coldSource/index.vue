@@ -2,12 +2,12 @@
   <div class="jeecg-basic-table jeecg-basic-table-form-container">
     <a-form class="cold-source-form" ref="formSateRef" :model="formState" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
       <a-row>
-        <a-col :span="6">
+        <a-col :span="8">
           <a-form-item label="描述" name="desc">
             <a-input placeholder="请输入描述" v-model:value="formState.desc" />
           </a-form-item>
         </a-col>
-        <a-col :span="6">
+        <a-col :span="8">
           <a-form-item label="采集点" name="tagId">
             <a-select
               v-model:value="selectedTagId"
@@ -21,7 +21,7 @@
             ></a-select>
           </a-form-item>
         </a-col>
-        <a-col :span="6">
+        <a-col :span="8">
           <a-form-item label="起始时间" name="startTime">
             <a-date-picker
               style="width: 100%"
@@ -31,7 +31,7 @@
             ></a-date-picker>
           </a-form-item>
         </a-col>
-        <a-col :span="6">
+        <a-col :span="8">
           <a-form-item label="结束时间" name="endTime">
             <a-date-picker
               style="width: 100%"
@@ -41,7 +41,7 @@
             ></a-date-picker>
           </a-form-item>
         </a-col>
-        <a-col :span="6">
+        <a-col :span="8">
           <a-form-item>
             &emsp;
             <a-button type="primary" :icon="h(SearchOutlined)" @click="reload">查询</a-button>
@@ -79,10 +79,7 @@
         label: item.desc || item.tagId,
         value: item.tagId,
       }));
-      // 默认选中第一个
-      if (pointOptions.value.length > 0) {
-        selectedTagId.value = pointOptions.value[0].value;
-      }
+      
     } catch (e) {
       console.error('加载采集点列表失败:', e);
     }
@@ -141,8 +138,6 @@
       minWidth: 80,
       width: 180,
       resizable: true,
-      sorter: (a, b) => new Date(a.dataTime).getTime() - new Date(b.dataTime).getTime(),
-      sortDirections: ['ascend', 'descend'],
     },
   ];
 
