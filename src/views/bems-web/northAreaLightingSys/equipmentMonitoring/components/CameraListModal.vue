@@ -18,10 +18,35 @@
       <span>请选择摄像头视频流（最多选择 <strong>2</strong> 个）</span>
     </div>
 
+    <!-- 查询条件 -->
+    <div class="filter-bar">
+      <div class="filter-item">
+        <span class="filter-label">区域</span>
+        <a-select
+          v-model:value="filters.areaId"
+          placeholder="全部区域"
+          :options="areaOptions"
+          allowClear
+          show-search
+          option-filter-prop="label"
+          style="width: 150px"
+        />
+      </div>
+      <div class="filter-item">
+        <span class="filter-label">名称</span>
+        <a-input
+          v-model:value="filters.name"
+          placeholder="请输入名称"
+          allowClear
+          style="width: 170px"
+        />
+      </div>
+    </div>
+
     <!-- 摄像头列表 -->
     <div class="camera-list">
       <div
-        v-for="item in cameraList"
+        v-for="item in filteredCameraList"
         :key="item.id"
         class="camera-item"
         :class="{ selected: selectedIds.includes(item.id), disabled: !selectedIds.includes(item.id) && selectedIds.length >= 2 }"
@@ -38,9 +63,9 @@
           <div class="camera-name">{{ item.name }}</div>
           <div class="camera-meta">
             <span v-if="item.areaName" class="camera-area">{{ item.areaName }}</span>
-            <span class="camera-status" :class="{ online: item.status === '在线', offline: item.status !== '在线' }">
+            <!-- <span class="camera-status" :class="{ online: item.status === '在线', offline: item.status !== '在线' }">
               {{ item.status || '未知' }}
-            </span>
+            </span> -->
           </div>
         </div>
       </div>
@@ -61,7 +86,8 @@
 import { useScreenTheme } from '../../useScreenTheme';
 const { themeClass } = useScreenTheme();
 
-import { ref, computed, type PropType } from 'vue';
+import { ref, computed, onMounted, type PropType } from 'vue';
+import { getAllDistrictTag } from '@/api/baseSettingBqZm';
 
 interface CameraItem {
   id: number;
@@ -88,6 +114,57 @@ const selectedIds = ref<number[]>([]);
 
 const cameraList = computed(() => props.cameraList);
 
+/* ==================== 查询条件 ==================== */
+const filters = ref<{ areaId?: string; name?: string }>({});
+
+/** 区域下拉选项（与能耗统计汇总表一致：value 为片区 id，label 为片区名） */
+const areaOptions = ref<{ label: string; value: string }[]>([]);
+
+/** 片区 id → 片区名映射（用于按区域过滤） */
+const areaNameMap = computed(() => {
+  const map: Record<string, string> = {};
+  areaOptions.value.forEach((o) => {
+    map[String(o.value)] = o.label;
+  });
+  return map;
+});
+
+/** 加载区域下拉选项 */
+const loadAreaOptions = async () => {
+  try {
+    const res = await getAllDistrictTag('1');
+    const list = Array.isArray(res) ? res : (res?.records ?? []);
+    areaOptions.value = list.map((item: { id: string; districtName: string }) => ({
+      label: item.districtName,
+      value: String(item.id),
+    }));
+  } catch (err) {
+    console.error('获取区域选项失败：', err);
+  }
+};
+
+/** 按区域 / 名称过滤后的摄像头列表 */
+const filteredCameraList = computed(() => {
+  let list = cameraList.value;
+  const areaId = filters.value.areaId;
+  if (areaId) {
+    const areaName = areaNameMap.value[String(areaId)];
+    if (areaName) {
+      list = list.filter((c) => {
+        const val = String(c.areaName ?? '').trim();
+        // 片区名与摄像头区域名（列表第二行小字）相等或互为包含时匹配
+        return !!val && (val === areaName || val.includes(areaName) || areaName.includes(val));
+      });
+    }
+  }
+  const keyword = filters.value.name?.trim();
+  if (keyword) {
+    // 名称匹配列表第一行大字，空值不抛错、不参与匹配
+    list = list.filter((c) => String(c.name ?? '').includes(keyword));
+  }
+  return list;
+});
+
 function toggleSelect(item: CameraItem) {
   const idx = selectedIds.value.indexOf(item.id);
   if (idx > -1) {
@@ -111,6 +188,10 @@ function showModal() {
 function closeModal() {
   open.value = false;
 }
+
+onMounted(() => {
+  loadAreaOptions();
+});
 
 defineExpose({ showModal, closeModal });
 </script>
@@ -138,6 +219,49 @@ defineExpose({ showModal, closeModal });
     color: #00d4ff;
     flex-shrink: 0;
     filter: drop-shadow(0 0 3px rgba(0, 212, 255, 0.3));
+  }
+}
+
+/* ==================== 查询条件 ==================== */
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+
+  .filter-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .filter-label {
+    font-size: 13px;
+    color: #7fa6d4;
+    white-space: nowrap;
+  }
+
+  :deep(.ant-input-affix-wrapper),
+  :deep(.ant-input),
+  :deep(.ant-select-selector) {
+    background: rgba(15, 23, 42, 0.6);
+    border-color: rgba(71, 85, 105, 0.6);
+    color: #ffffff !important;
+  }
+
+  :deep(.ant-input-affix-wrapper input),
+  :deep(.ant-input) {
+    color: #ffffff !important;
+  }
+
+  :deep(.ant-select-selection-item) {
+    color: #ffffff !important;
+  }
+
+  :deep(.ant-select-selection-placeholder),
+  :deep(.ant-input::placeholder) {
+    color: #64748b;
   }
 }
 
@@ -470,7 +594,47 @@ defineExpose({ showModal, closeModal });
     color: #1890ff;
     flex-shrink: 0;
     filter: none;
-  }}.theme-white /* ==================== 摄像头列表 ==================== */
+  }}.theme-white .filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+
+  .filter-item  {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .filter-label  {
+    font-size: 13px;
+    color: #606266;
+    white-space: nowrap;
+  }
+
+  :deep(.ant-input-affix-wrapper),
+  :deep(.ant-input),
+  :deep(.ant-select-selector)  {
+    background: #ffffff !important;
+    border-color: #dcdfe6 !important;
+    color: #303133 !important;
+  }
+
+  :deep(.ant-input-affix-wrapper input),
+  :deep(.ant-input)  {
+    color: #303133 !important;
+  }
+
+  :deep(.ant-select-selection-item)  {
+    color: #303133 !important;
+  }
+
+  :deep(.ant-select-selection-placeholder),
+  :deep(.ant-input::placeholder)  {
+    color: #909399 !important;
+  }
+}.theme-white /* ==================== 摄像头列表 ==================== */
 .camera-list {
   max-height: 340px;
   overflow-y: auto;

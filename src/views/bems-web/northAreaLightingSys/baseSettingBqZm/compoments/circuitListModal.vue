@@ -90,9 +90,9 @@
               </th>
               <th>
                 <span class="th-label">额定电流</span>
-                <span class="th-btn-wrap sort-btn" @click="toggleSort('ratedPower')">
-                  <span class="arr-up" :class="{ active: sortKey === 'ratedPower' && sortOrder === 'asc' }">▲</span>
-                  <span class="arr-down" :class="{ active: sortKey === 'ratedPower' && sortOrder === 'desc' }">▼</span>
+                <span class="th-btn-wrap sort-btn" @click="toggleSort('ratedElectricCurrent')">
+                  <span class="arr-up" :class="{ active: sortKey === 'ratedElectricCurrent' && sortOrder === 'asc' }">▲</span>
+                  <span class="arr-down" :class="{ active: sortKey === 'ratedElectricCurrent' && sortOrder === 'desc' }">▼</span>
                 </span>
               </th>
               <th>
@@ -140,7 +140,7 @@
                 <td>{{ row.startTime }}</td>
                 <td>{{ row.closingTime }}</td>
                 <td>{{ formatSeconds(row.allDuration, { showHoursAlways: true }) }}</td>
-                <td>{{ row.ratedPower != null ? row.ratedPower : (row.electricCurrent != null ? row.electricCurrent : '-') }}</td>
+                <td>{{ row.ratedElectricCurrent != null ? row.ratedElectricCurrent : '-' }}</td>
                 <td>{{ row.electricCurrent != null ? row.electricCurrent : '-' }}</td>
                 <td>{{ row.operatorBy }}</td>
                 <td>{{ row.operatorTime }}</td>
@@ -223,7 +223,7 @@ async function onSubmit() {
 // 加载loading标识
 const tableLoading = ref(false);
 // table表格
-const tableData = ref([]);
+const tableData = ref<any[]>([]);
 
 /* --------------------- 排序 & 筛选 --------------------- */
 const sortKey = ref('');
@@ -245,7 +245,7 @@ const displayData = computed(() => {
     list.sort((a: any, b: any) => {
       const va = a[key];
       const vb = b[key];
-      if (key === 'allDuration' || key === 'ratedPower') {
+      if (key === 'allDuration' || key === 'ratedElectricCurrent') {
         return ((va || 0) - (vb || 0)) * dir;
       }
       return String(va || '').localeCompare(String(vb || '')) * dir;

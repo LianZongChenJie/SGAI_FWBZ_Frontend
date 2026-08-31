@@ -15,7 +15,7 @@
       <div class="stats-row" v-show="!statsCollapsed">
         <div class="stat-card">
           <div class="stat-label">照明地块</div>
-          <div class="stat-value" style="color: var(--accent)">{{ allSpaceList.length }}</div>
+          <div class="stat-value" style="color: var(--accent)">{{ stats.totalCount }}</div>
           <div class="stat-trend trend-up">
             <span>{{ stats.blockCoverage }} 覆盖</span>
           </div>
@@ -2164,6 +2164,7 @@ onBeforeUnmount(() => {
   /** 总览统计数据 */
   const stats = ref({
     blockCoverage: '0%',
+    totalCount: 0,
   });
 
   /** 地图状态统计 */
@@ -2525,6 +2526,7 @@ onBeforeUnmount(() => {
       const data = res?.result ?? res;
       stats.value = {
         blockCoverage: data.coverageRate != null ? `${data.coverageRate}%` : '0%',
+        totalCount: data.totalCount != null ? data.totalCount : 0,
       };
       pendingAlarm.value = data.pendingAlarm != null ? data.pendingAlarm : 0;
       allAreaSceneInfo.value =
@@ -2538,6 +2540,7 @@ onBeforeUnmount(() => {
     } catch {
       stats.value = {
         blockCoverage: '0%',
+        totalCount: 0,
       };
       pendingAlarm.value = 0;
       allAreaSceneInfo.value = null;

@@ -36,6 +36,8 @@ enum Api {
   getEnergyHourlyTrendApi = '/sgai-bqzm/bems/lighting/energy/hourlyTrend',
   getEnergySummaryApi = '/sgai-bqzm/bems/lighting/energy/summary',
   getEnergySummaryListApi = '/sgai-bqzm/bems/lighting/energy/summaryList',
+  getBoxTelemetryListApi = '/sgai-bqzm/bems/lighting/boxTelemetry/list',
+  getBoxTelemetryHistoryApi = '/sgai-bqzm/bems/lighting/boxTelemetry/history',
   getEnergyMeterReadsApi = '/sgai-bqzm/bems/lighting/energy/meterReads',
 }
 
@@ -162,6 +164,12 @@ export const getEnergySummary = (params) => defHttp.get({ url: Api.getEnergySumm
 
 // 能耗统计 - 能耗汇总表列表（仅网关维度，支持区域/箱子名称过滤，GET）
 export const getEnergySummaryList = (params) => defHttp.get({ url: Api.getEnergySummaryListApi, params }, { joinParamsToUrl: true });
+
+// 能耗统计 - 箱子遥测列表(GET)
+export const getBoxTelemetryList = (params) => defHttp.get({ url: Api.getBoxTelemetryListApi, params }, { joinParamsToUrl: true });
+
+// 能耗统计 - 箱子遥测历史(GET)
+export const getBoxTelemetryHistory = (params) => defHttp.get({ url: Api.getBoxTelemetryHistoryApi, params }, { joinParamsToUrl: true });
 
 // 能耗统计 - 区间查询（表底抄表记录，GET）
 export const getEnergyMeterReads = (params) => defHttp.get({ url: Api.getEnergyMeterReadsApi, params }, { joinParamsToUrl: true });
