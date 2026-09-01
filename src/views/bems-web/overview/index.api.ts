@@ -9,6 +9,8 @@ enum Api {
     todayStatistics = '/sgai-fwbz-dev/fwbz/energyMetering/statistics',
     /** 告警统计（待处理告警数量） */
     alarmStatistics = '/sgai-fwbz-dev/fwbz/alarm/record/statistics',
+    /** 设备数量 */
+    deviceCount = '/sgai-fwbz-dev/fwbz/device/deviceRunStateStatistics'
 }
 
 /**
@@ -107,3 +109,8 @@ export const getTodayVisitorCount = () => defHttp.get({ url: Api.todayVisitorCou
 
 /** 告警统计（待处理告警数量取 untreatedCount 字段） */
 export const getAlarmStatistics = () => defHttp.get({ url: Api.alarmStatistics });
+/** 今日能耗统计（取 electricCount 字段） */
+export const getTodayStatistics = () => defHttp.get({ url: Api.todayStatistics });
+
+/** 设备运行状态统计（取 online/count 计算在线率） */
+export const getDeviceCount = () => defHttp.get({ url: Api.deviceCount });

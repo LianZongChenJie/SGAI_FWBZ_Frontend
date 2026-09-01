@@ -221,7 +221,7 @@ import { message } from 'ant-design-vue'
 import { useRouter } from 'vue-router'
 import dayjs from 'dayjs'
 import { StatCard, DeviceCard } from '/@/views/bems-web/components'
-import { getTodayExhibitionActivity, getTodayVisitorCount, getAlarmStatistics } from './index.api'
+import { getTodayExhibitionActivity, getTodayVisitorCount, getAlarmStatistics, getTodayStatistics, getDeviceCount } from './index.api'
 import type { ActiveMeetInfo } from './index.api'
 import { getDeviceStat } from '/@/views/bems-web/event/during/index.api'
 import type { SystemDeviceStatVO } from '/@/views/bems-web/event/during/index.api'
@@ -300,16 +300,18 @@ const statData = ref<{
 }>({
   todayVisitors: '--',
   deviceOnlineRate: '98.6%',
-  todayEnergy: '45,230',
+  todayEnergy: '--',
   pendingAlerts: '--',
 })
 
-/** 加载统计数据（今日场馆客流 + 待处理告警） */
+/** 加载统计数据（今日场馆客流 + 今日能耗 + 待处理告警） **/
 const fetchStatData = async () => {
   try {
-    const [visitorRes, alarmRes] = await Promise.all([
+    const [visitorRes, alarmRes, energyRes, deviceRes] = await Promise.all([
       getTodayVisitorCount(),
       getAlarmStatistics(),
+      getTodayStatistics(),
+      getDeviceCount(),
     ])
     // 今日场馆客流
     const visitorVal = visitorRes?.value ?? visitorRes
@@ -317,10 +319,21 @@ const fetchStatData = async () => {
       const num = parseInt(visitorVal, 10) || 0
       statData.value.todayVisitors = num.toLocaleString()
     }
+    // 今日能耗（取 electricCount 字段）
+    if (energyRes != null && energyRes.electricCount != null) {
+      statData.value.todayEnergy = energyRes.electricCount
+    }
     // 待处理告警（取 untreatedCount 字段）
     if (alarmRes != null) {
       const num = alarmRes.untreatedCount ?? 0
       statData.value.pendingAlerts = num
+    }
+    // 设备在线率（online/count，保留两位小数）
+    if (deviceRes != null && deviceRes.count != null && deviceRes.count > 0) {
+      const rate = (deviceRes.online / deviceRes.count) * 100
+      statData.value.deviceOnlineRate = rate.toFixed(2) + '%'
+    } else {
+      statData.value.deviceOnlineRate = '0.00%'
     }
   } catch {
     // 静默处理
