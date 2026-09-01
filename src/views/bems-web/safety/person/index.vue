@@ -67,7 +67,6 @@
           :loading="recognitionLoading"
           :pagination="recognitionPagination"
           row-key="id"
-          size="middle"
           @change="handleRecognitionTableChange"
         >
           <template #bodyCell="{ column, record }">
@@ -384,7 +383,7 @@ const updateChart = () => {
       axisPointer: { type: 'shadow' },
       backgroundColor: 'rgba(255,255,255,0.95)',
       borderColor: '#e2e8f0',
-      textStyle: { color: '#2d3748', fontSize: 12 },
+      textStyle: { color: '#2d3748', fontSize:14 },
       extraCssText: 'box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-radius: 8px;',
     },
     legend: {
@@ -393,7 +392,7 @@ const updateChart = () => {
       right: 0,
       itemWidth: 12,
       itemHeight: 12,
-      textStyle: { color: '#718096', fontSize: 12 },
+      textStyle: { color: '#718096', fontSize:14 },
     },
     grid: {
       left: '2%',
@@ -407,14 +406,14 @@ const updateChart = () => {
       boundaryGap: true,
       data: dateList,
       axisLine: { lineStyle: { color: '#e2e8f0' } },
-      axisLabel: { color: '#a0aec0', fontSize: 11 },
+      axisLabel: { color: '#a0aec0', fontSize:13 },
       axisTick: { show: false },
     },
     yAxis: {
       type: 'value',
       axisLine: { show: false },
       axisTick: { show: false },
-      axisLabel: { color: '#a0aec0', fontSize: 11 },
+      axisLabel: { color: '#a0aec0', fontSize:13 },
       splitLine: { lineStyle: { color: '#f0f0f0', type: 'dashed' } },
     },
     series,
@@ -641,7 +640,7 @@ const getPersonTypeClass = (type?: string) => {
     }
 
     .tag {
-      font-size: 11px;
+      font-size:13px;
       padding: 4px 10px;
       border-radius: 6px;
       font-weight: 500;
@@ -679,7 +678,7 @@ const getPersonTypeClass = (type?: string) => {
   padding: 30px;
 
   .chart-icon { font-size: 48px; margin-bottom: 12px; }
-  .chart-text { font-size: 14px; color: #718096; font-weight: 500; }
+  .chart-text { font-size:16px; color: #718096; font-weight: 500; }
 }
 
 .trend-chart {
@@ -758,7 +757,7 @@ const getPersonTypeClass = (type?: string) => {
       }
 
       .person-similarity {
-        font-size: 12px;
+        font-size:14px;
         color: #718096;
         background: #fff;
         padding: 2px 8px;
@@ -772,7 +771,7 @@ const getPersonTypeClass = (type?: string) => {
       gap: 16px;
 
       .meta-item {
-        font-size: 13px;
+        font-size:16px;
         color: #4a5568;
 
         .meta-label {
@@ -786,7 +785,7 @@ const getPersonTypeClass = (type?: string) => {
 
 .track-timeline-section {
   .timeline-title {
-    font-size: 14px;
+    font-size:16px;
     font-weight: 600;
     color: #2d3748;
     margin-bottom: 12px;
@@ -864,7 +863,7 @@ const getPersonTypeClass = (type?: string) => {
   }
 
   .timeline-time {
-    font-size: 12px;
+    font-size:14px;
     color: #3182ce;
     font-weight: 600;
     margin-bottom: 4px;
@@ -872,7 +871,7 @@ const getPersonTypeClass = (type?: string) => {
   }
 
   .timeline-camera {
-    font-size: 13px;
+    font-size:16px;
     color: #2d3748;
     font-weight: 500;
     text-align: center;
@@ -881,7 +880,7 @@ const getPersonTypeClass = (type?: string) => {
   }
 
   .timeline-location {
-    font-size: 11px;
+    font-size:13px;
     color: #a0aec0;
     text-align: center;
   }
@@ -892,7 +891,7 @@ const getPersonTypeClass = (type?: string) => {
   align-items: center;
   padding: 2px 10px;
   border-radius: 4px;
-  font-size: 12px;
+  font-size:14px;
   font-weight: 500;
 
   &.normal { background: #c6f6d5; color: #22543d; }
@@ -916,12 +915,12 @@ const getPersonTypeClass = (type?: string) => {
     &:last-child { border-bottom: none; }
 
     .info-label {
-      font-size: 13px;
+      font-size:16px;
       color: #718096;
     }
 
     .info-value {
-      font-size: 13px;
+      font-size:16px;
       font-weight: 600;
       color: #2d3748;
     }

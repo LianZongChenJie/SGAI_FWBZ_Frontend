@@ -204,7 +204,7 @@
     padding: 0 0 0 10px;
     padding-right: 10px;
     overflow: hidden;
-    font-size: 12px;
+    font-size: 16px;
     cursor: pointer;
     align-items: center;
 
@@ -219,7 +219,7 @@
     }
 
     &__name {
-      font-size: 14px;
+      font-size: 16px;
     }
 
     &--dark {

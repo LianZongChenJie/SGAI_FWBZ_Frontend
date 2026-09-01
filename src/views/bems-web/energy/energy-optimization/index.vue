@@ -240,7 +240,7 @@ void PlusOutlined
   &__tag {
     display: inline-block;
     padding: 2px 10px;
-    font-size: 12px;
+    font-size:14px;
     color: #389e0d;
     background: #f6ffed;
     border: 1px solid #b7eb8f;
@@ -275,7 +275,7 @@ void PlusOutlined
     }
 
     &__desc {
-      font-size: 13px;
+      font-size:16px;
       color: rgba(0, 0, 0, 0.45);
     }
   }
@@ -367,14 +367,14 @@ void PlusOutlined
     }
 
     &__desc {
-      font-size: 12px;
+      font-size:14px;
       color: rgba(0, 0, 0, 0.55);
       line-height: 1.5;
       margin-bottom: 6px;
     }
 
     &__meta {
-      font-size: 12px;
+      font-size:14px;
       color: rgba(0, 0, 0, 0.55);
       margin-bottom: 8px;
     }
@@ -447,13 +447,13 @@ void PlusOutlined
     }
 
     &__title {
-      font-size: 14px;
+      font-size:16px;
       font-weight: 600;
       color: rgba(0, 0, 0, 0.85);
     }
 
     &__desc {
-      font-size: 12px;
+      font-size:14px;
       color: rgba(0, 0, 0, 0.45);
     }
   }
@@ -469,12 +469,12 @@ void PlusOutlined
     }
 
     &__label {
-      font-size: 13px;
+      font-size:16px;
       color: rgba(0, 0, 0, 0.65);
     }
 
     &__value {
-      font-size: 14px;
+      font-size:16px;
       font-weight: 600;
 
       &.default {

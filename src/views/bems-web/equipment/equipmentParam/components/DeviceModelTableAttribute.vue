@@ -152,7 +152,6 @@
       api: getData,
       columns: columns,
       showActionColumn: false,
-      size: 'middle',
       bordered: false,
       canResize: false,
       showTableSetting: false,

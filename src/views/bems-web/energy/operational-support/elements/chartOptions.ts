@@ -29,7 +29,7 @@ function refMark(ref?: { lines?: { y: number; label: string }[]; band?: number[]
       silent: true,
       symbol: 'none',
       lineStyle: { type: 'dashed', color: TINK.muted, width: 1 },
-      label: { color: TINK.secondary, fontSize: 11, position: 'insideEndTop' },
+      label: { color: TINK.secondary, fontSize:13, position: 'insideEndTop' },
       data: lines.map((l) => ({ yAxis: l.y, label: { formatter: l.label } })),
     }
   }
@@ -37,7 +37,7 @@ function refMark(ref?: { lines?: { y: number; label: string }[]; band?: number[]
     mark.markArea = {
       silent: true,
       itemStyle: { color: 'rgba(11,11,11,0.04)' },
-      label: { color: TINK.muted, fontSize: 11, position: 'insideTopLeft' },
+      label: { color: TINK.muted, fontSize:13, position: 'insideTopLeft' },
       data: [[{ yAxis: ref.band[0], label: { formatter: ref.bandLabel || '' } }, { yAxis: ref.band[1] }]],
     }
   }
@@ -66,7 +66,7 @@ export function buildTrendOption(
       borderColor: TINK.gridline,
       borderWidth: 1,
       padding: [8, 10],
-      textStyle: { color: TINK.primary, fontSize: 12 },
+      textStyle: { color: TINK.primary, fontSize:14 },
     },
     legend: hasLegend
       ? {
@@ -74,7 +74,7 @@ export function buildTrendOption(
           bottom: 0,
           itemWidth: 16,
           itemHeight: 8,
-          textStyle: { color: TINK.secondary, fontSize: 12 },
+          textStyle: { color: TINK.secondary, fontSize:14 },
           data: series.map((s) => s.name),
         }
       : undefined,
@@ -83,7 +83,7 @@ export function buildTrendOption(
       type: 'category',
       boundaryGap: false,
       data: xaxis,
-      axisLabel: { color: TINK.muted, fontSize: 12, interval: 1 },
+      axisLabel: { color: TINK.muted, fontSize:14, interval: 1 },
       axisLine: { lineStyle: { color: TINK.baseline } },
       axisTick: { show: false },
     },
@@ -93,8 +93,8 @@ export function buildTrendOption(
       name: unitName,
       min: yMin,
       max: yMax,
-      nameTextStyle: { color: TINK.muted, fontSize: 12, align: 'left' },
-      axisLabel: { color: TINK.muted, fontSize: 12 },
+      nameTextStyle: { color: TINK.muted, fontSize:14, align: 'left' },
+      axisLabel: { color: TINK.muted, fontSize:14 },
       splitLine: { lineStyle: { color: TINK.gridline, width: 1, type: 'solid' } },
       axisLine: { show: false },
       axisTick: { show: false },
@@ -140,7 +140,7 @@ export function buildBarOption(
       borderColor: TINK.gridline,
       borderWidth: 1,
       padding: [8, 10],
-      textStyle: { color: TINK.primary, fontSize: 12 },
+      textStyle: { color: TINK.primary, fontSize:14 },
       formatter: (params: any) => {
         const p = params[0]
         const extra = p.data && typeof p.data === 'object' && p.data.starts !== undefined
@@ -152,7 +152,7 @@ export function buildBarOption(
     xAxis: {
       type: 'category',
       data: categories,
-      axisLabel: { color: TINK.muted, fontSize: 12, interval: categories.length > 12 ? 3 : 0 },
+      axisLabel: { color: TINK.muted, fontSize:14, interval: categories.length > 12 ? 3 : 0 },
       axisLine: { lineStyle: { color: TINK.baseline } },
       axisTick: { show: false },
     },
@@ -160,8 +160,8 @@ export function buildBarOption(
       type: 'value',
       name: unitName,
       max: yMax,
-      nameTextStyle: { color: TINK.muted, fontSize: 12, align: 'left' },
-      axisLabel: { color: TINK.muted, fontSize: 12 },
+      nameTextStyle: { color: TINK.muted, fontSize:14, align: 'left' },
+      axisLabel: { color: TINK.muted, fontSize:14 },
       splitLine: { lineStyle: { color: TINK.gridline, width: 1, type: 'solid' } },
       axisLine: { show: false },
       axisTick: { show: false },
@@ -182,7 +182,7 @@ export function buildBarOption(
                 silent: true,
                 symbol: 'none',
                 lineStyle: { type: 'dashed', color: TINK.muted, width: 1 },
-                label: { color: TINK.secondary, fontSize: 11, position: 'insideEndBottom', formatter: thresholdLabel },
+                label: { color: TINK.secondary, fontSize:13, position: 'insideEndBottom', formatter: thresholdLabel },
                 data: [{ yAxis: threshold }],
               },
             }
@@ -208,7 +208,7 @@ export function buildScatterOption(
       borderColor: TINK.gridline,
       borderWidth: 1,
       padding: [8, 10],
-      textStyle: { color: TINK.primary, fontSize: 12 },
+      textStyle: { color: TINK.primary, fontSize:14 },
       formatter: (p: any) => {
         return `${p.seriesName}<br/>辐照度: ${p.value[0]} ${xUnit}<br/>系统效率: ${p.value[1]} ${yUnit}`
       },
@@ -218,7 +218,7 @@ export function buildScatterOption(
       bottom: 0,
       itemWidth: 16,
       itemHeight: 8,
-      textStyle: { color: TINK.secondary, fontSize: 12 },
+      textStyle: { color: TINK.secondary, fontSize:14 },
       data: series.map((s) => s.name),
     },
     grid: { left: '3%', right: '8%', top: '10%', bottom: '16%', containLabel: true },
@@ -226,8 +226,8 @@ export function buildScatterOption(
       type: 'value',
       name: xUnit,
       scale: true,
-      nameTextStyle: { color: TINK.muted, fontSize: 12 },
-      axisLabel: { color: TINK.muted, fontSize: 12 },
+      nameTextStyle: { color: TINK.muted, fontSize:14 },
+      axisLabel: { color: TINK.muted, fontSize:14 },
       splitLine: { lineStyle: { color: TINK.gridline, width: 1, type: 'solid' } },
       axisLine: { show: false },
       axisTick: { show: false },
@@ -235,8 +235,8 @@ export function buildScatterOption(
     yAxis: {
       type: 'value',
       name: yUnit,
-      nameTextStyle: { color: TINK.muted, fontSize: 12, align: 'left' },
-      axisLabel: { color: TINK.muted, fontSize: 12 },
+      nameTextStyle: { color: TINK.muted, fontSize:14, align: 'left' },
+      axisLabel: { color: TINK.muted, fontSize:14 },
       splitLine: { lineStyle: { color: TINK.gridline, width: 1, type: 'solid' } },
       axisLine: { show: false },
       axisTick: { show: false },

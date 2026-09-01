@@ -556,7 +556,7 @@ onUnmounted(() => {
   gap: 10px;
   z-index: 15;
   color: #0ea5e9;
-  font-size: 13px;
+  font-size:16px;
 }
 
 .loading-spinner {
@@ -707,7 +707,7 @@ onUnmounted(() => {
 
 .camera-iframe-placeholder {
   color: #94a3b8;
-  font-size: 14px;
+  font-size:16px;
   display: flex;
   align-items: center;
   justify-content: center;

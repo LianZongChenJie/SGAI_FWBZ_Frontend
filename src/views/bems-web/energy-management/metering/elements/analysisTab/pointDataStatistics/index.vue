@@ -654,7 +654,7 @@
           gap: 6px;
           height: 32px;
           padding: 0 12px;
-          font-size: 14px;
+          font-size:16px;
           color: #595959;
           background-color: #fff;
           border: 1px solid #d9d9d9;

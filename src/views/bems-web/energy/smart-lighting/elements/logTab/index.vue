@@ -74,7 +74,6 @@
         :columns="logColumns"
         :data-source="logList"
         :pagination="false"
-        size="small"
         row-key="id"
       >
         <template #bodyCell="{ column, record }">
@@ -218,7 +217,7 @@ const logList = ref([
       display: inline-block;
       padding: 2px 10px;
       border-radius: 12px;
-      font-size: 12px;
+      font-size:14px;
       white-space: nowrap;
 
       &.status-enabled {
@@ -266,13 +265,13 @@ const logList = ref([
         }
 
         &__title {
-          font-size: 14px;
+          font-size:16px;
           color: rgba(0, 0, 0, 0.45);
           margin-bottom: 8px;
         }
 
         &__desc {
-          font-size: 12px;
+          font-size:14px;
           color: rgba(0, 0, 0, 0.35);
         }
       }

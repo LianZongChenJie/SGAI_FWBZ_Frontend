@@ -108,6 +108,9 @@ enum Api {
     interfaceStatusList = '/sgai-fwbz-dev/fwbz/interfaceInfo/listPage',
     /** 协议类型下拉 */
     protocolTypeList = '/sgai-fwbz-dev/fwbz/protocolType/list',
+
+    /** 照明tab下的点位信息 */
+    lightingPointList = '/sgai-bqzm/bems/lighting/area/all',
 }
 
 /**
@@ -484,6 +487,9 @@ export const getInterfaceStatusList = (params?: {
 
 /** 协议类型下拉列表 */
 export const getProtocolTypeList = () => defHttp.get({ url: Api.protocolTypeList });
+
+/** 照明tab下的点位信息 */
+export const getLightingPointList = () => defHttp.get({ url: Api.lightingPointList });
 
 /**
  * 接口信息

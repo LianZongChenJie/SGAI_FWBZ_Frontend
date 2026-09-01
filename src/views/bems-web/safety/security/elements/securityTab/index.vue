@@ -52,7 +52,6 @@
             :pagination="patrolPagination"
             :loading="patrolLoading"
             row-key="id"
-            size="small"
             :scroll="{ y: 240 }"
             @change="handlePatrolTableChange"
           >
@@ -892,7 +891,7 @@ const handleViewAllAIEvents = () => {
 .finished-tip {
   margin: 16px 0 0;
   color: #faad14;
-  font-size: 14px;
+  font-size:16px;
 }
 
 .monitor-actions {
@@ -903,8 +902,8 @@ const handleViewAllAIEvents = () => {
 }
 
 .collapse-btn {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border: 1px solid #d9d9d9;
   border-radius: 4px;
   background: #fff;
@@ -912,7 +911,7 @@ const handleViewAllAIEvents = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size:14px;
   color: #666;
   transition: all 0.2s;
   flex-shrink: 0;
@@ -941,7 +940,7 @@ const handleViewAllAIEvents = () => {
   border-top: 1px solid #f0f0f0;
 
   .camera-checked-title {
-    font-size: 13px;
+    font-size:16px;
     color: #666;
     margin-bottom: 8px;
   }
@@ -963,6 +962,6 @@ const handleViewAllAIEvents = () => {
 
 .camera-selected-count {
   color: #666;
-  font-size: 13px;
+  font-size:16px;
 }
 </style>

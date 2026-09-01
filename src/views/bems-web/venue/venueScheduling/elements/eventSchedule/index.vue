@@ -384,7 +384,7 @@ const handleExport = async () => {
 }
 
 .day-header {
-  font-size: 14px;
+  font-size:16px;
   font-weight: 600;
   color: #1d2129;
   padding-bottom: 12px;
@@ -412,7 +412,7 @@ const handleExport = async () => {
 }
 
 .event-time {
-  font-size: 11px;
+  font-size:13px;
   color: #86909c;
   margin-bottom: 4px;
 }
@@ -425,7 +425,7 @@ const handleExport = async () => {
 }
 
 .event-name {
-  font-size: 13px;
+  font-size:16px;
   font-weight: 500;
   color: #1d2129;
   overflow: hidden;
@@ -436,7 +436,7 @@ const handleExport = async () => {
 }
 
 .event-delete {
-  font-size: 14px;
+  font-size:16px;
   color: #ff4d4f;
   cursor: pointer;
   opacity: 0;
@@ -449,13 +449,13 @@ const handleExport = async () => {
 }
 
 .event-meta {
-  font-size: 11px;
+  font-size:13px;
   color: #86909c;
   margin-top: 4px;
 }
 
 .event-empty {
-  font-size: 12px;
+  font-size:14px;
   color: #c0c4cc;
   text-align: center;
   padding: 12px 0;
@@ -478,7 +478,7 @@ const handleExport = async () => {
 .month-weekday {
   padding: 10px 4px;
   text-align: center;
-  font-size: 13px;
+  font-size:16px;
   font-weight: 500;
   color: #1d2129;
 }
@@ -523,7 +523,7 @@ const handleExport = async () => {
 }
 
 .month-day-num {
-  font-size: 13px;
+  font-size:16px;
   font-weight: 500;
   color: #1d2129;
   margin-bottom: 4px;
@@ -549,7 +549,7 @@ const handleExport = async () => {
 }
 
 .month-event-tag {
-  font-size: 11px;
+  font-size:13px;
   line-height: 1.4;
   padding: 2px 6px;
   border-radius: 3px;
@@ -568,7 +568,7 @@ const handleExport = async () => {
 }
 
 .event-tooltip {
-  font-size: 13px;
+  font-size:16px;
   line-height: 1.8;
 
   > div {

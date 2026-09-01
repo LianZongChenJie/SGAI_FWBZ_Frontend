@@ -239,7 +239,7 @@ const renderGantt = (setOptions: any, opt: any) => {
       type: 'value',
       min: opt.xMin,
       max: opt.xMax,
-      axisLabel: { formatter: fmtH, color: '#898781', fontSize: 11, hideOverlap: true },
+      axisLabel: { formatter: fmtH, color: '#898781', fontSize:13, hideOverlap: true },
       splitLine: { lineStyle: { color: '#ebeae4' } },
       axisLine: { show: false },
       axisTick: { show: false },
@@ -250,7 +250,7 @@ const renderGantt = (setOptions: any, opt: any) => {
       inverse: true,
       axisLine: { show: false },
       axisTick: { show: false },
-      axisLabel: { color: '#52514e', fontSize: 12 },
+      axisLabel: { color: '#52514e', fontSize:14 },
       splitLine: { show: false },
     },
     series,
@@ -299,13 +299,13 @@ onMounted(async () => {
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 14px;
+      font-size:16px;
       font-weight: 600;
       color: rgba(0, 0, 0, 0.85);
     }
 
     &__tag {
-      font-size: 11px;
+      font-size:13px;
       font-weight: 500;
       color: rgba(0, 0, 0, 0.45);
       background: #eef3f9;
@@ -314,7 +314,7 @@ onMounted(async () => {
     }
 
     &__note {
-      font-size: 12px;
+      font-size:14px;
       color: #898781;
     }
 
@@ -335,7 +335,7 @@ onMounted(async () => {
 
     &__desc {
       margin-top: 8px;
-      font-size: 12px;
+      font-size:14px;
       color: #52514e;
       line-height: 1.75;
 
@@ -363,7 +363,7 @@ onMounted(async () => {
   .sc-legend {
     display: flex;
     gap: 14px;
-    font-size: 12px;
+    font-size:14px;
     color: rgba(0, 0, 0, 0.65);
     flex-wrap: wrap;
 
@@ -441,7 +441,7 @@ onMounted(async () => {
 
   /* 状态徽标 */
   .badge {
-    font-size: 11px;
+    font-size:13px;
     padding: 2px 8px;
     border-radius: 10px;
     font-weight: 600;

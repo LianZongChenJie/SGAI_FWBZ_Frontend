@@ -39,8 +39,8 @@
               <!-- <div class="alert-desc">{{ item.description }}</div> -->
               <div class="alert-time">{{ item.time }} | 持续 {{ item.duration }}</div>
               <div class="alert-actions">
-                <a-button class="confirm-btn" :class="'confirm-' + item.level" size="small" @click="handleConfirm(item)">确认并处理</a-button>
-                <a-button size="small" @click="handleTransfer(item)">转工单</a-button>
+                <a-button class="confirm-btn" :class="'confirm-' + item.level" @click="handleConfirm(item)">确认并处理</a-button>
+                <a-button @click="handleTransfer(item)" disabled>转工单</a-button>
                 </div>
             </div>
           </div>
@@ -345,7 +345,7 @@ onMounted(() => {
 .card {
   background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 20px; overflow: hidden;
   .card-header { padding: 18px 22px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
-    h3 { font-size: 16px; font-weight: 600; color: #2d3748; display: flex; align-items: center; gap: 10px; margin: 0; }
+    h3 { font-size:20px; font-weight: 600; color: #2d3748; display: flex; align-items: center; gap: 10px; margin: 0; }
     .filter-bar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
   }
   .card-body { padding: 22px; }
@@ -408,7 +408,7 @@ onMounted(() => {
   }
 
   &__label {
-    font-size: 14px;
+    font-size:16px;
     font-weight: 500;
     color: #1d2129;
     flex-shrink: 0;
@@ -419,7 +419,7 @@ onMounted(() => {
   text-align: center;
   color: #86909c;
   padding: 60px 0;
-  font-size: 14px;
+  font-size:16px;
 }
 
 .alert-card {
@@ -446,15 +446,15 @@ onMounted(() => {
 
   .alert-content {
     flex: 1; min-width: 0;
-    .alert-title { font-size: 14px; font-weight: 600; color: #1d2129; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
-    .level-tag { font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 500;
+    .alert-title { font-size:16px; font-weight: 600; color: #1d2129; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+    .level-tag { font-size:13px; padding: 2px 8px; border-radius: 4px; font-weight: 500;
       &.veryDanger { background: #ffccc7; color: #742a2a; }
       &.danger { background: #ffe58f; color: #744210; }
       &.info { background: #bae0ff; color: #2a4365; }
     }
-    .category-tag { font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 500; background: #e8e8e8; color: #555; }
-    .alert-desc { font-size: 13px; color: #4e5969; line-height: 1.6; }
-    .alert-time { font-size: 12px; color: #86909c; margin-top: 6px; }
+    .category-tag { font-size:13px; padding: 2px 8px; border-radius: 4px; font-weight: 500; background: #e8e8e8; color: #555; }
+    .alert-desc { font-size:16px; color: #4e5969; line-height: 1.6; }
+    .alert-time { font-size:14px; color: #86909c; margin-top: 6px; }
     .alert-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
     .confirm-btn {
       &.confirm-veryDanger { background: #ff4d4f; border-color: #ff4d4f; color: #fff; &:hover { background: #ff7875; border-color: #ff7875; } }

@@ -306,7 +306,7 @@ function renderEnergyChart() {
   const chartHours = raw('optimization.forecast.hours')
   const openHour = hourLabel('optimization.schedule.plant.earliestEventOpen', '09')
   const closeHour = hourLabel('optimization.schedule.plant.latestEventClose', '19')
-  energyChart.setOption({ animationDuration: 500, grid: { left: 46, right: 50, top: 30, bottom: 26 }, tooltip: { trigger: 'axis', backgroundColor: '#ffffff', borderColor: '#e2e8f0', textStyle: { color: '#2d3748', fontSize: 11 } }, xAxis: { type: 'category', data: chartHours, axisLine: { lineStyle: { color: '#e2e8f0' } }, axisLabel: { color: '#94a3b8', fontSize: 9, interval: 1 } }, yAxis: [
+  energyChart.setOption({ animationDuration: 500, grid: { left: 46, right: 50, top: 30, bottom: 26 }, tooltip: { trigger: 'axis', backgroundColor: '#ffffff', borderColor: '#e2e8f0', textStyle: { color: '#2d3748', fontSize:13 } }, xAxis: { type: 'category', data: chartHours, axisLine: { lineStyle: { color: '#e2e8f0' } }, axisLabel: { color: '#94a3b8', fontSize: 9, interval: 1 } }, yAxis: [
     { type: 'value', name: 'kWh', nameTextStyle: { color: '#94a3b8' }, axisLabel: { color: '#94a3b8', fontSize: 9 }, splitLine: { lineStyle: { color: 'rgba(148,163,184,.25)' } } },
     { type: 'value', name: '客流 / 人', nameTextStyle: { color: '#94a3b8' }, axisLabel: { color: '#94a3b8', fontSize: 9 }, splitLine: { show: false } }
   ], series: [
@@ -333,7 +333,7 @@ function renderLinkageChart() {
   const minAxis = Math.floor((Math.min(...bases) - 45) / 60) * 60
   const maxEnd = Math.max(...rows.map(row => row.legacy ? row.stopMin : row.closeMin))
   const maxAxis = Math.ceil((maxEnd + 110) / 60) * 60
-  linkageChart.setOption({ animationDuration: 500, grid: { left: 58, right: 18, top: 14, bottom: 26 }, tooltip: { trigger: 'item', backgroundColor: '#ffffff', borderColor: '#e2e8f0', textStyle: { color: '#2d3748', fontSize: 11 }, formatter: params => {
+  linkageChart.setOption({ animationDuration: 500, grid: { left: 58, right: 18, top: 14, bottom: 26 }, tooltip: { trigger: 'item', backgroundColor: '#ffffff', borderColor: '#e2e8f0', textStyle: { color: '#2d3748', fontSize:13 }, formatter: params => {
     const row = rows[params.dataIndex]
     if (!row) return ''
     if (row.legacy) return `<b>${row.label}</b><br/>活动 ${row.open}–${row.close} · 固定 08:00–18:30 运行<br/>冷机启停由既有系统管理，本页仅展示能耗`
@@ -393,7 +393,7 @@ onUnmounted(() => {
 .expert-card>header{height:48px;padding:0 13px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #f0f0f0}
 .expert-card>header>div:first-child{display:flex;align-items:center}
 .section-no{width:23px;height:23px;margin-right:9px;display:grid;place-items:center;border:1px solid #bae6fd;color:#0284c7;font-size:7px;border-radius:6px;background:#f0f9ff;flex:none}
-.expert-card h2{font-size:11px;color:#2d3748}
+.expert-card h2{font-size:20px;color:#2d3748}
 .expert-card header p{margin-top:2px;font-size:7px;color:#94a3b8}
 .energy-badges{display:flex;gap:7px}
 .energy-badges span{font-size:7px;color:#64748b;padding:5px 7px;border:1px solid var(--edge);border-radius:6px;background:#f8fafc}
@@ -446,7 +446,7 @@ onUnmounted(() => {
 .timeline-node::before{content:"";width:10px;height:10px;margin-bottom:5px;border:2px solid #ffffff;border-radius:50%;background:#0ea5e9;box-shadow:0 0 0 2px rgba(14,165,233,.25)}
 .timeline-node.stop::before{background:#f59e0b;box-shadow:0 0 0 2px rgba(245,158,11,.25)}
 .timeline-node.close::before{background:#ef4444;box-shadow:0 0 0 2px rgba(239,68,68,.23)}
-.timeline-node b{font-size:14px;color:#1e293b}
+.timeline-node b{font-size:16px;color:#1e293b}
 .timeline-node span{margin-top:2px;font-size:8px;color:#475569}
 .timeline-node small{font-size:6px;color:#94a3b8}
 .plant-timeline aside{height:65px;padding:8px 10px;border-left:1px solid var(--edge);display:grid;align-content:center;gap:7px;background:#f8fafc;border-radius:0 8px 8px 0}
@@ -459,7 +459,7 @@ onUnmounted(() => {
 .schedule-table td{padding:8px 9px;border-top:1px solid #f0f0f0;color:#64748b;vertical-align:top}
 .schedule-table td strong,.schedule-table td b{display:block;color:#334155;font-size:8px}
 .schedule-table td span{display:block;margin-top:2px;line-height:1.45;color:#94a3b8}
-.schedule-table .time-cell strong{font-size:12px;color:#16a34a}
+.schedule-table .time-cell strong{font-size:14px;color:#16a34a}
 .schedule-table .time-cell span{color:#94a3b8}
 .schedule-table td:last-child{min-width:170px}
 .schedule-table td:last-child i{display:inline-block;margin-top:3px;padding:2px 4px;font-style:normal;color:#0284c7;border:1px solid rgba(14,165,233,.25);border-radius:4px}

@@ -48,7 +48,6 @@
           :columns="reportColumns"
           :data-source="reportList"
           :pagination="false"
-          size="small"
           row-key="id"
         >
           <template #bodyCell="{ column, record }">
@@ -77,7 +76,6 @@
           :columns="taskColumns"
           :data-source="taskList"
           :pagination="false"
-          size="small"
           row-key="id"
         >
           <template #bodyCell="{ column, record }">
@@ -222,7 +220,7 @@ onMounted(() => {
         display: inline-block;
         padding: 2px 10px;
         border-radius: 12px;
-        font-size: 12px;
+        font-size:14px;
         white-space: nowrap;
 
         &.status-generated,

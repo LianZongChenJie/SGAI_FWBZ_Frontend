@@ -123,7 +123,6 @@
             :columns="maintenanceColumns"
             :data-source="analyzeData.maintenance_priorities"
             row-key="device_name"
-            size="small"
             :pagination="false"
           >
             <template #bodyCell="{ column, record }">
@@ -319,7 +318,7 @@ const renderChart = () => {
       axisPointer: { type: 'shadow' },
       backgroundColor: 'rgba(255,255,255,0.95)',
       borderColor: '#e2e8f0',
-      textStyle: { color: '#2d3748', fontSize: 12 },
+      textStyle: { color: '#2d3748', fontSize:14 },
       extraCssText: 'box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-radius: 8px;',
       formatter: (params: any) => {
         const item = categories[params[0].dataIndex]
@@ -342,7 +341,7 @@ const renderChart = () => {
       axisLine: { lineStyle: { color: '#e2e8f0' } },
       axisLabel: {
         color: '#718096',
-        fontSize: 11,
+        fontSize:13,
         interval: 0,
         rotate: categories.length > 3 ? 15 : 0,
         formatter: (name: string) => (name.length > 8 ? name.substring(0, 8) + '...' : name),
@@ -354,7 +353,7 @@ const renderChart = () => {
       name: '故障数',
       axisLine: { show: false },
       axisTick: { show: false },
-      axisLabel: { color: '#a0aec0', fontSize: 11 },
+      axisLabel: { color: '#a0aec0', fontSize:13 },
       splitLine: { lineStyle: { color: '#f0f0f0', type: 'dashed' } },
     },
     series: [
@@ -437,7 +436,7 @@ onUnmounted(() => {
     }
 
     .tag {
-      font-size: 11px;
+      font-size:13px;
       padding: 4px 10px;
       border-radius: 6px;
       font-weight: 500;
@@ -491,12 +490,12 @@ onUnmounted(() => {
     margin-bottom: 16px;
   }
   .analyze-placeholder-text {
-    font-size: 14px;
+    font-size:16px;
     color: #718096;
     font-weight: 500;
   }
   .analyze-placeholder-sub {
-    font-size: 12px;
+    font-size:14px;
     color: #a0aec0;
     margin-top: 8px;
   }
@@ -511,7 +510,7 @@ onUnmounted(() => {
   padding: 60px 20px;
 
   .analyze-loading-text {
-    font-size: 14px;
+    font-size:16px;
     color: #718096;
     margin-top: 16px;
     white-space: nowrap;
@@ -559,24 +558,24 @@ onUnmounted(() => {
     flex: 1;
 
     .alert-title {
-      font-size: 14px;
+      font-size:16px;
       font-weight: 600;
       color: #2d3748;
       margin-bottom: 4px;
     }
     .alert-desc {
-      font-size: 12px;
+      font-size:14px;
       color: #718096;
       line-height: 1.5;
     }
     .alert-solution {
-      font-size: 12px;
+      font-size:14px;
       color: #389e0d;
       line-height: 1.5;
       margin-top: 4px;
     }
     .alert-time {
-      font-size: 11px;
+      font-size:13px;
       color: #a0aec0;
       margin-top: 6px;
     }
@@ -602,7 +601,7 @@ onUnmounted(() => {
       color: white;
       padding: 4px 10px;
       border-radius: 6px;
-      font-size: 11px;
+      font-size:13px;
       font-weight: 600;
     }
     .ai-report-title {
@@ -613,7 +612,7 @@ onUnmounted(() => {
   }
 
   .ai-report-desc {
-    font-size: 13px;
+    font-size:16px;
     color: #718096;
     line-height: 1.7;
     margin-bottom: 16px;
@@ -636,7 +635,7 @@ onUnmounted(() => {
         color: #2d3748;
       }
       .ai-metric-label {
-        font-size: 11px;
+        font-size:13px;
         color: #a0aec0;
         margin-top: 4px;
       }
@@ -646,7 +645,7 @@ onUnmounted(() => {
 
 // 维保优先级标签
 .priority-tag {
-  font-size: 11px;
+  font-size:13px;
   padding: 2px 8px;
   border-radius: 4px;
   font-weight: 500;
@@ -675,7 +674,7 @@ onUnmounted(() => {
       border-radius: 50%;
       background: #e9d8fd;
       color: #6b46c1;
-      font-size: 12px;
+      font-size:14px;
       font-weight: 600;
       display: flex;
       align-items: center;
@@ -683,7 +682,7 @@ onUnmounted(() => {
     }
 
     .suggestion-text {
-      font-size: 13px;
+      font-size:16px;
       color: #4a5568;
       line-height: 1.6;
     }

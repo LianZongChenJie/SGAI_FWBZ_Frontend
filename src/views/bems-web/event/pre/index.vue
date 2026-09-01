@@ -322,7 +322,7 @@ onMounted(() => {
     }
 
     .tag {
-      font-size: 11px;
+      font-size:13px;
       padding: 4px 10px;
       border-radius: 6px;
       font-weight: 500;
@@ -359,7 +359,7 @@ onMounted(() => {
   padding: 16px 14px;
 
   .group-title {
-    font-size: 14px;
+    font-size:16px;
     font-weight: 600;
     color: #2d3748;
     margin-bottom: 14px;
@@ -385,7 +385,7 @@ onMounted(() => {
     &:last-child { border-bottom: none; }
 
     .info-label {
-      font-size: 13px;
+      font-size:16px;
       color: #718096;
     }
 
@@ -396,7 +396,7 @@ onMounted(() => {
     }
 
     .info-value {
-      font-size: 13px;
+      font-size:16px;
       font-weight: 600;
 
       &.done { color: #38a169; }
@@ -411,7 +411,7 @@ onMounted(() => {
   border-top: 1px solid #f0f0f0;
 
   .group-title {
-    font-size: 14px;
+    font-size:16px;
     font-weight: 600;
     color: #2d3748;
     margin-bottom: 12px;
@@ -434,7 +434,7 @@ onMounted(() => {
   &:last-child { margin-bottom: 0; }
 
   .progress-label {
-    font-size: 13px;
+    font-size:16px;
     color: #4a5568;
     min-width: 80px;
   }
@@ -457,7 +457,7 @@ onMounted(() => {
   }
 
   .progress-value {
-    font-size: 13px;
+    font-size:16px;
     font-weight: 600;
     min-width: 40px;
     text-align: right;
@@ -482,7 +482,7 @@ onMounted(() => {
   }
 
   .empty-text {
-    font-size: 14px;
+    font-size:16px;
     color: #718096;
     font-weight: 500;
   }
@@ -506,13 +506,13 @@ onMounted(() => {
   }
 
   .chart-text {
-    font-size: 14px;
+    font-size:16px;
     color: #718096;
     font-weight: 500;
   }
 
   .chart-sub {
-    font-size: 12px;
+    font-size:14px;
     color: #a0aec0;
     margin-top: 8px;
   }

@@ -833,6 +833,7 @@ async function fetchExhibitionData() {
 
 /** 请求当前在场人数并回填韧性安全面板和弹窗 */
 async function fetchCurrentEntryCount() {
+  
   try {
     const res = await getCurrentEntryCount();
     const val = res?.value ?? res;

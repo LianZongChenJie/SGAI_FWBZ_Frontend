@@ -89,7 +89,7 @@ onUnmounted(() => {
   right: 110px;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 12px;
+  font-size:14px;
   color: #64748b;
   display: flex;
   align-items: center;
@@ -121,7 +121,7 @@ onUnmounted(() => {
   color: #38bdf8;
   padding: 6px 14px;
   border-radius: 4px;
-  font-size: 12px;
+  font-size:14px;
   cursor: pointer;
   display: flex;
   align-items: center;

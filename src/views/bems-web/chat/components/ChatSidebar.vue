@@ -135,7 +135,7 @@ async function onDelete(id: string, e: Event) {
   margin-bottom: 4px;
   border-radius: 8px;
   cursor: pointer;
-  font-size: 14px;
+  font-size:16px;
   color: #303133;
 }
 .session-item:hover {

@@ -67,7 +67,6 @@
           :columns="columns"
           :pagination="pagination"
           :scroll="{ x: 1100 }"
-          size="middle"
           @change="handleTableChange"
         >
           <template #bodyCell="{ column, record }">
@@ -756,7 +755,7 @@ onMounted(() => {
         }
 
         .chart-text {
-          font-size: 14px;
+          font-size:16px;
           color: #86909c;
         }
       }
@@ -801,7 +800,7 @@ onMounted(() => {
 
     .card-note {
       color: rgba(0, 0, 0, 0.45);
-      font-size: 12px;
+      font-size:14px;
       text-align: right;
     }
 
@@ -821,7 +820,7 @@ onMounted(() => {
 
     .temp-tab {
       padding: 4px 14px;
-      font-size: 13px;
+      font-size:16px;
       color: rgba(0, 0, 0, 0.65);
       background: #ffffff;
       border: none;
@@ -852,7 +851,7 @@ onMounted(() => {
       gap: 12px;
 
       &__text {
-        font-size: 14px;
+        font-size:16px;
         color: rgba(0, 0, 0, 0.45);
       }
     }
@@ -901,8 +900,8 @@ onMounted(() => {
 }
 
 .collapse-btn {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border: 1px solid #d9d9d9;
   border-radius: 4px;
   background: #fff;
@@ -910,7 +909,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size:14px;
   color: #666;
   transition: all 0.2s;
   flex-shrink: 0;
@@ -952,7 +951,7 @@ onMounted(() => {
 
       &__header {
         padding: 10px 16px;
-        font-size: 14px;
+        font-size:16px;
         font-weight: 600;
         color: #1d2129;
         background: #fafafa;
@@ -991,7 +990,7 @@ onMounted(() => {
       }
 
       .process-schematic__title {
-        font-size: 14px;
+        font-size:16px;
         font-weight: 600;
         color: #d9eaf3;
       }
@@ -1035,7 +1034,7 @@ onMounted(() => {
       }
 
       .chart-text {
-        font-size: 14px;
+        font-size:16px;
       }
     }
   }
@@ -1056,7 +1055,7 @@ onMounted(() => {
   }
 
   &__label {
-    font-size: 14px;
+    font-size:16px;
     font-weight: 500;
     color: #1d2129;
     flex-shrink: 0;
@@ -1069,7 +1068,7 @@ onMounted(() => {
   color: #80c7d1;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 12px;
+  font-size:14px;
   line-height: 1;
   padding: 5px 10px;
   transition: all 0.2s;
@@ -1082,7 +1081,7 @@ onMounted(() => {
 }
 
 .zoom-label {
-  font-size: 12px;
+  font-size:14px;
   color: #80c7d1;
   min-width: 40px;
   text-align: center;

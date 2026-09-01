@@ -36,7 +36,7 @@ defineProps<{
   overflow: hidden;
 }
 .result-table__meta {
-  font-size: 12px;
+  font-size:14px;
   color: #909399;
   margin-bottom: 6px;
 }

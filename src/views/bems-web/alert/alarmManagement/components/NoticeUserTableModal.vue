@@ -23,8 +23,7 @@
         </a-form>
       </div>
       <div class="table-box">
-        <a-table class="custom-hover-table" @change="handleChange" :dataSource="dataSource" :columns="columns" :pagination="pagination"
-          size="middle" bordered :row-selection="{ selectedRowKeys: state.selectedRowKeys, onChange: onSelectChange }">
+        <a-table class="custom-hover-table" @change="handleChange" :dataSource="dataSource" :columns="columns" :pagination="pagination" bordered :row-selection="{ selectedRowKeys: state.selectedRowKeys, onChange: onSelectChange }">
           <template #index="{ text, record, index }">
             {{ index + 1 }}
           </template>

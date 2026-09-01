@@ -365,7 +365,6 @@
       api: loadData,
       columns: columns as BasicColumn[],
       showActionColumn: false,
-      size: 'middle',
       pagination: {
         pageSize: 10,
         showSizeChanger: true,

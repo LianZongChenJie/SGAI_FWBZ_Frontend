@@ -165,8 +165,8 @@ onMounted(() => {
   }
 
   .collapse-btn {
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     border: 1px solid #d9d9d9;
     border-radius: 4px;
     background: #fff;
@@ -174,7 +174,7 @@ onMounted(() => {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 12px;
+    font-size:14px;
     color: #666;
     transition: all 0.2s;
     flex-shrink: 0;

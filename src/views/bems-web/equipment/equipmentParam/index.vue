@@ -28,7 +28,6 @@
     flex-direction: row;
     align-items: flex-start;
     gap: 15px;
-    padding: 15px;
     min-height: 100%;
     background-color: #f5f2f2;
     .model-box,

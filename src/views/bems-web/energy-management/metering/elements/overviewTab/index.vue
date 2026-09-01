@@ -157,7 +157,6 @@
         :columns="meterColumns"
         :data-source="meterData"
         :pagination="pagination"
-        size="middle"
         class="meter-data-card__table"
         @change="handleTableChange"
       >
@@ -592,7 +591,7 @@ const renderVenueChart = (xaxis: string[], seriesList: { name: string; data: num
       data: xaxis,
       axisLabel: {
         color: '#666',
-        fontSize: 12,
+        fontSize:14,
         rotate: xaxis.length > 6 ? 30 : 0,
       },
     },
@@ -602,7 +601,7 @@ const renderVenueChart = (xaxis: string[], seriesList: { name: string; data: num
         margin: 15,
         overflow: 'truncate',
         color: '#666',
-        fontSize: 12,
+        fontSize:14,
       },
     },
     series: seriesList.map((item) => ({
@@ -680,7 +679,7 @@ const renderStructureChart = (data: { name: string; value: number }[]) => {
       orient: 'vertical',
       right: '5%',
       top: 'center',
-      textStyle: { color: '#666', fontSize: 12 },
+      textStyle: { color: '#666', fontSize:14 },
       itemWidth: 12,
       itemHeight: 12,
       itemGap: 12,
@@ -778,7 +777,7 @@ onMounted(() => {
     &__tag {
       display: inline-block;
       padding: 2px 10px;
-      font-size: 12px;
+      font-size:14px;
       color: rgba(0, 0, 0, 0.65);
       background: #f5f5f5;
       border-radius: 4px;
@@ -805,7 +804,7 @@ onMounted(() => {
 
     .venue-electricity-tab {
       padding: 4px 14px;
-      font-size: 13px;
+      font-size:16px;
       color: rgba(0, 0, 0, 0.65);
       background: #ffffff;
       border: none;
@@ -836,12 +835,12 @@ onMounted(() => {
       gap: 12px;
 
       &__text {
-        font-size: 14px;
+        font-size:16px;
         color: rgba(0, 0, 0, 0.45);
       }
 
       &__legend {
-        font-size: 12px;
+        font-size:14px;
         color: rgba(0, 0, 0, 0.35);
       }
     }
@@ -908,7 +907,7 @@ onMounted(() => {
     .status-tag {
       display: inline-block;
       padding: 4px 12px;
-      font-size: 12px;
+      font-size:14px;
       border-radius: 12px;
 
       &--normal {
@@ -923,8 +922,8 @@ onMounted(() => {
     }
 
     .collapse-btn {
-      width: 28px;
-      height: 28px;
+      width: 32px;
+      height: 32px;
       border: 1px solid #d9d9d9;
       border-radius: 4px;
       background: #fff;
@@ -932,7 +931,7 @@ onMounted(() => {
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 12px;
+      font-size:14px;
       color: #666;
       transition: all 0.2s;
       flex-shrink: 0;

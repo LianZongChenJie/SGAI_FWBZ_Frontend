@@ -45,7 +45,7 @@
 
         <!-- 动态设备类型 tab 内容（DeviceTable） -->
         <!-- 只渲染一个 DeviceTable 实例，通过 v-show 控制显示，避免多个实例同时 watch 导致重复调用接口 -->
-        <div v-show="activeCategoryKey && !['camera', 'door', 'door-controller'].includes(activeCategoryKey)">
+        <div class="device-table-container" v-show="activeCategoryKey && !['camera', 'door', 'door-controller'].includes(activeCategoryKey)">
           <div class="table-toolbar">
             <div class="header-actions">
               <a-input
@@ -127,7 +127,6 @@
             :pagination="cameraPagination"
             :loading="cameraLoading"
             row-key="indexCode"
-            size="small"
             @change="handleCameraTableChange"
           >
             <template #bodyCell="{ column, record, index }">
@@ -181,7 +180,6 @@
             :pagination="doorPagination"
             :loading="doorLoading"
             row-key="indexCode"
-            size="small"
             @change="handleDoorTableChange"
           >
             <template #bodyCell="{ column, record, index }">
@@ -239,7 +237,6 @@
             :pagination="devicePagination"
             :loading="deviceLoading"
             row-key="indexCode"
-            size="small"
             @change="handleDeviceTableChange"
           >
             <template #bodyCell="{ column, record, index }">
@@ -265,7 +262,6 @@
           :pagination="eventPagination"
           :loading="eventLoading"
           row-key="id"
-          size="small"
           @change="handleEventTableChange"
         >
           <template #bodyCell="{ column, record, index }">
@@ -916,7 +912,7 @@
     border-radius: 12px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
     margin-bottom: 20px;
-    overflow: hidden;
+    overflow: visible;
 
     .card-header {
       padding: 18px 22px;
@@ -949,15 +945,17 @@
     margin-bottom: 14px;
   }
 
-  .device-space {
-    display: flex;
-    height: 100%;
-    width: 100%;
+  .device-table-container {
+    .device-space {
+      display: flex;
+      height: 100%;
+      width: 100%;
 
-    .space-table {
-      flex: 1;
-      min-width: 0;
-      overflow-x: auto;
+      .space-table {
+        flex: 1;
+        min-width: 0;
+        overflow: visible;
+      }
     }
   }
 
@@ -986,7 +984,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 12px;
+    font-size:14px;
     color: #666;
     transition: all 0.2s;
 
@@ -1013,7 +1011,7 @@
   .category-tab-item {
     flex-shrink: 0;
     padding: 8px 16px;
-    font-size: 14px;
+    font-size:16px;
     color: rgba(0, 0, 0, 0.65);
     background: transparent;
     border: none;

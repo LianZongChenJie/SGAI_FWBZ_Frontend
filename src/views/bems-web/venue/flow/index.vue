@@ -88,7 +88,6 @@
           :loading="flowLoading"
           :pagination="false"
           row-key="venueId"
-          size="middle"
         >
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'compareRate'">
@@ -314,7 +313,7 @@ function renderTrendChart(res: any) {
       type: 'scroll',
       top: '2%',
       left: 'center',
-      textStyle: { fontSize: 12, color: '#4a5568' },
+      textStyle: { fontSize:14, color: '#4a5568' },
       icon: 'roundRect',
       data: series.map((s) => s.name),
     },
@@ -330,14 +329,14 @@ function renderTrendChart(res: any) {
       data: xAxisData,
       boundaryGap: false,
       axisLine: { lineStyle: { color: '#e2e8f0' } },
-      axisLabel: { color: '#718096', fontSize: 11 },
+      axisLabel: { color: '#718096', fontSize:13 },
     },
     yAxis: {
       type: 'value',
       axisLine: { show: false },
       axisTick: { show: false },
       splitLine: { lineStyle: { color: '#f0f0f0', type: 'dashed' } },
-      axisLabel: { color: '#718096', fontSize: 11 },
+      axisLabel: { color: '#718096', fontSize:13 },
     },
     series: series.length > 0 ? series.map((s) => {
       // 合计线使用加粗虚线样式，不显示面积填充
@@ -478,7 +477,7 @@ onMounted(() => {
     }
 
     .tag {
-      font-size: 11px;
+      font-size:13px;
       padding: 4px 10px;
       border-radius: 6px;
       font-weight: 500;
@@ -515,8 +514,8 @@ onMounted(() => {
   padding: 30px;
 
   .chart-icon { font-size: 48px; margin-bottom: 12px; }
-  .chart-text { font-size: 14px; color: #718096; font-weight: 500; }
-  .chart-sub { font-size: 12px; color: #a0aec0; margin-top: 8px; }
+  .chart-text { font-size:16px; color: #718096; font-weight: 500; }
+  .chart-sub { font-size:14px; color: #a0aec0; margin-top: 8px; }
 }
 
 .trend-chart {
@@ -558,7 +557,7 @@ onMounted(() => {
   align-items: center;
   padding: 2px 10px;
   border-radius: 4px;
-  font-size: 12px;
+  font-size:14px;
   font-weight: 500;
 
   &.normal { background: #c6f6d5; color: #22543d; }
@@ -566,8 +565,8 @@ onMounted(() => {
 }
 
 .collapse-btn {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border: 1px solid #d9d9d9;
   border-radius: 4px;
   background: #fff;
@@ -575,7 +574,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size:14px;
   color: #666;
   transition: all 0.2s;
   flex-shrink: 0;

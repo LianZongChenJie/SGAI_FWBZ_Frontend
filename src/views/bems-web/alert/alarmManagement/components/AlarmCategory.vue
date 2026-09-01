@@ -165,7 +165,6 @@ const { tableContext } = useListPage({
     api: getLinkageControlList,
     columns: columns,
     showActionColumn: false,
-    size: 'middle',
     rowKey: 'id',
     showTableSetting:false,
     pagination: {

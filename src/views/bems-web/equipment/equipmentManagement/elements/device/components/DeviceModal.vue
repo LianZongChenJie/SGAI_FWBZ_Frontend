@@ -20,7 +20,6 @@
           :columns="columns"
           bordered
           :scroll="{ y: 150 }"
-          size="middle"
           :pagination="false"
           @change="handleDeviceTableChange"
         >

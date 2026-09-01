@@ -379,7 +379,7 @@ onMounted(() => {
   padding: 16px 14px;
 
   .group-title {
-    font-size: 14px;
+    font-size:16px;
     font-weight: 600;
     color: #2d3748;
     margin-bottom: 14px;
@@ -401,12 +401,12 @@ onMounted(() => {
     &:last-child { border-bottom: none; }
 
     .info-label {
-      font-size: 13px;
+      font-size:16px;
       color: #718096;
     }
 
     .info-value {
-      font-size: 13px;
+      font-size:16px;
       font-weight: 600;
     }
   }
@@ -418,7 +418,7 @@ onMounted(() => {
   border-top: 1px solid #f0f0f0;
 
   .group-title {
-    font-size: 14px;
+    font-size:16px;
     font-weight: 600;
     color: #2d3748;
     margin-bottom: 12px;
@@ -431,7 +431,7 @@ onMounted(() => {
   gap: 10px;
 
   .suggestion-item {
-    font-size: 12px;
+    font-size:14px;
     color: #5a6a8a;
     padding: 10px 14px;
     background: #f7fafc;
@@ -467,7 +467,7 @@ onMounted(() => {
   }
 
   .empty-text {
-    font-size: 14px;
+    font-size:16px;
     color: #718096;
     font-weight: 500;
   }

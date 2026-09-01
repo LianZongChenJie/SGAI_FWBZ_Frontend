@@ -60,7 +60,6 @@
           :pagination="pagination"
           :loading="tableLoading"
           :scroll="{ x: 1300 }"
-          size="middle"
           @change="handleTableChange"
         >
           <template #bodyCell="{ column, record }">
@@ -141,7 +140,7 @@
         <div class="chart-placeholder" style="min-height: 300px">
           <div class="chart-icon">🏭</div>
           <div class="chart-text">热回收系统工艺流程监控图</div>
-          <div style="font-size: 12px; color: #a0aec0; margin-top: 8px">
+          <div style="font-size:14px; color: #a0aec0; margin-top: 8px">
             排风入口 → 热交换芯 → 新风出口 | 新风入口 → 热交换芯 → 送风出口 | 实时温度/湿度/效率叠加显示
           </div>
         </div>
@@ -463,7 +462,7 @@ const loadCharts = async () => {
         }
 
         .chart-text {
-          font-size: 14px;
+          font-size:16px;
           color: #86909c;
         }
       }
@@ -509,7 +508,7 @@ const loadCharts = async () => {
 
     .card-note {
       color: rgba(0, 0, 0, 0.45);
-      font-size: 12px;
+      font-size:14px;
       text-align: right;
     }
 
@@ -529,7 +528,7 @@ const loadCharts = async () => {
 
     .temp-tab {
       padding: 4px 14px;
-      font-size: 13px;
+      font-size:16px;
       color: rgba(0, 0, 0, 0.65);
       background: #ffffff;
       border: none;
@@ -560,7 +559,7 @@ const loadCharts = async () => {
       gap: 12px;
 
       &__text {
-        font-size: 14px;
+        font-size:16px;
         color: rgba(0, 0, 0, 0.45);
       }
     }
@@ -609,8 +608,8 @@ const loadCharts = async () => {
 }
 
 .collapse-btn {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border: 1px solid #d9d9d9;
   border-radius: 4px;
   background: #fff;
@@ -618,7 +617,7 @@ const loadCharts = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size:14px;
   color: #666;
   transition: all 0.2s;
   flex-shrink: 0;

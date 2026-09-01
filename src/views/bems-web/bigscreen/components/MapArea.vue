@@ -12,25 +12,25 @@
     <transition name="slide-fade">
       <div v-if="cameraPanelVisible" class="camera-info-panel">
         <div class="camera-panel-header">
-          <span class="panel-title">📹 摄像头详情 ({{ currentCameraGroup?.count || 0 }}个)</span>
+          <span class="panel-title">📹 摄像头详情 ({{ currentCameraGroup?.cameraList?.length || 0 }}个)</span>
           <span class="camera-close-btn" @click="cameraPanelVisible = false">✕</span>
         </div>
         <div class="camera-panel-body">
           <div
-            v-for="(video, idx) in currentCameraGroup?.videos || []"
+            v-for="(video, idx) in currentCameraGroup?.cameraList || []"
             :key="idx"
             class="camera-item"
             @click="handleOpenCameraModal(currentCameraGroup!)"
           >
-            <div class="camera-item-name">{{ video.name || video.shortName || '未命名摄像头' }}</div>
+            <div class="camera-item-name">{{ video.name || video.installLocation || '未命名摄像头' }}</div>
             <div class="camera-item-info">
-              <span v-if="video.shortName" class="camera-path">{{ video.shortName }}</span>
+              <span v-if="video.installLocation" class="camera-path">{{ video.installLocation }}</span>
               <span class="camera-status" :class="video.online ? 'online' : 'offline'">
                 {{ video.online ? '在线' : '离线' }}
               </span>
             </div>
           </div>
-          <div v-if="!currentCameraGroup?.videos?.length" class="empty-text">暂无摄像头信息</div>
+          <div v-if="!currentCameraGroup?.cameraList?.length" class="empty-text">暂无摄像头信息</div>
         </div>
       </div>
     </transition>
@@ -49,31 +49,35 @@
       <div class="camera-modal-box">
         <div class="camera-modal-top-bar"></div>
         <div class="camera-modal-header">
-          <div class="camera-modal-title">📹 摄像头监控 ({{ cameraModalGroup?.count || cameraModalGroup?.videos?.length || 0 }}个)</div>
+          <div class="camera-modal-title">📹 摄像头监控 ({{ cameraModalGroup?.cameraList?.length || 0 }}个)</div>
           <button class="camera-modal-close" @click="handleCloseCameraModal">✕</button>
         </div>
         <div class="camera-modal-body">
-          <a-tabs v-model:activeKey="activeCameraTab" type="card" size="small">
+          <a-tabs v-if="cameraTabItems.length" v-model:activeKey="activeCameraTab" type="card" size="small">
             <a-tab-pane
               v-for="tab in cameraTabItems"
               :key="tab.key"
               :tab="tab.label"
-            >
-              <div class="camera-iframe-wrap">
-                <iframe
-                  v-if="cameraIframeUrl"
-                  :src="cameraIframeUrl"
-                  frameborder="0"
-                  allow="autoplay; fullscreen; encrypted-media"
-                  allowfullscreen
-                  class="camera-iframe"
-                />
-                <div v-else class="camera-iframe-placeholder">
-                  <span>暂无视频流</span>
-                </div>
-              </div>
-            </a-tab-pane>
+            />
           </a-tabs>
+          <!-- 只渲染当前选中的摄像头 iframe，切换 tab 时销毁旧 iframe 创建新的 -->
+          <div v-if="cameraTabItems.length" class="camera-iframe-wrap">
+            <iframe
+              v-if="cameraIframeUrl"
+              :key="activeCameraTab"
+              :src="cameraIframeUrl"
+              frameborder="0"
+              allow="autoplay; fullscreen; encrypted-media"
+              allowfullscreen
+              class="camera-iframe"
+            />
+            <div v-else class="camera-iframe-placeholder">
+              <span>暂无视频流</span>
+            </div>
+          </div>
+          <div v-else class="camera-iframe-placeholder">
+            <span>暂无摄像头数据</span>
+          </div>
         </div>
       </div>
     </a-modal>
@@ -101,11 +105,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue';
 import { loadMapScripts } from '/@/components/map/loadMapScripts';
 import { mapBtns } from '../data/index';
-import { getCameraCoordinateGroup, getPersonHeatMap } from '../index.api';
-import type { CameraGroup, AreaHeatResponseVO, AreaHeatDataItemVO } from '../index.api';
+import { getPersonHeatMap } from '../index.api';
+import { getCameraPackageGroup } from '../../safety/security/index.api';
+import type { AreaHeatResponseVO, AreaHeatDataItemVO, getLightingPointList } from '../index.api';
+import type { PackageGroup, PackageVideo } from '../../safety/security/index.api';
 
 defineOptions({ name: 'MapArea' });
 
@@ -140,35 +146,57 @@ const loading = ref(false);
 const loadingText = ref('加载中...');
 /** 摄像头信息面板 */
 const cameraPanelVisible = ref(false);
-const currentCameraGroup = ref<CameraGroup | null>(null);
+const currentCameraGroup = ref<{ longitude: number; latitude: number; name: string; cameraList: PackageVideo[] } | null>(null);
 /** 摄像头弹窗：页面级弹窗 */
 const cameraModalVisible = ref(false);
-const cameraModalGroup = ref<CameraGroup | null>(null);
+const cameraModalGroup = ref<{ longitude: number; latitude: number; name: string; cameraList: PackageVideo[] } | null>(null);
 const activeCameraTab = ref<string>('');
-/** 根据摄像头 systemId 构建 iframe URL */
+/** 根据摄像头 indexCode 构建 iframe URL */
 const CAMERA_IFRAME_BASE = 'http://10.168.47.23:4000/index.html?id=';
+/** 兼容获取摄像头唯一编码：优先 indexCode，其次 systemId（去#），最后 id */
+function getCameraKey(v: PackageVideo): string {
+  return v.indexCode || (v as any).systemId?.replace(/#/g, '') || String(v.id || '');
+}
 const cameraIframeUrl = computed(() => {
-  const videos = cameraModalGroup.value?.videos || [];
-  const video = videos.find((v) => String(v.systemId) === activeCameraTab.value);
+  const cameraList = cameraModalGroup.value?.cameraList || [];
+  const video = cameraList.find((v) => getCameraKey(v) === activeCameraTab.value);
   if (!video) return '';
-  // 去掉 systemId 中的 # 字符后再拼接
-  const cleanId = String(video.systemId).replace(/#/g, '');
+  const cleanId = getCameraKey(video);
   return CAMERA_IFRAME_BASE + cleanId;
 });
 /** 摄像头弹窗 tab 列表 */
 const cameraTabItems = computed(() => {
-  const videos = cameraModalGroup.value?.videos || [];
-  return videos.map((v) => ({
-    key: String(v.systemId),
-    label: v.name || v.shortName || '未命名摄像头',
+  const cameraList = cameraModalGroup.value?.cameraList || [];
+  return cameraList.map((v) => ({
+    key: getCameraKey(v),
+    label: v.name || v.installLocation || '未命名摄像头',
   }));
 });
+
+/**
+ * 监听 tab 列表变化，在 DOM 渲染后强制将选中 tab 滚动到可视区域，
+ * 防止 a-tabs 自动滚动到最后一个 tab 的问题。
+ */
+watch(
+  () => cameraTabItems.value,
+  async (items) => {
+    if (!items.length || !activeCameraTab.value) return;
+    await nextTick();
+    // 在 DOM 更新后，手动将 active tab 滚动到可视区域
+    const tabNav = document.querySelector('.camera-modal-wrapper .ant-tabs-nav-list');
+    if (!tabNav) return;
+    const activeTab = tabNav.querySelector('.ant-tabs-tab-active') as HTMLElement | null;
+    if (activeTab) {
+      activeTab.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'start' });
+    }
+  },
+);
 
 // ==================== 标点存储 ====================
 /** 摄像头标点数组 */
 let cameraMarkerArr: any[] = [];
 /** 摄像头分组数据缓存（供 DOM 事件委托使用） */
-let cameraGroupCache: CameraGroup[] = [];
+let cameraGroupCache: Array<{ longitude: number; latitude: number; name: string; cameraList: PackageVideo[] }> = [];
 /** 热力图标点数组 */
 let heatMarkerArr: any[] = [];
 /** 热力图覆盖物数组（polygon等） */
@@ -390,11 +418,11 @@ function clearAllMapOverlays() {
 }
 
 /** 打开摄像头页面级弹窗 */
-function handleOpenCameraModal(group: CameraGroup) {
+function handleOpenCameraModal(group: { longitude: number; latitude: number; name: string; cameraList: PackageVideo[] }) {
   cameraModalGroup.value = group;
   // 默认选中第一个摄像头的 tab
-  const firstVideo = group.videos?.[0];
-  activeCameraTab.value = firstVideo ? String(firstVideo.systemId) : '';
+  const firstVideo = group.cameraList?.[0];
+  activeCameraTab.value = firstVideo ? getCameraKey(firstVideo) : '';
   cameraModalVisible.value = true;
 }
 
@@ -410,8 +438,8 @@ function handleCloseCameraModal() {
 /**
  * 构建摄像头标点 DOM
  */
-function buildCameraMarkerDom(group: CameraGroup, idx: number): string {
-  const count = group.count || (group.videos?.length || 0);
+function buildCameraMarkerDom(group: { cameraCount?: number; cameraList?: PackageVideo[] }, idx: number): string {
+  const count = group.cameraCount || (group.cameraList?.length || 0);
   const badgeHtml = count > 1
     ? `<span class="camera-badge" style="
         position: absolute;
@@ -465,7 +493,69 @@ function buildCameraMarkerDom(group: CameraGroup, idx: number): string {
 }
 
 /**
+ * 递归遍历树形分组，收集所有摄像头
+ * @param group 分组节点
+ * @param cameras 摄像头收集数组
+ */
+function collectAllCameras(group: PackageGroup, cameras: PackageVideo[]): void {
+  // 收集当前分组的直接摄像头
+  if (group.videoList && group.videoList.length > 0) {
+    cameras.push(...group.videoList);
+  }
+  // 递归收集子分组的摄像头
+  if (group.children && group.children.length > 0) {
+    for (const child of group.children) {
+      collectAllCameras(child, cameras);
+    }
+  }
+}
+
+/**
+ * 按坐标对摄像头进行分组
+ * 相同坐标的摄像头归为一个标点
+ */
+function groupCamerasByCoordinate(cameras: PackageVideo[]): Array<{
+  longitude: number;
+  latitude: number;
+  name: string;
+  cameraList: PackageVideo[];
+}> {
+  const groupMap = new Map<string, {
+    longitude: number;
+    latitude: number;
+    name: string;
+    cameraList: PackageVideo[];
+  }>();
+
+  for (const cam of cameras) {
+    // 只处理有有效坐标的摄像头
+    if (cam.longitude == null || cam.latitude == null) continue;
+    const lon = Number(cam.longitude);
+    const lat = Number(cam.latitude);
+    if (isNaN(lon) || isNaN(lat)) continue;
+
+    // 使用坐标作为分组key（保留6位小数精度）
+    const key = `${lon.toFixed(6)},${lat.toFixed(6)}`;
+
+    if (groupMap.has(key)) {
+      groupMap.get(key)!.cameraList.push(cam);
+    } else {
+      groupMap.set(key, {
+        longitude: lon,
+        latitude: lat,
+        name: cam.regionName || cam.installLocation || '摄像头位置',
+        cameraList: [cam],
+      });
+    }
+  }
+
+  return Array.from(groupMap.values());
+}
+
+/**
  * 加载摄像头数据并渲染标点
+ * 使用 packageGroup 接口（树形结构）
+ * 每个坐标分组渲染一个标点，点击可查看该分组下所有摄像头
  */
 async function loadCameraMarkers() {
   if (!mapReady) {
@@ -477,8 +567,8 @@ async function loadCameraMarkers() {
   loadingText.value = '加载安防数据...';
 
   try {
-    const res = await getCameraCoordinateGroup();
-    const data: CameraGroup[] = res?.result || res?.data || res || [];
+    const res = await getCameraPackageGroup();
+    const data: PackageGroup[] = res?.result || res?.data || res || [];
 
     if (!Array.isArray(data) || data.length === 0) {
       console.warn('[BigscreenMap] 摄像头数据为空');
@@ -487,12 +577,35 @@ async function loadCameraMarkers() {
 
     console.log('[BigscreenMap] 摄像头分组数据:', data.length, '组');
 
+    // 1. 扁平化收集所有摄像头
+    const allCameras: PackageVideo[] = [];
+    for (const group of data) {
+      collectAllCameras(group, allCameras);
+    }
+
+    if (allCameras.length === 0) {
+      console.warn('[BigscreenMap] 摄像头数据为空');
+      return;
+    }
+
+    console.log('[BigscreenMap] 摄像头总数:', allCameras.length, '个');
+
+    // 2. 按坐标分组（相同坐标归为一个标点）
+    const cameraGroups = groupCamerasByCoordinate(allCameras);
+
+    if (cameraGroups.length === 0) {
+      console.warn('[BigscreenMap] 没有有效坐标的摄像头');
+      return;
+    }
+
+    console.log('[BigscreenMap] 有效摄像头标点:', cameraGroups.length, '个');
+
     // 清除之前的摄像头标点
     clearMarkers(cameraMarkerArr);
     // 缓存分组数据，供 DOM 事件委托使用
-    cameraGroupCache = data;
+    cameraGroupCache = cameraGroups;
 
-    data.forEach((group: CameraGroup, idx: number) => {
+    cameraGroups.forEach((group, idx) => {
       const lon = Number(group.longitude);
       const lat = Number(group.latitude);
       if (isNaN(lon) || isNaN(lat)) {
@@ -506,7 +619,7 @@ async function loadCameraMarkers() {
         domHtml,
         lon,
         lat,
-        `摄像头分组(${group.count || group.videos?.length || 0})`,
+        `摄像头分组(${group.cameraList.length})`,
       );
 
       if (marker) {
@@ -812,7 +925,7 @@ onUnmounted(() => {
 }
 
 .map-btn-text {
-  font-size: 13px;
+  font-size:16px;
   font-weight: 600;
   color: #e2e8f0;
 }
@@ -846,7 +959,7 @@ onUnmounted(() => {
 
 .panel-title {
   color: #38bdf8;
-  font-size: 13px;
+  font-size:16px;
   font-weight: 600;
   text-shadow: 0 0 8px rgba(56, 189, 248, 0.5);
 }
@@ -858,7 +971,7 @@ onUnmounted(() => {
   border: 1px solid rgba(239, 68, 68, 0.3);
   border-radius: 4px;
   color: #ef4444;
-  font-size: 14px;
+  font-size:16px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -907,7 +1020,7 @@ onUnmounted(() => {
 
 .camera-item-name {
   color: #e2e8f0;
-  font-size: 12px;
+  font-size:14px;
   font-weight: 600;
   margin-bottom: 3px;
   white-space: nowrap;
@@ -924,7 +1037,7 @@ onUnmounted(() => {
 
 .camera-path {
   color: rgba(255, 255, 255, 0.5);
-  font-size: 11px;
+  font-size:13px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -932,7 +1045,7 @@ onUnmounted(() => {
 }
 
 .camera-status {
-  font-size: 11px;
+  font-size:13px;
   font-weight: 600;
   flex-shrink: 0;
   padding: 1px 6px;
@@ -952,7 +1065,7 @@ onUnmounted(() => {
 .empty-text {
   text-align: center;
   color: rgba(255, 255, 255, 0.3);
-  font-size: 12px;
+  font-size:14px;
   padding: 20px 0;
 }
 
@@ -971,7 +1084,7 @@ onUnmounted(() => {
   gap: 10px;
   z-index: 15;
   color: #38bdf8;
-  font-size: 13px;
+  font-size:16px;
   backdrop-filter: blur(8px);
 }
 
@@ -1116,20 +1229,51 @@ onUnmounted(() => {
 .camera-modal-body .ant-tabs {
   height: 100%;
 }
-/* 未选中的 tab 使用亮银色，选中 tab 保持 antd 默认颜色（白底可见） */
-.camera-modal-body .ant-tabs-tab:not(.ant-tabs-tab-active) {
-  color: #c0c8d4 !important;
+/* tab 导航栏：暗色背景 + 阻止横向滚动跳动 */
+.camera-modal-body .ant-tabs-nav {
+  background: transparent;
+  margin-bottom: 8px;
 }
-.camera-modal-body .ant-tabs-tab:not(.ant-tabs-tab-active):hover {
-  color: #e8edf2 !important;
+.camera-modal-body .ant-tabs-nav-wrap {
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
 }
-/* 更多摄像头时的省略号按钮：颜色与未选中 tab 一致，增大字号 */
+/* 未选中的 tab */
+.camera-modal-body .ant-tabs-tab {
+  color: #94a3b8 !important;
+  background: rgba(30, 45, 70, 0.6) !important;
+  border: 1px solid rgba(56, 189, 248, 0.15) !important;
+  border-radius: 4px 4px 0 0 !important;
+  transition: all 0.2s ease !important;
+}
+.camera-modal-body .ant-tabs-tab:hover {
+  color: #e2e8f0 !important;
+  background: rgba(56, 189, 248, 0.1) !important;
+  border-color: rgba(56, 189, 248, 0.3) !important;
+}
+/* 选中态 tab：高亮蓝色边框 + 文字 */
+.camera-modal-body .ant-tabs-tab-active {
+  color: #38bdf8 !important;
+  background: rgba(56, 189, 248, 0.15) !important;
+  border-color: rgba(56, 189, 248, 0.6) !important;
+  border-bottom-color: transparent !important;
+  font-weight: 600 !important;
+}
+.camera-modal-body .ant-tabs-tab-active:hover {
+  color: #38bdf8 !important;
+  background: rgba(56, 189, 248, 0.2) !important;
+}
+/* card 类型 tab 的底部 ink 线隐藏（用边框替代） */
+.camera-modal-body .ant-tabs-ink-bar {
+  display: none !important;
+}
+/* 更多摄像头时的省略号按钮 */
 .camera-modal-body .ant-tabs-nav-more {
-  color: #c0c8d4 !important;
+  color: #94a3b8 !important;
   font-size: 18px !important;
 }
 .camera-modal-body .ant-tabs-nav-more:hover {
-  color: #e8edf2 !important;
+  color: #38bdf8 !important;
 }
 .camera-modal-body .ant-tabs-content {
   height: calc(100% - 40px);
@@ -1153,6 +1297,6 @@ onUnmounted(() => {
 }
 .camera-iframe-placeholder {
   color: rgba(255, 255, 255, 0.4);
-  font-size: 14px;
+  font-size:16px;
 }
 </style>

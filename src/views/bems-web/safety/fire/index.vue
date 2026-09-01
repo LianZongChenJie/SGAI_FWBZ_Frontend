@@ -81,7 +81,6 @@
           :loading="loading"
           :pagination="pagination"
           row-key="id"
-          size="middle"
           @change="handleTableChange"
         >
           <template #bodyCell="{ column, record }">
@@ -117,7 +116,6 @@
         :pagination="alarmPagination"
         :scroll="{ x: 'max-content' }"
         row-key="id"
-        size="small"
         @change="handleAlarmTableChange"
       >
         <template #bodyCell="{ column, record }">
@@ -229,7 +227,7 @@ function updateStatusChart() {
     legend: {
       bottom: '2%',
       left: 'center',
-      textStyle: { fontSize: 13, color: '#4a5568' },
+      textStyle: { fontSize:16, color: '#4a5568' },
     },
     graphic: total > 0
       ? {
@@ -258,7 +256,7 @@ function updateStatusChart() {
           label: {
             show: true,
             formatter: '{b}\n{c}台',
-            fontSize: 13,
+            fontSize:16,
             color: '#4a5568',
           },
           labelLine: { show: true, length: 10, length2: 10 },
@@ -571,7 +569,7 @@ onUnmounted(() => {
     }
 
     .tag {
-      font-size: 11px;
+      font-size:13px;
       padding: 4px 10px;
       border-radius: 6px;
       font-weight: 500;
@@ -613,8 +611,8 @@ onUnmounted(() => {
   min-height: 280px;
   padding: 30px;
   .chart-icon { font-size: 48px; margin-bottom: 12px; }
-  .chart-text { font-size: 14px; color: #718096; font-weight: 500; }
-  .chart-sub { font-size: 12px; color: #a0aec0; margin-top: 8px; }
+  .chart-text { font-size:16px; color: #718096; font-weight: 500; }
+  .chart-sub { font-size:14px; color: #a0aec0; margin-top: 8px; }
 }
 
 .status-dot {
@@ -630,7 +628,7 @@ onUnmounted(() => {
 
 /* 告警级别标签 */
 .alarm-level-tag {
-  font-size: 11px;
+  font-size:13px;
   padding: 2px 8px;
   border-radius: 4px;
   font-weight: 500;
@@ -642,7 +640,7 @@ onUnmounted(() => {
 
 /* 处理状态标签 */
 .handle-status-tag {
-  font-size: 11px;
+  font-size:13px;
   padding: 2px 8px;
   border-radius: 4px;
   font-weight: 500;

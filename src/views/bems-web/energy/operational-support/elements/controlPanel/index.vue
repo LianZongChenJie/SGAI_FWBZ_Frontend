@@ -14,7 +14,6 @@
             :data-source="acData"
             :loading="acLoading"
             :pagination="false"
-            size="small"
             row-key="id"
           >
             <template #bodyCell="{ column, record }">
@@ -41,7 +40,6 @@
             :columns="lightingColumns"
             :data-source="lightingData"
             :pagination="false"
-            size="small"
             row-key="id"
           >
             <template #bodyCell="{ column, record }">
@@ -273,7 +271,7 @@ onMounted(() => {
 
     .control-section {
     .section-title {
-        font-size: 14px;
+        font-size:16px;
         font-weight: 600;
         color: #1d2129;
         margin-bottom: 12px;
@@ -281,7 +279,7 @@ onMounted(() => {
     }
 
     .panel-tag {
-    font-size: 12px;
+    font-size:14px;
     color: #1677ff;
     background: #e6f4ff;
     padding: 2px 12px;
@@ -304,7 +302,7 @@ onMounted(() => {
   }
 
   &__label {
-    font-size: 14px;
+    font-size:16px;
     font-weight: 500;
     color: #1d2129;
     flex-shrink: 0;

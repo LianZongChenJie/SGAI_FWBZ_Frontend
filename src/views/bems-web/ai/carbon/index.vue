@@ -347,7 +347,7 @@ const renderStructureChart = () => {
       orient: 'vertical',
       right: '5%',
       top: 'center',
-      textStyle: { color: '#666', fontSize: 12 },
+      textStyle: { color: '#666', fontSize:14 },
       itemWidth: 12,
       itemHeight: 12,
       itemGap: 12,
@@ -367,7 +367,7 @@ const renderStructureChart = () => {
         emphasis: {
           label: {
             show: true,
-            fontSize: 14,
+            fontSize:16,
             fontWeight: 'bold',
           },
         },
@@ -407,7 +407,7 @@ const renderCompareChart = () => {
       axisPointer: { type: 'shadow' },
       backgroundColor: 'rgba(255,255,255,0.95)',
       borderColor: '#e2e8f0',
-      textStyle: { color: '#2d3748', fontSize: 12 },
+      textStyle: { color: '#2d3748', fontSize:14 },
       extraCssText: 'box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-radius: 8px;',
     },
     grid: {
@@ -421,14 +421,14 @@ const renderCompareChart = () => {
       type: 'category',
       data: categories,
       axisLine: { lineStyle: { color: '#e2e8f0' } },
-      axisLabel: { color: '#718096', fontSize: 12, interval: 0, rotate: categories.length > 4 ? 15 : 0 },
+      axisLabel: { color: '#718096', fontSize:14, interval: 0, rotate: categories.length > 4 ? 15 : 0 },
       axisTick: { show: false },
     },
     yAxis: {
       type: 'value',
       axisLine: { show: false },
       axisTick: { show: false },
-      axisLabel: { color: '#a0aec0', fontSize: 11 },
+      axisLabel: { color: '#a0aec0', fontSize:13 },
       splitLine: { lineStyle: { color: '#f0f0f0', type: 'dashed' } },
     },
     series: [
@@ -511,7 +511,7 @@ onUnmounted(() => {
     }
 
     .tag {
-      font-size: 11px;
+      font-size:13px;
       padding: 4px 10px;
       border-radius: 6px;
       font-weight: 500;
@@ -560,18 +560,18 @@ onUnmounted(() => {
     margin-bottom: 16px;
   }
   .ai-placeholder-text {
-    font-size: 14px;
+    font-size:16px;
     color: #718096;
     font-weight: 500;
   }
   .ai-placeholder-sub {
-    font-size: 12px;
+    font-size:14px;
     color: #a0aec0;
     margin-top: 8px;
   }
 
   .ai-loading-text {
-    font-size: 14px;
+    font-size:16px;
     color: #718096;
     margin-top: 16px;
     white-space: nowrap;
@@ -588,7 +588,7 @@ onUnmounted(() => {
       color: white;
       padding: 4px 10px;
       border-radius: 6px;
-      font-size: 11px;
+      font-size:13px;
       font-weight: 600;
     }
     .ai-report-title {
@@ -597,14 +597,14 @@ onUnmounted(() => {
       color: #2d3748;
     }
     .ai-report-time {
-      font-size: 12px;
+      font-size:14px;
       color: #a0aec0;
       margin-left: auto;
     }
   }
 
   .ai-report-desc {
-    font-size: 13px;
+    font-size:16px;
     color: #718096;
     line-height: 1.7;
     margin-bottom: 16px;
@@ -627,7 +627,7 @@ onUnmounted(() => {
         color: #2d3748;
       }
       .ai-metric-label {
-        font-size: 11px;
+        font-size:13px;
         color: #a0aec0;
         margin-top: 4px;
       }
@@ -658,7 +658,7 @@ onUnmounted(() => {
       font-size: 16px;
     }
     .warning-text {
-      font-size: 13px;
+      font-size:16px;
       color: #4a5568;
       line-height: 1.6;
     }
@@ -683,7 +683,7 @@ onUnmounted(() => {
       border-radius: 50%;
       background: #e6f4ff;
       color: #1677ff;
-      font-size: 12px;
+      font-size:14px;
       font-weight: 600;
       display: flex;
       align-items: center;
@@ -691,7 +691,7 @@ onUnmounted(() => {
     }
 
     .suggestion-text {
-      font-size: 13px;
+      font-size:16px;
       color: #4a5568;
       line-height: 1.6;
     }

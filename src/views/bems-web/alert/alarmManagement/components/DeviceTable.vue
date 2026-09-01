@@ -216,7 +216,6 @@ const { tableContext } = useListPage({
     api: loadData,
     columns: columns,
     showActionColumn: false,
-    size: 'middle',
     pagination: {
       pageSize: 10,
       showSizeChanger: true,

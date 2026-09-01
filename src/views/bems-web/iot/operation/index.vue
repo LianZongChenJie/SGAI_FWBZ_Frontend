@@ -167,8 +167,8 @@ onMounted(() => {
   background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 20px; overflow: hidden;
   .card-header {
     padding: 18px 22px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
-    h3 { font-size: 16px; font-weight: 600; color: #2d3748; display: flex; align-items: center; gap: 10px; margin: 0; }
-    .tag { font-size: 11px; padding: 4px 10px; border-radius: 6px; font-weight: 500; }
+    h3 { font-size:20px; font-weight: 600; color: #2d3748; display: flex; align-items: center; gap: 10px; margin: 0; }
+    .tag { font-size:13px; padding: 4px 10px; border-radius: 6px; font-weight: 500; }
     .tag-green { background: #c6f6d5; color: #22543d; }
   }
   .card-body { padding: 22px; }
@@ -183,13 +183,13 @@ onMounted(() => {
 }
 
 .empty-state {
-  text-align: center; color: #86909c; padding: 40px 0; font-size: 14px;
+  text-align: center; color: #86909c; padding: 40px 0; font-size:16px;
 }
 
 .collapse-btn {
   margin-left: 8px;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border: 1px solid #d9d9d9;
   border-radius: 4px;
   background: #fff;
@@ -197,7 +197,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size:14px;
   color: #666;
   transition: all 0.2s;
   flex-shrink: 0;

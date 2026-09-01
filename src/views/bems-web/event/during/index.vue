@@ -78,7 +78,6 @@
           :loading="loading"
           :pagination="pagination"
           row-key="id"
-          size="small"
           @change="handleTableChange"
         >
           <template #bodyCell="{ column, record, index }">
@@ -252,7 +251,6 @@
           :loading="detailLoading"
           :pagination="false"
           row-key="id"
-          size="small"
         >
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'status'">
@@ -736,7 +734,7 @@ onMounted(() => {
     }
 
     .tag {
-      font-size: 11px;
+      font-size:13px;
       padding: 4px 10px;
       border-radius: 6px;
       font-weight: 500;
@@ -766,13 +764,13 @@ onMounted(() => {
   }
 
   .chart-text {
-    font-size: 14px;
+    font-size:16px;
     color: #718096;
     font-weight: 500;
   }
 
   .chart-sub {
-    font-size: 12px;
+    font-size:14px;
     color: #a0aec0;
     margin-top: 8px;
   }
@@ -797,7 +795,7 @@ onMounted(() => {
   text-align: center;
   color: #86909c;
   padding: 40px 0;
-  font-size: 14px;
+  font-size:16px;
 }
 
 .control-grid {
@@ -835,13 +833,13 @@ onMounted(() => {
     }
 
     .control-card-title {
-      font-size: 14px;
+      font-size:16px;
       font-weight: 600;
       color: #2d3748;
     }
 
     .control-card-meta {
-      font-size: 12px;
+      font-size:14px;
       color: #718096;
       margin-top: 2px;
     }
@@ -853,7 +851,7 @@ onMounted(() => {
   align-items: center;
   padding: 2px 10px;
   border-radius: 4px;
-  font-size: 12px;
+  font-size:14px;
   font-weight: 500;
 
   &.normal { background: #c6f6d5; color: #22543d; }
@@ -867,7 +865,7 @@ onMounted(() => {
 }
 
 .record-section-title {
-  font-size: 14px;
+  font-size:16px;
   font-weight: 600;
   color: #2d3748;
   margin-bottom: 12px;

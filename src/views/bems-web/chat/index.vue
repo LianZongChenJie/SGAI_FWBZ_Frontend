@@ -46,7 +46,7 @@ onMounted(async () => {
   left: 0;
   right: 0;
   text-align: center;
-  font-size: 13px;
+  font-size:16px;
   padding: 6px;
   pointer-events: none;
 }

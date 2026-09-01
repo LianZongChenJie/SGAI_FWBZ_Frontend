@@ -184,8 +184,8 @@ function formatParam(item) {
 .ba-page{height:100%;display:flex;flex-direction:column;overflow:hidden;background:#06131d;color:#d9eaf3;font-family:"DIN Alternate","PingFang SC","Microsoft YaHei",sans-serif}
 main{flex:1;min-height:0;display:flex;flex-direction:column;padding:0;position:relative;background:radial-gradient(circle at 45% 42%,#123148,#07141e 62%)}
 main>header{flex-shrink:0;height:44px;padding:0 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(78,141,167,.25);background:rgba(8,35,50,.6)}
-main>header h1{margin:0;font-size:14px;font-weight:600;color:#d9eaf3}
-.panel-toggle{border:1px solid #3d8197;background:rgba(13,48,65,.8);color:#80c7d1;border-radius:4px;cursor:pointer;font-size:12px;padding:4px 10px;transition:all .2s}
+main>header h1{margin:0;font-size:16px;font-weight:600;color:#d9eaf3}
+.panel-toggle{border:1px solid #3d8197;background:rgba(13,48,65,.8);color:#80c7d1;border-radius:4px;cursor:pointer;font-size:14px;padding:4px 10px;transition:all .2s}
 .panel-toggle:hover{color:#48dfa8;border-color:#48dfa8}
 .panel-toggle.active{color:#48dfa8;border-color:#48dfa8;background:rgba(72,223,168,.1)}
 .ba-content{flex:1;min-height:0;display:flex;gap:0;overflow:hidden}
@@ -223,7 +223,7 @@ main>header h1{margin:0;font-size:14px;font-weight:600;color:#d9eaf3}
 @keyframes windCurve{0%{transform:translateX(-46px) scaleX(.8);opacity:0}20%{opacity:1}80%{opacity:1}100%{transform:translateX(46px) scaleX(1.1);opacity:0}}
 
 .zoom-controls{position:absolute;bottom:12px;right:12px;display:flex;align-items:center;gap:4px;padding:6px 12px;background:rgba(8,35,50,.95);border:1px solid rgba(78,141,167,.25);border-radius:6px;z-index:20}
-.zoom-btn{border:1px solid #3d8197;background:rgba(13,48,65,.8);color:#80c7d1;border-radius:4px;cursor:pointer;font-size:12px;line-height:1;padding:5px 10px;transition:all .2s}
+.zoom-btn{border:1px solid #3d8197;background:rgba(13,48,65,.8);color:#80c7d1;border-radius:4px;cursor:pointer;font-size:14px;line-height:1;padding:5px 10px;transition:all .2s}
 .zoom-btn:hover{color:#48dfa8;border-color:#48dfa8;background:rgba(72,223,168,.1)}
-.zoom-label{font-size:12px;color:#80c7d1;min-width:40px;text-align:center}
+.zoom-label{font-size:14px;color:#80c7d1;min-width:40px;text-align:center}
 </style>

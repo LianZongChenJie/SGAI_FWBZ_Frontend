@@ -194,7 +194,7 @@ const renderMainChart = () => {
       trigger: 'axis',
       backgroundColor: '#fff',
       borderColor: '#dfe4ea',
-      textStyle: { color: '#1f2937', fontSize: 12 },
+      textStyle: { color: '#1f2937', fontSize:14 },
       formatter: (params: any) => {
         const i = params[0].dataIndex
         let s = `<b>${hours[i]}:00</b>　${tariffName[tariffByHour[i]]}段 ${tariffPrice[tariffByHour[i]]}元/kWh<br>`
@@ -211,18 +211,18 @@ const renderMainChart = () => {
       boundaryGap: false,
       axisLine: { lineStyle: { color: '#c3c2b7' } },
       axisTick: { show: false },
-      axisLabel: { color: '#898781', fontSize: 11 },
+      axisLabel: { color: '#898781', fontSize:13 },
     },
     yAxis: {
       type: 'value',
       name: '冷负荷 (kW)',
-      nameTextStyle: { color: '#898781', fontSize: 11 },
+      nameTextStyle: { color: '#898781', fontSize:13 },
       min: 0,
       max: 8400,
       axisLine: { show: false },
       axisTick: { show: false },
       splitLine: { lineStyle: { color: '#ebeae4' } },
-      axisLabel: { color: '#898781', fontSize: 11 },
+      axisLabel: { color: '#898781', fontSize:13 },
     },
     series: [
       {
@@ -316,7 +316,7 @@ const renderTempChart = () => {
       data: ['干球温度', '湿球温度'],
       top: 2,
       right: 8,
-      textStyle: { fontSize: 11, color: '#52514e' },
+      textStyle: { fontSize:13, color: '#52514e' },
       itemWidth: 16,
       itemHeight: 8,
     },
@@ -477,13 +477,13 @@ onMounted(async () => {
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 14px;
+      font-size:16px;
       font-weight: 600;
       color: rgba(0, 0, 0, 0.85);
     }
 
     &__tag {
-      font-size: 11px;
+      font-size:13px;
       font-weight: 500;
       color: rgba(0, 0, 0, 0.45);
       background: #eef3f9;
@@ -492,7 +492,7 @@ onMounted(async () => {
     }
 
     &__note {
-      font-size: 12px;
+      font-size:14px;
       color: #898781;
     }
 
@@ -524,7 +524,7 @@ onMounted(async () => {
   .fc-legend {
     display: flex;
     gap: 14px;
-    font-size: 12px;
+    font-size:14px;
     color: rgba(0, 0, 0, 0.65);
     flex-wrap: wrap;
 
@@ -558,7 +558,7 @@ onMounted(async () => {
     justify-content: center;
     gap: 12px;
     color: rgba(0, 0, 0, 0.45);
-    font-size: 13px;
+    font-size:16px;
   }
 
   .fc-chart {

@@ -61,7 +61,7 @@ defineEmits<{ (e: 'open', key: string): void }>();
   background: linear-gradient(180deg, var(--accent, #38bdf8), transparent);
 }
 .panel-title {
-  font-size: 13px;
+  font-size:16px;
   font-weight: 600;
   color: var(--accent, #38bdf8);
   margin-bottom: 4px;
@@ -112,7 +112,7 @@ defineEmits<{ (e: 'open', key: string): void }>();
   border-bottom: 1px solid rgba(148, 163, 184, 0.05);
   position: relative;
   z-index: 2;
-  font-size: 12px;
+  font-size:14px;
   flex-shrink: 0;
 }
 .metric-row:last-of-type { border-bottom: none; }

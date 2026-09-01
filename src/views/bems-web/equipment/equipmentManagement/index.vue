@@ -76,7 +76,6 @@ onMounted(() => {
 
 <style scoped lang="less">
 .equip-page {
-  padding: 15px;
 
   .stat-cards {
     display: flex;

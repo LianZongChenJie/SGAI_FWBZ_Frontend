@@ -231,7 +231,6 @@
       columns: columns,
       showActionColumn: false,
       showIndexColumn: true,
-      size: 'middle',
       bordered: false,
       canResize: false,
       pagination: {
@@ -332,14 +331,32 @@
 
 <style lang="less" scoped>
   .device-table {
+    :deep(.jeecg-basic-table .ant-table-wrapper) {
+      margin-top: 0 !important;
+    }
+
     :deep(.ant-table-wrapper) {
       padding: 0;
       background-color: transparent;
       border-radius: 0;
+      overflow: visible;
+    }
+
+    :deep(.ant-table-container) {
+      overflow: visible;
+    }
+
+    :deep(.ant-table-header) {
+      position: relative;
     }
 
     :deep(.ant-pagination) {
       margin: 15px 0 0;
     }
+
+    // :deep(.jeecg-basic-table-form-container) {   
+    //   padding: 0;
+    //   margin-top: 32px;
+    // }
   }
 </style>

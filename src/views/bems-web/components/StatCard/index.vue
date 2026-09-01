@@ -111,7 +111,7 @@ const trendClass = computed(() => {
   }
 
   .stat-label {
-    font-size: 13px;
+    font-size:16px;
     color: rgba(0, 0, 0, 0.45);
     margin: 0;
     font-weight: 400;
@@ -129,13 +129,13 @@ const trendClass = computed(() => {
   }
 
   .stat-unit {
-    font-size: 14px;
+    font-size:16px;
     font-weight: 400;
     color: rgba(0, 0, 0, 0.45);
   }
 
   .stat-change {
-    font-size: 12px;
+    font-size:14px;
     display: flex;
     align-items: center;
     gap: 4px;

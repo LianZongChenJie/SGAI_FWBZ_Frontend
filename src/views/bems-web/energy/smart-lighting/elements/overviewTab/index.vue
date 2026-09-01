@@ -86,7 +86,6 @@
         :columns="strategyColumns"
         :data-source="strategyList"
         :pagination="false"
-        size="small"
         row-key="id"
       >
         <template #bodyCell="{ column, record }">
@@ -198,7 +197,7 @@ onMounted(() => {
         display: inline-block;
         padding: 2px 10px;
         border-radius: 12px;
-        font-size: 12px;
+        font-size:14px;
         color: #389e0d;
         background: #e6f7e6;
       }
@@ -226,7 +225,7 @@ onMounted(() => {
         }
 
         &__desc {
-          font-size: 13px;
+          font-size:16px;
           color: rgba(0, 0, 0, 0.45);
         }
       }
@@ -257,13 +256,13 @@ onMounted(() => {
         }
 
         &__name {
-          font-size: 14px;
+          font-size:16px;
           font-weight: 500;
           color: rgba(0, 0, 0, 0.85);
         }
 
         &__desc {
-          font-size: 12px;
+          font-size:14px;
           color: rgba(0, 0, 0, 0.45);
         }
       }
@@ -291,7 +290,7 @@ onMounted(() => {
       display: inline-block;
       padding: 2px 10px;
       border-radius: 12px;
-      font-size: 12px;
+      font-size:14px;
       white-space: nowrap;
 
       &.status-enabled {

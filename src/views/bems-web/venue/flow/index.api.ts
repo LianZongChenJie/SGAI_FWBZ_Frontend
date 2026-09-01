@@ -11,6 +11,8 @@ enum Api {
   heatmap = '/sgai-fwbz-dev/fwbz/venueVisitorFlow/hourly/heatmap',
   /** 导出场馆客流数据 */
   exportData = '/sgai-fwbz-dev/fwbz/venueVisitorFlow/export',
+  /** 全部场馆信息（含坐标和在场人数） */
+  venueListAll = '/sgai-fwbz-dev/fwbz/venueInfo/listAll',
 
 }
 
@@ -214,3 +216,25 @@ export const getHeatmap = () => defHttp.get({ url: Api.heatmap });
 /** 导出场馆客流数据（入参 date） */
 export const exportData = (params: { date: string }) =>
   defHttp.get({ url: Api.exportData, params, responseType: 'blob' }, { isTransformResponse: false });
+
+/**
+ * 场馆信息VO（listAll 接口返回）
+ */
+export interface VenueInfoVO {
+  /** 场馆ID */
+  id?: number;
+  /** 场馆名称 */
+  venueName?: string;
+  /** 经度 */
+  longitude?: number;
+  /** 纬度 */
+  latitude?: number;
+  /** 当前在场人数（接口可能不返回此字段） */
+  currentCount?: number;
+  /** 容量上限（接口可能不返回此字段） */
+  capacity?: number;
+  [property: string]: any;
+}
+
+/** 获取全部场馆信息（含坐标和在场人数） */
+export const getVenueListAll = () => defHttp.get({ url: Api.venueListAll });

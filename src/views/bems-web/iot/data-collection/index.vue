@@ -27,7 +27,6 @@
           :loading="loading"
           :pagination="pagination"
           row-key="id"
-          size="middle"
           @change="handleTableChange"
         >
           <template #bodyCell="{ column, record, index }">
@@ -160,7 +159,7 @@ const columns = [
   { title: '采集点位', dataIndex: 'collectionPointLocation', key: 'collectionPointLocation', width: 100 },
   { title: '采集频率', dataIndex: 'cycle', key: 'cycle', width: 100 },
   { title: '今日采集量', key: 'todayCollection', width: 120 },
-  { title: '数据完整率', key: 'dataCompleteRate', width: 110 },
+  { title: '数据完整率', key: 'dataCompleteRate', width: 140 },
   { title: '最后采集时间', dataIndex: 'lastCollectionTime', key: 'lastCollectionTime', width: 180 },
   { title: '状态', key: 'state', width: 80 },
 ]
@@ -178,19 +177,19 @@ onMounted(() => {
   background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 20px; overflow: hidden;
   .card-header {
     padding: 18px 22px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
-    h3 { font-size: 16px; font-weight: 600; color: #2d3748; display: flex; align-items: center; gap: 10px; margin: 0; }
+    h3 { font-size:20px; font-weight: 600; color: #2d3748; display: flex; align-items: center; gap: 10px; margin: 0; }
   }
   .card-body { padding: 22px; }
 }
-.status-text { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 4px; font-size: 12px; font-weight: 500;
+.status-text { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 4px; font-size:14px; font-weight: 500;
   &.normal { background: #c6f6d5; color: #22543d; }
   &.warning { background: #feebc8; color: #744210; }
   &.danger { background: #fed7d7; color: #742a2a; }
 }
 
 .collapse-btn {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border: 1px solid #d9d9d9;
   border-radius: 4px;
   background: #fff;
@@ -198,7 +197,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size:14px;
   color: #666;
   transition: all 0.2s;
   flex-shrink: 0;

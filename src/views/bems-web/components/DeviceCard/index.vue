@@ -94,13 +94,13 @@ const hasError = computed(() => {
 }
 
 .device-card-title {
-  font-size: 14px;
+  font-size:16px;
   font-weight: 600;
   color: #1d2129;
 }
 
 .device-card-meta {
-  font-size: 12px;
+  font-size:14px;
   color: #86909c;
   margin-top: 2px;
 }
@@ -124,7 +124,7 @@ const hasError = computed(() => {
   }
 
   .lbl {
-    font-size: 11px;
+    font-size:13px;
     color: #86909c;
     margin-top: 2px;
   }

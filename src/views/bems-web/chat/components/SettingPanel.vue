@@ -43,7 +43,7 @@ const store = useChatStore();
 }
 .setting-collapse :deep(.el-collapse-item__header) {
   border: none;
-  font-size: 13px;
+  font-size:16px;
   color: #606266;
   height: 36px;
 }
@@ -55,12 +55,12 @@ const store = useChatStore();
 }
 .label {
   display: block;
-  font-size: 13px;
+  font-size:16px;
   color: #606266;
   margin-bottom: 6px;
 }
 .tip {
-  font-size: 12px;
+  font-size:14px;
   color: #909399;
   margin: 0;
 }

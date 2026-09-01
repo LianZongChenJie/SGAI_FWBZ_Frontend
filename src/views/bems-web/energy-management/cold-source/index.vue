@@ -316,7 +316,7 @@ const renderLoadChart = (
       trigger: 'axis',
       backgroundColor: '#fff',
       borderColor: '#dfe4ea',
-      textStyle: { color: '#1f2937', fontSize: 12 },
+      textStyle: { color: '#1f2937', fontSize:14 },
       formatter: (params: any[]) => {
         const idx = params[0]?.dataIndex ?? 0
         const hour = xaxis[idx] || ''
@@ -337,18 +337,18 @@ const renderLoadChart = (
       boundaryGap: false,
       axisLine: { lineStyle: { color: '#c3c2b7' } },
       axisTick: { show: false },
-      axisLabel: { color: '#898781', fontSize: 11 },
+      axisLabel: { color: '#898781', fontSize:13 },
     },
     yAxis: {
       type: 'value',
       name: '冷负荷 (kW)',
       min: 0,
       max: 8400,
-      nameTextStyle: { color: '#898781', fontSize: 11 },
+      nameTextStyle: { color: '#898781', fontSize:13 },
       axisLine: { show: false },
       axisTick: { show: false },
       splitLine: { lineStyle: { color: '#ebeae4' } },
-      axisLabel: { color: '#898781', fontSize: 11 },
+      axisLabel: { color: '#898781', fontSize:13 },
     },
     series: [
       {
@@ -562,7 +562,7 @@ onMounted(() => {
     }
 
     &__label {
-      font-size: 12px;
+      font-size:14px;
       color: rgba(0, 0, 0, 0.45);
       white-space: nowrap;
       overflow: hidden;
@@ -595,7 +595,7 @@ onMounted(() => {
     }
 
     &__unit {
-      font-size: 11px;
+      font-size:13px;
       font-weight: 400;
       color: #999;
       margin-left: 4px;
@@ -603,7 +603,7 @@ onMounted(() => {
 
     &__sub {
       margin-top: 6px;
-      font-size: 11px;
+      font-size:13px;
       color: #999;
       white-space: nowrap;
       overflow: hidden;
@@ -655,7 +655,7 @@ onMounted(() => {
     }
 
     &__tag {
-      font-size: 12px;
+      font-size:14px;
       font-weight: 400;
       color: #999;
       background: #f5f5f5;
@@ -681,7 +681,7 @@ onMounted(() => {
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 12px;
+    font-size:14px;
     color: #666;
   }
 
@@ -712,7 +712,7 @@ onMounted(() => {
     justify-content: center;
     gap: 12px;
     color: rgba(0, 0, 0, 0.45);
-    font-size: 14px;
+    font-size:16px;
     background: #f7f9fc;
     border-radius: 8px;
   }
@@ -743,7 +743,7 @@ onMounted(() => {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-size: 14px;
+      font-size:16px;
       font-weight: 600;
       color: rgba(0, 0, 0, 0.85);
       padding-bottom: 8px;
@@ -757,7 +757,7 @@ onMounted(() => {
     }
 
     &__extra {
-      font-size: 13px;
+      font-size:16px;
       font-weight: 400;
       color: #999;
     }
@@ -782,12 +782,12 @@ onMounted(() => {
 
     &__label {
       flex: 1;
-      font-size: 12px;
+      font-size:14px;
       color: #52514e;
     }
 
     &__value {
-      font-size: 13px;
+      font-size:16px;
       font-weight: 600;
       color: #1f2937;
       font-variant-numeric: tabular-nums;
@@ -799,7 +799,7 @@ onMounted(() => {
   }
 
   .dispatch-badge {
-    font-size: 11px;
+    font-size:13px;
     padding: 2px 8px;
     border-radius: 10px;
     font-weight: 600;
@@ -858,7 +858,7 @@ onMounted(() => {
     }
 
     &__row {
-      font-size: 12px;
+      font-size:14px;
       color: #52514e;
       line-height: 1.6;
     }
@@ -869,7 +869,7 @@ onMounted(() => {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-size: 11px;
+    font-size:13px;
     color: #52514e;
     margin: 0 0 4px;
 
@@ -909,12 +909,12 @@ onMounted(() => {
     text-align: center;
 
     .d-n {
-      font-size: 11px;
+      font-size:13px;
       color: #52514e;
     }
 
     .d-s {
-      font-size: 11px;
+      font-size:13px;
       font-weight: 700;
       margin-top: 2px;
     }

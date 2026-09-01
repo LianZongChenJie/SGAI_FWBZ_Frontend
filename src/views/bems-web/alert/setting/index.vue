@@ -31,7 +31,6 @@
           :pagination="rulePagination"
           :loading="ruleLoading"
           row-key="id"
-          size="middle"
           @change="handleRuleTableChange"
         >
           <template #bodyCell="{ column, record }">
@@ -102,7 +101,6 @@
           :pagination="categoryPagination"
           :loading="categoryLoading"
           row-key="id"
-          size="middle"
           @change="handleCategoryTableChange"
         >
           <template #bodyCell="{ column, record }">
@@ -202,7 +200,6 @@
           :pagination="levelPagination"
           :loading="levelLoading"
           row-key="id"
-          size="middle"
           @change="handleLevelTableChange"
         >
           <template #bodyCell="{ column, record }">
@@ -461,15 +458,7 @@ const handleRuleExport = async () => {
 // ===== 报警类别 =====
 const categoryModalRef = ref()
 
-// 权限检查
-const store = usePermissionStore()
-const permissionList = computed(() => store.$state.permCodeList || [])
-const hasPermission = (permission: string) => {
-  if (!permission) return true
-  const currentPermissions = permissionList.value
-  if (Array.isArray(permission)) return permission.some((perm) => currentPermissions.includes(perm))
-  return currentPermissions.includes(permission)
-}
+
 
 // 表格列
 const categoryColumns = [
@@ -668,11 +657,11 @@ onMounted(() => {
 .card {
   background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 20px; overflow: hidden;
   .card-header { padding: 18px 22px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
-    h3 { font-size: 16px; font-weight: 600; color: #2d3748; display: flex; align-items: center; gap: 10px; margin: 0; }
+    h3 { font-size:20px; font-weight: 600; color: #2d3748; display: flex; align-items: center; gap: 10px; margin: 0; }
   }
   .card-body { padding: 22px; }
 }
-.status-text { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 4px; font-size: 12px; font-weight: 500;
+.status-text { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 4px; font-size:14px; font-weight: 500;
   &.normal { background: #c6f6d5; color: #22543d; }
   &.warning { background: #feebc8; color: #744210; }
   &.danger { background: #fed7d7; color: #742a2a; }
@@ -680,8 +669,8 @@ onMounted(() => {
 }
 
 .collapse-btn {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border: 1px solid #d9d9d9;
   border-radius: 4px;
   background: #fff;
@@ -689,7 +678,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size:14px;
   color: #666;
   transition: all 0.2s;
   flex-shrink: 0;

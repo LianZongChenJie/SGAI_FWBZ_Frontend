@@ -282,7 +282,7 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 14px;
+  font-size:16px;
   cursor: pointer;
   transition: all 0.3s;
 
@@ -352,15 +352,15 @@ onBeforeUnmount(() => {
       .refresh-btn {
         position: absolute;
         bottom: 8px;
-        width: 28px;
-        height: 28px;
+        width: 32px;
+        height: 32px;
         background: rgba(0, 0, 0, 0.55);
         border-radius: 6px;
         display: flex;
         align-items: center;
         justify-content: center;
         color: rgba(255, 255, 255, 0.85);
-        font-size: 14px;
+        font-size:16px;
         cursor: pointer;
         opacity: 0;
         transition: all 0.3s;
@@ -401,7 +401,7 @@ onBeforeUnmount(() => {
       }
 
       .empty-text {
-        font-size: 11px;
+        font-size:13px;
         color: rgba(255, 255, 255, 0.4);
       }
     }

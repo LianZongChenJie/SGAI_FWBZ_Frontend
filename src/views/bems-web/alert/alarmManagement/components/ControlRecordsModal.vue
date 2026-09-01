@@ -5,8 +5,7 @@
         <a-button key="back" @click="closeModal">关闭</a-button>
       </template>
       <div class="table-box">
-        <a-table class="custom-hover-table" :dataSource="dataSource" :columns="columns" :pagination="pagination"
-          size="middle" bordered :customRow="rowClick">
+        <a-table class="custom-hover-table" :dataSource="dataSource" :columns="columns" :pagination="pagination" bordered :customRow="rowClick">
           <template #index="{ text, record, index }">
             {{ index + 1 }}
           </template>
@@ -146,7 +145,7 @@ const loadData = async () => {
 // 获取设备位置树数据
 const getSpaceTree = async () => {
   try {
-    const res = await spaceTree({});
+    const res = await spaceTree();
     spaceTreeData = res;
   } catch (error) {
     console.error('获取设备位置失败:', error);

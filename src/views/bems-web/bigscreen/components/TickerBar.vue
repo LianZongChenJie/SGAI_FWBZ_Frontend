@@ -43,7 +43,7 @@ defineProps<{ items: TickerItem[] }>();
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: 11px;
+  font-size:13px;
   color: #94a3b8;
 }
 .dot {

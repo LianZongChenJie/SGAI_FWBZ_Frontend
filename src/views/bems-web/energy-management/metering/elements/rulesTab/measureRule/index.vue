@@ -297,7 +297,6 @@
       columns: columns as BasicColumn[],
       showActionColumn: false,
       showTableSetting: false,
-      size: 'middle',
       pagination: {
         pageSize: 10,
         showSizeChanger: true,

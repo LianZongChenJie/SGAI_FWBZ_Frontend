@@ -643,7 +643,7 @@ const trendMaxVal = computed(() => {
   color: #f1f5f9;
 }
 .modal-stat-label {
-  font-size: 12px;
+  font-size:14px;
   color: #94a3b8;
   margin-top: 4px;
 }
@@ -663,7 +663,7 @@ const trendMaxVal = computed(() => {
   flex-direction: column;
 }
 .modal-panel-title {
-  font-size: 14px;
+  font-size:16px;
   font-weight: 600;
   color: #38bdf8;
   margin-bottom: 10px;
@@ -675,7 +675,7 @@ const trendMaxVal = computed(() => {
 .modal-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size:16px;
 }
 .modal-table th {
   color: #64748b;
@@ -736,7 +736,7 @@ const trendMaxVal = computed(() => {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
+  font-size:16px;
 }
 .modal-hbar-label {
   width: 80px;
@@ -765,12 +765,12 @@ const trendMaxVal = computed(() => {
   width: 50px;
   color: #e2e8f0;
   font-weight: 600;
-  font-size: 12px;
+  font-size:14px;
   flex-shrink: 0;
 }
 .modal-hbar-footer {
   margin-top: 12px;
-  font-size: 12px;
+  font-size:14px;
   color: #94a3b8;
 }
 
@@ -790,7 +790,7 @@ const trendMaxVal = computed(() => {
   margin: 8px 0 0;
 }
 .trend-legend-item {
-  font-size: 11px;
+  font-size:13px;
   color: #cbd5e1;
   display: flex;
   align-items: center;
@@ -901,7 +901,7 @@ const trendMaxVal = computed(() => {
 }
 .trend-footer {
   margin-top: 8px;
-  font-size: 12px;
+  font-size:14px;
   color: #64748b;
   text-align: center;
 }

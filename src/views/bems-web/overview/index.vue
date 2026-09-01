@@ -129,8 +129,8 @@
                   <div class="alert-desc">{{ item.title }}</div>
                   <div class="alert-time">{{ item.time }} | 持续 {{ item.duration }}</div>
                   <div class="alert-actions">
-                    <a-button class="confirm-btn" :class="'confirm-' + item.level" size="small" @click="handleConfirm(item)">确认并处理</a-button>
-                    <a-button size="small" @click="handleTransfer(item)">转工单</a-button>
+                    <a-button class="confirm-btn" :class="'confirm-' + item.level" @click="handleConfirm(item)">确认并处理</a-button>
+                    <a-button @click="handleTransfer(item)" disabled>转工单</a-button>
                   </div>
                 </div>
               </div>
@@ -650,7 +650,7 @@ const renderStructureChart = (data: { name: string; value: number }[]) => {
       orient: 'vertical',
       right: '5%',
       top: 'center',
-      textStyle: { color: '#666', fontSize: 12 },
+      textStyle: { color: '#666', fontSize:14 },
       itemWidth: 12,
       itemHeight: 12,
       itemGap: 12,
@@ -756,7 +756,7 @@ onMounted(() => {
     }
 
     .quick-link-title {
-      font-size: 13px;
+      font-size:16px;
       font-weight: 500;
       color: #2d3748;
     }
@@ -786,7 +786,7 @@ onMounted(() => {
     justify-content: space-between;
 
     h3 {
-      font-size: 16px;
+      font-size: 20px;
       font-weight: 600;
       color: #2d3748;
       display: flex;
@@ -796,7 +796,7 @@ onMounted(() => {
     }
 
     .tag {
-      font-size: 11px;
+      font-size:13px;
       padding: 4px 10px;
       border-radius: 6px;
       font-weight: 500;
@@ -845,13 +845,13 @@ onMounted(() => {
   }
 
   .chart-text {
-    font-size: 14px;
+    font-size:16px;
     color: #718096;
     font-weight: 500;
   }
 
   .chart-sub {
-    font-size: 12px;
+    font-size:14px;
     color: #a0aec0;
     margin-top: 8px;
   }
@@ -894,13 +894,13 @@ onMounted(() => {
     }
 
     .timeline-time {
-      font-size: 12px;
+      font-size:14px;
       color: #a0aec0;
       margin-bottom: 4px;
     }
 
     .timeline-content {
-      font-size: 13px;
+      font-size:16px;
       color: #2d3748;
       line-height: 1.6;
 
@@ -909,7 +909,7 @@ onMounted(() => {
         align-items: center;
         padding: 2px 8px;
         border-radius: 4px;
-        font-size: 12px;
+        font-size:14px;
         font-weight: 500;
 
         &.normal { background: #c6f6d5; color: #22543d; }
@@ -934,7 +934,7 @@ onMounted(() => {
     align-items: center;
     justify-content: center;
     padding: 4px 12px;
-    font-size: 13px;
+    font-size:16px;
     font-weight: 500;
     color: #52c41a;
     background: #f6ffed;
@@ -955,7 +955,7 @@ onMounted(() => {
   text-align: center;
   color: #a0aec0;
   padding: 40px 0;
-  font-size: 14px;
+  font-size:16px;
 }
 
 .alert-list {
@@ -1006,7 +1006,7 @@ onMounted(() => {
     min-width: 0;
 
     .alert-title {
-      font-size: 13px;
+      font-size:16px;
       font-weight: 600;
       color: #2d3748;
       display: flex;
@@ -1016,7 +1016,7 @@ onMounted(() => {
       margin-bottom: 4px;
 
       .category-tag {
-        font-size: 11px;
+        font-size:13px;
         padding: 2px 8px;
         border-radius: 4px;
         background: #e2e8f0;
@@ -1025,7 +1025,7 @@ onMounted(() => {
       }
 
       .level-tag {
-        font-size: 11px;
+        font-size:13px;
         padding: 2px 8px;
         border-radius: 4px;
         font-weight: 400;
@@ -1048,7 +1048,7 @@ onMounted(() => {
     }
 
     .alert-desc {
-      font-size: 12px;
+      font-size:14px;
       color: #718096;
       margin-bottom: 4px;
       overflow: hidden;
@@ -1057,7 +1057,7 @@ onMounted(() => {
     }
 
     .alert-time {
-      font-size: 11px;
+      font-size:13px;
       color: #a0aec0;
       margin-bottom: 10px;
     }
@@ -1121,7 +1121,7 @@ onMounted(() => {
   }
 
   &__label {
-    font-size: 14px;
+    font-size:16px;
     font-weight: 500;
     color: #1d2129;
     flex-shrink: 0;
@@ -1143,7 +1143,7 @@ onMounted(() => {
 
 .venue-electricity-tab {
   padding: 4px 14px;
-  font-size: 13px;
+  font-size:16px;
   color: rgba(0, 0, 0, 0.65);
   background: #ffffff;
   border: none;
@@ -1179,7 +1179,7 @@ onMounted(() => {
       align-items: center;
 
       .card-title {
-        font-size: 16px;
+        font-size: 20px;
         font-weight: 600;
         color: #262626;
       }
@@ -1191,7 +1191,7 @@ onMounted(() => {
       gap: 12px;
 
       .date-label {
-        font-size: 14px;
+        font-size:16px;
         color: #595959;
         margin-left: 8px;
       }

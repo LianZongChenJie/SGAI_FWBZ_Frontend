@@ -1,24 +1,63 @@
 <template>
   <div class="heatmap-map-wrapper" :class="{ fullscreen: props.fullscreen }">
     <div id="flowHeatmapContainer" class="map-container"></div>
+
+    <!-- 扫描线动画覆盖层 -->
+    <div class="map-overlay">
+      <div class="scan-line"></div>
+    </div>
+
     <!-- 缩放控制按钮 -->
     <div class="map-zoom-controls">
       <button class="zoom-btn" title="放大" @click="zoomIn">+</button>
       <button class="zoom-btn" title="缩小" @click="zoomOut">−</button>
     </div>
+
+    <!-- 全屏模式：底部切换按钮 -->
+    <div v-if="props.fullscreen" class="map-bottom-btns">
+      <div
+        class="map-btn"
+        :class="{ 'is-active': viewMode === 'heatmap' }"
+        @click="switchMode('heatmap')"
+      >
+        <span class="map-btn-icon">🔥</span>
+        <span class="map-btn-text">客流热力</span>
+      </div>
+      <div
+        class="map-btn"
+        :class="{ 'is-active': viewMode === 'statistics' }"
+        @click="switchMode('statistics')"
+      >
+        <span class="map-btn-icon">📊</span>
+        <span class="map-btn-text">客流统计</span>
+      </div>
+    </div>
+
+    <!-- 加载提示 -->
+    <div v-if="loading" class="map-loading">
+      <div class="loading-spinner"></div>
+      <span>{{ loadingText }}</span>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onActivated, onDeactivated, onMounted, onUnmounted, watch, nextTick } from 'vue'
+import { onActivated, onDeactivated, onMounted, onUnmounted, watch, nextTick, ref } from 'vue'
 import type { PropType } from 'vue'
 import { loadMapScripts } from '/@/components/map/loadMapScripts'
-import type { VenueHeatmapItemVO } from './index.api'
+import type { VenueHeatmapItemVO, VenueInfoVO } from './index.api'
+import { getVenueListAll } from './index.api'
 
 const props = defineProps({
   data: { type: Array as PropType<VenueHeatmapItemVO[]>, default: () => [] },
   fullscreen: { type: Boolean, default: false },
 })
+
+/** 视图模式：heatmap=客流热力（默认），statistics=客流统计 */
+const viewMode = ref<'heatmap' | 'statistics'>('heatmap')
+/** 加载状态 */
+const loading = ref(false)
+const loadingText = ref('加载中...')
 
 // 地图相关状态
 let map: any = null
@@ -26,6 +65,10 @@ let flid: string | null = null
 let mapReady = false
 let mapLoadCompleteHandler: (() => Promise<void>) | null = null
 const markerArr: any[] = []
+/** 客流统计模式标点数组 */
+const statisticsMarkerArr: any[] = []
+/** 黄色区域覆盖物数组（polygon + polyline） */
+const yellowAreaOverlays: any[] = []
 let openedInfoEl: HTMLElement | null = null
 let mapContainer: HTMLElement | null = null
 const mapScrollListeners: Array<{ target: EventTarget; name: string; handler: EventListener }> = []
@@ -35,6 +78,8 @@ const destroyMap = () => {
 
   closeAllInfo()
   clearAllMarkers()
+  clearStatisticsMarkers()
+  clearYellowArea()
 
   if (map.off && mapLoadCompleteHandler) {
     try {
@@ -209,7 +254,12 @@ function closeAllInfo() {
 /** 点击地图空白时自动关闭信息面板 */
 function handleDocumentClick(e: MouseEvent) {
   const target = e.target as HTMLElement
+
+  // 点击的是热力图标点或场馆标点内部，不关闭
   if (target.closest('.heatmap-marker')) return
+  if (target.closest('.statistics-marker')) return
+
+  // 点击空白区域：关闭所有信息面板
   closeAllInfo()
 }
 
@@ -299,6 +349,258 @@ function clearAllMarkers() {
   markerArr.length = 0
 }
 
+/** 清除客流统计模式标点 */
+function clearStatisticsMarkers() {
+  statisticsMarkerArr.forEach((m) => {
+    try {
+      m?.removeFromMap?.()
+    } catch (e) {
+      console.warn('[FlowHeatmap] 移除统计标点失败:', e)
+    }
+  })
+  statisticsMarkerArr.length = 0
+}
+
+/**
+ * 清除黄色区域覆盖物
+ */
+function clearYellowArea() {
+  yellowAreaOverlays.forEach((o) => {
+    try {
+      o?.removeFromMap?.()
+    } catch (e) {
+      // ignore
+    }
+  })
+  yellowAreaOverlays.length = 0
+}
+
+/**
+ * 在地图上绘制黄色区域多边形遮罩（与 MapArea.vue 相同的坐标和样式）
+ */
+function drawYellowArea() {
+  if (!map || !flid) {
+    console.warn('[FlowHeatmap] 绘制黄色区域跳过: map或flid为空')
+    return
+  }
+
+  // 黄色区域坐标点 [lng, lat] - 与 MapArea.vue 保持一致
+  const yellowAreaCoords: number[][] = [
+    [116.156697, 39.919386],
+    [116.16013, 39.919435],
+    [116.160109, 39.91769],
+    [116.162512, 39.917707],
+    [116.162448, 39.907568],
+    [116.158113, 39.907634],
+    [116.157963, 39.914432],
+  ]
+
+  // 闭合多边形（首尾相连）
+  const closedCoords = [...yellowAreaCoords, yellowAreaCoords[0]]
+
+  try {
+    // 绘制黄色填充多边形
+    const polygon = map.createPolygon({
+      bdid: buildingID,
+      floorId: flid,
+      features: [
+        {
+          type: 'Feature',
+          properties: {
+            id: 'yellow-area-polygon',
+            fillColor: '#facc15',
+            opacity: 0.3,
+            outlineColor: '#facc15',
+          },
+          geometry: {
+            type: 'Polygon',
+            coordinates: [closedCoords.map((p) => [p[0], p[1]])],
+          },
+        },
+      ],
+      fillColor: '#facc15',
+      opacity: 0.3,
+      outlineColor: '#facc15',
+    })
+    if (polygon) yellowAreaOverlays.push(polygon)
+
+    // 绘制黄色边框线（线宽3px）
+    const polyline = map.createPolyline2({
+      bdid: buildingID,
+      floorId: flid,
+      lineColor: 'rgba(250, 204, 21, 0.9)',
+      lineWidth: 3,
+      wrapperColor: 'transparent',
+      wrapperWidth: 4,
+      linePoints: closedCoords,
+    })
+    if (polyline) yellowAreaOverlays.push(polyline)
+
+    console.log('[FlowHeatmap] 黄色区域已绘制, 坐标点数:', yellowAreaCoords.length)
+  } catch (error) {
+    console.error('[FlowHeatmap] 绘制黄色区域失败:', error)
+  }
+}
+
+/** 构建客流统计标点 DOM：默认显示 tag，点击展开详情 */
+function buildStatisticsMarkerDom(item: VenueInfoVO): string {
+  const domId = `flow-statistics-${item.id ?? Math.random().toString(36).slice(2)}`
+  const count = item.currentCount ?? 0
+  const capacity = item.capacity ?? 0
+  // 根据人数比例确定颜色
+  let color = '#52c41a' // 绿色（宽松）
+  if (capacity > 0) {
+    const ratio = count / capacity
+    if (ratio >= 0.8) {
+      color = '#ff4d4f'
+    } else if (ratio >= 0.5) {
+      color = '#faad14'
+    }
+  }
+  const venueName = item.venueName || '场馆'
+  return `<div class="statistics-marker" id="${domId}">
+    <!-- Tag 标签：默认显示 -->
+    <div class="venue-tag" style="border-color: ${color};">
+      <span class="venue-tag-dot" style="background: ${color};"></span>
+      <span class="venue-tag-text">${venueName}</span>
+    </div>
+    <!-- 详情面板：默认隐藏，点击 tag 后显示 -->
+    <div class="venue-detail-panel" style="display: none;">
+      <div class="venue-detail-header">
+        <span class="venue-detail-title">${venueName}</span>
+      </div>
+      <div class="venue-detail-body">
+        <div class="venue-detail-item">
+          <span class="venue-detail-label">当前在场</span>
+          <span class="venue-detail-value" style="color: ${color};">${count} 人</span>
+        </div>
+        ${capacity ? `
+        <div class="venue-detail-item">
+          <span class="venue-detail-label">容量上限</span>
+          <span class="venue-detail-value">${capacity} 人</span>
+        </div>
+        <div class="venue-detail-item">
+          <span class="venue-detail-label">使用率</span>
+          <span class="venue-detail-value" style="color: ${color};">${capacity > 0 ? Math.round((count / capacity) * 100) : 0}%</span>
+        </div>
+        ` : ''}
+      </div>
+    </div>
+  </div>`
+}
+
+/** 加载场馆统计标点（调用 listAll 接口） */
+async function loadVenueStatistics() {
+  if (!mapReady) {
+    console.warn('[FlowHeatmap] 地图未就绪，无法渲染统计标点')
+    return
+  }
+
+  loading.value = true
+  loadingText.value = '加载场馆统计数据...'
+
+  try {
+    // 先清除热力图标点和统计标点
+    clearAllMarkers()
+    clearStatisticsMarkers()
+
+    const res = await getVenueListAll()
+    const data: VenueInfoVO[] = res?.result || res?.data || res || []
+
+    if (!Array.isArray(data) || data.length === 0) {
+      console.warn('[FlowHeatmap] 场馆统计数据为空')
+      return
+    }
+
+    console.log('[FlowHeatmap] 场馆统计数据:', data.length, '个场馆')
+
+    data.forEach((item: VenueInfoVO) => {
+      const lng = Number(item.longitude)
+      const lat = Number(item.latitude)
+      if (!lng || !lat || isNaN(lng) || isNaN(lat)) {
+        console.warn('[FlowHeatmap] 统计标点坐标无效, 跳过:', item.venueName, 'lng=', item.longitude, 'lat=', item.latitude)
+        return
+      }
+
+      const domId = `flow-statistics-${item.id ?? Math.random().toString(36).slice(2)}`
+      const markerInfo = {
+        bdid: buildingID,
+        text: item.venueName || '场馆',
+        lon: lng,
+        lat: lat,
+        floorId: flid,
+        dom: buildStatisticsMarkerDom(item),
+      }
+
+      try {
+        const DaxiMap = (window as any).DaxiMap
+        const marker = new DaxiMap.DXMapMarker()
+        marker.initialize(map, markerInfo, {
+          anchor: 'bottom',
+          onClick: () => {
+            const el = document.getElementById(domId)
+            const detailEl = el?.querySelector<HTMLElement>('.venue-detail-panel')
+            if (detailEl) {
+              // 如果当前详情面板已显示，则关闭它
+              if (detailEl.style.display === 'block') {
+                detailEl.style.display = 'none'
+                openedInfoEl = null
+              } else {
+                // 关闭其他打开的详情面板，显示当前的
+                closeAllInfo()
+                detailEl.style.display = 'block'
+                openedInfoEl = detailEl
+              }
+            }
+          },
+        })
+        marker.addToMap()
+        statisticsMarkerArr.push(marker)
+      } catch (error) {
+        console.error('[FlowHeatmap] 统计标点创建异常:', item.venueName, `(${lng}, ${lat})`, error)
+      }
+    })
+
+    console.log('[FlowHeatmap] 统计标点渲染完成:', statisticsMarkerArr.length, '个')
+
+    // 聚焦到第一个有坐标的点
+    const first = data.find((d) => d.longitude && d.latitude)
+    if (first) {
+      try {
+        map.easeTo({
+          bdid: buildingID,
+          lon: Number(first.longitude),
+          lat: Number(first.latitude),
+          floorId: flid,
+        })
+      } catch (e) {
+        console.warn('[FlowHeatmap] easeTo 失败:', e)
+      }
+    }
+  } catch (error) {
+    console.error('[FlowHeatmap] 加载场馆统计数据失败:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+/** 切换视图模式 */
+async function switchMode(mode: 'heatmap' | 'statistics') {
+  if (viewMode.value === mode) return
+
+  viewMode.value = mode
+
+  if (mode === 'heatmap') {
+    // 切换到客流热力：清除统计标点，重新渲染热力图
+    clearStatisticsMarkers()
+    addHeatmapMarkers()
+  } else {
+    // 切换到客流统计：清除热力图标点，加载统计数据
+    clearAllMarkers()
+    await loadVenueStatistics()
+  }
+}
+
 /** 在地图上标记所有场馆热力点位 */
 function addHeatmapMarkers() {
   if (!map || !flid) {
@@ -376,6 +678,15 @@ const initMap = async () => {
       map.setZoom(14)
       await initFloorId()
       mapReady = true
+      // 绘制黄色区域遮罩层
+      drawYellowArea()
+      // 聚焦到首钢园中心区域
+      map.easeTo({
+        bdid: buildingID,
+        lon: 116.15879098007387,
+        lat: 39.91596283494254,
+        floorId: flid,
+      })
       setTimeout(() => {
         addHeatmapMarkers()
       }, 800)
@@ -401,7 +712,12 @@ watch(
 // 监听全屏状态变化，调整容器高度并触发地图 resize，全屏时放大地图比例
 watch(
   () => props.fullscreen,
-  async () => {
+  async (newVal, oldVal) => {
+    // 从全屏切换到小屏时，自动切回客流热力模式
+    if (oldVal === true && newVal === false && viewMode.value === 'statistics') {
+      switchMode('heatmap')
+    }
+
     await nextTick()
     if (!map) return
     // 等待 DOM 完成高度过渡后再触发 resize
@@ -529,6 +845,125 @@ onUnmounted(() => {
 .zoom-btn:active {
   background: #f0f0f0;
 }
+
+/* 全屏模式：底部切换按钮 */
+.map-bottom-btns {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 12px;
+  z-index: 1000;
+  pointer-events: auto;
+}
+
+.map-btn {
+  background: rgba(8, 20, 40, 0.85);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 6px;
+  padding: 8px 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(4px);
+}
+
+.map-btn:hover {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: rgba(56, 189, 248, 0.5);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
+}
+
+.map-btn.is-active {
+  background: rgba(56, 189, 248, 0.25);
+  border-color: rgba(56, 189, 248, 0.8);
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.4);
+}
+
+.map-btn-icon {
+  font-size: 16px;
+}
+
+.map-btn-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+/* 加载提示 */
+.map-loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(8, 20, 40, 0.9);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 6px;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 999;
+  color: #38bdf8;
+  font-size: 16px;
+  backdrop-filter: blur(8px);
+}
+
+.loading-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(56, 189, 248, 0.2);
+  border-top-color: #38bdf8;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 扫描线覆盖层 */
+.map-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.scan-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.5), transparent);
+  animation: scan-line 6s ease-in-out infinite;
+}
+
+/* 扫描线动画 */
+@keyframes scan-line {
+  0% {
+    top: 0%;
+    opacity: 0;
+  }
+  5% {
+    opacity: 1;
+  }
+  95% {
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
+}
 </style>
 
 <!-- 非scoped样式：SDK动态创建的DOM标点需要全局样式才能生效 -->
@@ -552,7 +987,7 @@ onUnmounted(() => {
   padding: 8px 12px;
   z-index: 1000;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
-  font-size: 12px;
+  font-size:14px;
   color: #e0e6ed;
   white-space: nowrap;
   margin-bottom: 4px;
@@ -593,5 +1028,104 @@ onUnmounted(() => {
 
 .heatmap-marker:hover .heatmap-halo {
   filter: blur(8px);
+}
+
+/* ===================== 客流统计模式标点样式 ===================== */
+.statistics-marker {
+  position: relative;
+  cursor: pointer;
+}
+
+/* Tag 标签样式：紧凑型展示 */
+.statistics-marker .venue-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: rgba(8, 20, 40, 0.92);
+  border: 1px solid;
+  border-radius: 14px;
+  white-space: nowrap;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  position: relative;
+  z-index: 100;
+}
+
+.statistics-marker .venue-tag:hover {
+  transform: scale(1.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 0 12px rgba(56, 189, 248, 0.3);
+}
+
+.statistics-marker .venue-tag-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.statistics-marker .venue-tag-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: #e2e8f0;
+  line-height: 1.2;
+}
+
+/* 详情面板：黑色背景 */
+.statistics-marker .venue-detail-panel {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 180px;
+  background: #0a0e17;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 10px;
+  z-index: 1001;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8), 0 0 16px rgba(56, 189, 248, 0.15);
+  overflow: hidden;
+}
+
+.statistics-marker .venue-detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: rgba(56, 189, 248, 0.1);
+  border-bottom: 1px solid rgba(56, 189, 248, 0.2);
+}
+
+.statistics-marker .venue-detail-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #38bdf8;
+  text-shadow: 0 0 8px rgba(56, 189, 248, 0.4);
+}
+
+.statistics-marker .venue-detail-body {
+  padding: 12px 14px;
+}
+
+.statistics-marker .venue-detail-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+}
+
+.statistics-marker .venue-detail-item + .venue-detail-item {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.statistics-marker .venue-detail-label {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.statistics-marker .venue-detail-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: #e2e8f0;
 }
 </style>

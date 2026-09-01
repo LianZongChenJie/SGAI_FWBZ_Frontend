@@ -17,13 +17,13 @@
       <div v-if="showActions" class="alert-actions">
         <slot name="actions">
           <!-- 默认展示3个按钮 -->
-          <a-button size="small" type="primary" :danger="level === 'danger'" @click="handleAction('confirm')">
+          <a-button type="primary" :danger="level === 'danger'" @click="handleAction('confirm')">
             确认
           </a-button>
-          <a-button size="small" @click="handleAction('transfer')">
+          <a-button @click="handleAction('transfer')" disabled>
             转工单
           </a-button>
-          <a-button size="small" @click="handleAction('video')">
+          <a-button @click="handleAction('video')">
             视频核验
           </a-button>
         </slot>
@@ -150,19 +150,19 @@ const handleAction = (type: string) => {
 }
 
 .alert-title {
-  font-size: 14px;
+  font-size:16px;
   font-weight: 600;
   color: #1d2129;
 }
 
 .alert-desc {
-  font-size: 13px;
+  font-size:16px;
   color: #4e5969;
   line-height: 1.6;
 }
 
 .alert-time {
-  font-size: 12px;
+  font-size:14px;
   color: #86909c;
   margin-top: 6px;
 }

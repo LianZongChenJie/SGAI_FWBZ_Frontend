@@ -71,7 +71,10 @@
           token: {
             colorPrimary: primary,
             wireframe: true,
-            fontSize: 14,
+            fontSize: 16,
+            fontSizeSM: 16,
+            fontSizeLG: 16,
+            fontSizeXL: 16,
             colorTextBase: '#333',
             colorSuccess: '#55D187',
             colorInfo: primary,

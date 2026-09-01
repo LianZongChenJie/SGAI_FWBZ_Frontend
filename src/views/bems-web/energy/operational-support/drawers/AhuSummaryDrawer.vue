@@ -43,7 +43,7 @@ const tone = (row) => pointTone(props.values, row)
 .device-drawer{position:absolute;right:0;top:0;bottom:0;width:330px;padding:20px;border-left:1px solid #2b8193;background:#08202e;overflow-y:auto}
 .device-drawer>button{position:absolute;right:12px;top:8px;border:0;background:none;color:#7898a9;font-size:22px;cursor:pointer}
 .device-drawer small{color:#36a4bb;font-size:6px;letter-spacing:2px}
-.device-drawer h2{margin:5px 0 14px;color:#d9eaf3;font-size:18px}
+.device-drawer h2{margin:5px 0 14px;color:#d9eaf3;font-size:20px}
 .summary{padding:10px;display:flex;align-items:center;gap:8px;border:1px solid #285164;background:#0a2a3b;font-size:8px}
 .summary i{width:8px;height:8px;border-radius:50%;background:currentColor}
 .summary button{margin-left:auto;padding:4px 7px;border:1px solid #27798b;background:#0e3a49;color:#71d6dc;font-size:7px;cursor:pointer}

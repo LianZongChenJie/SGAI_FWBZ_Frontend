@@ -425,7 +425,7 @@ onUnmounted(() => {
         gap: 16px;
 
         .bus-info {
-          font-size: 13px;
+          font-size:16px;
           color: #64748b;
           display: flex;
           align-items: center;
@@ -508,14 +508,14 @@ onUnmounted(() => {
     .zoom-level {
       min-width: 50px;
       text-align: center;
-      font-size: 13px;
+      font-size:16px;
       font-weight: 600;
       color: #1e293b;
     }
 
     .zoom-tip {
       margin-left: auto;
-      font-size: 12px;
+      font-size:14px;
       color: #94a3b8;
     }
   }
@@ -563,7 +563,7 @@ onUnmounted(() => {
       align-items: center;
 
       h3 {
-        font-size: 14px;
+        font-size:16px;
         color: #1e293b;
         margin: 0;
       }
@@ -605,12 +605,12 @@ onUnmounted(() => {
         flex-direction: column;
 
         span {
-          font-size: 11px;
+          font-size:13px;
           color: #94a3b8;
         }
 
         strong {
-          font-size: 13px;
+          font-size:16px;
           color: #334155;
         }
       }
@@ -621,7 +621,7 @@ onUnmounted(() => {
         border: 1px solid #bae6fd;
         background: #f0f9ff;
         color: #0284c7;
-        font-size: 11px;
+        font-size:13px;
         border-radius: 6px;
         cursor: pointer;
       }
@@ -666,7 +666,7 @@ onUnmounted(() => {
         }
 
         span {
-          font-size: 12px;
+          font-size:14px;
           color: #64748b;
         }
 
@@ -677,7 +677,7 @@ onUnmounted(() => {
           color: #475569;
           background: #f1f5f9;
           border-radius: 4px;
-          font-size: 12px;
+          font-size:14px;
           font-weight: 500;
         }
 
@@ -709,7 +709,7 @@ onUnmounted(() => {
       align-items: center;
       gap: 6px;
       border-top: 1px solid #f0f0f0;
-      font-size: 11px;
+      font-size:13px;
       color: #94a3b8;
 
       .live-dot {
@@ -750,7 +750,7 @@ onUnmounted(() => {
     gap: 22px;
     padding: 12px 0;
     color: #94a3b8;
-    font-size: 12px;
+    font-size:14px;
 
     .status-light {
       display: inline-block;
@@ -780,7 +780,7 @@ onUnmounted(() => {
     background: #f8fafc;
     border-radius: 8px;
     color: #0284c7;
-    font-size: 12px;
+    font-size:14px;
     line-height: 1.55;
   }
 
@@ -798,7 +798,7 @@ onUnmounted(() => {
 
       b {
         display: block;
-        font-size: 13px;
+        font-size:16px;
         color: #334155;
       }
 
@@ -806,7 +806,7 @@ onUnmounted(() => {
         display: block;
         margin-top: 3px;
         color: #94a3b8;
-        font-size: 11px;
+        font-size:13px;
       }
     }
   }

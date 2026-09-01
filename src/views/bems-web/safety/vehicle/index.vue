@@ -83,7 +83,6 @@
           :pagination="vehiclePagination"
           :loading="vehicleLoading"
           row-key="id"
-          size="middle"
           @change="handleTableChange"
         >
           <template #bodyCell="{ column, record }">
@@ -203,7 +202,7 @@ const updateChart = () => {
       axisPointer: { type: 'shadow' },
       backgroundColor: 'rgba(255,255,255,0.95)',
       borderColor: '#e2e8f0',
-      textStyle: { color: '#2d3748', fontSize: 12 },
+      textStyle: { color: '#2d3748', fontSize:14 },
       extraCssText: 'box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-radius: 8px;',
     },
     legend: {
@@ -212,7 +211,7 @@ const updateChart = () => {
       right: 0,
       itemWidth: 12,
       itemHeight: 12,
-      textStyle: { color: '#718096', fontSize: 12 },
+      textStyle: { color: '#718096', fontSize:14 },
     },
     grid: {
       left: '2%',
@@ -226,14 +225,14 @@ const updateChart = () => {
       boundaryGap: true,
       data: data.date,
       axisLine: { lineStyle: { color: '#e2e8f0' } },
-      axisLabel: { color: '#a0aec0', fontSize: 11 },
+      axisLabel: { color: '#a0aec0', fontSize:13 },
       axisTick: { show: false },
     },
     yAxis: {
       type: 'value',
       axisLine: { show: false },
       axisTick: { show: false },
-      axisLabel: { color: '#a0aec0', fontSize: 11 },
+      axisLabel: { color: '#a0aec0', fontSize:13 },
       splitLine: { lineStyle: { color: '#f0f0f0', type: 'dashed' } },
     },
     series: [
@@ -483,7 +482,7 @@ const fetchParkTypeOptions = async () => {
     }
 
     .tag {
-      font-size: 11px;
+      font-size:13px;
       padding: 4px 10px;
       border-radius: 6px;
       font-weight: 500;
@@ -521,7 +520,7 @@ const fetchParkTypeOptions = async () => {
     gap: 4px;
   }
   .summary-label {
-    font-size: 12px;
+    font-size:14px;
     color: #718096;
   }
   .summary-value {
@@ -555,8 +554,8 @@ const fetchParkTypeOptions = async () => {
   min-height: 280px;
   padding: 30px;
   .map-icon { font-size: 48px; margin-bottom: 12px; }
-  .map-text { font-size: 14px; color: #5a6a8a; font-weight: 500; }
-  .map-sub { font-size: 12px; color: #8a9ab0; margin-top: 8px; }
+  .map-text { font-size:16px; color: #5a6a8a; font-weight: 500; }
+  .map-sub { font-size:14px; color: #8a9ab0; margin-top: 8px; }
 }
 
 .status-text {
@@ -564,7 +563,7 @@ const fetchParkTypeOptions = async () => {
   align-items: center;
   padding: 2px 10px;
   border-radius: 4px;
-  font-size: 12px;
+  font-size:14px;
   font-weight: 500;
   &.normal { background: #c6f6d5; color: #22543d; }
   &.info { background: #bee3f8; color: #2a4365; }

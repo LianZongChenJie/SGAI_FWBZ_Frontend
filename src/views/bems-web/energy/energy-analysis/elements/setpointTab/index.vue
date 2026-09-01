@@ -352,13 +352,13 @@ onMounted(() => {
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 14px;
+      font-size:16px;
       font-weight: 600;
       color: rgba(0, 0, 0, 0.85);
     }
 
     &__tag {
-      font-size: 11px;
+      font-size:13px;
       font-weight: 500;
       color: rgba(0, 0, 0, 0.45);
       background: #eef3f9;
@@ -367,7 +367,7 @@ onMounted(() => {
     }
 
     &__note {
-      font-size: 12px;
+      font-size:14px;
       color: #898781;
     }
 
@@ -397,7 +397,7 @@ onMounted(() => {
         border: 0;
         background: transparent;
         padding: 7px 16px;
-        font-size: 13px;
+        font-size:16px;
         color: #52514e;
         border-radius: 5px;
         font-weight: 500;
@@ -414,7 +414,7 @@ onMounted(() => {
     }
 
     .mode-tip {
-      font-size: 12px;
+      font-size:14px;
       color: #898781;
     }
   }
@@ -512,7 +512,7 @@ onMounted(() => {
 
   /* 状态徽标 */
   .badge {
-    font-size: 11px;
+    font-size:13px;
     padding: 2px 8px;
     border-radius: 10px;
     font-weight: 600;
@@ -583,7 +583,7 @@ onMounted(() => {
     border: 1px solid #e8833a;
     border-radius: 4px;
     padding: 3px 6px;
-    font-size: 12px;
+    font-size:14px;
     text-align: right;
     color: #1f3a5f;
     font-weight: 600;
@@ -603,7 +603,7 @@ onMounted(() => {
     }
 
     &__tip {
-      font-size: 12px;
+      font-size:14px;
       color: #898781;
     }
   }
@@ -614,7 +614,7 @@ onMounted(() => {
     border: 1px solid rgba(17, 24, 39, 0.1);
     background: #fff;
     color: #52514e;
-    font-size: 13px;
+    font-size:16px;
     font-weight: 500;
     cursor: pointer;
     font-family: inherit;
@@ -688,7 +688,7 @@ onMounted(() => {
 
       .m-b {
         padding: 18px 20px;
-        font-size: 13px;
+        font-size:16px;
         color: #52514e;
         line-height: 1.7;
 
@@ -724,7 +724,7 @@ onMounted(() => {
     color: #fff;
     padding: 12px 22px;
     border-radius: 8px;
-    font-size: 13px;
+    font-size:16px;
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
     opacity: 0;
     transition: 0.25s;

@@ -68,7 +68,6 @@
           :columns="columns"
           :pagination="pagination"
           :scroll="{ x: 1250 }"
-          size="middle"
           @change="handleTableChange"
         >
           <template #bodyCell="{ column, record }">
@@ -152,7 +151,7 @@
         <div class="chart-placeholder" style="min-height: 300px">
           <div class="chart-icon">🏭</div>
           <div class="chart-text">配电系统单线拓扑监控图</div>
-          <div style="font-size: 12px; color: #a0aec0; margin-top: 8px">
+          <div style="font-size:14px; color: #a0aec0; margin-top: 8px">
             市电进线 → 变压器 → 低压配电柜 → 各楼层分配电箱 → 末端设备 | 实时电压/电流/负载率叠加显示
           </div>
         </div>
@@ -519,7 +518,7 @@ onMounted(() => {
         }
 
         .chart-text {
-          font-size: 14px;
+          font-size:16px;
           color: #86909c;
         }
       }
@@ -586,7 +585,7 @@ onMounted(() => {
 
     .card-note {
       color: rgba(0, 0, 0, 0.45);
-      font-size: 12px;
+      font-size:14px;
       text-align: right;
     }
 
@@ -606,7 +605,7 @@ onMounted(() => {
 
     .temp-tab {
       padding: 4px 14px;
-      font-size: 13px;
+      font-size:16px;
       color: rgba(0, 0, 0, 0.65);
       background: #ffffff;
       border: none;
@@ -637,7 +636,7 @@ onMounted(() => {
       gap: 12px;
 
       &__text {
-        font-size: 14px;
+        font-size:16px;
         color: rgba(0, 0, 0, 0.45);
       }
     }
@@ -686,8 +685,8 @@ onMounted(() => {
 }
 
 .collapse-btn {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border: 1px solid #d9d9d9;
   border-radius: 4px;
   background: #fff;
@@ -695,7 +694,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size:14px;
   color: #666;
   transition: all 0.2s;
   flex-shrink: 0;

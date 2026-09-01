@@ -69,7 +69,6 @@
         :columns="circuitColumns"
         :data-source="circuitList"
         :pagination="false"
-        size="small"
         row-key="id"
       >
         <template #bodyCell="{ column, record }">
@@ -104,7 +103,6 @@
         :columns="groupColumns"
         :data-source="groupList"
         :pagination="false"
-        size="small"
         row-key="id"
       >
         <template #bodyCell="{ column, record }">
@@ -132,7 +130,6 @@
         :columns="modeColumns"
         :data-source="modeList"
         :pagination="false"
-        size="small"
         row-key="id"
       >
         <template #bodyCell="{ column, record }">
@@ -292,7 +289,7 @@ const modeList = ref([
       display: inline-block;
       padding: 2px 10px;
       border-radius: 12px;
-      font-size: 12px;
+      font-size:14px;
       white-space: nowrap;
 
       &.status-enabled {

@@ -532,7 +532,7 @@ onUnmounted(() => {
   padding: 8px 12px;
   z-index: 1000;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
-  font-size: 12px;
+  font-size:14px;
   color: #e0e6ed;
   white-space: nowrap;
   margin-bottom: 4px;

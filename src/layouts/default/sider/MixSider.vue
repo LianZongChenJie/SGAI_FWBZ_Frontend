@@ -485,7 +485,7 @@
 
       &__name {
         margin-bottom: 0;
-        font-size: 12px;
+        font-size: 16px;
         transition: all 0.2s;
       }
     }
@@ -495,7 +495,7 @@
       bottom: 0;
       left: 0;
       width: 100%;
-      font-size: 14px;
+      font-size: 16px;
       color: rgba(255, 255, 255, 0.65);
       text-align: center;
       cursor: pointer;
@@ -551,7 +551,7 @@
       }
 
       .@{namespace}-simple-menu-sub-title {
-        font-size: 14px;
+        font-size: 16px;
       }
 
       &__content {

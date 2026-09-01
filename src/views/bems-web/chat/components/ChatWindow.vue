@@ -322,12 +322,12 @@ onUnmounted(() => {
   margin-top: 15vh;
 }
 .empty .hint {
-  font-size: 13px;
+  font-size:16px;
   margin-top: 8px;
 }
 .suggest-label {
   margin: 28px 0 12px;
-  font-size: 13px;
+  font-size:16px;
   color: #c0c4cc;
 }
 .suggest-tags {
@@ -341,7 +341,7 @@ onUnmounted(() => {
   border: 1px solid #dcdfe6;
   background: #fff;
   color: #409eff;
-  font-size: 13px;
+  font-size:16px;
   line-height: 1;
   padding: 10px 16px;
   border-radius: 999px;
@@ -388,12 +388,12 @@ onUnmounted(() => {
   border-bottom-left-radius: 4px;
 }
 .role-label {
-  font-size: 12px;
+  font-size:14px;
   color: #909399;
   margin-bottom: 6px;
 }
 .status-text {
-  font-size: 13px;
+  font-size:16px;
   color: #909399;
   margin-bottom: 8px;
 }
@@ -406,7 +406,7 @@ onUnmounted(() => {
   overflow-x: auto;
 }
 .sql-label {
-  font-size: 11px;
+  font-size:13px;
   color: #909399;
   margin-bottom: 4px;
 }
@@ -415,7 +415,7 @@ onUnmounted(() => {
   white-space: pre-wrap;
   word-break: break-word;
   font-family: Consolas, Monaco, monospace;
-  font-size: 12px;
+  font-size:14px;
 }
 .user-text {
   white-space: pre-wrap;
@@ -491,7 +491,7 @@ onUnmounted(() => {
 }
 .md-body code {
   font-family: Consolas, Monaco, monospace;
-  font-size: 13px;
+  font-size:16px;
 }
 .md-body :not(pre) > code {
   background: #eee;
@@ -502,7 +502,7 @@ onUnmounted(() => {
   position: absolute;
   top: 8px;
   right: 8px;
-  font-size: 12px;
+  font-size:14px;
   padding: 2px 8px;
   border: none;
   border-radius: 4px;
