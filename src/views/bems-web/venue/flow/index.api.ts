@@ -229,10 +229,12 @@ export interface VenueInfoVO {
   longitude?: number;
   /** 纬度 */
   latitude?: number;
-  /** 当前在场人数（接口可能不返回此字段） */
+  /** 当前在场人数（接口可能不返回此字段，从 flowList 接口补充） */
   currentCount?: number;
   /** 容量上限（接口可能不返回此字段） */
   capacity?: number;
+  /** 当前在场人数（来自 flowList 接口） */
+  todayNowCount?: number;
   [property: string]: any;
 }
 

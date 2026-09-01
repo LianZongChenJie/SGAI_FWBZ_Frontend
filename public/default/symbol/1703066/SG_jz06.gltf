@@ -1,0 +1,405 @@
+{
+  "accessors": [
+    {
+      "name": "Box005_1_0_positions",
+      "componentType": 5126,
+      "count": 76,
+      "min": [
+        -21,
+        -10.160400390625,
+        5.163400173187256
+      ],
+      "max": [
+        21,
+        8.5,
+        22.312400817871094
+      ],
+      "type": "VEC3",
+      "bufferView": 0,
+      "byteOffset": 0
+    },
+    {
+      "name": "Box005_1_0_normals",
+      "componentType": 5126,
+      "count": 76,
+      "min": [
+        -1,
+        -1,
+        -1
+      ],
+      "max": [
+        1,
+        1,
+        1
+      ],
+      "type": "VEC3",
+      "bufferView": 1,
+      "byteOffset": 0
+    },
+    {
+      "name": "Box005_1_0_texcoords",
+      "componentType": 5126,
+      "count": 76,
+      "min": [
+        0,
+        0
+      ],
+      "max": [
+        1,
+        1
+      ],
+      "type": "VEC2",
+      "bufferView": 2,
+      "byteOffset": 0
+    },
+    {
+      "name": "Box005_1_0_indices",
+      "componentType": 5123,
+      "count": 126,
+      "min": [
+        0
+      ],
+      "max": [
+        75
+      ],
+      "type": "SCALAR",
+      "bufferView": 3,
+      "byteOffset": 0
+    },
+    {
+      "name": "Box005_1_1_positions",
+      "componentType": 5126,
+      "count": 16,
+      "min": [
+        -20,
+        -7.5,
+        0
+      ],
+      "max": [
+        20,
+        7.5,
+        10
+      ],
+      "type": "VEC3",
+      "bufferView": 0,
+      "byteOffset": 912
+    },
+    {
+      "name": "Box005_1_1_normals",
+      "componentType": 5126,
+      "count": 16,
+      "min": [
+        -1,
+        -1,
+        0
+      ],
+      "max": [
+        1,
+        1,
+        0
+      ],
+      "type": "VEC3",
+      "bufferView": 1,
+      "byteOffset": 912
+    },
+    {
+      "name": "Box005_1_1_texcoords",
+      "componentType": 5126,
+      "count": 16,
+      "min": [
+        -1.4549000263214111,
+        -1.1686999797821045
+      ],
+      "max": [
+        2.454900026321411,
+        0.23510000109672546
+      ],
+      "type": "VEC2",
+      "bufferView": 2,
+      "byteOffset": 608
+    },
+    {
+      "name": "Box005_1_1_indices",
+      "componentType": 5123,
+      "count": 24,
+      "min": [
+        0
+      ],
+      "max": [
+        15
+      ],
+      "type": "SCALAR",
+      "bufferView": 3,
+      "byteOffset": 252
+    },
+    {
+      "name": "Box005_1_2_positions",
+      "componentType": 5126,
+      "count": 16,
+      "min": [
+        -20,
+        -7.5,
+        10
+      ],
+      "max": [
+        20,
+        7.5,
+        20
+      ],
+      "type": "VEC3",
+      "bufferView": 0,
+      "byteOffset": 1104
+    },
+    {
+      "name": "Box005_1_2_normals",
+      "componentType": 5126,
+      "count": 16,
+      "min": [
+        -1,
+        -1,
+        0
+      ],
+      "max": [
+        1,
+        1,
+        0
+      ],
+      "type": "VEC3",
+      "bufferView": 1,
+      "byteOffset": 1104
+    },
+    {
+      "name": "Box005_1_2_texcoords",
+      "componentType": 5126,
+      "count": 16,
+      "min": [
+        0,
+        0
+      ],
+      "max": [
+        1,
+        0.5
+      ],
+      "type": "VEC2",
+      "bufferView": 2,
+      "byteOffset": 736
+    },
+    {
+      "name": "Box005_1_2_indices",
+      "componentType": 5123,
+      "count": 24,
+      "min": [
+        0
+      ],
+      "max": [
+        15
+      ],
+      "type": "SCALAR",
+      "bufferView": 3,
+      "byteOffset": 300
+    }
+  ],
+  "asset": {
+    "generator": "obj2gltf",
+    "version": "2.0"
+  },
+  "buffers": [
+    {
+      "name": "SG_jz06",
+      "byteLength": 3804,
+      "uri": "data:application/octet-stream;base64,AACowQCRIsHMf7JBAACoQQCRIsHMf7JBAACoQQAACEHMf7JBAACowQAACEHMf7JBAACgwQAA8MAAAKBBAACgQQAA8MAAAKBBAACoQQCRIsEAAKBBAACowQCRIsEAAKBBAACgQQAA8EAAAKBBAACoQQAACEEAAKBBAACgwQAA8EAAAKBBAACowQAACEEAAKBBAACowQCRIsEAAKBBAACoQQCRIsEAAKBBAACoQQCRIsHMf7JBAACowQCRIsHMf7JBAACoQQCRIsEAAKBBAACoQQAACEEAAKBBAACoQQAACEHMf7JBAACoQQCRIsHMf7JBAACoQQAACEEAAKBBAACowQAACEEAAKBBAACowQAACEHMf7JBAACoQQAACEHMf7JBAACowQAACEEAAKBBAACowQCRIsEAAKBBAACowQCRIsHMf7JBAACowQAACEHMf7JBAACoQQAACEEs1L5AAACowQAACEEs1L5AAACowU2ECMEs1L5AAACoQU2ECMEs1L5AAACowU2ECMGTOqVAAACowQAACEGTOqVAAACoQQAACEGTOqVAAACoQU2ECMGTOqVAAACowU2ECMGTOqVAAACoQU2ECMGTOqVAAACoQU2ECMEs1L5AAACowU2ECMEs1L5AAACoQU2ECMGTOqVAAACoQQAACEGTOqVAAACoQQAACEEs1L5AAACoQU2ECMEs1L5AAACoQQAACEGTOqVAAACowQAACEGTOqVAAACowQAACEEs1L5AAACoQQAACEEs1L5AAACowQAACEGTOqVAAACowU2ECMGTOqVAAACowU2ECMEs1L5AAACowQAACEEs1L5AAACoQQAACEFseDJBAACowQAACEFseDJBAACowU2ECMFseDJBAACoQU2ECMFseDJBAACowU2ECMGfqyVBAACowQAACEGfqyVBAACoQQAACEGfqyVBAACoQU2ECMGfqyVBAACowU2ECMGfqyVBAACoQU2ECMGfqyVBAACoQU2ECMFseDJBAACowU2ECMFseDJBAACoQU2ECMGfqyVBAACoQQAACEGfqyVBAACoQQAACEFseDJBAACoQU2ECMFseDJBAACoQQAACEGfqyVBAACowQAACEGfqyVBAACowQAACEFseDJBAACoQQAACEFseDJBAACowQAACEGfqyVBAACowU2ECMGfqyVBAACowU2ECMFseDJBAACowQAACEFseDJBAACgQQAA8MAAAAAAAACgQQAA8MAAACBBAACgwQAA8MAAACBBAACgwQAA8MAAAAAAAACgQQAA8EAAAAAAAACgQQAA8EAAACBBAACgQQAA8MAAACBBAACgQQAA8MAAAAAAAACgwQAA8EAAAAAAAACgwQAA8EAAACBBAACgQQAA8EAAACBBAACgQQAA8EAAAAAAAACgwQAA8MAAAAAAAACgwQAA8MAAACBBAACgwQAA8EAAACBBAACgwQAA8EAAAAAAAACgQQAA8MAAAKBBAACgwQAA8MAAAKBBAACgwQAA8MAAACBBAACgQQAA8MAAACBBAACgQQAA8EAAAKBBAACgQQAA8MAAAKBBAACgQQAA8MAAACBBAACgQQAA8EAAACBBAACgwQAA8EAAAKBBAACgQQAA8EAAAKBBAACgQQAA8EAAACBBAACgwQAA8EAAACBBAACgwQAA8MAAAKBBAACgwQAA8EAAAKBBAACgwQAA8EAAACBBAACgwQAA8MAAACBBAAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIC/AAAAAAAAAAAAAIC/AAAAAAAAAAAAAIC/AAAAAAAAAAAAAIC/AAAAAAAAAAAAAIC/AAAAAAAAAAAAAIC/AAAAAAAAAAAAAIC/AAAAAAAAAAAAAIC/AAAAAAAAgL8AAAAAAAAAAAAAgL8AAAAAAAAAAAAAgL8AAAAAAAAAAAAAgL8AAAAAAACAPwAAAAAAAAAAAACAPwAAAAAAAAAAAACAPwAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAACAvwAAAAAAAAAAAACAvwAAAAAAAAAAAACAvwAAAAAAAAAAAACAvwAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIC/AAAAAAAAAAAAAIC/AAAAAAAAAAAAAIC/AAAAAAAAAAAAAIC/AAAAAAAAgL8AAAAAAAAAAAAAgL8AAAAAAAAAAAAAgL8AAAAAAAAAAAAAgL8AAAAAAACAPwAAAAAAAAAAAACAPwAAAAAAAAAAAACAPwAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAACAvwAAAAAAAAAAAACAvwAAAAAAAAAAAACAvwAAAAAAAAAAAACAvwAAAAAAAAAAAAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAIC/AAAAAAAAAAAAAIC/AAAAAAAAAAAAAIC/AAAAAAAAAAAAAIC/AAAAAAAAgL8AAAAAAAAAAAAAgL8AAAAAAAAAAAAAgL8AAAAAAAAAAAAAgL8AAAAAAACAPwAAAAAAAAAAAACAPwAAAAAAAAAAAACAPwAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAACAvwAAAAAAAAAAAACAvwAAAAAAAAAAAACAvwAAAAAAAAAAAACAvwAAAAAAAAAAAAAAAAAAgL8AAAAAAAAAAAAAgL8AAAAAAAAAAAAAgL8AAAAAAAAAAAAAgL8AAAAAAACAPwAAAAAAAAAAAACAPwAAAAAAAAAAAACAPwAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAACAvwAAAAAAAAAAAACAvwAAAAAAAAAAAACAvwAAAAAAAAAAAACAvwAAAAAAAAAAAAAAAAAAgL8AAAAAAAAAAAAAgL8AAAAAAAAAAAAAgL8AAAAAAAAAAAAAgL8AAAAAAACAPwAAAAAAAAAAAACAPwAAAAAAAAAAAACAPwAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAAAAAAAAgD8AAAAAAACAvwAAAAAAAAAAAACAvwAAAAAAAAAAAACAvwAAAAAAAAAAAACAvwAAAAAAAAAAAAAAAAAAgD8AAIA/AACAPwAAgD8AAAAAAAAAAAAAAAAAAAAAAACAPwAAgD8AAIA/AACAPwAAgD8AAAAAAACAPwAAgD8AAAAAAACAPwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgD8AAIA/AACAPwAAgD8AAIA/AAAAAAAAgD8AAIA/AACAPwAAgD8AAAAAAACAPwAAAAAAAIA/AACAPwAAgD8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAAAAAACAPwAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAIA/AACAPwAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAgD8AAIA/AAAAAAAAgD8AAIA/AACAPwAAgD8AAIA/AAAAAAAAgD8AAIA/AACAPwAAgD8AAAAAAACAPwAAAAAAAIA/AACAPwAAgD8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAAAAAACAPwAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAAAAAAAAAAAAAAAAAgD8AAIA/AACAPwAAAAAAAIA/AAAAAAAAAAAAAIA/AAAAAAAAgD8AAIA/AAAAAAAAgD8AAIA/AACAPwAAgD8AAIA/AAAAAAAAgD8AAIA/AACAPwAAgD8AAAAAAACAPwAAAAAAAIA/AACAPwAAgD8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAAAAAACAPwAAAAAAAIA/AAAAAAAAAAAVHR1ADr5wPhUdHUD2l5W/Kjq6v/aXlb8qOrq/Dr5wPiqpoz8OvnA+KqmjP/aXlb9d/kM+9peVv13+Qz4OvnA+FR0dQA6+cD4VHR1A9peVvyo6ur/2l5W/Kjq6vw6+cD5pAE8/Dr5wPmkATz/2l5W/qaSOvvaXlb+ppI6+Dr5wPgAAgD8AAAAAAAAAAAAAAAAAAAAAAAAAPwAAgD8AAAA/AACAPwAAAAAAAAAAAAAAAAAAAAAAAAA/AACAPwAAAD8AAIA/AAAAAAAAAAAAAAAAAAAAAAAAAD8AAIA/AAAAPwAAgD8AAAAAAAAAAAAAAAAAAAAAAAAAPwAAgD8AAAA/AAABAAIAAgADAAAABAAFAAYABgAHAAQABQAIAAkACQAGAAUACAAKAAsACwAJAAgACgAEAAcABwALAAoADAANAA4ADgAPAAwAEAARABIAEgATABAAFAAVABYAFgAXABQAGAAZABoAGgAbABgAHAAdAB4AHgAfABwAIAAhACIAIgAjACAAJAAlACYAJgAnACQAKAApACoAKgArACgALAAtAC4ALgAvACwAMAAxADIAMgAzADAANAA1ADYANgA3ADQAOAA5ADoAOgA7ADgAPAA9AD4APgA/ADwAQABBAEIAQgBDAEAARABFAEYARgBHAEQASABJAEoASgBLAEgAAAABAAIAAgADAAAABAAFAAYABgAHAAQACAAJAAoACgALAAgADAANAA4ADgAPAAwAAAABAAIAAgADAAAABAAFAAYABgAHAAQACAAJAAoACgALAAgADAANAA4ADgAPAAwA"
+    }
+  ],
+  "bufferViews": [
+    {
+      "name": "bufferView_0",
+      "buffer": 0,
+      "byteLength": 1296,
+      "byteOffset": 0,
+      "byteStride": 12,
+      "target": 34962
+    },
+    {
+      "name": "bufferView_1",
+      "buffer": 0,
+      "byteLength": 1296,
+      "byteOffset": 1296,
+      "byteStride": 12,
+      "target": 34962
+    },
+    {
+      "name": "bufferView_2",
+      "buffer": 0,
+      "byteLength": 864,
+      "byteOffset": 2592,
+      "byteStride": 8,
+      "target": 34962
+    },
+    {
+      "name": "bufferView_3",
+      "buffer": 0,
+      "byteLength": 348,
+      "byteOffset": 3456,
+      "target": 34963
+    }
+  ],
+  "images": [
+    {
+      "name": "SG_0044",
+      "uri": "SG_0044.jpg"
+    },
+    {
+      "name": "jz06_02",
+      "uri": "jz06_02.jpg"
+    },
+    {
+      "name": "jz06_01",
+      "uri": "jz06_01.jpg"
+    }
+  ],
+  "materials": [
+    {
+      "name": "Material__353",
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 0
+        },
+        "baseColorFactor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "metallicFactor": 0,
+        "roughnessFactor": 0.99
+      },
+      "emissiveFactor": [
+        0,
+        0,
+        0
+      ],
+      "alphaMode": "OPAQUE",
+      "doubleSided": false
+    },
+    {
+      "name": "Material__444",
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 1
+        },
+        "baseColorFactor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "metallicFactor": 0,
+        "roughnessFactor": 0.99
+      },
+      "emissiveFactor": [
+        0,
+        0,
+        0
+      ],
+      "alphaMode": "OPAQUE",
+      "doubleSided": false
+    },
+    {
+      "name": "Material__443",
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 2
+        },
+        "baseColorFactor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "metallicFactor": 0,
+        "roughnessFactor": 0.99
+      },
+      "emissiveFactor": [
+        0,
+        0,
+        0
+      ],
+      "alphaMode": "OPAQUE",
+      "doubleSided": false
+    }
+  ],
+  "meshes": [
+    {
+      "name": "Box005_1",
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 0,
+            "NORMAL": 1,
+            "TEXCOORD_0": 2
+          },
+          "indices": 3,
+          "material": 0,
+          "mode": 4
+        },
+        {
+          "attributes": {
+            "POSITION": 4,
+            "NORMAL": 5,
+            "TEXCOORD_0": 6
+          },
+          "indices": 7,
+          "material": 1,
+          "mode": 4
+        },
+        {
+          "attributes": {
+            "POSITION": 8,
+            "NORMAL": 9,
+            "TEXCOORD_0": 10
+          },
+          "indices": 11,
+          "material": 2,
+          "mode": 4
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "name": "Box005",
+      "mesh": 0
+    }
+  ],
+  "samplers": [
+    {
+      "wrapS": 10497,
+      "wrapT": 10497
+    }
+  ],
+  "scene": 0,
+  "scenes": [
+    {
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "textures": [
+    {
+      "name": "SG_0044",
+      "sampler": 0,
+      "source": 0
+    },
+    {
+      "name": "jz06_02",
+      "sampler": 0,
+      "source": 1
+    },
+    {
+      "name": "jz06_01",
+      "sampler": 0,
+      "source": 2
+    }
+  ]
+}

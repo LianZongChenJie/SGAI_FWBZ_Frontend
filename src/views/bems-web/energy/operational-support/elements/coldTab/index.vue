@@ -51,6 +51,7 @@
               @search="handleSearch"
             />
             <a-button type="primary" @click="handleSearch">🔍 查询</a-button>
+            <a-button @click="handleExport">📥 导出</a-button>
           </div>
           <button class="collapse-btn" @click="collapsedTable = !collapsedTable">
             <CaretDownOutlined v-if="!collapsedTable" />
@@ -154,7 +155,7 @@ import { StatCard } from '/@/views/bems-web/components'
 import { useECharts } from '/@/hooks/web/useECharts'
 import { getColdCopData, getColdCapacityData } from '../chartData'
 import { buildTrendOption } from '../chartOptions'
-import { getColdUnitList, getColdUnitDetail, getUnitTypeList } from './index.api'
+import { getColdUnitList, getColdUnitDetail, getUnitTypeList, exportColdUnitList } from './index.api'
 import type { ColdSourceEquipmentCategory, ColdSourceDevicePageDto, ColdSourceDeviceDetailDto } from './index.api'
 
 // 自定义 emoji 图标组件
@@ -287,6 +288,33 @@ const loadTableData = async () => {
 const handleSearch = () => {
   pagination.current = 1
   loadTableData()
+}
+
+/**
+ * 导出
+ */
+const handleExport = async () => {
+  const params: any = {}
+  if (filterCategoryId.value) params.categoryId = filterCategoryId.value
+  if (filterStatus.value !== undefined) params.status = filterStatus.value
+  if (filterDeviceCode.value) params.deviceName = filterDeviceCode.value
+
+  try {
+    const res = await exportColdUnitList(params)
+    const blobOptions = { type: 'application/vnd.ms-excel' }
+    const fileSuffix = '.xlsx'
+    const url = window.URL.createObjectURL(new Blob([res], blobOptions))
+    const link = document.createElement('a')
+    link.style.display = 'none'
+    link.href = url
+    link.setAttribute('download', '冷源设备列表' + fileSuffix)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+  } catch (e) {
+    console.error('导出失败:', e)
+  }
 }
 
 /**

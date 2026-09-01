@@ -27,6 +27,11 @@ export const getColdUnitDetail = (params: { deviceId: number }) => defHttp.get<C
 export const getUnitTypeList = () => defHttp.get<ColdSourceEquipmentCategory[]>({ url: Api.unitTypeList })
 
 /**
+ * 导出冷源设备列表
+ */
+export const exportColdUnitList = (params: Request) => defHttp.get({ url: Api.export, params: params, responseType: 'blob' }, { isTransformResponse: false })
+
+/**
  * 设备基础信息列表 请求入参
  * 
  */

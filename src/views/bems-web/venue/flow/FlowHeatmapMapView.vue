@@ -46,7 +46,7 @@ import { onActivated, onDeactivated, onMounted, onUnmounted, watch, nextTick, re
 import type { PropType } from 'vue'
 import { loadMapScripts } from '/@/components/map/loadMapScripts'
 import type { VenueHeatmapItemVO, VenueInfoVO } from './index.api'
-import { getVenueListAll } from './index.api'
+import { getVenueListAll, getFlowList } from './index.api'
 
 const props = defineProps({
   data: { type: Array as PropType<VenueHeatmapItemVO[]>, default: () => [] },
@@ -445,7 +445,7 @@ function drawYellowArea() {
 /** 构建客流统计标点 DOM：默认显示 tag，点击展开详情 */
 function buildStatisticsMarkerDom(item: VenueInfoVO): string {
   const domId = `flow-statistics-${item.id ?? Math.random().toString(36).slice(2)}`
-  const count = item.currentCount ?? 0
+  const count = item.todayNowCount ?? item.currentCount ?? 0
   const capacity = item.capacity ?? 0
   // 根据人数比例确定颜色
   let color = '#52c41a' // 绿色（宽松）
@@ -489,7 +489,7 @@ function buildStatisticsMarkerDom(item: VenueInfoVO): string {
   </div>`
 }
 
-/** 加载场馆统计标点（调用 listAll 接口） */
+/** 加载场馆统计标点（调用 listAll 接口，并从 flowList 补充在场人数） */
 async function loadVenueStatistics() {
   if (!mapReady) {
     console.warn('[FlowHeatmap] 地图未就绪，无法渲染统计标点')
@@ -504,15 +504,37 @@ async function loadVenueStatistics() {
     clearAllMarkers()
     clearStatisticsMarkers()
 
-    const res = await getVenueListAll()
-    const data: VenueInfoVO[] = res?.result || res?.data || res || []
+    // 并行调用 listAll（获取坐标）和 flowList（获取在场人数）
+    const [listRes, flowRes] = await Promise.all([
+      getVenueListAll(),
+      getFlowList({}),
+    ])
 
-    if (!Array.isArray(data) || data.length === 0) {
+    const listData: VenueInfoVO[] = listRes?.result || listRes?.data || listRes || []
+    const flowData: any[] = flowRes?.result || flowRes?.data || flowRes || []
+
+    if (!Array.isArray(listData) || listData.length === 0) {
       console.warn('[FlowHeatmap] 场馆统计数据为空')
       return
     }
 
-    console.log('[FlowHeatmap] 场馆统计数据:', data.length, '个场馆')
+    // 构建在场人数映射表（venueId -> todayNowCount）
+    const countMap = new Map<number, number>()
+    if (Array.isArray(flowData)) {
+      flowData.forEach((item: any) => {
+        if (item.venueId != null && item.todayNowCount != null) {
+          countMap.set(item.venueId, item.todayNowCount)
+        }
+      })
+    }
+
+    // 合并数据：将 todayNowCount 补充到场馆信息中
+    const data = listData.map((item) => ({
+      ...item,
+      todayNowCount: countMap.get(item.id!) ?? item.todayNowCount,
+    }))
+
+    console.log('[FlowHeatmap] 场馆统计数据:', data.length, '个场馆, 在场人数映射:', countMap.size, '条')
 
     data.forEach((item: VenueInfoVO) => {
       const lng = Number(item.longitude)
