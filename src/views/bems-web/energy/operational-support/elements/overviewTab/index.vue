@@ -8,9 +8,9 @@
         :icon="ClipboardIcon"
       />
       <StatCard
-        label="设备在线率"
+        label="在线设备数"
         :value="statData.online"
-        unit="%"
+        unit=""
         color="green"
         :icon="CheckSquareIcon"
       />
