@@ -36,3 +36,4 @@ os_del.cmd
 /.vscode/
 /.history/
 /svn clear.bat
+.codebuddy
