@@ -27,6 +27,7 @@
                   title="🏢 场馆信息管理"
                   :data="venueData"
                   :loading="venueLoading"
+                  :pagination-total="venuePagination.total"
                   @add="handleAddVenue"
                   @detail="handleVenueDetail"
                   @table-change="handleTableChange"

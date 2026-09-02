@@ -55,11 +55,13 @@ const props = withDefaults(
     title?: string
     data?: VenueItem[]
     loading?: boolean
+    paginationTotal?: number
   }>(),
   {
     title: '🏢 场馆信息管理',
     data: () => [],
-    loading: false
+    loading: false,
+    paginationTotal: 0
   }
 )
 
@@ -87,9 +89,7 @@ const columns = [
 
 // ===== 分页配置 =====
 const pagination = computed(() => ({
-  current: 1,
-  pageSize: 10,
-  total: props?.data?.length || 0,
+  total: props?.paginationTotal || 0,
   showSizeChanger: true,
   showTotal: (total: number) => `共 ${total} 条`
 }))
@@ -104,8 +104,6 @@ const handleDetail = (record: VenueItem) => {
 }
 
 const handleTableChange = (paginationData: any) => {
-  pagination.value.current = paginationData.current
-  pagination.value.pageSize = paginationData.pageSize
   emit('tableChange', paginationData)
 }
 </script>

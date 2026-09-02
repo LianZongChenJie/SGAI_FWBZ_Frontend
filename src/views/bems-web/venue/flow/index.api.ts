@@ -13,7 +13,8 @@ enum Api {
   exportData = '/sgai-fwbz-dev/fwbz/venueVisitorFlow/export',
   /** 全部场馆信息（含坐标和在场人数） */
   venueListAll = '/sgai-fwbz-dev/fwbz/venueInfo/listAll',
-
+  /** 人员热力分布数据（区域热力图） */
+  areaHeat = '/sgai-fwbz-dev/fwbz/venueVisitorFlow/hourly/areaHeat',
 }
 
 /**
@@ -238,5 +239,37 @@ export interface VenueInfoVO {
   [property: string]: any;
 }
 
+/**
+ * 区域热力图返回数据
+ *
+ * AreaHeatResponseVO
+ */
+export interface AreaHeatResponseVO {
+    /** 最大权重 */
+    maxweight?: number;
+    /** 热力图数据列表 */
+    peopleHeatmapDataList?: AreaHeatDataItemVO[];
+    [property: string]: any;
+}
+
+/**
+ * 区域热力图数据项
+ *
+ * AreaHeatDataItemVO
+ */
+export interface AreaHeatDataItemVO {
+    /** 人数 */
+    count?: number;
+    /** 纬度 */
+    lat?: number;
+    /** 经度 */
+    lon?: number;
+    [property: string]: any;
+}
+
 /** 获取全部场馆信息（含坐标和在场人数） */
 export const getVenueListAll = () => defHttp.get({ url: Api.venueListAll });
+
+/** 获取人员热力分布数据（区域热力图，带可选 areaId 参数） */
+export const getAreaHeat = (params?: { areaId?: string }) =>
+    defHttp.get({ url: Api.areaHeat, params });

@@ -27,8 +27,8 @@
           </div>
         </div>
         <div class="card-body" :class="{ 'heatmap-fullscreen-body': heatmapFullscreen }">
-          <a-spin :spinning="heatmapLoading" :class="{ 'spin-fullscreen': heatmapFullscreen }">
-            <FlowHeatmapMapView :data="heatmapData" :fullscreen="heatmapFullscreen" />
+          <a-spin :spinning="false" :class="{ 'spin-fullscreen': heatmapFullscreen }">
+            <FlowHeatmapMapView :fullscreen="heatmapFullscreen" />
           </a-spin>
         </div>
       </div>
@@ -113,8 +113,8 @@ import type { Ref } from 'vue'
 import dayjs from 'dayjs'
 import { StatCard } from '/@/views/bems-web/components'
 import { useECharts } from '/@/hooks/web/useECharts'
-import { getFlowSummary, getFlowList, getFlowTrend, getHeatmap, exportData } from './index.api'
-import type { StatItem, VenueFlowVO, VenueHeatmapItemVO } from './index.api'
+import { getFlowSummary, getFlowList, getFlowTrend, exportData } from './index.api'
+import type { StatItem, VenueFlowVO } from './index.api'
 import { getVenueList } from '../venueScheduling/index.api'
 import type { VenueItem } from '../venueScheduling/index.api'
 import {
@@ -321,7 +321,7 @@ function renderTrendChart(res: any) {
       left: '3%',
       right: '4%',
       bottom: '8%',
-      top: '15%',
+      top: 85,
       containLabel: true,
     },
     xAxis: {
@@ -404,24 +404,10 @@ const handleTrendChange = () => {
 }
 
 // ===== 实时客流热力图 =====
-const heatmapData = ref<VenueHeatmapItemVO[]>([])
-const heatmapLoading = ref(false)
 const heatmapFullscreen = ref(false)
 
 const toggleHeatmapFullscreen = () => {
   heatmapFullscreen.value = !heatmapFullscreen.value
-}
-
-const fetchHeatmapData = async () => {
-  heatmapLoading.value = true
-  try {
-    const res = await getHeatmap()
-    heatmapData.value = Array.isArray(res) ? res : (res?.data || res?.result || [])
-  } catch (error) {
-    console.error('获取实时客流热力图数据失败:', error)
-  } finally {
-    heatmapLoading.value = false
-  }
 }
 
 // ===== 初始化 =====
@@ -430,7 +416,6 @@ onMounted(() => {
   fetchVenueOptions()
   fetchFlowData()
   fetchTrendData()
-  fetchHeatmapData()
 })
 </script>
 
@@ -448,6 +433,10 @@ onMounted(() => {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
+
+  :deep(.heatmap-map-wrapper:not(.fullscreen)) {
+    height: 330px;
+  }
 }
 
 .card {
@@ -520,7 +509,7 @@ onMounted(() => {
 
 .trend-chart {
   width: 100%;
-  height: 280px;
+  height: 310px;
 }
 
 .heatmap-fullscreen {

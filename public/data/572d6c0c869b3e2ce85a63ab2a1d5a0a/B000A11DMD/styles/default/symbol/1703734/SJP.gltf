@@ -1,0 +1,182 @@
+{
+  "accessors" : [ {
+    "bufferView" : 0,
+    "byteOffset" : 0,
+    "componentType" : 5123,
+    "count" : 486,
+    "type" : "SCALAR",
+    "max" : [ 436 ],
+    "min" : [ 0 ]
+  }, {
+    "bufferView" : 1,
+    "byteOffset" : 0,
+    "componentType" : 5126,
+    "count" : 437,
+    "type" : "VEC3",
+    "max" : [ 3.6653, 4.0299, 36.0 ],
+    "min" : [ -3.6653, -2.3185, 0.0 ]
+  }, {
+    "bufferView" : 2,
+    "byteOffset" : 0,
+    "componentType" : 5126,
+    "count" : 437,
+    "type" : "VEC2",
+    "max" : [ 1.0, 1.0 ],
+    "min" : [ -0.0, -0.13230002 ]
+  }, {
+    "bufferView" : 3,
+    "byteOffset" : 0,
+    "componentType" : 5126,
+    "count" : 437,
+    "type" : "VEC3",
+    "max" : [ 1.0, 1.0, 0.9809141 ],
+    "min" : [ -1.0, -1.0, -0.0 ]
+  }, {
+    "bufferView" : 4,
+    "byteOffset" : 0,
+    "componentType" : 5123,
+    "count" : 108,
+    "type" : "SCALAR",
+    "max" : [ 47 ],
+    "min" : [ 0 ]
+  }, {
+    "bufferView" : 5,
+    "byteOffset" : 0,
+    "componentType" : 5126,
+    "count" : 48,
+    "type" : "VEC3",
+    "max" : [ 3.4578, 3.6705, 35.6103 ],
+    "min" : [ -3.4578, -2.3185, 14.7171 ]
+  }, {
+    "bufferView" : 6,
+    "byteOffset" : 0,
+    "componentType" : 5126,
+    "count" : 48,
+    "type" : "VEC2",
+    "max" : [ 1.0, 1.0 ],
+    "min" : [ -0.0, -0.018000007 ]
+  }, {
+    "bufferView" : 7,
+    "byteOffset" : 0,
+    "componentType" : 5126,
+    "count" : 48,
+    "type" : "VEC3",
+    "max" : [ 0.86601907, 1.0, 0.0 ],
+    "min" : [ -0.86601907, -1.0, -0.0 ]
+  } ],
+  "asset" : {
+    "generator" : "JglTF from https://github.com/javagl/JglTF",
+    "version" : "2.0"
+  },
+  "buffers" : [ {
+    "uri" : "buffer.bin",
+    "byteLength" : 16708
+  } ],
+  "bufferViews" : [ {
+    "buffer" : 0,
+    "byteOffset" : 0,
+    "byteLength" : 972,
+    "target" : 34963
+  }, {
+    "buffer" : 0,
+    "byteOffset" : 972,
+    "byteLength" : 5244,
+    "target" : 34962
+  }, {
+    "buffer" : 0,
+    "byteOffset" : 6216,
+    "byteLength" : 3496,
+    "target" : 34962
+  }, {
+    "buffer" : 0,
+    "byteOffset" : 9712,
+    "byteLength" : 5244,
+    "target" : 34962
+  }, {
+    "buffer" : 0,
+    "byteOffset" : 14956,
+    "byteLength" : 216,
+    "target" : 34963
+  }, {
+    "buffer" : 0,
+    "byteOffset" : 15172,
+    "byteLength" : 576,
+    "target" : 34962
+  }, {
+    "buffer" : 0,
+    "byteOffset" : 15748,
+    "byteLength" : 384,
+    "target" : 34962
+  }, {
+    "buffer" : 0,
+    "byteOffset" : 16132,
+    "byteLength" : 576,
+    "target" : 34962
+  } ],
+  "images" : [ {
+    "uri" : "SGSJ_1.jpg",
+    "mimeType" : "image/jpeg"
+  }, {
+    "uri" : "SGY_q1_058.jpg",
+    "mimeType" : "image/jpeg"
+  } ],
+  "materials" : [ {
+    "pbrMetallicRoughness" : {
+      "baseColorFactor" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "baseColorTexture" : {
+        "index" : 0
+      },
+      "metallicFactor" : 0.0,
+      "roughnessFactor" : 1.0
+    },
+    "alphaMode" : "OPAQUE",
+    "doubleSided" : true
+  }, {
+    "pbrMetallicRoughness" : {
+      "baseColorFactor" : [ 1.0, 1.0, 1.0, 1.0 ],
+      "baseColorTexture" : {
+        "index" : 1
+      },
+      "metallicFactor" : 0.0,
+      "roughnessFactor" : 1.0
+    },
+    "alphaMode" : "OPAQUE",
+    "doubleSided" : true
+  } ],
+  "meshes" : [ {
+    "primitives" : [ {
+      "attributes" : {
+        "POSITION" : 1,
+        "TEXCOORD_0" : 2,
+        "NORMAL" : 3
+      },
+      "indices" : 0,
+      "material" : 0,
+      "mode" : 4
+    }, {
+      "attributes" : {
+        "POSITION" : 5,
+        "TEXCOORD_0" : 6,
+        "NORMAL" : 7
+      },
+      "indices" : 4,
+      "material" : 1,
+      "mode" : 4
+    } ]
+  } ],
+  "nodes" : [ {
+    "mesh" : 0
+  } ],
+  "samplers" : [ { } ],
+  "scene" : 0,
+  "scenes" : [ {
+    "nodes" : [ 0 ]
+  } ],
+  "textures" : [ {
+    "sampler" : 0,
+    "source" : 0
+  }, {
+    "sampler" : 0,
+    "source" : 1
+  } ]
+}
