@@ -94,6 +94,25 @@
         <span class="map-btn-icon">{{ btn.icon }}</span>
         <span class="map-btn-text">{{ btn.text }}</span>
       </div>
+      <!-- 照明子按钮：浮动显示，不影响原有布局 -->
+      <div v-if="lightingSubVisible" class="lighting-sub-float">
+        <div
+          class="map-btn sub-btn"
+          :class="{ 'is-active': activeLightingMode === 'parcel' }"
+          @click="handleLightingSubClick('parcel')"
+        >
+          <span class="map-btn-icon">�️</span>
+          <span class="map-btn-text">地块模式</span>
+        </div>
+        <div
+          class="map-btn sub-btn"
+          :class="{ 'is-active': activeLightingMode === 'detail' }"
+          @click="handleLightingSubClick('detail')"
+        >
+          <span class="map-btn-icon">�</span>
+          <span class="map-btn-text">详情模式</span>
+        </div>
+      </div>
     </div>
 
     <!-- 加载提示 -->
@@ -203,6 +222,10 @@ let heatMarkerArr: any[] = [];
 let heatOverlays: any[] = [];
 /** 黄色区域覆盖物数组（polygon + polyline） */
 let yellowAreaOverlays: any[] = [];
+/** 照明按钮子菜单是否可见 */
+const lightingSubVisible = ref(false);
+/** 当前激活的照明模式：parcel(地块) / detail(详情) */
+const activeLightingMode = ref<'parcel' | 'detail' | ''>('');
 
 // ==================== 楼层ID初始化 ====================
 async function initFloorId(retryCount = 0) {
@@ -762,10 +785,21 @@ async function loadHeatMap() {
  * 处理按钮点击
  */
 async function handleBtnClick(btnKey: string) {
+  // 非照明按钮点击时，隐藏照明子菜单
+  if (btnKey !== 'mapLighting') {
+    lightingSubVisible.value = false;
+    activeLightingMode.value = '';
+  }
+
   // 点击已激活的按钮：取消激活，清除地图覆盖物
   if (activeBtn.value === btnKey) {
     activeBtn.value = '';
     clearAllMapOverlays();
+    // 照明按钮取消时，同时隐藏子菜单
+    if (btnKey === 'mapLighting') {
+      lightingSubVisible.value = false;
+      activeLightingMode.value = '';
+    }
     return;
   }
 
@@ -781,8 +815,34 @@ async function handleBtnClick(btnKey: string) {
     // 安防按钮：请求 cameraCoordinateGroup 接口
     await loadCameraMarkers();
   } else if (btnKey === 'mapLighting') {
-    // 照明按钮：参考 bigGis 功能，清除覆盖物（暂无专用接口）
-    console.log('[BigscreenMap] 照明按钮点击，清除地图覆盖物');
+    // 照明按钮：展开子菜单
+    lightingSubVisible.value = true;
+    activeLightingMode.value = '';
+    console.log('[BigscreenMap] 照明按钮点击，展开子菜单');
+  }
+}
+
+// ==================== 照明子按钮处理 ====================
+
+/**
+ * 处理照明子按钮点击
+ * @param mode 'parcel' 地块模式 | 'detail' 详情模式
+ */
+function handleLightingSubClick(mode: 'parcel' | 'detail') {
+  if (activeLightingMode.value === mode) {
+    // 点击已激活的子按钮：取消激活
+    activeLightingMode.value = '';
+    console.log(`[BigscreenMap] 取消${mode === 'parcel' ? '地块' : '详情'}模式`);
+    return;
+  }
+
+  activeLightingMode.value = mode;
+  if (mode === 'parcel') {
+    console.log('[BigscreenMap] 切换到地块模式');
+    // TODO: 绘制地块边界
+  } else if (mode === 'detail') {
+    console.log('[BigscreenMap] 切换到详情模式');
+    // TODO: 显示详情面板
   }
 }
 
@@ -893,6 +953,30 @@ onUnmounted(() => {
   gap: 12px;
   z-index: 10;
   pointer-events: auto;
+}
+
+/* 照明子按钮浮动容器：绝对定位在照明按钮上方 */
+.lighting-sub-float {
+  position: absolute;
+  bottom: 56px;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  animation: fade-slide-up 0.25s ease-out;
+}
+
+/* 子按钮样式微缩 */
+.sub-btn {
+  padding: 6px 14px !important;
+}
+
+.sub-btn .map-btn-icon {
+  font-size: 14px !important;
+}
+
+.sub-btn .map-btn-text {
+  font-size: 13px !important;
 }
 
 .map-btn {
@@ -1137,6 +1221,18 @@ onUnmounted(() => {
   100% {
     top: 100%;
     opacity: 0;
+  }
+}
+
+/* 照明子按钮展开动画 */
+@keyframes fade-slide-up {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 </style>
