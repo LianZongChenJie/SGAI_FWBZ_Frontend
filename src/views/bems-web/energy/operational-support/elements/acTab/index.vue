@@ -34,21 +34,11 @@
         <h3>❄️空调机组实时监测</h3>
         <div class="header-right">
           <div class="filter-bar">
-          <a-tree-select
-            v-model:value="meterSpace"
-            :tree-data="spaceTreeData"
-            :field-names="{ children: 'children', label: 'title', value: 'key', key: 'key' }"
-            placeholder="设备位置"
-            allow-clear
-            tree-default-expand-all
-            style="width: 200px"
-            :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
-            @change="handleSearch"
-          />
-          <!-- <a-select v-model:value="filterStatus" placeholder="全部状态" style="width: 140px" allow-clear @change="handleSearch">
+          <a-input v-model:value="searchForm.deviceName" placeholder="设备名称" allow-clear style="width: 160px" @pressEnter="handleSearch" />
+          <a-select v-model:value="searchForm.runState" placeholder="状态" allow-clear style="width: 120px" @change="handleSearch">
             <a-select-option value="在线">在线</a-select-option>
             <a-select-option value="离线">离线</a-select-option>
-          </a-select> -->
+          </a-select>
           <a-button type="primary" @click="handleSearch">🔍 查询</a-button>
           </div>
           <a-button type="primary" :loading="exportLoading" @click="handleExport" class="export-btn">
@@ -73,10 +63,10 @@
             <template v-if="column.key === 'spaceId'">
               {{ findTreeNodePath(spaceTreeData, record.spaceId) || record.spaceId }}
             </template>
-            <template v-if="column.key === 'runStop'">
-              <a-tag v-if="record.runStop === '1'" color="green">运行</a-tag>
+            <template v-if="column.key === 'runState'">
+              <a-tag v-if="record.runState === '在线'" color="green">{{record.runState}}</a-tag>
               <!-- <a-tag v-else-if="record.runStop === '待机'" color="orange">待机</a-tag> -->
-              <a-tag v-else color="red">停止</a-tag>
+              <a-tag v-else color="red">{{record.runState}}</a-tag>
             </template>
             <template v-if="column.key === 'action'">
               <a-button type="link" size="small" @click="handleControl(record)">控制</a-button>
@@ -91,10 +81,26 @@
     <div class="collapse-row">
       <div class="collapse-row__header">
         <h3>📊 图表区域</h3>
-        <button class="collapse-btn" @click="collapsedCharts = !collapsedCharts">
-          <CaretDownOutlined v-if="!collapsedCharts" />
-          <CaretUpOutlined v-else />
-        </button>
+        <div class="chart-header-right">
+          <a-select
+            v-model:value="selectedDeviceId"
+            placeholder="选择设备"
+            allow-clear
+            show-search
+            :filter-option="filterOption"
+            style="width: 200px"
+            :loading="deviceLoading"
+            @change="handleDeviceChange"
+          >
+            <a-select-option v-for="item in deviceOptions" :key="item.value" :value="item.value" :label="item.label">
+              {{ item.label }}
+            </a-select-option>
+          </a-select>
+          <button class="collapse-btn" @click="collapsedCharts = !collapsedCharts">
+            <CaretDownOutlined v-if="!collapsedCharts" />
+            <CaretUpOutlined v-else />
+          </button>
+        </div>
       </div>
     <div class="two-col" v-show="!collapsedCharts">
       <a-card class="analysis-card" :bordered="false">
@@ -247,11 +253,10 @@ import { ref, reactive, computed, h, onMounted, nextTick } from 'vue'
 import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined, DownloadOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 import { StatCard } from '/@/views/bems-web/components'
-import { getSpaceTree } from './index.api'
-import { getAcUnitList, getAcUnitStatistics, getDeviceAttrList, airControl, exportData } from './index.api'
+import { getSpaceTree, selectDevice, getAcUnitStatistics, getDeviceAttrList, airControl, exportData } from './index.api'
+import { getStatisticsByCategoryId } from '../../index.api'
 import { useECharts } from '/@/hooks/web/useECharts'
 import Ahu from '../../building-automation/ahu-1.vue'
-import { getAcCo2Data, getAcSupplyData, getAcReturnData } from '../chartData'
 import { buildTrendOption } from '../chartOptions'
 
 // 折叠状态
@@ -363,7 +368,6 @@ const avgCopIcon = () => h('span', { style: 'font-size: 20px;' }, '📈')
 defineOptions({ name: 'AcTab' })
 
 // 设备位置树数据
-const meterSpace = ref([])
 const spaceTreeData = ref<any[]>([])
 const loadSpaceTree = async () => {
   try {
@@ -385,14 +389,17 @@ const loadSpaceTree = async () => {
   }
 }
 
-// 递归查找树节点完整路径
+// 递归查找树节点完整路径（支持 space-xxx 格式的 key 匹配）
 const findTreeNodePath = (treeData: any[], key: string | number, separator = '-'): string => {
   if (!treeData || !Array.isArray(treeData)) return ''
   const findPath = (nodes: any[], path: string[]): string[] | null => {
     for (const node of nodes) {
       const label = node.title || node.value || node.label || ''
       const currentPath = [...path, label]
-      if (String(node.key) === String(key)) {
+      const nodeKey = String(node.key)
+      const searchKey = String(key)
+      // 精确匹配或带前缀匹配（如 space-1 匹配 1）
+      if (nodeKey === searchKey || nodeKey === `space-${searchKey}` || nodeKey.endsWith(`-${searchKey}`)) {
         return currentPath
       }
       if (node.children && Array.isArray(node.children)) {
@@ -406,23 +413,31 @@ const findTreeNodePath = (treeData: any[], key: string | number, separator = '-'
   return result ? result.join(separator) : ''
 }
 
-// 筛选条件
-const filterStatus = ref<string | undefined>(undefined)
+// 搜索表单
+const searchForm = reactive({
+  deviceName: '',
+  runState: undefined as string | undefined,
+})
 
 // 统计数据
 const statsData = reactive({
-  count: '--',
-  online: '--',
+  count: 0,
+  online: 0,
   energyConsumption: '--',
   avgCop: '--',
 })
 
 const loadStatistics = async () => {
   try {
+    // 使用新接口获取总数和在线数
+    const statRes = await getStatisticsByCategoryId(8)
+    const statData = statRes?.data ?? statRes ?? {}
+    statsData.count = statData.count ?? '--'
+    statsData.online = statData.online ?? '--'
+
+    // 其他统计数据保持原有接口
     const res = await getAcUnitStatistics()
     const data = res?.data ?? res ?? {}
-    statsData.count = data.count ?? '--'
-    statsData.online = data.online ?? '--'
     statsData.energyConsumption = data.energyConsumption ?? '--'
     statsData.avgCop = data.avgCop ?? '--'
   } catch (e) {
@@ -430,83 +445,96 @@ const loadStatistics = async () => {
   }
 }
 
-// 分页
-const pagination = reactive({
-  current: 1,
-  pageSize: 10,
-  total: 0,
-  showSizeChanger: true,
-  showQuickJumper: true,
-  showTotal: (total: number) => `共 ${total} 条数据`,
-  pageSizeOptions: ['10', '20', '50', '100'],
-})
+const findSpaceTitleById = (spaceId: string | number): string => {
+  if (!spaceId && spaceId !== 0) return ''
+  const findTitle = (nodes: any[]): string => {
+    for (const node of nodes) {
+      const nodeKey = String(node.key)
+      const searchKey = String(spaceId)
+      if (nodeKey === searchKey || nodeKey === `space-${searchKey}` || nodeKey.endsWith(`-${searchKey}`)) {
+        return node.title || node.value || node.label || ''
+      }
+      if (node.children && Array.isArray(node.children)) {
+        const title = findTitle(node.children)
+        if (title) return title
+      }
+    }
+    return ''
+  }
+  return findTitle(spaceTreeData.value)
+}
 
-// 动态属性列
-const attributeColumns = ref<any[]>([])
-
-// 表格列定义（固定3列 + 动态列 + 操作列）
-const columns = computed(() => [
+// 表格列定义（参考排风机）
+const columns = [
   {
     title: '序号',
     dataIndex: 'index',
     key: 'index',
-    width: 70,
+    width: 60,
     customRender: ({ index }: { index: number }) =>
-      (pagination.current - 1) * pagination.pageSize + index + 1,
+      (currentPage.value - 1) * pageSize.value + index + 1,
   },
-  { title: '机组编号', dataIndex: 'deviceCode', key: 'deviceCode', width: 110 },
-  { title: '位置', dataIndex: 'spaceId', key: 'spaceId', width: 150 },
-  { title: '运行状态', dataIndex: 'runStop', key: 'runStop', width: 100 },
-  ...attributeColumns.value.map((attr: any) => ({
-    title: attr.attributeName,
-    dataIndex: attr.attributeName,
-    key: attr.attributeName,
-    width: 120,
-  })),
-  { title: '操作', dataIndex: 'action', key: 'action', width: 80, fixed: 'right' },
-])
+  { title: '设备名称', dataIndex: 'deviceName', key: 'deviceName', width: 120 },
+  { title: '设备编号', dataIndex: 'deviceCode', key: 'deviceCode', width: 120 },
+  {
+    title: '设备位置',
+    dataIndex: 'spaceId',
+    key: 'spaceId',
+    width: 140,
+    customRender: ({ text, record }) => {
+      if (record.spaceName) return record.spaceName
+      if (!text && text !== 0) return ''
+      return findSpaceTitleById(text) || text
+    },
+  },
+  { title: '备注', dataIndex: 'remark', key: 'remark', width: 100 },
+  { title: '状态', dataIndex: 'runState', key: 'runState', width: 90 },
+  { title: '最后通讯时间', dataIndex: 'lastGatherTime', key: 'lastGatherTime', width: 160 },
+  { title: '操作', key: 'action', width: 80, fixed: 'right' as const },
+]
 
 // 表格数据
 const tableData = ref<any[]>([])
+const tableLoading = ref(false)
+const currentPage = ref(1)
+const pageSize = ref(10)
+const tableTotal = ref(0)
 
-// 加载空调机组列表
-const loadAcUnitList = async (pageNo = pagination.current, pageSize = pagination.pageSize, spaceId?: any, runStop?: string) => {
+const pagination = computed(() => ({
+  current: currentPage.value,
+  pageSize: pageSize.value,
+  total: tableTotal.value,
+  showSizeChanger: true,
+  showTotal: (total: number) => `共 ${total} 条`,
+}))
+
+/** 加载空调机组列表 */
+const loadTableData = async () => {
+  tableLoading.value = true
   try {
-    const params: any = { pageNo, pageSize }
-    if (spaceId) params.spaceId = spaceId
-    if (runStop) params.runStop = runStop
-    const res = await getAcUnitList(params)
-    pagination.total = res?.total ?? 0
-    const list = res?.records || res?.data || res || []
-
-    if (list.length > 0) {
-      attributeColumns.value = list[0].deviceAttributeList || []
-    }
-
-    tableData.value = list.map((item: any) => {
-      const attrs: Record<string, any> = {}
-      if (item.deviceAttributeList) {
-        item.deviceAttributeList.forEach((attr: any) => {
-          attrs[attr.attributeName] = attr.value ?? '--'
-        })
-      }
-      return {
-        deviceId: item.deviceId,
-        deviceCode: item.deviceCode ?? '--',
-        spaceId: item.spaceId ?? '--',
-        runStop: item.runStop ?? '--',
-        ...attrs,
-      }
+    const res = await selectDevice({
+      pageNo: currentPage.value,
+      pageSize: pageSize.value,
+      categoryIds: '8',
+      deviceName: searchForm.deviceName || undefined,
+      runState: searchForm.runState || undefined,
     })
-  } catch (e) {
-    console.error('加载空调机组列表失败:', e)
+    const list = res?.records || []
+    tableData.value = list
+    tableTotal.value = res?.total || 0
+  } catch (error) {
+    console.error('加载空调机组列表失败:', error)
+    tableData.value = []
+    tableTotal.value = 0
+  } finally {
+    tableLoading.value = false
   }
 }
 
 // 查询按钮
 const handleSearch = () => {
-  pagination.current = 1
-  loadAcUnitList(1, pagination.pageSize, meterSpace.value, filterStatus.value)
+  currentPage.value = 1
+  loadTableData()
 }
 
 // 详情弹窗
@@ -519,7 +547,7 @@ const handleDetail = async (record: any) => {
   detailVisible.value = true
   detailLoading.value = true
   try {
-    const res = await getDeviceAttrList({ deviceId: record.deviceId })
+    const res = await getDeviceAttrList({ deviceId: record.id })
     detailAttributes.value = res?.records || res?.data || res || []
   } catch (e) {
     console.error('查询设备属性失败:', e)
@@ -584,7 +612,7 @@ const handleControlSave = async () => {
     message.error('保存失败')
   } finally {
     controlVisible.value = false
-    loadAcUnitList()
+    loadTableData()
   }
 }
 
@@ -597,7 +625,8 @@ const handleExport = async () => {
   try {
     const res = await exportData({
       categoryIds: '8',
-      spaceId: meterSpace.value || undefined,
+      deviceName: searchForm.deviceName || undefined,
+      runState: searchForm.runState || undefined,
     })
     const blobOptions = { type: 'application/vnd.ms-excel' }
     const fileSuffix = '.xlsx'
@@ -619,9 +648,51 @@ const handleExport = async () => {
 
 // 表格分页变化
 const handleTableChange = (pag: any) => {
-  pagination.current = pag.current
-  pagination.pageSize = pag.pageSize
-  loadAcUnitList(pag.current, pag.pageSize, meterSpace.value, filterStatus.value)
+  currentPage.value = pag.current
+  pageSize.value = pag.pageSize
+  loadTableData()
+}
+
+// 图表区域设备选择
+const deviceLoading = ref(false)
+const deviceOptions = ref<{ label: string; value: string }[]>([])
+const selectedDeviceId = ref<string>('')
+
+/** 加载设备选项 */
+const loadDeviceOptions = async () => {
+  deviceLoading.value = true
+  try {
+    const res = await selectDevice({ pageNo: 1, pageSize: 999, categoryIds: '8' })
+    const list = res?.records || []
+    deviceOptions.value = list.map((item: any) => ({
+      label: item.deviceName,
+      value: String(item.id),
+    }))
+    // 默认选中第一项，并渲染图表
+    if (deviceOptions.value.length > 0) {
+      selectedDeviceId.value = deviceOptions.value[0].value
+      // 设备加载完成后渲染图表
+      await renderCo2Chart()
+      await renderTempChart()
+    }
+  } catch (error) {
+    console.error('加载设备选项失败:', error)
+    deviceOptions.value = []
+  } finally {
+    deviceLoading.value = false
+  }
+}
+
+/** 设备选择变化 */
+const handleDeviceChange = (deviceId: string) => {
+  selectedDeviceId.value = deviceId
+  renderCo2Chart()
+  renderTempChart()
+}
+
+/** 下拉筛选规则 */
+const filterOption = (input: string, option: any) => {
+  return option.label.toLowerCase().includes(input.toLowerCase())
 }
 
 // 回风二氧化碳图表
@@ -645,42 +716,76 @@ const handleTempTabChange = (key: 'supply' | 'return') => {
   renderTempChart()
 }
 
-/** 渲染回风二氧化碳图表（mock 数据） */
+/** 渲染回风二氧化碳图表 */
 const renderCo2Chart = async () => {
-  const data = getAcCo2Data()
-  const series = (data.chatSeriesList || []).filter((s: any) => s.name !== '合计')
-  if (!data.xaxis.length || !series.length) {
+  if (!selectedDeviceId.value) {
     hasCo2Data.value = false
     return
   }
-  hasCo2Data.value = true
-  await nextTick()
-  setCo2ChartOptions(buildTrendOption(
-    data.xaxis, series, 'ppm', true,
-    { lines: [{ y: 800, label: 'CO2 设定值 800 ppm' }] },
-    400, 880,
-  ))
+  try {
+    const { iconAreaCommon } = await import('../../index.api')
+    const res = await iconAreaCommon({
+      deviceIds: selectedDeviceId.value,
+      attributeName: '回风二氧化碳',
+      threshold: 800,
+    }) as any
+    const data = res?.data || res || {}
+    const xaxis = data.xaxis || data.xAxis || data.timeList || []
+    const series = (data.chatSeriesList || data.seriesList || data.series || []).filter((s: any) => s.name !== '合计')
+    if (!xaxis.length || !series.length) {
+      hasCo2Data.value = false
+      return
+    }
+    hasCo2Data.value = true
+    await nextTick()
+    setCo2ChartOptions(buildTrendOption(
+      xaxis, series, 'ppm', true,
+      { lines: [{ y: 800, label: 'CO2 设定值 800 ppm' }] },
+      400, 880,
+    ))
+  } catch (error) {
+    console.error('加载CO2数据失败:', error)
+    hasCo2Data.value = false
+  }
 }
 
-/** 渲染供回风温度趋势图表（mock 数据，送温/回温切换） */
+/** 渲染供回风温度趋势图表 */
 const renderTempChart = async () => {
-  const data = tempActive.value === 'return' ? getAcReturnData() : getAcSupplyData()
-  const series = (data.chatSeriesList || []).filter((s: any) => s.name !== '合计')
-  if (!data.xaxis.length || !series.length) {
+  if (!selectedDeviceId.value) {
     hasTempData.value = false
     return
   }
-  hasTempData.value = true
-  await nextTick()
-  setTempChartOptions(buildTrendOption(data.xaxis, series, '℃', true))
+  // 根据 tab 确定属性名称
+  const attributeName = tempActive.value === 'return' ? '回风温度' : '送风温度'
+  try {
+    const { iconAreaCommon } = await import('../../index.api')
+    const res = await iconAreaCommon({
+      deviceIds: selectedDeviceId.value,
+      attributeName,
+    }) as any
+    // 数据可能在 data 字段下，也可能直接在根级别
+    const data = res?.data || res || {}
+    const xaxis = data.xaxis || data.xAxis || data.timeList || []
+    const series = (data.chatSeriesList || data.seriesList || data.series || []).filter((s: any) => s.name !== '合计')
+    if (!xaxis.length || !series.length) {
+      hasTempData.value = false
+      return
+    }
+    hasTempData.value = true
+    await nextTick()
+    setTempChartOptions(buildTrendOption(xaxis, series, '℃', true))
+  } catch (error) {
+    console.error('加载温度数据失败:', error)
+    hasTempData.value = false
+  }
 }
 
 onMounted(() => {
   loadSpaceTree()
   loadStatistics()
-  renderCo2Chart()
-  renderTempChart()
-  loadAcUnitList()
+  // loadDeviceOptions 内部会在设备加载完成后自动渲染图表
+  loadDeviceOptions()
+  loadTableData()
 })
 </script>
 
@@ -897,6 +1002,13 @@ onMounted(() => {
       }
     }
   }
+}
+
+.chart-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
 }
 
 .collapse-btn {

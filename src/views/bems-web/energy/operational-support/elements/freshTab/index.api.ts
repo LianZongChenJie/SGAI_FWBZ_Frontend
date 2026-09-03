@@ -6,12 +6,24 @@ enum Api {
   pm25 = '/sgai-fwbz-dev/fwbz/operationSupport/pm25',
   freshSupplyAirTemperature = '/sgai-fwbz-dev/fwbz/operationSupport/freshSupplyAirTemperature',
   freshReturnAirTemperature = '/sgai-fwbz-dev/fwbz/operationSupport/freshReturnAirTemperature',
+  /** 设备空间位置 */
+  spaceTree = '/sgai-fwbz-dev/fwbz/device/findNameAndIdByCategory',
+  /** 设备属性列表（按设备ID查询） */
+  listByDeviceId = '/sgai-fwbz-dev/fwbz/deviceAttribute/listByDeviceId',
+  /** 设备列表 */
+  deviceList = '/sgai-fwbz-dev/fwbz/device/list',
 }
+
+/** 设备空间位置 */
+export const getSpaceTree = () => defHttp.get({ url: Api.spaceTree, params: { categoryIds: '17' } })
 
 /**
  * 新风机组列表
  */
 export const getFreshAirUnitList = (params = {}) => defHttp.get({ url: Api.freshAirHandlingUnitList, params })
+
+/** 设备列表（新风机组 categoryIds=17） */
+export const selectDevice = (params = {}) => defHttp.get({ url: Api.deviceList, params })
 
 /**
  * 新风机组统计
@@ -36,12 +48,12 @@ export const getFreshReturnAirTemperature = (params = {}) => defHttp.get({ url: 
 /**
  * 设备属性列表（按设备ID查询）
  */
-export const getDeviceAttrList = (params = {}) => defHttp.get({ url: '/sgai-fwbz-dev/fwbz/deviceAttribute/listByDeviceId', params })
+export const getDeviceAttrList = (params = {}) => defHttp.get({ url: Api.listByDeviceId, params })
 
 /**
  * 设备列表导出
  */
 export const airControl = (data: any[]) => defHttp.post({ url: '/sgai-fwbz-dev/fwbz/operationSupport/airControl', data })
 
-
-export const exportData = (params) => defHttp.get({ url: '/sgai-fwbz-dev/fwbz/device/export', params: params, responseType: 'blob' }, { isTransformResponse: false });
+/** 设备列表导出 */
+export const exportData = (params) => defHttp.get({ url: '/sgai-fwbz-dev/fwbz/device/export', params: params, responseType: 'blob' }, { isTransformResponse: false })

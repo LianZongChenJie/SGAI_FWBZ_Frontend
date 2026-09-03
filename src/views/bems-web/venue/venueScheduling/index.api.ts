@@ -24,7 +24,44 @@ enum Api {
   delExhibition = '/sgai-fwbz-dev/fwbz/activeMeet/info/delete',
   /** 导出场馆活动数据 */
   exportData = '/sgai-fwbz-dev/fwbz/activeMeet/info/export',
+
+  /** 详情弹窗内列表 */
+  detailList = '/sgai-fwbz-dev/fwbz/exhibitorInfo/listByVenueId',
 }
+
+/**
+ * 详情弹窗内列表接口返回字段
+ *
+ * ExhibitorInfo
+ */
+export interface ExhibitorInfo {
+    /**
+     * 展位号
+     */
+    boothNumber?: string;
+    /**
+     * 展商名称中文
+     */
+    exhibitorNameCn?: string;
+    /**
+     * 展商名称英文
+     */
+    exhibitorNameEn?: string;
+    /**
+     * 主键
+     */
+    id?: number;
+    /**
+     * 专题展名称
+     */
+    thematicTxhibitionTitle?: string;
+    /**
+     * 场馆id
+     */
+    venueId?: number;
+    [property: string]: any;
+}
+
 
 /**
  * 会展列表
@@ -238,3 +275,6 @@ export const getSummaryCardList = () => defHttp.get({ url: Api.summaryCardList }
 /** 导出场馆活动数据（入参 startDate、endDate） */
 export const exportData = (params: { startDate: string; endDate: string }) =>
   defHttp.get({ url: Api.exportData, params, responseType: 'blob' }, { isTransformResponse: false });
+
+/** 根据场馆ID获取 exhibitor 详情列表 */
+export const getDetailList = (params: { venueId: number }) => defHttp.get<ExhibitorInfo[]>({ url: Api.detailList, params });

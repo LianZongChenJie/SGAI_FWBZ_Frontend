@@ -77,10 +77,26 @@
     <div class="collapse-row">
       <div class="collapse-row__header">
         <h3>📊 图表区域</h3>
-        <button class="collapse-btn" @click="collapsedCharts = !collapsedCharts">
-          <CaretDownOutlined v-if="!collapsedCharts" />
-          <CaretUpOutlined v-else />
-        </button>
+        <div class="chart-header-right">
+          <a-select
+            v-model:value="selectedDeviceId"
+            placeholder="选择设备"
+            allow-clear
+            show-search
+            :filter-option="filterOption"
+            style="width: 200px"
+            :loading="deviceLoading"
+            @change="handleDeviceChange"
+          >
+            <a-select-option v-for="item in deviceOptions" :key="item.value" :value="item.value" :label="item.label">
+              {{ item.label }}
+            </a-select-option>
+          </a-select>
+          <button class="collapse-btn" @click="collapsedCharts = !collapsedCharts">
+            <CaretDownOutlined v-if="!collapsedCharts" />
+            <CaretUpOutlined v-else />
+          </button>
+        </div>
       </div>
     <div class="two-col" v-show="!collapsedCharts">
       <a-card class="analysis-card" :bordered="false">
@@ -186,10 +202,10 @@
 import { ref, reactive, computed, h, onMounted, nextTick } from 'vue'
 import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined, DownloadOutlined } from '@ant-design/icons-vue'
 import { StatCard } from '/@/views/bems-web/components'
-import { getSpaceTree, getDeviceAttrList, selectDevice, exportData } from './index.api'
+import { getSpaceTree, getDeviceAttrList, selectDevice, exportData, getSumpPitSummary } from './index.api'
+import { getStatisticsByCategoryId } from '../../index.api'
 import Sump from '../../building-automation/sump.vue'
 import { useECharts } from '/@/hooks/web/useECharts'
-import { getSumpLevelData, getSumpPumpData, TAB_REF } from '../chartData'
 import { buildTrendOption, buildBarOption } from '../chartOptions'
 
 // 自定义 emoji 图标组件
@@ -329,10 +345,52 @@ const handleSpaceSelect = (keys: (string | number)[]) => {
   loadDeviceAttrList(key)
 }
 
+// 图表区域设备选择
+const deviceLoading = ref(false)
+const deviceOptions = ref<{ label: string; value: string }[]>([])
+const selectedDeviceId = ref<string>('')
+
+/** 加载设备选项 */
+const loadDeviceOptions = async () => {
+  deviceLoading.value = true
+  try {
+    const res = await selectDevice({ pageNo: 1, pageSize: 999, categoryIds: '34' })
+    const list = res?.records || []
+    deviceOptions.value = list.map((item: any) => ({
+      label: item.deviceName,
+      value: String(item.id),
+    }))
+    // 默认选中第一项，并渲染图表
+    if (deviceOptions.value.length > 0) {
+      selectedDeviceId.value = deviceOptions.value[0].value
+      await renderLevelChart()
+      await renderPumpChart()
+    }
+  } catch (error) {
+    console.error('加载设备选项失败:', error)
+    deviceOptions.value = []
+  } finally {
+    deviceLoading.value = false
+  }
+}
+
+/** 设备选择变化 */
+const handleDeviceChange = (deviceId: string) => {
+  selectedDeviceId.value = deviceId
+  renderLevelChart()
+  renderPumpChart()
+}
+
+/** 下拉筛选规则 */
+const filterOption = (input: string, option: any) => {
+  return option.label.toLowerCase().includes(input.toLowerCase())
+}
+
 onMounted(() => {
   loadSpaceTree()
+  loadStatistics()
   loadTableData()
-  loadCharts()
+  loadDeviceOptions()
 })
 
 // 液位趋势图表
@@ -345,28 +403,59 @@ const pumpChartRef = ref<HTMLDivElement>()
 const hasPumpData = ref(false)
 const { setOptions: setPumpChartOptions } = useECharts(pumpChartRef as any)
 
-/** 渲染液位趋势与排水泵统计图表（mock 数据） */
-const loadCharts = async () => {
-  await nextTick()
-  // 图1 液位趋势
-  const levelData = getSumpLevelData()
-  const levelSeries = (levelData.chatSeriesList || []).filter((s: any) => s.name !== '合计')
-  if (!levelData.xaxis.length || !levelSeries.length) {
+/** 渲染液位趋势图表 */
+const renderLevelChart = async () => {
+  if (!selectedDeviceId.value) {
     hasLevelData.value = false
-  } else {
+    return
+  }
+  try {
+    const { iconAreaCommon } = await import('../../index.api')
+    const res = await iconAreaCommon({
+      deviceIds: selectedDeviceId.value,
+      attributeName: '液位',
+    }) as any
+    const data = res?.data || res || {}
+    const xaxis = data.xaxis || data.xAxis || data.timeList || []
+    const series = (data.chatSeriesList || data.seriesList || data.series || []).filter((s: any) => s.name !== '合计')
+    if (!xaxis.length || !series.length) {
+      hasLevelData.value = false
+      return
+    }
     hasLevelData.value = true
     await nextTick()
-    setLevelChartOptions(buildTrendOption(levelData.xaxis, levelSeries, 'm', true, TAB_REF.sump_level))
+    setLevelChartOptions(buildTrendOption(xaxis, series, 'm', true))
+  } catch (error) {
+    console.error('加载液位数据失败:', error)
+    hasLevelData.value = false
   }
+}
 
-  // 图2 排水泵统计（柱状）
-  const pumpData = getSumpPumpData()
-  if (!pumpData.categories.length || !pumpData.series.length) {
+/** 渲染排水泵运行统计图表 */
+const renderPumpChart = async () => {
+  if (!selectedDeviceId.value) {
     hasPumpData.value = false
-  } else {
+    return
+  }
+  try {
+    const { iconAreaCommon } = await import('../../index.api')
+    const res = await iconAreaCommon({
+      deviceIds: selectedDeviceId.value,
+      attributeName: '排水泵运行时长',
+    }) as any
+    const data = res?.data || res || {}
+    const categories = data.categories || data.xaxis || data.xAxis || []
+    const series = data.chatSeriesList || data.seriesList || data.series || []
+    if (!categories.length || !series.length) {
+      hasPumpData.value = false
+      return
+    }
     hasPumpData.value = true
     await nextTick()
-    setPumpChartOptions(buildBarOption(pumpData.categories, pumpData.series, pumpData.unit))
+    setPumpChartOptions(buildBarOption(categories, series, data.unit || 'h'))
+  } catch (error) {
+    console.error('加载排水泵数据失败:', error)
+    hasPumpData.value = false
   }
 }
 
@@ -378,6 +467,25 @@ const statsData = ref({
   fault: 0,
 })
 
+/** 加载汇总统计数据 */
+const loadStatistics = async () => {
+  try {
+    // 使用新接口获取总数和在线数
+    const statRes = await getStatisticsByCategoryId(34)
+    const statData = statRes?.data ?? statRes ?? {}
+    statsData.value.count = statData.count ?? 0
+    statsData.value.online = statData.online ?? 0
+
+    // 其他统计数据保持原有接口
+    const res = await getSumpPitSummary()
+    const data = res?.data ?? res ?? {}
+    statsData.value.alarm = data.liquidLevelAlarmCount ?? 0
+    statsData.value.fault = data.faultDeviceCount ?? 0
+  } catch (e) {
+    console.error('获取集水坑汇总数据失败:', e)
+  }
+}
+
 // 搜索表单
 const searchForm = reactive({
   deviceName: '',
@@ -385,6 +493,25 @@ const searchForm = reactive({
 })
 
 // 表格列定义（参考楼控设备列表）
+const findSpaceTitleById = (spaceId: string | number): string => {
+  if (!spaceId && spaceId !== 0) return ''
+  const findTitle = (nodes: any[]): string => {
+    for (const node of nodes) {
+      const nodeKey = String(node.key)
+      const searchKey = String(spaceId)
+      if (nodeKey === searchKey || nodeKey === `space-${searchKey}` || nodeKey.endsWith(`-${searchKey}`)) {
+        return node.title || node.value || node.label || ''
+      }
+      if (node.children && Array.isArray(node.children)) {
+        const title = findTitle(node.children)
+        if (title) return title
+      }
+    }
+    return ''
+  }
+  return findTitle(spaceTreeData.value)
+}
+
 const columns = [
   {
     title: '序号',
@@ -396,7 +523,17 @@ const columns = [
   },
   { title: '设备名称', dataIndex: 'deviceName', key: 'deviceName', width: 120 },
   { title: '设备编号', dataIndex: 'deviceCode', key: 'deviceCode', width: 120 },
-  { title: '设备位置', dataIndex: 'spaceName', key: 'spaceName', width: 140 },
+  {
+    title: '设备位置',
+    dataIndex: 'spaceId',
+    key: 'spaceId',
+    width: 140,
+    customRender: ({ text, record }) => {
+      if (record.spaceName) return record.spaceName
+      if (!text && text !== 0) return ''
+      return findSpaceTitleById(text) || text
+    },
+  },
   { title: '备注', dataIndex: 'remark', key: 'remark', width: 100 },
   { title: '状态', dataIndex: 'runState', key: 'runState', width: 90 },
   { title: '最后通讯时间', dataIndex: 'lastGatherTime', key: 'lastGatherTime', width: 160 },
@@ -432,9 +569,6 @@ const loadTableData = async () => {
     const list = res?.records || []
     tableData.value = list
     tableTotal.value = res?.total || 0
-    // 更新统计数据
-    statsData.value.count = tableTotal.value
-    statsData.value.online = list.filter((item: any) => item.runState === '在线').length
   } catch (error) {
     console.error('加载集水坑列表失败:', error)
     tableData.value = []
@@ -721,6 +855,13 @@ const handleDetail = async (record: any) => {
       }
     }
   }
+}
+
+.chart-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
 }
 
 .collapse-btn {

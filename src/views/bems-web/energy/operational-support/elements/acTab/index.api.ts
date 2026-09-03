@@ -10,7 +10,7 @@ enum Api {
   /** 设备空间位置 */
   spaceTree = '/sgai-fwbz-dev/fwbz/device/findNameAndIdByCategory',
   /** 设备基础信息列表 */
-  deviceBaseInfoList = '/sgai-fwbz-dev/fwbz/device/list',
+  deviceList = '/sgai-fwbz-dev/fwbz/device/list',
 }
 
 /**
@@ -41,8 +41,8 @@ export interface Request {
 }
 
 
-/** 设备信息列表 */
-export const getDeviceBaseInfoList = (params = {}) => defHttp.get({ url: Api.deviceBaseInfoList, params: {...params, categoryId: '8'} })
+/** 设备信息列表（空调机组 categoryIds=8） */
+export const selectDevice = (params = {}) => defHttp.get({ url: Api.deviceList, params })
 
 /**
  * 空调机组实时监测列表
@@ -80,7 +80,9 @@ export const getDeviceAttrList = (params = {}) => defHttp.get({ url: Api.listByD
 export const airControl = (data: any[]) => defHttp.post({ url: '/sgai-fwbz-dev/fwbz/operationSupport/airControl', data })
 
 /** 设备空间位置 */
-export const getSpaceTree = () => defHttp.get({ url: Api.spaceTree, params: {categoryIds: '8'} });
+export const getSpaceTree = () => defHttp.get({ url: Api.spaceTree, params: {categoryIds: '8'} })
 
 /** 设备列表导出 */
-export const exportData = (params) => defHttp.get({ url: '/sgai-fwbz-dev/fwbz/device/export', params: params, responseType: 'blob' }, { isTransformResponse: false });
+export const exportData = (params) => defHttp.get({ url: '/sgai-fwbz-dev/fwbz/device/export', params: params, responseType: 'blob' }, { isTransformResponse: false })
+
+

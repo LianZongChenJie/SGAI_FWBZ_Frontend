@@ -79,10 +79,26 @@
     <div class="collapse-row">
       <div class="collapse-row__header">
         <h3>📊 图表区域</h3>
-        <button class="collapse-btn" @click="collapsedCharts = !collapsedCharts">
-          <CaretDownOutlined v-if="!collapsedCharts" />
-          <CaretUpOutlined v-else />
-        </button>
+        <div class="chart-header-right">
+          <a-select
+            v-model:value="selectedDeviceId"
+            placeholder="选择设备"
+            allow-clear
+            show-search
+            :filter-option="filterOption"
+            style="width: 200px"
+            :loading="deviceLoading"
+            @change="handleDeviceChange"
+          >
+            <a-select-option v-for="item in deviceOptions" :key="item.value" :value="item.value" :label="item.label">
+              {{ item.label }}
+            </a-select-option>
+          </a-select>
+          <button class="collapse-btn" @click="collapsedCharts = !collapsedCharts">
+            <CaretDownOutlined v-if="!collapsedCharts" />
+            <CaretUpOutlined v-else />
+          </button>
+        </div>
       </div>
     <div class="two-col" v-show="!collapsedCharts">
       <a-card class="analysis-card" :bordered="false">
@@ -173,9 +189,9 @@
 import { ref, reactive, computed, onMounted, nextTick, h } from 'vue'
 import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined, DownloadOutlined } from '@ant-design/icons-vue'
 import { StatCard } from '/@/views/bems-web/components'
-import { selectDevice, getDeviceAttrList, getHeatRecoveryStatistics, exportData } from './index.api'
+import { selectDevice, getDeviceAttrList, getHeatRecoveryStatistics, exportData, getSpaceTree } from './index.api'
+import { getStatisticsByCategoryId } from '../../index.api'
 import { useECharts } from '/@/hooks/web/useECharts'
-import { getHeatRecoveryEnergyData, getHeatRecoveryEffData } from '../chartData'
 import { buildTrendOption } from '../chartOptions'
 
 // 自定义 emoji 图标组件
@@ -201,6 +217,17 @@ defineProps<{
   data?: any
 }>()
 
+// 设备位置树数据
+const spaceTreeData = ref<any[]>([])
+const loadSpaceTree = async () => {
+  try {
+    const res = await getSpaceTree()
+    spaceTreeData.value = Array.isArray(res) ? res : (res.data || res.records || [])
+  } catch (e) {
+    console.error('加载空间树数据失败:', e)
+  }
+}
+
 // 统计数据
 const statsData = ref({
   count: '--',
@@ -212,10 +239,15 @@ const statsData = ref({
 /** 加载汇总统计数据 */
 const loadStatistics = async () => {
   try {
+    // 使用新接口获取总数和在线数（⚠️ 当前代码中热回收机组categoryIds为37，请确认是否正确）
+    const statRes = await getStatisticsByCategoryId(37)
+    const statData = statRes?.data ?? statRes ?? {}
+    statsData.value.count = statData.count ?? '--'
+    statsData.value.online = statData.online ?? '--'
+
+    // 其他统计数据保持原有接口
     const res = await getHeatRecoveryStatistics()
     const data = res?.data ?? res ?? {}
-    statsData.value.count = data.count ?? '--'
-    statsData.value.online = data.online ?? '--'
     statsData.value.energyConsumption = data.energyConsumption ?? '--'
     statsData.value.efficiency = data.efficiency ?? '--'
   } catch (e) {
@@ -229,7 +261,26 @@ const searchForm = reactive({
   runState: undefined as string | undefined,
 })
 
-// 表格列定义（参考楼控设备列表）
+const findSpaceTitleById = (spaceId: string | number): string => {
+  if (!spaceId && spaceId !== 0) return ''
+  const findTitle = (nodes: any[]): string => {
+    for (const node of nodes) {
+      const nodeKey = String(node.key)
+      const searchKey = String(spaceId)
+      if (nodeKey === searchKey || nodeKey === `space-${searchKey}` || nodeKey.endsWith(`-${searchKey}`)) {
+        return node.title || node.value || node.label || ''
+      }
+      if (node.children && Array.isArray(node.children)) {
+        const title = findTitle(node.children)
+        if (title) return title
+      }
+    }
+    return ''
+  }
+  return findTitle(spaceTreeData.value)
+}
+
+// 表格列定义
 const columns = [
   {
     title: '序号',
@@ -241,7 +292,17 @@ const columns = [
   },
   { title: '设备名称', dataIndex: 'deviceName', key: 'deviceName', width: 120 },
   { title: '设备编号', dataIndex: 'deviceCode', key: 'deviceCode', width: 120 },
-  { title: '设备位置', dataIndex: 'spaceName', key: 'spaceName', width: 140 },
+  {
+    title: '设备位置',
+    dataIndex: 'spaceId',
+    key: 'spaceId',
+    width: 140,
+    customRender: ({ text, record }) => {
+      if (record.spaceName) return record.spaceName
+      if (!text && text !== 0) return ''
+      return findSpaceTitleById(text) || text
+    },
+  },
   { title: '备注', dataIndex: 'remark', key: 'remark', width: 100 },
   { title: '状态', dataIndex: 'runState', key: 'runState', width: 90 },
   { title: '最后通讯时间', dataIndex: 'lastGatherTime', key: 'lastGatherTime', width: 160 },
@@ -347,10 +408,52 @@ const handleDetail = async (record: any) => {
   }
 }
 
+// 图表区域设备选择
+const deviceLoading = ref(false)
+const deviceOptions = ref<{ label: string; value: string }[]>([])
+const selectedDeviceId = ref<string>('')
+
+/** 加载设备选项 */
+const loadDeviceOptions = async () => {
+  deviceLoading.value = true
+  try {
+    const res = await selectDevice({ pageNo: 1, pageSize: 999, categoryIds: '37' })
+    const list = res?.records || []
+    deviceOptions.value = list.map((item: any) => ({
+      label: item.deviceName,
+      value: String(item.id),
+    }))
+    // 默认选中第一项，并渲染图表
+    if (deviceOptions.value.length > 0) {
+      selectedDeviceId.value = deviceOptions.value[0].value
+      await renderEnergyChart()
+      await renderEffChart()
+    }
+  } catch (error) {
+    console.error('加载设备选项失败:', error)
+    deviceOptions.value = []
+  } finally {
+    deviceLoading.value = false
+  }
+}
+
+/** 设备选择变化 */
+const handleDeviceChange = (deviceId: string) => {
+  selectedDeviceId.value = deviceId
+  renderEnergyChart()
+  renderEffChart()
+}
+
+/** 下拉筛选规则 */
+const filterOption = (input: string, option: any) => {
+  return option.label.toLowerCase().includes(input.toLowerCase())
+}
+
 onMounted(() => {
+  loadSpaceTree()
   loadStatistics()
   loadTableData()
-  loadCharts()
+  loadDeviceOptions()
 })
 
 // 热回收能耗趋势图表
@@ -363,29 +466,59 @@ const effChartRef = ref<HTMLDivElement>()
 const hasEffData = ref(false)
 const { setOptions: setEffChartOptions } = useECharts(effChartRef as any)
 
-/** 渲染热回收能耗趋势与回收效率图表（mock 数据） */
-const loadCharts = async () => {
-  await nextTick()
-  // 图1 能耗趋势
-  const energyData = getHeatRecoveryEnergyData()
-  const energySeries = (energyData.chatSeriesList || []).filter((s: any) => s.name !== '合计')
-  if (!energyData.xaxis.length || !energySeries.length) {
+/** 渲染热回收能耗趋势图表 */
+const renderEnergyChart = async () => {
+  if (!selectedDeviceId.value) {
     hasEnergyData.value = false
-  } else {
+    return
+  }
+  try {
+    const { iconAreaCommon } = await import('../../index.api')
+    const res = await iconAreaCommon({
+      deviceIds: selectedDeviceId.value,
+      attributeName: '回收热量',
+    }) as any
+    const data = res?.data || res || {}
+    const xaxis = data.xaxis || data.xAxis || data.timeList || []
+    const series = (data.chatSeriesList || data.seriesList || data.series || []).filter((s: any) => s.name !== '合计')
+    if (!xaxis.length || !series.length) {
+      hasEnergyData.value = false
+      return
+    }
     hasEnergyData.value = true
     await nextTick()
-    setEnergyChartOptions(buildTrendOption(energyData.xaxis, energySeries, 'kWh'))
+    setEnergyChartOptions(buildTrendOption(xaxis, series, 'kWh'))
+  } catch (error) {
+    console.error('加载能耗数据失败:', error)
+    hasEnergyData.value = false
   }
+}
 
-  // 图2 回收效率
-  const effData = getHeatRecoveryEffData()
-  const effSeries = (effData.chatSeriesList || []).filter((s: any) => s.name !== '合计')
-  if (!effData.xaxis.length || !effSeries.length) {
+/** 渲染排风温度回收效率图表 */
+const renderEffChart = async () => {
+  if (!selectedDeviceId.value) {
     hasEffData.value = false
-  } else {
+    return
+  }
+  try {
+    const { iconAreaCommon } = await import('../../index.api')
+    const res = await iconAreaCommon({
+      deviceIds: selectedDeviceId.value,
+      attributeName: '热回收效率',
+    }) as any
+    const data = res?.data || res || {}
+    const xaxis = data.xaxis || data.xAxis || data.timeList || []
+    const series = (data.chatSeriesList || data.seriesList || data.series || []).filter((s: any) => s.name !== '合计')
+    if (!xaxis.length || !series.length) {
+      hasEffData.value = false
+      return
+    }
     hasEffData.value = true
     await nextTick()
-    setEffChartOptions(buildTrendOption(effData.xaxis, effSeries, '%', true))
+    setEffChartOptions(buildTrendOption(xaxis, series, '%', true))
+  } catch (error) {
+    console.error('加载回收效率数据失败:', error)
+    hasEffData.value = false
   }
 }
 </script>
@@ -605,6 +738,13 @@ const loadCharts = async () => {
       }
     }
   }
+}
+
+.chart-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
 }
 
 .collapse-btn {

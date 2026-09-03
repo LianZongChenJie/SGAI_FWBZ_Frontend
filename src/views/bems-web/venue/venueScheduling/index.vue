@@ -40,6 +40,28 @@
 
         <!-- 新增排期弹窗 -->
         <EventFormModal ref="eventFormModalRef" @success="handleAddEventSuccess" />
+
+        <!-- 场馆详情弹窗 -->
+        <a-modal
+          v-model:visible="detailVisible"
+          :title="`${currentVenueName} - 展商信息`"
+          :footer="null"
+          width="800px"
+          destroy-on-close
+        >
+          <a-table
+            :columns="detailColumns"
+            :data-source="detailList"
+            :loading="detailLoading"
+            :pagination="false"
+            row-key="id"
+            size="middle"
+          >
+            <template #emptyText>
+              <a-empty description="暂无展商信息" />
+            </template>
+          </a-table>
+        </a-modal>
     </div>
 </template>
 
@@ -49,8 +71,8 @@ import dayjs from 'dayjs'
 import { StatCard } from '/@/views/bems-web/components';
 import { EventSchedule, VenueManagement } from './elements/index';
 import VenueFormModal from './elements/venueManagement/VenueFormModal.vue';
-import { getVenueInfoList, getExhibitionList, getExhibitionMonthList, delExhibition, getSummaryCardList } from './index.api';
-import type { VenueItem, ActiveMeetInfo, StatItem } from './index.api';
+import { getVenueInfoList, getExhibitionList, getExhibitionMonthList, delExhibition, getSummaryCardList, getDetailList } from './index.api';
+import type { VenueItem, ActiveMeetInfo, StatItem, ExhibitorInfo } from './index.api';
 import type { DaySchedule } from './elements/eventSchedule/index.api';
 import EventFormModal from './elements/eventSchedule/EventFormModal.vue';
 import {
@@ -165,9 +187,32 @@ const handleAddSuccess = () => {
   fetchVenueData()
 }
 
+// ===== 详情弹窗 =====
+const detailVisible = ref(false)
+const detailLoading = ref(false)
+const detailList = ref<ExhibitorInfo[]>([])
+const currentVenueName = ref('')
+
+const fetchDetailList = async (venueId: number) => {
+  detailLoading.value = true
+  try {
+    const res = await getDetailList({ venueId }) as any
+    detailList.value = Array.isArray(res) ? res : (res?.records || res?.data || [])
+  } catch (error) {
+    console.error('获取详情列表失败:', error)
+    detailList.value = []
+  } finally {
+    detailLoading.value = false
+  }
+}
+
 const handleVenueDetail = (record: VenueItem) => {
-  console.log('查看详情:', record)
-  // TODO: 跳转详情页或打开详情弹窗
+  currentVenueName.value = record.venueName || ''
+  detailVisible.value = true
+  detailList.value = []
+  if (record.id) {
+    fetchDetailList(record.id)
+  }
 }
 
 const handleTableChange = (paginationData: any) => {
@@ -185,6 +230,14 @@ const handleAddEvent = () => {
 const handleAddEventSuccess = () => {
   fetchScheduleData()
 }
+
+// 详情弹窗表格列定义
+const detailColumns = [
+  { title: '展位号', dataIndex: 'boothNumber', key: 'boothNumber', width: 120 },
+  { title: '专题展名称', dataIndex: 'thematicTxhibitionTitle', key: 'thematicTxhibitionTitle', width: 180 },
+  { title: '展商名称（中文）', dataIndex: 'exhibitorNameCn', key: 'exhibitorNameCn', width: 200 },
+  { title: '展商名称（英文）', dataIndex: 'exhibitorNameEn', key: 'exhibitorNameEn', width: 200 },
+]
 
 /** 删除会展活动 */
 const handleDeleteEvent = async (event: ActiveMeetInfo) => {

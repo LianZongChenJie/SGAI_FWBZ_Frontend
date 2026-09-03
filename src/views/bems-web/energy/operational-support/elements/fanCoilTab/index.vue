@@ -79,10 +79,26 @@
     <div class="collapse-row">
       <div class="collapse-row__header">
         <h3>📊 图表区域</h3>
-        <button class="collapse-btn" @click="collapsedCharts = !collapsedCharts">
-          <CaretDownOutlined v-if="!collapsedCharts" />
-          <CaretUpOutlined v-else />
-        </button>
+        <div class="chart-header-right">
+          <a-select
+            v-model:value="selectedDeviceId"
+            placeholder="选择设备"
+            allow-clear
+            show-search
+            :filter-option="filterOption"
+            style="width: 200px"
+            :loading="deviceLoading"
+            @change="handleDeviceChange"
+          >
+            <a-select-option v-for="item in deviceOptions" :key="item.value" :value="item.value" :label="item.label">
+              {{ item.label }}
+            </a-select-option>
+          </a-select>
+          <button class="collapse-btn" @click="collapsedCharts = !collapsedCharts">
+            <CaretDownOutlined v-if="!collapsedCharts" />
+            <CaretUpOutlined v-else />
+          </button>
+        </div>
       </div>
     <div class="two-col" v-show="!collapsedCharts">
       <a-card class="analysis-card" :bordered="false">
@@ -189,9 +205,9 @@ import { ref, reactive, computed, h, onMounted, nextTick } from 'vue'
 import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined, DownloadOutlined } from '@ant-design/icons-vue'
 import { StatCard } from '/@/views/bems-web/components'
 import { getSpaceTree, getDeviceAttrList, selectDevice, getFanCoilStatistics, exportData } from './index.api'
+import { getStatisticsByCategoryId } from '../../index.api'
 import Fcu from '../../building-automation/fcu.vue'
 import { useECharts } from '/@/hooks/web/useECharts'
-import { getFcuEnergyData, getFcuWaterData } from '../chartData'
 import { buildTrendOption } from '../chartOptions'
 
 // 自定义 emoji 图标组件
@@ -331,11 +347,52 @@ const handleSpaceSelect = (keys: (string | number)[]) => {
   loadDeviceAttrList(key)
 }
 
+// 图表区域设备选择
+const deviceLoading = ref(false)
+const deviceOptions = ref<{ label: string; value: string }[]>([])
+const selectedDeviceId = ref<string>('')
+
+/** 加载设备选项 */
+const loadDeviceOptions = async () => {
+  deviceLoading.value = true
+  try {
+    const res = await selectDevice({ pageNo: 1, pageSize: 999, categoryIds: '40' })
+    const list = res?.records || []
+    deviceOptions.value = list.map((item: any) => ({
+      label: item.deviceName,
+      value: String(item.id),
+    }))
+    // 默认选中第一项，并渲染图表
+    if (deviceOptions.value.length > 0) {
+      selectedDeviceId.value = deviceOptions.value[0].value
+      await renderEnergyChart()
+      await renderWaterChart()
+    }
+  } catch (error) {
+    console.error('加载设备选项失败:', error)
+    deviceOptions.value = []
+  } finally {
+    deviceLoading.value = false
+  }
+}
+
+/** 设备选择变化 */
+const handleDeviceChange = (deviceId: string) => {
+  selectedDeviceId.value = deviceId
+  renderEnergyChart()
+  renderWaterChart()
+}
+
+/** 下拉筛选规则 */
+const filterOption = (input: string, option: any) => {
+  return option.label.toLowerCase().includes(input.toLowerCase())
+}
+
 onMounted(() => {
   loadStatistics()
   loadSpaceTree()
   loadTableData()
-  loadCharts()
+  loadDeviceOptions()
 })
 
 // 风机盘管能耗趋势图表
@@ -348,29 +405,59 @@ const waterChartRef = ref<HTMLDivElement>()
 const hasWaterData = ref(false)
 const { setOptions: setWaterChartOptions } = useECharts(waterChartRef as any)
 
-/** 渲染风机盘管能耗趋势与供回水温度图表（mock 数据） */
-const loadCharts = async () => {
-  await nextTick()
-  // 图1 能耗趋势
-  const energyData = getFcuEnergyData()
-  const energySeries = (energyData.chatSeriesList || []).filter((s: any) => s.name !== '合计')
-  if (!energyData.xaxis.length || !energySeries.length) {
+/** 渲染风机盘管能耗趋势图表 */
+const renderEnergyChart = async () => {
+  if (!selectedDeviceId.value) {
     hasEnergyData.value = false
-  } else {
+    return
+  }
+  try {
+    const { iconAreaCommon } = await import('../../index.api')
+    const res = await iconAreaCommon({
+      deviceIds: selectedDeviceId.value,
+      attributeName: '能耗',
+    }) as any
+    const data = res?.data || res || {}
+    const xaxis = data.xaxis || data.xAxis || data.timeList || []
+    const series = (data.chatSeriesList || data.seriesList || data.series || []).filter((s: any) => s.name !== '合计')
+    if (!xaxis.length || !series.length) {
+      hasEnergyData.value = false
+      return
+    }
     hasEnergyData.value = true
     await nextTick()
-    setEnergyChartOptions(buildTrendOption(energyData.xaxis, energySeries, 'kWh'))
+    setEnergyChartOptions(buildTrendOption(xaxis, series, 'kWh'))
+  } catch (error) {
+    console.error('加载能耗数据失败:', error)
+    hasEnergyData.value = false
   }
+}
 
-  // 图2 供回水温度
-  const waterData = getFcuWaterData()
-  const waterSeries = (waterData.chatSeriesList || []).filter((s: any) => s.name !== '合计')
-  if (!waterData.xaxis.length || !waterSeries.length) {
+/** 渲染供回水温度曲线图表 */
+const renderWaterChart = async () => {
+  if (!selectedDeviceId.value) {
     hasWaterData.value = false
-  } else {
+    return
+  }
+  try {
+    const { iconAreaCommon } = await import('../../index.api')
+    const res = await iconAreaCommon({
+      deviceIds: selectedDeviceId.value,
+      attributeName: '供水温度',
+    }) as any
+    const data = res?.data || res || {}
+    const xaxis = data.xaxis || data.xAxis || data.timeList || []
+    const series = (data.chatSeriesList || data.seriesList || data.series || []).filter((s: any) => s.name !== '合计')
+    if (!xaxis.length || !series.length) {
+      hasWaterData.value = false
+      return
+    }
     hasWaterData.value = true
     await nextTick()
-    setWaterChartOptions(buildTrendOption(waterData.xaxis, waterSeries, '℃', true))
+    setWaterChartOptions(buildTrendOption(xaxis, series, '℃', true))
+  } catch (error) {
+    console.error('加载供回水温度数据失败:', error)
+    hasWaterData.value = false
   }
 }
 
@@ -385,10 +472,15 @@ const statsData = ref({
 /** 加载汇总统计数据 */
 const loadStatistics = async () => {
   try {
+    // 使用新接口获取总数和在线数
+    const statRes = await getStatisticsByCategoryId(40)
+    const statData = statRes?.data ?? statRes ?? {}
+    statsData.value.count = statData.count ?? '--'
+    statsData.value.online = statData.online ?? '--'
+
+    // 其他统计数据保持原有接口
     const res = await getFanCoilStatistics()
     const data = res?.data ?? res ?? {}
-    statsData.value.count = data.count ?? '--'
-    statsData.value.online = data.online ?? '--'
     statsData.value.energyConsumption = data.energyConsumption ?? '--'
     statsData.value.avgTemp = data.avgTemp ?? '--'
   } catch (e) {
@@ -402,7 +494,26 @@ const searchForm = reactive({
   runState: undefined as string | undefined,
 })
 
-// 表格列定义（参考楼控设备列表）
+const findSpaceTitleById = (spaceId: string | number): string => {
+  if (!spaceId && spaceId !== 0) return ''
+  const findTitle = (nodes: any[]): string => {
+    for (const node of nodes) {
+      const nodeKey = String(node.key)
+      const searchKey = String(spaceId)
+      if (nodeKey === searchKey || nodeKey === `space-${searchKey}` || nodeKey.endsWith(`-${searchKey}`)) {
+        return node.title || node.value || node.label || ''
+      }
+      if (node.children && Array.isArray(node.children)) {
+        const title = findTitle(node.children)
+        if (title) return title
+      }
+    }
+    return ''
+  }
+  return findTitle(spaceTreeData.value)
+}
+
+// 表格列定义
 const columns = [
   {
     title: '序号',
@@ -414,7 +525,17 @@ const columns = [
   },
   { title: '设备名称', dataIndex: 'deviceName', key: 'deviceName', width: 120 },
   { title: '设备编号', dataIndex: 'deviceCode', key: 'deviceCode', width: 120 },
-  { title: '设备位置', dataIndex: 'spaceName', key: 'spaceName', width: 140 },
+  {
+    title: '设备位置',
+    dataIndex: 'spaceId',
+    key: 'spaceId',
+    width: 140,
+    customRender: ({ text, record }) => {
+      if (record.spaceName) return record.spaceName
+      if (!text && text !== 0) return ''
+      return findSpaceTitleById(text) || text
+    },
+  },
   { title: '备注', dataIndex: 'remark', key: 'remark', width: 100 },
   { title: '状态', dataIndex: 'runState', key: 'runState', width: 90 },
   { title: '最后通讯时间', dataIndex: 'lastGatherTime', key: 'lastGatherTime', width: 160 },
@@ -736,6 +857,13 @@ const handleDetail = async (record: any) => {
       }
     }
   }
+}
+
+.chart-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
 }
 
 .collapse-btn {

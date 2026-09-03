@@ -89,7 +89,7 @@ import { ref, reactive, computed, h, onMounted } from 'vue';
 import { StatCard, DeviceCard} from '/@/views/bems-web/components';
 import ControlPanel from '../controlPanel/index.vue';
 import type { LightingControlItem } from '../controlPanel/index.api';
-import { getOverviewStatistics, getEquipmentOverview } from './index.api';
+import { getOverviewStatistics, getDeviceStat, SystemDeviceStatVO } from './index.api';
 import { getCategoryTreeData } from '/@/views/bems-web/equipment/equipmentManagement/elements/device/Device.api';
 
 
@@ -157,25 +157,24 @@ const equipmentLoading = ref(false)
 const loadEquipmentOverview = async () => {
   equipmentLoading.value = true
   try {
-    const res = await getEquipmentOverview()
-    const list = res?.records || res?.data?.records || res?.data || res || []
-    const items = Array.isArray(list) ? list : []
-    allData.value = items.map((item: any) => {
-      const categoryName = item.category?.categoryName || item.title || item.name || ''
-      const cfg = iconConfig[categoryName] || { icon: AirConditionerIcon, iconBg: '#e6f4ff', iconColor: '#1677ff' }
+    const res = await getDeviceStat() as any
+    const list: SystemDeviceStatVO[] = Array.isArray(res) ? res : (res?.data || res?.records || [])
+    allData.value = list.map((item: SystemDeviceStatVO) => {
+      const systemName = item.systemName || ''
+      const cfg = iconConfig[systemName] || { icon: AirConditionerIcon, iconBg: '#e6f4ff', iconColor: '#1677ff' }
       return {
-        title: categoryName,
-        meta: item.meta || item.system || '',
+        title: systemName,
+        meta: `在线率 ${item.onlineRate ?? 0}%`,
         icon: cfg.icon,
         iconBg: cfg.iconBg,
         iconColor: cfg.iconColor,
-        stats: item.stats || [
-          { label: '总数', value: item.count ?? 0 },
-          { label: '运行', value: item.online ?? 0 },
-          { label: '故障', value: item.offline ?? 0, highlight: (item.offline ?? 0) > 0 },
+        stats: [
+          { label: '总数', value: item.deviceCount ?? 0 },
+          { label: '在线', value: item.online ?? 0 },
+          { label: '离线', value: (item.deviceCount ?? 0) - (item.online ?? 0), highlight: ((item.deviceCount ?? 0) - (item.online ?? 0)) > 0 },
         ],
-        system: item.system || item.meta || '',
-        venue: item.venue || '',
+        system: systemName,
+        venue: '',
       }
     })
   } catch (e) {

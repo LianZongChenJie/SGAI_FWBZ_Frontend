@@ -85,10 +85,26 @@
     <div class="collapse-row">
       <div class="collapse-row__header">
         <h3>📊 图表区域</h3>
-        <button class="collapse-btn" @click="collapsedCharts = !collapsedCharts">
-          <CaretDownOutlined v-if="!collapsedCharts" />
-          <CaretUpOutlined v-else />
-        </button>
+        <div class="chart-header-right">
+          <a-select
+            v-model:value="selectedDeviceId"
+            placeholder="选择设备"
+            allow-clear
+            show-search
+            :filter-option="filterOption"
+            style="width: 200px"
+            :loading="deviceLoading"
+            @change="handleDeviceChange"
+          >
+            <a-select-option v-for="item in deviceOptions" :key="item.value" :value="item.value" :label="item.label">
+              {{ item.label }}
+            </a-select-option>
+          </a-select>
+          <button class="collapse-btn" @click="collapsedCharts = !collapsedCharts">
+            <CaretDownOutlined v-if="!collapsedCharts" />
+            <CaretUpOutlined v-else />
+          </button>
+        </div>
       </div>
       <div class="two-col" v-show="!collapsedCharts">
         <a-card class="analysis-card" :bordered="false">
@@ -153,7 +169,6 @@ import { ref, reactive, h, onMounted, nextTick } from 'vue'
 import { CaretDownOutlined, CaretUpOutlined } from '@ant-design/icons-vue'
 import { StatCard } from '/@/views/bems-web/components'
 import { useECharts } from '/@/hooks/web/useECharts'
-import { getColdCopData, getColdCapacityData } from '../chartData'
 import { buildTrendOption } from '../chartOptions'
 import { getColdUnitList, getColdUnitDetail, getUnitTypeList, exportColdUnitList } from './index.api'
 import type { ColdSourceEquipmentCategory, ColdSourceDevicePageDto, ColdSourceDeviceDetailDto } from './index.api'
@@ -356,6 +371,47 @@ const handleDetail = async (record: ColdSourceDevicePageDto) => {
   }
 }
 
+// 图表区域设备选择
+const deviceLoading = ref(false)
+const deviceOptions = ref<{ label: string; value: string }[]>([])
+const selectedDeviceId = ref<string>('')
+
+/** 加载设备选项 */
+const loadDeviceOptions = async () => {
+  deviceLoading.value = true
+  try {
+    const res = await getColdUnitList({ pageNo: 1, pageSize: 999 })
+    const list = res?.records || []
+    deviceOptions.value = list.map((item: any) => ({
+      label: item.deviceName,
+      value: String(item.id),
+    }))
+    // 默认选中第一项，并渲染图表
+    if (deviceOptions.value.length > 0) {
+      selectedDeviceId.value = deviceOptions.value[0].value
+      await renderCopChart()
+      await renderCapacityChart()
+    }
+  } catch (error) {
+    console.error('加载设备选项失败:', error)
+    deviceOptions.value = []
+  } finally {
+    deviceLoading.value = false
+  }
+}
+
+/** 设备选择变化 */
+const handleDeviceChange = (deviceId: string) => {
+  selectedDeviceId.value = deviceId
+  renderCopChart()
+  renderCapacityChart()
+}
+
+/** 下拉筛选规则 */
+const filterOption = (input: string, option: any) => {
+  return option.label.toLowerCase().includes(input.toLowerCase())
+}
+
 // 冷源系统能效趋势(COP)图表
 const copChartRef = ref<HTMLDivElement>()
 const hasCopData = ref(false)
@@ -366,29 +422,59 @@ const capacityChartRef = ref<HTMLDivElement>()
 const hasCapacityData = ref(false)
 const { setOptions: setCapacityChartOptions } = useECharts(capacityChartRef as any)
 
-/** 加载图表数据 */
-const loadCharts = async () => {
-  await nextTick()
-  // COP 趋势
-  const copData = getColdCopData()
-  const copSeries = (copData.chatSeriesList || []).filter((s: any) => s.name !== '合计')
-  if (!copData.xaxis.length || !copSeries.length) {
+/** 渲染COP趋势图表 */
+const renderCopChart = async () => {
+  if (!selectedDeviceId.value) {
     hasCopData.value = false
-  } else {
+    return
+  }
+  try {
+    const { iconAreaCommon } = await import('../../index.api')
+    const res = await iconAreaCommon({
+      deviceIds: selectedDeviceId.value,
+      attributeName: 'COP',
+    }) as any
+    const data = res?.data || res || {}
+    const xaxis = data.xaxis || data.xAxis || data.timeList || []
+    const series = (data.chatSeriesList || data.seriesList || data.series || []).filter((s: any) => s.name !== '合计')
+    if (!xaxis.length || !series.length) {
+      hasCopData.value = false
+      return
+    }
     hasCopData.value = true
     await nextTick()
-    setCopChartOptions(buildTrendOption(copData.xaxis, copSeries, 'COP', false, undefined, 2, 10))
+    setCopChartOptions(buildTrendOption(xaxis, series, 'COP', false, undefined, 2, 10))
+  } catch (error) {
+    console.error('加载COP数据失败:', error)
+    hasCopData.value = false
   }
+}
 
-  // 制冷量
-  const capData = getColdCapacityData()
-  const capSeries = (capData.chatSeriesList || []).filter((s: any) => s.name !== '合计')
-  if (!capData.xaxis.length || !capSeries.length) {
+/** 渲染制冷量图表 */
+const renderCapacityChart = async () => {
+  if (!selectedDeviceId.value) {
     hasCapacityData.value = false
-  } else {
+    return
+  }
+  try {
+    const { iconAreaCommon } = await import('../../index.api')
+    const res = await iconAreaCommon({
+      deviceIds: selectedDeviceId.value,
+      attributeName: '制冷量',
+    }) as any
+    const data = res?.data || res || {}
+    const xaxis = data.xaxis || data.xAxis || data.timeList || []
+    const series = (data.chatSeriesList || data.seriesList || data.series || []).filter((s: any) => s.name !== '合计')
+    if (!xaxis.length || !series.length) {
+      hasCapacityData.value = false
+      return
+    }
     hasCapacityData.value = true
     await nextTick()
-    setCapacityChartOptions(buildTrendOption(capData.xaxis, capSeries, 'kW'))
+    setCapacityChartOptions(buildTrendOption(xaxis, series, 'kW'))
+  } catch (error) {
+    console.error('加载制冷量数据失败:', error)
+    hasCapacityData.value = false
   }
 }
 
@@ -396,7 +482,7 @@ onMounted(() => {
   loadUnitTypeList()
   loadStatistics()
   loadTableData()
-  loadCharts()
+  loadDeviceOptions()
 })
 </script>
 
@@ -581,6 +667,13 @@ onMounted(() => {
         gap: 6px;
       }
     }
+  }
+
+  .chart-header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: auto;
   }
 }
 

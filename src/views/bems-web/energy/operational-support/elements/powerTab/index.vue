@@ -90,10 +90,26 @@
     <div class="collapse-row">
       <div class="collapse-row__header">
         <h3>📊 图表区域</h3>
-        <button class="collapse-btn" @click="collapsedCharts = !collapsedCharts">
-          <CaretDownOutlined v-if="!collapsedCharts" />
-          <CaretUpOutlined v-else />
-        </button>
+        <div class="chart-header-right">
+          <a-select
+            v-model:value="selectedDeviceId"
+            placeholder="选择设备"
+            allow-clear
+            show-search
+            :filter-option="filterOption"
+            style="width: 200px"
+            :loading="deviceLoading"
+            @change="handleDeviceChange"
+          >
+            <a-select-option v-for="item in deviceOptions" :key="item.value" :value="item.value" :label="item.label">
+              {{ item.label }}
+            </a-select-option>
+          </a-select>
+          <button class="collapse-btn" @click="collapsedCharts = !collapsedCharts">
+            <CaretDownOutlined v-if="!collapsedCharts" />
+            <CaretUpOutlined v-else />
+          </button>
+        </div>
       </div>
     <div class="two-col" v-show="!collapsedCharts">
       <a-card class="analysis-card" :bordered="false">
@@ -183,7 +199,6 @@ import { StatCard } from '/@/views/bems-web/components'
 import { spaceTree } from '/@/views/bems-web/equipment/equipmentManagement/elements/device/Device.api'
 import { getPowerUnitList, getPowerStatistics, getDeviceAttrList, exportData } from './index.api'
 import { useECharts } from '/@/hooks/web/useECharts'
-import { getForwardActiveData, getForwardReactiveData } from '../chartData'
 import { buildBarOption } from '../chartOptions'
 
 // 自定义 emoji 图标组件
@@ -404,6 +419,47 @@ const handleTableChange = (pag: any) => {
   loadPowerUnitList(pag.current, pag.pageSize, meterSpace.value, filterStatus.value)
 }
 
+// 图表区域设备选择
+const deviceLoading = ref(false)
+const deviceOptions = ref<{ label: string; value: string }[]>([])
+const selectedDeviceId = ref<string>('')
+
+/** 加载设备选项 */
+const loadDeviceOptions = async () => {
+  deviceLoading.value = true
+  try {
+    const res = await getPowerUnitList({ pageNo: 1, pageSize: 999 })
+    const list = res?.records || []
+    deviceOptions.value = list.map((item: any) => ({
+      label: item.deviceName,
+      value: String(item.deviceId),
+    }))
+    // 默认选中第一项，并渲染图表
+    if (deviceOptions.value.length > 0) {
+      selectedDeviceId.value = deviceOptions.value[0].value
+      await renderActiveChart()
+      await renderReactiveChart()
+    }
+  } catch (error) {
+    console.error('加载设备选项失败:', error)
+    deviceOptions.value = []
+  } finally {
+    deviceLoading.value = false
+  }
+}
+
+/** 设备选择变化 */
+const handleDeviceChange = (deviceId: string) => {
+  selectedDeviceId.value = deviceId
+  renderActiveChart()
+  renderReactiveChart()
+}
+
+/** 下拉筛选规则 */
+const filterOption = (input: string, option: any) => {
+  return option.label.toLowerCase().includes(input.toLowerCase())
+}
+
 // 有功功率柱状图
 const activeChartRef = ref<HTMLDivElement>()
 const hasActiveData = ref(false)
@@ -414,27 +470,59 @@ const reactiveChartRef = ref<HTMLDivElement>()
 const hasReactiveData = ref(false)
 const { setOptions: setReactiveChartOptions } = useECharts(reactiveChartRef as any)
 
-/** 渲染正向有功与正向无功图表（mock 数据） */
-const loadPowerCharts = async () => {
-  await nextTick()
-  // 图1 正向有功
-  const activeData = getForwardActiveData()
-  if (!activeData.categories.length || !activeData.series.length) {
+/** 渲染正向有功图表 */
+const renderActiveChart = async () => {
+  if (!selectedDeviceId.value) {
     hasActiveData.value = false
-  } else {
+    return
+  }
+  try {
+    const { iconAreaCommon } = await import('../../index.api')
+    const res = await iconAreaCommon({
+      deviceIds: selectedDeviceId.value,
+      attributeName: '正向有功',
+    }) as any
+    const data = res?.data || res || {}
+    const categories = data.categories || data.xaxis || data.xAxis || []
+    const series = data.chatSeriesList || data.seriesList || data.series || []
+    if (!categories.length || !series.length) {
+      hasActiveData.value = false
+      return
+    }
     hasActiveData.value = true
     await nextTick()
-    setActiveChartOptions(buildBarOption(activeData.categories, activeData.series, activeData.unit))
+    setActiveChartOptions(buildBarOption(categories, series, data.unit || 'kWh'))
+  } catch (error) {
+    console.error('加载正向有功数据失败:', error)
+    hasActiveData.value = false
   }
+}
 
-  // 图2 正向无功
-  const reactiveData = getForwardReactiveData()
-  if (!reactiveData.categories.length || !reactiveData.series.length) {
+/** 渲染正向无功图表 */
+const renderReactiveChart = async () => {
+  if (!selectedDeviceId.value) {
     hasReactiveData.value = false
-  } else {
+    return
+  }
+  try {
+    const { iconAreaCommon } = await import('../../index.api')
+    const res = await iconAreaCommon({
+      deviceIds: selectedDeviceId.value,
+      attributeName: '正向无功',
+    }) as any
+    const data = res?.data || res || {}
+    const categories = data.categories || data.xaxis || data.xAxis || []
+    const series = data.chatSeriesList || data.seriesList || data.series || []
+    if (!categories.length || !series.length) {
+      hasReactiveData.value = false
+      return
+    }
     hasReactiveData.value = true
     await nextTick()
-    setReactiveChartOptions(buildBarOption(reactiveData.categories, reactiveData.series, reactiveData.unit))
+    setReactiveChartOptions(buildBarOption(categories, series, data.unit || 'kWh'))
+  } catch (error) {
+    console.error('加载正向无功数据失败:', error)
+    hasReactiveData.value = false
   }
 }
 
@@ -442,7 +530,7 @@ onMounted(() => {
   loadSpaceTree()
   loadStatistics()
   loadPowerUnitList()
-  loadPowerCharts()
+  loadDeviceOptions()
 })
 </script>
 
@@ -682,6 +770,13 @@ onMounted(() => {
       }
     }
   }
+}
+
+.chart-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
 }
 
 .collapse-btn {

@@ -7,6 +7,24 @@ enum Api {
   listByDeviceId = '/sgai-fwbz-dev/fwbz/deviceAttribute/listByDeviceId',
   /** 设备列表 */
   deviceList = '/sgai-fwbz-dev/fwbz/device/list',
+  /** 集水坑汇总信息 */
+  sumpPitSummary = '/sgai-fwbz-dev/fwbz/collectionPitStatistics/statistics',
+}
+
+/**
+ * 集水坑汇总信息
+ *
+ */
+export interface CollectionPitStatisticsDto {
+    /**
+     * 故障设备总数
+     */
+    faultDeviceCount?: number;
+    /**
+     * 液位告警设备数
+     */
+    liquidLevelAlarmCount?: number;
+    [property: string]: any;
 }
 
 /**
@@ -24,6 +42,11 @@ export interface ResultListDevice {
 
 /** 设备空间位置 */
 export const getSpaceTree = () => defHttp.get({ url: Api.spaceTree, params: { categoryIds: '34' } })
+
+/**
+ * 集水坑汇总信息
+ */
+export const getSumpPitSummary = () => defHttp.get<{ data: CollectionPitStatisticsDto }>({ url: Api.sumpPitSummary })
 
 /**
  * 设备属性列表（按设备ID查询）
