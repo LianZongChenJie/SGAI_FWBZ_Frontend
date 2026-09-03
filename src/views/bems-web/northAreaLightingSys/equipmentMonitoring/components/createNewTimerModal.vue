@@ -109,7 +109,7 @@
                 >
                   <vxe-column type="checkbox" width="45" fixed="left" v-if="!isDetail"></vxe-column>
                   <vxe-column type="seq" title="序号" width="60" fixed="left"></vxe-column>
-                  <vxe-column field="spaceName" title="区域" min-width="120" show-overflow v-if="formData.relType !== '场景'"></vxe-column>
+                  <vxe-column :field="['回路', '区域'].includes(formData.relType) ? 'districtName' : 'spaceName'" title="区域" min-width="120" show-overflow v-if="formData.relType !== '场景'"></vxe-column>
                   <vxe-column field="areaName" title="名称" min-width="140" show-overflow v-if="formData.relType !== '场景'"></vxe-column>
                   <vxe-column title="名称" min-width="160" show-overflow v-if="formData.relType === '场景'">
                     <template #default="{ row }">{{ row.sceneName || row.planName || '-' }}</template>
@@ -331,7 +331,9 @@ watch(filterCircuitName, (val) => {
 const spaceFilterOptions = computed(() => {
   const set = new Set<string>();
   tableData.value.forEach((item) => {
-    if (item.spaceName) set.add(item.spaceName);
+    const field = ['回路', '区域'].includes(formData.relType) ? 'districtName' : 'spaceName';
+    const value = item[field];
+    if (value) set.add(value);
   });
   return Array.from(set).map((name) => ({ label: name, value: name }));
 });
@@ -340,7 +342,8 @@ const spaceFilterOptions = computed(() => {
 const filteredTableData = computed(() => {
   let data = tableData.value;
   if (filterSpaceName.value) {
-    data = data.filter((item) => item.spaceName === filterSpaceName.value);
+    const field = ['回路', '区域'].includes(formData.relType) ? 'districtName' : 'spaceName';
+    data = data.filter((item) => item[field] === filterSpaceName.value);
   }
   if (debouncedAreaName.value) {
     const kw = debouncedAreaName.value.toLowerCase();

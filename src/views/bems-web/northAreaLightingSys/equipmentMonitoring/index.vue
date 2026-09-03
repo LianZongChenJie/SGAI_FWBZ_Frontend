@@ -185,7 +185,7 @@
                     <span style="padding-left: 3px;" class="info-value">{{ s.updateTime || '-' }}</span>
                   </div>
                 </div>
-                <div class="scene-actions">
+                <div v-auth="'northAreaLighting:switch'" class="scene-actions">
                   <div class="scene-actions-left">
                     <button :loading="btnCloseOpenLoaidng" class="btn btn-primary btn-sm" @click="onExecute(s)">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12" style="margin-right:4px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
@@ -252,7 +252,7 @@
               />
               <button class="btn btn-primary" @click="onSceneSearch">查询</button>
               <button class="btn btn-outline" @click="onSceneSearchReset" style="margin-right: 5%;">重置</button>
-              <button class="btn btn-primary" @click="onAddScene">
+              <button v-auth="'northAreaLighting:switch'" class="btn btn-primary" @click="onAddScene">
                 <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <line x1="12" y1="5" x2="12" y2="19"/>
                   <line x1="5" y1="12" x2="19" y2="12"/>
@@ -319,23 +319,23 @@
                 </div>
                 <div class="scene-actions">
                   <div class="scene-actions-left">
-                    <button :loading="btnCloseOpenLoaidng" class="btn btn-primary btn-sm" @click="onExecute(s)">
+                    <button v-auth="'northAreaLighting:switch'" :loading="btnCloseOpenLoaidng" class="btn btn-primary btn-sm" @click="onExecute(s)">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12" style="margin-right:4px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
                       开启
                     </button>
-                    <button :loading="btnCloseOpenLoaidng" class="btn btn-danger btn-sm" @click="onDeleteScene(s)">
+                    <button v-auth="'northAreaLighting:switch'" :loading="btnCloseOpenLoaidng" class="btn btn-danger btn-sm" @click="onDeleteScene(s)">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12" style="margin-right:4px"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
                       关闭
                     </button>
                   </div>
                   <div class="scene-actions-right">
-                    <button class="scene-icon-btn" title="编辑" @click="onEditScene(s)">
+                    <button v-auth="'northAreaLighting:switch'" class="scene-icon-btn" title="编辑" @click="onEditScene(s)">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
                         <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
                       </svg>
                     </button>
-                    <button v-if="s.category !== '一键开关'" class="scene-icon-btn danger" title="删除" @click="onDeleteSceneBtn(s)">
+                    <button v-auth="'northAreaLighting:switch'" v-if="s.category !== '一键开关'" class="scene-icon-btn danger" title="删除" @click="onDeleteSceneBtn(s)">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="3 6 5 6 21 6"/>
                         <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
@@ -400,7 +400,7 @@
               <button class="btn btn-primary" @click="onTimerSearch">查询</button>
               <button class="btn btn-outline" @click="onTimerReset">重置</button>
               <button class="btn btn-outline" @click="onExportTimer" style="margin-right: 5%;">导出数据</button>
-              <button class="btn btn-primary" @click="onAddTimer">
+              <button v-auth="'northAreaLighting:switch'" class="btn btn-primary" @click="onAddTimer">
                 <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <line x1="12" y1="5" x2="12" y2="19"/>
                   <line x1="5" y1="12" x2="19" y2="12"/>
@@ -423,7 +423,7 @@
                   <th style="width: 13%">周期</th>
                   <th style="width: 8%">控制指令</th>
                   <th style="width: 7%">状态</th>
-                  <th style="width: 17%">操作</th>
+                  <th :style="{ width: opColumnWidth }">操作</th>
                 </tr>
               </thead>
               <tbody>
@@ -443,7 +443,7 @@
                     >{{ row.status }}</span>
                   </td>
                   <td class="timer-actions">
-                    <button v-if="row.status === '禁用'" class="btn btn-secondary" @click="onEditTimer(row, 'edit')">编辑</button>
+                    <button v-auth="'northAreaLighting:switch'" v-if="row.status === '禁用'" class="btn btn-secondary" @click="onEditTimer(row, 'edit')">编辑</button>
                     <button v-else class="btn btn-secondary" @click="onEditTimer(row, 'detail')">详情</button>
                    
                     <a-popconfirm
@@ -453,10 +453,11 @@
                       cancel-text="取消"
                       @confirm="handleDelete(row)"
                     >
-                      <button class="btn btn-danger">删除</button>
+                      <button v-auth="'northAreaLighting:switch'" class="btn btn-danger">删除</button>
                     </a-popconfirm>
 
                     <button
+                      v-auth="'northAreaLighting:switch'"
                       v-if="row.status != '启用'"
                       class="btn btn-success"
                       @click="onToggleTimer(row)"
@@ -464,6 +465,7 @@
                      <template v-else>
                       <a-popconfirm title="确认禁用该条计划？" ok-text="确定" cancel-text="取消" @confirm="handleDisable(row)">
                         <button
+                          v-auth="'northAreaLighting:switch'"
                           class="btn btn-danger"
                         >禁用</button>
                       </a-popconfirm>
@@ -477,6 +479,7 @@
                       @confirm="handleExecuteNow(row)"
                     >
                       <button
+                      v-auth="'northAreaLighting:switch'"
                       class="btn btn-success"
                     >立即执行</button>
                     </a-popconfirm>
@@ -569,6 +572,11 @@ import { getAllDistrictTag } from '@/api/baseSettingBqZm';
 import { exportExcel } from '/@/utils/export';
 import { message } from 'ant-design-vue';
 import VideoPlayer from './components/VideoPlayer.vue'
+import { usePermission } from '/@/hooks/web/usePermission';
+
+const { hasPermission } = usePermission();
+// 操作列宽度：有 northAreaLighting:switch 权限时按钮全部展示，宽度 17%；无权限仅展示 1 个按钮，宽度 10%
+const opColumnWidth = computed(() => (hasPermission('northAreaLighting:switch') ? '17%' : '10%'));
 
 // 定时任务 src\views\bems\lightingControl\components\TimingControl.vue
 

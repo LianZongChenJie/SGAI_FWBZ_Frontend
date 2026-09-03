@@ -112,13 +112,13 @@
               <div style="font-size: 0.32rem; margin-bottom: 0.1rem">☀️</div>
               <div style="font-weight: 600; margin-bottom: 0.05rem">全区开灯</div>
               <div style="font-size: 0.12rem; color: var(--text2); margin-bottom: 0.15rem">开启所有地块照明</div>
-              <button class="btn btn-success" style="width: 100%" @click="handleAllOn">全开</button>
+              <button v-auth="'northAreaLighting:switch'" class="btn btn-success" style="width: 100%" @click="handleAllOn">全开</button>
             </div>
             <div class="control-box">
               <div style="font-size: 0.32rem; margin-bottom: 0.1rem">🌙</div>
               <div style="font-weight: 600; margin-bottom: 0.05rem">全区关灯</div>
               <div style="font-size: 0.12rem; color: var(--text2); margin-bottom: 0.15rem">关闭所有地块照明</div>
-              <button class="btn btn-danger" style="width: 100%" @click="handleAllOff">全关</button>
+              <button v-auth="'northAreaLighting:switch'" class="btn btn-danger" style="width: 100%" @click="handleAllOff">全关</button>
             </div>
           </div>
         </div>
@@ -142,9 +142,9 @@
                 <td>{{ item.openCount }}</td>
                 <td>{{ item.closeCount }}</td>
                 <td>
-                  <button class="btn btn-sm btn-success" style="padding: 0.04rem 0.12rem; font-size: 0.12rem" @click="handleControlOn(item)">开</button>
-                  <button class="btn btn-sm btn-danger" style="margin-left: 0.06rem; padding: 0.04rem 0.12rem; font-size: 0.12rem" @click="handleControlOff(item)">关</button>
-                  <button class="btn btn-sm btn-primary" style="margin-left: 0.06rem; padding: 0.04rem 0.12rem; font-size: 0.12rem" @click.stop="openVideoModal(item.spaceName)">监控视频</button>
+                  <button v-auth="'northAreaLighting:switch'" class="btn btn-sm btn-success" style="padding: 0.04rem 0.12rem; font-size: 0.12rem" @click="handleControlOn(item)">开</button>
+                  <button v-auth="'northAreaLighting:switch'" class="btn btn-sm btn-danger" style="margin-left: 0.06rem; padding: 0.04rem 0.12rem; font-size: 0.12rem" @click="handleControlOff(item)">关</button>
+                  <button class="btn btn-sm btn-primary" style="margin-left: 0.06rem; padding: 0.04rem 0.12rem; font-size: 0.12rem" @click.stop="openVideoModal(item)">监控视频</button>
                 </td>
               </tr>
             </tbody>
@@ -241,7 +241,7 @@
               <th style="width: 13%">周期</th>
               <th style="width: 8%">控制指令</th>
               <th style="width: 7%">状态</th>
-              <th style="width: 17%">操作</th>
+              <th :style="{ width: opColumnWidth }">操作</th>
             </tr>
           </thead>
           <tbody>
@@ -283,6 +283,7 @@
                   <a-popconfirm title="确认禁用该条计划？" ok-text="确定" cancel-text="取消" @confirm="handleDisable(row)">
                     <button
                       class="btn btn-danger"
+                      v-auth="'northAreaLighting:switch'"
                     >禁用</button>
                   </a-popconfirm>
                 </template>
@@ -295,7 +296,8 @@
                   @confirm="handleExecuteNow(row)"
                 >
                   <button
-                  class="btn btn-success"
+                   v-auth="'northAreaLighting:switch'"
+                   class="btn btn-success"
                 >立即执行</button>
                 </a-popconfirm>
               </td>
@@ -408,7 +410,7 @@
         <a-tab-pane key="control" tab="一键开关">
           <div class="light-pane">
             <!-- 一键开关（最上边） -->
-            <div class="pane-switch">
+            <div v-auth="'northAreaLighting:switch'" class="pane-switch">
               <button class="icon-btn with-text" @click="handleLightAreaOn" title="全开">
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
                   <circle cx="12" cy="12" r="5"/>
@@ -575,7 +577,7 @@
         :style="{ top: spaceMenu.y + 'px', left: spaceMenu.x + 'px' }"
         @click.stop
       >
-        <div class="space-menu-item" :class="{ 'is-active': activeMenuItem === 'all' }" @click="onMenuItemClick('all')">
+        <div v-auth="'northAreaLighting:switch'" class="space-menu-item" :class="{ 'is-active': activeMenuItem === 'all' }" @click="onMenuItemClick('all')">
           <span class="menu-label">一键开关</span>
         </div>
         <div class="space-menu-item" :class="{ 'is-active': activeMenuItem === 'scene' }" @click="onMenuItemClick('scene')">
@@ -659,7 +661,7 @@
               </vxe-column>
               <vxe-column title="操作" width="110" align="center">
                 <template #default="{ row }">
-                  <div class="scene-btn-group">
+                  <div v-auth="'northAreaLighting:switch'" class="scene-btn-group">
                     <button class="scene-action-btn on-btn" @click.stop="handleSpaceSceneOn(row)">开</button>
                     <button class="scene-action-btn off-btn" @click.stop="handleSpaceSceneOff(row)">关</button>
                   </div>
@@ -793,11 +795,12 @@
             />
           </div>
           <div class="filter-item">
-            <label class="filter-label">操作类型</label>
-            <select v-model="operationType" class="select">
+            <label class="filter-label">类型</label>
+            <select v-model="relTypeFilter" class="select">
               <option value="">全部</option>
-              <option value="开">开启</option>
-              <option value="关">关闭</option>
+              <option value="回路">回路</option>
+              <option value="区域">区域</option>
+              <option value="场景">场景</option>
             </select>
           </div>
           <div class="filter-item">
@@ -811,6 +814,23 @@
             />
           </div>
           <div class="filter-item">
+            <label class="filter-label">操作状态</label>
+            <select v-model="operationType" class="select">
+              <option value="">全部</option>
+              <option value="开">开启</option>
+              <option value="关">关闭</option>
+            </select>
+          </div>
+          <div class="filter-item">
+            <label class="filter-label">触发类型</label>
+            <select v-model="operatorTypeFilter" class="select">
+              <option value="">全部</option>
+              <option value="定时">定时</option>
+              <option value="手动">手动</option>
+              <option value="场景">场景</option>
+            </select>
+          </div>
+          <div class="filter-item">
             <el-button type="primary" @click="onSearch">查询</el-button>
             <el-button @click="onReset">重置</el-button>
             <el-button @click="onExportLog">导出数据</el-button>
@@ -819,6 +839,7 @@
         <div class="table-wrapper">
           <table class="log-table">
             <colgroup>
+              <col style="width: 60px;" />
               <col style="width: 100px;" />
               <col style="width: 70px;" />
               <col style="width: 230px;" />
@@ -829,6 +850,7 @@
             </colgroup>
             <thead>
               <tr>
+                <th>序号</th>
                 <th>操作时间</th>
                 <th>类型</th>
                 <th>名称</th>
@@ -840,6 +862,7 @@
             </thead>
             <tbody>
               <tr v-for="(item, index) in tableData" :key="item.id || index">
+                <td>{{ (currentPage - 1) * pageSize + index + 1 }}</td>
                 <td>{{ item.operationTime }}</td>
                 <td>{{ item.relType }}</td>
                 <td class="cell-wrap">{{ item.name }}</td>
@@ -851,7 +874,7 @@
                 </td>
               </tr>
               <tr v-if="!loading && tableData.length === 0">
-                <td colspan="7" style="text-align: center; padding: 24px;">暂无数据</td>
+                <td colspan="8" style="text-align: center; padding: 24px;">暂无数据</td>
               </tr>
             </tbody>
           </table>
@@ -859,6 +882,11 @@
         <!-- 分页 -->
         <div class="pagination-bar">
           <span class="pagination-info">共 {{ total }} 条</span>
+          <span class="pagination-size-label">每页</span>
+          <select v-model="pageSize" class="pagination-select" @change="onPageSizeChange">
+            <option v-for="size in pageSizeOptions" :key="size" :value="size">{{ size }}</option>
+          </select>
+          <span class="pagination-size-label">条</span>
           <button
             class="pagination-btn"
             :disabled="currentPage <= 1"
@@ -996,6 +1024,11 @@ onBeforeUnmount(() => {
   useScreenScale();
   import { getOverviewStatsApi, allOnApi, allOffApi, getAllSpaceApi, getAllCircuitApi, getSceneSpaceApi, getVideoListBySpaceApi } from './comprehensivePreview.api';
   import { useMessage } from '/@/hooks/web/useMessage';
+  import { usePermission } from '/@/hooks/web/usePermission';
+
+  const { hasPermission } = usePermission();
+  // 操作列宽度：有 northAreaLighting:switch 权限时按钮全部展示，宽度 17%；无权限仅展示 1 个按钮，宽度 10%
+  const opColumnWidth = computed(() => (hasPermission('northAreaLighting:switch') ? '17%' : '10%'));
 
   const mapViewRef = ref<InstanceType<typeof MapView> | null>(null);
 
@@ -1623,9 +1656,24 @@ onBeforeUnmount(() => {
     }
   }
 
-  /** 打开监控视频弹框（加载视频列表，与 bigGis openVideoModal 一致） */
-  async function openVideoModal(spaceName: string) {
+  /** 打开监控视频弹框：优先直接用行数据 monitorAdr（district/listPage 返回）作为视频地址；无 monitorAdr 或仅传空间名（菜单入口）时回退按地块 id 查视频列表（与 bigGis loadSpaceVideoList 一致） */
+  async function openVideoModal(data: any) {
+    const spaceName = typeof data === 'string' ? data : data?.spaceName || '';
+    const monitorAdr = typeof data === 'string' ? '' : data?.monitorAdr;
     videoModalVisible.value = true;
+    if (monitorAdr) {
+      // 兼容：monitorAdr 可能是完整播放链接（http 开头，直接使用）或监控通道编码（需拼平台前缀）
+      const adr = /^https?:\/\//i.test(String(monitorAdr)) ? String(monitorAdr) : MONITOR_BASE_URL + monitorAdr;
+      spaceVideoList.value = [
+        {
+          id: 'space-monitor-adr',
+          videoName: spaceName ? `${spaceName} 监控` : '监控视频',
+          videoAddress: adr,
+          monitorAdr,
+        },
+      ];
+      return;
+    }
     await loadSpaceVideoList(spaceName);
   }
 
@@ -2174,9 +2222,9 @@ onBeforeUnmount(() => {
     offline: 0,
   });
 
-  /** 所有地块数据（district/listPage 接口字段：id / districtName / spaceIds / relIds / relType / sceneId） */
+  /** 所有地块数据（district/listPage 接口字段：id / districtName / spaceIds / relIds / relType / sceneId / monitorAdr） */
   const allSpaceList = ref<
-    { id: string; districtName: string; spaceIds?: any; relIds?: any; relType?: any; sceneId?: any }[]
+    { id: string; districtName: string; spaceIds?: any; relIds?: any; relType?: any; sceneId?: any; monitorAdr?: any }[]
   >([]);
 
   /** 回路总数 */
@@ -2506,6 +2554,8 @@ onBeforeUnmount(() => {
         relIds: space.relIds,
         relType: space.relType,
         sceneId: space.sceneId,
+        // 监控视频地址（district/listPage 接口当前地块返回的 monitorAdr，点击"监控视频"直接作为视频链接）
+        monitorAdr: space.monitorAdr,
       };
     })
   );
@@ -2699,10 +2749,14 @@ onBeforeUnmount(() => {
   const currentPage = ref(1);
   const pageSize = ref(10);
   const total = ref(0);
+  /** 每页条数可选项 */
+  const pageSizeOptions = [10, 15, 20, 30, 50, 100];
 
   /** 查询条件 */
   const dateRange = ref<[string, string] | null>(null);
+  const relTypeFilter = ref('');
   const operationType = ref('');
+  const operatorTypeFilter = ref('');
   const nameInput = ref('');
 
   /** 加载控制记录数据 */
@@ -2717,8 +2771,14 @@ onBeforeUnmount(() => {
         params.startTime = dateRange.value[0] + ' 00:00:00';
         params.endTime = dateRange.value[1] + ' 23:59:59';
       }
+      if (relTypeFilter.value) {
+        params.relType = relTypeFilter.value;
+      }
       if (operationType.value) {
         params.operationType = operationType.value;
+      }
+      if (operatorTypeFilter.value) {
+        params.operatorType = operatorTypeFilter.value;
       }
       if (nameInput.value) {
         params.name = nameInput.value;
@@ -2750,7 +2810,9 @@ onBeforeUnmount(() => {
   /** 重置 */
   function onReset() {
     dateRange.value = null;
+    relTypeFilter.value = '';
     operationType.value = '';
+    operatorTypeFilter.value = '';
     nameInput.value = '';
     currentPage.value = 1;
     fetchData();
@@ -2791,6 +2853,12 @@ onBeforeUnmount(() => {
   /** 分页切换 */
   function onPageChange(page: number) {
     currentPage.value = page;
+    fetchData();
+  }
+
+  /** 每页条数切换 */
+  function onPageSizeChange() {
+    currentPage.value = 1;
     fetchData();
   }
 

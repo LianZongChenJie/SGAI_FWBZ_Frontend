@@ -2413,10 +2413,45 @@
     color: var(--text);
     font-weight: 600;
   }
+
+  .pagination-size-label {
+    font-size: 13px;
+    color: var(--text2);
+    white-space: nowrap;
+  }
+
+  .pagination-select {
+    width: 76px;
+    height: 28px;
+    padding: 0 24px 0 8px;
+    background-color: transparent;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-size: 13px;
+    cursor: pointer;
+    outline: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 6px center;
+    background-size: 10px;
+
+    option {
+      background: var(--bg);
+      color: #ffffff;
+    }
+  }
 }
 
 /* 原生 option 在浏览器 OS 层渲染，scoped 无法覆盖，需全局（作用于 .log-panel 内部） */
 .log-panel .select option {
+  background: var(--bg) !important;
+  color: #ffffff !important;
+}
+.log-panel .pagination-select option {
   background: var(--bg) !important;
   color: #ffffff !important;
 }
@@ -3783,7 +3818,38 @@
     border-color: #1890ff;
     color: #1890ff !important;
   }
+  .log-panel .pagination-size-label {
+    color: #909399;
+  }
+  .log-panel .pagination-select {
+    width: 76px;
+    height: 28px;
+    padding: 0 24px 0 8px;
+    background-color: #ffffff;
+    border: 1px solid #dcdfe6;
+    border-radius: 4px;
+    color: #303133;
+    font-size: 13px;
+    cursor: pointer;
+    outline: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23909099' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 6px center;
+    background-size: 10px;
+
+    option {
+      background: #ffffff;
+      color: #303133;
+    }
+  }
   .log-panel .select option {
+    background: #ffffff !important;
+    color: #303133 !important;
+  }
+  .log-panel .pagination-select option {
     background: #ffffff !important;
     color: #303133 !important;
   }
