@@ -219,14 +219,14 @@ main>header h1{margin:0;font-size:16px;font-weight:600;color:#d9eaf3}
 .panel-toggle{border:1px solid #3d8197;background:rgba(13,48,65,.8);color:#80c7d1;border-radius:4px;cursor:pointer;font-size:14px;padding:4px 10px;transition:all .2s}
 .panel-toggle:hover{color:#48dfa8;border-color:#48dfa8}
 .panel-toggle.active{color:#48dfa8;border-color:#48dfa8;background:rgba(72,223,168,.1)}
-.ba-content{flex:1;min-height:0;display:flex;gap:0;overflow:hidden}
+.ba-content{flex:1;min-height:0;display:flex;gap:0;overflow:hidden;position:relative}
 .schematic-card{flex:1;min-width:0;position:relative;overflow:hidden;border:1px solid rgba(78,141,167,.25);background:linear-gradient(rgba(63,117,142,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(63,117,142,.05) 1px,transparent 1px),rgba(5,20,30,.55);background-size:18px 18px;will-change:transform}
-.system-panel{flex-shrink:0;width:222px;max-height:600px;height:600px;border:1px solid #234b5e;background:#08202e;overflow-y:auto;overflow-x:hidden;z-index:50;position:relative}
+.system-panel{position:absolute;right:16px;top:16px;bottom:14px;width:222px;border:1px solid #234b5e;background:#08202e;overflow-y:auto;overflow-x:hidden;z-index:50}
 .system-panel header{height:29px;padding:8px 10px;border-bottom:1px solid #285267;background:#0d3041;color:#80c7d1;font-size:10px;position:sticky;top:0;z-index:2}
 .system-panel>div{height:34px;padding:0 9px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(52,91,109,.28);font-size:10px}
 .system-panel span{color:#6d8c9d}
 .system-panel strong{color:#d6e8f0}
-@media(max-width:1050px){.system-panel{display:none}.schematic-card{flex:1}}
+@media(max-width:1050px){.system-panel{display:none}}
 
 .ba-schematic{position:absolute;inset:0;overflow:hidden;color:#bcd3df;background:linear-gradient(rgba(53,108,132,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(53,108,132,.05) 1px,transparent 1px);background-size:18px 18px}
 .device{cursor:pointer;transition:.2s}
@@ -240,7 +240,7 @@ main>header h1{margin:0;font-size:16px;font-weight:600;color:#d9eaf3}
 .air-stream.active i{animation:windCurve 1.8s linear infinite}
 .air-stream.active i:nth-child(2n){animation-delay:-.9s;opacity:.65}
 .supply-flow{left:21%;right:10%;top:49%;height:24px;transform: rotate(3deg);}
-.fan-rotor{position:absolute;width:27px;height:27px;border-radius:50%;pointer-events:none}
+.fan-rotor{position:absolute;width:36px;height:36px;border-radius:50%;pointer-events:none}
 .fan-rotor i{position:absolute;inset:8%;border:2px solid rgba(90,236,202,.42);background:repeating-conic-gradient(from 0deg,rgba(83,244,203,.92) 0 13deg,transparent 13deg 42deg);-webkit-mask:radial-gradient(circle,transparent 0 17%,#000 19% 68%,transparent 70%);mask:radial-gradient(circle,transparent 0 17%,#000 19% 68%,transparent 70%)}
 .fan-rotor.running i{animation:spin .7s linear infinite;filter:drop-shadow(0 0 6px #34e1ba)}
 .ahu-supply-rotor{right:23.5%;top:49.5%}
@@ -281,15 +281,15 @@ main>header h1{margin:0;font-size:16px;font-weight:600;color:#d9eaf3}
 .supply-temp-instrument{left:86%;top:48%;background:#1a6b5a;border-color:#5fd9a0}
 .supply-humidity-instrument{left:86%;top:58%;background:#1a4a5a;border-color:#5fd9d9}
 .pt{position:absolute;z-index:10}
-.fresh-air-temp{left:29%;top:56%}
-.fresh-air-humidity{left:21%;top:56%}
-.fresh-damper-fb{left:18%;top:30%}
-.return-damper-control{left:26%;top:20%}
-.return-damper-fb{left:26%;top:30%}
+.fresh-air-temp{left:29%;top:54%}
+.fresh-air-humidity{left:21%;top:54%}
+.fresh-damper-fb{left:18%;top:33%}
+.return-damper-control{left:28%;top:24%}
+.return-damper-fb{left:28%;top:32%}
 .co2-sensor{left:40%;top:5%}
 .pm25-sensor{left:65%;top:6%}
-.return-air-temp{left:48%;top:-1%}
-.return-air-humidity{left:48%;top:8%}
+.return-air-temp{left:48%;top:2%}
+.return-air-humidity{left:48%;top:10%}
 .filter-one-fb{left:39%;top:35%}
 .filter-two-fb{left:44%;top:35%}
 .valve-control-fb{left:49%;top:36%}
@@ -298,11 +298,11 @@ main>header h1{margin:0;font-size:16px;font-weight:600;color:#d9eaf3}
 .supply-water-temp{left:44%;top:55%}
 .return-water-temp{left:44%;top:65%}
 .frost-alarm{left:56%;top:55%}
-.fan-status{left:70%;top:28%}
+.fan-status{left:70%;top:30%}
 .fan-fault{left:70%;top:60%}
 .fan-control{left:70%;top:38%}
 .fan-auto{left:70%;top:70%}
-.fan-freq-fb{left:80%;top:28%}
+.fan-freq-fb{left:80%;top:30%}
 .fan-freq-adj{left:80%;top:38%}
 .supply-air-temp{left:83%;top:60%}
 .supply-air-humidity{left:83%;top:70%}

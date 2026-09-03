@@ -183,14 +183,14 @@ main>header h1{margin:0;font-size:16px;font-weight:600;color:#d9eaf3}
 .panel-toggle{border:1px solid #3d8197;background:rgba(13,48,65,.8);color:#80c7d1;border-radius:4px;cursor:pointer;font-size:14px;padding:4px 10px;transition:all .2s}
 .panel-toggle:hover{color:#48dfa8;border-color:#48dfa8}
 .panel-toggle.active{color:#48dfa8;border-color:#48dfa8;background:rgba(72,223,168,.1)}
-.ba-content{flex:1;min-height:0;display:flex;gap:0;overflow:hidden}
+.ba-content{flex:1;min-height:0;display:flex;gap:0;overflow:hidden;position:relative}
 .schematic-card{flex:1;min-width:0;position:relative;overflow:hidden;border:1px solid rgba(78,141,167,.25);background:linear-gradient(rgba(63,117,142,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(63,117,142,.05) 1px,transparent 1px),rgba(5,20,30,.55);background-size:18px 18px;will-change:transform}
-.system-panel{flex-shrink:0;width:222px;max-height:600px;height:600px;border:1px solid #234b5e;background:#08202e;overflow-y:auto;overflow-x:hidden;z-index:50;position:relative}
+.system-panel{position:absolute;right:16px;top:16px;bottom:14px;width:222px;border:1px solid #234b5e;background:#08202e;overflow-y:auto;overflow-x:hidden;z-index:50}
 .system-panel header{height:29px;padding:8px 10px;border-bottom:1px solid #285267;background:#0d3041;color:#80c7d1;font-size:10px;position:sticky;top:0;z-index:2}
 .system-panel>div{height:34px;padding:0 9px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(52,91,109,.28);font-size:10px}
 .system-panel span{color:#6d8c9d}
 .system-panel strong{color:#d6e8f0}
-@media(max-width:1050px){.system-panel{display:none}.schematic-card{flex:1}}
+@media(max-width:1050px){.system-panel{display:none}}
 
 .ba-schematic{position:absolute;inset:0;overflow:hidden;color:#bcd3df;background:linear-gradient(rgba(53,108,132,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(53,108,132,.05) 1px,transparent 1px);background-size:18px 18px}
 .device{cursor:pointer;transition:.2s}
@@ -203,9 +203,9 @@ main>header h1{margin:0;font-size:16px;font-weight:600;color:#d9eaf3}
 .level-readout{position:absolute;right:20%;bottom:25%;padding:5px 8px;border:1px solid #42dce7;background:#062a3b;color:#9af4fb}
 .pump-motion{position:absolute;top:38%;width:11%;height:29%;border-radius:12px;transition:.25s;display:flex;align-items:center;justify-content:center}
 .pump-motion-1{left:37.5%}
-.pump-motion-2{left:52.5%}
-.pump-motion .fan-rotor{position:relative;width:36px;height:36px;border-radius:50%;pointer-events:none;margin-top:106px;margin-left:-6px;}
-.pump-motion-2 .fan-rotor{position:relative;width:36px;height:36px;border-radius:50%;pointer-events:none;margin-top:80px;margin-left:35px;}
+.pump-motion-2{left:55.5%}
+.pump-motion .fan-rotor{position:relative;width:50px;height:50px;border-radius:50%;pointer-events:none;margin-top:130px;margin-left:-30px;}
+.pump-motion-2 .fan-rotor{position:relative;width:50px;height:50px;border-radius:50%;pointer-events:none;margin-top:100px;margin-left:35px;}
 .pump-motion .fan-rotor i{position:absolute;inset:8%;border:2px solid rgba(90,236,202,.42);background:repeating-conic-gradient(from 0deg,rgba(83,244,203,.92) 0 13deg,transparent 13deg 42deg);-webkit-mask:radial-gradient(circle,transparent 0 17%,#000 19% 68%,transparent 70%);mask:radial-gradient(circle,transparent 0 17%,#000 19% 68%,transparent 70%)}
 .pump-motion .fan-rotor.running i{animation:spin .7s linear infinite;filter:drop-shadow(0 0 6px #34e1ba)}
 .pump-motion em{position:absolute;left:50%;bottom:-18px;transform:translateX(-50%);padding:2px 6px;border-radius:9px;background:#50636c;color:#dce8ed;font-size:8px;font-style:normal;white-space:nowrap}
@@ -214,7 +214,7 @@ main>header h1{margin:0;font-size:16px;font-weight:600;color:#d9eaf3}
 .pump-motion.fault{box-shadow:0 0 24px rgba(255,79,72,.9)}
 .pump-motion.fault em{background:#b6403a}
 .sump-alarm{position:absolute;left:15%;top:28%}
-.pump-points{position:absolute;bottom:6%;display:flex;gap:4px}
+.pump-points{position:absolute;bottom:12%;display:flex;gap:4px}
 .pump-1{left:20%}
 .pump-2{right:16%}
 @keyframes spin{to{transform:rotate(360deg)}}

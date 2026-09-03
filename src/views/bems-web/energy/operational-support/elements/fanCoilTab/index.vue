@@ -905,7 +905,7 @@ const handleDetail = async (record: any) => {
   .process-layout {
     display: flex;
     gap: 16px;
-    min-height: 500px;
+    min-height: 600px;
   }
 
   .process-tree {
@@ -939,7 +939,7 @@ const handleDetail = async (record: any) => {
       linear-gradient(90deg, rgba(53, 108, 132, 0.05) 1px, transparent 1px);
     background-size: 18px 18px;
     background-color: #082332;
-    min-height: 500px;
+    min-height: 600px;
     display: flex;
     flex-direction: column;
 

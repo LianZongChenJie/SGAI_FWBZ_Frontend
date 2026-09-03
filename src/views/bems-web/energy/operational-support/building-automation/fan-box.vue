@@ -152,10 +152,12 @@ function isFanRunning() {
   return isParamOn('风机启停') || isParamValueIncludes('风机运行状态', '运行')
 }
 
-/** 判断密闭阀是否关闭 */
+/** 判断密闭阀是否关闭（无数据时根据风机状态判断：风机停止则风门关闭） */
 function isDamperClosed() {
   const val = getParamValue('密闭阀')
-  return val.includes('关')
+  if (val !== '--') return val.includes('关')
+  // 接口无数据时，风门状态与风机同步
+  return !isFanRunning()
 }
 
 /** 判断指定关键词的参数是否为开启状态 */
@@ -188,14 +190,14 @@ main>header h1{margin:0;font-size:16px;font-weight:600;color:#d9eaf3}
 .panel-toggle{border:1px solid #3d8197;background:rgba(13,48,65,.8);color:#80c7d1;border-radius:4px;cursor:pointer;font-size:14px;padding:4px 10px;transition:all .2s}
 .panel-toggle:hover{color:#48dfa8;border-color:#48dfa8}
 .panel-toggle.active{color:#48dfa8;border-color:#48dfa8;background:rgba(72,223,168,.1)}
-.ba-content{flex:1;min-height:0;display:flex;gap:0;overflow:hidden}
+.ba-content{flex:1;min-height:0;display:flex;gap:0;overflow:hidden;position:relative}
 .schematic-card{flex:1;min-width:0;position:relative;overflow:hidden;border:1px solid rgba(78,141,167,.25);background:linear-gradient(rgba(63,117,142,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(63,117,142,.05) 1px,transparent 1px),rgba(5,20,30,.55);background-size:18px 18px;will-change:transform}
-.system-panel{flex-shrink:0;width:222px;max-height:600px;height:600px;border:1px solid #234b5e;background:#08202e;overflow-y:auto;overflow-x:hidden;z-index:50;position:relative}
+.system-panel{position:absolute;right:16px;top:16px;bottom:14px;width:222px;border:1px solid #234b5e;background:#08202e;overflow-y:auto;overflow-x:hidden;z-index:50}
 .system-panel header{height:29px;padding:8px 10px;border-bottom:1px solid #285267;background:#0d3041;color:#80c7d1;font-size:10px;position:sticky;top:0;z-index:2}
 .system-panel>div{height:34px;padding:0 9px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(52,91,109,.28);font-size:10px}
 .system-panel span{color:#6d8c9d}
 .system-panel strong{color:#d6e8f0}
-@media(max-width:1050px){.system-panel{display:none}.schematic-card{flex:1}}
+@media(max-width:1050px){.system-panel{display:none}}
 
 .ba-schematic{position:absolute;inset:0;overflow:hidden;color:#bcd3df;background:linear-gradient(rgba(53,108,132,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(53,108,132,.05) 1px,transparent 1px);background-size:18px 18px}
 .device{cursor:pointer;transition:.2s}
@@ -209,7 +211,7 @@ main>header h1{margin:0;font-size:16px;font-weight:600;color:#d9eaf3}
 .air-stream.active i{animation:windCurve 1.8s linear infinite}
 .air-stream.active i:nth-child(2n){animation-delay:-.9s;opacity:.65}
 .fanbox-flow{left:21%;right:14%;top:50%;height:28px}
-.fan-rotor{position:absolute;width:60px;height:60px;border-radius:50%;pointer-events:none}
+.fan-rotor{position:absolute;width:88px;height:88px;border-radius:50%;pointer-events:none}
 .fan-rotor i{position:absolute;inset:8%;border:2px solid rgba(90,236,202,.42);background:repeating-conic-gradient(from 0deg,rgba(83,244,203,.92) 0 13deg,transparent 13deg 42deg);-webkit-mask:radial-gradient(circle,transparent 0 17%,#000 19% 68%,transparent 70%);mask:radial-gradient(circle,transparent 0 17%,#000 19% 68%,transparent 70%)}
 .fan-rotor.running i{animation:spin .7s linear infinite;filter:drop-shadow(0 0 6px #34e1ba)}
 .fanbox-rotor{left:49.5%;top:45.5%}
@@ -217,8 +219,8 @@ main>header h1{margin:0;font-size:16px;font-weight:600;color:#d9eaf3}
 .damper-motion i{width:3px;background:#62d9df;transform:rotate(var(--open,-42deg));transform-origin:center;transition:transform .65s ease,background .3s}
 .damper-motion.closed i{transform:rotate(5deg);background:#ff9477}
 .fanbox-damper{left:22%;top:37%;width:12%;height:30%}
-.fan-damper-point{position:absolute;left:24%;top:17%}
-.fan-points{position:absolute;left:51%;top:10%;display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.fan-damper-point{position:absolute;left:24%;top:27%}
+.fan-points{position:absolute;left:51%;top:20%;display:grid;grid-template-columns:1fr 1fr;gap:5px}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes windCurve{0%{transform:translateX(-46px) scaleX(.8);opacity:0}20%{opacity:1}80%{opacity:1}100%{transform:translateX(46px) scaleX(1.1);opacity:0}}
 

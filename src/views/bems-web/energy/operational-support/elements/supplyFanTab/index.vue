@@ -899,7 +899,7 @@ const handleDetail = async (record: any) => {
   .process-layout {
     display: flex;
     gap: 16px;
-    min-height: 500px;
+    min-height: 600px;
   }
 
   .process-tree {
@@ -930,7 +930,7 @@ const handleDetail = async (record: any) => {
     border-radius: 8px;
     overflow: auto;
     background-color: #06131d;
-    min-height: 500px;
+    min-height: 600px;
 
     &__controls {
       position: sticky;
