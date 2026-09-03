@@ -29,14 +29,14 @@
           ok-text="确定"
           cancel-text="取消"
           @confirm="onOpenAll()"
-        ><button class="btn btn-primary">全开</button></a-popconfirm>
+        ><button v-auth="'northAreaLighting:switch'" class="btn btn-primary">全开</button></a-popconfirm>
         <a-popconfirm
           :title="'确认全关'+ modalTitle +'？'"
           ok-text="确定"
           cancel-text="取消"
           @confirm="onCloseAll()"
         >
-        <button class="btn btn-danger">全关</button></a-popconfirm>
+        <button v-auth="'northAreaLighting:switch'" class="btn btn-danger">全关</button></a-popconfirm>
       </div>
      </section>
 
@@ -151,13 +151,13 @@
                     ok-text="确定"
                     cancel-text="取消"
                     @confirm="onOpenRow(row)"
-                  ><button class="action-btn btn-open" style="color: #1a1a1a;">开启</button></a-popconfirm>
+                  ><button v-auth="'northAreaLighting:switch'" class="action-btn btn-open" style="color: #1a1a1a;">开启</button></a-popconfirm>
                   <a-popconfirm
                     :title="'确认关闭'+ row.circuitName +'？'"
                     ok-text="确定"
                     cancel-text="取消"
                     @confirm="onCloseRow(row)"
-                  ><button class="action-btn btn-close">关闭</button></a-popconfirm>
+                  ><button v-auth="'northAreaLighting:switch'" class="action-btn btn-close">关闭</button></a-popconfirm>
                   </div>
                 </td>
               </tr>
@@ -800,7 +800,7 @@ defineExpose({
 
 .device-table th:nth-child(2),
 .device-table td:nth-child(2) {
-  width: 16%;
+  width: 12%;
 }
 
 .device-table th:nth-child(3),
@@ -840,7 +840,7 @@ defineExpose({
 
 .device-table th:nth-child(10),
 .device-table td:nth-child(10) {
-  width: 9%;
+  width: 13%;
 }
 
 .device-table th:nth-child(11),
@@ -1394,13 +1394,13 @@ defineExpose({
 }.theme-white .filter-option.active {
   color: #1890ff;
   font-weight: 600;
-}.theme-white /* 列宽比例分配 — 10列 */
+}.theme-white /* 列宽比例分配 — 11列 */
 .device-table th:nth-child(1),
 .theme-white .device-table td:nth-child(1) {
   width: 4%;
 }.theme-white .device-table th:nth-child(2),
 .theme-white .device-table td:nth-child(2) {
-  width: 17%;
+  width: 13%;
 }.theme-white .device-table th:nth-child(3),
 .theme-white .device-table td:nth-child(3) {
   width: 7%;
@@ -1424,6 +1424,9 @@ defineExpose({
   width: 11%;
 }.theme-white .device-table th:nth-child(10),
 .theme-white .device-table td:nth-child(10) {
+  width: 14%;
+}.theme-white .device-table th:nth-child(11),
+.theme-white .device-table td:nth-child(11) {
   width: 10%;
 }.theme-white /* 复选框列居中对齐 */
 .col-checkbox {

@@ -26,11 +26,12 @@
           />
         </div>
         <div class="filter-item">
-          <label class="filter-label">操作类型</label>
-          <select v-model="operationType" class="select">
+          <label class="filter-label">类型</label>
+          <select v-model="relTypeFilter" class="select">
             <option value="">全部</option>
-            <option value="开">开启</option>
-            <option value="关">关闭</option>
+            <option value="回路">回路</option>
+            <option value="区域">区域</option>
+            <option value="场景">场景</option>
           </select>
         </div>
         <div class="filter-item">
@@ -44,6 +45,25 @@
           />
         </div>
         <div class="filter-item">
+          <label class="filter-label">操作状态</label>
+          <select v-model="operationType" class="select">
+            <option value="">全部</option>
+            <option value="开">开启</option>
+            <option value="关">关闭</option>
+          </select>
+        </div>
+        <!-- 触发类型筛选（暂注释） -->
+        <div class="filter-item">
+          <label class="filter-label">触发类型</label>
+          <select v-model="operatorTypeFilter" class="select">
+            <option value="">全部</option>
+            <option value="定时">定时</option>
+            <option value="手动">手动</option>
+            <option value="场景">场景</option>
+          </select>
+        </div>
+       
+        <div class="filter-item">
           <el-button type="primary" @click="onSearch">查询</el-button>
           <el-button @click="onReset">重置</el-button>
           <el-button @click="onExport">导出数据</el-button>
@@ -52,6 +72,7 @@
       <div class="table-wrapper">
         <table class="log-table">
           <colgroup>
+            <col style="width: 60px;" />
             <col style="width: 100px;" />
             <col style="width: 70px;" />
             <col style="width: 230px;" />
@@ -62,6 +83,7 @@
           </colgroup>
           <thead>
             <tr>
+              <th>序号</th>
               <th>操作时间</th>
               <th>类型</th>
               <th>名称</th>
@@ -73,6 +95,7 @@
           </thead>
           <tbody>
             <tr v-for="(item, index) in tableData" :key="item.id || index">
+              <td>{{ (currentPage - 1) * pageSize + index + 1 }}</td>
               <td>{{ item.operationTime }}</td>
               <td>{{ item.relType }}</td>
               <td class="cell-wrap">{{ item.name }}</td>
@@ -84,7 +107,7 @@
               </td>
             </tr>
             <tr v-if="!loading && tableData.length === 0">
-              <td colspan="7" style="text-align: center; padding: 24px;">暂无数据</td>
+              <td colspan="8" style="text-align: center; padding: 24px;">暂无数据</td>
             </tr>
           </tbody>
         </table>
@@ -92,6 +115,11 @@
       <!-- 分页 -->
       <div class="pagination-bar">
         <span class="pagination-info">共 {{ total }} 条</span>
+        <span class="pagination-size-label">每页</span>
+        <select v-model="pageSize" class="pagination-select" @change="onPageSizeChange">
+          <option v-for="size in pageSizeOptions" :key="size" :value="size">{{ size }}</option>
+        </select>
+        <span class="pagination-size-label">条</span>
         <button
           class="pagination-btn"
           :disabled="currentPage <= 1"
@@ -153,7 +181,7 @@
               <th>序号</th>
               <th>回路名称</th>
               <th>类型</th>
-              <th>操作类型</th>
+              <th>操作状态</th>
               <th>操作人员</th>
             </tr>
           </thead>
@@ -193,10 +221,14 @@ const tableData = ref<any[]>([]);
 const currentPage = ref(1);
 const pageSize = ref(10);
 const total = ref(0);
+/** 每页条数可选项 */
+const pageSizeOptions = [10, 15, 20, 30, 50, 100];
 
 /** 查询条件 */
 const dateRange = ref<[string, string] | null>(null);
+const relTypeFilter = ref('');
 const operationType = ref('');
+const operatorTypeFilter = ref('');
 const nameInput = ref('');
 
 /** 加载控制记录数据 */
@@ -211,8 +243,14 @@ async function fetchData() {
       params.startTime = dateRange.value[0] + ' 00:00:00';
       params.endTime = dateRange.value[1] + ' 23:59:59';
     }
+    if (relTypeFilter.value) {
+      params.relType = relTypeFilter.value;
+    }
     if (operationType.value) {
       params.operationType = operationType.value;
+    }
+    if (operatorTypeFilter.value) {
+      params.operatorType = operatorTypeFilter.value;
     }
     if (nameInput.value) {
       params.name = nameInput.value;
@@ -247,7 +285,9 @@ function onSearch() {
 /** 重置 */
 function onReset() {
   dateRange.value = null;
+  relTypeFilter.value = '';
   operationType.value = '';
+  operatorTypeFilter.value = '';
   nameInput.value = '';
   currentPage.value = 1;
   fetchData();
@@ -288,6 +328,12 @@ function onExport() {
 /** 分页切换 */
 function onPageChange(page: number) {
   currentPage.value = page;
+  fetchData();
+}
+
+/** 每页条数切换 */
+function onPageSizeChange() {
+  currentPage.value = 1;
   fetchData();
 }
 
@@ -620,6 +666,37 @@ onMounted(() => {
   font-weight: 600;
 }
 
+.pagination-size-label {
+  font-size: 13px;
+  color: var(--text2);
+  white-space: nowrap;
+}
+
+.pagination-select {
+  width: 76px;
+  height: 28px;
+  padding: 0 24px 0 8px;
+  background-color: transparent;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+  outline: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 6px center;
+  background-size: 10px;
+
+  option {
+    background: var(--bg);
+    color: #ffffff;
+  }
+}
+
 // 详情弹窗 - 科技风
 .modal-title {
   display: flex;
@@ -936,6 +1013,10 @@ onMounted(() => {
   background: var(--bg) !important;
   color: #ffffff !important;
 }
+.page-container .pagination-select option {
+  background: var(--bg) !important;
+  color: #ffffff !important;
+}
 </style>
 
 <!-- ===== 白色主题覆盖层（自动生成）===== -->
@@ -1172,7 +1253,33 @@ onMounted(() => {
   font-size: 13px;
   color: var(--text);
   font-weight: 600;
-}.theme-white // 详情弹窗 - 科技风
+}.theme-white .pagination-size-label {
+  font-size: 13px;
+  color: var(--text2);
+  white-space: nowrap;
+}.theme-white .pagination-select {
+  width: 76px;
+  height: 28px;
+  padding: 0 24px 0 8px;
+  background-color: transparent;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+  outline: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23606766' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 6px center;
+  background-size: 10px;
+
+  option  {
+    background: var(--panel);
+    color: var(--text);
+  }}.theme-white // 详情弹窗 - 科技风
 .modal-title {
   display: flex;
   flex-direction: column;
@@ -1411,6 +1518,10 @@ onMounted(() => {
   .ant-modal-footer  {
     display: none;
   }}.theme-white.page-container .select option {
+  background: var(--panel) !important;
+  color: var(--text) !important;
+}
+.theme-white.page-container .pagination-select option {
   background: var(--panel) !important;
   color: var(--text) !important;
 }

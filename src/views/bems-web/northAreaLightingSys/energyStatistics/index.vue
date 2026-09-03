@@ -38,7 +38,7 @@
     <!-- 汇总表 / 箱子遥测 / 区间查询 -->
     <div class="chart-card">
       <a-tabs v-model:activeKey="summaryTab" class="summary-tabs">
-        <a-tab-pane key="summary" tab="汇总表">
+        <a-tab-pane v-if="false" key="summary" tab="汇总表">
           <div class="card-title">
             <span class="title-bar"></span>
             <!-- 汇总表 -->
@@ -131,26 +131,48 @@
             <a-button @click="onBoxReset">重置</a-button>
             <a-button @click="onExportBox">导出数据</a-button>
           </div>
+          <div ref="boxTableHScroll" class="table-hscroll-bar" @scroll="onBoxHScroll"></div>
           <a-table
+            ref="boxTableRef"
             :columns="boxColumns"
             :data-source="filteredBoxData"
             row-key="id"
             :loading="boxLoading"
             :pagination="false"
+            :scroll="{ x: 2520 }"
             class="summary-table"
+            @scroll="onBoxTableScroll"
           >
             <template #bodyCell="{ column, record }">
-              <template v-if="column.key === 'voltage'">
-                A:{{ fmtNum(record.voltageA) }} B:{{ fmtNum(record.voltageB) }} C:{{ fmtNum(record.voltageC) }} V
+              <template v-if="column.key === 'voltageA'">
+                {{ fmtNum(record.voltageA) }}
               </template>
-              <template v-else-if="column.key === 'current'">
-                A:{{ fmtNum(record.currentA) }} B:{{ fmtNum(record.currentB) }} C:{{ fmtNum(record.currentC) }} A
+              <template v-else-if="column.key === 'voltageB'">
+                {{ fmtNum(record.voltageB) }}
               </template>
-              <template v-else-if="column.key === 'power'">
-                有功:{{ fmtNum(record.activePower) }}kW
-                无功:{{ fmtNum(record.reactivePower) }}kVar
-                现在:{{ fmtNum(record.apparentPower) }}kVA
-                功率因数:{{ fmtNum(record.powerFactor) }}
+              <template v-else-if="column.key === 'voltageC'">
+                {{ fmtNum(record.voltageC) }}
+              </template>
+              <template v-else-if="column.key === 'currentA'">
+                {{ fmtNum(record.currentA) }}
+              </template>
+              <template v-else-if="column.key === 'currentB'">
+                {{ fmtNum(record.currentB) }}
+              </template>
+              <template v-else-if="column.key === 'currentC'">
+                {{ fmtNum(record.currentC) }}
+              </template>
+              <template v-else-if="column.key === 'activePower'">
+                {{ fmtNum(record.activePower) }}
+              </template>
+              <template v-else-if="column.key === 'reactivePower'">
+                {{ fmtNum(record.reactivePower) }}
+              </template>
+              <template v-else-if="column.key === 'apparentPower'">
+                {{ fmtNum(record.apparentPower) }}
+              </template>
+              <template v-else-if="column.key === 'powerFactor'">
+                {{ fmtNum(record.powerFactor) }}
               </template>
               <template v-else-if="column.key === 'collectTime'">
                 {{ record.collectTime ? formatTime(record.collectTime) : '-' }}
@@ -160,6 +182,19 @@
               </template>
             </template>
           </a-table>
+          <div ref="boxTableHScrollBottom" class="table-hscroll-bar table-hscroll-bar-bottom" @scroll="onBoxHScrollBottom"></div>
+          <!-- 统计值统计 -->
+          <div class="box-avg-wrapper">
+            <span class="box-avg-title">统计值</span>
+            <a-table
+              :columns="boxAvgColumns"
+              :data-source="boxAvgData"
+              row-key="key"
+              :pagination="false"
+              size="small"
+              class="summary-table box-avg-table"
+            />
+          </div>
         </a-tab-pane>
 
         <a-tab-pane key="range" tab="区间查询">
@@ -363,7 +398,7 @@ import { exportExcel } from '/@/utils/export';
 const statType = ref('area'); // area: 按区域 / box: 按箱子
 
 /* ============================ 汇总表 / 区间查询 Tabs ============================ */
-const summaryTab = ref('summary'); // summary: 汇总表 / range: 区间查询
+const summaryTab = ref('boxTelemetry'); // 默认箱子遥测（汇总表已隐藏）
 
 /* ============================ 区间查询 ============================ */
 interface RangeFilter {
@@ -399,6 +434,7 @@ const loadRegionOptions = async () => {
 
 /** 区间查询表列 */
 const rangeColumns = [
+  { title: '序号', key: 'index', align: 'center' as const, width: 60, customRender: ({ index }) => index + 1 },
   { title: '区域', key: 'region', dataIndex: 'region', align: 'center' as const },
   { title: '箱子名称', key: 'boxName', dataIndex: 'boxName', align: 'center' as const },
   { title: '开始时间', key: 'startTime', dataIndex: 'startTime', align: 'center' as const },
@@ -434,10 +470,10 @@ const mapRangeRow = (it: any, idx: number): any => {
     region: it.districtName ?? it.region ?? it.areaName ?? it.name ?? '-',
     boxName: it.boxName ?? it.meterName ?? it.deviceName ?? it.boxNo ?? it.meterNo ?? '-',
     startTime: it.startTime ?? it.beginTime ?? it.readStartTime ?? '-',
-    startReading: it.startReading ?? it.beginReading ?? it.startMeterRead ?? it.startMeterValue ?? 0,
+    startReading: it.startValue ?? it.startReading ?? it.beginReading ?? it.startMeterRead ?? it.startMeterValue ?? 0,
     endTime: it.endTime ?? it.finishTime ?? it.readEndTime ?? '-',
-    endReading: it.endReading ?? it.finishReading ?? it.endMeterRead ?? it.endMeterValue ?? 0,
-    totalKwh: it.totalKwh ?? it.energy ?? it.consumeEnergy ?? it.kwh ?? it.totalEnergy ?? 0,
+    endReading: it.endValue ?? it.endReading ?? it.finishReading ?? it.endMeterRead ?? it.endMeterValue ?? 0,
+    totalKwh: it.total ?? it.totalKwh ?? it.energy ?? it.consumeEnergy ?? it.kwh ?? it.totalEnergy ?? 0,
   };
 };
 
@@ -509,49 +545,11 @@ interface RankItem {
   value: number;
 }
 
-/** 按区域维度：今日 kWh 降序 Top15 */
-const rankAreaData: RankItem[] = [
-  { name: '服贸会项目 / 待确认映射', value: 849.3 },
-  { name: '三高炉项目 / 本体', value: 624.4 },
-  { name: '冬训中心项目 / 冰球馆', value: 619.2 },
-  { name: '三高炉项目 / 秀池木栈道', value: 575.7 },
-  { name: '制氧南项目 / 赛道', value: 380.4 },
-  { name: '冬训中心项目 / 速滑馆', value: 352.8 },
-  { name: '服贸会项目 / 展馆A区', value: 331.5 },
-  { name: '脱硫车间项目 / 主车间', value: 298.6 },
-  { name: '金安桥项目 / 桥面', value: 275.4 },
-  { name: '制氧南项目 / 冷却塔', value: 258.3 },
-  { name: '三高炉项目 / 高炉广场', value: 244.9 },
-  { name: '冬训中心项目 / 冰壶馆', value: 231.7 },
-  { name: '服贸会项目 / 展馆B区', value: 220.5 },
-  { name: '一高炉项目 / 炉体', value: 212.4 },
-  { name: '脱硫车间项目 / 群明湖北侧', value: 206.9 },
-];
+/** 当前展示的排名数据（按区域维度，由接口加载） */
+const rankArea = ref<RankItem[]>([]);
 
-/** 当前展示的排名数据（接口数据加载成功后覆盖 mock） */
-const rankArea = ref<RankItem[]>(rankAreaData);
-
-/** 按箱子维度：今日 kWh 降序 Top15 */
-const rankBoxData: RankItem[] = [
-  { name: '服贸会项目 / 待确认映射 / 箱A', value: 320.5 },
-  { name: '三高炉项目 / 本体 / 1号箱', value: 298.2 },
-  { name: '冬训中心项目 / 冰球馆 / 箱A', value: 286.4 },
-  { name: '服贸会项目 / 待确认映射 / 箱B', value: 275.8 },
-  { name: '三高炉项目 / 本体 / 2号箱', value: 254.1 },
-  { name: '三高炉项目 / 秀池木栈道 / 栈道南', value: 232.6 },
-  { name: '冬训中心项目 / 冰球馆 / 箱B', value: 218.9 },
-  { name: '制氧南项目 / 赛道 / 箱A', value: 205.3 },
-  { name: '三高炉项目 / 秀池木栈道 / 栈道北', value: 198.7 },
-  { name: '服贸会项目 / 展馆A区 / 箱A', value: 186.4 },
-  { name: '制氧南项目 / 赛道 / 箱B', value: 175.1 },
-  { name: '脱硫车间项目 / 主车间 / 箱A', value: 168.9 },
-  { name: '冬训中心项目 / 速滑馆 / 箱A', value: 155.2 },
-  { name: '服贸会项目 / 展馆B区 / 箱A', value: 143.6 },
-  { name: '金安桥项目 / 桥面 / 箱A', value: 132.8 },
-];
-
-/** 当前展示的箱子排名数据（接口数据加载成功后覆盖 mock） */
-const rankBox = ref<RankItem[]>(rankBoxData);
+/** 当前展示的排名数据（按箱子维度，由接口加载） */
+const rankBox = ref<RankItem[]>([]);
 
 const rankChartRef = ref<HTMLDivElement | null>(null);
 let rankChart: echarts.ECharts | null = null;
@@ -586,8 +584,6 @@ const updateRankChart = (type: string) => {
     grid: { left: '2%', right: '14%', bottom: '2%', top: '2%', containLabel: true },
     xAxis: {
       type: 'value',
-      max: 1000,
-      interval: 200,
       axisLine: { show: false },
       axisTick: { show: false },
       axisLabel: { color: axisLabelColor, fontSize: 12 },
@@ -633,17 +629,8 @@ const updateRankChart = (type: string) => {
 /* ============================ 占比（环形图） ============================ */
 const pieColors = ['#38bdf8', '#f59e0b', '#10b981', '#facc15', '#f472b6', '#475569'];
 
-const getPieData = () => {
-  const top5 = rankArea.value.slice(0, 5);
-  const others = rankArea.value.slice(5).reduce((sum, item) => sum + item.value, 0);
-  return [
-    ...top5.map((item) => ({ name: item.name, value: item.value })),
-    { name: '其他', value: Number(others.toFixed(1)) },
-  ];
-};
-
-/** 占比图数据（proportion 接口加载成功后覆盖 mock） */
-const pieData = ref(getPieData());
+/** 占比图数据（由 proportion 接口加载） */
+const pieData = ref<{ name: string; value: number }[]>([]);
 
 const pieChartRef = ref<HTMLDivElement | null>(null);
 let pieChart: echarts.ECharts | null = null;
@@ -695,11 +682,10 @@ const initPieChart = () => {
 };
 
 /* ============================ Top5 逐时趋势（折线图） ============================ */
-const trendHours = ref(Array.from({ length: 24 }, (_, i) => `${String(i).padStart(2, '0')}:00`));
-/** 全园：18:00 后开启，飙升至峰值并保持至 22:00 后回落（接口数据加载成功后覆盖） */
-const parkTrend = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2800, 2960, 2920, 2880, 2850, 600];
-/** 当前展示的逐时趋势系列（hourlyTrend 接口加载成功后覆盖） */
-const trendSeriesData = ref<{ name: string; data: number[] }[]>([{ name: '全园', data: parkTrend }]);
+/** 当前展示的逐时小时轴（由 hourlyTrend 接口加载） */
+const trendHours = ref<string[]>([]);
+/** 当前展示的逐时趋势系列（由 hourlyTrend 接口加载） */
+const trendSeriesData = ref<{ name: string; data: number[] }[]>([]);
 const trendColors = ['#38bdf8', '#f59e0b', '#10b981', '#facc15', '#f472b6'];
 
 const trendChartRef = ref<HTMLDivElement | null>(null);
@@ -739,8 +725,6 @@ const renderTrend = () => {
     yAxis: {
       type: 'value',
       min: 0,
-      max: 3000,
-      interval: 500,
       axisLine: { show: false },
       axisTick: { show: false },
       splitLine: { lineStyle: { color: splitLineColor } },
@@ -898,28 +882,32 @@ const loadProportion = async () => {
   }
 };
 
-/** Top5 逐时趋势对比（按地块，当天） */
+/** Top5 逐时趋势对比（随维度切换，当天） */
 const loadTrend = async () => {
   try {
-    const res = await getEnergyHourlyTrend({ level: 'parcel', date: formatDate('') });
+    const res = await getEnergyHourlyTrend({ level: levelByStatType(), date: formatDate('') });
     let hours: string[] = [];
     let series: { name: string; data: number[] }[] = [];
     if (Array.isArray(res)) {
-      // 平铺数组：[{ name, data }]
-      series = res.map((s: any) => ({
-        name: s.name || s.seriesName || s.deviceName || '-',
-        data: (s.data || s.values || s.points || []).map(Number),
-      }));
+      // 平铺数组：纯数值数组 → 单系列；[{ name, data }] → 多系列
+      if (res.length && typeof res[0] === 'number') {
+        series = [{ name: 'Top1', data: res.map(Number) }];
+      } else {
+        series = res.map((s: any) => ({
+          name: s.name || s.seriesName || s.deviceName || s.boxName || s.areaName || '-',
+          data: (s.data || s.values || s.points || s.trend || []).map(Number),
+        }));
+      }
     } else if (res && typeof res === 'object') {
-      // 对象：{ hours: [], series: [{ name, data }] }
-      hours = res.hours || res.timeList || res.times || res.xAxis || [];
-      const arr = res.series || res.dataList || res.seriesList || [];
+      // 对象：{ hours, series } / { xAxis, series } / { list } / { data } 等
+      hours = res.hours || res.timeList || res.times || res.xAxis || res.categories || [];
+      const arr = res.series || res.dataList || res.seriesList || normalizeList(res);
       series = arr.map((s: any) => ({
-        name: s.name || s.seriesName || s.deviceName || '-',
-        data: (s.data || s.values || s.points || []).map(Number),
+        name: s.name || s.seriesName || s.deviceName || s.boxName || s.areaName || '-',
+        data: (s.data || s.values || s.points || s.trend || []).map(Number),
       }));
     }
-    if (!series.length) return;
+    // 无论是否有数据都刷新图表：空数据时清空曲线，避免保留旧维度数据
     if (hours.length) trendHours.value = hours;
     trendSeriesData.value = series;
     renderTrend();
@@ -1042,16 +1030,86 @@ const filteredBoxData = computed(() => {
 
 /** 箱子遥测列：区域=片区名，箱子=区域名 */
 const boxColumns = [
-  { title: '序号', key: 'index', align: 'center' as const, width: 60, customRender: ({ index }) => index + 1 },
-  { title: '区域', key: 'districtName', align: 'center' as const, dataIndex: 'districtName', customRender: ({ text }) => text || '-' },
-  { title: '箱子', key: 'areaName', align: 'center' as const, dataIndex: 'areaName', customRender: ({ text }) => text || '-' },
-  { title: '三相电压', key: 'voltage', align: 'center' as const },
-  { title: '三相电流', key: 'current', align: 'center' as const },
-  { title: '功率', key: 'power', align: 'center' as const },
-  { title: '累积电量(kWh)', key: 'totalEnergy', align: 'center' as const, dataIndex: 'totalEnergy', customRender: ({ text }) => fmtNum(text) },
-  { title: '最后采集时间', key: 'collectTime', align: 'center' as const, width: 180 },
-  { title: '操作', key: 'action', align: 'center' as const, width: 100, fixed: 'right' as const },
+  { title: '序号', key: 'index', align: 'center' as const, width: 40, fixed: 'left' as const, customRender: ({ index }) => index + 1 },
+  { title: '区域', key: 'districtName', align: 'center' as const, width: 60, fixed: 'left' as const, dataIndex: 'districtName', customRender: ({ text }) => text || '-' },
+  { title: '箱子', key: 'areaName', align: 'center' as const, width: 100, fixed: 'left' as const, dataIndex: 'areaName', customRender: ({ text }) => text || '-' },
+  { title: 'A相电压(V)', key: 'voltageA', align: 'center' as const, width: 60 },
+  { title: 'B相电压(V)', key: 'voltageB', align: 'center' as const, width: 60 },
+  { title: 'C相电压(V)', key: 'voltageC', align: 'center' as const, width: 60 },
+  { title: 'A相电流(A)', key: 'currentA', align: 'center' as const, width: 60 },
+  { title: 'B相电流(A)', key: 'currentB', align: 'center' as const, width: 60 },
+  { title: 'C相电流(A)', key: 'currentC', align: 'center' as const, width: 60 },
+  { title: '有功功率(kW)', key: 'activePower', align: 'center' as const, width: 60 },
+  { title: '无功功率(kVar)', key: 'reactivePower', align: 'center' as const, width: 60 },
+  { title: '视在功率(kVA)', key: 'apparentPower', align: 'center' as const, width: 60 },
+  { title: '功率因数', key: 'powerFactor', align: 'center' as const, width: 60 },
+  { title: '累积电量(kWh)', key: 'totalEnergy', align: 'center' as const, width: 60, dataIndex: 'totalEnergy', customRender: ({ text }) => fmtNum(text) },
+  { title: '最后采集时间', key: 'collectTime', align: 'center' as const, width: 80 },
+  { title: '操作', key: 'action', align: 'center' as const, width: 60, fixed: 'right' as const },
 ];
+
+/** 箱子遥测统计值列 */
+const boxAvgColumns = [
+  { title: '平均A相电压(V)', key: 'voltageA', dataIndex: 'voltageA', align: 'center' as const, customRender: ({ text }) => fmtNum(text) },
+  { title: '平均B相电压(V)', key: 'voltageB', dataIndex: 'voltageB', align: 'center' as const, customRender: ({ text }) => fmtNum(text) },
+  { title: '平均C相电压(V)', key: 'voltageC', dataIndex: 'voltageC', align: 'center' as const, customRender: ({ text }) => fmtNum(text) },
+  { title: '平均A相电流(A)', key: 'currentA', dataIndex: 'currentA', align: 'center' as const, customRender: ({ text }) => fmtNum(text) },
+  { title: '平均B相电流(A)', key: 'currentB', dataIndex: 'currentB', align: 'center' as const, customRender: ({ text }) => fmtNum(text) },
+  { title: '平均C相电流(A)', key: 'currentC', dataIndex: 'currentC', align: 'center' as const, customRender: ({ text }) => fmtNum(text) },
+  { title: '累加累积电量(kWh)', key: 'totalEnergy', dataIndex: 'totalEnergy', align: 'center' as const, customRender: ({ text }) => fmtNum(text) },
+];
+
+/** 箱子遥测统计值（随过滤后的表格数据自动计算：电压/电流取平均，累积电量取累加总和） */
+const boxAvgData = computed(() => {
+  const list = filteredBoxData.value;
+  const avgFields = ['voltageA', 'voltageB', 'voltageC', 'currentA', 'currentB', 'currentC'];
+  const row: Record<string, number | null> = {};
+  avgFields.forEach((f) => {
+    const nums = list
+      .map((it) => Number(it[f]))
+      .filter((n) => Number.isFinite(n));
+    row[f] = nums.length ? nums.reduce((a, b) => a + b, 0) / nums.length : null;
+  });
+  const energyNums = list
+    .map((it) => Number(it.totalEnergy))
+    .filter((n) => Number.isFinite(n));
+  row.totalEnergy = energyNums.length ? energyNums.reduce((a, b) => a + b, 0) : null;
+  return [{ key: 'avg', ...row }];
+});
+
+/** 箱子遥测表格：顶部/底部双横向滚动条同步 */
+const boxTableRef = ref<{ $el: HTMLElement } | null>(null);
+const boxTableHScroll = ref<HTMLElement | null>(null);
+const boxTableHScrollBottom = ref<HTMLElement | null>(null);
+
+const syncBoxHScroll = (scrollLeft: number) => {
+  if (boxTableHScroll.value) {
+    boxTableHScroll.value.scrollLeft = scrollLeft;
+  }
+  if (boxTableHScrollBottom.value) {
+    boxTableHScrollBottom.value.scrollLeft = scrollLeft;
+  }
+};
+const onBoxTableScroll = (e: Event) => {
+  const el = e.target as HTMLElement;
+  syncBoxHScroll(el.scrollLeft);
+};
+const onBoxHScroll = (e: Event) => {
+  const el = e.target as HTMLElement;
+  const content = boxTableRef.value?.$el?.querySelector('.ant-table-content');
+  if (content) {
+    content.scrollLeft = el.scrollLeft;
+    syncBoxHScroll(el.scrollLeft);
+  }
+};
+const onBoxHScrollBottom = (e: Event) => {
+  const el = e.target as HTMLElement;
+  const content = boxTableRef.value?.$el?.querySelector('.ant-table-content');
+  if (content) {
+    content.scrollLeft = el.scrollLeft;
+    syncBoxHScroll(el.scrollLeft);
+  }
+};
 
 /** 加载箱子遥测列表 */
 const loadBoxTelemetry = async (params?: Record<string, any>) => {
@@ -1088,9 +1146,16 @@ const onExportBox = () => {
     index: idx + 1,
     districtName: row.districtName,
     areaName: row.areaName,
-    voltage: `A:${fmtNum(row.voltageA)} B:${fmtNum(row.voltageB)} C:${fmtNum(row.voltageC)} V`,
-    current: `A:${fmtNum(row.currentA)} B:${fmtNum(row.currentB)} C:${fmtNum(row.currentC)} A`,
-    power: `有功:${fmtNum(row.activePower)}kW`,
+    voltageA: fmtNum(row.voltageA),
+    voltageB: fmtNum(row.voltageB),
+    voltageC: fmtNum(row.voltageC),
+    currentA: fmtNum(row.currentA),
+    currentB: fmtNum(row.currentB),
+    currentC: fmtNum(row.currentC),
+    activePower: fmtNum(row.activePower),
+    reactivePower: fmtNum(row.reactivePower),
+    apparentPower: fmtNum(row.apparentPower),
+    powerFactor: fmtNum(row.powerFactor),
     totalEnergy: fmtNum(row.totalEnergy),
     collectTime: row.collectTime,
   }));
@@ -1101,9 +1166,16 @@ const onExportBox = () => {
       { key: 'index', title: '序号' },
       { key: 'districtName', title: '区域' },
       { key: 'areaName', title: '箱子' },
-      { key: 'voltage', title: '三相电压' },
-      { key: 'current', title: '三相电流' },
-      { key: 'power', title: '功率' },
+      { key: 'voltageA', title: 'A相电压(V)' },
+      { key: 'voltageB', title: 'B相电压(V)' },
+      { key: 'voltageC', title: 'C相电压(V)' },
+      { key: 'currentA', title: 'A相电流(A)' },
+      { key: 'currentB', title: 'B相电流(A)' },
+      { key: 'currentC', title: 'C相电流(A)' },
+      { key: 'activePower', title: '有功功率(kW)' },
+      { key: 'reactivePower', title: '无功功率(kVar)' },
+      { key: 'apparentPower', title: '视在功率(kVA)' },
+      { key: 'powerFactor', title: '功率因数' },
       { key: 'totalEnergy', title: '累积电量(kWh)' },
       { key: 'collectTime', title: '最后采集时间' },
     ],
@@ -1237,9 +1309,10 @@ watch(statType, (type) => {
   nextTick(() => {
     updateRankChart(type);
   });
-  // 维度切换时重新拉取排名与占比
+  // 维度切换时重新拉取排名、占比与逐时趋势
   loadRanking();
   loadProportion();
+  loadTrend();
 });
 
 const handleResize = () => {
@@ -1253,7 +1326,7 @@ onMounted(() => {
   initPieChart();
   initTrendChart();
   window.addEventListener('resize', handleResize);
-  // 加载真实接口数据（失败时保留 mock 兜底）
+  // 加载真实接口数据
   loadRanking();
   loadProportion();
   loadTrend();
@@ -1598,6 +1671,59 @@ onUnmounted(() => {
   color: #38bdf8;
 }
 
+/* 固定列：不透明背景，避免横向滚动时内容重叠 */
+.summary-table :deep(.ant-table-thead > tr > .ant-table-cell-fix-left),
+.summary-table :deep(.ant-table-thead > tr > .ant-table-cell-fix-right) {
+  background: #16233a !important;
+}
+.summary-table :deep(.ant-table-tbody > tr > .ant-table-cell-fix-left),
+.summary-table :deep(.ant-table-tbody > tr > .ant-table-cell-fix-right) {
+  background: var(--panel) !important;
+}
+.summary-table :deep(.ant-table-tbody > tr:hover > .ant-table-cell-fix-left),
+.summary-table :deep(.ant-table-tbody > tr:hover > .ant-table-cell-fix-right),
+.summary-table :deep(.ant-table-tbody > tr > .ant-table-cell-fix-left.ant-table-cell-row-hover),
+.summary-table :deep(.ant-table-tbody > tr > .ant-table-cell-fix-right.ant-table-cell-row-hover) {
+  background: #2c3952 !important;
+}
+
+/* 箱子遥测表格：顶部横向滚动条（与底部滚动条同步） */
+.table-hscroll-bar {
+  overflow-x: auto;
+  overflow-y: hidden;
+  height: 10px;
+  margin-bottom: 4px;
+}
+.table-hscroll-bar::-webkit-scrollbar {
+  height: 8px;
+}
+.table-hscroll-bar::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+.table-hscroll-bar::before {
+  content: '';
+  display: block;
+  width: 2520px;
+  height: 1px;
+}
+.table-hscroll-bar-bottom {
+  margin-top: 4px;
+  margin-bottom: 0;
+}
+
+/* 箱子遥测统计值统计 */
+.box-avg-wrapper {
+  margin-top: 16px;
+}
+.box-avg-title {
+  display: inline-block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
 .ratio-text {
   font-weight: 500;
   color: #e2e8f0;
@@ -1772,6 +1898,21 @@ onUnmounted(() => {
   background: rgba(24, 144, 255, 0.06) !important;
 }.theme-white .summary-table :deep(.ant-table-placeholder) {
   background: transparent !important;
+}.theme-white .summary-table :deep(.ant-table-thead > tr > .ant-table-cell-fix-left),
+.theme-white .summary-table :deep(.ant-table-thead > tr > .ant-table-cell-fix-right) {
+  background: #f5f7fa !important;
+}.theme-white .summary-table :deep(.ant-table-tbody > tr > .ant-table-cell-fix-left),
+.theme-white .summary-table :deep(.ant-table-tbody > tr > .ant-table-cell-fix-right) {
+  background: #ffffff !important;
+}.theme-white .summary-table :deep(.ant-table-tbody > tr:hover > .ant-table-cell-fix-left),
+.theme-white .summary-table :deep(.ant-table-tbody > tr:hover > .ant-table-cell-fix-right),
+.theme-white .summary-table :deep(.ant-table-tbody > tr > .ant-table-cell-fix-left.ant-table-cell-row-hover),
+.theme-white .summary-table :deep(.ant-table-tbody > tr > .ant-table-cell-fix-right.ant-table-cell-row-hover) {
+  background: #f1f8ff !important;
+}.theme-white .table-hscroll-bar::-webkit-scrollbar-thumb {
+  background: #dcdfe6;
+}.theme-white .box-avg-title {
+  color: #303133;
 }.theme-white .ratio-text {
   font-weight: 500;
   color: #303133;

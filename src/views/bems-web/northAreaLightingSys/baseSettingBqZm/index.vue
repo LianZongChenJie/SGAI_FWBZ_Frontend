@@ -66,8 +66,8 @@
         </div>
         <div class="filter-right">
           <button class="btn btn-primary" @click="onSearch">刷新</button>
-          <button class="btn btn-primary" @click="onOpenAll">全开</button>
-          <button class="btn btn-danger" @click="onCloseAll">全关</button>
+          <button v-auth="'northAreaLighting:switch'" class="btn btn-primary" @click="onOpenAll">全开</button>
+          <button v-auth="'northAreaLighting:switch'" class="btn btn-danger" @click="onCloseAll">全关</button>
         </div>
       </section>
 
@@ -118,14 +118,14 @@
             </template>
           </vxe-column>
           <vxe-column field="comstat" title="连接状态" min-width="100" sortable></vxe-column>
-          <vxe-column title="操作" width="360" fixed="right" header-align="left" align="left">
+          <vxe-column title="操作" min-width="200" :width="opColumnWidth" fixed="right" header-align="left" align="left">
             <template #default="{ row }">
               <div class="actions">
                 <button class="action-btn" @click="videoMonitorModalOpen(row)">监控视频</button>
                 <button class="action-btn" @click="circuitListModalOpenChange(row)">回路列表</button>
-                <button class="action-btn btn-primary" style="color: #1a1a1a;" @click="onOpenRow(row)">全开</button>
-                <button class="action-btn btn-danger" @click="onCloseRow(row)">全关</button>
-                <button class="action-btn btn-recall" :disabled="Number(row.pendingMsgCount) <= 0" @click="onRecall(row)">撤回</button>
+                <button v-auth="'northAreaLighting:switch'" class="action-btn btn-primary" style="color: #1a1a1a;" @click="onOpenRow(row)">全开</button>
+                <button v-auth="'northAreaLighting:switch'" class="action-btn btn-danger" @click="onCloseRow(row)">全关</button>
+                <button v-auth="'northAreaLighting:switch'" class="action-btn btn-recall" :disabled="Number(row.pendingMsgCount) <= 0" @click="onRecall(row)">撤回</button>
               </div>
             </template>
           </vxe-column>
@@ -149,7 +149,13 @@
 import { useScreenTheme } from '../useScreenTheme';
 const { themeClass } = useScreenTheme();
 
+import { usePermission } from '/@/hooks/web/usePermission';
+
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
+
+// 操作列宽度：有 northAreaLighting:switch 权限时展示 5 个按钮，宽度 360；无权限仅展示 2 个按钮，宽度 200
+const { hasPermission } = usePermission();
+const opColumnWidth = computed(() => (hasPermission('northAreaLighting:switch') ? 360 : 200));
 import { getRelName, getAllDistrictTag, getAreaListPageApi, setAreaOpenApi, setAreaCloseApi, recallMqApi } from '@/api/baseSettingBqZm';   // ← replace with the real module
 import configOpenMessage from './compoments/configOpenMessage.vue';
 import configOpenMessageTwo from './compoments/configOpenMessageTwo.vue';
