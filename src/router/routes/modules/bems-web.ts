@@ -8,6 +8,8 @@ import { LAYOUT } from '/@/router/constant';
 const bemsWeb: AppRouteModule = {
   path: '/fwbz',
   name: 'FWBZ',
+  component: LAYOUT,
+  redirect: '/fwbz/overview',
   meta: {
     title: '总览仪表盘',
   },
@@ -212,6 +214,24 @@ const bemsWeb: AppRouteModule = {
           component: () => import('/@/views/bems-web/ai/predict/index.vue'),
           meta: { title: 'AI预测报告' },
         },
+        {
+          path: 'report',
+          name: 'BemsWebAiReport',
+          component: () => import('/@/views/bems-web/ai/report/index.vue'),
+          meta: { title: 'AI运行报告' },
+        },
+        {
+          path: 'energy',
+          name: 'BemsWebAiEnergy',
+          component: () => import('/@/views/bems-web/ai/energy/index.vue'),
+          meta: { title: 'AI节能报告' },
+        },
+        {
+          path: 'fault',
+          name: 'BemsWebAiFault',
+          component: () => import('/@/views/bems-web/ai/fault/index.vue'),
+          meta: { title: 'AI故障分析报告' },
+        }
       ],
     },
   ],

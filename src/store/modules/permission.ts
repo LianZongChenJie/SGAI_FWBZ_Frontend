@@ -8,6 +8,7 @@ import { useAppStoreWithOut } from './app';
 import { toRaw } from 'vue';
 import { transformObjToRoute, flatMultiLevelRoutes, addSlashToRouteComponent } from '/@/router/helper/routeHelper';
 import { transformRouteToMenu } from '/@/router/helper/menuHelper';
+import { mergeExtraAiReportMenus } from '/@/router/helper/mergeAiMenus';
 
 import projectSetting from '/@/settings/projectSetting';
 
@@ -265,6 +266,7 @@ export const usePermissionStore = defineStore({
             console.error(error);
           }
           // 组件地址前加斜杠处理  author: lsq date:2021-09-08
+          routeList = mergeExtraAiReportMenus(routeList);
           routeList = addSlashToRouteComponent(routeList);
           // 动态引入组件
           routeList = transformObjToRoute(routeList);
