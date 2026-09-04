@@ -11,7 +11,7 @@
         :icon="FreshUnitTotalIcon"
       />
       <StatCard
-        label="运行中"
+        label="在线"
         :value="statsData.online"
         change-text=""
         trend=""
@@ -117,8 +117,8 @@
           <span class="card-note">今日均值 μg/m³ · 虚线=GB 3095 二级 35</span>
         </div>
         <div class="analysis-card__body">
-          <div v-if="hasPm25Data" ref="pm25ChartRef" class="venue-chart"></div>
-          <div v-else class="chart-placeholder">
+          <div v-show="hasPm25Data" ref="pm25ChartRef" class="venue-chart"></div>
+          <div v-show="!hasPm25Data" class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
             <div class="chart-placeholder__text">暂无数据</div>
           </div>
@@ -140,8 +140,8 @@
           </div>
         </div>
         <div class="analysis-card__body">
-          <div v-if="hasTempData" ref="tempChartRef" class="venue-chart"></div>
-          <div v-else class="chart-placeholder">
+          <div v-show="hasTempData" ref="tempChartRef" class="venue-chart"></div>
+          <div v-show="!hasTempData" class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
             <div class="chart-placeholder__text">暂无数据</div>
           </div>

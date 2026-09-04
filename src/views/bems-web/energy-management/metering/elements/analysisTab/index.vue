@@ -36,7 +36,7 @@
     </div>
 
     <!-- 能耗趋势分析模块 -->
-    <div class="card trend-analysis-card" :class="{ 'trend-fullscreen': fullscreen }">
+    <a-card class="card trend-analysis-card" :bordered="false" :class="{ 'trend-fullscreen': fullscreen }">
       <div class="card-header">
         <h3>📈 能耗趋势分析</h3>
         <div class="card-actions">
@@ -67,7 +67,7 @@
           v-model:time="time"
         />
       </div>
-    </div>
+    </a-card>
   </div>
 </template>
 
@@ -149,39 +149,43 @@ onMounted(() => {
   }
 
   .card {
-    background: white;
     border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
     margin-bottom: 20px;
     overflow: hidden;
 
+    :deep(.ant-card-body) {
+      padding: 16px;
+    }
+
     .card-header {
-      padding: 18px 22px;
-      border-bottom: 1px solid #f0f0f0;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      margin: 0 -16px 16px;
+      padding: 0 16px 12px;
+      border-bottom: 1px solid #f0f0f0;
       flex-wrap: wrap;
       gap: 12px;
 
       h3 {
-        font-size: 16px;
+        font-size: 15px;
         font-weight: 600;
-        color: #2d3748;
+        color: rgba(0, 0, 0, 0.85);
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
         margin: 0;
       }
     }
 
     .card-body {
-      padding: 22px;
+      padding: 0;
     }
   }
 
   .trend-analysis-card {
-    margin-top: 10px;
+    margin-top: 20px;
 
     .card-actions {
       display: flex;

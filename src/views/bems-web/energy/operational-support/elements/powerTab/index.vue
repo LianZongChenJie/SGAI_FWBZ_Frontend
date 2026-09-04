@@ -9,7 +9,7 @@
         :icon="PowerCabinetTotalIcon"
       />
       <StatCard
-        label="正常运行"
+        label="在线"
         :value="statsData.online"
         color="green"
         :icon="NormalRunningIcon"
@@ -121,8 +121,8 @@
           <span class="card-note">逐时电能 kWh · 今日合计 875.40（参考值）</span>
         </div>
         <div class="analysis-card__body">
-          <div v-if="hasActiveData" ref="activeChartRef" class="venue-chart"></div>
-          <div v-else class="chart-placeholder">
+          <div v-show="hasActiveData" ref="activeChartRef" class="venue-chart"></div>
+          <div v-show="!hasActiveData" class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
             <div class="chart-placeholder__text">暂无数据</div>
           </div>
@@ -137,8 +137,8 @@
           <span class="card-note">逐时电能 kWh · 今日合计 159.60（参考值）</span>
         </div>
         <div class="analysis-card__body">
-          <div v-if="hasReactiveData" ref="reactiveChartRef" class="venue-chart"></div>
-          <div v-else class="chart-placeholder">
+          <div v-show="hasReactiveData" ref="reactiveChartRef" class="venue-chart"></div>
+          <div v-show="!hasReactiveData" class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
             <div class="chart-placeholder__text">暂无数据</div>
           </div>

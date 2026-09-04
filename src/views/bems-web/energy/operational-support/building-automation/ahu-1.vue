@@ -11,9 +11,10 @@
           ref="schematicCardRef"
           @wheel.prevent="handleZoom"
           @mousedown.prevent="startPan"
-          :style="{ transform: `translate(${panX}px, ${panY}px) scale(${zoom})`, transformOrigin: '0 0', cursor: panning ? 'grabbing' : 'grab' }"
+          :style="{ cursor: panning ? 'grabbing' : 'grab' }"
         >
-          <div class="ba-schematic ahu ahu-1">
+          <div class="ba-schematic ahu ahu-1"
+            :style="{ transform: `translate(${panX}px, ${panY}px) scale(${zoom})`, transformOrigin: '0 0' }">
           <div class="ahu-wrap device" @click="$emit('select-device','ba.ahu1')">
       <img class="ahu-asset" src="/equipment/ahu-process-v2-2_5d.png" alt="AHU-1 新风机组" />
       <div class="air-stream supply-flow" :class="{ active: isFanRunning() }"><i v-for="x in 12" :key="`s${x}`"></i></div>
@@ -76,6 +77,13 @@
       <PointBadge class="pt supply-air-temp" label="送风温度" :value="getParamValue('送风温度')" />
       <PointBadge class="pt supply-air-humidity" label="送风湿度" :value="getParamValue('送风湿度')" />
           </div>
+          </div>
+        <!-- 缩放控制栏 -->
+        <div class="zoom-controls">
+          <span class="zoom-label">{{ Math.round(zoom * 100) }}%</span>
+          <button class="zoom-btn" @click="zoomOutFn">−</button>
+          <button class="zoom-btn" @click="zoomInFn">+</button>
+          <button class="zoom-btn" @click="resetZoom">重置</button>
         </div>
       </section>
         <aside class="system-panel" v-show="showPanel">
@@ -86,19 +94,12 @@
           </div>
         </aside>
       </div>
-      <!-- 缩放控制栏 -->
-      <div class="zoom-controls">
-        <span class="zoom-label">{{ Math.round(zoom * 100) }}%</span>
-        <button class="zoom-btn" @click="zoomOutFn">−</button>
-        <button class="zoom-btn" @click="zoomInFn">+</button>
-        <button class="zoom-btn" @click="resetZoom">重置</button>
-      </div>
     </main>
   </div>
 </template>
 
 <script setup>
-import { reactive, computed, ref } from 'vue'
+import { reactive, computed, ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import PointBadge from './components/PointBadge.vue'
 import { createHelpers } from './components/utils.js'
 import { formatSystemParam } from './components/systemParamFormat.js'
@@ -118,13 +119,67 @@ const zoom = ref(1)
 const panX = ref(0)
 const panY = ref(0)
 const panning = ref(false)
+const userAdjustedZoom = ref(false) // 用户是否手动调整过缩放
 const schematicCardRef = ref(null)
 let panStartX = 0
 let panStartY = 0
 let panOriginX = 0
 let panOriginY = 0
 
+/** 根据容器高度自动调整缩放比例，大视口时自动放大填满容器 */
+const autoFitZoom = () => {
+  // 用户手动调整过缩放后，不再自动调整
+  if (userAdjustedZoom.value) return
+  const card = schematicCardRef.value
+  if (!card) return
+  const cardWidth = card.clientWidth
+  const cardHeight = card.clientHeight
+  if (cardWidth <= 0 || cardHeight <= 0) return
+  // ahu-wrap 的 aspect-ratio 是 1.72，即 高度 = 宽度 / 1.72
+  const contentNaturalHeight = cardWidth / 1.72
+  if (contentNaturalHeight <= 0) return
+  // 计算让内容填满容器高度所需的缩放比
+  const fitZoom = +(cardHeight / contentNaturalHeight).toFixed(2)
+  // 限制在合理范围内
+  zoom.value = Math.min(3, Math.max(0.5, fitZoom))
+}
+
+/** 重置缩放时允许自动调整 */
+const resetZoom = () => { 
+  userAdjustedZoom.value = false
+  zoom.value = 1
+  panX.value = 0
+  panY.value = 0
+  // 重新计算自动适配的缩放
+  setTimeout(autoFitZoom, 0)
+}
+
+/** 使用 ResizeObserver 监听容器尺寸变化（包括全屏切换） */
+let resizeObserver = null
+let isInitialResize = true
+
+onMounted(() => {
+  const card = schematicCardRef.value
+  if (card) {
+    resizeObserver = new ResizeObserver(() => {
+      if (isInitialResize) {
+        isInitialResize = false
+        return
+      }
+      autoFitZoom()
+    })
+    resizeObserver.observe(card)
+  }
+})
+
+onBeforeUnmount(() => {
+  if (resizeObserver) {
+    resizeObserver.disconnect()
+  }
+})
+
 const handleZoom = (e) => {
+  userAdjustedZoom.value = true
   if (!schematicCardRef.value) return
   const rect = schematicCardRef.value.getBoundingClientRect()
   const mouseX = e.clientX - rect.left
@@ -138,8 +193,8 @@ const handleZoom = (e) => {
   panY.value = mouseY - (mouseY - panY.value) * ratio
   zoom.value = newZoom
 }
-const zoomInFn = () => { zoom.value = Math.min(3, +(zoom.value + 0.2).toFixed(2)) }
-const zoomOutFn = () => { zoom.value = Math.max(0.5, +(zoom.value - 0.2).toFixed(2)) }
+const zoomInFn = () => { userAdjustedZoom.value = true; zoom.value = Math.min(3, +(zoom.value + 0.2).toFixed(2)) }
+const zoomOutFn = () => { userAdjustedZoom.value = true; zoom.value = Math.max(0.5, +(zoom.value - 0.2).toFixed(2)) }
 const startPan = (e) => {
   panning.value = true
   panStartX = e.clientX
@@ -159,7 +214,6 @@ const stopPan = () => {
   window.removeEventListener('mousemove', onPan)
   window.removeEventListener('mouseup', stopPan)
 }
-const resetZoom = () => { zoom.value = 1; panX.value = 0; panY.value = 0 }
 
 const prefix = 'ba.ahu1'
 const { p, n, valveStyle } = createHelpers(props.values)
@@ -220,7 +274,8 @@ main>header h1{margin:0;font-size:16px;font-weight:600;color:#d9eaf3}
 .panel-toggle:hover{color:#48dfa8;border-color:#48dfa8}
 .panel-toggle.active{color:#48dfa8;border-color:#48dfa8;background:rgba(72,223,168,.1)}
 .ba-content{flex:1;min-height:0;display:flex;gap:0;overflow:hidden;position:relative}
-.schematic-card{flex:1;min-width:0;position:relative;overflow:hidden;border:1px solid rgba(78,141,167,.25);background:linear-gradient(rgba(63,117,142,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(63,117,142,.05) 1px,transparent 1px),rgba(5,20,30,.55);background-size:18px 18px;will-change:transform}
+.schematic-card{flex:1;min-width:0;position:relative;overflow:hidden;border:1px solid rgba(78,141,167,.25);background:rgba(5,20,30,.55)}
+.ba-schematic{position:absolute;inset:0;color:#bcd3df;background:linear-gradient(rgba(53,108,132,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(53,108,132,.05) 1px,transparent 1px);background-size:18px 18px;will-change:transform}
 .system-panel{position:absolute;right:16px;top:16px;bottom:14px;width:222px;border:1px solid #234b5e;background:#08202e;overflow-y:auto;overflow-x:hidden;z-index:50}
 .system-panel header{height:29px;padding:8px 10px;border-bottom:1px solid #285267;background:#0d3041;color:#80c7d1;font-size:10px;position:sticky;top:0;z-index:2}
 .system-panel>div{height:34px;padding:0 9px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(52,91,109,.28);font-size:10px}
@@ -228,7 +283,6 @@ main>header h1{margin:0;font-size:16px;font-weight:600;color:#d9eaf3}
 .system-panel strong{color:#d6e8f0}
 @media(max-width:1050px){.system-panel{display:none}}
 
-.ba-schematic{position:absolute;inset:0;overflow:hidden;color:#bcd3df;background:linear-gradient(rgba(53,108,132,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(53,108,132,.05) 1px,transparent 1px);background-size:18px 18px}
 .device{cursor:pointer;transition:.2s}
 .device:hover{filter:brightness(1.2);transform:translateY(-4px)}
 .ahu-wrap{position:absolute;left:1%;right:auto;top:8%;bottom:auto;width:100%;aspect-ratio:1.72;overflow:hidden}
@@ -240,10 +294,10 @@ main>header h1{margin:0;font-size:16px;font-weight:600;color:#d9eaf3}
 .air-stream.active i{animation:windCurve 1.8s linear infinite}
 .air-stream.active i:nth-child(2n){animation-delay:-.9s;opacity:.65}
 .supply-flow{left:21%;right:10%;top:49%;height:24px;transform: rotate(3deg);}
-.fan-rotor{position:absolute;width:36px;height:36px;border-radius:50%;pointer-events:none}
+.fan-rotor{position:absolute;width:65px;height:65px;border-radius:50%;pointer-events:none}
 .fan-rotor i{position:absolute;inset:8%;border:2px solid rgba(90,236,202,.42);background:repeating-conic-gradient(from 0deg,rgba(83,244,203,.92) 0 13deg,transparent 13deg 42deg);-webkit-mask:radial-gradient(circle,transparent 0 17%,#000 19% 68%,transparent 70%);mask:radial-gradient(circle,transparent 0 17%,#000 19% 68%,transparent 70%)}
 .fan-rotor.running i{animation:spin .7s linear infinite;filter:drop-shadow(0 0 6px #34e1ba)}
-.ahu-supply-rotor{right:23.5%;top:49.5%}
+.ahu-supply-rotor{right:22.5%;top:49.5%}
 .valve-motion{position:absolute;width:30px;height:30px;border:3px solid #d5a542;border-radius:50%;pointer-events:none}
 .valve-motion i{position:absolute;left:47%;top:-20%;width:3px;height:140%;background:#ffe075;transform:rotate(var(--open));transition:transform .7s ease;transform-origin:center}
 .ahu-valve{left:51.5%;top:67%}

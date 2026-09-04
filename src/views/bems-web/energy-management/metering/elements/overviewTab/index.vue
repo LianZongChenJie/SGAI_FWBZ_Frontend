@@ -140,11 +140,9 @@
             </template>
             🔍查询
           </a-button>
-          <a-button @click="handleExport">
-            <template #icon>
-              <ExportOutlined />
-            </template>
-            📥导出报表
+          <a-button @click="handleExport" type="primary" :loading="exportLoading">
+            <DownloadOutlined />
+            导出报表
           </a-button>
           <button class="collapse-btn" @click="meterCollapsed = !meterCollapsed">
             <CaretDownOutlined v-if="!meterCollapsed" />
@@ -221,6 +219,7 @@ import {
   ExportOutlined,
   CaretDownOutlined,
   CaretUpOutlined,
+  DownloadOutlined,
 } from '@ant-design/icons-vue'
 // 引用一次，抑制 vetur 未使用警告（仅用于模板）
 void ThunderboltOutlined
@@ -228,7 +227,6 @@ void CheckCircleOutlined
 void SearchOutlined
 void ExportOutlined
 import { useECharts } from '/@/hooks/web/useECharts'
-import { exportExcel } from '/@/utils/export'
 import {
   getEnergyMeteringStatistics,
   getMeasuringListWithMouth,
@@ -239,6 +237,7 @@ import {
   findMonthVenueElectricity,
   findYearVenueElectricity,
   getDeviceAttrList,
+  exportData,
 } from './index.api'
 import { getVenueInfoList, getCategoryTreeData, spaceTree } from '/@/views/bems-web/equipment/equipmentManagement/elements/device/Device.api'
 
@@ -447,36 +446,33 @@ const handleSearch = () => {
   loadMeterData(1, pagination.pageSize)
 }
 
+// 导出loading
+const exportLoading = ref(false)
+
 // 导出报表
-const handleExport = () => {
-  if (meterData.value.length === 0) {
-    return
+const handleExport = async () => {
+  exportLoading.value = true
+  try {
+    const params: any = {}
+    if (meterType.value) params.categoryIds = meterType.value
+    if (meterSpace.value) params.spaceId = meterSpace.value
+    const res = await exportData(params)
+    const blobOptions = { type: 'application/vnd.ms-excel' }
+    const fileSuffix = '.xlsx'
+    const url = window.URL.createObjectURL(new Blob([res], blobOptions))
+    const link = document.createElement('a')
+    link.style.display = 'none'
+    link.href = url
+    link.setAttribute('download', '计量表计数据报表' + fileSuffix)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+  } catch (e) {
+    console.error('导出失败:', e)
+  } finally {
+    exportLoading.value = false
   }
-  const headers = [
-    { title: '表计编号', key: 'deviceCode' },
-    {
-      title: '表计类型',
-      key: 'categoryId',
-      formatter: (val: string) => findTreeNodeTitle(categoryTreeData.value, val) || val,
-    },
-    {
-      title: '安装位置',
-      key: 'spaceId',
-      formatter: (val: string) => {
-        if (!val) return ''
-        return findTreeNodePath(spaceTreeData.value, val) || val
-      },
-    },
-    { title: '今日读数', key: 'value' },
-    { title: '今日用量', key: 'dayTotal' },
-    { title: '本月累计', key: 'mouthTotal' },
-    { title: '状态', key: 'runState' },
-  ]
-  exportExcel({
-    tableData: meterData.value,
-    headers,
-    fileName: '计量表计数据报表',
-  })
 }
 
 // 表格分页变化

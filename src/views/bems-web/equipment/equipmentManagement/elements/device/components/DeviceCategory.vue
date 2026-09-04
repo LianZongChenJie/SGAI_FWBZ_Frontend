@@ -44,8 +44,8 @@
         </div>
 
         <!-- 动态设备类型 tab 内容（DeviceTable） -->
-        <!-- 只渲染一个 DeviceTable 实例，通过 v-show 控制显示，避免多个实例同时 watch 导致重复调用接口 -->
-        <div class="device-table-container" v-show="activeCategoryKey && !['camera', 'door', 'door-controller'].includes(activeCategoryKey)">
+        <!-- 只渲染一个 DeviceTable 实例，通过 v-if 控制显示，等 activeCategoryKeys 有值后再渲染，确保接口带上设备类别参数 -->
+        <div class="device-table-container" v-if="activeCategoryKey && !['camera', 'door', 'door-controller'].includes(activeCategoryKey) && activeCategoryKeys.length > 0">
           <div class="table-toolbar">
             <div class="header-actions">
               <a-input

@@ -248,6 +248,7 @@
       key: 'action',
       minWidth: 80,
       width: 120,
+      fixed: 'right',
     },
   ];
 

@@ -9,7 +9,7 @@
         :icon="TotalIcon"
       />
       <StatCard
-        label="运行中"
+        label="在线"
         :value="statsData.online"
         color="green"
         :icon="RunningIcon"
@@ -22,11 +22,11 @@
         :icon="EnergyIcon"
       />
       <StatCard
-        label="平均送风量"
-        :value="statsData.avgSupplyAir"
-        unit="m³/h"
+        label="故障数"
+        :value="statsData.faultCount"
+        unit=""
         color="purple"
-        :icon="AirVolumeIcon"
+        :icon="FaultIcon"
       />
     </div>
 
@@ -110,8 +110,8 @@
           <span class="card-note">今日 00:00–23:00 · 逐时 kWh</span>
         </div>
         <div class="analysis-card__body">
-          <div v-if="hasEnergyData" ref="energyChartRef" class="venue-chart"></div>
-          <div v-else class="chart-placeholder">
+          <div v-show="hasEnergyData" ref="energyChartRef" class="venue-chart"></div>
+          <div v-show="!hasEnergyData" class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
             <div class="chart-placeholder__text">暂无数据</div>
           </div>
@@ -126,8 +126,8 @@
           <span class="card-note">各排风机风管压差 · 逐时 Pa</span>
         </div>
         <div class="analysis-card__body">
-          <div v-if="hasPressureData" ref="pressureChartRef" class="venue-chart"></div>
-          <div v-else class="chart-placeholder">
+          <div v-show="hasPressureData" ref="pressureChartRef" class="venue-chart"></div>
+          <div v-show="!hasPressureData" class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
             <div class="chart-placeholder__text">暂无数据</div>
           </div>
@@ -204,7 +204,7 @@
 import { ref, reactive, computed, h, onMounted, nextTick } from 'vue'
 import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined, DownloadOutlined } from '@ant-design/icons-vue'
 import { StatCard } from '/@/views/bems-web/components'
-import { getSpaceTree, getDeviceAttrList, selectDevice, exportData } from './index.api'
+import { getSpaceTree, getDeviceAttrList, selectDevice, exportData, getExhaustFanStatistics } from './index.api'
 import { getStatisticsByCategoryId } from '../../index.api'
 import FanBox from '../../building-automation/fan-box.vue'
 import { useECharts } from '/@/hooks/web/useECharts'
@@ -214,7 +214,7 @@ import { buildTrendOption } from '../chartOptions'
 const TotalIcon = () => h('span', { style: 'font-size: 20px;' }, '🌬️')
 const RunningIcon = () => h('span', { style: 'font-size: 20px;' }, '✅')
 const EnergyIcon = () => h('span', { style: 'font-size: 20px;' }, '⚡')
-const AirVolumeIcon = () => h('span', { style: 'font-size: 20px;' }, '📊')
+const FaultIcon = () => h('span', { style: 'font-size: 20px;' }, '⚠️')
 
 defineOptions({ name: 'SupplyFanTab' })
 
@@ -472,6 +472,15 @@ const loadStatistics = async () => {
   } catch (e) {
     console.error('获取排风机统计数据失败', e)
   }
+
+  try {
+    const statisticsRes = await getExhaustFanStatistics()
+    const statisticsData = statisticsRes?.data ?? statisticsRes ?? {}
+    statsData.value.energyConsumption = statisticsData.energyConsumption ?? '--'
+    statsData.value.faultCount = statisticsData.faultCount ?? 0
+  } catch (e) {
+    console.error('获取排风机汇总数据失败', e)
+  }
 }
 
 // 统计数据
@@ -479,7 +488,7 @@ const statsData = ref({
   count: 0,
   online: 0,
   energyConsumption: '--',
-  avgSupplyAir: '--',
+  faultCount: 0,
 })
 
 // 搜索表单
@@ -893,13 +902,28 @@ const handleDetail = async (record: any) => {
   padding: 20px;
   overflow: auto;
   background: #fff;
+
+  .process-body {
+    height: 100%;
+
+    .process-layout {
+      height: 100%;
+      min-height: 0;
+    }
+
+    .process-schematic {
+      height: 100%;
+      min-height: 0;
+    }
+  }
 }
 
 .process-body {
   .process-layout {
     display: flex;
     gap: 16px;
-    min-height: 600px;
+    height: calc(100vh - 400px);
+    min-height: 800px;
   }
 
   .process-tree {
@@ -930,7 +954,8 @@ const handleDetail = async (record: any) => {
     border-radius: 8px;
     overflow: auto;
     background-color: #06131d;
-    min-height: 600px;
+    height: calc(100vh - 400px);
+    min-height: 800px;
 
     &__controls {
       position: sticky;

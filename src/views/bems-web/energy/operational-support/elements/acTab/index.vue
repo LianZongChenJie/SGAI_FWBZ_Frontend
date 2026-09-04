@@ -9,7 +9,7 @@
         :icon="AcUnitTotalIcon"
       />
       <StatCard
-        label="运行中"
+        label="在线"
         :value="statsData.online"
         color="green"
         :icon="RunningIcon"
@@ -112,8 +112,8 @@
           <span class="card-note">今日 00:00–23:00 · 逐时 ppm · 虚线=设定 800</span>
         </div>
         <div class="analysis-card__body">
-          <div v-if="hasCo2Data" ref="co2ChartRef" class="venue-chart"></div>
-          <div v-else class="chart-placeholder">
+          <div v-show="hasCo2Data" ref="co2ChartRef" class="venue-chart"></div>
+          <div v-show="!hasCo2Data" class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
             <div class="chart-placeholder__text">暂无数据</div>
           </div>
@@ -137,8 +137,8 @@
           </div>
         </div>
         <div class="analysis-card__body">
-          <div v-if="hasTempData" ref="tempChartRef" class="venue-chart"></div>
-          <div v-else class="chart-placeholder">
+          <div v-show="hasTempData" ref="tempChartRef" class="venue-chart"></div>
+          <div v-show="!hasTempData" class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
             <div class="chart-placeholder__text">暂无数据</div>
           </div>
@@ -726,7 +726,7 @@ const renderCo2Chart = async () => {
     const { iconAreaCommon } = await import('../../index.api')
     const res = await iconAreaCommon({
       deviceIds: selectedDeviceId.value,
-      attributeName: '回风二氧化碳',
+      attributeName: '回风二氧化碳传感器',
       threshold: 800,
     }) as any
     const data = res?.data || res || {}
@@ -1044,16 +1044,31 @@ onMounted(() => {
     padding: 20px;
     overflow: auto;
     background: #fff;
+
+    .process-body {
+      height: 100%;
+
+      .process-layout {
+        height: 100%;
+        min-height: 0;
+      }
+
+      .process-schematic {
+        height: 100%;
+        min-height: 0;
+      }
+    }
   }
 
   .process-body {
-    .process-layout {
-      display: flex;
-      gap: 16px;
-      min-height: 600px;
-    }
+  .process-layout {
+    display: flex;
+    gap: 16px;
+    height: calc(100vh - 400px);
+min-height: 800px;
+}
 
-    .process-tree {
+.process-tree {
       flex-shrink: 0;
       width: 240px;
       border: 1px solid #f0f0f0;
@@ -1084,9 +1099,10 @@ onMounted(() => {
         linear-gradient(90deg, rgba(53, 108, 132, 0.05) 1px, transparent 1px);
       background-size: 18px 18px;
       background-color: #082332;
-      min-height: 600px;
-      display: flex;
-      flex-direction: column;
+      height: calc(100vh - 400px);
+min-height: 800px;
+display: flex;
+flex-direction: column;
 
       .process-schematic__toolbar {
         flex-shrink: 0;

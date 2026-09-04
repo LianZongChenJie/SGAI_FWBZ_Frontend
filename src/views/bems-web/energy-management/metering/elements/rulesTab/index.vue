@@ -36,7 +36,7 @@
     </div>
 
     <!-- 计量规则配置模块 -->
-    <div class="rule-config-card" :class="{ 'rule-fullscreen': ruleFullscreen }">
+    <a-card class="rule-config-card" :bordered="false" :class="{ 'rule-fullscreen': ruleFullscreen }">
       <div class="card-header">
         <div class="card-title-wrap">
           <span class="card-title">📋计量规则配置</span>
@@ -58,7 +58,7 @@
       <div v-show="!ruleCollapsed" class="card-body">
         <MeasureRule ref="measureRuleRef" />
       </div>
-    </div>
+    </a-card>
   </div>
 </template>
 
@@ -127,17 +127,20 @@ onMounted(() => {
   }
 
   .rule-config-card {
-    margin-top: 10px;
-    background-color: #fff;
+    margin-top: 20px;
     border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+
+    :deep(.ant-card-body) {
+      padding: 16px;
+    }
 
     .card-header {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      padding: 18px 22px;
+      justify-content: space-between;
+      margin: 0 -16px 16px;
+      padding: 0 16px 12px;
       border-bottom: 1px solid #f0f0f0;
 
       .card-title-wrap {
@@ -145,22 +148,21 @@ onMounted(() => {
         align-items: center;
 
         .card-title {
-          font-size: 16px;
+          font-size: 15px;
           font-weight: 600;
-          color: #262626;
+          color: rgba(0, 0, 0, 0.85);
         }
       }
 
       .card-actions {
         display: flex;
-        gap: 8px;
+        gap: 12px;
         align-items: center;
       }
     }
 
     .card-body {
-      min-height: 120px;
-      padding: 22px;
+      padding-top: 16px;
     }
   }
 

@@ -83,7 +83,7 @@ export function buildTrendOption(
       type: 'category',
       boundaryGap: false,
       data: xaxis,
-      axisLabel: { color: TINK.muted, fontSize:14, interval: 1 },
+      axisLabel: { color: TINK.muted, fontSize:14, interval: xaxis.length > 30 ? Math.ceil(xaxis.length / 15) : 0 },
       axisLine: { lineStyle: { color: TINK.baseline } },
       axisTick: { show: false },
     },

@@ -273,7 +273,7 @@ const handleExport = async () => {
   }
   exportLoading.value = true
   try {
-    const res = await exportReportExcel({ pageNo: 1, pageSize: 100 })
+    const res = await exportReportExcel()
     if (!res || res.size === 0) {
       message.warning('文件下载失败')
       return

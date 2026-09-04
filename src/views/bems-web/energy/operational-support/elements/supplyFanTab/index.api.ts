@@ -7,6 +7,26 @@ enum Api {
   listByDeviceId = '/sgai-fwbz-dev/fwbz/deviceAttribute/listByDeviceId',
   /** 设备列表 */
   deviceList = '/sgai-fwbz-dev/fwbz/device/list',
+  /** 汇总数据中，今日能耗/故障数 */
+  exhaustFanStatistics = '/sgai-fwbz-dev/fwbz/operationSupport/exhaustFanStatistics',
+
+}
+
+/**
+ * 汇总数据中，今日能耗/故障数
+ *
+ * ExhaustFanStatisticsDto
+ */
+export interface ExhaustFanStatisticsDto {
+    /**
+     * 今日能耗
+     */
+    energyConsumption?: number;
+    /**
+     * 故障数
+     */
+    faultCount?: number;
+    [property: string]: any;
 }
 
 /**
@@ -39,3 +59,8 @@ export const exportData = (params) => defHttp.get({ url: '/sgai-fwbz-dev/fwbz/de
  * 设备属性列表（按设备ID查询）
  */
 export const getDeviceAttrList = (params = {}) => defHttp.get({ url: Api.listByDeviceId, params })
+
+/**
+ * 排风机汇总数据（今日能耗/故障数）
+ */
+export const getExhaustFanStatistics = () => defHttp.get<ExhaustFanStatisticsDto>({ url: Api.exhaustFanStatistics, params: { categoryIds: '38' } })

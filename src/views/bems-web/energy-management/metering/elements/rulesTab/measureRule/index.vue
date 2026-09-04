@@ -1,38 +1,37 @@
 <template>
   <a-menu v-model:selectedKeys="current" mode="horizontal" :items="items" @click="menuClick" style="display: none" />
-  <div class="measure-rule">
-    <div class="rule-tree">
+  <div class="rule-layout">
+    <aside class="rule-sidebar">
       <a-input-search v-model:value="searchValue" placeholder="请输入关键字" allow-clear @search="handleSearch" @change="handleSearchChange" />
-      &emsp;
-      <a-spin :spinning="treeLoading">
-        <a-tree
-          v-if="searchTreeData.length"
-          :tree-data="filteredTreeData"
-          v-model:selectedKeys="selectKeys"
-          :expanded-keys="expandedKeys"
-          :auto-expand-parent="autoExpandParent"
-          @select="handleSelect"
-          @expand="handleExpand"
-        >
-          <template #title="{ title, originData }">
-            <span v-html="highlightText(title)" />
-            <span v-if="originData.extra" class="node-extra"> ({{ originData.extra }}) </span>
-          </template>
-          <!-- <template #title="{ title, key, dataRef }">
-            <a-popover>
-              <template #content>
-                {{ title }}
-              </template>
-              <span class="truncated-text">
-                {{ truncateText(title, 10) }}
-              </span>
-            </a-popover>
-          </template> -->
-        </a-tree>
-      </a-spin>
-    </div>
-    <div class="rule-table">
-      <BasicTable @register="registerTable">
+      <div class="tree-wrap">
+        <a-spin :spinning="treeLoading">
+          <a-tree
+            v-if="searchTreeData.length"
+            :tree-data="filteredTreeData"
+            v-model:selectedKeys="selectKeys"
+            :expanded-keys="expandedKeys"
+            :auto-expand-parent="autoExpandParent"
+            @select="handleSelect"
+            @expand="handleExpand"
+          >
+            <template #title="{ title, originData }">
+              <span v-html="highlightText(title)" />
+              <span v-if="originData.extra" class="node-extra"> ({{ originData.extra }}) </span>
+            </template>
+          </a-tree>
+        </a-spin>
+      </div>
+    </aside>
+    <main class="rule-main">
+      <a-table
+        :columns="columns"
+        :data-source="dataSource"
+        :loading="loading"
+        :pagination="false"
+        :scroll="{ x: 'max-content' }"
+        row-key="id"
+        size="middle"
+      >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'action'">
             <a-space>
@@ -41,8 +40,19 @@
             </a-space>
           </template>
         </template>
-      </BasicTable>
-    </div>
+      </a-table>
+      <div class="pagination-wrap">
+        <a-pagination
+          v-model:current="pagination.current"
+          v-model:page-size="pagination.pageSize"
+          :total="total"
+          show-size-changer
+          show-total="(total) => `共 ${total} 条`"
+          @change="handlePageChange"
+          @showSizeChange="handlePageChange"
+        />
+      </div>
+    </main>
   </div>
   <MeasureRuleModal
     ref="ruleModalRef"
@@ -63,8 +73,6 @@
   import { message, Modal } from 'ant-design-vue';
   import MeasureRuleModal from './components/MeasureRuleModal.vue';
   import FormulaModal from './components/FormulaModal.vue';
-  import { BasicColumn, BasicTable, FormSchema } from '/@/components/Table';
-  import { useListPage } from '/@/hooks/system/useListPage';
   import { debounce } from 'lodash-es';
   import { nodeDetail } from './index.api';
 
@@ -86,7 +94,7 @@
 
   const ruleModalRef = ref();
 
-  const columns: TableColumnsType | BasicColumn[] = [
+  const columns: TableColumnsType = [
     {
       title: '项目编号',
       dataIndex: 'nodeCode',
@@ -139,11 +147,19 @@
     pageSize: 10,
   });
 
-  // 表格变化处理（分页、排序、筛选）
-  const handleTableChange = (pag: TablePaginationConfig) => {
-    pagination.value.current = pag.current;
-    pagination.value.pageSize = pag.pageSize;
-    reload();
+  // 分页变化处理
+  const handlePageChange = (page: number, pageSize: number) => {
+    pagination.value.current = page;
+    pagination.value.pageSize = pageSize;
+    loadTableData();
+  };
+
+  // 加载表格数据
+  const loadTableData = () => {
+    findTableData({
+      pageNo: pagination.value.current,
+      pageSize: pagination.value.pageSize,
+    });
   };
 
   // 显示弹窗
@@ -186,7 +202,7 @@
 
   const handleSuccess = () => {
     findTreeData();
-    reload();
+    loadTableData();
   };
   // 删除节点
   const handleDelete = () => {
@@ -212,13 +228,13 @@
           // 如果是当前选中节点，则清空选中节点
           selectKeys.value = [];
         }
-        reload();
+        loadTableData();
       },
     });
   };
 
   const handleSelect = () => {
-    reload();
+    loadTableData();
   };
 
   const findNodeInTree = (tree: any[], id: string): any => {
@@ -256,10 +272,6 @@
       });
       dataSource.value = res.records;
       total.value = res.total;
-      return {
-        records: res.records, // 当前页数据
-        total: res.total, // 总记录数
-      };
     } catch (error) {
       console.error('获取数据失败', error);
     } finally {
@@ -290,26 +302,10 @@
     }
   };
 
-  const { tableContext } = useListPage({
-    designScope: 'basic-table-demo',
-    tableProps: {
-      api: findTableData,
-      columns: columns as BasicColumn[],
-      showActionColumn: false,
-      showTableSetting: false,
-      pagination: {
-        pageSize: 10,
-        showSizeChanger: true,
-      },
-    },
-  });
-
-  // BasicTable绑定注册
-  const [registerTable, { reload }] = tableContext;
 
   const menuClick: MenuProps['onClick'] = ({ item }) => {
-    const { key, label } = item.originItemValue;
-    energyFlowTreeType.value = { type: key, name: label };
+    const originItem = item.originItemValue as { key: string; label: string };
+    energyFlowTreeType.value = { type: originItem.key, name: originItem.label };
     selectKeys.value = [];
   };
   findEnergyFlowType();
@@ -319,14 +315,23 @@
     () => energyFlowTreeType.value.type,
     () => {
       findTreeData();
-      reload();
+      pagination.value.current = 1;
+      loadTableData();
+    }
+  );
+
+  watch(
+    () => selectKeys.value,
+    () => {
+      pagination.value.current = 1;
+      loadTableData();
     }
   );
 
   // 转换为a-tree需要的格式
   const transformTreeData = (data, parentKey = null) => {
     return data.map((item) => {
-      const node = {
+      const node: any = {
         key: item.key.toString(),
         title: item.title,
         originData: item, // 保留原始数据
@@ -343,17 +348,9 @@
   const searchTreeData = ref([]);
   const treeLoading = ref(false);
   const searchValue = ref('');
-  const expandedKeys = ref([]);
+  const expandedKeys = ref<string[]>([]);
   const autoExpandParent = ref(true);
 
-  // 异步加载子节点
-  const loadData = async (treeNode) => {
-    if (!treeNode.dataRef.isLeaf) {
-      const response = await api.get(`/tree-data/${treeNode.dataRef.key}/children`);
-      treeNode.dataRef.children = transformTreeData(response.data, treeNode.dataRef.key);
-      treeData.value = [...treeData.value];
-    }
-  };
 
   // 过滤树数据
   const filteredTreeData = computed(() => {
@@ -380,7 +377,6 @@
     let num = 10;
     current.value[0] === 'specialty' ? (num = 17) : 10;
     if (!searchValue.value) return truncateText(text, num);
-    const reg = new RegExp(searchValue.value, 'gi');
     // const nameStr = text.replace(reg, (match) => `<span class="highlight" style="color: #f50;">${truncateText(match, 10)}</span>`)
     if (text.includes(searchValue.value)) {
       return `<span class="highlight" style="color: #f50;">${truncateText(text, num)}</span>`;
@@ -396,7 +392,7 @@
       return;
     }
 
-    const keys = new Set();
+    const keys = new Set<string>();
     const walkTree = (nodes) => {
       nodes.forEach((node) => {
         if (node.title.includes(searchValue.value)) {
@@ -412,7 +408,7 @@
     };
 
     walkTree(searchTreeData.value);
-    expandedKeys.value = Array.from(keys);
+    expandedKeys.value = Array.from(keys) as string[];
     autoExpandParent.value = true;
   }, 300);
 
@@ -461,30 +457,45 @@
 </script>
 
 <style lang="less" scoped>
-  .measure-rule {
+  .rule-layout {
     display: flex;
-    width: 100%;
-    height: 100%;
+    align-items: flex-start;
     gap: 16px;
+  }
 
-    .rule-tree {
-      flex: 0 0 240px;
-      min-width: 200px;
-      padding: 12px;
-      border-right: 1px solid #f0f0f0;
+  .rule-sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    border-right: 1px solid #f0f0f0;
+    padding-right: 12px;
 
-      .ant-tree {
-        height: 100%;
-      }
+    .tree-wrap {
+      height: 650px;
+      overflow-y: auto;
+      margin-top: 8px;
+    }
+  }
+
+  .rule-main {
+    flex: 1;
+    min-width: 0;
+    height: 650px;
+    display: flex;
+    flex-direction: column;
+
+    :deep(.ant-table-wrapper) {
+      margin-top: 0 !important;
     }
 
-    .rule-table {
-      flex: 1;
-      min-width: 0;
+    :deep(.ant-table-body) {
+      overflow-y: visible !important;
+      overflow-x: auto !important;
+      max-height: none !important;
+    }
 
-      .ant-table {
-        height: 100%;
-      }
+    .pagination-wrap {
+      margin-top: 16px;
+      text-align: right;
     }
   }
 

@@ -9,7 +9,7 @@
         :icon="ColdSourceTotalIcon"
       />
       <StatCard
-        label="运行中"
+        label="在线"
         :value="statsData.online"
         color="green"
         :icon="RunningIcon"
@@ -116,8 +116,8 @@
             <span class="card-note">逐时 COP · 停机无数据 · 轴范围 2~10</span>
           </div>
           <div class="analysis-card__body">
-            <div v-if="hasCopData" ref="copChartRef" class="venue-chart"></div>
-            <div v-else class="chart-placeholder">
+            <div v-show="hasCopData" ref="copChartRef" class="venue-chart"></div>
+            <div v-show="!hasCopData" class="chart-placeholder">
               <span class="analysis-card__icon2">📊</span>
               <div class="chart-placeholder__text">暂无数据</div>
             </div>
@@ -132,8 +132,8 @@
             <span class="card-note">逐时制冷量 kW · 额定 4400/2500 kW</span>
           </div>
           <div class="analysis-card__body">
-            <div v-if="hasCapacityData" ref="capacityChartRef" class="venue-chart"></div>
-            <div v-else class="chart-placeholder">
+            <div v-show="hasCapacityData" ref="capacityChartRef" class="venue-chart"></div>
+            <div v-show="!hasCapacityData" class="chart-placeholder">
               <span class="analysis-card__icon2">📊</span>
               <div class="chart-placeholder__text">暂无数据</div>
             </div>

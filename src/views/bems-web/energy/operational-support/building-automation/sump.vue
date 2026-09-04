@@ -11,9 +11,10 @@
           ref="schematicCardRef"
           @wheel.prevent="handleZoom"
           @mousedown.prevent="startPan"
-          :style="{ transform: `translate(${panX}px, ${panY}px) scale(${zoom})`, transformOrigin: '0 0', cursor: panning ? 'grabbing' : 'grab' }"
+          :style="{ cursor: panning ? 'grabbing' : 'grab' }"
         >
-          <div class="ba-schematic">
+          <div class="ba-schematic"
+            :style="{ transform: `translate(${panX}px, ${panY}px) scale(${zoom})`, transformOrigin: '0 0' }">
             <div class="sump-asset device" @click="$emit('select-device','ba.sump')">
               <img src="/equipment/sump-pump-station-v2-2_5d.png" alt="集水坑双泵" />
               <div class="water-level" :style="{ height: `${clamp(p('ba.sump.level')) * .30}%` }">
@@ -36,6 +37,13 @@
               <PointBadge :label="`${no}#泵手自动`" :value="getParamValue(`泵${no}手/自动`)" />
             </div>
           </div>
+        <!-- 缩放控制栏 -->
+        <div class="zoom-controls">
+          <span class="zoom-label">{{ Math.round(zoom * 100) }}%</span>
+          <button class="zoom-btn" @click="zoomOutFn">−</button>
+          <button class="zoom-btn" @click="zoomInFn">+</button>
+          <button class="zoom-btn" @click="resetZoom">重置</button>
+        </div>
         </section>
         <aside class="system-panel" v-show="showPanel">
           <header>系统参数</header>
@@ -45,19 +53,12 @@
           </div>
         </aside>
       </div>
-      <!-- 缩放控制栏 -->
-      <div class="zoom-controls">
-        <span class="zoom-label">{{ Math.round(zoom * 100) }}%</span>
-        <button class="zoom-btn" @click="zoomOutFn">−</button>
-        <button class="zoom-btn" @click="zoomInFn">+</button>
-        <button class="zoom-btn" @click="resetZoom">重置</button>
-      </div>
     </main>
   </div>
 </template>
 
 <script setup>
-import { reactive, computed, ref } from 'vue'
+import { reactive, computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import PointBadge from './components/PointBadge.vue'
 import { createHelpers } from './components/utils.js'
 import { formatSystemParam } from './components/systemParamFormat.js'
@@ -204,8 +205,8 @@ main>header h1{margin:0;font-size:16px;font-weight:600;color:#d9eaf3}
 .pump-motion{position:absolute;top:38%;width:11%;height:29%;border-radius:12px;transition:.25s;display:flex;align-items:center;justify-content:center}
 .pump-motion-1{left:37.5%}
 .pump-motion-2{left:55.5%}
-.pump-motion .fan-rotor{position:relative;width:50px;height:50px;border-radius:50%;pointer-events:none;margin-top:130px;margin-left:-30px;}
-.pump-motion-2 .fan-rotor{position:relative;width:50px;height:50px;border-radius:50%;pointer-events:none;margin-top:100px;margin-left:35px;}
+.pump-motion .fan-rotor{position:relative;width:63px;height:63px;border-radius:50%;pointer-events:none;margin-top:181px;margin-left:-37px;}
+.pump-motion-2 .fan-rotor{position:relative;width:63px;height:63px;border-radius:50%;pointer-events:none;margin-top:140px;margin-left:26px;}
 .pump-motion .fan-rotor i{position:absolute;inset:8%;border:2px solid rgba(90,236,202,.42);background:repeating-conic-gradient(from 0deg,rgba(83,244,203,.92) 0 13deg,transparent 13deg 42deg);-webkit-mask:radial-gradient(circle,transparent 0 17%,#000 19% 68%,transparent 70%);mask:radial-gradient(circle,transparent 0 17%,#000 19% 68%,transparent 70%)}
 .pump-motion .fan-rotor.running i{animation:spin .7s linear infinite;filter:drop-shadow(0 0 6px #34e1ba)}
 .pump-motion em{position:absolute;left:50%;bottom:-18px;transform:translateX(-50%);padding:2px 6px;border-radius:9px;background:#50636c;color:#dce8ed;font-size:8px;font-style:normal;white-space:nowrap}

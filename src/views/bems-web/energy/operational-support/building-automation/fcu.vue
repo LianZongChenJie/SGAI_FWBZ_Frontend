@@ -11,19 +11,27 @@
           ref="schematicCardRef"
           @wheel.prevent="handleZoom"
           @mousedown.prevent="startPan"
-          :style="{ transform: `translate(${panX}px, ${panY}px) scale(${zoom})`, transformOrigin: '0 0', cursor: panning ? 'grabbing' : 'grab' }"
+          :style="{ cursor: panning ? 'grabbing' : 'grab' }"
         >
-          <div class="ba-schematic">
+          <div class="ba-schematic"
+            :style="{ transform: `translate(${panX}px, ${panY}px) scale(${zoom})`, transformOrigin: '0 0' }">
             <div class="fcu-asset device" @click="$emit('select-device','ba.fcu')">
               <img src="/equipment/fan-coil-v2-2_5d.png" alt="风机盘管" />
-              <div class="air-stream fcu-flow" :class="{ active: p('ba.fcu.running') }"><i v-for="x in 5" :key="x"></i></div>
-              <div v-for="no in [1]" :key="no" :class="['fan-rotor', `fcu-rotor-${no}`, { running: p('ba.fcu.running') }]"><i></i></div>
+              <div class="air-stream fcu-flow" :class="{ active: isFanRunning() }"><i v-for="x in 5" :key="x"></i></div>
+              <div v-for="no in [1]" :key="no" :class="['fan-rotor', `fcu-rotor-${no}`, { running: isFanRunning() }]"><i></i></div>
               <b class="fcu-air-label fcu-ra">RA ↑</b>
               <b class="fcu-air-label fcu-da">DA →</b>
               <PointBadge class="fcu-valve-feedback" label="水阀状态" :value="getParamValue('水阀状态')" />
             </div>
             <PointBadge class="fcu-on" label="开关机" :value="getParamValue('开关机')" />
           </div>
+        <!-- 缩放控制栏 -->
+        <div class="zoom-controls">
+          <span class="zoom-label">{{ Math.round(zoom * 100) }}%</span>
+          <button class="zoom-btn" @click="zoomOutFn">−</button>
+          <button class="zoom-btn" @click="zoomInFn">+</button>
+          <button class="zoom-btn" @click="resetZoom">重置</button>
+        </div>
         </section>
         <aside class="system-panel" v-show="showPanel">
           <header>系统参数</header>
@@ -33,19 +41,12 @@
           </div>
         </aside>
       </div>
-      <!-- 缩放控制栏 -->
-      <div class="zoom-controls">
-        <span class="zoom-label">{{ Math.round(zoom * 100) }}%</span>
-        <button class="zoom-btn" @click="zoomOutFn">−</button>
-        <button class="zoom-btn" @click="zoomInFn">+</button>
-        <button class="zoom-btn" @click="resetZoom">重置</button>
-      </div>
     </main>
   </div>
 </template>
 
 <script setup>
-import { reactive, computed, ref } from 'vue'
+import { reactive, computed, ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import PointBadge from './components/PointBadge.vue'
 import { createHelpers } from './components/utils.js'
 import { formatSystemParam } from './components/systemParamFormat.js'
@@ -65,6 +66,7 @@ const zoom = ref(1)
 const panX = ref(0)
 const panY = ref(0)
 const panning = ref(false)
+const userAdjustedZoom = ref(false)
 const schematicCardRef = ref(null)
 let panStartX = 0
 let panStartY = 0
@@ -72,6 +74,7 @@ let panOriginX = 0
 let panOriginY = 0
 
 const handleZoom = (e) => {
+  userAdjustedZoom.value = true
   if (!schematicCardRef.value) return
   const rect = schematicCardRef.value.getBoundingClientRect()
   const mouseX = e.clientX - rect.left
@@ -85,8 +88,8 @@ const handleZoom = (e) => {
   panY.value = mouseY - (mouseY - panY.value) * ratio
   zoom.value = newZoom
 }
-const zoomInFn = () => { zoom.value = Math.min(3, +(zoom.value + 0.2).toFixed(2)) }
-const zoomOutFn = () => { zoom.value = Math.max(0.5, +(zoom.value - 0.2).toFixed(2)) }
+const zoomInFn = () => { userAdjustedZoom.value = true; zoom.value = Math.min(3, +(zoom.value + 0.2).toFixed(2)) }
+const zoomOutFn = () => { userAdjustedZoom.value = true; zoom.value = Math.max(0.5, +(zoom.value - 0.2).toFixed(2)) }
 const startPan = (e) => {
   panning.value = true
   panStartX = e.clientX
@@ -106,7 +109,54 @@ const stopPan = () => {
   window.removeEventListener('mousemove', onPan)
   window.removeEventListener('mouseup', stopPan)
 }
-const resetZoom = () => { zoom.value = 1; panX.value = 0; panY.value = 0 }
+
+/** 重置缩放时允许自动调整 */
+const resetZoom = () => {
+  userAdjustedZoom.value = false
+  zoom.value = 1
+  panX.value = 0
+  panY.value = 0
+  setTimeout(autoFitZoom, 0)
+}
+
+/** 根据容器高度自动调整缩放比例，大视口时自动放大填满容器 */
+const autoFitZoom = () => {
+  if (userAdjustedZoom.value) return
+  const card = schematicCardRef.value
+  if (!card) return
+  const cardWidth = card.clientWidth
+  const cardHeight = card.clientHeight
+  if (cardWidth <= 0 || cardHeight <= 0) return
+  // fcu-asset 的 aspect-ratio 是 1.594
+  const contentNaturalHeight = cardWidth / 1.594
+  if (contentNaturalHeight <= 0) return
+  const fitZoom = +(cardHeight / contentNaturalHeight).toFixed(2)
+  zoom.value = Math.min(3, Math.max(0.5, fitZoom))
+}
+
+/** 使用 ResizeObserver 监听容器尺寸变化（包括全屏切换） */
+let resizeObserver = null
+let isInitialResize = true
+
+onMounted(() => {
+  const card = schematicCardRef.value
+  if (card) {
+    resizeObserver = new ResizeObserver(() => {
+      if (isInitialResize) {
+        isInitialResize = false
+        return
+      }
+      autoFitZoom()
+    })
+    resizeObserver.observe(card)
+  }
+})
+
+onBeforeUnmount(() => {
+  if (resizeObserver) {
+    resizeObserver.disconnect()
+  }
+})
 
 const prefix = 'ba.fcu'
 const { p, n, valveStyle, speedText } = createHelpers(props.values)
@@ -128,6 +178,28 @@ function getParamValue(keyword) {
   const item = props.systemParams.find((it) => it.label && it.label.includes(keyword))
   if (!item) return '--'
   return formatSystemParam(item)
+}
+
+/** 判断风机盘管是否运行（开关机=开 或 运行状态=运行） */
+function isFanRunning() {
+  return isParamOn('开关机') || isParamValueIncludes('运行状态', '运行')
+}
+
+/** 判断指定关键词的参数是否为开启状态 */
+function isParamOn(keyword) {
+  if (!props.systemParams || props.systemParams.length === 0) return false
+  const item = props.systemParams.find((it) => it.label && it.label.includes(keyword))
+  if (!item) return false
+  const str = String(item.value)
+  return str === '1' || str === 'true' || str.includes('开') || str.includes('运行')
+}
+
+/** 判断指定关键词的参数值是否包含指定文本 */
+function isParamValueIncludes(keyword, text) {
+  if (!props.systemParams || props.systemParams.length === 0) return false
+  const item = props.systemParams.find((it) => it.label && it.label.includes(keyword))
+  if (!item) return false
+  return String(item.value).includes(text)
 }
 
 function formatParam(item) {
@@ -164,7 +236,7 @@ main>header h1{margin:0;font-size:16px;font-weight:600;color:#d9eaf3}
 .air-stream.active i{animation:windCurve 1.8s linear infinite}
 .air-stream.active i:nth-child(2n){animation-delay:-.9s;opacity:.65}
 .fcu-flow{left:45%;top:35%;height:26px}
-.fan-rotor{position:absolute;width:62px;height:62px;border-radius:50%;pointer-events:none}
+.fan-rotor{position:absolute;width:92px;height:92px;border-radius:50%;pointer-events:none}
 .fan-rotor i{position:absolute;inset:8%;border:2px solid rgba(90,236,202,.42);background:repeating-conic-gradient(from 0deg,rgba(83,244,203,.92) 0 13deg,transparent 13deg 42deg);-webkit-mask:radial-gradient(circle,transparent 0 17%,#000 19% 68%,transparent 70%);mask:radial-gradient(circle,transparent 0 17%,#000 19% 68%,transparent 70%)}
 .fan-rotor.running i{animation:spin .7s linear infinite;filter:drop-shadow(0 0 6px #34e1ba)}
 .fcu-rotor-1{left:33.5%;top:34%}

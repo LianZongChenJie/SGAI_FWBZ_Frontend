@@ -9,7 +9,7 @@
         :icon="TotalIcon"
       />
       <StatCard
-        label="运行中"
+        label="在线"
         :value="statsData.online"
         color="green"
         :icon="RunningIcon"
@@ -23,7 +23,7 @@
       />
       <StatCard
         label="平均温度"
-        :value="statsData.avgTemp"
+        :value="statsData.averageTemperature"
         unit="°C"
         color="purple"
         :icon="TempIcon"
@@ -110,8 +110,8 @@
           <span class="card-note">各馆 FCU 群 · 逐时 kWh</span>
         </div>
         <div class="analysis-card__body">
-          <div v-if="hasEnergyData" ref="energyChartRef" class="venue-chart"></div>
-          <div v-else class="chart-placeholder">
+          <div v-show="hasEnergyData" ref="energyChartRef" class="venue-chart"></div>
+          <div v-show="!hasEnergyData" class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
             <div class="chart-placeholder__text">暂无数据</div>
           </div>
@@ -121,13 +121,13 @@
         <div class="analysis-card__header">
           <div class="analysis-card__title">
             <span class="analysis-card__icon">🌡️</span>
-            <span>供回水温度曲线</span>
+            <span>温度曲线</span>
           </div>
-          <span class="card-note">冷冻水供/回水总管 · ℃</span>
+          <span class="card-note">温度 · ℃</span>
         </div>
         <div class="analysis-card__body">
-          <div v-if="hasWaterData" ref="waterChartRef" class="venue-chart"></div>
-          <div v-else class="chart-placeholder">
+          <div v-show="hasWaterData" ref="waterChartRef" class="venue-chart"></div>
+          <div v-show="!hasWaterData" class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
             <div class="chart-placeholder__text">暂无数据</div>
           </div>
@@ -443,7 +443,7 @@ const renderWaterChart = async () => {
     const { iconAreaCommon } = await import('../../index.api')
     const res = await iconAreaCommon({
       deviceIds: selectedDeviceId.value,
-      attributeName: '供水温度',
+      attributeName: '温度',
     }) as any
     const data = res?.data || res || {}
     const xaxis = data.xaxis || data.xAxis || data.timeList || []
@@ -466,7 +466,7 @@ const statsData = ref({
   count: '--',
   online: '--',
   energyConsumption: '--',
-  avgTemp: '--',
+  averageTemperature: '--',
 })
 
 /** 加载汇总统计数据 */
@@ -482,7 +482,7 @@ const loadStatistics = async () => {
     const res = await getFanCoilStatistics()
     const data = res?.data ?? res ?? {}
     statsData.value.energyConsumption = data.energyConsumption ?? '--'
-    statsData.value.avgTemp = data.avgTemp ?? '--'
+    statsData.value.averageTemperature = data.averageTemperature ?? '--'
   } catch (e) {
     console.error('获取风机盘管统计数据失败:', e)
   }
@@ -899,16 +899,31 @@ const handleDetail = async (record: any) => {
   padding: 20px;
   overflow: auto;
   background: #fff;
+
+  .process-body {
+    height: 100%;
+
+    .process-layout {
+      height: 100%;
+      min-height: 0;
+    }
+
+    .process-schematic {
+      height: 100%;
+      min-height: 0;
+    }
+  }
 }
 
 .process-body {
   .process-layout {
     display: flex;
     gap: 16px;
-    min-height: 600px;
-  }
+    height: calc(100vh - 400px);
+min-height: 800px;
+}
 
-  .process-tree {
+.process-tree {
     flex-shrink: 0;
     width: 240px;
     border: 1px solid #f0f0f0;
@@ -939,9 +954,10 @@ const handleDetail = async (record: any) => {
       linear-gradient(90deg, rgba(53, 108, 132, 0.05) 1px, transparent 1px);
     background-size: 18px 18px;
     background-color: #082332;
-    min-height: 600px;
-    display: flex;
-    flex-direction: column;
+    height: calc(100vh - 400px);
+min-height: 800px;
+display: flex;
+flex-direction: column;
 
     &__toolbar {
       flex-shrink: 0;

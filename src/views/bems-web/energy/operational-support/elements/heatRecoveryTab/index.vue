@@ -9,7 +9,7 @@
         :icon="TotalIcon"
       />
       <StatCard
-        label="运行中"
+        label="在线"
         :value="statsData.online"
         color="green"
         :icon="RunningIcon"
@@ -110,8 +110,8 @@
           <span class="card-note">逐时回收热量 kWh · 停机无数据</span>
         </div>
         <div class="analysis-card__body">
-          <div v-if="hasEnergyData" ref="energyChartRef" class="venue-chart"></div>
-          <div v-else class="chart-placeholder">
+          <div v-show="hasEnergyData" ref="energyChartRef" class="venue-chart"></div>
+          <div v-show="!hasEnergyData" class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
             <div class="chart-placeholder__text">暂无数据</div>
           </div>
@@ -126,8 +126,8 @@
           <span class="card-note">温度回收效率 % · 停机无数据</span>
         </div>
         <div class="analysis-card__body">
-          <div v-if="hasEffData" ref="effChartRef" class="venue-chart"></div>
-          <div v-else class="chart-placeholder">
+          <div v-show="hasEffData" ref="effChartRef" class="venue-chart"></div>
+          <div v-show="!hasEffData" class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
             <div class="chart-placeholder__text">暂无数据</div>
           </div>

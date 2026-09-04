@@ -97,8 +97,8 @@
           <span class="card-note">各逆变区逐时 kW · 装机 272/208/119 kWp</span>
         </div>
         <div class="analysis-card__body">
-          <div v-if="hasPowerData" ref="powerChartRef" class="venue-chart"></div>
-          <div v-else class="chart-placeholder">
+          <div v-show="hasPowerData" ref="powerChartRef" class="venue-chart"></div>
+          <div v-show="!hasPowerData" class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
             <div class="chart-placeholder__text">暂无数据</div>
           </div>
@@ -113,8 +113,8 @@
           <span class="card-note">逐时发电量 kWh · 随辐照度（与左图同源）</span>
         </div>
         <div class="analysis-card__body">
-          <div v-if="hasCorrelationData" ref="correlationChartRef" class="venue-chart"></div>
-          <div v-else class="chart-placeholder">
+          <div v-show="hasCorrelationData" ref="correlationChartRef" class="venue-chart"></div>
+          <div v-show="!hasCorrelationData" class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
             <div class="chart-placeholder__text">暂无数据</div>
           </div>

@@ -1,8 +1,9 @@
 # Skill Name: 代码生成规范模式 (Code Standards Mode)
 
 ## 元信息
-版本：v1.0
-目标：强制执行 JavaScript / TypeScript 代码生成规范
+版本：v2.0
+更新：新增代码生成前需查看现有代码风格和实现的约束
+目标：强制执行 JavaScript / TypeScript 代码生成规范，确保代码风格与现有代码库保持一致
 
 ## 核心约束
 
@@ -30,3 +31,15 @@ const firstTag = post.tags[0].name;
 const city = user?.profile?.address?.city;
 const firstTag = post?.tags?.[0]?.name;
 
+### 规则 3：组合使用（同时适用时）
+// ❌ 错误
+const displayName = user.profile.nickname ?? '默认';
+
+// ✅ 正确
+const displayName = user?.profile?.nickname || '默认';
+
+
+
+## 回答格式要求
+生成代码时，直接输出代码块，解释代码逻辑（除非用户明确要求不需要）。
+不需要在代码前后添加客套话。

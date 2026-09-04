@@ -9,6 +9,8 @@ enum Api {
   findDayVenueElectricity = '/sgai-fwbz-dev/fwbz/meterPointData/findDayVenueElectricity',
   findMonthVenueElectricity = '/sgai-fwbz-dev/fwbz/meterPointData/findMonthVenueElectricity',
   findYearVenueElectricity = '/sgai-fwbz-dev/fwbz/meterPointData/findYearVenueElectricity',
+  /** 导出报表 */
+  exportData = '/sgai-fwbz-dev/fwbz/deviceData/measuringListExport',
 }
 
 /**
@@ -63,3 +65,8 @@ enum DeviceApi {
  * 设备属性列表（按设备ID查询）
  */
 export const getDeviceAttrList = (params = {}) => defHttp.get({ url: DeviceApi.listByDeviceId, params });
+
+/**
+ * 导出计量表计数据
+ */
+export const exportData = (params = {}) => defHttp.get({ url: Api.exportData, params, responseType: 'blob' }, { isTransformResponse: false });

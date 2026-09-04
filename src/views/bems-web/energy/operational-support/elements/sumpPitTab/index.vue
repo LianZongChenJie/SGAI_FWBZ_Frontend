@@ -9,7 +9,7 @@
         :icon="TotalIcon"
       />
       <StatCard
-        label="正常"
+        label="在线"
         :value="statsData.online"
         color="green"
         :icon="RunningIcon"
@@ -108,8 +108,8 @@
           <span class="card-note">逐时液位 m · 虚线=启/停泵液位</span>
         </div>
         <div class="analysis-card__body">
-          <div v-if="hasLevelData" ref="levelChartRef" class="venue-chart"></div>
-          <div v-else class="chart-placeholder">
+          <div v-show="hasLevelData" ref="levelChartRef" class="venue-chart"></div>
+          <div v-show="!hasLevelData" class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
             <div class="chart-placeholder__text">暂无数据</div>
           </div>
@@ -124,8 +124,8 @@
           <span class="card-note">今日运行时长 h · 悬停见启动次数</span>
         </div>
         <div class="analysis-card__body">
-          <div v-if="hasPumpData" ref="pumpChartRef" class="venue-chart"></div>
-          <div v-else class="chart-placeholder">
+          <div v-show="hasPumpData" ref="pumpChartRef" class="venue-chart"></div>
+          <div v-show="!hasPumpData" class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
             <div class="chart-placeholder__text">暂无数据</div>
           </div>
@@ -925,10 +925,11 @@ const handleDetail = async (record: any) => {
   .process-layout {
     display: flex;
     gap: 16px;
-    min-height: 600px;
-  }
+    height: calc(100vh - 400px);
+min-height: 800px;
+}
 
-  .process-tree {
+.process-tree {
     flex-shrink: 0;
     width: 240px;
     border: 1px solid #f0f0f0;
@@ -959,9 +960,10 @@ const handleDetail = async (record: any) => {
       linear-gradient(90deg, rgba(53, 108, 132, 0.05) 1px, transparent 1px);
     background-size: 18px 18px;
     background-color: #082332;
-    min-height: 600px;
-    display: flex;
-    flex-direction: column;
+    height: calc(100vh - 400px);
+min-height: 800px;
+display: flex;
+flex-direction: column;
 
     .process-schematic__toolbar {
       flex-shrink: 0;
