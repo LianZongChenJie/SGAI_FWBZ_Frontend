@@ -176,6 +176,7 @@ const flowColumns = [
   { title: '峰值时间', dataIndex: 'maxTime', key: 'maxTime', width: 100 },
   // { title: '平均停留', dataIndex: 'averageDuration', key: 'averageDuration', width: 100 },
   // { title: '较昨日', dataIndex: 'compareRate', key: 'compareRate', width: 100 },
+  
   { title: '状态', key: 'status', width: 80 },
 ]
 

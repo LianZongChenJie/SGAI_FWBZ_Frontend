@@ -26,12 +26,31 @@
     <a-modal
       v-model:open="viewVisible"
       :title="viewRecord?.deviceName || '设备详情'"
-      width="80vw"
+      width="800px"
       :body-style="{ padding: '16px 24px' }"
       :footer="null"
       :confirm-loading="viewLoading"
       destroy-on-close
+      style="top: 40px"
     >
+    <!-- 图表头部：标题 + 粒度切换 + 日期选择 -->
+        <div class="chart-header-bar">
+          <div class="chart-header-actions">
+            
+            <a-range-picker
+              v-model:value="dateRange"
+              value-format="YYYY-MM-DD HH:mm:ss"
+              show-time
+              style="width: 420px"
+              @change="handleDateRangeChange"
+            />
+            <a-radio-group v-model:value="granularity" button-style="solid" size="small" @change="handleGranularityChange">
+              <a-radio-button value="15min">分钟</a-radio-button>
+              <a-radio-button value="hour">小时</a-radio-button>
+              <a-radio-button value="day">天</a-radio-button>
+            </a-radio-group>
+          </div>
+        </div>
       <a-spin :spinning="viewLoading">
         <!-- 自定义可滚动 Tab 条（带左右切换按钮） -->
         <div class="device-view-tab-bar">
@@ -53,24 +72,7 @@
           </button>
         </div>
 
-        <!-- 图表头部：标题 + 粒度切换 + 日期选择 -->
-        <div class="chart-header-bar">
-          <div class="chart-header-actions">
-            
-            <a-range-picker
-              v-model:value="dateRange"
-              value-format="YYYY-MM-DD HH:mm:ss"
-              show-time
-              style="width: 320px"
-              @change="handleDateRangeChange"
-            />
-            <a-radio-group v-model:value="granularity" button-style="solid" size="small" @change="handleGranularityChange">
-              <a-radio-button value="15min">分钟</a-radio-button>
-              <a-radio-button value="hour">小时</a-radio-button>
-              <a-radio-button value="day">天</a-radio-button>
-            </a-radio-group>
-          </div>
-        </div>
+        
 
         <!-- 折线图容器 -->
         <div class="chart-container">
@@ -492,6 +494,15 @@
 
       // 不传单位，去掉 ppm 等后缀
       const option = buildTrendOption(xaxis, series, '', true);
+      // 调整x轴标签显示策略，防止重叠
+      const xAxis = Array.isArray(option.xAxis) ? option.xAxis[0] : option.xAxis;
+      if (xAxis) {
+        (xAxis as any).axisLabel = {
+          color: '#898781',
+          fontSize: 14,
+          interval: xaxis.length > 20 ? Math.ceil(xaxis.length / 10) : 0,
+        };
+      }
       chartInstance.setOption(option, true);
     } catch (error) {
       console.error('加载图表数据失败:', error);
@@ -538,12 +549,12 @@
 
   .chart-container {
     width: 100%;
-    min-height: 450px;
+    min-height: 320px;
   }
 
   .chart {
     width: 100%;
-    height: 450px;
+    height: 320px;
   }
 
   /* 查看弹窗 - 自定义可滚动 Tab 条 */
@@ -621,7 +632,7 @@
   .chart-header-bar {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: flex-start;
     margin-bottom: 12px;
     padding: 0;
 

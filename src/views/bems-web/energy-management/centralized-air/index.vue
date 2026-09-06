@@ -16,11 +16,16 @@
     
 
     <section class="system-metrics">
-      <article v-for="metric in airMetrics" :key="metric.key" class="metric-card" :class="metric.tone">
-        <div class="metric-icon">{{ metric.icon }}</div>
-        <div class="metric-copy"><span>{{ metric.label }}</span><strong>{{ number(point(metric.key), metric.digits) }}<small>{{ metric.unit }}</small></strong><em>{{ metricNote(metric) }}</em></div>
-        <div class="mini-bars"><i v-for="n in 8" :key="n" :style="{ height: `${18 + ((n * 11 + metric.seed) % 28)}%` }"></i></div>
-      </article>
+      <StatCard
+        v-for="metric in airMetrics"
+        :key="metric.key"
+        :label="metric.label"
+        :value="number(point(metric.key), metric.digits)"
+        :unit="metric.unit"
+        :change-text="metricNote(metric)"
+        :color="metric.tone === 'amber' ? 'orange' : metric.tone"
+        :icon="iconComponent(metric.icon)"
+      />
     </section>
 
     <main class="dashboard-body">
@@ -110,11 +115,12 @@ Content-Type: application/json
 </template>
 
 <script setup>
-import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
+import { computed, h, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { bindingStore } from '/@/views/bems-web/energy-monitor/stores/bindingStore.js'
 import { ENERGY_STATION_DEFAULTS, ENERGY_STATION_POINTS } from '/@/views/bems-web/energy-monitor/data/energyStationPoints.js'
 import { ENERGY_DEVICE_IDS, getEnergyDeviceProfile } from '/@/views/bems-web/energy-monitor/data/energyStationDevices.js'
 import AirCooledPlantSchematic from '/@/views/bems-web/energy-monitor/components/AirCooledPlantSchematic.vue'
+import { StatCard } from '@/views/bems-web/components'
 
 defineOptions({ name: 'EnergyManagementCentralizedAirPage' })
 
@@ -148,6 +154,9 @@ const deviceState = computed(() => {
   return { label: device.tank ? '液位正常' : '工作正常', tone: 'normal' }
 })
 
+function iconComponent(emoji) {
+  return { render: () => h('span', emoji) }
+}
 function point(key) { return values[key] ?? '--' }
 function number(value, digits = 1) {
   const n = Number(value)
@@ -257,17 +266,6 @@ onUnmounted(() => {
 .station-title { justify-self:center; display:flex; align-items:center; gap:10px; }.station-title i { width:5px; height:5px; border-radius:50%; background:var(--green); }.station-title span { font-size:16px; font-weight:700; letter-spacing:1px; color:#1e293b; }.station-title em { font-style:normal; color:#64748b; border-left:1px solid #e2e8f0; padding-left:10px; }
 .header-actions { display:flex; justify-content:flex-end; align-items:center; gap:15px; }.live-state { color:#f59e0b; font-size:13px; padding:6px 10px; border:1px solid rgba(245,158,11,.28); border-radius:6px; }.live-state b { display:inline-block; width:6px; height:6px; margin-right:6px; border-radius:50%; background:#f59e0b; }.live-state.connected { color:var(--green); border-color:rgba(34,197,94,.25); }.live-state.connected b { background:var(--green); }.icon-button { width:30px; height:30px; border:1px solid var(--edge); background:#f8fafc; color:#64748b; border-radius:6px; font-size:18px; cursor:pointer; }.clock { border-left:1px solid var(--edge); padding-left:15px; text-align:right; }.clock strong { display:block; font-size:15px; letter-spacing:1px; color:#1e293b; }.clock small { display:block; color:var(--muted); font-size:9px; margin-top:2px; }
 .system-metrics { --edge:#e2e8f0; display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
-.metric-card { min-height:78px; border:1px solid var(--edge); background:#ffffff; padding:14px 12px; display:flex; align-items:center; gap:10px; position:relative; overflow:hidden; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,.08); }
-.metric-card::before { content:""; position:absolute; left:0; top:14px; bottom:14px; width:2px; background:var(--tone); }
-.metric-card.blue{--tone:#3888ff}.metric-card.cyan{--tone:#0ea5e9}.metric-card.green{--tone:#22c55e}.metric-card.amber{--tone:#f59e0b}
-.metric-icon { width:34px; height:34px; display:grid; place-items:center; color:var(--tone); background:color-mix(in srgb,var(--tone) 10%,transparent); border:1px solid color-mix(in srgb,var(--tone) 22%,transparent); font-size:16px; }
-.metric-copy { display:flex; flex-direction:column; min-width:110px; }
-.metric-copy>span { color:#94a3b8; font-size:10px; letter-spacing:.5px; }
-.metric-copy strong { color:#1e293b; font-size:22px; line-height:1.15; margin-top:2px; font-variant-numeric:tabular-nums; }
-.metric-copy strong small { color:#94a3b8; font-size:9px; font-weight:400; margin-left:4px; }
-.metric-copy em { color:var(--tone); font-style:normal; font-size:9px; margin-top:3px; }
-.mini-bars { height:36px; flex:1; display:flex; align-items:flex-end; gap:3px; opacity:.55; }
-.mini-bars i { flex:1; min-width:2px; background:color-mix(in srgb,var(--tone) 45%,transparent); }
 .dashboard-body { flex:1; min-height:740px; padding:0; position:relative; z-index:1; display:flex; flex-direction:column; gap:16px; margin: 20px 0 }
 .content-grid { flex:1; min-height:0; display:grid; grid-template-columns:1fr; gap:16px; }.panel { background:var(--panel-bg); border:1px solid var(--edge); border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,.08); overflow:hidden; }.topology-panel { min-height:0; display:flex; flex-direction:column; }.panel-heading { height:54px; padding:0 20px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #f0f0f0; }.eyebrow { display:block; color:#94a3b8; font-size:9px; font-weight:700; letter-spacing:2px; margin-bottom:3px; }.panel-heading h2,.compact-heading h3 { font-size:20px; font-weight:600; color:#2d3748; letter-spacing:.4px; margin:0; }.legend { display:flex; gap:14px; font-size:14px; color:#64748b; }.legend span { display:flex; align-items:center; gap:5px; }.dot { width:8px;height:8px;border-radius:50%; }.dot.running{background:#22c55e}.dot.stopped{background:#94a3b8}.dot.fault{background:#ef4444}.line{width:16px;height:3px;border-radius:2px}.line.supply{background:#3b82f6}.line.return{background:#22c55e}.line.cooling-supply{background:#f59e0b}.line.cooling-return{background:#eab308}
 .topology { flex:1; min-height:0; position:relative; overflow:hidden; background:#f8fafc; }

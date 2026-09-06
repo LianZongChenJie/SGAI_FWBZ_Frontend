@@ -121,9 +121,9 @@
         <div class="analysis-card__header">
           <div class="analysis-card__title">
             <span class="analysis-card__icon">📊</span>
-            <span>排风压差分析</span>
+            <span>排风启停</span>
           </div>
-          <span class="card-note">各排风机风管压差 · 逐时 Pa</span>
+          <span class="card-note">排风启停</span>
         </div>
         <div class="analysis-card__body">
           <div v-show="hasPressureData" ref="pressureChartRef" class="venue-chart"></div>
@@ -393,7 +393,7 @@ const energyChartRef = ref<HTMLDivElement>()
 const hasEnergyData = ref(false)
 const { setOptions: setEnergyChartOptions } = useECharts(energyChartRef as any)
 
-// 排风压差分析图表
+// 排风启停图表
 const pressureChartRef = ref<HTMLDivElement>()
 const hasPressureData = ref(false)
 const { setOptions: setPressureChartOptions } = useECharts(pressureChartRef as any)
@@ -426,7 +426,7 @@ const renderEnergyChart = async () => {
   }
 }
 
-/** 渲染排风压差分析 */
+/** 渲染排风启停 */
 const renderPressureChart = async () => {
   if (!selectedDeviceId.value) {
     hasPressureData.value = false
@@ -436,7 +436,7 @@ const renderPressureChart = async () => {
     const { iconAreaCommon } = await import('../../index.api')
     const res = await iconAreaCommon({
       deviceIds: selectedDeviceId.value,
-      attributeName: '排风机压差',
+      attributeName: '排风启停',
     }) as any
     const data = res?.data || res || {}
     const xaxis = data.xaxis || data.xAxis || data.timeList || []

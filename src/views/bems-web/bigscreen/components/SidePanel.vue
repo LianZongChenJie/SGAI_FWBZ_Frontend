@@ -108,7 +108,7 @@ defineEmits<{ (e: 'open', key: string): void }>();
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 5px 0;
+  padding: 3px 0;
   border-bottom: 1px solid rgba(148, 163, 184, 0.05);
   position: relative;
   z-index: 2;

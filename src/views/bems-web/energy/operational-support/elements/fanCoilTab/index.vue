@@ -105,9 +105,8 @@
         <div class="analysis-card__header">
           <div class="analysis-card__title">
             <span class="analysis-card__icon">📈</span>
-            <span>风机盘管能耗趋势</span>
+            <span>风速</span>
           </div>
-          <span class="card-note">各馆 FCU 群 · 逐时 kWh</span>
         </div>
         <div class="analysis-card__body">
           <div v-show="hasEnergyData" ref="energyChartRef" class="venue-chart"></div>
@@ -395,7 +394,7 @@ onMounted(() => {
   loadDeviceOptions()
 })
 
-// 风机盘管能耗趋势图表
+// 风速图表
 const energyChartRef = ref<HTMLDivElement>()
 const hasEnergyData = ref(false)
 const { setOptions: setEnergyChartOptions } = useECharts(energyChartRef as any)
@@ -405,7 +404,7 @@ const waterChartRef = ref<HTMLDivElement>()
 const hasWaterData = ref(false)
 const { setOptions: setWaterChartOptions } = useECharts(waterChartRef as any)
 
-/** 渲染风机盘管能耗趋势图表 */
+/** 渲染风速图表 */
 const renderEnergyChart = async () => {
   if (!selectedDeviceId.value) {
     hasEnergyData.value = false
@@ -415,7 +414,7 @@ const renderEnergyChart = async () => {
     const { iconAreaCommon } = await import('../../index.api')
     const res = await iconAreaCommon({
       deviceIds: selectedDeviceId.value,
-      attributeName: '能耗',
+      attributeName: '风速',
     }) as any
     const data = res?.data || res || {}
     const xaxis = data.xaxis || data.xAxis || data.timeList || []

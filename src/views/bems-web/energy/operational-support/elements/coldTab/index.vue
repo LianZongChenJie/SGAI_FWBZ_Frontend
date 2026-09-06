@@ -51,7 +51,10 @@
               @search="handleSearch"
             />
             <a-button type="primary" @click="handleSearch">🔍 查询</a-button>
-            <a-button @click="handleExport">📥 导出</a-button>
+            <a-button type="primary" :loading="coldSourceExportLoading" @click="handleExport" style="margin-left: 8px;">
+              <DownloadOutlined v-if="!coldSourceExportLoading" />
+              导出
+            </a-button>
           </div>
           <button class="collapse-btn" @click="collapsedTable = !collapsedTable">
             <CaretDownOutlined v-if="!collapsedTable" />
@@ -82,7 +85,7 @@
     </div>
 
     <!-- 图表区域 -->
-    <div class="collapse-row">
+    <!-- <div class="collapse-row">
       <div class="collapse-row__header">
         <h3>📊 图表区域</h3>
         <div class="chart-header-right">
@@ -140,7 +143,7 @@
           </div>
         </a-card>
       </div>
-    </div>
+    </div> -->
   </div>
 
   <!-- 详情弹窗 -->
@@ -166,7 +169,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, h, onMounted, nextTick } from 'vue'
-import { CaretDownOutlined, CaretUpOutlined } from '@ant-design/icons-vue'
+import { CaretDownOutlined, CaretUpOutlined, DownloadOutlined } from '@ant-design/icons-vue'
 import { StatCard } from '/@/views/bems-web/components'
 import { useECharts } from '/@/hooks/web/useECharts'
 import { buildTrendOption } from '../chartOptions'
@@ -200,6 +203,9 @@ const unitTypeList = ref<ColdSourceEquipmentCategory[]>([])
 const filterCategoryId = ref<number | undefined>(undefined)
 const filterStatus = ref<number | undefined>(undefined)
 const filterDeviceCode = ref('')
+
+// 导出 loading
+const coldSourceExportLoading = ref(false)
 
 // 表格
 const tableLoading = ref(false)
@@ -309,6 +315,7 @@ const handleSearch = () => {
  * 导出
  */
 const handleExport = async () => {
+  coldSourceExportLoading.value = true
   const params: any = {}
   if (filterCategoryId.value) params.categoryId = filterCategoryId.value
   if (filterStatus.value !== undefined) params.status = filterStatus.value
@@ -329,6 +336,8 @@ const handleExport = async () => {
     window.URL.revokeObjectURL(url)
   } catch (e) {
     console.error('导出失败:', e)
+  } finally {
+    coldSourceExportLoading.value = false
   }
 }
 

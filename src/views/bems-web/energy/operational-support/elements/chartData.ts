@@ -183,7 +183,7 @@ function buildExhaustPressureSeries(): { name: string; data: number[] }[] {
 }
 
 /* ============================================================
- * 页签③ 风机盘管 — 图1 风机盘管能耗趋势（折线·各馆）
+ * 页签③ 风机盘管 — 图1 风速（折线·各馆）
  * ============================================================ */
 const FCU_AREAS = ['1号馆', '2号馆', '3号馆', '4号馆']
 function buildFcuEnergySeries(): { name: string; data: number[] }[] {

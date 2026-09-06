@@ -104,14 +104,14 @@
       <a-card class="analysis-card" :bordered="false">
         <div class="analysis-card__header">
           <div class="analysis-card__title">
-            <span class="analysis-card__icon">📈</span>
-            <span>热回收能耗趋势</span>
+            <span class="analysis-card__icon">🌫️</span>
+            <span>回风二氧化碳</span>
           </div>
-          <span class="card-note">逐时回收热量 kWh · 停机无数据</span>
+          <span class="card-note">今日 00:00–23:00 · 逐时 ppm · 虚线=设定 800</span>
         </div>
         <div class="analysis-card__body">
-          <div v-show="hasEnergyData" ref="energyChartRef" class="venue-chart"></div>
-          <div v-show="!hasEnergyData" class="chart-placeholder">
+          <div v-show="hasCo2Data" ref="co2ChartRef" class="venue-chart"></div>
+          <div v-show="!hasCo2Data" class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
             <div class="chart-placeholder__text">暂无数据</div>
           </div>
@@ -121,13 +121,22 @@
         <div class="analysis-card__header">
           <div class="analysis-card__title">
             <span class="analysis-card__icon">🌡️</span>
-            <span>排风温度回收效率</span>
+            <span>供回风温度趋势</span>
           </div>
-          <span class="card-note">温度回收效率 % · 停机无数据</span>
+          <div class="temp-tabs">
+            <button
+              v-for="tab in tempTabs"
+              :key="tab.key"
+              :class="['temp-tab', { active: tempActive === tab.key }]"
+              @click="handleTempTabChange(tab.key)"
+            >
+              {{ tab.label }}
+            </button>
+          </div>
         </div>
         <div class="analysis-card__body">
-          <div v-show="hasEffData" ref="effChartRef" class="venue-chart"></div>
-          <div v-show="!hasEffData" class="chart-placeholder">
+          <div v-show="hasTempData" ref="tempChartRef" class="venue-chart"></div>
+          <div v-show="!hasTempData" class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
             <div class="chart-placeholder__text">暂无数据</div>
           </div>
@@ -426,8 +435,8 @@ const loadDeviceOptions = async () => {
     // 默认选中第一项，并渲染图表
     if (deviceOptions.value.length > 0) {
       selectedDeviceId.value = deviceOptions.value[0].value
-      await renderEnergyChart()
-      await renderEffChart()
+      await renderCo2Chart()
+      await renderTempChart()
     }
   } catch (error) {
     console.error('加载设备选项失败:', error)
@@ -440,8 +449,8 @@ const loadDeviceOptions = async () => {
 /** 设备选择变化 */
 const handleDeviceChange = (deviceId: string) => {
   selectedDeviceId.value = deviceId
-  renderEnergyChart()
-  renderEffChart()
+  renderCo2Chart()
+  renderTempChart()
 }
 
 /** 下拉筛选规则 */
@@ -456,69 +465,86 @@ onMounted(() => {
   loadDeviceOptions()
 })
 
-// 热回收能耗趋势图表
-const energyChartRef = ref<HTMLDivElement>()
-const hasEnergyData = ref(false)
-const { setOptions: setEnergyChartOptions } = useECharts(energyChartRef as any)
+// 回风二氧化碳图表
+const co2ChartRef = ref<HTMLDivElement>()
+const hasCo2Data = ref(false)
+const { setOptions: setCo2ChartOptions } = useECharts(co2ChartRef as any)
 
-// 排风温度回收效率图表
-const effChartRef = ref<HTMLDivElement>()
-const hasEffData = ref(false)
-const { setOptions: setEffChartOptions } = useECharts(effChartRef as any)
+// 供回风温度趋势图表
+const tempChartRef = ref<HTMLDivElement>()
+const hasTempData = ref(false)
+const { setOptions: setTempChartOptions } = useECharts(tempChartRef as any)
 
-/** 渲染热回收能耗趋势图表 */
-const renderEnergyChart = async () => {
+const tempTabs: { key: 'supply' | 'return'; label: string }[] = [
+  { key: 'supply', label: '送温' },
+  { key: 'return', label: '回温' },
+]
+const tempActive = ref<'supply' | 'return'>('supply')
+
+const handleTempTabChange = (key: 'supply' | 'return') => {
+  tempActive.value = key
+  renderTempChart()
+}
+
+/** 渲染回风二氧化碳图表 */
+const renderCo2Chart = async () => {
   if (!selectedDeviceId.value) {
-    hasEnergyData.value = false
+    hasCo2Data.value = false
     return
   }
   try {
     const { iconAreaCommon } = await import('../../index.api')
     const res = await iconAreaCommon({
       deviceIds: selectedDeviceId.value,
-      attributeName: '回收热量',
+      attributeName: '回风二氧化碳传感器',
+      threshold: 800,
     }) as any
     const data = res?.data || res || {}
     const xaxis = data.xaxis || data.xAxis || data.timeList || []
     const series = (data.chatSeriesList || data.seriesList || data.series || []).filter((s: any) => s.name !== '合计')
     if (!xaxis.length || !series.length) {
-      hasEnergyData.value = false
+      hasCo2Data.value = false
       return
     }
-    hasEnergyData.value = true
+    hasCo2Data.value = true
     await nextTick()
-    setEnergyChartOptions(buildTrendOption(xaxis, series, 'kWh'))
+    setCo2ChartOptions(buildTrendOption(
+      xaxis, series, 'ppm', true,
+      { lines: [{ y: 800, label: 'CO2 设定值 800 ppm' }] },
+      400, 880,
+    ))
   } catch (error) {
-    console.error('加载能耗数据失败:', error)
-    hasEnergyData.value = false
+    console.error('加载CO2数据失败:', error)
+    hasCo2Data.value = false
   }
 }
 
-/** 渲染排风温度回收效率图表 */
-const renderEffChart = async () => {
+/** 渲染供回风温度趋势图表 */
+const renderTempChart = async () => {
   if (!selectedDeviceId.value) {
-    hasEffData.value = false
+    hasTempData.value = false
     return
   }
+  const attributeName = tempActive.value === 'return' ? '回风温度' : '送风温度'
   try {
     const { iconAreaCommon } = await import('../../index.api')
     const res = await iconAreaCommon({
       deviceIds: selectedDeviceId.value,
-      attributeName: '热回收效率',
+      attributeName,
     }) as any
     const data = res?.data || res || {}
     const xaxis = data.xaxis || data.xAxis || data.timeList || []
     const series = (data.chatSeriesList || data.seriesList || data.series || []).filter((s: any) => s.name !== '合计')
     if (!xaxis.length || !series.length) {
-      hasEffData.value = false
+      hasTempData.value = false
       return
     }
-    hasEffData.value = true
+    hasTempData.value = true
     await nextTick()
-    setEffChartOptions(buildTrendOption(xaxis, series, '%', true))
+    setTempChartOptions(buildTrendOption(xaxis, series, '℃', true))
   } catch (error) {
-    console.error('加载回收效率数据失败:', error)
-    hasEffData.value = false
+    console.error('加载温度数据失败:', error)
+    hasTempData.value = false
   }
 }
 </script>

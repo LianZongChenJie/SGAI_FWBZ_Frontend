@@ -138,6 +138,8 @@ import type { PackageGroup, PackageVideo } from '../../safety/security/index.api
 import { getAllAreaApi, getAllCircuitApi } from '../../northAreaLightingSys/comprehensivePreview/comprehensivePreview.api';
 import DetailMode from './DetailMode.vue';
 import ParcelMode from './ParcelMode.vue';
+import lightOnImg from '/@/assets/images/lightOn.png';
+import lightOffImg from '/@/assets/images/lightOff.png';
 import spaceBoundariesData from '../../northAreaLightingSys/bigGis/space-boundaries.json';
 
 defineOptions({ name: 'MapArea' });
@@ -261,6 +263,10 @@ let parcelMarkerArr: any[] = [];
 let parcelBoundaryArr: any[] = [];
 /** 地块模式绘制缓存标志 */
 let parcelModeDrawn = false;
+
+// 灯光图标资源
+const lightOn = lightOnImg;
+const lightOff = lightOffImg;
 
 // ==================== 楼层ID初始化 ====================
 async function initFloorId(retryCount = 0) {
@@ -903,8 +909,12 @@ async function drawParcelMode() {
     return;
   }
 
-  // 仅添加灯泡标点，不绘制边界线
-  addParcelMarker(spaceName, centerLon, centerLat, centerColor, spaceid);
+  // 仅添加灯泡标点，不绘制边界线（初始状态为熄灭，后续根据回路状态更新）
+  addParcelMarker(spaceName, centerLon, centerLat, centerColor, spaceid, false);
+  // 更新地块标点亮灭状态
+  setTimeout(() => {
+    updateParcelMarkerStatus(spaceName);
+  }, 300);
   parcelModeDrawn = true;
   console.log(`[BigscreenMap] 服贸会区地块模式绘制完成: ${spaceName}`);
 }
@@ -994,36 +1004,25 @@ function drawParcelBoundary(path: number[][], color: string) {
 /**
  * 添加地块标点
  */
-function addParcelMarker(spaceName: string, centerLon: number, centerLat: number, color: string, spaceid?: string) {
+function addParcelMarker(spaceName: string, centerLon: number, centerLat: number, color: string, spaceid?: string, isOn = false) {
   if (!map) return;
 
   const domId = `parcel-${spaceid || spaceName}`;
+  // 根据状态选择图标（亮灯/灭灯）
+  const lightIcon = isOn ? lightOn : lightOff;
   const markerHTML = `
     <div class="parcel-marker" id="${domId}" data-space-name="${spaceName}" data-space-id="${spaceid || ''}" style="
       position: relative;
-      width: 60px;
-      height: 60px;
+      width: 70px;
+      height: 80px;
       cursor: pointer;
       transform: translate(0, 50%);
-      pointer-events: none;
+      pointer-events: auto;
+      background-image: url('${lightIcon}');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center top;
     " title="${spaceName}">
-      <div style="
-        width: 60px;
-        height: 60px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        pointer-events: auto;
-        border-radius: 50%;
-        background: rgba(12, 28, 52, 0.8);
-        border: 2px solid ${color};
-        box-shadow: 0 0 10px ${color}80, 0 0 20px ${color}40;
-      ">
-        <svg viewBox="0 0 24 24" width="28" height="28" fill="${color}" style="filter: drop-shadow(0 0 4px ${color});">
-          <path d="M12 2C8.13 2 5 5.13 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.87-3.13-7-7-7z"/>
-          <path d="M9 21h6v1c0 .55-.45 1-1 1h-4c-.55 0-1-.45-1-1v-1z" opacity="0.6"/>
-        </svg>
-      </div>
     </div>
   `;
 
@@ -1055,6 +1054,34 @@ function handleParcelMarkerClick(spaceName: string, spaceid?: string) {
     // 兜底：元素未找到时使用屏幕中心
     const fallbackRect = new DOMRect(window.innerWidth / 2, window.innerHeight / 2, 0, 0);
     parcelModeRef.value?.showMenu(spaceName, spaceid, fallbackRect);
+  }
+}
+
+/**
+ * 更新地块标点图标状态（根据服贸会区第一个有坐标的灯光数据所在的回路状态）
+ */
+async function updateParcelMarkerStatus(spaceName: string) {
+  try {
+    // 获取服贸会区第一个有坐标的灯光数据，找到其 areaId
+    const target = lightingData.value.find(
+      (item) => item.spaceName === spaceName && item.location
+    );
+    if (!target) return;
+    const areaId = String(target.id);
+
+    // 请求回路状态，判断该 areaId 是否有开启的回路
+    const res = await getAllCircuitApi();
+    const circuits = Array.isArray(res) ? res : (res?.records || res?.list || res?.result || res?.data || []);
+    const isOn = circuits.some((c: any) => c.status === '开启' && String(c.areaId) === areaId);
+
+    // 更新地块标点图标
+    const imgSrc = isOn ? lightOn : lightOff;
+    const els = document.querySelectorAll(`.parcel-marker[data-space-name="${spaceName}"]`);
+    els.forEach((el) => {
+      (el as HTMLElement).style.backgroundImage = `url('${imgSrc}')`;
+    });
+  } catch (error) {
+    console.error('[BigscreenMap] 更新地块标点状态失败:', error);
   }
 }
 
@@ -1186,12 +1213,12 @@ async function loadLightingDataAndMarkers() {
  * 使用 SVG 图标代替图片（lightOn.png/lightOff.png 不存在）
  * 注意：初始状态设为灰色（熄灭），亮灭状态由 updateLightMarkersByCircuitStatus 根据回路数据驱动
  */
-function buildLightMarkerDom(item: any, group: any[] = []): string {
-  // 默认初始状态为灰色（熄灭），后续由 circuits 数据驱动点亮
-  const color = '#64748b';
+function buildLightMarkerDom(item: any, group: any[] = [], isOn = false): string {
   const domId = `light-${String(item.type)}-${String(item.id)}`;
   // 同坐标所有成员的 areaId 列表（用于判断亮灭：任一 areaId 有开启回路即点亮）
   const areaIds = group.length > 0 ? group.map((g) => String(g.id)) : [String(item.id)];
+  // 根据状态选择图标
+  const lightIcon = isOn ? lightOn : lightOff;
   // 同坐标成员个数徽标（大于 1 时展示）
   const badgeHtml =
     group.length > 1
@@ -1211,26 +1238,23 @@ function buildLightMarkerDom(item: any, group: any[] = []): string {
   </div>`
     : '';
   return `<div class="light-marker" id="${domId}" data-area-ids="${areaIds.join(',')}" style="
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 80px;
+  height: 90px;
+  background-image: url('${lightIcon}');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center top;
   position: relative;
   cursor: pointer;
   ">
-  <svg viewBox="0 0 24 24" width="28" height="28" fill="${color}" style="filter: drop-shadow(0 0 6px ${color}80);">
-  <path d="M12 2C8.13 2 5 5.13 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.87-3.13-7-7-7z"/>
-  <path d="M9 21h6v1c0 .55-.45 1-1 1h-4c-.55 0-1-.45-1-1v-1z" opacity="0.6"/>
-  </svg>
   ${badgeHtml}
   ${listHtml}
   </div>`;
 }
 
 /**
- * 根据回路状态更新标点亮/灭颜色
- * 与 bigGis 原文件逻辑一致：circuits 中任一回路 status === '开启' → 点亮（黄色），否则熄灭（灰色）
+ * 根据回路状态更新标点亮/灭图片
+ * circuits 中任一回路 status === '开启' → 点亮（亮灯图片），否则熄灭（灭灯图片）
  */
 async function updateLightMarkersByCircuitStatus() {
   try {
@@ -1253,12 +1277,8 @@ async function updateLightMarkersByCircuitStatus() {
       const areaIds = areaIdsAttr.split(',').filter(Boolean);
       // 任一 areaId 有开启回路即点亮
       const isOn = areaIds.some((aid) => areaIdsWithOnCircuit.has(aid));
-      const color = isOn ? '#facc15' : '#64748b';
-      const svg = el.querySelector('svg');
-      if (svg) {
-        svg.setAttribute('fill', color);
-        svg.style.filter = `drop-shadow(0 0 6px ${color}80)`;
-      }
+      // 使用 lightOn / lightOff 图片替换
+      el.style.backgroundImage = `url('${isOn ? lightOn : lightOff}')`;
     });
 
     console.log(`[BigscreenMap] 标点状态已更新，有开启回路的 areaId 数量: ${areaIdsWithOnCircuit.size}`);
@@ -1974,17 +1994,17 @@ onUnmounted(() => {
 
 .marker-count-badge {
   position: absolute;
-  top: 2px;
-  right: 2px;
+  top: -6px;
+  right: 8px;
   background: #0ea5e9;
   color: #ffffff;
-  font-size: 10px;
+  font-size: 20px;
   font-weight: 600;
-  line-height: 16px;
-  min-width: 16px;
-  height: 16px;
-  padding: 0 4px;
-  border-radius: 8px;
+  line-height: 32px;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 8px;
+  border-radius: 16px;
   text-align: center;
   box-sizing: border-box;
   z-index: 20;
@@ -1998,17 +2018,17 @@ onUnmounted(() => {
   bottom: 100%;
   left: 50%;
   transform: translateX(-50%);
-  min-width: 200px;
-  max-width: 340px;
+  min-width: 400px;
+  max-width: 680px;
   /* 6 条以内不设高度限制且 overflow 为 visible：内容完整展示 */
   max-height: none;
   overflow-y: visible;
   background: linear-gradient(180deg, rgba(12, 28, 52, 1) 0%, rgba(8, 18, 36, 1) 100%);
   border: 1px solid rgba(0, 200, 255, 0.35);
-  border-radius: 8px;
-  padding: 0 4px 8px;
+  border-radius: 16px;
+  padding: 0 8px 16px;
   z-index: 10000;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6), 0 0 8px rgba(0, 180, 255, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 16px rgba(0, 180, 255, 0.15);
   animation: lightingMarkerListIn 0.18s ease-out;
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 200, 255, 0.45) transparent;
@@ -2016,22 +2036,22 @@ onUnmounted(() => {
 
 /* 超过 6 条：限高滚动 */
 .light-marker .lighting-marker-list.lighting-marker-list-many {
-  max-height: 300px;
+  max-height: 600px;
   overflow-y: auto;
 }
 
 /* 列表表头 */
 .light-marker .lighting-marker-list-header {
   position: relative;
-  padding: 8px 14px;
-  font-size: 12px;
+  padding: 16px 28px;
+  font-size: 24px;
   font-weight: 700;
-  letter-spacing: 1px;
+  letter-spacing: 2px;
   color: #8fe8ff;
   background: linear-gradient(180deg, rgba(12, 28, 52, 1) 0%, rgba(10, 22, 40, 1) 100%);
   border-bottom: 1px solid rgba(0, 200, 255, 0.35);
-  border-radius: 6px 6px 0 0;
-  text-shadow: 0 0 8px rgba(0, 217, 255, 0.5);
+  border-radius: 12px 12px 0 0;
+  text-shadow: 0 0 16px rgba(0, 217, 255, 0.5);
   pointer-events: none;
 }
 
@@ -2044,7 +2064,7 @@ onUnmounted(() => {
 
 /* 列表自定义滚动条 */
 .light-marker .lighting-marker-list::-webkit-scrollbar {
-  width: 5px;
+  width: 10px;
 }
 .light-marker .lighting-marker-list::-webkit-scrollbar-thumb {
   background: rgba(0, 200, 255, 0.45);
@@ -2061,10 +2081,10 @@ onUnmounted(() => {
 .light-marker .lighting-marker-list-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
+  gap: 20px;
+  padding: 20px 28px;
   color: rgba(255, 255, 255, 0.9);
-  font-size: 13px;
+  font-size: 26px;
   line-height: 1.4;
   cursor: pointer;
   white-space: nowrap;
@@ -2077,7 +2097,7 @@ onUnmounted(() => {
 .light-marker .lighting-marker-list-item:hover {
   background: rgba(0, 200, 255, 0.15);
   color: #00d9ff;
-  padding-left: 18px;
+  padding-left: 36px;
 }
 
 /* 列表项激活高亮 */
@@ -2108,11 +2128,6 @@ onUnmounted(() => {
 .parcel-marker:hover {
   transform: translate(0, 50%) scale(1.15);
   filter: brightness(1.2);
-}
-
-/* 标点 hover 时增加发光 */
-.parcel-marker:hover div {
-  box-shadow: 0 0 15px currentColor, 0 0 30px currentColor !important;
 }
 
 /* 地块圈标点呼吸动画 */

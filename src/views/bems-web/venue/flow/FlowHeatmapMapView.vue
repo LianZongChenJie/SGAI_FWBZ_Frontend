@@ -444,25 +444,13 @@ function drawYellowArea() {
 function buildStatisticsMarkerDom(item: VenueInfoVO): string {
   const domId = `flow-statistics-${item.id ?? Math.random().toString(36).slice(2)}`
   const count = item.todayNowCount ?? item.currentCount ?? 0
-  const capacity = item.capacity ?? 0
-  const shengyu = Math.max(0, capacity - count)
-  const rate = capacity > 0 ? Math.round((count / capacity) * 100) : 0
-  // 根据人数比例确定颜色
-  let color = '#52c41a' // 绿色（宽松）
-  if (capacity > 0) {
-    const ratio = count / capacity
-    if (ratio >= 0.8) {
-      color = '#ff4d4f'
-    } else if (ratio >= 0.5) {
-      color = '#faad14'
-    }
-  }
-  // 根据使用率计算状态
-  let state = '宽松'
-  if (capacity > 0) {
-    if (rate >= 80) state = '拥挤'
-    else if (rate >= 50) state = '适中'
-  }
+  const todayIn = item.todayInCount ?? 0
+  const maxCount = item.maxCount ?? 0
+  // 状态直接使用接口返回的 statusLabel
+  console.log('[FlowHeatmap] 状态标签:', item, item.statusLabel)
+  const statusLabel = item.statusLabel || '未知'
+  // tag 颜色：宽松=绿色，其他=红色
+  const color = statusLabel === '宽松' ? '#52c41a' : '#ff4d4f'
   const venueName = item.venueName || '场馆'
   return `<div class="statistics-marker" id="${domId}">
     <!-- Tag 标签：默认显示 -->
@@ -473,11 +461,10 @@ function buildStatisticsMarkerDom(item: VenueInfoVO): string {
     <!-- 详情面板：复用热力点的 marker-info-panel -->
     <div class="marker-info-panel" style="display: none;">
       <div class="panel-title">${venueName}</div>
-      <div>当前在场: <span style="color: ${color}; font-weight: 600;">${count}</span> 人</div>
-      <div>容量上限: ${capacity}</div>
-      <div>剩余容量: ${shengyu}</div>
-      <div>使用率: ${rate}%</div>
-      <div>状态: <span style="color: ${color}; font-weight: 600;">${state}</span></div>
+      <div class="info-row"><span class="info-label">今日进场:</span><span class="info-value">${todayIn} 人</span></div>
+      <div class="info-row"><span class="info-label">当前在场:</span><span class="info-value">${count} 人</span></div>
+      <div class="info-row"><span class="info-label">峰值人数:</span><span class="info-value">${maxCount} 人</span></div>
+      <div class="info-row"><span class="info-label">状态:</span><span class="info-value">${statusLabel}</span></div>
     </div>
   </div>`
 }
@@ -515,6 +502,10 @@ async function loadVenueStatistics() {
     const countMap = new Map<number, number>()
     // 构建峰值人数映射表（venueId -> maxCount 作为容量参考）
     const maxCountMap = new Map<number, number>()
+    // 构建今日进场映射表（venueId -> todayInCount）
+    const todayInMap = new Map<number, number>()
+    // 构建状态标签映射表（venueId -> statusLabel）
+    const statusLabelMap = new Map<number, string>()
     if (Array.isArray(flowData)) {
       flowData.forEach((item: any) => {
         if (item.venueId != null && item.todayNowCount != null) {
@@ -523,14 +514,23 @@ async function loadVenueStatistics() {
         if (item.venueId != null && item.maxCount != null) {
           maxCountMap.set(item.venueId, item.maxCount)
         }
+        if (item.venueId != null && item.todayInCount != null) {
+          todayInMap.set(item.venueId, item.todayInCount)
+        }
+        if (item.venueId != null && item.statusLabel != null) {
+          statusLabelMap.set(item.venueId, item.statusLabel)
+        }
       })
     }
 
-    // 合并数据：将 todayNowCount 和 maxCount 补充到场馆信息中
+    // 合并数据：将 todayNowCount、maxCount、todayInCount 和 statusLabel 补充到场馆信息中
     const data = listData.map((item) => ({
       ...item,
       todayNowCount: countMap.get(item.id!) ?? item.todayNowCount,
       capacity: item.capacity ?? maxCountMap.get(item.id!) ?? 0,
+      todayInCount: todayInMap.get(item.id!) ?? item.todayInCount ?? 0,
+      maxCount: maxCountMap.get(item.id!) ?? item.maxCount ?? 0,
+      statusLabel: statusLabelMap.get(item.id!) ?? item.statusLabel,
     }))
 
     console.log('[FlowHeatmap] 场馆统计数据:', data.length, '个场馆, 在场人数映射:', countMap.size, '条')
@@ -1113,6 +1113,26 @@ onUnmounted(() => {
   color: #ffffff;
   font-size: 22px;
   line-height: 1.4;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+  padding-bottom: 8px;
+}
+
+/* 信息行：标签右对齐，内容左对齐 */
+.marker-info-panel .info-row {
+  display: flex;
+  align-items: center;
+  line-height: 1.8;
+}
+.marker-info-panel .info-label {
+  width: 110px;
+  font-size: 20px;
+  text-align: right;
+  padding-right: 8px;
+  flex-shrink: 0;
+}
+.marker-info-panel .info-value {
+  font-size: 20px;
+  text-align: left;
 }
 
 /* 热力光晕层 —— 紧凑光晕效果 */
@@ -1189,7 +1209,7 @@ onUnmounted(() => {
 }
 
 .statistics-marker .venue-tag-text {
-  font-size: 12px;
+  font-size: 16px;
   font-weight: 600;
   color: #e2e8f0;
   line-height: 1.2;

@@ -103,9 +103,9 @@
         <div class="analysis-card__header">
           <div class="analysis-card__title">
             <span class="analysis-card__icon">📈</span>
-            <span>液位趋势曲线</span>
+            <span>水泵1运行状态</span>
           </div>
-          <span class="card-note">逐时液位 m · 虚线=启/停泵液位</span>
+          <span class="card-note">启/停泵</span>
         </div>
         <div class="analysis-card__body">
           <div v-show="hasLevelData" ref="levelChartRef" class="venue-chart"></div>
@@ -118,10 +118,10 @@
       <a-card class="analysis-card" :bordered="false">
         <div class="analysis-card__header">
           <div class="analysis-card__title">
-            <span class="analysis-card__icon">💧</span>
-            <span>排水泵运行统计</span>
+            <span class="analysis-card__icon">📈</span>
+            <span>水泵2运行状态</span>
           </div>
-          <span class="card-note">今日运行时长 h · 悬停见启动次数</span>
+          <span class="card-note">启/停泵</span>
         </div>
         <div class="analysis-card__body">
           <div v-show="hasPumpData" ref="pumpChartRef" class="venue-chart"></div>
@@ -206,7 +206,7 @@ import { getSpaceTree, getDeviceAttrList, selectDevice, exportData, getSumpPitSu
 import { getStatisticsByCategoryId } from '../../index.api'
 import Sump from '../../building-automation/sump.vue'
 import { useECharts } from '/@/hooks/web/useECharts'
-import { buildTrendOption, buildBarOption } from '../chartOptions'
+import { buildTrendOption } from '../chartOptions'
 
 // 自定义 emoji 图标组件
 const TotalIcon = () => h('span', { style: 'font-size: 20px;' }, '🕳️')
@@ -413,7 +413,7 @@ const renderLevelChart = async () => {
     const { iconAreaCommon } = await import('../../index.api')
     const res = await iconAreaCommon({
       deviceIds: selectedDeviceId.value,
-      attributeName: '液位',
+      attributeName: '水泵1运行状态',
     }) as any
     const data = res?.data || res || {}
     const xaxis = data.xaxis || data.xAxis || data.timeList || []
@@ -441,18 +441,18 @@ const renderPumpChart = async () => {
     const { iconAreaCommon } = await import('../../index.api')
     const res = await iconAreaCommon({
       deviceIds: selectedDeviceId.value,
-      attributeName: '排水泵运行时长',
+      attributeName: '水泵2运行状态',
     }) as any
     const data = res?.data || res || {}
-    const categories = data.categories || data.xaxis || data.xAxis || []
-    const series = data.chatSeriesList || data.seriesList || data.series || []
-    if (!categories.length || !series.length) {
+    const xaxis = data.xaxis || data.xAxis || data.timeList || []
+    const series = (data.chatSeriesList || data.seriesList || data.series || []).filter((s: any) => s.name !== '合计')
+    if (!xaxis.length || !series.length) {
       hasPumpData.value = false
       return
     }
     hasPumpData.value = true
     await nextTick()
-    setPumpChartOptions(buildBarOption(categories, series, data.unit || 'h'))
+    setPumpChartOptions(buildTrendOption(xaxis, series, 'h', true))
   } catch (error) {
     console.error('加载排水泵数据失败:', error)
     hasPumpData.value = false

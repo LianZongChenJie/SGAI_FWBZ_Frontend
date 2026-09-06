@@ -95,7 +95,7 @@ const trendClass = computed(() => {
   &.cyan::before   { background: #13c2c2; }
 
   :deep(.ant-card-body) {
-    padding: 22px 24px;
+    padding: 22px 32px;
     display: flex;
     align-items: center;
     justify-content: space-between;

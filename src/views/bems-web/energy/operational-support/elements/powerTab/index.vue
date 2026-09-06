@@ -116,9 +116,8 @@
         <div class="analysis-card__header">
           <div class="analysis-card__title">
             <span class="analysis-card__icon">📈</span>
-            <span>正向有功</span>
+            <span>正向有功电能</span>
           </div>
-          <span class="card-note">逐时电能 kWh · 今日合计 875.40（参考值）</span>
         </div>
         <div class="analysis-card__body">
           <div v-show="hasActiveData" ref="activeChartRef" class="venue-chart"></div>
@@ -128,13 +127,13 @@
           </div>
         </div>
       </a-card>
-      <a-card class="analysis-card" :bordered="false">
+      <!-- <a-card class="analysis-card" :bordered="false">
         <div class="analysis-card__header">
           <div class="analysis-card__title">
             <span class="analysis-card__icon">📊</span>
-            <span>正向无功</span>
+            <span>反向有功电能</span>
           </div>
-          <span class="card-note">逐时电能 kWh · 今日合计 159.60（参考值）</span>
+          <span class="card-note">反向有功电能</span>
         </div>
         <div class="analysis-card__body">
           <div v-show="hasReactiveData" ref="reactiveChartRef" class="venue-chart"></div>
@@ -143,7 +142,7 @@
             <div class="chart-placeholder__text">暂无数据</div>
           </div>
         </div>
-      </a-card>
+      </a-card> -->
     </div>
     </div>
 
@@ -180,7 +179,7 @@
         <a-descriptions bordered :column="2" size="small">
           <a-descriptions-item label="配电柜编号">{{ detailRecord?.deviceCode ?? '--' }}</a-descriptions-item>
           <a-descriptions-item label="位置">{{ findTreeNodePath(spaceTreeData, detailRecord?.spaceId) || detailRecord?.spaceId || '--' }}</a-descriptions-item>
-          <a-descriptions-item label="运行状态">
+          <a-descriptions-item label="状态">
             <a-tag v-if="detailRecord?.runState === '在线'" color="green">在线</a-tag>
             <a-tag v-else color="red">离线</a-tag>
           </a-descriptions-item>
@@ -197,9 +196,9 @@ import { ref, reactive, computed, h, onMounted, nextTick } from 'vue'
 import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined, DownloadOutlined } from '@ant-design/icons-vue'
 import { StatCard } from '/@/views/bems-web/components'
 import { spaceTree } from '/@/views/bems-web/equipment/equipmentManagement/elements/device/Device.api'
-import { getPowerUnitList, getPowerStatistics, getDeviceAttrList, exportData } from './index.api'
+import { getPowerUnitList, getPowerStatistics, getDeviceAttrList, exportData, getHourData } from './index.api'
 import { useECharts } from '/@/hooks/web/useECharts'
-import { buildBarOption } from '../chartOptions'
+import { buildTrendOption } from '../chartOptions'
 
 // 自定义 emoji 图标组件
 const PowerCabinetTotalIcon = () => h('span', { style: 'font-size: 20px;' }, '⚡')
@@ -465,7 +464,7 @@ const activeChartRef = ref<HTMLDivElement>()
 const hasActiveData = ref(false)
 const { setOptions: setActiveChartOptions } = useECharts(activeChartRef as any)
 
-// 正向无功柱状图
+// 反向有功电能柱状图
 const reactiveChartRef = ref<HTMLDivElement>()
 const hasReactiveData = ref(false)
 const { setOptions: setReactiveChartOptions } = useECharts(reactiveChartRef as any)
@@ -477,28 +476,32 @@ const renderActiveChart = async () => {
     return
   }
   try {
-    const { iconAreaCommon } = await import('../../index.api')
-    const res = await iconAreaCommon({
-      deviceIds: selectedDeviceId.value,
-      attributeName: '正向有功',
-    }) as any
-    const data = res?.data || res || {}
-    const categories = data.categories || data.xaxis || data.xAxis || []
-    const series = data.chatSeriesList || data.seriesList || data.series || []
-    if (!categories.length || !series.length) {
+    const res = await getHourData(selectedDeviceId.value) as any
+    const list = Array.isArray(res) ? res : (res?.data || res?.records || [])
+    if (!list.length) {
       hasActiveData.value = false
       return
     }
+    // 提取 x 轴时间（取小时部分）和数值
+    const xaxis = list.map((item: any) => {
+      const time = item.time || ''
+      // 从 "2026-09-06 00:00" 提取 "00:00"
+      return time.includes(' ') ? time.split(' ')[1]?.slice(0, 5) : time.slice(0, 5)
+    })
+    const series = [{
+      name: '正向有功电能',
+      data: list.map((item: any) => item.value ?? 0)
+    }]
     hasActiveData.value = true
     await nextTick()
-    setActiveChartOptions(buildBarOption(categories, series, data.unit || 'kWh'))
+    setActiveChartOptions(buildTrendOption(xaxis, series, 'kWh', true))
   } catch (error) {
     console.error('加载正向有功数据失败:', error)
     hasActiveData.value = false
   }
 }
 
-/** 渲染正向无功图表 */
+/** 渲染反向有功电能图表 */
 const renderReactiveChart = async () => {
   if (!selectedDeviceId.value) {
     hasReactiveData.value = false
@@ -508,7 +511,7 @@ const renderReactiveChart = async () => {
     const { iconAreaCommon } = await import('../../index.api')
     const res = await iconAreaCommon({
       deviceIds: selectedDeviceId.value,
-      attributeName: '正向无功',
+      attributeName: '反向有功电能',
     }) as any
     const data = res?.data || res || {}
     const categories = data.categories || data.xaxis || data.xAxis || []

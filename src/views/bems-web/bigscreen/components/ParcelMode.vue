@@ -59,9 +59,9 @@
               <table class="device-table scene-table">
                 <thead>
                   <tr>
-                    <th width="50">序号</th>
+                    <th width="80">序号</th>
                     <th>场景名称</th>
-                    <th width="160">操作</th>
+                    <th width="280">操作</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -117,12 +117,12 @@
             :src="currentVideoUrl"
             controls
             autoplay
-            style="width: 100%; max-height: 240px; background: #000; border-radius: 4px;"
+            style="width: 100%; max-height: 480px; background: #000; border-radius: 4px;"
           ></video>
           <iframe
             v-else
             :src="currentVideoUrl"
-            style="width: 100%; height: 240px; border: none; border-radius: 4px;"
+            style="width: 100%; height: 480px; border: none; border-radius: 4px;"
             allow="autoplay; encrypted-media"
             allowfullscreen
           ></iframe>
@@ -137,10 +137,10 @@
               <table class="device-table circuit-table">
                 <thead>
                   <tr>
-                    <th width="50">序号</th>
+                    <th width="80">序号</th>
                     <th>回路名称</th>
-                    <th width="70">电流</th>
-                    <th width="60">状态</th>
+                    <th width="120">电流</th>
+                    <th width="100">状态</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -211,7 +211,7 @@ const videoList = ref<any[]>([]);
 const currentVideoUrl = ref('');
 
 // ==================== 常量 ====================
-const PANEL_WIDTH = 420;
+const PANEL_WIDTH = 840;
 
 // ==================== 地块数据缓存 ====================
 // 缓存 district/listPage 返回的地块列表（含 spaceIds）
@@ -259,21 +259,16 @@ function closeMenu() {
 // ==================== 浮层面板控制 ====================
 
 /**
- * 计算浮层面板位置
+ * 计算浮层面板位置（始终居中显示）
  */
-function calculatePanelPosition(markerRect?: DOMRect) {
-  let x = 0;
-  let y = 0;
+function calculatePanelPosition(_markerRect?: DOMRect) {
+  // 面板高度（按最大高度计算）
+  const PANEL_HEIGHT = 960;
 
-  if (markerRect) {
-    // 面板显示在菜单右侧
-    x = Math.round(markerRect.right + 8 + 140);
-    y = Math.round(markerRect.top - 40);
-  } else {
-    // 兜底：屏幕中央
-    x = Math.round((window.innerWidth - PANEL_WIDTH) / 2);
-    y = 100;
-  }
+  // 水平居中
+  let x = Math.round((window.innerWidth - PANEL_WIDTH) / 2);
+  // 垂直居中
+  let y = Math.round((window.innerHeight - PANEL_HEIGHT) / 2);
 
   // 边界限制
   if (x + PANEL_WIDTH > window.innerWidth - 10) {
@@ -536,7 +531,7 @@ function handleAllOn() {
     return;
   }
   showConfirm(
-    `确定要 <strong class="tip-action">全开</strong> 地块"${currentSpaceName.value}"的 ${matchedScenes.length} 个场景吗？`,
+    `确定要 <strong class="tip-action">全开</strong> 服贸会地块的 ${matchedScenes.length} 个场景吗？`,
     async () => {
       try {
         await Promise.all(
@@ -705,7 +700,7 @@ defineExpose({
   cursor: pointer;
   transition: all 0.2s ease;
   color: rgba(255, 255, 255, 0.85);
-  font-size: 13px;
+  font-size: 20px;
 
   &:hover {
     background: rgba(56, 189, 248, 0.15);
@@ -722,7 +717,7 @@ defineExpose({
 
 /* ==================== 监控视频列表 ==================== */
 .video-list {
-  max-height: 160px;
+  max-height: 320px;
   overflow-y: auto;
   margin-bottom: 10px;
 }
@@ -736,7 +731,7 @@ defineExpose({
   cursor: pointer;
   transition: background-color 0.15s;
   color: #d6dee8;
-  font-size: 12px;
+  font-size: 20px;
 
   &:hover {
     background-color: rgba(56, 189, 248, 0.12);
@@ -757,8 +752,8 @@ defineExpose({
 }
 
 .video-status {
-  font-size: 11px;
-  padding: 1px 6px;
+  font-size: 20px;
+  padding: 2px 8px;
   border-radius: 3px;
   background: rgba(220, 60, 60, 0.2);
   color: #f87171;
@@ -777,8 +772,8 @@ defineExpose({
 .parcel-panel {
   position: fixed;
   z-index: 95001;
-  width: 420px;
-  max-height: 480px;
+  width: 840px;
+  max-height: 960px;
   display: flex;
   flex-direction: column;
   background: linear-gradient(180deg, rgba(12, 28, 52, 0.96) 0%, rgba(8, 18, 36, 0.96) 100%);
@@ -811,19 +806,19 @@ defineExpose({
 
 .panel-title {
   color: #e2e8f0;
-  font-size: 13px;
+  font-size: 20px;
   font-weight: 600;
 }
 
 .panel-close {
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 4px;
   color: #94a3b8;
-  font-size: 14px;
+  font-size: 20px;
   cursor: pointer;
   transition: all 0.2s ease;
 
@@ -837,7 +832,7 @@ defineExpose({
   flex: 1;
   padding: 12px;
   overflow-y: auto;
-  max-height: 430px;
+  max-height: 860px;
 
   &::-webkit-scrollbar {
     width: 6px;
@@ -858,7 +853,7 @@ defineExpose({
   margin-bottom: 10px;
   border: none;
   border-radius: 6px;
-  font-size: 14px;
+  font-size: 20px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -891,7 +886,7 @@ defineExpose({
 .circuit-table-wrap {
   border: 1px solid rgba(56, 189, 248, 0.12);
   border-radius: 6px;
-  max-height: 360px;
+  max-height: 720px;
   overflow-y: auto;
 
   &::-webkit-scrollbar {
@@ -906,7 +901,7 @@ defineExpose({
 .device-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 12px;
+  font-size: 20px;
 
   thead {
     position: sticky;
@@ -962,10 +957,10 @@ defineExpose({
 }
 
 .scene-btn {
-  padding: 3px 10px;
+  padding: 6px 14px;
   border: none;
   border-radius: 3px;
-  font-size: 11px;
+  font-size: 20px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -1000,9 +995,9 @@ defineExpose({
 
 /* 回路状态 */
 .circuit-status {
-  padding: 2px 6px;
+  padding: 4px 8px;
   border-radius: 3px;
-  font-size: 11px;
+  font-size: 20px;
   font-weight: 500;
 
   &.is-on {
@@ -1021,7 +1016,7 @@ defineExpose({
   padding: 30px;
   text-align: center;
   color: #64748b;
-  font-size: 13px;
+  font-size: 20px;
 }
 </style>
 

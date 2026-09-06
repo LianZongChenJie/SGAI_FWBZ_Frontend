@@ -4,12 +4,12 @@
     <a-modal
       v-model:open="modalVisible"
       :footer="null"
-      width="400px"
+      width="800px"
       centered
       :zIndex="90000"
       class="space-modal"
       wrapClassName="space-modal"
-      :bodyStyle="{ padding: '16px', background: '#0b1a2f' }"
+      :bodyStyle="{ padding: '0', background: '#0b1a2f' }"
       @cancel="onCancel"
     >
       <template #title>
@@ -205,7 +205,7 @@ import {
   getAreaListBySpaceName,
   postControlBySpaceName,
 } from '@/api/equipmentMonitoring'
-import ConfirmModal from '@/views/bems-web/northAreaLightingSys/equipmentMonitoring/components/ConfirmModal.vue'
+import ConfirmModal from './ConfirmModalBigscreen.vue'
 
 const props = defineProps<{
   mapInstance?: any
@@ -435,7 +435,7 @@ async function handleAreaOn() {
   // 普通标点：区域全开
   if (!currentAreaId.value) return
   showConfirm({
-    content: `确定要 <strong class="tip-action">全开</strong> 区域"${currentAreaName}"吗？`,
+    content: `确定要 <strong class="tip-action">全开</strong> 服贸会区域吗？`,
     onOk: async () => {
       try {
         await throwIfControlFailed(await setAreaOpenApi({ id: currentAreaId.value }))
@@ -487,7 +487,7 @@ async function handleAreaOff() {
   // 普通标点：区域全关
   if (!currentAreaId.value) return
   showConfirm({
-    content: `确定要 <strong class="tip-action">全关</strong> 区域"${currentAreaName}"吗？`,
+    content: `确定要 <strong class="tip-action">全关</strong> 服贸会区域吗？`,
     onOk: async () => {
       try {
         await throwIfControlFailed(await setAreaCloseApi({ id: currentAreaId.value }))
@@ -589,31 +589,31 @@ watch(modalVisible, (val) => {
 
 .light-tabs-title {
   color: #e2e8f0;
-  font-size: 14px;
+  font-size: 28px;
   font-weight: 600;
 }
 
 .light-pane {
-  padding: 8px 0;
+  padding: 16px;
 }
 
 /* 一键开关 */
 .pane-switch {
   display: flex;
-  gap: 10px;
-  margin-bottom: 14px;
+  gap: 20px;
+  margin-bottom: 28px;
 }
 
 .icon-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 16px;
-  border: 1px solid rgba(56, 189, 248, 0.3);
-  border-radius: 4px;
+  gap: 12px;
+  padding: 12px 32px;
+  border: 2px solid rgba(56, 189, 248, 0.3);
+  border-radius: 8px;
   background: rgba(8, 20, 40, 0.85);
   color: #38bdf8;
-  font-size: 13px;
+  font-size: 26px;
   cursor: pointer;
   transition: all 0.2s;
 
@@ -634,21 +634,21 @@ watch(modalVisible, (val) => {
 }
 
 .btn-text {
-  font-size: 13px;
+  font-size: 26px;
   font-weight: 500;
 }
 
 /* 回路列表 */
 .pane-table {
-  margin-top: 8px;
+  margin-top: 16px;
 }
 
 .circuit-count-tag {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
-  font-size: 13px;
+  margin-bottom: 16px;
+  font-size: 26px;
 }
 
 .circuit-count-left {
@@ -657,10 +657,12 @@ watch(modalVisible, (val) => {
 
 .stat-label {
   color: #94a3b8;
+  font-size: 26px;
 }
 
 .stat-value {
   color: #e2e8f0;
+  font-size: 26px;
 }
 
 .number {
@@ -676,10 +678,10 @@ watch(modalVisible, (val) => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  border: 1px solid rgba(56, 189, 248, 0.2);
-  border-radius: 4px;
+  width: 56px;
+  height: 56px;
+  border: 2px solid rgba(56, 189, 248, 0.2);
+  border-radius: 8px;
   background: transparent;
   color: #38bdf8;
   cursor: pointer;
@@ -699,9 +701,9 @@ watch(modalVisible, (val) => {
 /* 回路状态 */
 .circuit-status {
   display: inline-block;
-  padding: 2px 8px;
-  border-radius: 3px;
-  font-size: 12px;
+  padding: 4px 16px;
+  border-radius: 6px;
+  font-size: 24px;
   font-weight: 500;
 
   &.is-on {
@@ -718,9 +720,9 @@ watch(modalVisible, (val) => {
 /* 节目状态 */
 .program-status {
   display: inline-block;
-  padding: 2px 8px;
-  border-radius: 3px;
-  font-size: 12px;
+  padding: 4px 16px;
+  border-radius: 6px;
+  font-size: 24px;
   font-weight: 500;
   color: #e2e8f0;
 }
@@ -729,10 +731,10 @@ watch(modalVisible, (val) => {
 .device-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: 26px;
 
   th, td {
-    padding: 8px 10px;
+    padding: 16px 20px;
     text-align: left;
     border-bottom: 1px solid rgba(56, 189, 248, 0.1);
   }
@@ -741,10 +743,12 @@ watch(modalVisible, (val) => {
     color: #94a3b8;
     font-weight: 500;
     background: rgba(56, 189, 248, 0.05);
+    font-size: 26px;
   }
 
   td {
     color: #e2e8f0;
+    font-size: 26px;
   }
 
   tbody tr:hover {
@@ -754,10 +758,10 @@ watch(modalVisible, (val) => {
 
 /* 空状态 */
 .space-submenu-empty {
-  padding: 24px 0;
+  padding: 48px 0;
   text-align: center;
   color: rgba(255, 255, 255, 0.4);
-  font-size: 13px;
+  font-size: 26px;
 }
 
 /* 视频 */
@@ -765,7 +769,7 @@ watch(modalVisible, (val) => {
   width: 100%;
   aspect-ratio: 16 / 9;
   background: #000;
-  border-radius: 6px;
+  border-radius: 12px;
   overflow: hidden;
 }
 
@@ -779,15 +783,15 @@ watch(modalVisible, (val) => {
 /* 操作按钮组 */
 .plan-action-group {
   display: flex;
-  gap: 6px;
+  gap: 12px;
   justify-content: center;
 }
 
 .mini-action-btn {
-  padding: 3px 10px;
-  border: 1px solid;
-  border-radius: 3px;
-  font-size: 12px;
+  padding: 6px 20px;
+  border: 2px solid;
+  border-radius: 6px;
+  font-size: 24px;
   cursor: pointer;
   transition: all 0.2s;
 
@@ -819,18 +823,25 @@ watch(modalVisible, (val) => {
   .ant-modal-header {
     background: #0b1a2f;
     border-bottom: 1px solid rgba(56, 189, 248, 0.15);
-    padding: 12px 16px;
+    padding: 24px 32px;
   }
 
   .ant-modal-title {
     color: #e2e8f0;
+    font-size: 28px;
+  }
+
+  .ant-modal-close {
+    font-size: 28px;
+    top: 24px;
+    right: 32px;
   }
 }
 
 /* 深度选择器：覆盖 ant-tabs 样式 */
 :deep(.space-tabs) {
   .ant-tabs-nav {
-    margin-bottom: 12px;
+    margin-bottom: 24px;
     width: 100%;
 
     &::before {
@@ -846,10 +857,10 @@ watch(modalVisible, (val) => {
   .ant-tabs-tab {
     flex: 1;
     margin: 0;
-    padding: 8px 0;
+    padding: 16px 0;
     justify-content: center;
     color: #cbd5e1;
-    font-size: 13px;
+    font-size: 26px;
     transition: color 0.2s ease;
 
     &:hover {
@@ -881,7 +892,7 @@ watch(modalVisible, (val) => {
 /* Spin 样式 */
 :deep(.pane-spin) {
   .ant-spin-spinning {
-    max-height: 320px;
+    max-height: 640px;
   }
 }
 
@@ -902,15 +913,19 @@ watch(modalVisible, (val) => {
   .ant-modal-header {
     background: #0b1a2f !important;
     border-bottom: 1px solid rgba(56, 189, 248, 0.15) !important;
-    padding: 12px 16px !important;
+    padding: 24px 32px !important;
   }
 
   .ant-modal-title {
     color: #e2e8f0 !important;
+    font-size: 28px !important;
   }
 
   .ant-modal-close {
     color: #94a3b8 !important;
+    font-size: 28px !important;
+    top: 24px !important;
+    right: 32px !important;
     &:hover {
       color: #38bdf8 !important;
     }
@@ -921,7 +936,7 @@ watch(modalVisible, (val) => {
 .space-tabs {
   .ant-tabs-tab {
     color: #cbd5e1 !important;
-    font-size: 13px;
+    font-size: 26px !important;
     transition: color 0.2s ease;
 
     &:hover {
@@ -932,6 +947,7 @@ watch(modalVisible, (val) => {
   .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
     color: #38bdf8 !important;
     font-weight: 600;
+    font-size: 26px !important;
   }
 }
 </style>

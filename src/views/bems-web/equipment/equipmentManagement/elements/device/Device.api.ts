@@ -27,7 +27,170 @@ enum Api {
 
   exportData = '/sgai-fwbz-dev/fwbz/device/export',
   getCategoryTree = '/sgai-fwbz-dev/fwbz/equipmentCategory/getTree',
-  venueInfoList = '/sgai-fwbz-dev/fwbz/venueInfo/listAll'
+  venueInfoList = '/sgai-fwbz-dev/fwbz/venueInfo/listAll',
+  /** 设备类别-仪表权限树 */
+  getPermissionTree = '/sgai-fwbz-dev/fwbz/equipmentCategory/measuring/getPermissionTree',
+  /** 设备类别-设备权限树 */
+  getEquipmentTree = '/sgai-fwbz-dev/fwbz/equipmentCategory/equipment/getPermissionTree',
+  /** 冷源设备 */
+  getColdSourceTree = '/sgai-fwbz-dev/fwbz/coldSource/device/page',
+
+}
+
+/**
+ * 设备基础信息列表 请求入参
+ * 
+ */
+export interface Request {
+    /**
+     * 设备类别id（精确匹配，关联 cold_source_equipment_category.id）
+     */
+    categoryId?: number;
+    /**
+     * 设备编号（模糊匹配）
+     */
+    deviceCode?: string;
+    /**
+     * 设备名称（模糊匹配）
+     */
+    deviceName?: string;
+    pageNo?: number;
+    pageSize?: number;
+    /**
+     * 设备状态（精确匹配，1启用 0停用）
+     */
+    status?: number;
+    [property: string]: any;
+}
+
+
+
+/**
+ * 设备基础信息列表 返回数据对象
+ *
+ */
+export interface IPageColdSourceDevicePageDto {
+    countId?: string;
+    current?: number;
+    maxLimit?: number;
+    optimizeCountSql?: boolean;
+    optimizeJoinOfCountSql?: boolean;
+    orders?: OrderItem[];
+    pages?: number;
+    records?: ColdSourceDevicePageDto[];
+    searchCount?: boolean;
+    size?: number;
+    total?: number;
+    [property: string]: any;
+}
+
+/**
+ * com.baomidou.mybatisplus.core.metadata.OrderItem
+ *
+ * OrderItem
+ */
+export interface OrderItem {
+    asc?: boolean;
+    column?: string;
+    [property: string]: any;
+}
+
+/**
+ * 冷源设备列表返回 下拉选择
+ *
+ * ColdSourceDevicePageDto
+ */
+export interface ColdSourceDevicePageDto {
+    /**
+     * 设备类别id
+     */
+    categoryId?: number;
+    /**
+     * 设备类别名称
+     */
+    categoryName?: string;
+    /**
+     * 设备编号
+     */
+    deviceCode?: string;
+    /**
+     * 设备名称
+     */
+    deviceName?: string;
+    /**
+     * 主键
+     */
+    id?: number;
+    /**
+     * Niagara 路径
+     */
+    niagaraPath?: string;
+    /**
+     * 备注
+     */
+    remark?: string;
+    /**
+     * 排序
+     */
+    sort?: number;
+    /**
+     * 状态: 1启用 0停用
+     */
+    status?: number;
+    /**
+     * 所属系统
+     */
+    systemCode?: string;
+    [property: string]: any;
+}
+
+/**
+ * 冷源设备类别表（FWBZ.cold_source_equipment_category）
+ *
+ * ColdSourceEquipmentCategory
+ */
+export interface ColdSourceEquipmentCategory {
+    /**
+     * 分类名称
+     */
+    categoryName?: string;
+    /**
+     * 全id
+     */
+    fullId?: string;
+    /**
+     * 全名
+     */
+    fullName?: string;
+    /**
+     * 是否有子节点: 1有 0无
+     */
+    hasChild?: number;
+    /**
+     * 主键
+     */
+    id?: number;
+    /**
+     * 主id
+     */
+    masterId?: number;
+    /**
+     * 父级id
+     */
+    pid?: number;
+    /**
+     * 备注（含分类编码）
+     */
+    remark?: string;
+    /**
+     * 排序
+     */
+    sort?: number;
+    /**
+     * 类别类型: 1计量 2楼控
+     */
+    type?: number;
+    [property: string]: any;
 }
 
 /**
@@ -126,3 +289,13 @@ export const getCategoryTreeData = () => defHttp.get({ url: Api.getCategoryTree 
  * 获取场馆信息列表（供能源计量总览等页面使用）
  */
 export const getVenueInfoList = (params) => defHttp.get({ url: Api.venueInfoList, params });
+
+/**
+ * 获取设备类别-仪表权限树
+ */
+export const getPermissionTree = () => defHttp.get({ url: Api.getPermissionTree });
+
+/**
+ * 获取设备类别-设备权限树
+ */
+export const getEquipmentTree = () => defHttp.get({ url: Api.getEquipmentTree });

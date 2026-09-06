@@ -196,10 +196,9 @@
         <a-descriptions bordered :column="2" size="small">
           <a-descriptions-item label="机组编号">{{ detailRecord?.deviceCode ?? '--' }}</a-descriptions-item>
           <a-descriptions-item label="位置">{{ findTreeNodePath(spaceTreeData, detailRecord?.spaceId) || detailRecord?.spaceId || '--' }}</a-descriptions-item>
-          <a-descriptions-item label="运行状态">
-            <a-tag v-if="detailRecord?.runStop === '1'" color="green">运行</a-tag>
-            <!-- <a-tag v-else-if="detailRecord?.runStop === '0'" color="orange">待机</a-tag> -->
-            <a-tag v-else color="red">停止</a-tag>
+          <a-descriptions-item label="状态">
+            <a-tag v-if="detailRecord?.runState === '在线'" color="green">在线</a-tag>
+            <a-tag v-else color="red">离线</a-tag>
           </a-descriptions-item>
           <template v-for="attr in detailAttributes" :key="attr.label">
             <a-descriptions-item :label="attr.label">{{ attr.value ?? '--' }}</a-descriptions-item>
@@ -235,9 +234,9 @@
         <a-descriptions bordered :column="2" size="small" style="margin-top: 16px">
           <a-descriptions-item label="机组编号">{{ controlRecord?.deviceCode ?? '--' }}</a-descriptions-item>
           <a-descriptions-item label="位置">{{ findTreeNodePath(spaceTreeData, controlRecord?.spaceId) || controlRecord?.spaceId || '--' }}</a-descriptions-item>
-          <a-descriptions-item label="运行状态">
-            <a-tag v-if="controlRecord?.runStop === '1'" color="green">运行</a-tag>
-            <a-tag v-else color="red">停止</a-tag>
+          <a-descriptions-item label="状态">
+            <a-tag v-if="controlRecord?.runState === '在线'" color="green">在线</a-tag>
+            <a-tag v-else color="red">离线</a-tag>
           </a-descriptions-item>
           <a-descriptions-item label="设定温度">{{ controlTempValue }}°C</a-descriptions-item>
           <template v-for="item in controlDisplayAttrs" :key="item.label">

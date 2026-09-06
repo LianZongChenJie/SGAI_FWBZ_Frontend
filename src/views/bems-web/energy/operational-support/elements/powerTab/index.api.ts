@@ -4,6 +4,21 @@ enum Api {
   powerDistributionSystemList = '/sgai-fwbz-dev/fwbz/operationSupport/powerDistributionSystemList',
   activePower = '/sgai-fwbz-dev/fwbz/operationSupport/activePower',
   powerStatistics = '/sgai-fwbz-dev/fwbz/operationSupport/powerStatistics',
+  /** 小时数据 */
+  findHourData = '/fwbz/deviceData/findHourData',
+}
+
+/** 小时数据项 */
+export interface HourDataItem {
+  id: number
+  deviceId: number
+  time: string
+  value: number
+  startValue: number
+  endValue: number
+  computeValue: number
+  updateBy?: string | null
+  updateTime?: string | null
 }
 
 /**
@@ -30,3 +45,10 @@ export const getDeviceAttrList = (params = {}) => defHttp.get({ url: '/sgai-fwbz
  * 设备列表导出
  */
 export const exportData = (params) => defHttp.get({ url: '/sgai-fwbz-dev/fwbz/device/export', params: params, responseType: 'blob' }, { isTransformResponse: false });
+
+/**
+ * 查询设备小时数据
+ * @param deviceId 设备ID
+ */
+export const getHourData = (deviceId: string | number) =>
+  defHttp.get<HourDataItem[]>({ url: Api.findHourData, params: { deviceId } })
