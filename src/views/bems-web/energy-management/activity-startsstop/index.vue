@@ -313,7 +313,7 @@ function renderEnergyChart() {
   const chartHours = raw('optimization.forecast.hours')
   const openHour = hourLabel('optimization.schedule.plant.earliestEventOpen', '09')
   const closeHour = hourLabel('optimization.schedule.plant.latestEventClose', '19')
-  energyChart.setOption({ animationDuration: 500, grid: { left: 56, right: 50, top: 30, bottom: 32 }, tooltip: { trigger: 'axis', backgroundColor: '#ffffff', borderColor: '#e2e8f0', textStyle: { color: '#2d3748', fontSize:16 } }, xAxis: { type: 'category', data: chartHours, axisLine: { lineStyle: { color: '#e2e8f0' } }, axisLabel: { color: '#94a3b8', fontSize: 16, interval: 1 } }, yAxis: [
+  energyChart.setOption({ animationDuration: 500, grid: { left: 100, right: 100, top: 45, bottom: 32 }, tooltip: { trigger: 'axis', backgroundColor: '#ffffff', borderColor: '#e2e8f0', textStyle: { color: '#2d3748', fontSize:16 } }, xAxis: { type: 'category', data: chartHours, axisLine: { lineStyle: { color: '#e2e8f0' } }, axisLabel: { color: '#94a3b8', fontSize: 16, interval: 1 } }, yAxis: [
     { type: 'value', name: 'kWh', nameTextStyle: { color: '#94a3b8', fontSize: 16 }, axisLabel: { color: '#94a3b8', fontSize: 16 }, splitLine: { lineStyle: { color: 'rgba(148,163,184,.25)' } } },
     { type: 'value', name: '客流 / 人', nameTextStyle: { color: '#94a3b8', fontSize: 16 }, axisLabel: { color: '#94a3b8', fontSize: 16 }, splitLine: { show: false } }
   ], series: [
@@ -340,7 +340,7 @@ function renderLinkageChart() {
   const minAxis = Math.floor((Math.min(...bases) - 45) / 60) * 60
   const maxEnd = Math.max(...rows.map(row => row.legacy ? row.stopMin : row.closeMin))
   const maxAxis = Math.ceil((maxEnd + 110) / 60) * 60
-  linkageChart.setOption({ animationDuration: 500, grid: { left: 58, right: 18, top: 14, bottom: 30 }, legend: { show: false }, tooltip: { trigger: 'item', backgroundColor: '#ffffff', borderColor: '#e2e8f0', textStyle: { color: '#2d3748', fontSize:16 }, formatter: params => {
+  linkageChart.setOption({ animationDuration: 500, grid: { left: 100, right: 100, top: 14, bottom: 30 }, legend: { show: false }, tooltip: { trigger: 'item', backgroundColor: '#ffffff', borderColor: '#e2e8f0', textStyle: { color: '#2d3748', fontSize:16 }, formatter: params => {
     const row = rows[params.dataIndex]
     if (!row) return ''
     if (row.legacy) return `<b>${row.label}</b><br/>活动 ${row.open}–${row.close} · 固定 08:00–18:30 运行<br/>冷机启停由既有系统管理，本页仅展示能耗`
@@ -376,7 +376,7 @@ onUnmounted(() => {
 
 <style scoped>
 .event-schedule-page{--ink:#2d3748;--muted:#64748b;--edge:#e2e8f0;--panel-bg:#ffffff;--cyan:#0ea5e9;--green:#22c55e;--blue:#3b82f6;--amber:#f59e0b;--red:#ef4444;height:100%;min-height:0;display:flex;flex-direction:column;color:var(--ink);background:#f5f7fa;font-family:"PingFang SC","Microsoft YaHei",sans-serif;position:relative}
-.schedule-header{height:54px;flex:none;padding:0 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--edge);background:#ffffff}
+.schedule-header{height:54px;flex:none;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--edge);background:#ffffff;border-radius:12px}
 .schedule-header .eyebrow{color:#94a3b8;font-size:15px;font-weight:700;letter-spacing:2px}
 .schedule-header h1{font-size:25px;margin:2px 0 1px;color:#1e293b}
 .schedule-header p{font-size:15px;color:#94a3b8}
@@ -415,11 +415,11 @@ onUnmounted(() => {
 .chart-legend .line{width:15px;height:3px}.chart-legend .attendance{background:#f0a353}
 .chart-legend .precool{background:rgba(14,165,233,.5)}.chart-legend .run{background:rgba(34,197,94,.65)}.chart-legend .coast{background:rgba(245,158,11,.55)}.chart-legend .legacy{background:#94a3b8}
 .linkage-card{display:flex;flex-direction:column}.linkage-chart{flex:1;min-height:180px;width:100%}
-.equipment-card .schedule-table-wrap{border-top:0;padding-top:6px}
+.equipment-card .schedule-table-wrap{border-top:0;padding:20px}
 .input-stack{display:grid;grid-template-columns:1fr;gap:10px;align-content:start;min-width:0}
 .quality{font-size:13px;padding:3px 6px;border:1px solid;border-radius:4px}
 .quality.good{color:#16a34a;border-color:rgba(34,197,94,.32);background:rgba(34,197,94,.06)}
-.hall-list{padding:4px 10px 1px}
+.hall-list{padding:20px}
 .hall-list>div{display:grid;grid-template-columns:40px 1fr 62px 51px;align-items:center;gap:5px;padding:5px 0;border-bottom:1px solid #f0f0f0;font-size:13px}
 .hall-list>div>b{font-size:16px;color:#334155;display: inline-block; width: 160px;}
 .hall-list>div>span,.hall-list>div>em{color:#64748b;font-style:normal}
@@ -435,7 +435,7 @@ onUnmounted(() => {
 .influence>b i{display:block;height:100%;background:#0ea5e9}
 .influence>strong{color:#0284c7}
 .event-influence>b i{background:#22c55e}
-.diff-list{padding:6px 10px 8px}
+.diff-list{padding:20px}
 .diff-list>div{display:grid;grid-template-columns:88px 1fr;align-items:baseline;gap:8px;padding:6px 0;border-bottom:1px solid #f0f0f0;font-size:13px}
 .diff-list>div:last-child{border-bottom:0}
 .diff-list span{color:#64748b}
@@ -460,7 +460,7 @@ onUnmounted(() => {
 .plant-timeline aside{height:65px;padding:8px 10px;border-left:1px solid var(--edge);display:grid;align-content:center;gap:7px;background:#f8fafc;border-radius:0 8px 8px 0}
 .plant-timeline aside span{font-size:13px;color:#64748b}
 .plant-timeline aside b{float:right;color:#16a34a;font-size:15px}
-.schedule-table-wrap{overflow:auto;border-top:1px solid var(--edge)}
+.schedule-table-wrap{overflow:auto;border-top:1px solid var(--edge)}.solve-card .schedule-table-wrap{padding:20px}
 .schedule-table{width:100%;border-collapse:collapse;font-size:13px}
 .schedule-table th{padding:7px 9px;text-align:left;color:#475569;background:#f8fafc;font-weight:500;white-space:nowrap}
 .schedule-table td{padding:8px 9px;border-top:1px solid #f0f0f0;color:#64748b;vertical-align:top}

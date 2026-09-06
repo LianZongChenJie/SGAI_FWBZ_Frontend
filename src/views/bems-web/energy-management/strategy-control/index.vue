@@ -1,25 +1,27 @@
 <template>
   <div class="optimization-page">
-    <header class="optimization-header">
-      <div>
-        <h1>策略控制执行</h1>
-      </div>
-      <div class="header-state">
-        <span><i></i>数据链路在线</span>
-        <b>模型 {{ text('optimization.forecast.modelVersion') }}</b>
-        <em>距下拍 {{ countdownText }}</em>
-        <em>更新 {{ text('optimization.forecast.updatedAt') }}</em>
-      </div>
-    </header>
+    <div class="header-container">
+      <header class="optimization-header">
+        <div>
+          <h1>策略控制执行</h1>
+        </div>
+        <div class="header-state">
+          <span><i></i>数据链路在线</span>
+          <b>模型 {{ text('optimization.forecast.modelVersion') }}</b>
+          <em>距下拍 {{ countdownText }}</em>
+          <em>更新 {{ text('optimization.forecast.updatedAt') }}</em>
+        </div>
+      </header>
 
-    <div class="logic-flow">
-      <div v-for="(step, index) in flowSteps" :key="step.title" :class="{ active: index < flowStage }">
-        <b>{{ String(index + 1).padStart(2, '0') }}</b>
-        <span
-          ><strong>{{ step.title }}</strong
-          ><small>{{ step.note }}</small></span
-        >
-        <i v-if="index < flowSteps.length - 1">→</i>
+      <div class="logic-flow">
+        <div v-for="(step, index) in flowSteps" :key="step.title" :class="{ active: index < flowStage }">
+          <b>{{ String(index + 1).padStart(2, '0') }}</b>
+          <span
+            ><strong>{{ step.title }}</strong
+            ><small>{{ step.note }}</small></span
+          >
+          <i v-if="index < flowSteps.length - 1">→</i>
+        </div>
       </div>
     </div>
 
@@ -28,14 +30,15 @@
         <article class="expert-card decision-card">
           <header>
             <div
-              ><span class="section-no">03</span><div><h2>专家结论与优化策略</h2><p>推荐值与厂商控制能力解耦；未开放接口绝不直写</p></div></div
+              ><span class="section-no">01</span><div><h2>专家结论与优化策略</h2><p>推荐值与厂商控制能力解耦；未开放接口绝不直写</p></div></div
             >
             <div class="decision-head-actions"
               ><span class="risk low">低风险 · {{ format('optimization.control.riskScore', 0) }} 分</span
               ><button @click="capabilityDialog = true">配置控制能力</button></div
             >
           </header>
-          <div class="expert-conclusion"
+          <div class="decision-card-content">
+            <div class="expert-conclusion"
             ><i>!</i
             ><div
               ><strong>本拍专家结论</strong><p>{{ text('optimization.recommendation.conclusion') }}</p></div
@@ -79,17 +82,19 @@
                 </tr>
               </tbody>
             </table>
+            </div>
           </div>
         </article>
 
         <aside class="expert-card control-card">
           <header>
             <div
-              ><span class="section-no">04</span><div><h2>监控下发与执行</h2><p>先影子验证，再闭环；异常自动回退</p></div></div
+              ><span class="section-no">A</span><div><h2>监控下发与执行</h2><p>先影子验证，再闭环；异常自动回退</p></div></div
             >
             <span class="dispatch-state">{{ text('optimization.control.dispatchState') }}</span>
           </header>
-          <div class="mode-selector">
+          <div class="control-card-content">
+            <div class="mode-selector">
             <button v-for="item in modes" :key="item.key" :class="{ active: mode === item.key }" @click="setMode(item.key)"
               ><b>{{ item.label }}</b
               ><small>{{ item.note }}</small></button
@@ -145,11 +150,12 @@
             <p>控制网关回执 → DDC 跟踪 → 实测校验 → 下一拍重算</p>
           </div>
           <div class="history-list">
-            <h3>最近执行记录</h3>
-            <div v-for="record in history.slice(0, 4)" :key="record.id">
-              <time>{{ record.time }}</time>
-              <span>{{ record.title }}</span>
-              <b :class="record.tone">{{ record.state }}</b>
+              <h3>最近执行记录</h3>
+              <div v-for="record in history.slice(0, 4)" :key="record.id">
+                <time>{{ record.time }}</time>
+                <span>{{ record.title }}</span>
+                <b :class="record.tone">{{ record.state }}</b>
+              </div>
             </div>
           </div>
         </aside>
@@ -686,6 +692,13 @@
     font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
     position: relative;
   }
+  .header-container {
+    padding: 8px 0;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
   .optimization-header {
     height: 54px;
     flex: none;
@@ -746,7 +759,6 @@
     padding: 8px 20px;
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    border-bottom: 1px solid var(--edge);
     background: #ffffff;
   }
   .logic-flow > div {
@@ -867,6 +879,9 @@
   .decision-card {
     min-width: 0;
   }
+  .decision-card-content {
+    padding: 20px;
+  }
   .decision-head-actions {
     display: flex;
     align-items: center;
@@ -892,7 +907,7 @@
     background: rgba(34, 197, 94, 0.06);
   }
   .expert-conclusion {
-    margin: 10px 12px;
+    margin-bottom: 10px;
     padding: 9px 10px;
     display: grid;
     grid-template-columns: 23px 1fr auto;
@@ -933,12 +948,14 @@
     color: #16a34a;
   }
   .decision-table-wrap {
-    overflow: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
     max-height: 600px;
     padding-bottom: 20px;
   }
   .decision-table {
     width: 100%;
+    table-layout: fixed;
     border-collapse: collapse;
     font-size: 13px;
   }
@@ -983,9 +1000,13 @@
     color: #16a34a;
     font-weight: 700;
   }
+  .decision-table td:last-child {
+    max-width: 120px;
+  }
   .decision-table code {
     font-size: 14px;
     color: #0284c7;
+    overflow-wrap: break-word;
   }
   .decision-table tr.muted {
     opacity: 0.38;
@@ -1006,6 +1027,9 @@
   }
   .control-card {
     min-width: 0;
+  }
+  .control-card-content {
+    padding: 20px;
   }
   .dispatch-state {
     padding: 3px 6px;

@@ -127,7 +127,7 @@
           </div>
         </div>
       </a-card>
-      <!-- <a-card class="analysis-card" :bordered="false">
+      <a-card class="analysis-card" :bordered="false">
         <div class="analysis-card__header">
           <div class="analysis-card__title">
             <span class="analysis-card__icon">📊</span>
@@ -142,7 +142,7 @@
             <div class="chart-placeholder__text">暂无数据</div>
           </div>
         </div>
-      </a-card> -->
+      </a-card>
     </div>
     </div>
 
@@ -501,7 +501,7 @@ const renderActiveChart = async () => {
   }
 }
 
-/** 渲染反向有功电能图表 */
+/** 渲染反向有功电能折线图 */
 const renderReactiveChart = async () => {
   if (!selectedDeviceId.value) {
     hasReactiveData.value = false
@@ -514,17 +514,17 @@ const renderReactiveChart = async () => {
       attributeName: '反向有功电能',
     }) as any
     const data = res?.data || res || {}
-    const categories = data.categories || data.xaxis || data.xAxis || []
-    const series = data.chatSeriesList || data.seriesList || data.series || []
-    if (!categories.length || !series.length) {
+    const xaxis = data.xaxis || data.xAxis || data.timeList || []
+    const series = (data.chatSeriesList || data.seriesList || data.series || []).filter((s: any) => s.name !== '合计')
+    if (!xaxis.length || !series.length) {
       hasReactiveData.value = false
       return
     }
     hasReactiveData.value = true
     await nextTick()
-    setReactiveChartOptions(buildBarOption(categories, series, data.unit || 'kWh'))
+    setReactiveChartOptions(buildTrendOption(xaxis, series, data.unit || 'kWh', true))
   } catch (error) {
-    console.error('加载正向无功数据失败:', error)
+    console.error('加载反向有功电能数据失败:', error)
     hasReactiveData.value = false
   }
 }
