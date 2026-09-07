@@ -39,6 +39,7 @@ enum Api {
   getBoxTelemetryListApi = '/sgai-bqzm/bems/lighting/boxTelemetry/list',
   getBoxTelemetryHistoryApi = '/sgai-bqzm/bems/lighting/boxTelemetry/history',
   getEnergyMeterReadsApi = '/sgai-bqzm/bems/lighting/energy/meterReads',
+  getMeterReadDetailApi = '/sgai-bqzm/bems/lighting/boxTelemetry/meterReadDetail',
 }
 
 /**
@@ -173,3 +174,6 @@ export const getBoxTelemetryHistory = (params) => defHttp.get({ url: Api.getBoxT
 
 // 能耗统计 - 区间查询（表底抄表记录，GET）
 export const getEnergyMeterReads = (params) => defHttp.get({ url: Api.getEnergyMeterReadsApi, params }, { joinParamsToUrl: true });
+
+// 能耗统计 - 区间查询详情（抄表明细，GET：gatewayCode + start + end）
+export const getMeterReadDetail = (params) => defHttp.get({ url: Api.getMeterReadDetailApi, params }, { joinParamsToUrl: true });
