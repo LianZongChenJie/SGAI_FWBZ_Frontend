@@ -1361,8 +1361,8 @@ onBeforeUnmount(() => {
   }
 }
 
-/* ==================== Select 下拉面板（深色） ==================== */
-.ant-select-dropdown {
+/* ==================== Select 下拉面板（深色，仅本页 addModal 弹层） ==================== */
+.ant-select-dropdown.dc-add-popup {
   background: #1b2533 !important;
   border: 1px solid #303d50 !important;
   border-radius: 4px !important;

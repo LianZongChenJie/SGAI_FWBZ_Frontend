@@ -17,7 +17,7 @@
             </a-col>
             <a-col :span="12">
               <a-form-item label="监测对象" name="circuitCode">
-                <a-select v-model:value="formState.circuitCode" placeholder="请选择监测对象">
+                <a-select v-model:value="formState.circuitCode" placeholder="请选择监测对象" popup-class-name="am-alarm-popup">
                     <a-select-option value="all">全部回路</a-select-option>
                     <a-select-option value="A1">A1地块</a-select-option>
                     <a-select-option value="A2">A2地块</a-select-option>
@@ -29,7 +29,7 @@
           <a-row :gutter="24">
             <a-col :span="12">
               <a-form-item label="报警条件" name="alarmCondition">
-                <a-select v-model:value="formState.alarmCondition" placeholder="请选择报警条件">
+                <a-select v-model:value="formState.alarmCondition" placeholder="请选择报警条件" popup-class-name="am-alarm-popup">
                   <a-select-option value="功率 > 阈值">功率 &gt; 阈值</a-select-option>
                   <a-select-option value="电压 < 阈值">电压 &lt; 阈值</a-select-option>
                   <a-select-option value="离线时长 > 阈值">离线时长 &gt; 阈值</a-select-option>
@@ -48,7 +48,7 @@
           <a-row :gutter="24">
             <a-col :span="12">
               <a-form-item label="报警等级" name="alarmLevel">
-                <a-select v-model:value="formState.alarmLevel" placeholder="请选择报警等级">
+                <a-select v-model:value="formState.alarmLevel" placeholder="请选择报警等级" popup-class-name="am-alarm-popup">
                   <a-select-option v-for="item in alarmLevelList" :key="item.id" :value="item.alarmLevelName">
                     {{ item.alarmLevelName }}
                   </a-select-option>
@@ -57,7 +57,7 @@
             </a-col>
             <a-col :span="12">
               <a-form-item label="通知方式" name="notifyWay">
-                <a-select v-model:value="formState.notifyWay" placeholder="请选择通知方式">
+                <a-select v-model:value="formState.notifyWay" placeholder="请选择通知方式" popup-class-name="am-alarm-popup">
                   <a-select-option value="平台消息">平台消息</a-select-option>
                   <a-select-option value="短信">短信</a-select-option>
                   <a-select-option value="邮件">邮件</a-select-option>
@@ -487,4 +487,40 @@ const handleSave = async () => {
       vertical-align: middle;
       box-shadow: 0 0 0 2px rgba(0,0,0,0.15) inset;
     }}}
+</style>
+
+<style lang="less">
+/* ==================== Select 下拉面板（深色，仅本弹窗弹层） ==================== */
+.ant-select-dropdown.am-alarm-popup {
+  background: #1b2533 !important;
+  border: 1px solid #303d50 !important;
+  border-radius: 4px !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5) !important;
+
+  .ant-select-item {
+    color: #c0c8d4 !important;
+    font-size: 12px !important;
+    min-height: 28px !important;
+    line-height: 28px !important;
+    transition: background 0.15s !important;
+
+    &:hover {
+      background: rgba(0, 212, 255, 0.1) !important;
+    }
+  }
+
+  .ant-select-item-option-selected {
+    background: rgba(0, 212, 255, 0.15) !important;
+    color: #00c6ff !important;
+    font-weight: 500 !important;
+  }
+
+  .ant-select-item-option-active {
+    background: rgba(255, 255, 255, 0.04) !important;
+  }
+
+  .ant-select-item-empty {
+    color: #5a6a80 !important;
+  }
+}
 </style>

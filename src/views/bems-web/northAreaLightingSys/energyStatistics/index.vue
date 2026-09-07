@@ -76,6 +76,7 @@
                 allowClear
                 show-search
                 option-filter-prop="label"
+                popup-class-name="es-dom-popup"
                 style="width: 180px"
               />
             </div>
@@ -132,6 +133,7 @@
                 allowClear
                 show-search
                 option-filter-prop="label"
+                popup-class-name="es-select-popup"
                 style="width: 180px"
               />
             </div>
@@ -222,6 +224,7 @@
                 placeholder="全部区域"
                 :options="regionOptions"
                 allowClear
+                popup-class-name="es-select-popup"
                 style="width: 130px"
               />
             </div>
@@ -242,6 +245,7 @@
                 showTime
                 format="YYYY-MM-DD HH:mm:ss"
                 valueFormat="YYYY-MM-DD HH:mm:ss"
+                popup-class-name="es-range-popup"
                 style="width: 200px"
               />
             </div>
@@ -253,6 +257,7 @@
                 showTime
                 format="YYYY-MM-DD HH:mm:ss"
                 valueFormat="YYYY-MM-DD HH:mm:ss"
+                popup-class-name="es-range-popup"
                 style="width: 200px"
               />
             </div>
@@ -321,6 +326,7 @@
           format="YYYY-MM-DD HH:mm:ss"
           valueFormat="YYYY-MM-DD HH:mm:ss"
           class="time-input"
+          popup-class-name="es-range-popup"
         />
         <span class="tip-sep">~</span>
         <a-date-picker
@@ -330,6 +336,7 @@
           format="YYYY-MM-DD HH:mm:ss"
           valueFormat="YYYY-MM-DD HH:mm:ss"
           class="time-input"
+          popup-class-name="es-range-popup"
         />
         <button class="btn btn-primary query-btn" @click="loadBoxDetailHistory">查询</button>
         <a-radio-group v-model:value="boxDetailChartType" size="small" class="chart-type-radio">
@@ -433,6 +440,7 @@
           format="YYYY-MM-DD HH:mm:ss"
           valueFormat="YYYY-MM-DD HH:mm:ss"
           class="time-input"
+          popup-class-name="es-range-popup"
         />
         <span class="tip-sep">~</span>
         <a-date-picker
@@ -442,6 +450,7 @@
           format="YYYY-MM-DD HH:mm:ss"
           valueFormat="YYYY-MM-DD HH:mm:ss"
           class="time-input"
+          popup-class-name="es-range-popup"
         />
         <button class="btn btn-primary query-btn" @click="loadRangeDetailHistory">查询</button>
         <a-radio-group v-model:value="rangeDetailChartType" size="small" class="chart-type-radio">
@@ -989,7 +998,7 @@ const renderTrend = () => {
         ]),
       },
     })),
-  });
+  }, true); // notMerge: 系列数量减少时清除旧系列，避免残留多条线
 };
 
 const initTrendChart = () => {
@@ -1085,8 +1094,8 @@ function mapRankItem(it: any): RankItem {
   };
 }
 
-/** 维度映射：按区域 → zone，按箱子 → box */
-const levelByStatType = () => (statType.value === 'area' ? 'zone' : 'box');
+/** 维度映射：按区域 → parcel，按箱子 → box */
+const levelByStatType = () => (statType.value === 'area' ? 'parcel' : 'box');
 
 /** 能耗排名（随维度切换，今天，Top 15） */
 const loadRanking = async () => {
@@ -1128,7 +1137,11 @@ const loadProportion = async () => {
 /** Top5 逐时趋势对比（随维度切换，当天） */
 const loadTrend = async () => {
   try {
-    const res = await getEnergyHourlyTrend({ level: levelByStatType(), date: formatDate('') });
+    // 按区域 → parcel（区别于排名/占比的 zone），按箱子 → box
+    const res = await getEnergyHourlyTrend({
+      level: statType.value === 'area' ? 'parcel' : 'box',
+      date: formatDate(''),
+    });
     let hours: string[] = [];
     let series: { name: string; data: number[] }[] = [];
     if (Array.isArray(res)) {
@@ -2698,6 +2711,263 @@ onUnmounted(() => {
   .ant-pagination .ant-pagination-item-disabled a,
   .ant-pagination .ant-pagination-disabled button {
     color: rgba(176, 199, 224, 0.35) !important;
+  }
+}
+</style>
+
+<style lang="less">
+/* ==================== DatePicker/Select 下拉面板（深色，仅本页弹层） ==================== */
+.ant-picker-dropdown.es-dom-popup {
+  .ant-picker-panel-container {
+    background: #1b2533 !important;
+    border: 1px solid #303d50 !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5) !important;
+    border-radius: 4px !important;
+
+    .ant-picker-header {
+      border-bottom-color: #303d50 !important;
+    }
+
+    .ant-picker-header button {
+      color: #a0aabf !important;
+
+      &:hover {
+        color: #00d4ff !important;
+      }
+    }
+
+    .ant-picker-body th,
+    .ant-picker-content th {
+      color: #5a6a80 !important;
+    }
+
+    .ant-picker-cell {
+      color: #c0c8d4 !important;
+    }
+
+    .ant-picker-cell-in-view {
+      color: #ffffff !important;
+    }
+
+    .ant-picker-cell-selected .ant-picker-cell-inner {
+      background: linear-gradient(135deg, #00d4ff, #0088cc) !important;
+    }
+
+    .ant-picker-cell-today .ant-picker-cell-inner::before {
+      border-color: #00d4ff !important;
+    }
+
+    .ant-picker-cell:hover:not(.ant-picker-cell-selected):not(.ant-picker-cell-range-start):not(.ant-picker-cell-range-end):not(.ant-picker-cell-range-hover-start):not(.ant-picker-cell-range-hover-end) .ant-picker-cell-inner {
+      background: rgba(0, 212, 255, 0.1) !important;
+    }
+
+    .ant-picker-cell-disabled {
+      color: rgba(255, 255, 255, 0.2) !important;
+
+      &::before {
+        background: rgba(255, 255, 255, 0.04) !important;
+      }
+    }
+
+    .ant-picker-footer {
+      border-top-color: #303d50 !important;
+    }
+
+    /* ===== TimePicker 时间列面板 ===== */
+    .ant-picker-time-panel-column {
+      border-right-color: #303d50 !important;
+
+      .ant-picker-time-panel-cell-inner {
+        color: #c0c8d4 !important;
+
+        &:hover {
+          background: rgba(0, 212, 255, 0.12) !important;
+        }
+      }
+
+      .ant-picker-time-panel-cell-selected .ant-picker-time-panel-cell-inner {
+        color: #ffffff !important;
+        background: linear-gradient(135deg, #00d4ff, #0088cc) !important;
+        font-weight: 500 !important;
+      }
+    }
+  }
+
+  /* TimePicker 底部确定按钮 */
+  .ant-picker-ok {
+    .ant-btn-primary {
+      color: #061224 !important;
+      background: linear-gradient(135deg, #00d4ff, #0088cc) !important;
+      border: none !important;
+      font-weight: 600 !important;
+
+      &:hover {
+        background: linear-gradient(135deg, #00b8e6, #0070a8) !important;
+        box-shadow: 0 0 10px rgba(0, 212, 255, 0.35);
+      }
+    }
+  }
+}
+
+/* ==================== DatePicker 下拉面板（白色，电量统计 tab 时间范围选择器） ==================== */
+.ant-picker-dropdown.es-range-popup {
+  .ant-picker-panel-container {
+    background: #ffffff !important;
+    border: 1px solid #dcdfe6 !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
+    border-radius: 4px !important;
+
+    .ant-picker-header {
+      border-bottom-color: #ebeef5 !important;
+
+      button {
+        color: #606266 !important;
+
+        &:hover {
+          color: #1890ff !important;
+        }
+      }
+    }
+
+    .ant-picker-body th,
+    .ant-picker-content th {
+      color: #909399 !important;
+    }
+
+    .ant-picker-cell {
+      color: #c0c4cc !important;
+    }
+
+    .ant-picker-cell-in-view {
+      color: #303133 !important;
+    }
+
+    .ant-picker-cell-selected .ant-picker-cell-inner {
+      background: #1890ff !important;
+      color: #ffffff !important;
+    }
+
+    .ant-picker-cell-today .ant-picker-cell-inner::before {
+      border-color: #1890ff !important;
+    }
+
+    .ant-picker-cell:hover:not(.ant-picker-cell-selected):not(.ant-picker-cell-range-start):not(.ant-picker-cell-range-end):not(.ant-picker-cell-range-hover-start):not(.ant-picker-cell-range-hover-end) .ant-picker-cell-inner {
+      background: #e6f7ff !important;
+    }
+
+    .ant-picker-cell-disabled {
+      color: rgba(0, 0, 0, 0.25) !important;
+
+      &::before {
+        background: #f5f7fa !important;
+      }
+    }
+
+    .ant-picker-footer {
+      border-top-color: #ebeef5 !important;
+    }
+
+    /* ===== TimePicker 时间列面板 ===== */
+    .ant-picker-time-panel-column {
+      border-right-color: #ebeef5 !important;
+
+      .ant-picker-time-panel-cell-inner {
+        color: #303133 !important;
+
+        &:hover {
+          background: #e6f7ff !important;
+        }
+      }
+
+      .ant-picker-time-panel-cell-selected .ant-picker-time-panel-cell-inner {
+        color: #1890ff !important;
+        background: #e6f7ff !important;
+        font-weight: 500 !important;
+      }
+    }
+  }
+
+  /* 底部确定按钮 */
+  .ant-picker-ok {
+    .ant-btn-primary {
+      color: #ffffff !important;
+      background: #1890ff !important;
+      border-color: #1890ff !important;
+      font-weight: 500 !important;
+
+      &:hover {
+        background: #40a9ff !important;
+        border-color: #40a9ff !important;
+        box-shadow: 0 2px 8px rgba(24, 144, 255, 0.3);
+      }
+    }
+  }
+}
+
+/* ==================== Select 下拉面板（白色，配电遥测/电量统计 tab 区域选择） ==================== */
+.ant-select-dropdown.es-select-popup {
+  background: #ffffff !important;
+  border: 1px solid #dcdfe6 !important;
+  border-radius: 4px !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
+
+  .ant-select-item {
+    color: #303133 !important;
+    font-size: 12px !important;
+    min-height: 28px !important;
+    line-height: 28px !important;
+    transition: background 0.15s !important;
+
+    &:hover {
+      background: #f5f7fa !important;
+    }
+  }
+
+  .ant-select-item-option-active {
+    background: #e6f7ff !important;
+  }
+
+  .ant-select-item-option-selected {
+    background: #e6f7ff !important;
+    color: #1890ff !important;
+    font-weight: 500 !important;
+  }
+
+  .ant-select-item-empty {
+    color: #909399 !important;
+  }
+}
+
+.ant-select-dropdown.es-dom-popup {
+  background: #1b2533 !important;
+  border: 1px solid #303d50 !important;
+  border-radius: 4px !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5) !important;
+
+  .ant-select-item {
+    color: #c0c8d4 !important;
+    font-size: 12px !important;
+    min-height: 28px !important;
+    line-height: 28px !important;
+    transition: background 0.15s !important;
+
+    &:hover {
+      background: rgba(0, 212, 255, 0.1) !important;
+    }
+  }
+
+  .ant-select-item-option-selected {
+    background: rgba(0, 212, 255, 0.15) !important;
+    color: #00c6ff !important;
+    font-weight: 500 !important;
+  }
+
+  .ant-select-item-option-active {
+    background: rgba(255, 255, 255, 0.04) !important;
+  }
+
+  .ant-select-item-empty {
+    color: #5a6a80 !important;
   }
 }
 </style>

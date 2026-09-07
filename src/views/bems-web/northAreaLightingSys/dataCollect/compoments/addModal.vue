@@ -44,6 +44,7 @@
             placeholder="请选择协议类型"
             :options="protocolTypeOptions"
             allowClear
+            popup-class-name="dc-add-popup"
           />
         </a-form-item>
 
@@ -83,6 +84,7 @@
             placeholder="请选择数据类型"
             :options="dataTypeOptions"
             allowClear
+            popup-class-name="dc-add-popup"
           />
         </a-form-item>
 
@@ -93,6 +95,7 @@
             placeholder="请选择状态"
             :options="statusOptions"
             allowClear
+            popup-class-name="dc-add-popup"
           />
         </a-form-item>
       </a-form>
@@ -650,8 +653,8 @@ defineExpose({
     .ant-form-item-has-error .ant-input,
     .ant-form-item-has-error .ant-select-selector  {
       border-color: #ff4d4f !important;
-    }}}.theme-white /* ==================== Select 下拉面板（全局深色） ==================== */
-.ant-select-dropdown {
+    }}}.theme-white /* ==================== Select 下拉面板（浅色，仅本弹窗弹层） ==================== */
+.ant-select-dropdown.dc-add-popup {
   background: #ffffff !important;
   border: 1px solid #dcdfe6 !important;
   border-radius: 4px !important;

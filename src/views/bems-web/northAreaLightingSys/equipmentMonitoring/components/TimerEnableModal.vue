@@ -31,7 +31,7 @@
       >
         <!-- 周期范围 -->
         <a-form-item label="周期范围" name="date" :rules="[{ required: true, message: '请选择周期范围' }]">
-          <a-range-picker v-model:value="formState.date" style="width: 100%" format="YYYY-MM-DD" value-format="YYYY-MM-DD" />
+          <a-range-picker v-model:value="formState.date" style="width: 100%" format="YYYY-MM-DD" value-format="YYYY-MM-DD" popup-class-name="cppv-dom-popup em-dom-popup" />
         </a-form-item>
 
         <!-- 执行日期 -->
@@ -41,7 +41,7 @@
 
         <!-- 执行时间 -->
         <a-form-item label="执行时间" name="executionTime" :rules="[{ required: true, message: '请选择执行时间' }]">
-          <a-time-picker v-model:value="formState.executionTime" value-format="HH:mm:ss" style="width: 100%" />
+          <a-time-picker v-model:value="formState.executionTime" value-format="HH:mm:ss" style="width: 100%" popup-class-name="cppv-dom-popup em-dom-popup" />
         </a-form-item>
       </a-form>
 
@@ -594,8 +594,8 @@ body.theme-white /* 遮罩层 */
 
     .ant-form-item-has-error .ant-picker  {
       border-color: #ff4d4f !important;
-    }}}.theme-white /* ==================== DatePicker/TimePicker 下拉面板（全局浅色） ==================== */
-.ant-picker-dropdown {
+    }}}.theme-white /* ==================== DatePicker/TimePicker 下拉面板（浅色，仅本弹窗弹层） ==================== */
+.ant-picker-dropdown.em-dom-popup {
   .ant-picker-panel-container  {
     background: #ffffff !important;
     border: 1px solid #e4e7ed !important;
@@ -677,8 +677,8 @@ body.theme-white /* 遮罩层 */
       &:hover  {
         background: linear-gradient(135deg, #40a9ff, #096dd9) !important;
         box-shadow: 0 0 10px rgba(24, 144, 255, 0.35);
-      }}}}.theme-white /* ==================== Select 下拉面板（全局浅色） ==================== */
-.ant-select-dropdown {
+      }}}}.theme-white /* ==================== Select 下拉面板（浅色，仅本弹窗弹层） ==================== */
+.ant-select-dropdown.em-dom-popup {
   background: #ffffff !important;
   border: 1px solid #e4e7ed !important;
   border-radius: 4px !important;

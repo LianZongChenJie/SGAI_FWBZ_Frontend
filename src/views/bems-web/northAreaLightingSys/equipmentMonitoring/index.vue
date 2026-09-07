@@ -100,6 +100,7 @@
                   allowClear
                   show-search
                   :filter-option="(input, option) => (option.label || '').toLowerCase().includes(input.toLowerCase())"
+                  popup-class-name="em-dom-popup"
                   style="width: 120px"
                 />
                <!-- <a-select
@@ -233,6 +234,7 @@
                 allowClear
                 show-search
                 :filter-option="(input, option) => (option.label || '').toLowerCase().includes(input.toLowerCase())"
+                popup-class-name="em-dom-popup"
                 style="width: 140px"
               />
               <!-- <a-select
@@ -382,12 +384,14 @@
                 placeholder="控制类型"
                 :options="relTypeFilterOptions"
                 allowClear
+                popup-class-name="em-dom-popup"
                 style="width: 140px"
               />
               <a-time-picker
                 v-model:value="timerFilters.startTime"
                 placeholder="开始时间"
                 format="HH:mm:ss"
+                popup-class-name="em-dom-popup"
                 style="width: 160px"
               />
               <span class="filter-separator">—</span>
@@ -395,6 +399,7 @@
                 v-model:value="timerFilters.endTime"
                 placeholder="结束时间"
                 format="HH:mm:ss"
+                popup-class-name="em-dom-popup"
                 style="width: 160px"
               />
               <button class="btn btn-primary" @click="onTimerSearch">查询</button>
@@ -4836,8 +4841,8 @@ body .timer-enable-modal {
   }
 }
 
-/* ==================== DatePicker/TimePicker 下拉面板（深色） ==================== */
-.ant-picker-dropdown {
+/* ==================== DatePicker/TimePicker 下拉面板（深色，仅本页弹层） ==================== */
+.ant-picker-dropdown.em-dom-popup {
   .ant-picker-panel-container {
     background: #1b2533 !important;
     border: 1px solid #303d50 !important;
@@ -4929,8 +4934,8 @@ body .timer-enable-modal {
   }
 }
 
-/* ==================== Select 下拉面板（深色） ==================== */
-.ant-select-dropdown {
+/* ==================== Select 下拉面板（深色，仅本页弹层） ==================== */
+.ant-select-dropdown.em-dom-popup {
   background: #1b2533 !important;
   border: 1px solid #303d50 !important;
   border-radius: 4px !important;

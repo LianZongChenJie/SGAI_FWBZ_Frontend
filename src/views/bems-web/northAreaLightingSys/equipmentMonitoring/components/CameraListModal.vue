@@ -29,6 +29,7 @@
           allowClear
           show-search
           option-filter-prop="label"
+          popup-class-name="em-dom-popup"
           style="width: 150px"
         />
       </div>
