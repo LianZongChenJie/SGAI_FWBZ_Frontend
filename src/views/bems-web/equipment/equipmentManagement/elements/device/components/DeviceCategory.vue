@@ -727,6 +727,10 @@ const activeTab = ref<string>('building-control');
     current: 1,
     pageSize: 10,
     total: 0,
+    showSizeChanger: true,
+    showQuickJumper: true,
+    showTotal: (total: number) => `共 ${total} 条数据`,
+    pageSizeOptions: ['10', '20', '50'],
   });
   const cameraSearchForm = reactive({
     regionName: '',
@@ -805,6 +809,10 @@ const activeTab = ref<string>('building-control');
     current: 1,
     pageSize: 10,
     total: 0,
+    showSizeChanger: true,
+    showQuickJumper: true,
+    showTotal: (total: number) => `共 ${total} 条数据`,
+    pageSizeOptions: ['10', '20', '50'],
   });
   const deviceSearchForm = reactive({
     regionName: '',
@@ -892,6 +900,10 @@ const activeTab = ref<string>('building-control');
     current: 1,
     pageSize: 10,
     total: 0,
+    showSizeChanger: true,
+    showQuickJumper: true,
+    showTotal: (total: number) => `共 ${total} 条数据`,
+    pageSizeOptions: ['10', '20', '50'],
   });
   const doorSearchForm = reactive({
     regionName: '',
@@ -976,6 +988,10 @@ const activeTab = ref<string>('building-control');
     current: 1,
     pageSize: 10,
     total: 0,
+    showSizeChanger: true,
+    showQuickJumper: true,
+    showTotal: (total: number) => `共 ${total} 条数据`,
+    pageSizeOptions: ['10', '20', '50'],
   });
   const currentDeviceIndexCode = ref('');
 

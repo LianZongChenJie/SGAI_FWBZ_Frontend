@@ -760,7 +760,6 @@ const handleSwitchChange = (item: any, checked: boolean) => {
           pv: checked ? '1' : '0',
         })
         item.value = checked ? '1' : '0'
-        message.success('操作成功')
       } catch (e) {
         message.error('操作失败')
       } finally {
@@ -785,7 +784,6 @@ const handleInputConfirm = (item: any) => {
           pv: item._editValue,
         })
         item.value = item._editValue
-        message.success('操作成功')
       } catch (e) {
         message.error('操作失败')
       } finally {

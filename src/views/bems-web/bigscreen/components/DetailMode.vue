@@ -961,19 +961,17 @@ watch(modalVisible, (val) => {
 }
 
 /* 深度选择器：覆盖 ant-tabs 样式 */
-.space-tabs {
-  height: 100%;
 
-  .ant-tabs-nav {
+
+:deep(.tip-action) {
+  font-weight: 700;
+  color: #38bdf8;
+}
+:deep(.ant-tabs-nav) {
     margin-bottom: 0;
     width: 100%;
     flex-shrink: 0;
-
-    .ant-tabs-nav-warp {
-      
-      border-bottom: 1px solid rgba(56, 189, 248, 0.15) !important;
-    }
-  }
+    border-bottom: 1px solid rgba(56, 189, 248, 0.15) !important;
 
   .ant-tabs-nav-list {
     width: 100%;
@@ -1036,11 +1034,7 @@ watch(modalVisible, (val) => {
   .ant-tabs-tabpane {
     height: 100%;
   }
-}
 
-:deep(.tip-action) {
-  font-weight: 700;
-  color: #38bdf8;
 }
 </style>
 

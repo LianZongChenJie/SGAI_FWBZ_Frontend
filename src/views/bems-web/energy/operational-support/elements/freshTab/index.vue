@@ -548,7 +548,6 @@ const handleSwitchChange = (item: DeviceAttribute, checked: boolean) => {
           tagid: item.acquisitionCoding,
           pv: checked,
         })
-        message.success(`${actionText}成功`)
         item.value = checked ? '1' : '0'
       } catch (e) {
         console.error('写入实时数据失败:', e)
@@ -575,7 +574,6 @@ const handleInputConfirm = (item: DeviceAttribute) => {
           tagid: item.acquisitionCoding,
           pv: newValue,
         })
-        message.success('修改成功')
         item.value = newValue
       } catch (e) {
         console.error('写入实时数据失败:', e)

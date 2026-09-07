@@ -369,7 +369,7 @@ const ruleLoading = ref(false)
 const ruleTotal = ref(0)
 const ruleCurPage = ref(1)
 const ruleCurSize = ref(10)
-const rulePagination = computed(() => ruleTotal.value <= 10 ? false : { current: ruleCurPage.value, pageSize: ruleCurSize.value, total: ruleTotal.value, showSizeChanger: true })
+const rulePagination = computed(() => ruleTotal.value <= 10 ? false : { current: ruleCurPage.value, pageSize: ruleCurSize.value, total: ruleTotal.value, showSizeChanger: true, showQuickJumper: true, showTotal: (total: number) => `共 ${total} 条数据`, pageSizeOptions: ['10', '20', '50'] })
 
 // 加载数据
 const loadRuleList = async (pageNo = 1, pageSize = 10) => {
@@ -476,7 +476,7 @@ const categoryLoading = ref(false)
 const categoryTotal = ref(0)
 const categoryCurPage = ref(1)
 const categoryCurSize = ref(10)
-const categoryPagination = computed(() => categoryTotal.value <= 10 ? false : { current: categoryCurPage.value, pageSize: categoryCurSize.value, total: categoryTotal.value, showSizeChanger: true })
+const categoryPagination = computed(() => categoryTotal.value <= 10 ? false : { current: categoryCurPage.value, pageSize: categoryCurSize.value, total: categoryTotal.value, showSizeChanger: true, showQuickJumper: true, showTotal: (total: number) => `共 ${total} 条数据`, pageSizeOptions: ['10', '20', '50'] })
 
 // 加载数据
 const loadCategoryList = async (pageNo = 1, pageSize = 10) => {
@@ -569,7 +569,7 @@ const levelLoading = ref(false)
 const levelTotal = ref(0)
 const levelCurPage = ref(1)
 const levelCurSize = ref(10)
-const levelPagination = computed(() => levelTotal.value <= 10 ? false : { current: levelCurPage.value, pageSize: levelCurSize.value, total: levelTotal.value, showSizeChanger: true })
+const levelPagination = computed(() => levelTotal.value <= 10 ? false : { current: levelCurPage.value, pageSize: levelCurSize.value, total: levelTotal.value, showSizeChanger: true, showQuickJumper: true, showTotal: (total: number) => `共 ${total} 条数据`, pageSizeOptions: ['10', '20', '50'] })
 
 // 加载数据
 const loadLevelList = async (pageNo = 1, pageSize = 10) => {

@@ -252,6 +252,7 @@ const doorPagination = ref({
   current: 1,
   pageSize: 10,
   total: 0,
+  showTotal: (total: number) => `共 ${total} 条`,
 })
 
 const fetchDoorData = async () => {
@@ -336,6 +337,7 @@ const devicePagination = ref({
   current: 1,
   pageSize: 10,
   total: 0,
+  showTotal: (total: number) => `共 ${total} 条`,
 })
 
 const fetchDeviceData = async () => {

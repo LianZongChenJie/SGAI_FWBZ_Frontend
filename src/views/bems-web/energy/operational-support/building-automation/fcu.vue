@@ -217,9 +217,9 @@ main>header h1{margin:0;font-size:16px;font-weight:600;color:#d9eaf3}
 .panel-toggle.active{color:#48dfa8;border-color:#48dfa8;background:rgba(72,223,168,.1)}
 .ba-content{flex:1;min-height:0;display:flex;gap:0;overflow:hidden;position:relative}
 .schematic-card{flex:1;min-width:0;position:relative;overflow:hidden;border:1px solid rgba(78,141,167,.25);background:linear-gradient(rgba(63,117,142,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(63,117,142,.05) 1px,transparent 1px),rgba(5,20,30,.55);background-size:18px 18px;will-change:transform}
-.system-panel{position:absolute;right:16px;top:16px;bottom:14px;width:222px;border:1px solid #234b5e;background:#08202e;overflow-y:auto;overflow-x:hidden;z-index:50}
-.system-panel header{height:29px;padding:8px 10px;border-bottom:1px solid #285267;background:#0d3041;color:#80c7d1;font-size:10px;position:sticky;top:0;z-index:2}
-.system-panel>div{height:34px;padding:0 9px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(52,91,109,.28);font-size:10px}
+.system-panel{position:absolute;right:16px;top:16px;bottom:14px;width:300px;border:1px solid #234b5e;background:#08202e;overflow-y:auto;overflow-x:hidden;z-index:50}
+.system-panel header{height:40px;padding:10px 14px;border-bottom:1px solid #285267;background:#0d3041;color:#80c7d1;font-size:16px;position:sticky;top:0;z-index:2}
+.system-panel>div{height:48px;padding:0 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(52,91,109,.28);font-size:16px}
 .system-panel span{color:#6d8c9d}
 .system-panel strong{color:#d6e8f0}
 @media(max-width:1050px){.system-panel{display:none}}

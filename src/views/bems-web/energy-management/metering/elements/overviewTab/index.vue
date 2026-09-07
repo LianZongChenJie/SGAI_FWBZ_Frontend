@@ -135,10 +135,7 @@
             @change="handleSearch"
           />
           <a-button type="primary" @click="handleSearch">
-            <template #icon>
-              <SearchOutlined />
-            </template>
-            🔍查询
+            <SearchOutlined />查询
           </a-button>
           <a-button @click="handleExport" type="primary" :loading="exportLoading">
             <DownloadOutlined />

@@ -86,8 +86,9 @@
           :columns="flowColumns"
           :data-source="flowData"
           :loading="flowLoading"
-          :pagination="false"
+          :pagination="flowPagination"
           row-key="venueId"
+          @change="handleFlowTableChange"
         >
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'compareRate'">
@@ -166,6 +167,15 @@ const filterDate = ref<string>(dayjs().format('YYYY-MM-DD'))
 const filterVenueId = ref<number| string>('')
 const flowData = ref<VenueFlowVO[]>([])
 const flowLoading = ref(false)
+const flowPagination = ref({
+  current: 1,
+  pageSize: 10,
+  total: 0,
+  showSizeChanger: true,
+  showQuickJumper: true,
+  showTotal: (total: number) => `共 ${total} 条数据`,
+  pageSizeOptions: ['10', '20', '50', '100'],
+})
 
 const flowColumns = [
   { title: '序号', key: 'index', width: 70, customRender: ({ index }) => index + 1 },
@@ -183,10 +193,15 @@ const flowColumns = [
 const fetchFlowData = async () => {
   flowLoading.value = true
   try {
-    const params: Record<string, any> = { date: filterDate.value }
+    const params: Record<string, any> = {
+      date: filterDate.value,
+      pageNo: flowPagination.value.current,
+      pageSize: flowPagination.value.pageSize,
+    }
     if (filterVenueId.value !== undefined) params.venueId = filterVenueId.value
     const res = await getFlowList(params)
-    flowData.value = res || []
+    flowData.value = res.records || res || []
+    flowPagination.value.total = res.total || 0
   } catch (error) {
     console.error('获取客流统计列表失败:', error)
   } finally {
@@ -195,6 +210,13 @@ const fetchFlowData = async () => {
 }
 
 const handleSearch = () => {
+  flowPagination.value.current = 1
+  fetchFlowData()
+}
+
+const handleFlowTableChange = (pag: any) => {
+  flowPagination.value.current = pag.current
+  flowPagination.value.pageSize = pag.pageSize
   fetchFlowData()
 }
 
