@@ -49,6 +49,7 @@ export const exportData = (params) => defHttp.get({ url: '/sgai-fwbz-dev/fwbz/de
 /**
  * 查询设备小时数据
  * @param deviceId 设备ID
+ * @param extraParams 额外参数（如 startTime、endTime）
  */
-export const getHourData = (deviceId: string | number) =>
-  defHttp.get<HourDataItem[]>({ url: Api.findHourData, params: { deviceId } })
+export const getHourData = (deviceId: string | number, extraParams?: Record<string, any>) =>
+  defHttp.get<HourDataItem[]>({ url: Api.findHourData, params: { deviceId, ...(extraParams || {}) } })

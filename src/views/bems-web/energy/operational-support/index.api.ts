@@ -5,6 +5,8 @@ enum Api {
   statisticsByCategoryId = '/sgai-fwbz-dev/fwbz/energyStatistics/device/statisticsByCategoryId',
   /** 图表区域通用接口 */
   iconAreaCommon = '/sgai-fwbz-dev/fwbz/echarts/returnAirCo2Trend/query',
+  /** 总有功功率趋势 */
+  activePowerTrend = '/sgai-fwbz-dev/fwbz/echarts/returnAirCo2Trend/activePowerTrend',
 }
 
 /** 图表区域接口入参 */
@@ -139,3 +141,9 @@ export const getStatisticsByCategoryId = (categoryId: number | string) =>
  * @param params 请求参数
  */
 export const iconAreaCommon = (params: Request) => defHttp.get<ReturnAirCo2TrendVo>({ url: Api.iconAreaCommon, params })
+
+/**
+ * 总有功功率趋势
+ * @param params 请求参数
+ */
+export const getActivePowerTrend = (params: Request) => defHttp.get<ReturnAirCo2TrendVo>({ url: Api.activePowerTrend, params })

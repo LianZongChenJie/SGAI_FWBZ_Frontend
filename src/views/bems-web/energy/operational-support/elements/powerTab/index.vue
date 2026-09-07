@@ -91,6 +91,14 @@
       <div class="collapse-row__header">
         <h3>📊 图表区域</h3>
         <div class="chart-header-right">
+          <DatePicker.RangePicker
+            v-model:value="dateRange"
+            show-time
+            format="YYYY-MM-DD HH:mm:ss"
+            :placeholder="['开始时间', '结束时间']"
+            style="width: 340px"
+            @change="handleDateRangeChange"
+          />
           <a-select
             v-model:value="selectedDeviceId"
             placeholder="选择设备"
@@ -131,13 +139,13 @@
         <div class="analysis-card__header">
           <div class="analysis-card__title">
             <span class="analysis-card__icon">📊</span>
-            <span>反向有功电能</span>
+            <span>总有功功率</span>
           </div>
-          <span class="card-note">反向有功电能</span>
+          <span class="card-note">总有功功率</span>
         </div>
         <div class="analysis-card__body">
-          <div v-show="hasReactiveData" ref="reactiveChartRef" class="venue-chart"></div>
-          <div v-show="!hasReactiveData" class="chart-placeholder">
+          <div v-show="hasActivePowerData" ref="activePowerChartRef" class="venue-chart"></div>
+          <div v-show="!hasActivePowerData" class="chart-placeholder">
             <span class="analysis-card__icon2">📊</span>
             <div class="chart-placeholder__text">暂无数据</div>
           </div>
@@ -193,6 +201,8 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, h, onMounted, nextTick } from 'vue'
+import { DatePicker } from 'ant-design-vue'
+import type { Dayjs } from 'dayjs'
 import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined, DownloadOutlined } from '@ant-design/icons-vue'
 import { StatCard } from '/@/views/bems-web/components'
 import { spaceTree } from '/@/views/bems-web/equipment/equipmentManagement/elements/device/Device.api'
@@ -222,6 +232,18 @@ const toggleProcessFullscreen = () => {
 defineProps<{
   data?: any
 }>()
+
+// 日期区间选择
+const dateRange = ref<any>(null)
+const formatDateTime = (date: Dayjs | null | undefined): string => {
+  return date ? date.format('YYYY-MM-DD HH:mm:ss') : ''
+}
+
+/** 日期区间变化 */
+const handleDateRangeChange = () => {
+  renderActiveChart()
+  renderActivePowerChart()
+}
 
 // 设备位置树数据
 const meterSpace = ref<string | undefined>(undefined)
@@ -437,7 +459,7 @@ const loadDeviceOptions = async () => {
     if (deviceOptions.value.length > 0) {
       selectedDeviceId.value = deviceOptions.value[0].value
       await renderActiveChart()
-      await renderReactiveChart()
+      await renderActivePowerChart()
     }
   } catch (error) {
     console.error('加载设备选项失败:', error)
@@ -451,7 +473,7 @@ const loadDeviceOptions = async () => {
 const handleDeviceChange = (deviceId: string) => {
   selectedDeviceId.value = deviceId
   renderActiveChart()
-  renderReactiveChart()
+  renderActivePowerChart()
 }
 
 /** 下拉筛选规则 */
@@ -464,10 +486,10 @@ const activeChartRef = ref<HTMLDivElement>()
 const hasActiveData = ref(false)
 const { setOptions: setActiveChartOptions } = useECharts(activeChartRef as any)
 
-// 反向有功电能柱状图
-const reactiveChartRef = ref<HTMLDivElement>()
-const hasReactiveData = ref(false)
-const { setOptions: setReactiveChartOptions } = useECharts(reactiveChartRef as any)
+// 总有功功率趋势图
+const activePowerChartRef = ref<HTMLDivElement>()
+const hasActivePowerData = ref(false)
+const { setOptions: setActivePowerChartOptions } = useECharts(activePowerChartRef as any)
 
 /** 渲染正向有功图表 */
 const renderActiveChart = async () => {
@@ -476,7 +498,12 @@ const renderActiveChart = async () => {
     return
   }
   try {
-    const res = await getHourData(selectedDeviceId.value) as any
+    const params: any = {}
+    if (dateRange.value) {
+      params.startTime = formatDateTime(dateRange.value[0])
+      params.endTime = formatDateTime(dateRange.value[1])
+    }
+    const res = await getHourData(selectedDeviceId.value, params) as any
     const list = Array.isArray(res) ? res : (res?.data || res?.records || [])
     if (!list.length) {
       hasActiveData.value = false
@@ -501,31 +528,35 @@ const renderActiveChart = async () => {
   }
 }
 
-/** 渲染反向有功电能折线图 */
-const renderReactiveChart = async () => {
+/** 渲染总有功功率趋势图 */
+const renderActivePowerChart = async () => {
   if (!selectedDeviceId.value) {
-    hasReactiveData.value = false
+    hasActivePowerData.value = false
     return
   }
   try {
-    const { iconAreaCommon } = await import('../../index.api')
-    const res = await iconAreaCommon({
+    const { getActivePowerTrend } = await import('../../index.api')
+    const params: any = {
       deviceIds: selectedDeviceId.value,
-      attributeName: '反向有功电能',
-    }) as any
+    }
+    if (dateRange.value) {
+      params.startTime = formatDateTime(dateRange.value[0])
+      params.endTime = formatDateTime(dateRange.value[1])
+    }
+    const res = await getActivePowerTrend(params) as any
     const data = res?.data || res || {}
     const xaxis = data.xaxis || data.xAxis || data.timeList || []
     const series = (data.chatSeriesList || data.seriesList || data.series || []).filter((s: any) => s.name !== '合计')
     if (!xaxis.length || !series.length) {
-      hasReactiveData.value = false
+      hasActivePowerData.value = false
       return
     }
-    hasReactiveData.value = true
+    hasActivePowerData.value = true
     await nextTick()
-    setReactiveChartOptions(buildTrendOption(xaxis, series, data.unit || 'kWh', true))
+    setActivePowerChartOptions(buildTrendOption(xaxis, series, data.unit || 'kW', true))
   } catch (error) {
-    console.error('加载反向有功电能数据失败:', error)
-    hasReactiveData.value = false
+    console.error('加载总有功功率数据失败:', error)
+    hasActivePowerData.value = false
   }
 }
 

@@ -31,7 +31,6 @@
       :footer="null"
       :confirm-loading="viewLoading"
       destroy-on-close
-      style="top: 40px"
     >
     <!-- 图表头部：标题 + 粒度切换 + 日期选择 -->
         <div class="chart-header-bar">
@@ -550,6 +549,8 @@
   .chart-container {
     width: 100%;
     min-height: 320px;
+    padding-top: 16px;
+    background: #fff;
   }
 
   .chart {
@@ -561,8 +562,10 @@
   .device-view-tab-bar {
     display: flex;
     align-items: center;
-    margin-bottom: 12px;
+    margin-bottom: 0;
+    padding-bottom: 12px;
     position: relative;
+    border-bottom: 1px solid #f0f0f0;
   }
 
   .device-view-tab-arrow {
@@ -608,7 +611,7 @@
   .device-view-tab-item {
     flex-shrink: 0;
     padding: 6px 14px;
-    font-size: 14px;
+    font-size: 16px;
     color: rgba(0, 0, 0, 0.65);
     background: transparent;
     border: none;
@@ -633,8 +636,9 @@
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    margin-bottom: 12px;
-    padding: 0;
+    margin-bottom: 0;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
 
     .chart-header-title {
       font-size: 15px;

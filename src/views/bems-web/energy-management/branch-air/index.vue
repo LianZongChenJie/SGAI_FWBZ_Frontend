@@ -22,7 +22,6 @@
         :label="metric.label"
         :value="number(point(metric.key), metric.digits)"
         :unit="metric.unit"
-        :change-text="metricNote(metric)"
         :color="metric.tone === 'amber' ? 'orange' : metric.tone"
         :icon="iconComponent(metric.icon)"
       />
@@ -121,6 +120,7 @@ import { ENERGY_STATION_DEFAULTS, ENERGY_STATION_POINTS } from '/@/views/bems-we
 import { ENERGY_DEVICE_IDS, getEnergyDeviceProfile } from '/@/views/bems-web/energy-monitor/data/energyStationDevices.js'
 import DistributedAirCooledSchematic from '/@/views/bems-web/energy-monitor/components/DistributedAirCooledSchematic.vue'
 import { StatCard } from '@/views/bems-web/components'
+import { getBranchAirOverview } from './index.api'
 
 defineOptions({ name: 'EnergyManagementBranchAirPage' })
 
@@ -232,6 +232,21 @@ async function loadSnapshot() {
     if (response.ok) applyPoints(await response.json())
   } catch {}
 }
+
+/** 加载分馆风冷系统总览数据 */
+async function loadOverviewData() {
+  try {
+    const res = await getBranchAirOverview()
+    const data = res?.data || res || {}
+    if (data.totalPower !== undefined) values['distributed.station.totalPower'] = data.totalPower
+    if (data.currentCoolingCapacity !== undefined) values['distributed.station.coolingCapacity'] = data.currentCoolingCapacity
+    if (data.cop !== undefined) values['distributed.station.cop'] = data.cop
+    if (data.todayPowerConsumption !== undefined) values['distributed.station.dailyEnergy'] = data.todayPowerConsumption
+  } catch (error) {
+    console.error('加载分馆风冷总览数据失败:', error)
+  }
+}
+
 async function copyExample() {
   const text = `curl -X POST ${location.origin}/api/energy-station/points -H "Content-Type: application/json" -d '{"points":{"distributed.station.totalPower":486.6,"distributed.east.unit.1.running":true,"distributed.east.unit.1.load":68}}'`
   await navigator.clipboard?.writeText(text)
@@ -245,6 +260,7 @@ onMounted(() => {
   window.addEventListener('energy-point-values', onEnergyPoints)
   window.addEventListener('binding-value', onBindingValue)
   loadSnapshot().finally(() => applyPoints(bindingStore.getColdLatestValues()))
+  loadOverviewData()
 })
 onUnmounted(() => {
   clearInterval(clockTimer)

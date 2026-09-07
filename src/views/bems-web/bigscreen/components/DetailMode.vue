@@ -4,20 +4,21 @@
     <a-modal
       v-model:open="modalVisible"
       :footer="null"
-      width="800px"
-      centered
-      :zIndex="90000"
-      class="space-modal"
-      wrapClassName="space-modal"
-      :bodyStyle="{ padding: '0', background: '#0b1a2f' }"
+      :width="840"
+      :centered="false"
+      :zIndex="95001"
+      :closable="false"
+      wrapClassName="space-modal-wrapper"
+      :bodyStyle="{ padding: 0, overflow: 'hidden' }"
       @cancel="onCancel"
     >
-      <template #title>
-        <div class="light-tabs-title">
-          <span>{{ currentSpaceName }}-{{ currentAreaName }}</span>
+      <div class="parcel-panel">
+        <div class="panel-header">
+          <span class="panel-title">{{ currentSpaceName }}-{{ currentAreaName }}</span>
+          <span class="panel-close" @click="onCancel">✕</span>
         </div>
-      </template>
-      <a-tabs type="card" class="video-tabs space-tabs">
+        <div class="panel-body">
+      <a-tabs type="card" class="space-tabs">
         <!-- 1. 一键开关 + 回路列表 -->
         <a-tab-pane key="control" tab="一键开关">
           <div class="light-pane">
@@ -179,6 +180,8 @@
           </div>
         </a-tab-pane>
       </a-tabs>
+          </div>
+        </div>
     </a-modal>
 
     <!-- 统一二次确认弹框 -->
@@ -587,55 +590,132 @@ watch(modalVisible, (val) => {
   position: relative;
 }
 
-.light-tabs-title {
-  color: #e2e8f0;
-  font-size: 28px;
-  font-weight: 600;
-}
-
 .light-pane {
   padding: 16px;
+}
+
+/* ==================== 浮层面板 ==================== */
+.parcel-panel {
+  background: linear-gradient(180deg, rgba(12, 28, 52, 0.96) 0%, rgba(8, 18, 36, 0.96) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 180, 255, 0.15);
+  animation: panelFadeIn 0.2s ease-out;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+}
+
+@keyframes panelFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* ==================== 面板头部 ==================== */
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: rgba(15, 31, 55, 0.8);
+  border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+  flex-shrink: 0;
+}
+
+.panel-title {
+  color: #e2e8f0;
+  font-size: 24px;
+  font-weight: 700;
+  text-shadow: 0 0 8px rgba(56, 189, 248, 0.5);
+}
+
+.panel-close {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  color: #94a3b8;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+    transform: scale(1.1);
+  }
+}
+
+.panel-body {
+  flex: 1;
+  padding: 0;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(56, 189, 248, 0.4);
+    border-radius: 3px;
+  }
 }
 
 /* 一键开关 */
 .pane-switch {
   display: flex;
-  gap: 20px;
-  margin-bottom: 28px;
+  gap: 16px;
+  margin-bottom: 20px;
 }
 
 .icon-btn {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 12px;
-  padding: 12px 32px;
-  border: 2px solid rgba(56, 189, 248, 0.3);
-  border-radius: 8px;
-  background: rgba(8, 20, 40, 0.85);
-  color: #38bdf8;
-  font-size: 26px;
+  flex: 1;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 20px;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
 
-  &:hover {
-    background: rgba(56, 189, 248, 0.15);
-    border-color: #38bdf8;
+  &.with-text {
+    color: #4ade80;
+    background: rgba(34, 197, 94, 0.15);
+    border: 1px solid rgba(34, 197, 94, 0.4);
+
+    &:hover {
+      background: rgba(34, 197, 94, 0.3);
+      box-shadow: 0 0 12px rgba(34, 197, 94, 0.3);
+    }
   }
-}
 
-.icon-btn.dark-btn {
-  color: #94a3b8;
-  border-color: rgba(148, 163, 184, 0.3);
+  &.dark-btn {
+    color: #f87171;
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.4);
 
-  &:hover {
-    background: rgba(148, 163, 184, 0.15);
-    border-color: #94a3b8;
+    &:hover {
+      background: rgba(239, 68, 68, 0.3);
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.3);
+    }
   }
 }
 
 .btn-text {
-  font-size: 26px;
-  font-weight: 500;
+  font-size: 20px;
+  font-weight: 600;
 }
 
 /* 回路列表 */
@@ -648,7 +728,7 @@ watch(modalVisible, (val) => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
-  font-size: 26px;
+  font-size: 20px;
 }
 
 .circuit-count-left {
@@ -657,12 +737,12 @@ watch(modalVisible, (val) => {
 
 .stat-label {
   color: #94a3b8;
-  font-size: 26px;
+  font-size: 20px;
 }
 
 .stat-value {
   color: #e2e8f0;
-  font-size: 26px;
+  font-size: 20px;
 }
 
 .number {
@@ -678,10 +758,10 @@ watch(modalVisible, (val) => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 56px;
-  height: 56px;
-  border: 2px solid rgba(56, 189, 248, 0.2);
-  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 4px;
   background: transparent;
   color: #38bdf8;
   cursor: pointer;
@@ -701,28 +781,28 @@ watch(modalVisible, (val) => {
 /* 回路状态 */
 .circuit-status {
   display: inline-block;
-  padding: 4px 16px;
-  border-radius: 6px;
-  font-size: 24px;
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 20px;
   font-weight: 500;
 
   &.is-on {
     color: #4ade80;
-    background: rgba(74, 222, 128, 0.15);
+    background: rgba(34, 197, 94, 0.1);
   }
 
   &.is-off {
-    color: #f87171;
-    background: rgba(248, 113, 113, 0.15);
+    color: #94a3b8;
+    background: rgba(148, 163, 184, 0.1);
   }
 }
 
 /* 节目状态 */
 .program-status {
   display: inline-block;
-  padding: 4px 16px;
-  border-radius: 6px;
-  font-size: 24px;
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 20px;
   font-weight: 500;
   color: #e2e8f0;
 }
@@ -731,37 +811,37 @@ watch(modalVisible, (val) => {
 .device-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 26px;
+  font-size: 20px;
 
   th, td {
-    padding: 16px 20px;
+    padding: 10px 12px;
     text-align: left;
-    border-bottom: 1px solid rgba(56, 189, 248, 0.1);
+    border-bottom: 1px solid rgba(56, 189, 248, 0.08);
   }
 
   th {
-    color: #94a3b8;
-    font-weight: 500;
-    background: rgba(56, 189, 248, 0.05);
-    font-size: 26px;
+    color: #8fe8ff;
+    font-weight: 600;
+    background: rgba(15, 31, 55, 0.9);
+    font-size: 20px;
   }
 
   td {
-    color: #e2e8f0;
-    font-size: 26px;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 20px;
   }
 
   tbody tr:hover {
-    background: rgba(56, 189, 248, 0.05);
+    background: rgba(56, 189, 248, 0.06);
   }
 }
 
 /* 空状态 */
 .space-submenu-empty {
-  padding: 48px 0;
+  padding: 30px;
   text-align: center;
-  color: rgba(255, 255, 255, 0.4);
-  font-size: 26px;
+  color: #64748b;
+  font-size: 20px;
 }
 
 /* 视频 */
@@ -783,69 +863,75 @@ watch(modalVisible, (val) => {
 /* 操作按钮组 */
 .plan-action-group {
   display: flex;
-  gap: 12px;
+  gap: 4px;
   justify-content: center;
 }
 
 .mini-action-btn {
-  padding: 6px 20px;
-  border: 2px solid;
-  border-radius: 6px;
-  font-size: 24px;
+  padding: 6px 14px;
+  border: none;
+  border-radius: 3px;
+  font-size: 20px;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
 
   &.is-on {
     color: #4ade80;
-    border-color: rgba(74, 222, 128, 0.4);
-    background: rgba(74, 222, 128, 0.1);
+    background: rgba(34, 197, 94, 0.15);
 
     &:hover {
-      background: rgba(74, 222, 128, 0.2);
-      border-color: #4ade80;
+      background: rgba(34, 197, 94, 0.3);
     }
   }
 
   &.is-off {
     color: #f87171;
-    border-color: rgba(248, 113, 113, 0.4);
-    background: rgba(248, 113, 113, 0.1);
+    background: rgba(239, 68, 68, 0.15);
 
     &:hover {
-      background: rgba(248, 113, 113, 0.2);
-      border-color: #f87171;
+      background: rgba(239, 68, 68, 0.3);
     }
   }
 }
 
-/* 深度选择器：覆盖 ant-modal 标题样式 */
-:deep(.space-modal) {
-  .ant-modal-header {
-    background: #0b1a2f;
-    border-bottom: 1px solid rgba(56, 189, 248, 0.15);
-    padding: 24px 32px;
+/* 深度选择器：覆盖 ant-modal 样式 */
+.space-modal-wrapper {
+  .ant-modal {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+    padding-bottom: 0;
   }
 
-  .ant-modal-title {
-    color: #e2e8f0;
-    font-size: 28px;
+  .ant-modal-content {
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
   }
 
   .ant-modal-close {
-    font-size: 28px;
-    top: 24px;
-    right: 32px;
+    display: none;
+  }
+
+  .ant-modal-mask {
+    background: rgba(0, 0, 0, 0.75) !important;
+    backdrop-filter: blur(4px);
   }
 }
 
 /* 深度选择器：覆盖 ant-tabs 样式 */
-:deep(.space-tabs) {
+.space-tabs {
+  height: 100%;
+
   .ant-tabs-nav {
-    margin-bottom: 24px;
+    margin-bottom: 0;
     width: 100%;
+    flex-shrink: 0;
 
     &::before {
-      border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+      border-bottom: 1px solid rgba(56, 189, 248, 0.15) !important;
     }
   }
 
@@ -854,17 +940,26 @@ watch(modalVisible, (val) => {
     display: flex;
   }
 
+  .ant-tabs-nav-operations {
+    display: none !important;
+  }
+
   .ant-tabs-tab {
     flex: 1;
-    margin: 0;
-    padding: 16px 0;
+    margin: 0 !important;
+    padding: 12px 0 !important;
     justify-content: center;
-    color: #cbd5e1;
-    font-size: 26px;
-    transition: color 0.2s ease;
+    background: rgba(30, 45, 70, 0.6) !important;
+    border: 1px solid rgba(56, 189, 248, 0.15) !important;
+    border-radius: 4px 4px 0 0 !important;
+    color: #94a3b8 !important;
+    font-size: 20px;
+    transition: all 0.2s ease;
 
     &:hover {
-      color: #38bdf8;
+      color: #e2e8f0 !important;
+      background: rgba(56, 189, 248, 0.1) !important;
+      border-color: rgba(56, 189, 248, 0.3) !important;
     }
   }
 
@@ -875,79 +970,44 @@ watch(modalVisible, (val) => {
   }
 
   .ant-tabs-tab.ant-tabs-tab-active {
-    background: linear-gradient(180deg, rgba(56, 189, 248, 0.2), rgba(56, 189, 248, 0.05));
-    border-bottom: 1px solid #38bdf8;
-  }
-
-  .ant-tabs-tab-active .ant-tabs-tab-btn {
     color: #38bdf8 !important;
-    font-weight: 600;
+    background: rgba(56, 189, 248, 0.15) !important;
+    border-color: rgba(56, 189, 248, 0.6) !important;
+    border-bottom-color: transparent !important;
+    font-weight: 600 !important;
+
+    .ant-tabs-tab-btn {
+      color: #38bdf8 !important;
+    }
   }
 
   .ant-tabs-ink-bar {
-    background: #38bdf8;
+    display: none !important;
+  }
+
+  .ant-tabs-content {
+    height: calc(100% - 45px);
+    overflow: hidden;
+  }
+
+  .ant-tabs-tabpane {
+    height: 100%;
   }
 }
 
 /* Spin 样式 */
 :deep(.pane-spin) {
   .ant-spin-spinning {
-    max-height: 640px;
+    max-height: 600px;
   }
-}
-
-:deep(.ant-spin-dot-item) {
-  background-color: #38bdf8;
+  .ant-spin-dot-item {
+    background-color: #38bdf8;
+  }
 }
 
 /* 确认弹窗中的动作词高亮 */
 :deep(.tip-action) {
   font-weight: 700;
   color: #38bdf8;
-}
-</style>
-
-<style lang="less">
-/* 全局样式 - 用于覆盖 ant-modal 被 teleport 到 body 的部分 */
-.space-modal {
-  .ant-modal-header {
-    background: #0b1a2f !important;
-    border-bottom: 1px solid rgba(56, 189, 248, 0.15) !important;
-    padding: 24px 32px !important;
-  }
-
-  .ant-modal-title {
-    color: #e2e8f0 !important;
-    font-size: 28px !important;
-  }
-
-  .ant-modal-close {
-    color: #94a3b8 !important;
-    font-size: 28px !important;
-    top: 24px !important;
-    right: 32px !important;
-    &:hover {
-      color: #38bdf8 !important;
-    }
-  }
-}
-
-/* 全局样式 - 用于覆盖 ant-tabs 被 teleport 到 body 的部分 */
-.space-tabs {
-  .ant-tabs-tab {
-    color: #cbd5e1 !important;
-    font-size: 26px !important;
-    transition: color 0.2s ease;
-
-    &:hover {
-      color: #38bdf8 !important;
-    }
-  }
-
-  .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
-    color: #38bdf8 !important;
-    font-weight: 600;
-    font-size: 26px !important;
-  }
 }
 </style>

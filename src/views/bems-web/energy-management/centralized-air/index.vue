@@ -22,7 +22,6 @@
         :label="metric.label"
         :value="number(point(metric.key), metric.digits)"
         :unit="metric.unit"
-        :change-text="metricNote(metric)"
         :color="metric.tone === 'amber' ? 'orange' : metric.tone"
         :icon="iconComponent(metric.icon)"
       />
@@ -121,6 +120,7 @@ import { ENERGY_STATION_DEFAULTS, ENERGY_STATION_POINTS } from '/@/views/bems-we
 import { ENERGY_DEVICE_IDS, getEnergyDeviceProfile } from '/@/views/bems-web/energy-monitor/data/energyStationDevices.js'
 import AirCooledPlantSchematic from '/@/views/bems-web/energy-monitor/components/AirCooledPlantSchematic.vue'
 import { StatCard } from '@/views/bems-web/components'
+import { getCentralizedAirOverview } from './index.api'
 
 defineOptions({ name: 'EnergyManagementCentralizedAirPage' })
 
@@ -234,6 +234,21 @@ async function loadSnapshot() {
     if (response.ok) applyPoints(await response.json())
   } catch {}
 }
+
+/** 加载集中风冷系统总览数据 */
+async function loadOverviewData() {
+  try {
+    const res = await getCentralizedAirOverview()
+    const data = res?.data || res || {}
+    // 将接口返回的数据映射到对应的点位
+    if (data.totalPower !== undefined) values['air.station.totalPower'] = data.totalPower
+    if (data.currentCoolingCapacity !== undefined) values['air.station.coolingCapacity'] = data.currentCoolingCapacity
+    if (data.cop !== undefined) values['air.station.cop'] = data.cop
+    if (data.todayPowerConsumption !== undefined) values['air.station.dailyEnergy'] = data.todayPowerConsumption
+  } catch (error) {
+    console.error('加载集中风冷总览数据失败:', error)
+  }
+}
 async function copyExample() {
   const text = `curl -X POST ${location.origin}/api/energy-station/points -H "Content-Type: application/json" -d '{"points":{"air.station.totalPower":638.4,"airUnit.1.running":true,"airUnit.1.load":78}}'`
   await navigator.clipboard?.writeText(text)
@@ -247,6 +262,7 @@ onMounted(() => {
   window.addEventListener('energy-point-values', onEnergyPoints)
   window.addEventListener('binding-value', onBindingValue)
   loadSnapshot().finally(() => applyPoints(bindingStore.getColdLatestValues()))
+  loadOverviewData()
 })
 onUnmounted(() => {
   clearInterval(clockTimer)

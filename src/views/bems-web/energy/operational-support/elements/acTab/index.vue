@@ -82,6 +82,15 @@
       <div class="collapse-row__header">
         <h3>📊 图表区域</h3>
         <div class="chart-header-right">
+
+          <DatePicker.RangePicker
+            v-model:value="dateRange"
+            show-time
+            format="YYYY-MM-DD HH:mm:ss"
+            :placeholder="['开始时间', '结束时间']"
+            style="width: 340px"
+            @change="handleDateRangeChange"
+          />
           <a-select
             v-model:value="selectedDeviceId"
             placeholder="选择设备"
@@ -250,7 +259,8 @@
 <script setup lang="ts">
 import { ref, reactive, computed, h, onMounted, nextTick } from 'vue'
 import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined, DownloadOutlined } from '@ant-design/icons-vue'
-import { message } from 'ant-design-vue'
+import { message, DatePicker } from 'ant-design-vue'
+import type { Dayjs } from 'dayjs'
 import { StatCard } from '/@/views/bems-web/components'
 import { getSpaceTree, selectDevice, getAcUnitStatistics, getDeviceAttrList, airControl, exportData } from './index.api'
 import { getStatisticsByCategoryId } from '../../index.api'
@@ -657,6 +667,20 @@ const deviceLoading = ref(false)
 const deviceOptions = ref<{ label: string; value: string }[]>([])
 const selectedDeviceId = ref<string>('')
 
+// 日期区间选择
+const dateRange = ref<any>(null)
+
+/** 日期区间变化 */
+const handleDateRangeChange = () => {
+  renderCo2Chart()
+  renderTempChart()
+}
+
+/** 格式化日期为字符串 */
+const formatDateTime = (date: Dayjs | null | undefined): string => {
+  return date ? date.format('YYYY-MM-DD HH:mm:ss') : ''
+}
+
 /** 加载设备选项 */
 const loadDeviceOptions = async () => {
   deviceLoading.value = true
@@ -723,11 +747,16 @@ const renderCo2Chart = async () => {
   }
   try {
     const { iconAreaCommon } = await import('../../index.api')
-    const res = await iconAreaCommon({
+    const params: any = {
       deviceIds: selectedDeviceId.value,
       attributeName: '回风二氧化碳传感器',
       threshold: 800,
-    }) as any
+    }
+    if (dateRange.value) {
+      params.startTime = formatDateTime(dateRange.value[0])
+      params.endTime = formatDateTime(dateRange.value[1])
+    }
+    const res = await iconAreaCommon(params) as any
     const data = res?.data || res || {}
     const xaxis = data.xaxis || data.xAxis || data.timeList || []
     const series = (data.chatSeriesList || data.seriesList || data.series || []).filter((s: any) => s.name !== '合计')
@@ -758,10 +787,15 @@ const renderTempChart = async () => {
   const attributeName = tempActive.value === 'return' ? '回风温度' : '送风温度'
   try {
     const { iconAreaCommon } = await import('../../index.api')
-    const res = await iconAreaCommon({
+    const params: any = {
       deviceIds: selectedDeviceId.value,
       attributeName,
-    }) as any
+    }
+    if (dateRange.value) {
+      params.startTime = formatDateTime(dateRange.value[0])
+      params.endTime = formatDateTime(dateRange.value[1])
+    }
+    const res = await iconAreaCommon(params) as any
     // 数据可能在 data 字段下，也可能直接在根级别
     const data = res?.data || res || {}
     const xaxis = data.xaxis || data.xAxis || data.timeList || []

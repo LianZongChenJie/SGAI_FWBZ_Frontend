@@ -80,6 +80,14 @@
       <div class="collapse-row__header">
         <h3>📊 图表区域</h3>
         <div class="chart-header-right">
+          <DatePicker.RangePicker
+            v-model:value="dateRange"
+            show-time
+            format="YYYY-MM-DD HH:mm:ss"
+            :placeholder="['开始时间', '结束时间']"
+            style="width: 340px"
+            @change="handleDateRangeChange"
+          />
           <a-select
             v-model:value="selectedDeviceId"
             placeholder="选择设备"
@@ -202,6 +210,8 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, h, onMounted, nextTick } from 'vue'
+import { DatePicker } from 'ant-design-vue'
+import type { Dayjs } from 'dayjs'
 import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined, DownloadOutlined } from '@ant-design/icons-vue'
 import { StatCard } from '/@/views/bems-web/components'
 import { getSpaceTree, getDeviceAttrList, selectDevice, exportData, getExhaustFanStatistics } from './index.api'
@@ -232,6 +242,18 @@ const toggleProcessFullscreen = () => {
 defineProps<{
   data?: any
 }>()
+
+// 日期区间选择
+const dateRange = ref<any>(null)
+const formatDateTime = (date: Dayjs | null | undefined): string => {
+  return date ? date.format('YYYY-MM-DD HH:mm:ss') : ''
+}
+
+/** 日期区间变化 */
+const handleDateRangeChange = () => {
+  renderEnergyChart()
+  renderPressureChart()
+}
 
 // 工艺图 - 左侧树 & 右侧FanBox组件
 const selectedSpaceKeys = ref<string[]>([])
@@ -406,10 +428,15 @@ const renderEnergyChart = async () => {
   }
   try {
     const { iconAreaCommon } = await import('../../index.api')
-    const res = await iconAreaCommon({
+    const params: any = {
       deviceIds: selectedDeviceId.value,
       attributeName: '排风能耗',
-    }) as any
+    }
+    if (dateRange.value) {
+      params.startTime = formatDateTime(dateRange.value[0])
+      params.endTime = formatDateTime(dateRange.value[1])
+    }
+    const res = await iconAreaCommon(params) as any
     const data = res?.data || res || {}
     const xaxis = data.xaxis || data.xAxis || data.timeList || []
     const series = (data.chatSeriesList || data.seriesList || data.series || []).filter((s: any) => s.name !== '合计')
@@ -434,10 +461,15 @@ const renderPressureChart = async () => {
   }
   try {
     const { iconAreaCommon } = await import('../../index.api')
-    const res = await iconAreaCommon({
+    const params: any = {
       deviceIds: selectedDeviceId.value,
       attributeName: '排风启停',
-    }) as any
+    }
+    if (dateRange.value) {
+      params.startTime = formatDateTime(dateRange.value[0])
+      params.endTime = formatDateTime(dateRange.value[1])
+    }
+    const res = await iconAreaCommon(params) as any
     const data = res?.data || res || {}
     const xaxis = data.xaxis || data.xAxis || data.timeList || []
     const series = (data.chatSeriesList || data.seriesList || data.series || []).filter((s: any) => s.name !== '合计')
