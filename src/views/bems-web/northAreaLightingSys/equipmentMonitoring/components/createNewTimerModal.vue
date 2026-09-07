@@ -36,6 +36,7 @@
                     placeholder="请选择控制类型"
                     :options="relTypeOptions"
                     allowClear
+                    popup-class-name="cppv-dom-popup em-dom-popup"
                     @change="handleChangeRelType"
                   />
                 </div>
@@ -51,6 +52,7 @@
                     placeholder="请选择区域"
                     allowClear
                     show-search
+                    popup-class-name="cppv-dom-popup em-dom-popup"
                     :filter-option="handleFilterOption"
                   />
                 </div>
@@ -142,6 +144,7 @@
                     placeholder="请选择操控类型"
                     :options="operationTypeOptions"
                     allowClear
+                    popup-class-name="cppv-dom-popup em-dom-popup"
                   />
                 </div>
               </a-form-item>
@@ -1661,8 +1664,8 @@ body .create-timer-modal {
   }
 }
 
-/* ==================== Select 下拉面板（全局深色） ==================== */
-.ant-select-dropdown {
+/* ==================== Select 下拉面板（深色，仅本弹窗弹层） ==================== */
+.ant-select-dropdown.em-dom-popup {
   background: #0d243c !important;
   border: 1px solid #2a4a6c !important;
   border-radius: 4px !important;
@@ -2763,8 +2766,8 @@ body .create-timer-modal {
     color: #c0c4cc !important;
     -webkit-text-fill-color: #c0c4cc !important;
     opacity: 1 !important;
-  }}.theme-white /* ==================== Select 下拉面板（全局浅色） ==================== */
-.ant-select-dropdown {
+  }}.theme-white /* ==================== Select 下拉面板（浅色，仅本弹窗弹层） ==================== */
+.ant-select-dropdown.em-dom-popup {
   background: #ffffff !important;
   border: 1px solid #e4e7ed !important;
   border-radius: 4px !important;

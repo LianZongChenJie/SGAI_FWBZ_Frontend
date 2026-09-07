@@ -44,6 +44,7 @@
                         placeholder="请选择控制类型"
                         :options="relTypeOptions"
                         allowClear
+                        popup-class-name="em-dom-popup"
                         @change="handleChangeRelType"
                       />
                     </div>
@@ -59,6 +60,7 @@
                         placeholder="请选择区域"
                         allowClear
                         show-search
+                        popup-class-name="em-dom-popup"
                         :filter-option="handleFilterTagOption"
                         :loading="spaceLoading"
                       />
@@ -178,6 +180,7 @@
                     placeholder="请选择标签"
                     :options="tagOptions"
                     allowClear
+                    popup-class-name="em-dom-popup"
                     :filter-option="handleFilterTagOption"
                     :loading="tagLoading"
                   />
@@ -2675,8 +2678,8 @@ defineExpose({ showModal, closeModal });
     color: #c0c4cc !important;
     -webkit-text-fill-color: #c0c4cc !important;
     opacity: 1 !important;
-  }}.theme-white /* ==================== Select 下拉面板（全局浅色） ==================== */
-.ant-select-dropdown {
+  }}.theme-white /* ==================== Select 下拉面板（浅色，仅本弹窗弹层） ==================== */
+.ant-select-dropdown.em-dom-popup {
   background: #ffffff !important;
   border: 1px solid #e4e7ed !important;
   border-radius: 4px !important;

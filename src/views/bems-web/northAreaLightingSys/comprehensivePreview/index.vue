@@ -207,12 +207,14 @@
             placeholder="控制类型"
             :options="relTypeFilterOptions"
             allowClear
+            popup-class-name="cppv-ctrl-select-popup"
             style="width: 140px"
           />
           <a-time-picker
             v-model:value="timerFilters.startTime"
             placeholder="开始时间"
             format="HH:mm:ss"
+            popup-class-name="cppv-ctrl-time-popup"
             style="width: 160px"
           />
           <span class="filter-separator">—</span>
@@ -220,6 +222,7 @@
             v-model:value="timerFilters.endTime"
             placeholder="结束时间"
             format="HH:mm:ss"
+            popup-class-name="cppv-ctrl-time-popup"
             style="width: 160px"
           />
           <button class="btn btn-primary" @click="onTimerSearch">查询</button>
@@ -805,6 +808,7 @@
               value-format="YYYY-MM-DD"
               :placeholder="['开始日期', '结束日期']"
               class="filter-date-picker"
+              popup-class-name="cppv-log-popup"
             />
           </div>
           <div class="filter-item">
@@ -3236,8 +3240,8 @@ body .timer-enable-modal {
   }
 }
 
-/* ==================== DatePicker/TimePicker 下拉面板（深色） ==================== */
-.ant-picker-dropdown {
+/* ==================== DatePicker/TimePicker 下拉面板（深色，仅本页弹层） ==================== */
+.ant-picker-dropdown.cppv-dom-popup {
   .ant-picker-panel-container {
     background: #1b2533 !important;
     border: 1px solid #303d50 !important;
@@ -3329,8 +3333,99 @@ body .timer-enable-modal {
   }
 }
 
-/* ==================== Select 下拉面板（深色） ==================== */
-.ant-select-dropdown {
+/* ==================== DatePicker 下拉面板（白色，操作日志模块时间范围选择器） ==================== */
+.ant-picker-dropdown.cppv-log-popup {
+  .ant-picker-panel-container {
+    background: #ffffff !important;
+    border: 1px solid #dcdfe6 !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
+    border-radius: 4px !important;
+
+    .ant-picker-header {
+      border-bottom-color: #ebeef5 !important;
+
+      button {
+        color: #606266 !important;
+
+        &:hover {
+          color: #1890ff !important;
+        }
+      }
+    }
+
+    .ant-picker-body th,
+    .ant-picker-content th {
+      color: #909399 !important;
+    }
+
+    .ant-picker-cell {
+      color: #c0c4cc !important;
+    }
+
+    .ant-picker-cell-in-view {
+      color: #303133 !important;
+    }
+
+    .ant-picker-cell-selected .ant-picker-cell-inner {
+      background: #1890ff !important;
+      color: #ffffff !important;
+    }
+
+    .ant-picker-cell-today .ant-picker-cell-inner::before {
+      border-color: #1890ff !important;
+    }
+
+    .ant-picker-cell:hover:not(.ant-picker-cell-selected):not(.ant-picker-cell-range-start):not(.ant-picker-cell-range-end):not(.ant-picker-cell-range-hover-start):not(.ant-picker-cell-range-hover-end) .ant-picker-cell-inner {
+      background: #e6f7ff !important;
+    }
+
+    /* 范围选中区间 */
+    .ant-picker-cell-in-range::before {
+      background: #e6f7ff !important;
+    }
+
+    .ant-picker-cell-range-start .ant-picker-cell-inner,
+    .ant-picker-cell-range-end .ant-picker-cell-inner {
+      background: #1890ff !important;
+      color: #ffffff !important;
+    }
+
+    .ant-picker-cell-range-hover::before {
+      background: #d4eaff !important;
+    }
+
+    .ant-picker-cell-disabled {
+      color: rgba(0, 0, 0, 0.25) !important;
+
+      &::before {
+        background: #f5f7fa !important;
+      }
+    }
+
+    .ant-picker-footer {
+      border-top-color: #ebeef5 !important;
+    }
+  }
+
+  /* 底部确定按钮 */
+  .ant-picker-ok {
+    .ant-btn-primary {
+      color: #ffffff !important;
+      background: #1890ff !important;
+      border-color: #1890ff !important;
+      font-weight: 500 !important;
+
+      &:hover {
+        background: #40a9ff !important;
+        border-color: #40a9ff !important;
+        box-shadow: 0 2px 8px rgba(24, 144, 255, 0.3);
+      }
+    }
+  }
+}
+
+/* ==================== Select 下拉面板（深色，仅本页弹层） ==================== */
+.ant-select-dropdown.cppv-dom-popup {
   background: #1b2533 !important;
   border: 1px solid #303d50 !important;
   border-radius: 4px !important;
@@ -3360,6 +3455,84 @@ body .timer-enable-modal {
 
   .ant-select-item-empty {
     color: #5a6a80 !important;
+  }
+}
+
+/* ==================== TimePicker 下拉面板（白色，定时控制模块开始/结束时间选择器） ==================== */
+.ant-picker-dropdown.cppv-ctrl-time-popup {
+  .ant-picker-panel-container {
+    background: #ffffff !important;
+    border: 1px solid #dcdfe6 !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
+    border-radius: 4px !important;
+  }
+
+  /* 时间列 */
+  .ant-picker-time-panel-column {
+    border-right-color: #ebeef5 !important;
+
+    .ant-picker-time-panel-cell-inner {
+      color: #606266 !important;
+
+      &:hover {
+        background: #f5f7fa !important;
+      }
+    }
+
+    .ant-picker-time-panel-cell-selected .ant-picker-time-panel-cell-inner {
+      color: #1890ff !important;
+      background: #e6f7ff !important;
+      font-weight: 500 !important;
+    }
+  }
+
+  /* 底部确定按钮 */
+  .ant-picker-ok {
+    .ant-btn-primary {
+      color: #ffffff !important;
+      background: #1890ff !important;
+      border-color: #1890ff !important;
+      font-weight: 500 !important;
+
+      &:hover {
+        background: #40a9ff !important;
+        border-color: #40a9ff !important;
+      }
+    }
+  }
+}
+
+/* ==================== Select 下拉面板（白色，定时控制模块控制类型筛选） ==================== */
+.ant-select-dropdown.cppv-ctrl-select-popup {
+  background: #ffffff !important;
+  border: 1px solid #dcdfe6 !important;
+  border-radius: 4px !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
+
+  .ant-select-item {
+    color: #606266 !important;
+    font-size: 12px !important;
+    min-height: 28px !important;
+    line-height: 28px !important;
+    transition: background 0.15s !important;
+
+    &:hover {
+      background: #f5f7fa !important;
+    }
+  }
+
+  .ant-select-item-option-selected {
+    background: #e6f7ff !important;
+    color: #1890ff !important;
+    font-weight: 500 !important;
+  }
+
+  .ant-select-item-option-active {
+    background: #f5f7fa !important;
+  }
+
+  .ant-select-item-empty {
+    color: #909399 !important;
   }
 }
 </style>
