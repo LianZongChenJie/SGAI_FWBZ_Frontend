@@ -21,15 +21,15 @@
         label="今日用电量"
         :value="statData.electricCount"
         :change-text="statData.electricCountDoD"
-        trend=""
+        trend="Kw"
         color="orange"
         :icon="PlugIcon"
       />
       <StatCard
-        label="今日用水量"
+        label="平均能耗"
         :value="statData.waterCount"
         :change-text="statData.waterCountDoD"
-        trend=""
+        trend="Kw"
         color="purple"
         :icon="WaterDropIcon"
       />

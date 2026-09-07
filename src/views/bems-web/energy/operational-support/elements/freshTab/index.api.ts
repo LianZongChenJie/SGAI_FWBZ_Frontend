@@ -12,6 +12,10 @@ enum Api {
   listByDeviceId = '/sgai-fwbz-dev/fwbz/deviceAttribute/listByDeviceId',
   /** 设备列表 */
   deviceList = '/sgai-fwbz-dev/fwbz/device/list',
+  /** 查询设备控制点位 */
+  findDeviceControlPoint = '/sgai-fwbz-dev/fwbz/deviceAttribute/getControlByDeviceId',
+  /** 实时写入数据 */
+  realTimeData = '/sgai-fwbz-dev/fwbz/buildingControl/updRealData',
 }
 
 /** 设备空间位置 */
@@ -57,3 +61,13 @@ export const airControl = (data: any[]) => defHttp.post({ url: '/sgai-fwbz-dev/f
 
 /** 设备列表导出 */
 export const exportData = (params) => defHttp.get({ url: '/sgai-fwbz-dev/fwbz/device/export', params: params, responseType: 'blob' }, { isTransformResponse: false })
+
+/**
+ * 查询设备控制点位
+ */
+export const findDeviceControlPoint = (params = {}) => defHttp.get({ url: Api.findDeviceControlPoint, params })
+
+/**
+ * 实时写入数据
+ */
+export const realTimeData = (data = {}) => defHttp.post({ url: Api.realTimeData, data })

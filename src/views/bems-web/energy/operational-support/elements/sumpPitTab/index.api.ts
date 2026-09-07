@@ -9,6 +9,10 @@ enum Api {
   deviceList = '/sgai-fwbz-dev/fwbz/device/list',
   /** 集水坑汇总信息 */
   sumpPitSummary = '/sgai-fwbz-dev/fwbz/collectionPitStatistics/statistics',
+  /** 查询设备控制点位 */
+  findDeviceControlPoint = '/sgai-fwbz-dev/fwbz/deviceAttribute/getControlByDeviceId',
+  /** 实时写入数据 */
+  realTimeData = '/sgai-fwbz-dev/fwbz/buildingControl/updRealData',
 }
 
 /**
@@ -62,3 +66,13 @@ export const selectDevice = (params = {}) => defHttp.get({ url: Api.deviceList, 
  * 设备列表导出
  */
 export const exportData = (params) => defHttp.get({ url: '/sgai-fwbz-dev/fwbz/device/export', params: params, responseType: 'blob' }, { isTransformResponse: false });
+
+/**
+ * 查询设备控制点
+ */
+export const findDeviceControlPoint = (params = {}) => defHttp.get({ url: Api.findDeviceControlPoint, params })
+
+/**
+ * 实时数据写入
+ */
+export const realTimeData = (data = {}) => defHttp.post({ url: Api.realTimeData, data })

@@ -636,9 +636,10 @@
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    margin-bottom: 0;
-    padding: 12px 0;
-    border-bottom: 1px solid #f0f0f0;
+    margin-bottom: 12px;
+    padding: 12px;
+    background-color: #f0f0f0;
+    border-radius: 4px;
 
     .chart-header-title {
       font-size: 15px;

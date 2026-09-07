@@ -9,7 +9,10 @@ enum Api {
   deviceList = '/sgai-fwbz-dev/fwbz/device/list',
   /** 汇总数据中，今日能耗/故障数 */
   exhaustFanStatistics = '/sgai-fwbz-dev/fwbz/operationSupport/exhaustFanStatistics',
-
+  /** 查询设备控制点位 */
+  findDeviceControlPoint = '/sgai-fwbz-dev/fwbz/deviceAttribute/getControlByDeviceId',
+  /** 实时写入数据 */
+  realTimeData = '/sgai-fwbz-dev/fwbz/buildingControl/updRealData',
 }
 
 /**
@@ -64,3 +67,13 @@ export const getDeviceAttrList = (params = {}) => defHttp.get({ url: Api.listByD
  * 排风机汇总数据（今日能耗/故障数）
  */
 export const getExhaustFanStatistics = () => defHttp.get<ExhaustFanStatisticsDto>({ url: Api.exhaustFanStatistics, params: { categoryIds: '38' } })
+
+/**
+ * 查询设备控制点位
+ */
+export const findDeviceControlPoint = (params = {}) => defHttp.get({ url: Api.findDeviceControlPoint, params })
+
+/**
+ * 实时写入数据
+ */
+export const realTimeData = (data = {}) => defHttp.post({ url: Api.realTimeData, data })

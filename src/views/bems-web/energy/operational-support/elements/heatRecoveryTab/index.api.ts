@@ -9,6 +9,10 @@ enum Api {
   deviceList = '/sgai-fwbz-dev/fwbz/device/list',
   /** 热回收机组汇总统计 */
   heatRecoveryStatistics = '/sgai-fwbz-dev/fwbz/operationSupport/heatRecoveryStatistics',
+  /** 查询设备控制点位 */
+  findDeviceControlPoint = '/sgai-fwbz-dev/fwbz/deviceAttribute/getControlByDeviceId',
+  /** 实时写入数据 */
+  realTimeData = '/sgai-fwbz-dev/fwbz/buildingControl/updRealData',
 }
 
 /**
@@ -46,3 +50,13 @@ export const exportData = (params) => defHttp.get({ url: '/sgai-fwbz-dev/fwbz/de
  * 热回收机组汇总统计数据
  */
 export const getHeatRecoveryStatistics = (params = {}) => defHttp.get({ url: Api.heatRecoveryStatistics, params })
+
+/**
+ * 查询设备控制点位
+ */
+export const findDeviceControlPoint = (params = {}) => defHttp.get({ url: Api.findDeviceControlPoint, params })
+
+/**
+ * 实时写入数据
+ */
+export const realTimeData = (data = {}) => defHttp.post({ url: Api.realTimeData, data })

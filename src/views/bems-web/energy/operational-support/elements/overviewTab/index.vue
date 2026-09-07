@@ -89,7 +89,7 @@ import { ref, reactive, computed, h, onMounted } from 'vue';
 import { StatCard, DeviceCard} from '/@/views/bems-web/components';
 import ControlPanel from '../controlPanel/index.vue';
 import type { LightingControlItem } from '../controlPanel/index.api';
-import { getOverviewStatistics, getDeviceStat, SystemDeviceStatVO } from './index.api';
+import { getOverviewStatistics, getEquipmentOverview, DeviceRunStateStatisticsDto } from './index.api';
 import { getCategoryTreeData } from '/@/views/bems-web/equipment/equipmentManagement/elements/device/Device.api';
 
 
@@ -157,24 +157,29 @@ const equipmentLoading = ref(false)
 const loadEquipmentOverview = async () => {
   equipmentLoading.value = true
   try {
-    const res = await getDeviceStat() as any
-    const list: SystemDeviceStatVO[] = Array.isArray(res) ? res : (res?.data || res?.records || [])
-    allData.value = list.map((item: SystemDeviceStatVO) => {
-      const systemName = item.systemName || ''
+    const res = await getEquipmentOverview() as any
+    const list: DeviceRunStateStatisticsDto[] = Array.isArray(res) ? res : (res?.data || res?.records || [])
+    allData.value = list.map((item: DeviceRunStateStatisticsDto) => {
+      // 兼容两种数据结构：顶层字段 或 category 对象嵌套
+      const category = item.category || item
+      const systemName = category.categoryName || ''
+      const total = (item.count ?? category.count) || 0
+      const online = (item.online ?? category.online) || 0
+      const offline = (item.offline ?? category.offline) || 0
       const cfg = iconConfig[systemName] || { icon: AirConditionerIcon, iconBg: '#e6f4ff', iconColor: '#1677ff' }
       return {
         title: systemName,
-        meta: `在线率 ${item.onlineRate ?? 0}%`,
         icon: cfg.icon,
         iconBg: cfg.iconBg,
         iconColor: cfg.iconColor,
         stats: [
-          { label: '总数', value: item.deviceCount ?? 0 },
-          { label: '在线', value: item.online ?? 0 },
-          { label: '离线', value: (item.deviceCount ?? 0) - (item.online ?? 0), highlight: ((item.deviceCount ?? 0) - (item.online ?? 0)) > 0 },
+          { label: '总数', value: total },
+          { label: '在线', value: online },
+          { label: '离线', value: offline, highlight: offline > 0 },
         ],
         system: systemName,
         venue: '',
+        rawCategory: category,
       }
     })
   } catch (e) {
@@ -195,23 +200,12 @@ const handleControl = (type: 'ac' | 'lighting', record: any) => {
 }
 
 // ===== 筛选逻辑 =====
-// 递归查找树节点 title
-const findTreeTitle = (tree: any[], key: string | undefined): string => {
-  if (!key) return ''
-  for (const node of tree) {
-    if (node.key === key) return node.title || ''
-    if (node.children?.length) {
-      const found = findTreeTitle(node.children, key)
-      if (found) return found
-    }
-  }
-  return ''
-}
-
 const displayData = computed(() => {
-  const filterTitle = findTreeTitle(categoryTreeData.value, filterSystem.value)
   return allData.value.filter((item) => {
-    const matchSystem = !filterTitle || item.title === filterTitle
+    // 通过 category.id 或 categoryName 匹配树选择器
+    const matchSystem = !filterSystem.value
+      || String(item.rawCategory?.id || '') === String(filterSystem.value || '')
+      || item.title === filterSystem.value
     const matchVenue = !filterVenue.value || item.venue === filterVenue.value
     return matchSystem && matchVenue
   })

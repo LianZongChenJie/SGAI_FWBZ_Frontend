@@ -598,7 +598,7 @@ watch(modalVisible, (val) => {
 .parcel-panel {
   background: linear-gradient(180deg, rgba(12, 28, 52, 0.96) 0%, rgba(8, 18, 36, 0.96) 100%);
   border: 1px solid rgba(56, 189, 248, 0.35);
-  border-radius: 8px;
+  border-radius: 4px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 180, 255, 0.15);
   animation: panelFadeIn 0.2s ease-out;
   overflow: hidden;
@@ -969,7 +969,8 @@ watch(modalVisible, (val) => {
     width: 100%;
     flex-shrink: 0;
 
-    &::before {
+    .ant-tabs-nav-warp {
+      
       border-bottom: 1px solid rgba(56, 189, 248, 0.15) !important;
     }
   }

@@ -68,7 +68,10 @@
               <a-tag v-else color="red">离线</a-tag>
             </template>
             <template v-if="column.key === 'action'">
-              <a-button type="link" size="small" @click="handleDetail(record)">详情</a-button>
+              <a-space>
+                <a-button type="link" size="small" @click="handleControl(record)">控制</a-button>
+                <a-button type="link" size="small" @click="handleDetail(record)">详情</a-button>
+              </a-space>
             </template>
           </template>
         </a-table>
@@ -205,16 +208,60 @@
         </a-descriptions>
       </a-spin>
     </a-modal>
+
+    <!-- 控制弹窗 -->
+    <a-modal
+      v-model:open="controlVisible"
+      title="🌬️ 排风机控制"
+      width="800px"
+      :mask-closable="false"
+      @ok="controlVisible = false"
+      ok-text="关闭"
+      :cancel-button-props="{ hidden: true }"
+    >
+      <a-spin :spinning="controlPointLoading">
+        <a-descriptions v-if="controlPointData.length > 0" bordered :column="2" size="small" :label-style="{ width: '146px' }">
+          <a-descriptions-item v-for="item in controlPointData" :key="item.id" :label="item.attributeName || '--'">
+            <template v-if="item.valueType === 'BOOL'">
+              <a-switch
+                :checked="item.value === '1'"
+                :loading="item._loading"
+                @change="(checked: boolean) => handleSwitchChange(item, checked)"
+              />
+            </template>
+            <template v-else>
+              <div class="input-with-btn">
+                <a-input
+                  v-model:value="item._editValue"
+                  :placeholder="item.value ?? '--'"
+                  style="width: 120px"
+                />
+                <span v-if="item.unit" style="margin-left: 4px">{{ item.unit }}</span>
+                <a-button
+                  type="primary"
+                  :loading="item._loading"
+                  style="margin-left: 8px"
+                  @click="handleInputConfirm(item)"
+                >
+                  确定
+                </a-button>
+              </div>
+            </template>
+          </a-descriptions-item>
+        </a-descriptions>
+        <a-empty v-else description="暂无可控制点位" />
+      </a-spin>
+    </a-modal>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, computed, h, onMounted, nextTick } from 'vue'
-import { DatePicker } from 'ant-design-vue'
+import { DatePicker, Modal, message } from 'ant-design-vue'
 import type { Dayjs } from 'dayjs'
 import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined, DownloadOutlined } from '@ant-design/icons-vue'
 import { StatCard } from '/@/views/bems-web/components'
-import { getSpaceTree, getDeviceAttrList, selectDevice, exportData, getExhaustFanStatistics } from './index.api'
+import { getSpaceTree, getDeviceAttrList, selectDevice, exportData, getExhaustFanStatistics, findDeviceControlPoint, realTimeData } from './index.api'
 import { getStatisticsByCategoryId } from '../../index.api'
 import FanBox from '../../building-automation/fan-box.vue'
 import { useECharts } from '/@/hooks/web/useECharts'
@@ -674,6 +721,82 @@ const handleDetail = async (record: any) => {
   } finally {
     detailLoading.value = false
   }
+}
+
+// 控制弹窗
+const controlVisible = ref(false)
+const controlPointLoading = ref(false)
+const controlPointData = ref<any[]>([])
+
+/** 打开控制弹窗 */
+const handleControl = async (record: any) => {
+  controlVisible.value = true
+  controlPointLoading.value = true
+  controlPointData.value = []
+  try {
+    const res = await findDeviceControlPoint({ deviceId: record.id || record.deviceId })
+    const list = res?.records || res?.data || res || []
+    controlPointData.value = (Array.isArray(list) ? list : []).map((item: any) => ({
+      ...item,
+      _loading: false,
+      _editValue: item.value,
+    }))
+  } catch (e) {
+    console.error('查询控制点位失败:', e)
+    controlPointData.value = []
+  } finally {
+    controlPointLoading.value = false
+  }
+}
+
+/** 开关切换确认 */
+const handleSwitchChange = (item: any, checked: boolean) => {
+  Modal.confirm({
+    title: '确认操作',
+    content: `确定要${checked ? '开启' : '关闭'}「${item.attributeName}」吗？`,
+    okText: '确认',
+    cancelText: '取消',
+    onOk: async () => {
+      item._loading = true
+      try {
+        await realTimeData({
+          tagid: item.acquisitionCoding,
+          pv: checked ? '1' : '0',
+        })
+        item.value = checked ? '1' : '0'
+        message.success('操作成功')
+      } catch (e) {
+        message.error('操作失败')
+      } finally {
+        item._loading = false
+      }
+    },
+  })
+}
+
+/** 输入框确认 */
+const handleInputConfirm = (item: any) => {
+  Modal.confirm({
+    title: '确认操作',
+    content: `确定要将「${item.attributeName}」的值修改为「${item._editValue}」吗？`,
+    okText: '确认',
+    cancelText: '取消',
+    onOk: async () => {
+      item._loading = true
+      try {
+        await realTimeData({
+          tagid: item.acquisitionCoding,
+          pv: item._editValue,
+        })
+        item.value = item._editValue
+        message.success('操作成功')
+      } catch (e) {
+        message.error('操作失败')
+      } finally {
+        item._loading = false
+      }
+    },
+  })
 }
 </script>
 

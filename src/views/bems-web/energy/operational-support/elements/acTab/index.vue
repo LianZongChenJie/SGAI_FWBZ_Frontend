@@ -21,7 +21,7 @@
         :icon="EnergyConsumptionIcon"
       />
       <StatCard
-        label="平均COP"
+        label="pm2.5"
         :value="statsData.avgCop"
         color="purple"
         :icon="avgCopIcon"
@@ -222,36 +222,42 @@
       title="❄️ 空调机组控制"
       width="800px"
       :mask-closable="false"
-      @ok="handleControlSave"
-      ok-text="保存"
-      cancel-text="取消"
+      @ok="controlVisible = false"
+      ok-text="关闭"
+      :cancel-button-props="{ hidden: true }"
     >
-      <a-spin :spinning="controlAttrLoading">
-        <!-- 控制操作区 -->
-        <div class="control-actions">
-          <div class="control-actions__item">
-            <span class="control-actions__label">开关</span>
-            <a-switch v-model:checked="controlSwitchValue" checked-children="开" un-checked-children="关" />
-          </div>
-          <div class="control-actions__item">
-            <span class="control-actions__label">设定温度</span>
-            <a-input-number v-model:value="controlTempValue" :min="16" :max="30" :step="1" style="width: 200px" addon-after="°C" />
-          </div>
-        </div>
-
-        <!-- 实时监测数据（只读） -->
-        <a-descriptions bordered :column="2" size="small" style="margin-top: 16px">
-          <a-descriptions-item label="机组编号">{{ controlRecord?.deviceCode ?? '--' }}</a-descriptions-item>
-          <a-descriptions-item label="位置">{{ findTreeNodePath(spaceTreeData, controlRecord?.spaceId) || controlRecord?.spaceId || '--' }}</a-descriptions-item>
-          <a-descriptions-item label="状态">
-            <a-tag v-if="controlRecord?.runState === '在线'" color="green">在线</a-tag>
-            <a-tag v-else color="red">离线</a-tag>
+      <a-spin :spinning="controlPointLoading">
+        <!-- 控制点位列表 -->
+        <a-descriptions v-if="controlPointData.length > 0" bordered :column="2" size="small" :label-style="{ width: '150px' }">
+          <a-descriptions-item v-for="item in controlPointData" :key="item.id" :label="item.attributeName || '--'">
+            <template v-if="item.valueType === 'BOOL'">
+              <a-switch
+                :checked="item.value === '1'"
+                :loading="item._loading"
+                @change="(checked: boolean) => handleSwitchChange(item, checked)"
+              />
+            </template>
+            <template v-else>
+              <div class="input-with-btn">
+                <a-input
+                  v-model:value="item._editValue"
+                  :placeholder="item.value ?? '--'"
+                  style="width: 120px"
+                />
+                <span v-if="item.unit" style="margin-left: 4px">{{ item.unit }}</span>
+                <a-button
+                  type="primary"
+                  :loading="item._loading"
+                  style="margin-left: 8px"
+                  @click="handleInputConfirm(item)"
+                >
+                  确定
+                </a-button>
+              </div>
+            </template>
           </a-descriptions-item>
-          <a-descriptions-item label="设定温度">{{ controlTempValue }}°C</a-descriptions-item>
-          <template v-for="item in controlDisplayAttrs" :key="item.label">
-            <a-descriptions-item :label="item.label">{{ item.value ?? '--' }}<span v-if="item.unit">{{ item.unit }}</span></a-descriptions-item>
-          </template>
         </a-descriptions>
+        <a-empty v-else description="暂无可控制点位" />
       </a-spin>
     </a-modal>
 </template>
@@ -259,10 +265,10 @@
 <script setup lang="ts">
 import { ref, reactive, computed, h, onMounted, nextTick } from 'vue'
 import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined, DownloadOutlined } from '@ant-design/icons-vue'
-import { message, DatePicker } from 'ant-design-vue'
+import { message, DatePicker, Modal } from 'ant-design-vue'
 import type { Dayjs } from 'dayjs'
 import { StatCard } from '/@/views/bems-web/components'
-import { getSpaceTree, selectDevice, getAcUnitStatistics, getDeviceAttrList, airControl, exportData } from './index.api'
+import { getSpaceTree, selectDevice, getAcUnitStatistics, getDeviceAttrList, airControl, exportData, findDeviceControlPoint, realTimeData } from './index.api'
 import { getStatisticsByCategoryId } from '../../index.api'
 import { useECharts } from '/@/hooks/web/useECharts'
 import Ahu from '../../building-automation/ahu-1.vue'
@@ -566,63 +572,113 @@ const handleDetail = async (record: any) => {
   }
 }
 
+/** 设备控制点位类型定义 */
+interface DeviceAttribute {
+  acquisitionCoding?: string;
+  attributeCode?: string;
+  attributeName?: string;
+  createBy?: string;
+  createTime?: string;
+  deviceId?: number;
+  gatherTime?: string;
+  id?: number;
+  isSave?: string;
+  pageNo?: number;
+  pageSize?: number;
+  readwriteLevel?: string;
+  sort?: number;
+  sysOrgCode?: string;
+  unit?: string;
+  updateBy?: string;
+  updateTime?: string;
+  value?: string;
+  valueConfig?: string;
+  valueType?: string;
+  [property: string]: any;
+}
+
 // 控制弹窗
 const controlVisible = ref(false)
-const controlSwitchValue = ref(false)
-const controlTempValue = ref<number>(22)
-const controlRecord = ref<any>(null)
-const controlAttrLoading = ref(false)
-const controlAttrData = ref<{ label: string; value: any; unit?: string }[]>([])
-
-/** 需要展示的属性标签 */
-const CONTROL_DISPLAY_LABELS = ['送风温度', '回风温度', '新风温度', '新风湿度']
-
-/** 从属性数据中筛选需要展示的项 */
-const controlDisplayAttrs = computed(() => {
-  return controlAttrData.value.filter(item => CONTROL_DISPLAY_LABELS.includes(item.label))
-})
+const controlPointData = ref<DeviceAttribute[]>([])
+const controlPointLoading = ref(false)
 
 const handleControl = async (record: any) => {
-  controlRecord.value = record
-  controlSwitchValue.value = record.runStop === '1'
-  controlTempValue.value = 22
-  controlAttrData.value = []
+  controlPointData.value = []
   controlVisible.value = true
 
-  // 调用接口获取设备属性
-  const deviceId = record.deviceId
-  if (deviceId) {
-    controlAttrLoading.value = true
-    try {
-      const res: any = await getDeviceAttrList({ deviceId })
-      const list = res?.records || res?.data || res || []
-      controlAttrData.value = Array.isArray(list) ? list : []
-    } catch (e) {
-      console.error('获取设备属性失败:', e)
-    } finally {
-      controlAttrLoading.value = false
-    }
+  const deviceId = record.id
+  if (!deviceId) return
+
+  controlPointLoading.value = true
+  try {
+    const pointRes: any = await findDeviceControlPoint({ deviceId })
+    const pointList = pointRes?.records || pointRes?.data || pointRes || []
+    const list: DeviceAttribute[] = Array.isArray(pointList) ? pointList : []
+    // 初始化编辑值
+    list.forEach((item: DeviceAttribute) => {
+      item._editValue = item.value || ''
+      item._loading = false
+    })
+    controlPointData.value = list
+  } catch (e) {
+    console.error('获取设备控制点位失败:', e)
+  } finally {
+    controlPointLoading.value = false
   }
 }
 
-const handleControlSave = async () => {
-  const deviceId = controlRecord.value?.deviceId
-  if (!deviceId) return
-  const onOffValue = controlSwitchValue.value ? 2 : 1
-  const payload = [
-    { deviceId, attributeCode: 'UNIT_ON_OFF', value: onOffValue },
-    { deviceId, attributeCode: 'SA_TEMP_SETPOINT', value: controlTempValue.value },
-  ]
-  try {
-    await airControl(payload)
-    message.success('保存成功')
-  } catch (e) {
-    console.error('空调控制失败:', e)
-    message.error('保存失败')
-  } finally {
-    controlVisible.value = false
-    loadTableData()
-  }
+/** 开关切换处理 */
+const handleSwitchChange = (item: DeviceAttribute, checked: boolean) => {
+  const actionText = checked ? '开启' : '关闭'
+  Modal.confirm({
+    title: '确认操作',
+    content: `确定要${actionText}${item.attributeName || '该点位'}吗？`,
+    okText: '确认',
+    cancelText: '取消',
+    onOk: async () => {
+      item._loading = true
+      try {
+        await realTimeData({
+          tagid: item.acquisitionCoding,
+          pv: checked,
+        })
+        message.success(`${actionText}成功`)
+        item.value = checked ? '1' : '0'
+      } catch (e) {
+        console.error('写入实时数据失败:', e)
+        message.error(`${actionText}失败`)
+      } finally {
+        item._loading = false
+      }
+    },
+  })
+}
+
+/** 输入框确认处理 */
+const handleInputConfirm = (item: DeviceAttribute) => {
+  const newValue = item._editValue
+  Modal.confirm({
+    title: '确认操作',
+    content: `确定要将${item.attributeName || '该点位'}修改为 ${newValue} 吗？`,
+    okText: '确认',
+    cancelText: '取消',
+    onOk: async () => {
+      item._loading = true
+      try {
+        await realTimeData({
+          tagid: item.acquisitionCoding,
+          pv: newValue,
+        })
+        message.success('修改成功')
+        item.value = newValue
+      } catch (e) {
+        console.error('写入实时数据失败:', e)
+        message.error('修改失败')
+      } finally {
+        item._loading = false
+      }
+    },
+  })
 }
 
 // 导出loading
@@ -1199,29 +1255,6 @@ flex-direction: column;
     }
   }
 
-.control-actions {
-  display: flex;
-  align-items: center;
-  gap: 32px;
-  padding: 12px 16px;
-  background: #f7f9fc;
-  border: 1px solid #e5e6eb;
-  border-radius: 8px;
-
-  &__item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  &__label {
-    font-size:16px;
-    font-weight: 500;
-    color: #1d2129;
-    flex-shrink: 0;
-  }
-}
-
 .zoom-btn {
   border: 1px solid #3d8197;
   background: rgba(13, 48, 65, 0.8);
@@ -1246,4 +1279,10 @@ flex-direction: column;
   min-width: 40px;
   text-align: center;
 }
+
+.input-with-btn {
+  display: flex;
+  align-items: center;
+}
+
 </style>
