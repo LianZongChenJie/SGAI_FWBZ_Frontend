@@ -623,17 +623,17 @@ watch(modalVisible, (val) => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 20px;
+  padding: 10px 14px;
   background: rgba(15, 31, 55, 0.8);
   border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+  border-radius: 8px 8px 0 0;
   flex-shrink: 0;
 }
 
 .panel-title {
   color: #e2e8f0;
-  font-size: 24px;
-  font-weight: 700;
-  text-shadow: 0 0 8px rgba(56, 189, 248, 0.5);
+  font-size: 20px;
+  font-weight: 600;
 }
 
 .panel-close {
@@ -657,8 +657,11 @@ watch(modalVisible, (val) => {
 
 .panel-body {
   flex: 1;
-  padding: 0;
+  padding: 12px;
   overflow-y: auto;
+  max-height: 860px;
+  border-radius: 0 0 8px 8px;
+  background: linear-gradient(180deg, rgba(12, 28, 52, 0.96) 0%, rgba(8, 18, 36, 0.96) 100%);
 
   &::-webkit-scrollbar {
     width: 6px;
@@ -807,31 +810,52 @@ watch(modalVisible, (val) => {
   color: #e2e8f0;
 }
 
+/* 回路/场景表格容器 */
+.circuit-vxe-table-wrap {
+  border: 1px solid rgba(56, 189, 248, 0.12);
+  border-radius: 6px;
+  max-height: 720px;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(56, 189, 248, 0.3);
+    border-radius: 2px;
+  }
+}
+
 /* 设备表格 */
 .device-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 20px;
 
-  th, td {
-    padding: 10px 12px;
-    text-align: left;
-    border-bottom: 1px solid rgba(56, 189, 248, 0.08);
-  }
+  thead {
+    position: sticky;
+    top: 0;
+    z-index: 1;
 
-  th {
-    color: #8fe8ff;
-    font-weight: 600;
-    background: rgba(15, 31, 55, 0.9);
-    font-size: 20px;
+    th {
+      background: rgba(15, 31, 55, 0.9);
+      color: #8fe8ff;
+      font-weight: 600;
+      padding: 8px 10px;
+      text-align: left;
+      border-bottom: 1px solid rgba(56, 189, 248, 0.2);
+      font-size: 20px;
+    }
   }
 
   td {
+    padding: 8px 10px;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.08);
     color: rgba(255, 255, 255, 0.9);
     font-size: 20px;
   }
 
-  tbody tr:hover {
+  tr:hover td {
     background: rgba(56, 189, 248, 0.06);
   }
 }
@@ -842,6 +866,16 @@ watch(modalVisible, (val) => {
   text-align: center;
   color: #64748b;
   font-size: 20px;
+}
+
+/* Spin 样式 */
+:deep(.pane-spin) {
+  .ant-spin-spinning {
+    max-height: 600px;
+  }
+  .ant-spin-dot-item {
+    background-color: #38bdf8;
+  }
 }
 
 /* 视频 */
@@ -911,6 +945,11 @@ watch(modalVisible, (val) => {
     padding: 0 !important;
   }
 
+  .ant-modal-body {
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
   .ant-modal-close {
     display: none;
   }
@@ -952,8 +991,9 @@ watch(modalVisible, (val) => {
     background: rgba(30, 45, 70, 0.6) !important;
     border: 1px solid rgba(56, 189, 248, 0.15) !important;
     border-radius: 4px 4px 0 0 !important;
-    color: #94a3b8 !important;
+    color: rgba(255, 255, 255, 0.7) !important;
     font-size: 20px;
+    font-weight: 400;
     transition: all 0.2s ease;
 
     &:hover {
@@ -982,7 +1022,9 @@ watch(modalVisible, (val) => {
   }
 
   .ant-tabs-ink-bar {
-    display: none !important;
+    display: block !important;
+    background: #38bdf8 !important;
+    height: 2px !important;
   }
 
   .ant-tabs-content {
@@ -995,19 +1037,18 @@ watch(modalVisible, (val) => {
   }
 }
 
-/* Spin 样式 */
-:deep(.pane-spin) {
-  .ant-spin-spinning {
-    max-height: 600px;
-  }
-  .ant-spin-dot-item {
-    background-color: #38bdf8;
-  }
-}
-
-/* 确认弹窗中的动作词高亮 */
 :deep(.tip-action) {
   font-weight: 700;
   color: #38bdf8;
+}
+</style>
+
+<style lang="less">
+/* 非 scoped 样式：覆盖全局 ant-modal-body padding */
+.space-modal-wrapper {
+  .ant-modal-body {
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
 }
 </style>
