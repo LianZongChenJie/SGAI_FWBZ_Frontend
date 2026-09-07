@@ -54,7 +54,7 @@
             <a-select-option value="C馆">C馆</a-select-option>
           </a-select> -->
 
-          <a-button type="primary" @click="handleSearch">🔍查询</a-button>
+          <a-button type="primary" @click="handleSearch"><SearchOutlined /> 查询</a-button>
         </div>
       </div>
 
@@ -86,6 +86,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, h, onMounted } from 'vue';
+import { SearchOutlined } from '@ant-design/icons-vue';
 import { StatCard, DeviceCard} from '/@/views/bems-web/components';
 import ControlPanel from '../controlPanel/index.vue';
 import type { LightingControlItem } from '../controlPanel/index.api';

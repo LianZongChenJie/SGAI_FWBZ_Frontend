@@ -41,7 +41,7 @@
             <a-select-option value="在线">在线</a-select-option>
             <a-select-option value="离线">离线</a-select-option>
           </a-select>
-          <a-button type="primary" @click="handleSearch">🔍 查询</a-button>
+          <a-button type="primary" @click="handleSearch"><SearchOutlined /> 查询</a-button>
           </div>
           <button class="collapse-btn" @click="collapsedTable = !collapsedTable">
             <CaretDownOutlined v-if="!collapsedTable" />
@@ -159,7 +159,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, nextTick, h } from 'vue'
-import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons-vue'
+import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined, SearchOutlined } from '@ant-design/icons-vue'
 import { StatCard } from '/@/views/bems-web/components'
 import { selectDevice, getDeviceAttrList, getExhaustFanStatistics } from './index.api'
 import { useECharts } from '/@/hooks/web/useECharts'

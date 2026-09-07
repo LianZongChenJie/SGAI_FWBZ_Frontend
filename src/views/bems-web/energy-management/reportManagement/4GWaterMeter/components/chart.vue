@@ -12,7 +12,7 @@
           日期：<a-date-picker v-model:value="date" :picker="dateType" valueFormat="YYYY-MM-DD"
             @change="handleDateChange" />
           &emsp;
-          <a-button type="primary" @click="submit">查询</a-button>
+          <a-button type="primary" @click="submit"><SearchOutlined /> 查询</a-button>
           &emsp;
           <a-button @click="reset">重置</a-button>
         </template>
@@ -36,7 +36,7 @@
 import * as echarts from 'echarts';
 import { onMounted, ref, shallowRef } from 'vue';
 import { findHourData, getChartDataDayApi, getChartDataMonthApi } from '../index.api';
-import { LineChartOutlined, BarChartOutlined } from '@ant-design/icons-vue';
+import { LineChartOutlined, BarChartOutlined, SearchOutlined } from '@ant-design/icons-vue';
 import { time } from 'console';
 
 const props = defineProps({

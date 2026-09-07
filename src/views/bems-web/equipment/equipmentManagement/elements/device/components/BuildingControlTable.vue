@@ -35,8 +35,8 @@
           :options="runStateOptions"
           @change="handleSearch"
         />
-        <a-button type="primary" @click="handleSearch">搜索</a-button>
-        <a-button type="primary" @click="handleCreate" style="margin-left: 8px;">新建</a-button>
+        <a-button type="primary" @click="handleSearch"><SearchOutlined /> 查询</a-button>
+        <a-button type="primary" @click="handleCreate" style="margin-left: 8px;"><PlusOutlined /> 新建</a-button>
         <a-button type="primary" :loading="deviceTableExportLoading" @click="handleDeviceTableExport" style="margin-left: 8px;">
           <DownloadOutlined v-if="!deviceTableExportLoading" />
           导出
@@ -67,7 +67,7 @@ import { ref, reactive, computed, onMounted, watch } from 'vue';
 import DeviceTable from './DeviceTable.vue';
 import { defHttp } from '/@/utils/http/axios';
 import { Modal } from 'ant-design-vue';
-import { DownloadOutlined } from '@ant-design/icons-vue';
+import { DownloadOutlined, SearchOutlined, PlusOutlined } from '@ant-design/icons-vue';
 import { getPermissionTree, getEquipmentTree } from '../Device.api';
 
 // 调用类型：buildingControl-楼控，metering-电表

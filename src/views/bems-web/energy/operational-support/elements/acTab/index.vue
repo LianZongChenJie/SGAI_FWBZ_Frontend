@@ -39,7 +39,7 @@
             <a-select-option value="在线">在线</a-select-option>
             <a-select-option value="离线">离线</a-select-option>
           </a-select>
-          <a-button type="primary" @click="handleSearch">🔍 查询</a-button>
+          <a-button type="primary" @click="handleSearch"><SearchOutlined /> 查询</a-button>
           </div>
           <a-button type="primary" :loading="exportLoading" @click="handleExport" class="export-btn">
             <DownloadOutlined v-if="!exportLoading" />
@@ -264,7 +264,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, h, onMounted, nextTick } from 'vue'
-import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined, DownloadOutlined } from '@ant-design/icons-vue'
+import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined, DownloadOutlined, SearchOutlined } from '@ant-design/icons-vue'
 import { message, DatePicker, Modal } from 'ant-design-vue'
 import type { Dayjs } from 'dayjs'
 import { StatCard } from '/@/views/bems-web/components'

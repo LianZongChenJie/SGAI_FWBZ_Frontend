@@ -40,7 +40,7 @@
                 allow-clear
                 @search="handleSearch"
               />
-              <a-button type="primary" @click="handleSearch">🔍 查询</a-button>
+              <a-button type="primary" @click="handleSearch"><SearchOutlined /> 查询</a-button>
               <a-button type="primary" :loading="coldSourceExportLoading" @click="handleExport" style="margin-left: 8px;">
                 <DownloadOutlined v-if="!coldSourceExportLoading" />
                 导出
@@ -84,7 +84,8 @@
           </a-tab-pane>
           <a-tab-pane key="security" tab="安防">
             <!-- 安防子tab -->
-            <a-tabs v-model:activeKey="securityActiveTab" size="small" style="margin-bottom: 12px;">
+            <div class="security-sub-tabs">
+            <a-tabs v-model:activeKey="securityActiveTab" size="small" :centered="true">
               <a-tab-pane key="camera" tab="摄像头">
                 <div class="table-toolbar">
                   <div class="header-actions">
@@ -102,7 +103,7 @@
                       style="width: 160px; margin-right: 8px;"
                       @pressEnter="handleCameraSearch"
                     />
-                    <a-button type="primary" @click="handleCameraSearch">搜索</a-button>
+                    <a-button type="primary" @click="handleCameraSearch"><SearchOutlined /> 查询</a-button>
                     <a-button type="primary" :loading="cameraExportLoading" @click="handleCameraExport" style="margin-left: 8px;">
                       <DownloadOutlined v-if="!cameraExportLoading" />
                       导出
@@ -150,7 +151,7 @@
                       style="width: 160px; margin-right: 8px;"
                       @pressEnter="handleDoorSearch"
                     />
-                    <a-button type="primary" @click="handleDoorSearch">搜索</a-button>
+                    <a-button type="primary" @click="handleDoorSearch"><SearchOutlined /> 查询</a-button>
                     <a-button type="primary" :loading="syncLoading" @click="handleSyncAccessControlStatus" style="margin-left: 8px;">
                       <SyncOutlined v-if="!syncLoading" />
                       同步门禁状态
@@ -210,7 +211,7 @@
                       style="width: 160px; margin-right: 8px;"
                       @pressEnter="handleDeviceSearch"
                     />
-                    <a-button type="primary" @click="handleDeviceSearch">搜索</a-button>
+                    <a-button type="primary" @click="handleDeviceSearch"><SearchOutlined /> 查询</a-button>
                     <a-button type="primary" :loading="deviceExportLoading" @click="handleDeviceExport" style="margin-left: 8px;">
                       <DownloadOutlined v-if="!deviceExportLoading" />
                       导出
@@ -236,6 +237,7 @@
                 </a-table>
               </a-tab-pane>
             </a-tabs>
+            </div>
           </a-tab-pane>
         </a-tabs>
       </div>
@@ -306,7 +308,7 @@ import BuildingControlTable from './BuildingControlTable.vue';
     syncAccessControlStatus,
     getCameraPageList,
   } from '/@/views/bems-web/safety/security/index.api';
-  import { SyncOutlined, LeftOutlined, RightOutlined, DownloadOutlined } from '@ant-design/icons-vue';
+  import { SyncOutlined, LeftOutlined, RightOutlined, DownloadOutlined, SearchOutlined } from '@ant-design/icons-vue';
 import { getColdUnitList, getColdUnitDetail, getUnitTypeList, exportColdUnitList } from '/@/views/bems-web/energy/operational-support/elements/coldTab/index.api';
 
   /** 通用导出方法 */
@@ -706,7 +708,7 @@ const activeTab = ref<string>('building-control');
   const cameraColumns = [
     { title: '序号', key: 'index', width: 70 },
     { title: '摄像头名称', dataIndex: 'name', key: 'name', width: 200 },
-    { title: '监控点类型', dataIndex: 'cameraType', key: 'cameraType', width: 120 },
+    // { title: '监控点类型', dataIndex: 'cameraType', key: 'cameraType', width: 120 },
     { title: '所属区域名称', dataIndex: 'regionName', key: 'regionName', width: 200 },
     { title: '在线状态', dataIndex: 'online', key: 'online', width: 120 },
   ];
@@ -1263,5 +1265,23 @@ function handleSuccess() {
     gap: 12px;
     flex-wrap: wrap;
     justify-content: flex-end;
+  }
+
+  /* 安防子tab区域 - 仅tab切换区域有背景 */
+  .security-sub-tabs {
+    margin-top: 12px;
+
+    :deep(.ant-tabs-nav) {
+      background: #f7f8fa;
+      border-radius: 8px 8px 0 0;
+      padding: 8px 16px 0;
+      margin-bottom: 0;
+    }
+
+    :deep(.ant-tabs-content-holder) {
+      background: #fff;
+      border-radius: 0 0 8px 8px;
+      padding: 16px;
+    }
   }
 </style>

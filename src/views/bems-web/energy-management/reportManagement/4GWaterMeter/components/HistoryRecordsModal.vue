@@ -14,7 +14,7 @@
               value-format="YYYY-MM-DD HH:mm:ss" />
           </a-form-item>
           <a-form-item>
-            <a-button type="primary" @click="searchData">查询</a-button>
+            <a-button type="primary" @click="searchData"><SearchOutlined /> 查询</a-button>
           </a-form-item>
         </a-form>
       </div>
@@ -38,6 +38,7 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
+import { SearchOutlined } from '@ant-design/icons-vue';
 import { getHistoryDataApi } from '../index.api';
 
 const open = ref(false);

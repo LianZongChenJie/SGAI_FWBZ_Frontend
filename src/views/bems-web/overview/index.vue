@@ -58,7 +58,7 @@
             </a-radio-group>
             <!-- <span class="date-label">日期：</span>
             <a-date-picker v-model:value="date" :picker="dateType" valueFormat="YYYY-MM-DD" />
-            <a-button type="primary" @click="handleQuery">查询</a-button>
+            <a-button type="primary" @click="handleQuery"><SearchOutlined /> 查询</a-button>
             <a-button @click="handleExport">导出</a-button> -->
           </div>
         </div>
@@ -238,6 +238,7 @@ import {
 } from '/@/views/bems-web/energy-management/metering/elements/overviewTab/index.api'
 import {
   PieChartOutlined,
+  SearchOutlined,
 } from '@ant-design/icons-vue'
 import PointDataStatistics from '/@/views/bems-web/energy-management/metering/elements/analysisTab/pointDataStatistics/index.vue'
 

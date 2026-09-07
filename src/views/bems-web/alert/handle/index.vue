@@ -14,7 +14,7 @@
         <div class="filter-bar">
           <a-select v-model:value="levelFilter" style="width: 120px" placeholder="报警等级" :options="levelOption" allowClear @change="onQuery" />
           <a-select v-model:value="typeFilter" style="width: 130px" placeholder="报警类型" :options="categoryOption" allowClear @change="onQuery" />
-          <a-button type="primary" @click="onQuery">🔍查询</a-button>
+          <a-button type="primary" @click="onQuery"><SearchOutlined /> 查询</a-button>
           <a-button type="primary" :loading="exportLoading" @click="handleExport">
             <DownloadOutlined v-if="!exportLoading" />
             导出
@@ -97,7 +97,7 @@
 <script setup lang="ts">
 import { ref, reactive, h, onMounted } from 'vue'
 import { defHttp } from '/@/utils/http/axios'
-import { DownloadOutlined } from '@ant-design/icons-vue'
+import { DownloadOutlined, SearchOutlined } from '@ant-design/icons-vue'
 import { StatCard } from '/@/views/bems-web/components'
 import {
   getAlarmRecordsListApi,

@@ -39,7 +39,7 @@
                 <div class='button-box'>
                   <a-button html-type="submit">清空</a-button>
                   &emsp;
-                  <a-button type="primary" html-type="submit" @click="loadData">查询</a-button>
+                  <a-button type="primary" html-type="submit" @click="loadData"><SearchOutlined /> 查询</a-button>
                 </div>
               </a-form-item>
             </a-col>
@@ -65,6 +65,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue';
+import { SearchOutlined } from '@ant-design/icons-vue';
 import { selectDevice, spaceTree, categoryTree, selectMeasuringDevice } from '../Standardized.api'
 
 const props = defineProps({

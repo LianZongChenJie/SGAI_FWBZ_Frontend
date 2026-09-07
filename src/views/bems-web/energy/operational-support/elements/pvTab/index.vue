@@ -49,7 +49,7 @@
             <a-select-option value="C馆屋顶">C馆屋顶</a-select-option>
             <a-select-option value="停车场车棚">停车场车棚</a-select-option>
           </a-select>
-          <a-button type="primary" @click="handleSearch">🔍 查询</a-button>
+          <a-button type="primary" @click="handleSearch"><SearchOutlined /> 查询</a-button>
           </div>
           <button class="collapse-btn" @click="collapsedTable = !collapsedTable">
 <CaretDownOutlined v-if="!collapsedTable" />
@@ -154,7 +154,7 @@
 
 <script setup lang="ts">
 import { ref, computed, h, onMounted, nextTick } from 'vue'
-import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons-vue'
+import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined, SearchOutlined } from '@ant-design/icons-vue'
 import { StatCard } from '/@/views/bems-web/components'
 import { useECharts } from '/@/hooks/web/useECharts'
 import { getPvPowerData, getPvCorrelationData } from '../chartData'

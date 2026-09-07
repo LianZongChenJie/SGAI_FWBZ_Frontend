@@ -47,7 +47,7 @@
           </a-radio-group>
           <span class="date-label">日期：</span>
           <a-date-picker v-model:value="date" :picker="dateType" valueFormat="YYYY-MM-DD" />
-          <a-button type="primary" @click="handleQuery">查询</a-button>
+          <a-button type="primary" @click="handleQuery"><SearchOutlined /> 查询</a-button>
           <a-button @click="handleExport">导出</a-button>
           <button class="collapse-btn" @click="fullscreen = !fullscreen">
             <FullscreenOutlined v-if="!fullscreen" />
@@ -73,7 +73,7 @@
 
 <script setup lang="ts">
 import { reactive, onMounted, h, ref } from 'vue'
-import { FullscreenOutlined, FullscreenExitOutlined, CaretDownOutlined, CaretUpOutlined } from '@ant-design/icons-vue'
+import { FullscreenOutlined, FullscreenExitOutlined, CaretDownOutlined, CaretUpOutlined, SearchOutlined } from '@ant-design/icons-vue'
 import { StatCard } from '/@/views/bems-web/components'
 import PointDataStatistics from './pointDataStatistics/index.vue'
 import { getStatistics } from './pointDataStatistics/index.api'

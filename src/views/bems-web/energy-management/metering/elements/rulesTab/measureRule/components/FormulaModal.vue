@@ -68,7 +68,7 @@
             </a-form-item>
             <a-form-item>
               <a-space>
-                <a-button type="primary" @click="handleQuery">查询</a-button>
+                <a-button type="primary" @click="handleQuery"><SearchOutlined /> 查询</a-button>
                 <a-button @click="handleReset">重置</a-button>
               </a-space>
             </a-form-item>
@@ -100,6 +100,7 @@
 
 <script lang="ts" setup>
   import { ref } from 'vue';
+import { SearchOutlined } from '@ant-design/icons-vue';
   import type { TableColumnsType, TablePaginationConfig } from 'ant-design-vue';
   import { pointList, analyticFormula, saveFormula } from '../index.api';
   import { message, Modal } from 'ant-design-vue';

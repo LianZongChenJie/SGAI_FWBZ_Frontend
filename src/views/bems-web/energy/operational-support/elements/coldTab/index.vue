@@ -50,7 +50,7 @@
               allow-clear
               @search="handleSearch"
             />
-            <a-button type="primary" @click="handleSearch">🔍 查询</a-button>
+            <a-button type="primary" @click="handleSearch"><SearchOutlined /> 查询</a-button>
             <a-button type="primary" :loading="coldSourceExportLoading" @click="handleExport" style="margin-left: 8px;">
               <DownloadOutlined v-if="!coldSourceExportLoading" />
               导出
@@ -169,7 +169,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, h, onMounted, nextTick } from 'vue'
-import { CaretDownOutlined, CaretUpOutlined, DownloadOutlined } from '@ant-design/icons-vue'
+import { CaretDownOutlined, CaretUpOutlined, DownloadOutlined, SearchOutlined } from '@ant-design/icons-vue'
 import { StatCard } from '/@/views/bems-web/components'
 import { useECharts } from '/@/hooks/web/useECharts'
 import { buildTrendOption } from '../chartOptions'
