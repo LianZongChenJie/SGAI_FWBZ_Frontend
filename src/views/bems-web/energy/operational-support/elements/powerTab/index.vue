@@ -833,4 +833,10 @@ onMounted(() => {
     border-color: #1677ff;
   }
 }
+
+// 描述列表label允许换行
+:deep(.ant-descriptions-item-label) {
+  white-space: normal !important;
+  word-break: break-word;
+}
 </style>
