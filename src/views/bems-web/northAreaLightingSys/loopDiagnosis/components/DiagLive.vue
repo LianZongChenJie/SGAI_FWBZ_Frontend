@@ -152,8 +152,8 @@ const mets = computed(() => {
     { l: '电压', v: U.toFixed(1), u: 'V', d: hasR3 ? '越限' : '正常', cls: hasR3 ? 'd-bad' : 'd-ok' },
     { l: '电流', v: I.toFixed(2), u: 'A', d: iD, cls: iCls },
     { l: '有功功率', v: P.toFixed(2), u: 'kW', d: pD, cls: pCls },
-    { l: '无功功率', v: Q.toFixed(2), u: 'kvar', d: '—', cls: 'd-mut' },
-    { l: '视在功率', v: S.toFixed(2), u: 'kVA', d: '—', cls: 'd-mut' },
+    { l: '无功功率', v: Q.toFixed(2), u: 'kW', d: '—', cls: 'd-mut' },
+    { l: '视在功率', v: S.toFixed(2), u: 'kW', d: '—', cls: 'd-mut' },
     { l: '功率因数', v: pf ? pf.toFixed(3) : '—', u: '', d: pf ? '正常' : '空载不可信', cls: pf ? 'd-ok' : 'd-mut' },
     { l: '频率', v: f.toFixed(2), u: 'Hz', d: '正常', cls: 'd-ok' },
     { l: '累计电量', v: String(c.month), u: 'kWh', d: '今日 +' + c.today, cls: 'd-ok' }
