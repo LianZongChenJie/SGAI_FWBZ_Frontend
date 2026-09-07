@@ -1,11 +1,29 @@
 <template>
   <div class="energy-statistics" :class="themeClass">
+    <!-- 顶部 Tab 导航 -->
+    <nav class="tab-nav">
+      <button
+        v-for="tab in tabs"
+        :key="tab.key"
+        class="tab-item"
+        :class="{ active: activeTab === tab.key }"
+        @click="handleTabChange(tab.key)"
+      >
+        {{ tab.label }}
+      </button>
+    </nav>
+
+    <!-- ========== 数据分析（原能耗统计所有模块） ========== -->
+    <div v-show="activeTab === 'analysis'">
     <!-- 顶部工具栏 -->
     <div class="toolbar">
-      <a-radio-group v-model:value="statType" class="stat-type">
-        <a-radio value="area">按区域</a-radio>
-        <a-radio value="box">按箱子</a-radio>
-      </a-radio-group>
+      <div class="toolbar-left">
+        <span class="toolbar-title">今日数据查询</span>
+        <a-radio-group v-model:value="statType" class="stat-type">
+          <a-radio value="area">按区域</a-radio>
+          <a-radio value="box">按箱子</a-radio>
+        </a-radio-group>
+      </div>
     </div>
 
     <!-- 图表区：能耗排名 + 占比 -->
@@ -34,8 +52,11 @@
       </div>
       <div ref="trendChartRef" class="chart-box trend-chart"></div>
     </div>
+    </div>
 
-    <!-- 汇总表 / 箱子遥测 / 区间查询 -->
+    <!-- ========== 数据统计（配电遥测 / 电量统计） ========== -->
+    <div v-show="activeTab === 'statistics'">
+    <!-- 汇总表 / 配电遥测 /  电量统计 -->
     <div class="chart-card">
       <a-tabs v-model:activeKey="summaryTab" class="summary-tabs">
         <a-tab-pane v-if="false" key="summary" tab="汇总表">
@@ -98,12 +119,8 @@
           </a-table>
         </a-tab-pane>
 
-        <!-- 箱子遥测（与汇总表、区间查询并列） -->
-        <a-tab-pane key="boxTelemetry" tab="箱子遥测">
-          <div class="card-title">
-            <span class="title-bar"></span>
-            <span class="title-tip">（来自MQ推送 DataType=7：交流电压/电流/功率/电量）</span>
-          </div>
+        <!-- 配电遥测（与汇总表、 电量统计并列） -->
+        <a-tab-pane key="boxTelemetry" tab="配电遥测">
           <!-- 查询条件 -->
           <div class="range-filter-bar">
             <div class="filter-item">
@@ -141,7 +158,6 @@
             :pagination="false"
             :scroll="{ x: 2520 }"
             class="summary-table"
-            @scroll="onBoxTableScroll"
           >
             <template #bodyCell="{ column, record }">
               <template v-if="column.key === 'voltageA'">
@@ -182,7 +198,6 @@
               </template>
             </template>
           </a-table>
-          <div ref="boxTableHScrollBottom" class="table-hscroll-bar table-hscroll-bar-bottom" @scroll="onBoxHScrollBottom"></div>
           <!-- 统计值统计 -->
           <div class="box-avg-wrapper">
             <span class="box-avg-title">统计值</span>
@@ -197,7 +212,7 @@
           </div>
         </a-tab-pane>
 
-        <a-tab-pane key="range" tab="区间查询">
+        <a-tab-pane key="range" tab="电量统计">
           <!-- 顶部查询条件 -->
           <div class="range-filter-bar">
             <div class="filter-item">
@@ -227,7 +242,7 @@
                 showTime
                 format="YYYY-MM-DD HH:mm:ss"
                 valueFormat="YYYY-MM-DD HH:mm:ss"
-                style="width: 160px"
+                style="width: 200px"
               />
             </div>
             <div class="filter-item">
@@ -238,7 +253,7 @@
                 showTime
                 format="YYYY-MM-DD HH:mm:ss"
                 valueFormat="YYYY-MM-DD HH:mm:ss"
-                style="width: 160px"
+                style="width: 200px"
               />
             </div>
             <a-button type="primary" @click="onRangeQuery">查询</a-button>
@@ -254,12 +269,18 @@
             :pagination="false"
             :loading="rangeLoading"
             class="summary-table"
-          />
+          >
+            <template #bodyCell="{ column, record }">
+              <template v-if="column.key === 'action'">
+                <a-button type="link" size="small" @click="openRangeDetail(record)">详情</a-button>
+              </template>
+            </template>
+          </a-table>
         </a-tab-pane>
       </a-tabs>
     </div>
 
-    <!-- 箱子遥测详情弹窗 -->
+    <!-- 配电遥测详情弹窗 -->
     <a-modal
       v-model:open="boxDetailVisible"
       title="箱子详情"
@@ -279,7 +300,7 @@
             <circle cx="12" cy="10" r="3" />
           </svg>
           <div class="title-text">
-            <span class="title-label">箱子详情</span>
+            <!-- <span class="title-label">箱子详情</span> -->
             <span class="title-value">{{ boxDetailRecord?.areaName || boxDetailRecord?.gatewayCode || '' }}</span>
           </div>
         </div>
@@ -370,6 +391,94 @@
         </div>
       </div>
     </a-modal>
+
+    <!--  电量统计详情弹窗（参照配电遥测弹窗） -->
+    <a-modal
+      v-model:open="rangeDetailVisible"
+      title="详情"
+      :footer="null"
+      width="1100px"
+      :destroyOnClose="true"
+      :maskClosable="false"
+      wrapClassName="box-telemetry-modal"
+      :getContainer="false"
+      @cancel="closeRangeDetail"
+    >
+      <!-- 标题 -->
+      <section class="modal-title">
+        <div class="title-left">
+          <svg class="title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+            <circle cx="12" cy="10" r="3" />
+          </svg>
+          <div class="title-text">
+            <!-- <span class="title-label">详情</span> -->
+            <span class="title-value">{{ rangeDetailRecord?.boxName || rangeDetailRecord?.gatewayCode || '' }}</span>
+          </div>
+        </div>
+        <div class="title-actions"></div>
+      </section>
+
+      <!-- 时间范围 -->
+      <div class="modal-tip">
+        <svg class="tip-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        <span class="tip-text">查询时间范围</span>
+        <a-date-picker
+          v-model:value="rangeDetailStartTime"
+          placeholder="开始时间"
+          showTime
+          format="YYYY-MM-DD HH:mm:ss"
+          valueFormat="YYYY-MM-DD HH:mm:ss"
+          class="time-input"
+        />
+        <span class="tip-sep">~</span>
+        <a-date-picker
+          v-model:value="rangeDetailEndTime"
+          placeholder="结束时间"
+          showTime
+          format="YYYY-MM-DD HH:mm:ss"
+          valueFormat="YYYY-MM-DD HH:mm:ss"
+          class="time-input"
+        />
+        <button class="btn btn-primary query-btn" @click="loadRangeDetailHistory">查询</button>
+        <a-radio-group v-model:value="rangeDetailChartType" size="small" class="chart-type-radio">
+          <a-radio-button value="table">表格</a-radio-button>
+          <a-radio-button value="line">折线</a-radio-button>
+          <a-radio-button value="bar">柱状</a-radio-button>
+        </a-radio-group>
+      </div>
+
+      <!-- 抄表明细：表格 / 折线 / 柱状 -->
+      <section class="table-container">
+        <!-- 表格视图 -->
+        <div v-if="rangeDetailChartType === 'table'">
+          <a-table
+            :columns="rangeDetailColumns"
+            :data-source="rangeDetailList"
+            row-key="key"
+            :pagination="false"
+            :loading="rangeDetailLoading"
+            size="small"
+            class="summary-table range-detail-table"
+          />
+        </div>
+        <!-- 折线 / 柱状视图 -->
+        <div v-else ref="rangeDetailChartRef" style="width: 100%; height: 400px; margin-top: 12px;"></div>
+      </section>
+
+      <!-- 底部操作按钮 -->
+      <div class="modal-footer">
+        <span class="total-count">共 <b class="count-num">{{ rangeDetailList.length }}</b> 条</span>
+        <div class="footer-actions">
+          <a-button class="btn-cancel" @click="closeRangeDetail">取消</a-button>
+          <a-button class="btn-confirm" type="primary" @click="closeRangeDetail">确定</a-button>
+        </div>
+      </div>
+    </a-modal>
+    </div>
   </div>
 </template>
 
@@ -379,6 +488,8 @@ import { useScreenTheme } from '../useScreenTheme';
 const { themeClass } = useScreenTheme();
 
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
+
+
 import * as echarts from 'echarts';
 import { message } from 'ant-design-vue';
 import { UploadOutlined, CaretRightFilled, CaretDownFilled } from '@ant-design/icons-vue';
@@ -390,17 +501,31 @@ import {
   getBoxTelemetryList,
   getBoxTelemetryHistory,
   getEnergyMeterReads,
+  getMeterReadDetail,
 } from '@/api/equipmentMonitoring';
 import { getAllDistrictTag } from '@/api/baseSettingBqZm';
 import { exportExcel } from '/@/utils/export';
 
+/* ============================ 顶部 Tab 切换 ============================ */
+const tabs = [
+  { key: 'analysis', label: '数据分析' },
+  { key: 'statistics', label: '数据统计' },
+];
+const activeTab = ref('analysis');
+
+/** Tab 切换事件 */
+function handleTabChange(key: string) {
+  if (activeTab.value === key) return;
+  activeTab.value = key;
+}
+
 /* ============================ 顶部工具栏 ============================ */
 const statType = ref('area'); // area: 按区域 / box: 按箱子
 
-/* ============================ 汇总表 / 区间查询 Tabs ============================ */
-const summaryTab = ref('boxTelemetry'); // 默认箱子遥测（汇总表已隐藏）
+/* ============================ 汇总表 /  电量统计 Tabs ============================ */
+const summaryTab = ref('boxTelemetry'); // 默认配电遥测（汇总表已隐藏）
 
-/* ============================ 区间查询 ============================ */
+/* ============================  电量统计 ============================ */
 interface RangeFilter {
   /** 区域标签 id */
   districtId?: string;
@@ -432,7 +557,7 @@ const loadRegionOptions = async () => {
   }
 };
 
-/** 区间查询表列 */
+/**  电量统计表列 */
 const rangeColumns = [
   { title: '序号', key: 'index', align: 'center' as const, width: 60, customRender: ({ index }) => index + 1 },
   { title: '区域', key: 'region', dataIndex: 'region', align: 'center' as const },
@@ -442,12 +567,13 @@ const rangeColumns = [
   { title: '结束时间', key: 'endTime', dataIndex: 'endTime', align: 'center' as const },
   { title: '结束表底', key: 'endReading', dataIndex: 'endReading', align: 'center' as const },
   { title: '累计用电量(kWh)', key: 'totalKwh', dataIndex: 'totalKwh', align: 'center' as const },
+  { title: '操作', key: 'action', align: 'center' as const, width: 90 },
 ];
 
-/** 区间查询结果（默认空，由初始化/查询动作触发） */
+/**  电量统计结果（默认空，由初始化/查询动作触发） */
 const rangeData = ref<any[]>([]);
 
-/** 区间查询前端过滤后的数据（区域选择 / 箱子名称输入时实时过滤） */
+/**  电量统计前端过滤后的数据（区域选择 / 箱子名称输入时实时过滤） */
 const filteredRangeData = computed(() => {
   let list = rangeData.value;
   const districtId = rangeFilters.value.districtId;
@@ -460,7 +586,7 @@ const filteredRangeData = computed(() => {
   return list;
 });
 
-/** 区间查询表格加载状态 */
+/**  电量统计表格加载状态 */
 const rangeLoading = ref(false);
 
 /** 表底抄表记录字段归一化（兼容不同返回字段名） */
@@ -474,10 +600,11 @@ const mapRangeRow = (it: any, idx: number): any => {
     endTime: it.endTime ?? it.finishTime ?? it.readEndTime ?? '-',
     endReading: it.endValue ?? it.endReading ?? it.finishReading ?? it.endMeterRead ?? it.endMeterValue ?? 0,
     totalKwh: it.total ?? it.totalKwh ?? it.energy ?? it.consumeEnergy ?? it.kwh ?? it.totalEnergy ?? 0,
+    gatewayCode: it.gatewayCode ?? it.gatewayNo ?? it.gateway ?? it.boxCode ?? it.code ?? '',
   };
 };
 
-/** 拉取区间查询（表底抄表记录）数据 */
+/** 拉取 电量统计（表底抄表记录）数据 */
 const loadMeterReads = async (params?: Record<string, any>) => {
   rangeLoading.value = true;
   try {
@@ -485,7 +612,7 @@ const loadMeterReads = async (params?: Record<string, any>) => {
     const list = Array.isArray(res) ? res : res?.records ?? res?.list ?? res?.rows ?? [];
     rangeData.value = list.map((it: any, idx: number) => mapRangeRow(it, idx));
   } catch (err) {
-    console.error('区间查询加载失败：', err);
+    console.error(' 电量统计加载失败：', err);
   } finally {
     rangeLoading.value = false;
   }
@@ -500,7 +627,7 @@ const onRangeReset = () => {
   rangeData.value = [];
 };
 
-/** 导出区间查询表格数据为 Excel（导出当前过滤后的数据，与表格显示一致） */
+/** 导出 电量统计表格数据为 Excel（导出当前过滤后的数据，与表格显示一致） */
 const onExportRange = () => {
   if (!filteredRangeData.value.length) {
     // eslint-disable-next-line no-alert
@@ -519,7 +646,7 @@ const onExportRange = () => {
   }));
   exportExcel({
     tableData: rows,
-    fileName: '区间查询数据',
+    fileName: ' 电量统计数据',
     headers: [
       { key: 'index', title: '序号' },
       { key: 'region', title: '区域' },
@@ -531,6 +658,122 @@ const onExportRange = () => {
       { key: 'totalKwh', title: '累计用电量(kWh)' },
     ],
   });
+};
+
+/* ----  电量统计详情弹窗（参照配电遥测弹窗） ---- */
+const rangeDetailVisible = ref(false);
+const rangeDetailLoading = ref(false);
+const rangeDetailRecord = ref<any>(null);
+const rangeDetailList = ref<any[]>([]);
+/** 查询时间范围（可编辑，参照配电遥测弹窗） */
+const rangeDetailStartTime = ref<string | null>(null);
+const rangeDetailEndTime = ref<string | null>(null);
+/** 展示形态：table | line | bar */
+const rangeDetailChartType = ref('table');
+const rangeDetailChartRef = ref<HTMLDivElement | null>(null);
+let rangeDetailChart: any = null;
+/** 抄表明细表格列：序号 / 采集时间 / 累计用电量(kWh) */
+const rangeDetailColumns = [
+  { title: '序号', key: 'index', align: 'center' as const, width: 80, customRender: ({ index }: any) => index + 1 },
+  { title: '采集时间', key: 'collectTime', dataIndex: 'collectTime', align: 'center' as const, ellipsis: true, customRender: ({ text }: any) => text || '-' },
+  { title: '累计用电量(kWh)', key: 'cumulative', dataIndex: 'cumulative', align: 'center' as const, ellipsis: true, customRender: ({ text }: any) => text ?? '-' },
+];
+
+/** 归一化详情返回数据：数组 / records/list/rows/result / 单条对象 */
+const normalizeMeterDetail = (res: any): any[] => {
+  if (Array.isArray(res)) return res;
+  const arr = res && (res.records ?? res.list ?? res.rows ?? res.result);
+  if (Array.isArray(arr)) return arr;
+  if (res && typeof res === 'object' && Object.keys(res).length) return [res];
+  return [];
+};
+
+/** 渲染折线/柱状图：X 轴采集时间，Y 轴累计用电量 */
+const renderRangeDetailChart = () => {
+  if (rangeDetailChartType.value === 'table') {
+    if (rangeDetailChart) { rangeDetailChart.dispose(); rangeDetailChart = null; }
+    return;
+  }
+  const el = rangeDetailChartRef.value;
+  if (!el) return;
+  if (!rangeDetailChart) rangeDetailChart = echarts.init(el);
+  const isLine = rangeDetailChartType.value === 'line';
+  const cats = rangeDetailList.value.map((it: any) => formatTime(it?.collectTime));
+  const vals = rangeDetailList.value.map((it: any) => Number(it?.cumulative ?? 0));
+  rangeDetailChart.setOption({
+    tooltip: { trigger: 'axis' },
+    grid: { left: 70, right: 24, top: 40, bottom: 48 },
+    xAxis: { type: 'category', data: cats, boundaryGap: !isLine },
+    yAxis: { type: 'value', name: '累计用电量(kWh)' },
+    series: [
+      {
+        type: isLine ? 'line' : 'bar',
+        data: vals,
+        smooth: isLine,
+        itemStyle: { color: '#1890ff' },
+        areaStyle: isLine ? { color: 'rgba(24, 144, 255, 0.2)' } : undefined,
+      },
+    ],
+  });
+};
+
+/** 形态切换或数据刷新后重绘图表 */
+watch([rangeDetailChartType, rangeDetailList], () => {
+  nextTick(renderRangeDetailChart);
+});
+
+/** 按所选时间范围查询抄表明细（查询按钮） */
+const loadRangeDetailHistory = async () => {
+  const record = rangeDetailRecord.value;
+  if (!record) return;
+  rangeDetailLoading.value = true;
+  try {
+    const res = await getMeterReadDetail({
+      gatewayCode: record.gatewayCode,
+      start: rangeDetailStartTime.value,
+      end: rangeDetailEndTime.value,
+    });
+    const rows = normalizeMeterDetail(res).map((it: any, idx: number) => ({
+      ...it,
+      key: it?.id ?? it?.key ?? idx,
+    }));
+    rangeDetailList.value = rows;
+  } catch (err) {
+    console.error(' 电量统计详情加载失败：', err);
+  } finally {
+    rangeDetailLoading.value = false;
+  }
+  nextTick(renderRangeDetailChart);
+};
+
+/** 打开 电量统计详情：默认按该行记录的 startTime/endTime 查询抄表明细 */
+const openRangeDetail = async (record: any) => {
+  rangeDetailRecord.value = record;
+  rangeDetailVisible.value = true;
+  rangeDetailChartType.value = 'table';
+  rangeDetailList.value = [];
+  const start = record?.startTime && record.startTime !== '-' ? record.startTime : '';
+  const end = record?.endTime && record.endTime !== '-' ? record.endTime : '';
+  if (start && end) {
+    rangeDetailStartTime.value = start;
+    rangeDetailEndTime.value = end;
+  } else {
+    // 行记录无有效时间时，默认查最近 1 天
+    const fmt = (d: Date) => d.toISOString().slice(0, 19).replace('T', ' ');
+    const now = new Date();
+    const before = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    rangeDetailStartTime.value = fmt(before);
+    rangeDetailEndTime.value = fmt(now);
+  }
+  await loadRangeDetailHistory();
+};
+
+/** 关闭 电量统计详情弹窗 */
+const closeRangeDetail = () => {
+  rangeDetailVisible.value = false;
+  rangeDetailRecord.value = null;
+  rangeDetailList.value = [];
+  if (rangeDetailChart) { rangeDetailChart.dispose(); rangeDetailChart = null; }
 };
 
 /** 上传能耗 Excel（真实场景替换为 defHttp.uploadFile 接口） */
@@ -1000,18 +1243,18 @@ const onExportSummary = () => {
   });
 };
 
-/* ============================ 箱子遥测 ============================ */
-/** 箱子遥测查询条件：区域(片区id) + 箱子名称(区域名) */
+/* ============================ 配电遥测 ============================ */
+/** 配电遥测查询条件：区域(片区id) + 箱子名称(区域名) */
 const boxFilters = ref<{ districtId?: number; boxName?: string }>({});
 
 /** 片区下拉（value=片区id，label=片区名，复用 regionOptions） */
 const boxDistrictOptions = computed(() => regionOptions.value);
 
-/** 箱子遥测列表 */
+/** 配电遥测列表 */
 const boxData = ref<any[]>([]);
 const boxLoading = ref(false);
 
-/** 箱子遥测过滤后的数据（按片区/区域名过滤） */
+/** 配电遥测过滤后的数据（按片区/区域名过滤） */
 const filteredBoxData = computed(() => {
   let list = boxData.value;
   const districtId = boxFilters.value.districtId;
@@ -1028,7 +1271,7 @@ const filteredBoxData = computed(() => {
   return list;
 });
 
-/** 箱子遥测列：区域=片区名，箱子=区域名 */
+/** 配电遥测列：区域=片区名，箱子=区域名 */
 const boxColumns = [
   { title: '序号', key: 'index', align: 'center' as const, width: 40, fixed: 'left' as const, customRender: ({ index }) => index + 1 },
   { title: '区域', key: 'districtName', align: 'center' as const, width: 60, fixed: 'left' as const, dataIndex: 'districtName', customRender: ({ text }) => text || '-' },
@@ -1040,15 +1283,15 @@ const boxColumns = [
   { title: 'B相电流(A)', key: 'currentB', align: 'center' as const, width: 60 },
   { title: 'C相电流(A)', key: 'currentC', align: 'center' as const, width: 60 },
   { title: '有功功率(kW)', key: 'activePower', align: 'center' as const, width: 60 },
-  { title: '无功功率(kVar)', key: 'reactivePower', align: 'center' as const, width: 60 },
-  { title: '视在功率(kVA)', key: 'apparentPower', align: 'center' as const, width: 60 },
+  { title: '无功功率(kW)', key: 'reactivePower', align: 'center' as const, width: 60 },
+  { title: '视在功率(kW)', key: 'apparentPower', align: 'center' as const, width: 60 },
   { title: '功率因数', key: 'powerFactor', align: 'center' as const, width: 60 },
   { title: '累积电量(kWh)', key: 'totalEnergy', align: 'center' as const, width: 60, dataIndex: 'totalEnergy', customRender: ({ text }) => fmtNum(text) },
   { title: '最后采集时间', key: 'collectTime', align: 'center' as const, width: 80 },
   { title: '操作', key: 'action', align: 'center' as const, width: 60, fixed: 'right' as const },
 ];
 
-/** 箱子遥测统计值列 */
+/** 配电遥测统计值列 */
 const boxAvgColumns = [
   { title: '平均A相电压(V)', key: 'voltageA', dataIndex: 'voltageA', align: 'center' as const, customRender: ({ text }) => fmtNum(text) },
   { title: '平均B相电压(V)', key: 'voltageB', dataIndex: 'voltageB', align: 'center' as const, customRender: ({ text }) => fmtNum(text) },
@@ -1059,7 +1302,7 @@ const boxAvgColumns = [
   { title: '累加累积电量(kWh)', key: 'totalEnergy', dataIndex: 'totalEnergy', align: 'center' as const, customRender: ({ text }) => fmtNum(text) },
 ];
 
-/** 箱子遥测统计值（随过滤后的表格数据自动计算：电压/电流取平均，累积电量取累加总和） */
+/** 配电遥测统计值（随过滤后的表格数据自动计算：电压/电流取平均，累积电量取累加总和） */
 const boxAvgData = computed(() => {
   const list = filteredBoxData.value;
   const avgFields = ['voltageA', 'voltageB', 'voltageC', 'currentA', 'currentB', 'currentC'];
@@ -1077,65 +1320,60 @@ const boxAvgData = computed(() => {
   return [{ key: 'avg', ...row }];
 });
 
-/** 箱子遥测表格：顶部/底部双横向滚动条同步 */
+/** 配电遥测表格：顶部横向滚动条（与表格底部自带滚动条双向同步） */
 const boxTableRef = ref<{ $el: HTMLElement } | null>(null);
 const boxTableHScroll = ref<HTMLElement | null>(null);
-const boxTableHScrollBottom = ref<HTMLElement | null>(null);
 
-const syncBoxHScroll = (scrollLeft: number) => {
+let bindBoxTableContentScroll: (() => void) | null = null;
+/** 表格内容自身滚动时，同步顶部滚动条位置 */
+const syncBoxTopScroll = () => {
   if (boxTableHScroll.value) {
-    boxTableHScroll.value.scrollLeft = scrollLeft;
-  }
-  if (boxTableHScrollBottom.value) {
-    boxTableHScrollBottom.value.scrollLeft = scrollLeft;
+    boxTableHScroll.value.scrollLeft =
+      boxTableRef.value?.$el?.querySelector('.ant-table-content')?.scrollLeft ?? 0;
   }
 };
-const onBoxTableScroll = (e: Event) => {
-  const el = e.target as HTMLElement;
-  syncBoxHScroll(el.scrollLeft);
+/** 直接监听 .ant-table-content 原生 scroll 事件，确保双向同步可靠 */
+const bindBoxTableContent = () => {
+  bindBoxTableContentScroll?.();
+  bindBoxTableContentScroll = null;
+  const content = boxTableRef.value?.$el?.querySelector<HTMLElement>('.ant-table-content');
+  if (!content) return;
+  content.addEventListener('scroll', syncBoxTopScroll, { passive: true });
+  bindBoxTableContentScroll = () => content.removeEventListener('scroll', syncBoxTopScroll);
 };
+/** 拖动顶部滚动条时，同步表格内容滚动 */
 const onBoxHScroll = (e: Event) => {
-  const el = e.target as HTMLElement;
-  const content = boxTableRef.value?.$el?.querySelector('.ant-table-content');
+  const content = boxTableRef.value?.$el?.querySelector<HTMLElement>('.ant-table-content');
   if (content) {
-    content.scrollLeft = el.scrollLeft;
-    syncBoxHScroll(el.scrollLeft);
-  }
-};
-const onBoxHScrollBottom = (e: Event) => {
-  const el = e.target as HTMLElement;
-  const content = boxTableRef.value?.$el?.querySelector('.ant-table-content');
-  if (content) {
-    content.scrollLeft = el.scrollLeft;
-    syncBoxHScroll(el.scrollLeft);
+    content.scrollLeft = (e.target as HTMLElement).scrollLeft;
   }
 };
 
-/** 加载箱子遥测列表 */
+/** 加载配电遥测列表 */
 const loadBoxTelemetry = async (params?: Record<string, any>) => {
   boxLoading.value = true;
   try {
     const res = await getBoxTelemetryList(params ?? {});
     boxData.value = Array.isArray(res) ? res : (res && res.result) || [];
   } catch (e) {
-    console.error('箱子遥测加载失败', e);
+    console.error('配电遥测加载失败', e);
     boxData.value = [];
   } finally {
     boxLoading.value = false;
   }
 };
 
-/** 箱子遥测查询：携带查询条件重新请求列表接口 */
+/** 配电遥测查询：携带查询条件重新请求列表接口 */
 const onBoxQuery = () => {
   loadBoxTelemetry({ ...boxFilters.value });
 };
 
-/** 箱子遥测重置 */
+/** 配电遥测重置 */
 const onBoxReset = () => {
   boxFilters.value = {};
 };
 
-/** 导出箱子遥测表格数据为 Excel（导出当前过滤后的数据，与表格显示一致） */
+/** 导出配电遥测表格数据为 Excel（导出当前过滤后的数据，与表格显示一致） */
 const onExportBox = () => {
   if (!filteredBoxData.value.length) {
     // eslint-disable-next-line no-alert
@@ -1161,7 +1399,7 @@ const onExportBox = () => {
   }));
   exportExcel({
     tableData: rows,
-    fileName: '箱子遥测数据',
+    fileName: '配电遥测数据',
     headers: [
       { key: 'index', title: '序号' },
       { key: 'districtName', title: '区域' },
@@ -1173,8 +1411,8 @@ const onExportBox = () => {
       { key: 'currentB', title: 'B相电流(A)' },
       { key: 'currentC', title: 'C相电流(A)' },
       { key: 'activePower', title: '有功功率(kW)' },
-      { key: 'reactivePower', title: '无功功率(kVar)' },
-      { key: 'apparentPower', title: '视在功率(kVA)' },
+      { key: 'reactivePower', title: '无功功率(kW)' },
+      { key: 'apparentPower', title: '视在功率(kW)' },
       { key: 'powerFactor', title: '功率因数' },
       { key: 'totalEnergy', title: '累积电量(kWh)' },
       { key: 'collectTime', title: '最后采集时间' },
@@ -1198,7 +1436,7 @@ const formatTime = (t) => {
   return new Date(t).toLocaleString();
 };
 
-/* ---- 箱子遥测详情弹窗 ---- */
+/* ---- 配电遥测详情弹窗 ---- */
 const boxDetailVisible = ref(false);
 const boxDetailRecord = ref<any>(null);
 interface BoxTelemetryHistoryItem {
@@ -1224,8 +1462,8 @@ const BOX_FIELDS = [
   { key: 'currentB', label: 'B相电流', unit: 'A' },
   { key: 'currentC', label: 'C相电流', unit: 'A' },
   { key: 'activePower', label: '有功功率', unit: 'kW' },
-  { key: 'reactivePower', label: '无功功率', unit: 'kVar' },
-  { key: 'apparentPower', label: '现在功率', unit: 'kVA' },
+  { key: 'reactivePower', label: '无功功率', unit: 'kW' },
+  { key: 'apparentPower', label: '视在功率', unit: 'kW' },
   { key: 'powerFactor', label: '功率因数', unit: '' },
   { key: 'totalEnergy', label: '累积电量', unit: 'kWh' },
 ];
@@ -1331,12 +1569,14 @@ onMounted(() => {
   loadProportion();
   loadTrend();
   loadSummary();
-  // 初始化拉取区间查询（表底抄表记录）
+  // 初始化拉取 电量统计（表底抄表记录）
   loadMeterReads();
-  // 初始化拉取箱子遥测列表
+  // 初始化拉取配电遥测列表
   loadBoxTelemetry();
   // 初始化区域下拉选项（全部区域）
   loadRegionOptions();
+  // 绑定配电遥测表格内容滚动监听，与顶部横向滚动条保持同步
+  nextTick(bindBoxTableContent);
 });
 
 onUnmounted(() => {
@@ -1347,6 +1587,7 @@ onUnmounted(() => {
   pieChart = null;
   trendChart = null;
   window.removeEventListener('resize', handleResize);
+  bindBoxTableContentScroll?.();
 });
 </script>
 
@@ -1387,6 +1628,45 @@ onUnmounted(() => {
   background: rgba(0, 212, 255, 0.8);
 }
 
+/* ---------- 顶部 Tab 导航 ---------- */
+.tab-nav {
+  display: flex;
+  flex-shrink: 0;
+  gap: 0;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.tab-item {
+  position: relative;
+  padding: 10px 20px;
+  background: transparent;
+  border: none;
+  color: var(--text2);
+  font-size: 14px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.tab-item:hover {
+  color: var(--text);
+}
+
+.tab-item.active {
+  color: var(--primary);
+  font-weight: 500;
+}
+
+.tab-item.active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 100%;
+  height: 2px;
+  background: var(--primary);
+}
+
 /* ---------- 顶部工具栏 ---------- */
 .toolbar {
   display: flex;
@@ -1398,6 +1678,19 @@ onUnmounted(() => {
   padding: 12px 16px;
   margin-bottom: 16px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.toolbar-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #f1f5f9;
+  white-space: nowrap;
 }
 
 .stat-type :deep(.ant-radio-wrapper) {
@@ -1502,7 +1795,7 @@ onUnmounted(() => {
   height: 320px;
 }
 
-/* ---------- 汇总表 / 区间查询 Tabs ---------- */
+/* ---------- 汇总表 /  电量统计 Tabs ---------- */
 .summary-tabs :deep(.ant-tabs-nav) {
   margin-bottom: 4px;
 }
@@ -1545,7 +1838,7 @@ onUnmounted(() => {
   color: var(--text2);
 }
 
-/* ---------- 区间查询 ---------- */
+/* ----------  电量统计 ---------- */
 .range-filter-bar {
   display: flex;
   flex-wrap: wrap;
@@ -1666,7 +1959,7 @@ onUnmounted(() => {
   background: transparent !important;
 }
 
-/* 区间查询表格加载中：spinner 使用主题青色 */
+/*  电量统计表格加载中：spinner 使用主题青色 */
 .summary-table :deep(.ant-spin) {
   color: #38bdf8;
 }
@@ -1687,7 +1980,7 @@ onUnmounted(() => {
   background: #2c3952 !important;
 }
 
-/* 箱子遥测表格：顶部横向滚动条（与底部滚动条同步） */
+/* 配电遥测表格：顶部横向滚动条（与表格底部自带滚动条样式一致） */
 .table-hscroll-bar {
   overflow-x: auto;
   overflow-y: hidden;
@@ -1696,6 +1989,9 @@ onUnmounted(() => {
 }
 .table-hscroll-bar::-webkit-scrollbar {
   height: 8px;
+}
+.table-hscroll-bar::-webkit-scrollbar-track {
+  background: transparent;
 }
 .table-hscroll-bar::-webkit-scrollbar-thumb {
   background: var(--border);
@@ -1707,12 +2003,7 @@ onUnmounted(() => {
   width: 2520px;
   height: 1px;
 }
-.table-hscroll-bar-bottom {
-  margin-top: 4px;
-  margin-bottom: 0;
-}
-
-/* 箱子遥测统计值统计 */
+/* 配电遥测统计值统计 */
 .box-avg-wrapper {
   margin-top: 16px;
 }
@@ -1784,7 +2075,11 @@ onUnmounted(() => {
   padding: 12px 16px;
   margin-bottom: 16px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-}.theme-white .stat-type :deep(.ant-radio-wrapper) {
+}
+.theme-white .toolbar-title {
+  color: #303133;
+}
+.theme-white .stat-type :deep(.ant-radio-wrapper) {
   font-size: 14px;
   margin-right: 20px;
   color: var(--text2);
@@ -1918,7 +2213,7 @@ onUnmounted(() => {
   color: #303133;
 }.theme-white .ratio-text.has-children {
   color: var(--primary);
-}.theme-white /* ---------- 汇总表 / 区间查询 Tabs ---------- */
+}.theme-white /* ---------- 汇总表 /  电量统计 Tabs ---------- */
 .summary-tabs :deep(.ant-tabs-nav::before) {
   border-bottom: 1px solid #e4e7ed;
 }.theme-white .summary-tabs :deep(.ant-tabs-tab) {
@@ -1929,7 +2224,7 @@ onUnmounted(() => {
   color: #1890ff;
 }.theme-white .summary-tabs :deep(.ant-tabs-ink-bar) {
   background: #1890ff;
-}.theme-white /* ---------- 区间查询查询条件（第一行） ---------- */
+}.theme-white /* ----------  电量统计查询条件（第一行） ---------- */
 .range-filter-bar :deep(.ant-input-affix-wrapper),
 .theme-white .range-filter-bar :deep(.ant-input),
 .theme-white .range-filter-bar :deep(.ant-select-selector),
@@ -1960,7 +2255,7 @@ onUnmounted(() => {
 </style>
 
 <style lang="less">
-/* ==================== 箱子遥测详情弹窗（参照回路列表弹窗风格） ==================== */
+/* ==================== 配电遥测详情弹窗（参照回路列表弹窗风格） ==================== */
 .box-telemetry-modal {
   background: rgba(2, 8, 23, 0.78) !important;
   backdrop-filter: blur(2px);
@@ -2104,7 +2399,7 @@ onUnmounted(() => {
     color: #7fa6d4;
   }
   .time-input {
-    width: 170px;
+    width: 200px;
   }
   .chart-type-radio {
     margin-left: auto;
@@ -2334,6 +2629,9 @@ onUnmounted(() => {
       font-weight: 600;
     }
   }
+  .ant-tabs-nav-more {
+    color: #e2e8f0 !important;
+  }
   .ant-tabs-ink-bar {
     background: #00d4ff !important;
   }
@@ -2405,7 +2703,7 @@ onUnmounted(() => {
 </style>
 
 <style lang="less">
-/* ==================== 箱子遥测详情弹窗（白色主题覆盖） ==================== */
+/* ==================== 配电遥测详情弹窗（白色主题覆盖） ==================== */
 .theme-white .box-telemetry-modal {
   background: rgba(0, 0, 0, 0.45) !important;
   backdrop-filter: blur(2px);
@@ -2646,6 +2944,9 @@ onUnmounted(() => {
       font-weight: 600;
     }
   }
+  .ant-tabs-nav-more {
+    color: #606266 !important;
+  }
   .ant-tabs-ink-bar {
     background: #1890ff !important;
   }
@@ -2730,4 +3031,53 @@ onUnmounted(() => {
   background: rgba(24, 144, 255, 0.12) !important;
   color: #1890ff !important;
 }
+
+/* ====================  电量统计详情弹窗（抄表明细表格，主题兜底） ==================== */
+.box-telemetry-modal .range-detail-table .ant-table,
+.box-telemetry-modal .range-detail-table .ant-table-container,
+.box-telemetry-modal .range-detail-table .ant-table-content,
+.box-telemetry-modal .range-detail-table .ant-table-cell {
+  background: transparent !important;
+  color: #e2e8f0;
+  font-size: 13px;
+}
+.box-telemetry-modal .range-detail-table .ant-table-thead > tr > th {
+  background: #16233a !important;
+  color: #94a3b8 !important;
+  font-weight: 600;
+  border-bottom: 1px solid rgba(51, 65, 85, 0.6) !important;
+}
+.box-telemetry-modal .range-detail-table .ant-table-thead > tr > th::before {
+  display: none !important;
+}
+.box-telemetry-modal .range-detail-table .ant-table-tbody > tr > td {
+  background: transparent !important;
+  color: #e2e8f0;
+  border-top: 1px solid rgba(51, 65, 85, 0.18) !important;
+  border-bottom: none !important;
+}
+.box-telemetry-modal .range-detail-table .ant-table-tbody > tr:hover > td {
+  background: rgba(14, 165, 233, 0.1) !important;
+}
+.box-telemetry-modal .range-detail-table .ant-table-placeholder {
+  background: transparent !important;
+}
+.box-telemetry-modal .range-detail-table .ant-spin {
+  color: #38bdf8;
+}
+
+/*  电量统计详情弹窗（白色主题覆盖） */
+.theme-white .box-telemetry-modal .range-detail-table .ant-table-thead > tr > th {
+  background: #f5f7fa !important;
+  color: #606266 !important;
+  border-bottom: 1px solid #e4e7ed !important;
+}
+.theme-white .box-telemetry-modal .range-detail-table .ant-table-tbody > tr > td {
+  color: #303133;
+  border-top: 1px solid #ebeef5 !important;
+}
+.theme-white .box-telemetry-modal .range-detail-table .ant-table-tbody > tr:hover > td {
+  background: rgba(24, 144, 255, 0.05) !important;
+}
+
 </style>

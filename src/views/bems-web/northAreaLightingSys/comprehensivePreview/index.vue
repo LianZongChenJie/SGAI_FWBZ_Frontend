@@ -55,20 +55,30 @@
         <div ref="mapCardRef" class="card card-fill" :class="{ 'map-fullscreen': isMapFullscreen }">
           <div class="card-title-row">
             <div class="card-title">🗺️ 地图模式 - 北区照明地块分布</div>
-            <button
-              class="map-fullscreen-btn"
-              :class="{ 'is-fullscreen': isMapFullscreen }"
-              :title="isMapFullscreen ? '退出全屏（Esc）' : '全屏展示（Esc 退出）'"
-              @click="toggleMapFullscreen"
-            >
-              <svg v-if="!isMapFullscreen" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
-              </svg>
-              <svg v-else viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                <path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/>
-              </svg>
-              <span class="btn-text">{{ isMapFullscreen ? '退出全屏' : '全屏' }}</span>
-            </button>
+            <div class="map-title-actions">
+              <!-- 刷新按钮：重建灯光标点并重新拉取回路数据刷新亮灭状态（同点击详情模式进入时的刷新逻辑） -->
+              <button class="map-fullscreen-btn" title="刷新地图灯光信息与状态" @click="handleRefreshMap">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="23 4 23 10 17 10"/>
+                  <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+                </svg>
+                <span class="btn-text">刷新</span>
+              </button>
+              <button
+                class="map-fullscreen-btn"
+                :class="{ 'is-fullscreen': isMapFullscreen }"
+                :title="isMapFullscreen ? '退出全屏（Esc）' : '全屏展示（Esc 退出）'"
+                @click="toggleMapFullscreen"
+              >
+                <svg v-if="!isMapFullscreen" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                  <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+                </svg>
+                <svg v-else viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                  <path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/>
+                </svg>
+                <span class="btn-text">{{ isMapFullscreen ? '退出全屏' : '全屏' }}</span>
+              </button>
+            </div>
           </div>
           <div class="map-shell">
             <MapView ref="mapViewRef" @light-marker-single-click="onLightMarkerSingleClick" @space-marker-click="onSpaceMarkerClick" />
@@ -144,7 +154,7 @@
                 <td>
                   <button v-auth="'northAreaLighting:switch'" class="btn btn-sm btn-success" style="padding: 0.04rem 0.12rem; font-size: 0.12rem" @click="handleControlOn(item)">开</button>
                   <button v-auth="'northAreaLighting:switch'" class="btn btn-sm btn-danger" style="margin-left: 0.06rem; padding: 0.04rem 0.12rem; font-size: 0.12rem" @click="handleControlOff(item)">关</button>
-                  <button class="btn btn-sm btn-primary" style="margin-left: 0.06rem; padding: 0.04rem 0.12rem; font-size: 0.12rem" @click.stop="openVideoModal(item)">监控视频</button>
+                  <button class="btn btn-sm btn-primary" style="margin-left: 0.06rem; padding: 0.04rem 0.12rem; font-size: 0.12rem" @click.stop="openTableVideoModal(item)">监控视频</button>
                 </td>
               </tr>
             </tbody>
@@ -707,6 +717,9 @@
       </div>
     </a-modal>
 
+    <!-- 监控视频弹框（表单模式"地块运行状态"行点击，样式与 baseSettingBqZm 基础信息管理页监控视频弹窗一致） -->
+    <VideoMonitorModal ref="videoMonitorModalRef" />
+
     <!-- 地块回路弹框（地块模式点击"详情"菜单打开：回路列表，参照 bigGis space-modal；挂载策略与其他弹框一致） -->
     <a-modal
       v-model:open="detailModalVisible"
@@ -1019,6 +1032,8 @@ onBeforeUnmount(() => {
   import VideoPlayer from '../equipmentMonitoring/components/VideoPlayer.vue';
   import CalendarEventDetailModal from '../equipmentMonitoring/components/CalendarEventDetailModal.vue';
   import SceneDetailModal from '../bigGis/components/SceneDetailModal.vue';
+  // 监控视频弹窗（表单模式"地块运行状态"行按钮使用，样式与 baseSettingBqZm 基础信息管理页一致）
+  import VideoMonitorModal from './components/VideoMonitorModal.vue';
 
   // 大屏自适应：动态 rem 基准（1rem = 100px @1920），样式统一 rem + flex + vw/vh
   useScreenScale();
@@ -1563,6 +1578,27 @@ onBeforeUnmount(() => {
     }
   }
 
+  /** 地图刷新：按当前激活的模式刷新对应数据——
+   *  1. 详情模式激活：重建灯光标点并重新拉取回路数据刷新亮灭状态（等同再次进入详情模式）
+   *  2. 地块模式激活：重绘地块标点并重新请求场景数据刷新状态（等同再次进入地块模式）
+   *  3. 两种模式均未激活：不做任何操作 */
+  function handleRefreshMap() {
+    if (activeMode.value === 'detail') {
+      closeSpaceMenu();
+      mapViewRef.value?.clearAllDrawings?.();
+      mapViewRef.value?.AddLightingMarker?.();
+    } else if (activeMode.value === 'area') {
+      closeSpaceMenu();
+      mapViewRef.value?.clearAllDrawings?.();
+      mapViewRef.value?.drawAllSpacesExceptNorth?.();
+      // 标点创建后立即用已缓存的地块状态点亮/熄灭（避免数据先于标点加载完成导致更新丢失）
+      applyAllSpaceMarkerStates();
+      // 批量请求所有地块的场景数据，请求完成后按回路状态更新标点亮/灭
+      fetchAllSpaceSceneData();
+    }
+    // 详情模式与地块模式均未激活：不做任何操作
+  }
+
   // ==================== 地块功能浮层（地块模式点击灯光图标弹出，参考 bigGis space-menu） ====================
   const spaceMenu = ref<{ visible: boolean; x: number; y: number; spaceName: string }>({
     visible: false,
@@ -1675,6 +1711,29 @@ onBeforeUnmount(() => {
       return;
     }
     await loadSpaceVideoList(spaceName);
+  }
+
+  /** 监控视频弹窗 ref（表单模式"地块运行状态"行点击，样式与 baseSettingBqZm 基础信息管理页一致） */
+  const videoMonitorModalRef = ref<InstanceType<typeof VideoMonitorModal> | null>(null);
+
+  /** 表单模式"地块运行状态"行点击"监控视频"：用行数据 monitorAdr 打开单视频弹窗（样式与 baseSettingBqZm 一致）；
+   *  无 monitorAdr 时回退按地块查视频列表取第一条播放 */
+  async function openTableVideoModal(item: any) {
+    const spaceName = item?.spaceName || '';
+    const raw = item?.monitorAdr;
+    if (raw) {
+      // 兼容：monitorAdr 可能是完整播放链接（http 开头，直接使用）或监控通道编码（需拼平台前缀）
+      const adr = /^https?:\/\//i.test(String(raw)) ? String(raw) : MONITOR_BASE_URL + raw;
+      videoMonitorModalRef.value?.showModal({ monitorName: spaceName, monitorAdr: adr });
+      return;
+    }
+    // 行无 monitorAdr：回退按地块 id 查视频列表，取第一条地址播放
+    await loadSpaceVideoList(spaceName);
+    const first = spaceVideoList.value[0];
+    videoMonitorModalRef.value?.showModal({
+      monitorName: first?.videoName || spaceName,
+      monitorAdr: getVideoPlayUrl(first),
+    });
   }
 
   /** 打开地块回路弹框（先展示弹框再加载数据，与 bigGis openSpaceDetailModal 一致） */
@@ -2931,6 +2990,378 @@ onBeforeUnmount(() => {
 
 <style lang="less">
   @import './index.less';
+
+/* ==================== 定时启用弹框（TimerEnableModal）全局 Modal 覆盖，由本页承载 ==================== */
+/* 遮罩层 */
+body .timer-enable-modal {
+  background: rgba(2, 8, 23, 0.78) !important;
+  backdrop-filter: blur(2px);
+
+  /* ---- 弹框主体 ---- */
+  .ant-modal-content {
+    position: relative;
+    background: linear-gradient(180deg, #143358 0%, #0f2845 100%) !important;
+    border-radius: 6px !important;
+    border: none !important;
+    box-shadow:
+      0 0 0 1px rgba(0, 212, 255, 0.45),
+      0 0 24px rgba(0, 212, 255, 0.25),
+      0 0 60px rgba(0, 212, 255, 0.10),
+      0 12px 40px rgba(0, 0, 0, 0.7) !important;
+    overflow: visible !important;
+  }
+
+  /* 渐变描边（关键发光边框） */
+  .ant-modal-content::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: 7px;
+    padding: 1px;
+    background: linear-gradient(135deg,
+      rgba(0, 212, 255, 0.95) 0%,
+      rgba(0, 212, 255, 0.25) 35%,
+      rgba(77, 159, 255, 0.55) 65%,
+      rgba(0, 255, 209, 0.85) 100%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* 四角 L 型装饰 */
+  .ant-modal-content::after {
+    content: "";
+    position: absolute;
+    inset: -4px;
+    pointer-events: none;
+    z-index: 2;
+    background:
+      /* TL */ linear-gradient(#00d4ff, #00d4ff) top left / 18px 2px no-repeat,
+                linear-gradient(#00d4ff, #00d4ff) top left / 2px 18px no-repeat,
+      /* TR */ linear-gradient(#00d4ff, #00d4ff) top right / 18px 2px no-repeat,
+                linear-gradient(#00d4ff, #00d4ff) top right / 2px 18px no-repeat,
+      /* BL */ linear-gradient(#00d4ff, #00d4ff) bottom left / 18px 2px no-repeat,
+                linear-gradient(#00d4ff, #00d4ff) bottom left / 2px 18px no-repeat,
+      /* BR */ linear-gradient(#00d4ff, #00d4ff) bottom right / 18px 2px no-repeat,
+                linear-gradient(#00d4ff, #00d4ff) bottom right / 2px 18px no-repeat;
+    filter: drop-shadow(0 0 6px rgba(0, 212, 255, 0.35));
+  }
+
+  /* ---- 头部 ---- */
+  .ant-modal-header {
+    padding: 18px 24px !important;
+    background: linear-gradient(90deg, rgba(0, 212, 255, 0.08) 0%, transparent 100%) !important;
+    border-bottom: 1px solid rgba(0, 212, 255, 0.20) !important;
+    border-radius: 6px 6px 0 0 !important;
+  }
+
+  /* 标题前小竖条（科技标识） */
+  .ant-modal-title {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    color: #e6f4ff !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif !important;
+    letter-spacing: 1px !important;
+  }
+
+  .ant-modal-title::before {
+    content: "";
+    display: block;
+    width: 4px;
+    height: 16px;
+    background: linear-gradient(180deg, #00d4ff, #00ffd1);
+    box-shadow: 0 0 8px rgba(0, 212, 255, 0.35);
+    border-radius: 1px;
+    flex-shrink: 0;
+  }
+
+  /* ---- 关闭按钮（科技感，hover 旋转 90°） ---- */
+  .ant-modal-close {
+    width: 28px !important;
+    height: 28px !important;
+    border-radius: 4px !important;
+    background: rgba(0, 212, 255, 0.04) !important;
+    border: 1px solid rgba(0, 212, 255, 0.15) !important;
+    transition: all 0.25s !important;
+    top: 14px !important;
+    right: 16px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    &:hover {
+      background: rgba(0, 212, 255, 0.12) !important;
+      border-color: #00d4ff !important;
+      transform: rotate(90deg);
+    }
+  }
+
+  .ant-modal-close-x {
+    color: #7fa6d4 !important;
+    line-height: 28px !important;
+  }
+
+  /* ---- 内容区 ---- */
+  .ant-modal-body {
+    padding: 24px !important;
+    background: linear-gradient(180deg, #143358 0%, #0f2845 100%) !important;
+    color: #c9dfff;
+  }
+
+  /* ---- 底部 ---- */
+  .ant-modal-footer {
+    display: none !important;
+  }
+
+  /* ==================== 表单覆盖 ==================== */
+  .dark-form {
+    margin-bottom: 10px;
+
+    .ant-form-item {
+      width: 100% !important;
+      margin-right: 0;
+      margin-bottom: 16px !important;
+    }
+
+    .ant-form-item-row {
+      width: 100% !important;
+    }
+
+    .ant-form-item-control {
+      flex: 1 1 0 !important;
+      min-width: 0 !important;
+      max-width: 100% !important;
+    }
+
+    .ant-form-item-control-input {
+      width: 100% !important;
+    }
+
+    .ant-form-item-control-input-content {
+      width: 100% !important;
+    }
+
+    .ant-form-item-label > label {
+      color: #8fa3bf !important;
+      font-size: 13px !important;
+      font-weight: 400 !important;
+    }
+
+    .ant-form-item-label > label.ant-form-item-required::before {
+      color: #ff4d4f !important;
+    }
+
+    /* RangePicker */
+    .ant-picker {
+      background: #1b2533 !important;
+      border: 1px solid #303d50 !important;
+      border-radius: 4px !important;
+      width: 100%;
+      min-height: 36px !important;
+      transition: all 0.2s !important;
+
+      &:hover {
+        border-color: #00d4ff !important;
+      }
+
+      &.ant-picker-focused {
+        border-color: #00d4ff !important;
+        box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.15), inset 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+      }
+
+      .ant-picker-input > input {
+        color: #ffffff !important;
+        font-size: 12px !important;
+
+        &::placeholder {
+          color: #5a6a80 !important;
+        }
+      }
+
+      .ant-picker-suffix {
+        color: #5a6a80 !important;
+      }
+
+      .ant-picker-clear {
+        background: #1b2533 !important;
+        color: #5a6a80 !important;
+      }
+
+      .ant-picker-separator {
+        color: #5a6a80 !important;
+      }
+    }
+
+    /* Checkbox 深色适配 */
+    .ant-checkbox-wrapper {
+      color: #c0c8d4 !important;
+      font-size: 13px !important;
+      margin-right: 16px !important;
+      margin-bottom: 4px !important;
+    }
+
+    .ant-checkbox-inner {
+      background: #1b2533 !important;
+      border-color: #303d50 !important;
+    }
+
+    .ant-checkbox-checked .ant-checkbox-inner {
+      background: linear-gradient(135deg, #00d4ff, #0088cc) !important;
+      border-color: #00d4ff !important;
+      box-shadow: 0 0 6px rgba(0, 212, 255, 0.3);
+    }
+
+    .ant-checkbox-wrapper:hover .ant-checkbox-inner {
+      border-color: #00d4ff !important;
+    }
+
+    .ant-checkbox-input:focus + .ant-checkbox-inner {
+      border-color: #00d4ff !important;
+    }
+
+    /* 校验 */
+    .ant-form-item-explain-error {
+      font-size: 12px !important;
+      color: #ff4d4f !important;
+    }
+
+    .ant-form-item-has-error .ant-picker {
+      border-color: #ff4d4f !important;
+    }
+  }
+}
+
+/* ==================== DatePicker/TimePicker 下拉面板（深色） ==================== */
+.ant-picker-dropdown {
+  .ant-picker-panel-container {
+    background: #1b2533 !important;
+    border: 1px solid #303d50 !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5) !important;
+    border-radius: 4px !important;
+
+    .ant-picker-header {
+      border-bottom-color: #303d50 !important;
+    }
+
+    .ant-picker-header button {
+      color: #a0aabf !important;
+
+      &:hover {
+        color: #00d4ff !important;
+      }
+    }
+
+    .ant-picker-body th,
+    .ant-picker-content th {
+      color: #5a6a80 !important;
+    }
+
+    .ant-picker-cell {
+      color: #c0c8d4 !important;
+    }
+
+    .ant-picker-cell-in-view {
+      color: #ffffff !important;
+    }
+
+    .ant-picker-cell-selected .ant-picker-cell-inner {
+      background: linear-gradient(135deg, #00d4ff, #0088cc) !important;
+    }
+
+    .ant-picker-cell-today .ant-picker-cell-inner::before {
+      border-color: #00d4ff !important;
+    }
+
+    .ant-picker-cell:hover:not(.ant-picker-cell-selected):not(.ant-picker-cell-range-start):not(.ant-picker-cell-range-end):not(.ant-picker-cell-range-hover-start):not(.ant-picker-cell-range-hover-end) .ant-picker-cell-inner {
+      background: rgba(0, 212, 255, 0.1) !important;
+    }
+
+    .ant-picker-cell-disabled {
+      color: rgba(255, 255, 255, 0.2) !important;
+
+      &::before {
+        background: rgba(255, 255, 255, 0.04) !important;
+      }
+    }
+
+    .ant-picker-footer {
+      border-top-color: #303d50 !important;
+    }
+
+    /* ===== TimePicker 时间列面板 ===== */
+    .ant-picker-time-panel-column {
+      border-right-color: #303d50 !important;
+
+      .ant-picker-time-panel-cell-inner {
+        color: #c0c8d4 !important;
+
+        &:hover {
+          background: rgba(0, 212, 255, 0.12) !important;
+        }
+      }
+
+      .ant-picker-time-panel-cell-selected .ant-picker-time-panel-cell-inner {
+        color: #ffffff !important;
+        background: linear-gradient(135deg, #00d4ff, #0088cc) !important;
+        font-weight: 500 !important;
+      }
+    }
+  }
+
+  /* TimePicker 底部确定按钮 */
+  .ant-picker-ok {
+    .ant-btn-primary {
+      color: #061224 !important;
+      background: linear-gradient(135deg, #00d4ff, #0088cc) !important;
+      border: none !important;
+      font-weight: 600 !important;
+
+      &:hover {
+        background: linear-gradient(135deg, #00b8e6, #0070a8) !important;
+        box-shadow: 0 0 10px rgba(0, 212, 255, 0.35);
+      }
+    }
+  }
+}
+
+/* ==================== Select 下拉面板（深色） ==================== */
+.ant-select-dropdown {
+  background: #1b2533 !important;
+  border: 1px solid #303d50 !important;
+  border-radius: 4px !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5) !important;
+
+  .ant-select-item {
+    color: #c0c8d4 !important;
+    font-size: 12px !important;
+    min-height: 28px !important;
+    line-height: 28px !important;
+    transition: background 0.15s !important;
+
+    &:hover {
+      background: rgba(0, 212, 255, 0.1) !important;
+    }
+  }
+
+  .ant-select-item-option-selected {
+    background: rgba(0, 212, 255, 0.15) !important;
+    color: #00c6ff !important;
+    font-weight: 500 !important;
+  }
+
+  .ant-select-item-option-active {
+    background: rgba(255, 255, 255, 0.04) !important;
+  }
+
+  .ant-select-item-empty {
+    color: #5a6a80 !important;
+  }
+}
 </style>
 
 <!-- ===== 白色主题覆盖层（自动生成）===== -->

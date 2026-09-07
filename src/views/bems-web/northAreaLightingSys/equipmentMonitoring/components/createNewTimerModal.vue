@@ -448,6 +448,10 @@ async function showModal(type: 'add' | 'edit' | 'detail', record?: any) {
     editRecord.value = null;
     // 默认场景
     formData.relType = '场景';
+    // 每次新建都清空缓存，强制重新请求接口以覆盖旧数据
+    circuitCache.value = null;
+    areaCache.value = null;
+    sceneCache.value = null;
     // 表单 + 表格一起进入 loading
     tableLoading.value = true;
     try {
