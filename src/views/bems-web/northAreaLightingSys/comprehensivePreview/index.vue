@@ -1951,7 +1951,8 @@ onBeforeUnmount(() => {
 
   /** 打开灯光详情弹框（一键开关/监控视频），回路数据按 areaId 查询 circuit/listPage */
   async function openLightTabsModal(data: any) {
-    const spaceName = data?.spaceName || '';
+    // 标题展示的地块名取标点数据的 districtName 字段
+    const spaceName = data?.districtName || '';
     const areaId = data?.id;
     // 标点无地块归属或 areaId 时回退到原灯光详情弹窗
     if (!spaceName || !areaId) {

@@ -56,6 +56,11 @@ import {
   getRemainingParkingSpace,
   getOnlineCamera,
   getTotalCamera,
+  getCameraPackageGroup,
+  getAcsDeviceList,
+  getDoorList,
+  getVenueVisitorFlowList,
+  getVenueVisitorFlowTrend,
   getAccessDevice,
   getSystemDocking,
   getOnlineRate,
@@ -101,7 +106,7 @@ import {
   getFlowTrend,
 } from '../venue/flow/index.api';
 import type { PatrolPlan, DaySchedule, VenueItem } from './index.api';
-import type { CountVO, ParkingSpaceStatVO, DeviceTypeStatusVO, StatusCountVO, InterfaceInfo } from './index.api';
+import type { CountVO, ParkingSpaceStatVO, DeviceTypeStatusVO, StatusCountVO, InterfaceInfo, CameraPackageGroup, AcsDeviceListVO, DoorListVO, VenueFlowVO } from './index.api';
 import type { ModalBarData, ModalBarItem, ModalTableData } from './data/modalData';
 
 defineOptions({ name: 'BigscreenPage' });
@@ -679,6 +684,179 @@ async function fetchSecurityData() {
   }
 }
 
+/** 递归统计分组下的摄像头点位数：children 为空则统计自身 videoList，有 children 则递归汇总所有子孙节点的 videoList 数量 */
+function countGroupVideos(group: CameraPackageGroup): number {
+  const children = group.children || [];
+  if (children.length === 0) {
+    return (group.videoList || []).length;
+  }
+  return children.reduce((sum, child) => sum + countGroupVideos(child), 0);
+}
+
+/** 请求摄像头分组树（packageGroup），回填安全防范弹窗-监控点位分布 */
+async function fetchCameraPackageGroup() {
+  try {
+    const res = await getCameraPackageGroup();
+    const groups: CameraPackageGroup[] = res?.result || res?.data || res || [];
+    if (!Array.isArray(groups) || groups.length === 0) return;
+    const securityModal = modalData['security'];
+    if (securityModal?.leftPanel?.type === 'table') {
+      const tableData = securityModal.leftPanel.data as ModalTableData;
+      // name 对应区域，count 为该分组（含所有子孙节点）下的摄像头点位数
+      tableData.rows = groups.map((g: CameraPackageGroup) => ({
+        name: g.name || '--',
+        count: String(countGroupVideos(g)),
+      }));
+    }
+  } catch (error) {
+    console.error('获取摄像头分组数据失败:', error);
+  }
+}
+
+/** 请求门禁控制器设备列表（acsDevice/list），回填安全防范弹窗-控制器列表 */
+async function fetchAcsDeviceList() {
+  try {
+    const res = await getAcsDeviceList({ pageNo: 1, pageSize: 100 });
+    const records: AcsDeviceListVO[] = res?.result?.records || res?.data?.records || res?.records || [];
+    if (!Array.isArray(records)) return;
+    const securityModal = modalData['security'];
+    if (securityModal?.rightPanel?.type === 'table') {
+      const tableData = securityModal.rightPanel.data as ModalTableData;
+      // name 对应设备名称，ip 对应设备IP，regionName 对应区域名称，abnormal 对应在线状态
+      tableData.rows = records.map((item: AcsDeviceListVO) => {
+        const online = item.online === '1';
+        return {
+          name: item.name || '--',
+          ip: item.ip || '--',
+          regionName: item.regionName || '--',
+          abnormal: { text: online ? '在线' : '离线', color: online ? '#4ade80' : '#f87171' },
+        };
+      });
+    }
+  } catch (error) {
+    console.error('获取门禁控制器设备列表失败:', error);
+  }
+}
+
+/** 门状态展示映射（与安全操作台一致）：0-初始状态 1-开门状态 2-关门状态 3-离线状态 */
+const doorStateTextMap: Record<string, { text: string; color: string }> = {
+  '0': { text: '初始状态', color: '#94a3b8' },
+  '1': { text: '开门状态', color: '#4ade80' },
+  '2': { text: '关门状态', color: '#38bdf8' },
+  '3': { text: '离线状态', color: '#f87171' },
+};
+
+/** 请求门禁地点列表（door/list），回填安全防范弹窗-门禁地点列表 */
+async function fetchDoorList() {
+  try {
+    const res = await getDoorList({ pageNo: 1, pageSize: 100 });
+    const records: DoorListVO[] = res?.result?.records || res?.data?.records || res?.records || [];
+    if (!Array.isArray(records)) return;
+    const securityModal = modalData['security'];
+    if (securityModal?.extraTable) {
+      // name 对应门禁地点名称，doorNo 对应门禁地点编号，regionName 对应区域名称，doorState 对应门状态
+      securityModal.extraTable.rows = records.map((item: DoorListVO) => ({
+        name: item.name || '--',
+        doorNo: item.doorNo || '--',
+        regionName: item.regionName || '--',
+        doorState: doorStateTextMap[item.doorState || ''] || { text: '未知', color: '#94a3b8' },
+      }));
+    }
+  } catch (error) {
+    console.error('获取门禁地点列表失败:', error);
+  }
+}
+
+/** 请求各场馆客流统计（venueList），回填会展服务弹窗-各场馆客流分布（venueName→label，todayInCount→value） */
+async function fetchExhibitionVenueFlow() {
+  try {
+    const res = await getVenueVisitorFlowList();
+    const list: VenueFlowVO[] = res?.result || res?.data || res || [];
+    if (!Array.isArray(list) || list.length === 0) return;
+    const exhibitionModal = modalData['exhibition'];
+    const panel = exhibitionModal?.leftPanel;
+    if (panel?.type === 'bar') {
+      const barData = panel.data as ModalBarData;
+      const colorList = ['blue', 'green', 'orange', 'purple'];
+      const counts = list.map((item) => Number(item.todayInCount) || 0);
+      const max = Math.max(...counts, 1);
+      barData.items = list.map((item, idx): ModalBarItem => ({
+        label: item.venueName || `场馆${idx + 1}`,
+        color: colorList[idx % colorList.length],
+        percent: Math.round((counts[idx] / max) * 100),
+        value: `${counts[idx].toLocaleString()}人`,
+      }));
+    }
+  } catch (error) {
+    console.error('获取各场馆客流分布失败:', error);
+  }
+}
+
+/** 请求今日客流趋势（periodType=0），回填会展服务弹窗-今日客流趋势（bars/footer，echarts 折线渲染） */
+async function fetchExhibitionTrend() {
+  try {
+    const res = await getVenueVisitorFlowTrend({ periodType: 0 });
+    if (!res || typeof res !== 'object' || Array.isArray(res)) return;
+    const trend = modalData['exhibition']?.trend;
+    if (!trend) return;
+    // x轴：后端 date（逐时），无则 0-23 时
+    const xAxis: string[] =
+      Array.isArray(res.date) && res.date.length > 0
+        ? res.date.map((d: any) => String(d))
+        : Array.from({ length: 24 }, (_, i) => `${String(i).padStart(2, '0')}:00`);
+    // 解析各场馆逐时客流：date/total 之外的数组字段视为一个场馆系列
+    const skipKeys = new Set(['date', 'total', 'todayInTotal', 'todayInOutTotal']);
+    const colorList = ['#38bdf8', '#f472b6', '#4ade80', '#fbbf24', '#a78bfa', '#fb7185', '#22d3ee', '#a3e635', '#f97316', '#c084fc'];
+    const venueSeries: { name: string; color: string; values: number[] }[] = [];
+    Object.keys(res).forEach((key) => {
+      if (skipKeys.has(key) || !Array.isArray(res[key]) || res[key].length === 0) return;
+      venueSeries.push({
+        name: key,
+        color: colorList[venueSeries.length % colorList.length],
+        values: res[key].map((v: any) => Number(v) || 0),
+      });
+    });
+    // 合计客流：优先 total 字段，否则累加各场馆逐时值
+    let totalValues: number[] = [];
+    if (Array.isArray(res.total) && res.total.length > 0) {
+      totalValues = res.total.map((v: any) => Number(v) || 0);
+    } else if (venueSeries.length > 0) {
+      const len = Math.max(...venueSeries.map((s) => s.values.length));
+      totalValues = Array.from({ length: len }, (_, xi) =>
+        venueSeries.reduce((sum, s) => sum + (Number(s.values[xi]) || 0), 0),
+      );
+    }
+    if (xAxis.length === 0) return;
+    // 组装 series：各场馆各一条曲线；多场馆且存在合计时最后追加"总客流"曲线
+    const allSeries = [...venueSeries];
+    if (venueSeries.length === 0 && totalValues.length > 0) {
+      allSeries.push({ name: '今日客流', color: '#38bdf8', values: totalValues });
+    } else if (venueSeries.length > 1 && totalValues.length > 0) {
+      allSeries.push({ name: '总客流', color: '#38bdf8', values: totalValues });
+    }
+    if (allSeries.length === 0) return;
+    // bars：按各系列最大值的归一化（旧字段，与 echarts 曲线同步）
+    const max = Math.max(...allSeries.flatMap((s) => s.values), 1);
+    trend.bars = xAxis.map((label, xi) => ({
+      height: Math.max(2, Math.round(((totalValues[xi] ?? 0) / max) * 100)),
+      color: '#38bdf8',
+      label,
+      value: totalValues[xi] ?? 0,
+    }));
+    // echarts 折线数据
+    trend.xAxis = xAxis;
+    trend.series = allSeries.map((s) => ({ name: s.name, color: s.color, values: s.values }));
+    // footer：峰值时段与峰值客流（按合计）
+    const peakIdx = totalValues.length ? totalValues.indexOf(Math.max(...totalValues)) : -1;
+    const peakTime = peakIdx >= 0 ? (xAxis[peakIdx] ?? '') : '';
+    const peakVal = peakIdx >= 0 ? (totalValues[peakIdx] ?? 0) : 0;
+    const sumVal = totalValues.reduce((s, v) => s + v, 0);
+    trend.footer = `峰值时段: ${peakTime} (${Number(peakVal).toLocaleString()}人次) | 今日客流合计: ${Number(sumVal).toLocaleString()}人次`;
+  } catch (error) {
+    console.error('获取今日客流趋势失败:', error);
+  }
+}
+
 /** 请求接口状态监控列表，返回记录数组供弹窗使用 */
 async function fetchInterfaceStatusList(): Promise<InterfaceInfo[]> {
   try {
@@ -700,8 +878,12 @@ async function handleOpenModal(key: string) {
     const [records, stats, trend] = await Promise.all([fetchAlarmRecords(), fetchAlarmStatistics(), fetchAlarmTrend()]);
     modalRef.value?.open(key, modalData, records, stats, trend);
   } else if (key === 'exhibition') {
-    // 会展服务弹窗：先请求停车场实时状态再打开
-    await fetchParkingLotStatus();
+    // 会展服务弹窗：请求停车场实时状态、各场馆客流分布、今日客流趋势后打开
+    await Promise.all([fetchParkingLotStatus(), fetchExhibitionVenueFlow(), fetchExhibitionTrend()]);
+    modalRef.value?.open(key, modalData);
+  } else if (key === 'security') {
+    // 安全防范弹窗：请求摄像头分组（监控点位分布）、门禁控制器（控制器列表）、门禁地点（门禁地点列表）后打开
+    await Promise.all([fetchCameraPackageGroup(), fetchAcsDeviceList(), fetchDoorList()]);
     modalRef.value?.open(key, modalData);
   } else if (key === 'kpiPower') {
     // 点今日用电量时请求用电分时、各场馆用电、近7日用电趋势和能耗统计
