@@ -97,15 +97,15 @@
         <span class="eyebrow">DATA INTEGRATION</span><h2>实时数据接入</h2>
         <p>后台按点位编码推送即可；支持单点、数组和对象三种格式。页面也暴露了同名浏览器接口，便于二次集成。</p>
         <pre>POST /api/energy-station/points
-Content-Type: application/json
+            Content-Type: application/json
 
-{
-  "points": {
-    "distributed.station.totalPower": 486.6,
-    "distributed.east.unit.1.running": true,
-    "distributed.east.unit.1.load": { "value": 68, "quality": "good" }
-  }
-}</pre>
+            {
+              "points": {
+                "distributed.station.totalPower": 486.6,
+                "distributed.east.unit.1.running": true,
+                "distributed.east.unit.1.load": { "value": 68, "quality": "good" }
+              }
+            }</pre>
         <div class="api-notes"><span><b>WebSocket</b><small>订阅 /ws，消息类型 energy-points</small></span><span><b>浏览器调用</b><small>window.EnergyStation.updatePoints(...)</small></span><span><b>设备动效</b><small>POST /api/energy-station/device-motion</small></span><span><b>打开面板</b><small>window.EnergyStation.openDevicePanel(id)</small></span></div>
         <button class="primary-button" @click="copyExample">{{ copied ? '已复制示例' : '复制请求示例' }}</button>
       </div>

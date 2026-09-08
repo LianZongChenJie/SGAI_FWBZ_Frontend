@@ -65,14 +65,14 @@ export const leftPanels: PanelData[] = [
     accent: '#f87171',
     title: '🛡️ 韧性安全',
     metricCards: [
-      { icon: '📋', value: '8', valueColor: '#38bdf8', label: '应急预案' },
-      { icon: '✅', value: '95%', valueColor: '#4ade80', label: '巡检完成率' },
+      { icon: '📋', value: '8', valueColor: '#38bdf8', label: '摄像头总数' },
+      { icon: '✅', value: '95%', valueColor: '#4ade80', label: '门禁控制器总数' },
     ],
     metricRows: [
-      { label: '当前在场人数', value: '1', valueClass: 'red', unit: '人' },
-      { label: '在场车辆/总车位', value: '98.2/100', valueClass: 'green', unit: '' },
-      { label: '今日巡检完成', value: '142', valueClass: 'blue', unit: '项' },
-      { label: '在线摄像头/总数', value: '96/100', valueClass: 'blue', unit: '' },
+      { label: '在线摄像头', value: '1', valueClass: 'red', unit: '' },
+      { label: '在线门禁控制器', value: '142', valueClass: 'blue', unit: '' },
+      { label: '门禁通道总数', value: '96/100', valueClass: 'blue', unit: '' },
+      { label: '在线门禁通道', value: '98.2/100', valueClass: 'green', unit: '' },
     ],
   },
   {
@@ -129,14 +129,14 @@ export const rightPanels: PanelData[] = [
     accent: '#4ade80',
     title: '🌿 节能低碳',
     metricCards: [
-      { icon: '⚡', value: '42,156', valueColor: '#38bdf8', label: '用电kWh' },
-      { icon: '💧', value: '856', valueColor: '#38bdf8', label: '用水m³' },
+      { icon: '⚡', value: '42,156', valueColor: '#38bdf8', label: '用电' },
+      { icon: '💧', value: '856', valueColor: '#38bdf8', label: '平均能耗' },
     ],
     metricRows: [
-      { label: '光伏发电', value: '2,450', valueClass: 'green', unit: 'kW' },
-      { label: '空调机组能耗', value: '156,780', valueClass: 'green', unit: 'kWh' },
-      { label: '新风机组能耗', value: '23.5', valueClass: 'green', unit: '%' },
-      { label: '配电系统能耗', value: '89.6', valueClass: 'green', unit: '吨' },
+      { label: '平均PM2.5', value: '--', valueClass: 'green', unit: '' },
+      { label: '空调机组能耗', value: '156,780', valueClass: 'green', unit: '' },
+      { label: '新风机组能耗', value: '23.5', valueClass: 'green', unit: '' },
+      { label: '配电系统能耗', value: '89.6', valueClass: 'green', unit: '' },
     ],
   },
   {
@@ -190,8 +190,8 @@ export const rightPanels: PanelData[] = [
 export const kpiData: KpiData[] = [
   { key: 'kpiPower', icon: '⚡', number: 42156, label: '今日用电量 kWh' },
   { key: 'kpiPeople', icon: '👥', number: 12580, label: '今日客流 人次' },
-  { key: 'kpiSave', icon: '🌿', number: 156780, label: '累计节能 kWh' },
-  { key: 'kpiCarbon', icon: '🌍', number: 89.6, label: '碳减排 吨CO₂' },
+  { key: 'kpiPeople', icon: '👤', number: 3420, label: '当前在馆 人次' },
+  { key: 'kpiPeople', icon: '📊', number: 6800, label: '峰值人数' },
 ];
 
 // ===== 跑马灯数据（初始占位，由接口数据覆盖）=====

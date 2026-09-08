@@ -210,12 +210,12 @@ const handleDeviceTableExport = async () => {
   try {
     const sp = searchForm;
     const res = await defHttp.get({
-      url: '/fwbz/deviceData/deviceExport',
+      url: '/sgai-fwbz-dev/fwbz/deviceData/deviceExport',
       params: {
         deviceName: sp.deviceName || undefined,
         remark: sp.remark || undefined,
         runState: sp.runState || undefined,
-        categoryIds: currentCategoryKeys.value.length > 0 ? currentCategoryKeys.value.join(',') : undefined,
+        categoryId: sp.categoryId || undefined,
       },
       responseType: 'blob',
     }, { isTransformResponse: false });

@@ -21,8 +21,8 @@
         :icon="EnergyConsumptionIcon"
       />
       <StatCard
-        label="pm2.5"
-        :value="statsData.avgCop"
+        label="平均PM2.5"
+        :value="statsData.avgPm25"
         color="purple"
         :icon="avgCopIcon"
       />
@@ -439,7 +439,7 @@ const statsData = reactive({
   count: 0,
   online: 0,
   energyConsumption: '--',
-  avgCop: '--',
+  avgPm25: '--',
 })
 
 const loadStatistics = async () => {
@@ -454,7 +454,7 @@ const loadStatistics = async () => {
     const res = await getAcUnitStatistics()
     const data = res?.data ?? res ?? {}
     statsData.energyConsumption = data.energyConsumption ?? '--'
-    statsData.avgCop = data.avgCop ?? '--'
+    statsData.avgPm25 = data.avgPm25 ?? '--'
   } catch (e) {
     console.error('获取统计数据失败', e)
   }

@@ -32,30 +32,7 @@
       <!-- 标题栏 + 筛选 -->
       <div class="overview-header">
         <span class="overview-title">🏗️ 设备总览</span>
-        <div class="filter-area">
-          <a-tree-select
-            v-model:value="filterSystem"
-            :tree-data="categoryTreeData"
-            :field-names="{ children: 'children', label: 'title', value: 'key', key: 'key' }"
-            placeholder="设备类型"
-            allow-clear
-            style="width: 200px"
-          />
-
-          <!-- <a-select
-            v-model:value="filterVenue"
-            placeholder="全部场馆"
-            style="width: 140px"
-            allow-clear
-          >
-            <a-select-option value="">全部场馆</a-select-option>
-            <a-select-option value="A馆">A馆</a-select-option>
-            <a-select-option value="B馆">B馆</a-select-option>
-            <a-select-option value="C馆">C馆</a-select-option>
-          </a-select> -->
-
-          <a-button type="primary" @click="handleSearch"><SearchOutlined /> 查询</a-button>
-        </div>
+        
       </div>
 
       <!-- 卡片网格 -->

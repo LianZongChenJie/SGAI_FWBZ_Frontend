@@ -1,6 +1,7 @@
 import { defHttp } from '/@/utils/http/axios';
 
 enum Api {
+  /** 摄像头统计卡片汇总 */
   summary = '/sgai-fwbz-dev/fwbz/securityStatistics/summary',
   /** 巡更计划列表 */
   patrolPlanList = '/sgai-fwbz-dev/fwbz/patrolPlan/list',

@@ -54,6 +54,8 @@ export interface ModalTrend {
   title: string;
   bars: TrendBar[];
   footer: string;
+  /** 图表类型：bar-柱状图，line-折线图 */
+  chartType?: 'bar' | 'line';
   /** 多系列模式：x轴标签 */
   xAxis?: string[];
   /** 多系列模式：各系列数据 */
@@ -82,29 +84,23 @@ export const modalData: Record<string, ModalContent> = {
     title: '🛡️ 韧性安全详情',
     accent: '#f87171',
     stats: [
-      { value: '1', color: '#f87171', label: '当前在场人数' },
-      { value: '98.2/100', color: '#4ade80', label: '在场车辆/总车位' },
-      { value: '142', color: '#38bdf8', label: '今日巡检完成' },
-      { value: '96/100', color: '#38bdf8', label: '在线摄像头/总数' },
+      { value: '1', color: '#f87171', label: '在线摄像头' },
+      { value: '142', color: '#38bdf8', label: '在线门禁控制器' },
+      { value: '96/100', color: '#38bdf8', label: '门禁通道总数' },
+      { value: '98.2/100', color: '#4ade80', label: '在线门禁通道' },
     ],
     leftPanel: {
       type: 'table',
       data: {
-        title: '📋 应急预案状态',
+        title: '📹 视频巡更计划',
         columns: [
-          { title: '预案名称', key: 'name' },
-          { title: '类型', key: 'type', width: 90 },
-          { title: '状态', key: 'status', width: 70 },
-          { title: '最后演练', key: 'date', width: 110 },
+          { title: '计划名称', key: 'planName' },
+          { title: '巡更路线', key: 'patrolRoute' },
+          { title: '执行周期', key: 'executionCycle', width: 90 },
+          { title: '下次执行', key: 'nextExecution', width: 110 },
+          { title: '状态', key: 'status', width: 80 },
         ],
-        rows: [
-          { name: '火灾应急疏散', type: '消防', status: { text: '正常', color: '#4ade80' }, date: '2026-05-20' },
-          { name: '防汛应急预案', type: '自然灾害', status: { text: '正常', color: '#4ade80' }, date: '2026-04-15' },
-          { name: '停电应急响应', type: '设备故障', status: { text: '正常', color: '#4ade80' }, date: '2026-05-10' },
-          { name: '反恐防暴预案', type: '安防', status: { text: '正常', color: '#4ade80' }, date: '2026-03-28' },
-          { name: '疫情防控预案', type: '公共卫生', status: { text: '正常', color: '#4ade80' }, date: '2026-02-20' },
-          { name: '电梯困人救援', type: '设备故障', status: { text: '正常', color: '#4ade80' }, date: '2026-05-25' },
-        ],
+        rows: [],
       },
     },
     rightPanel: {
@@ -114,17 +110,8 @@ export const modalData: Record<string, ModalContent> = {
         columns: [
           { title: '设备类型', key: 'name', width: 120 },
           { title: '总数', key: 'total', width: 60 },
-          { title: '已检', key: 'done', width: 60 },
-          { title: '待检', key: 'pending', width: 60 },
         ],
-        rows: [
-          { name: '配电设施', total: 45, done: 42, pending: 3, abnormal: { text: '0', color: '#4ade80' } },
-          { name: '给排水系统', total: 32, done: 30, pending: 2, abnormal: { text: '0', color: '#4ade80' } },
-          { name: '电梯设备', total: 18, done: 18, pending: 0, abnormal: { text: '0', color: '#4ade80' } },
-          { name: '结构安全', total: 12, done: 11, pending: 1, abnormal: { text: '0', color: '#4ade80' } },
-          { name: '防雷接地', total: 8, done: 8, pending: 0, abnormal: { text: '0', color: '#4ade80' } },
-          { name: '应急物资', total: 25, done: 24, pending: 1, abnormal: { text: '1', color: '#fb923c' } },
-        ],
+        rows: [],
       },
     },
     // trend: {
@@ -258,10 +245,10 @@ export const modalData: Record<string, ModalContent> = {
     title: '🌿 节能低碳详情',
     accent: '#4ade80',
     stats: [
-      { value: '42,156', color: '#38bdf8', label: '今日用电kWh' },
-      { value: '856', color: '#38bdf8', label: '今日用水m³' },
-      { value: '156,780', color: '#4ade80', label: '累计节能kWh' },
-      { value: '89.6', color: '#4ade80', label: '碳减排吨' },
+      { value: '42,156', color: '#38bdf8', label: '用电kWh' },
+      { value: '856', color: '#38bdf8', label: '平均能耗' },
+      { value: '--', color: '#4ade80', label: '平均PM2.5' },
+      { value: '156,780', color: '#4ade80', label: '空调机组能耗' },
     ],
     leftPanel: {
       type: 'bar',
@@ -317,51 +304,29 @@ export const modalData: Record<string, ModalContent> = {
     leftPanel: {
       type: 'table',
       data: {
-        title: '⚙️ 系统运行状态',
+        title: '📅 本周活动排期',
         columns: [
-          { title: '系统', key: 'name' },
-          { title: '运行数', key: 'running', width: 70 },
-          { title: '总数', key: 'total', width: 70 },
-          { title: '负荷', key: 'load', width: 60 },
-          { title: '状态', key: 'status', width: 70 },
+          { title: '日期', key: 'date', width: 100 },
+          { title: '活动名称', key: 'activeName', width: 140 },
+          { title: '时间', key: 'time', width: 120 },
+          { title: '场馆', key: 'venueName', width: 80 },
         ],
-        rows: [
-          { name: '空调机组', running: '86台', total: '92台', load: '78%', status: { text: '正常', color: '#4ade80' } },
-          { name: '新风机组', running: '45台', total: '48台', load: '65%', status: { text: '正常', color: '#4ade80' } },
-          { name: '配电回路', running: '320路', total: '320路', load: '72%', status: { text: '正常', color: '#4ade80' } },
-          { name: '冷源系统', running: '4套', total: '4套', load: '85%', status: { text: '正常', color: '#4ade80' } },
-          { name: '照明回路', running: '1,245路', total: '2,340路', load: '53%', status: { text: '节能', color: '#fb923c' } },
-          { name: '光伏系统', running: '12组', total: '12组', load: '92%', status: { text: '正常', color: '#4ade80' } },
-        ],
+        rows: [],
       },
     },
     rightPanel: {
       type: 'table',
       data: {
-        title: '🌡️ 环境参数',
+        title: '🏢 场馆信息管理',
         columns: [
-          { title: '区域', key: 'name' },
-          { title: '温度', key: 'temp', width: 70 },
-          { title: '湿度', key: 'humidity', width: 60 },
-          { title: 'CO₂', key: 'co2', width: 70 },
-          { title: 'PM2.5', key: 'pm25', width: 60 },
+          { title: '场馆名称', key: 'venueName', width: 90 },
+          { title: '位置', key: 'location', width: 80 },
+          { title: '建筑面积', key: 'area', width: 80 },
+          { title: '楼层', key: 'floors', width: 60 },
+          { title: '层高', key: 'ceilingH', width: 60 },
         ],
-        rows: [
-          { name: 'A馆大厅', temp: '24.5°C', humidity: '55%', co2: '420ppm', pm25: '12μg' },
-          { name: 'B馆展厅', temp: '23.8°C', humidity: '52%', co2: '380ppm', pm25: '15μg' },
-          { name: 'C馆会议', temp: '25.2°C', humidity: '58%', co2: '450ppm', pm25: '10μg' },
-          { name: '会议中心', temp: '24.0°C', humidity: '50%', co2: '360ppm', pm25: '8μg' },
-          { name: '公共区域', temp: '26.0°C', humidity: '60%', co2: '500ppm', pm25: '18μg' },
-        ],
+        rows: [],
       },
-    },
-    trend: {
-      title: '📈 今日系统负荷趋势',
-      bars: [
-        { height: 50, color: '#38bdf8' }, { height: 65, color: '#38bdf8' }, { height: 80, color: '#38bdf8' },
-        { height: 75, color: '#38bdf8' }, { height: 90, color: '#38bdf8' }, { height: 85, color: '#38bdf8' }, { height: 72, color: '#38bdf8' },
-      ],
-      footer: '负荷峰值: 90% (14:00) | 当前负荷: 72% | 预计晚间降至 45%',
     },
   },
 
@@ -531,14 +496,15 @@ export const modalData: Record<string, ModalContent> = {
         ],
       },
     },
-    trend: {
-      title: '📈 近7日用电趋势',
-      bars: [
-        { height: 75, color: '#38bdf8' }, { height: 80, color: '#38bdf8' }, { height: 70, color: '#38bdf8' },
-        { height: 85, color: '#38bdf8' }, { height: 78, color: '#38bdf8' }, { height: 82, color: '#38bdf8' }, { height: 76, color: '#38bdf8' },
-      ],
-      footer: '日均: 38,500 → 42,156 kWh | 本周累计: 285,600 kWh',
-    },
+trend: {
+title: '📈 近7日用电趋势',
+chartType: 'line',
+bars: [
+{ height: 75, color: '#38bdf8' }, { height: 80, color: '#38bdf8' }, { height: 70, color: '#38bdf8' },
+{ height: 85, color: '#38bdf8' }, { height: 78, color: '#38bdf8' }, { height: 82, color: '#38bdf8' }, { height: 76, color: '#38bdf8' },
+],
+footer: '日均: 38,500 → 42,156 kWh | 本周累计: 285,600 kWh',
+},
   },
 
   kpiPeople: {
@@ -546,19 +512,19 @@ export const modalData: Record<string, ModalContent> = {
     accent: '#4ade80',
     stats: [
       { value: '12,580', color: '#38bdf8', label: '今日客流' },
-      { value: '3,420', color: '#fb923c', label: '当前在馆' },
-      { value: '↑15%', color: '#4ade80', label: '环比昨日' },
-      { value: '6,800', color: '#c084fc', label: '峰值人数' },
+      { value: '3,420', color: '#38a169', label: '当前在馆' },
+      { value: '6,800', color: '#dd6b20', label: '峰值人数' },
+      { value: '2.5h', color: '#805ad5', label: '平均在场' },
     ],
     leftPanel: {
       type: 'table',
       data: {
         title: '📊 各时段客流分布',
         columns: [
-          { title: '时段', key: 'time' },
-          { title: '入场', key: 'in', width: 70 },
-          { title: '离场', key: 'out', width: 70 },
-          { title: '净增', key: 'net', width: 80 },
+          { title: '时段', key: 'time', width: 110 },
+          { title: '入场', key: 'in', width: 60 },
+          { title: '离场', key: 'out', width: 60 },
+          { title: '净增', key: 'net', width: 70 },
         ],
         rows: [
           { time: '08:00-09:00', in: '2,340', out: '120', net: { text: '+2,220', color: '#4ade80' } },
@@ -575,10 +541,10 @@ export const modalData: Record<string, ModalContent> = {
       data: {
         title: '🏢 各场馆客流分布',
         columns: [
-          { title: '场馆', key: 'name', width: 90 },
-          { title: '客流', key: 'count', width: 80 },
-          { title: '占比', key: 'ratio', width: 70 },
-          { title: '峰值时段', key: 'peak' },
+          { title: '场馆', key: 'name', width: 80 },
+          { title: '客流', key: 'count', width: 70 },
+          { title: '占比', key: 'ratio', width: 60 },
+          { title: '峰值时段', key: 'peak', width: 100 },
         ],
         rows: [
           { name: 'A馆', count: '5,420', ratio: '43.1%', peak: '10:00-12:00' },
@@ -589,7 +555,8 @@ export const modalData: Record<string, ModalContent> = {
       },
     },
     trend: {
-      title: '📈 近7日客流趋势',
+      title: '📈 本周客流趋势',
+      chartType: 'line',
       bars: [
         { height: 60, color: '#4ade80' }, { height: 72, color: '#4ade80' }, { height: 68, color: '#4ade80' },
         { height: 85, color: '#4ade80' }, { height: 90, color: '#4ade80' }, { height: 95, color: '#4ade80' }, { height: 88, color: '#4ade80' },

@@ -48,7 +48,7 @@
           📋表格
         </a-button>
       </div>
-      <div class="chart-container">
+      <div class="chart-container" :style="{ height: hideSwitch ? '100%' : 'calc(100% - 48px)' }">
         <div v-show="isLine === 'table'" class="table-box">
           <a-table :columns="tableColumns" :data-source="tableData" :pagination="false" bordered tableLayout="fixed" :scroll="{ x: 1500, y: 650 }" />
         </div>

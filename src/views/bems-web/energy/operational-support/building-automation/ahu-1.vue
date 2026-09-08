@@ -335,7 +335,7 @@ main>header h1{margin:0;font-size:16px;font-weight:600;color:#d9eaf3}
 .supply-temp-instrument{left:86%;top:48%;background:#1a6b5a;border-color:#5fd9a0}
 .supply-humidity-instrument{left:86%;top:58%;background:#1a4a5a;border-color:#5fd9d9}
 .pt{position:absolute;z-index:10}
-.fresh-air-temp{left:29%;top:54%}
+.fresh-air-temp{left:31%;top:54%}
 .fresh-air-humidity{left:21%;top:54%}
 .fresh-damper-fb{left:18%;top:33%}
 .return-damper-control{left:28%;top:24%}

@@ -22,9 +22,9 @@
         :icon="EnergyIcon"
       />
       <StatCard
-        label="热回收效率"
-        :value="statsData.efficiency"
-        unit="%"
+        label="平均回风温度"
+        :value="statsData.avgReturnAirTemperature"
+        unit="°C"
         color="purple"
         :icon="EfficiencyIcon"
       />
@@ -311,7 +311,7 @@ const statsData = ref({
   count: '--',
   online: '--',
   energyConsumption: '--',
-  efficiency: '--',
+  avgReturnAirTemperature: '--',
 })
 
 /** 加载汇总统计数据 */
@@ -327,7 +327,7 @@ const loadStatistics = async () => {
     const res = await getHeatRecoveryStatistics()
     const data = res?.data ?? res ?? {}
     statsData.value.energyConsumption = data.energyConsumption ?? '--'
-    statsData.value.efficiency = data.efficiency ?? '--'
+    statsData.value.avgReturnAirTemperature = data.avgReturnAirTemperature ?? '--'
   } catch (e) {
     console.error('获取热回收机组统计数据失败:', e)
   }

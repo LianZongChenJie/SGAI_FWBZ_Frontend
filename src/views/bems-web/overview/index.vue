@@ -76,7 +76,7 @@
       </div>
 
       <!-- 能源结构占比 -->
-      <div class="card">
+      <div class="card structure-card">
         <div class="card-header">
           <h3>🥧 能源结构占比</h3>
           <div class="venue-electricity-tabs">
@@ -1129,6 +1129,17 @@ onMounted(() => {
   }
 }
 
+// 能源结构占比卡片（饼图垂直居中）
+.structure-card {
+  .card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 380px;
+  }
+}
+
 // 能源结构占比饼图
 .structure-chart {
   width: 100%;
@@ -1218,9 +1229,9 @@ onMounted(() => {
     min-height: 120px;
     padding: 22px;
 
-    :deep(.point-data-statistics) {
-      height: calc(100vh - 450px);
-    }
+:deep(.point-data-statistics) {
+height: calc(100vh - 550px);
+}
   }
 }
 </style>

@@ -157,7 +157,7 @@
             </table>
           </div>
 
-          <!-- 趋势柱状图 -->
+          <!-- 趋势图表 -->
           <div v-if="modalContent.trend" class="trend-chart-section">
             <div class="modal-panel-title">{{ modalContent.trend.title }}</div>
             <!-- 多系列图例 -->
@@ -166,7 +166,52 @@
                 <i :style="{ background: s.color }"></i>{{ s.name }}
               </span>
             </div>
-            <div class="trend-bar-chart">
+            <!-- 折线图 -->
+            <div v-if="modalContent.trend.chartType === 'line'" class="trend-line-chart">
+              <!-- 图表行：y轴 + SVG -->
+              <div class="trend-line-chart-row">
+                <!-- y轴 -->
+                <div class="trend-y-axis">
+                  <span v-for="v in yAxisTicks" :key="v">{{ v }}</span>
+                </div>
+                <!-- 图表区域 -->
+                <div
+                  class="trend-chart-area line-chart-hover-area"
+                  @mouseenter="lineChartHover = true"
+                  @mouseleave="lineChartHover = false; lineChartTooltip.show = false"
+                  @mousemove="handleLineChartHover"
+                >
+                  <!-- 网格线 -->
+                  <div class="trend-grid">
+                    <div v-for="(_, i) in yAxisTicks" :key="'g' + i" class="trend-grid-line"></div>
+                  </div>
+                  <!-- SVG 折线 -->
+                  <svg class="trend-line-svg" :viewBox="`0 0 ${chartWidth} ${chartHeight}`" preserveAspectRatio="none">
+                    <polyline
+                      v-for="(s, si) in (modalContent.trend.series || [])"
+                      :key="si"
+                      :points="getLinePoints(s.values)"
+                      fill="none"
+                      :stroke="s.color"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  <!-- hover 提示框 -->
+                  <div v-if="lineChartTooltip.show" class="line-chart-tooltip" :style="{ left: lineChartTooltip.x + 'px', top: lineChartTooltip.y + 'px' }">
+                    <div class="tooltip-label">{{ lineChartTooltip.label }}</div>
+                    <div class="tooltip-value" :style="{ color: lineChartTooltip.color }">{{ lineChartTooltip.value }}</div>
+                  </div>
+                </div>
+              </div>
+              <!-- x轴标签 -->
+              <div class="trend-x-axis">
+                <span v-for="(xl, xi) in modalContent.trend.xAxis" :key="xi">{{ xl }}</span>
+              </div>
+            </div>
+            <!-- 柱状图 -->
+            <div v-else class="trend-bar-chart">
               <!-- y轴 -->
               <div class="trend-y-axis">
                 <span v-for="v in yAxisTicks" :key="v">{{ v }}</span>
@@ -555,6 +600,53 @@ const trendMaxVal = computed(() => {
   if (!series || series.length === 0) return 0;
   return Math.max(...series.flatMap((s) => s.values));
 });
+
+/** 折线图宽度 */
+const chartWidth = 400;
+/** 折线图高度 */
+const chartHeight = 120;
+
+/** 折线图 hover 状态 */
+const lineChartHover = ref(false);
+const lineChartTooltip = ref({ show: false, x: 0, y: 0, label: '', value: '', color: '#4ade80' });
+
+/** 生成折线 SVG points 字符串 */
+function getLinePoints(values: number[]): string {
+  if (!values || values.length === 0) return '';
+  const max = Math.max(...values, 1);
+  const padding = 20;
+  const graphHeight = chartHeight - padding * 2;
+  const stepX = values.length > 1 ? (chartWidth - padding * 2) / (values.length - 1) : 0;
+  return values
+    .map((v, xi) => {
+      const x = padding + xi * stepX;
+      const y = padding + graphHeight - (v / max) * graphHeight;
+      return `${x},${y}`;
+    })
+    .join(' ');
+}
+
+/** 折线图 hover 处理 */
+function handleLineChartHover(event: MouseEvent) {
+  const trend = modalContent.value?.trend;
+  if (!trend || !trend.series || !trend.xAxis) return;
+  const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+  const mouseX = event.clientX - rect.left;
+  const series = trend.series[0];
+  if (!series || series.values.length === 0) return;
+  const stepX = rect.width / (series.values.length - 1 || 1);
+  const idx = Math.round(mouseX / stepX);
+  const clampedIdx = Math.max(0, Math.min(idx, series.values.length - 1));
+  lineChartTooltip.value = {
+    show: true,
+    x: (clampedIdx / (series.values.length - 1 || 1)) * rect.width,
+    y: 10,
+    label: trend.xAxis[clampedIdx] || '',
+    value: String(series.values[clampedIdx] ?? ''),
+    color: series.color,
+  };
+}
+
 </script>
 
 <style scoped>
@@ -774,13 +866,15 @@ const trendMaxVal = computed(() => {
   color: #94a3b8;
 }
 
-/* ===== 趋势柱状图 ===== */
+/* ===== 趋势图表 ===== */
 .trend-chart-section {
-  margin-top: 16px;
+  margin-top: 12px;
   background: rgba(8, 20, 40, 0.5);
   border: 1px solid rgba(56, 189, 248, 0.1);
   border-radius: 6px;
-  padding: 14px;
+  padding: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
 }
 /* 多系列图例 */
 .trend-legend {
@@ -898,6 +992,61 @@ const trendMaxVal = computed(() => {
   white-space: nowrap;
   transform: translateY(100%);
   padding-top: 4px;
+}
+/* 折线图 */
+.trend-line-chart {
+  height: 140px;
+}
+.trend-line-chart-row {
+  display: flex;
+  flex: 1;
+  height: 110px;
+}
+.line-chart-hover-area {
+  cursor: crosshair;
+}
+.line-chart-tooltip {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  background: rgba(10, 25, 50, 0.95);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  border-radius: 4px;
+  padding: 4px 8px;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+.tooltip-label {
+  font-size: 10px;
+  color: #94a3b8;
+  margin-bottom: 2px;
+}
+.tooltip-value {
+  font-size: 12px;
+  font-weight: 600;
+}
+.trend-line-svg {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  z-index: 1;
+}
+.trend-x-axis {
+  display: flex;
+  justify-content: space-around;
+  padding: 0 40px;
+  margin-top: 4px;
+}
+.trend-x-axis span {
+  font-size: 10px;
+  color: #94a3b8;
+  flex: 1;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .trend-footer {
   margin-top: 8px;

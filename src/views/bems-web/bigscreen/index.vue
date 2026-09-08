@@ -89,7 +89,18 @@ import {
   getEnergyStructure,
   getInterfaceStatusList,
   getProtocolTypeList,
+  getSecuritySummary,
+  getAccessControlSummary,
+  getPatrolPlanList,
+  getExhibitionList,
+  getVenueInfoList,
 } from './index.api';
+import {
+  getFlowSummary,
+  getFlowList,
+  getFlowTrend,
+} from '../venue/flow/index.api';
+import type { PatrolPlan, DaySchedule, VenueItem } from './index.api';
 import type { CountVO, ParkingSpaceStatVO, DeviceTypeStatusVO, StatusCountVO, InterfaceInfo } from './index.api';
 import type { ModalBarData, ModalBarItem, ModalTableData } from './data/modalData';
 
@@ -108,6 +119,8 @@ const kpiData = reactive(rawKpiData);
 // KPI 数据索引
 const KPI_POWER_INDEX = 0; // 今日用电量 kWh
 const KPI_PEOPLE_INDEX = 1; // 今日客流 人次
+const KPI_ONSITE_INDEX = 2; // 当前在场 人次
+const KPI_PEAK_INDEX = 3; // 峰值人数
 // KpiBanner 强制重载 key（API 回填后 +1 触发重新动画）
 const kpiKey = ref(0);
 
@@ -154,6 +167,71 @@ const SEC_MONITOR_IDX = 0;          // 监控点位 (metricCards[0])
 const SEC_FIREDEVICE_IDX = 1;       // 消防设备 (metricCards[1])
 const SEC_ALARM_IDX = 0;            // 今日告警 (metricRows[0])
 const SEC_ACCESS_IDX = 1;           // 门禁通行 (metricRows[1])
+
+/** 请求韧性安全摄像头和门禁汇总数据并回填面板和弹窗 */
+async function fetchResilienceSecurityData() {
+  try {
+    const [cameraSummaryRes, accessSummaryRes] = await Promise.all([
+      getSecuritySummary(),
+      getAccessControlSummary(),
+    ]);
+    // 摄像头汇总：StatItem[]，[0]=总数 [1]=在线数
+    const cameraSummary: any[] = Array.isArray(cameraSummaryRes) ? cameraSummaryRes : [];
+    // 门禁汇总：StatItem[]，[0]=控制器总数 [1]=在线控制器 [2]=通道总数 [3]=在线通道
+    const accessSummary: any[] = Array.isArray(accessSummaryRes) ? accessSummaryRes : [];
+
+    // === 回填 metricCards ===
+    // 摄像头总数 (metricCards[0])
+    if (cameraSummary[0]?.value != null) {
+      leftPanels[ROW_ZERO].metricCards[0].value = String(cameraSummary[0].value);
+    }
+    // 门禁控制器总数 (metricCards[1])
+    if (accessSummary[0]?.value != null) {
+      leftPanels[ROW_ZERO].metricCards[1].value = String(accessSummary[0].value);
+    }
+
+    // === 回填 metricRows ===
+    // 在线摄像头 (metricRows[0])
+    if (cameraSummary[1]?.value != null) {
+      leftPanels[ROW_ZERO].metricRows[0].value = String(cameraSummary[1].value);
+    }
+    // 在线门禁控制器 (metricRows[1])
+    if (accessSummary[1]?.value != null) {
+      leftPanels[ROW_ZERO].metricRows[1].value = String(accessSummary[1].value);
+    }
+    // 门禁通道总数 (metricRows[2])
+    if (accessSummary[2]?.value != null) {
+      leftPanels[ROW_ZERO].metricRows[2].value = String(accessSummary[2].value);
+    }
+    // 在线门禁通道 (metricRows[3])
+    if (accessSummary[3]?.value != null) {
+      leftPanels[ROW_ZERO].metricRows[3].value = String(accessSummary[3].value);
+    }
+
+    // === 同步弹窗 stats ===
+    const resilienceModal = modalData['resilience'];
+    if (resilienceModal) {
+      // stats[0] 在线摄像头 → 摄像头汇总[1]
+      if (cameraSummary[1]?.value != null) {
+        resilienceModal.stats[0].value = String(cameraSummary[1].value);
+      }
+      // stats[1] 在线门禁控制器 → 门禁汇总[1]
+      if (accessSummary[1]?.value != null) {
+        resilienceModal.stats[1].value = String(accessSummary[1].value);
+      }
+      // stats[2] 门禁通道总数 → 门禁汇总[2]
+      if (accessSummary[2]?.value != null) {
+        resilienceModal.stats[2].value = String(accessSummary[2].value);
+      }
+      // stats[3] 在线门禁通道 → 门禁汇总[3]
+      if (accessSummary[3]?.value != null) {
+        resilienceModal.stats[3].value = String(accessSummary[3].value);
+      }
+    }
+  } catch (error) {
+    console.error('获取韧性安全汇总数据失败:', error);
+  }
+}
 
 /** 解析 "已完成/未完成" 格式，返回 { completed, uncompleted, total, percent } */
 function parseContext(ctx: string): { completed: number; uncompleted: number; total: number; percent: string } | null {
@@ -332,13 +410,16 @@ async function fetchAirConditioningUnitStatistics() {
   }
 }
 
-/** 初始化时请求新风机组统计，回填右侧面板新风机组能耗 */
+/** 初始化时请求新风机组统计，回填右侧面板新风机组能耗和平均PM2.5 */
 async function fetchFreshAirStatistics() {
   try {
     const res = await getFreshAirStatistics();
     const data = res?.data || res?.result || res;
     if (data?.energyConsumption != null) {
       rightPanels[ENERGY_RIGHT_INDEX].metricRows[FRESH_AIR_ROW].value = String(data.energyConsumption);
+    }
+    if (data?.avgPm25 != null) {
+      rightPanels[ENERGY_RIGHT_INDEX].metricRows[ROW_ZERO].value = String(data.avgPm25);
     }
   } catch (error) {
     console.error('获取新风机组统计失败:', error);
@@ -370,6 +451,34 @@ async function fetchAlarmRecords(): Promise<any[]> {
 }
 
 /** 请求设备状态统计并回填韧性安全弹窗右栏表格 */
+/** 巡更计划状态映射 (0=停用, 1=启动, 2=运行中) */
+const patrolStatusMap: Record<number, { text: string; color: string }> = {
+  0: { text: '停用', color: '#f87171' },
+  1: { text: '启动', color: '#4ade80' },
+  2: { text: '运行中', color: '#38bdf8' },
+};
+
+/** 请求巡更计划列表并回填韧性安全弹窗左栏表格 */
+async function fetchPatrolPlanData() {
+  try {
+    const res = await getPatrolPlanList({ pageNo: 1, pageSize: 10 });
+    const records: PatrolPlan[] = res?.records || res?.data?.records || res?.data || [];
+    const resilienceModal = modalData['resilience'];
+    if (resilienceModal && resilienceModal?.leftPanel?.type === 'table') {
+      const tableData = resilienceModal?.leftPanel?.data as any;
+      tableData.rows = records.map((item: PatrolPlan) => ({
+        planName: item.planName || '--',
+        patrolRoute: item.patrolRoute || '--',
+        executionCycle: item.executionCycle || '--',
+        nextExecution: item.nextExecution || '--',
+        status: patrolStatusMap[item.status] || { text: '未知', color: '#94a3b8' },
+      }));
+    }
+  } catch (error) {
+    console.error('获取巡更计划列表失败:', error);
+  }
+}
+
 async function fetchDeviceStatusStatistics() {
   try {
     const res = await getDeviceStatusStatistics();
@@ -429,11 +538,14 @@ async function fetchVenueData() {
       getPeakFlow(),
       getActivityCount(),
     ]);
-    // 当前在场 (metricCards[0])
+    // 当前在场 (metricCards[0]) → 同步到 KPI 数据并触发动画重载
     const onsiteVal = onsiteRes?.value ?? onsiteRes;
     if (onsiteVal != null) {
       const num = parseInt(onsiteVal, 10) || 0;
       rightPanels[VENUE_INDEX].metricCards[VENUE_ONSITE_IDX].value = String(num);
+      // === 同步 KPI 当前在场 ===
+      kpiData[KPI_ONSITE_INDEX].number = num;
+      kpiKey.value++;
     }
     // 今日活动数 (metricCards[1])
     const activityVal = activityRes?.value ?? activityRes;
@@ -464,13 +576,16 @@ async function fetchVenueData() {
         rightPanels[VENUE_INDEX].metricRows[VENUE_PENDING_IDX].value = displayVal;
         venueModal.stats[1].value = displayVal;
       }
-      // 峰值客流 (metricRows[2]) → stats[2]
+      // 峰值客流 (metricRows[2]) → stats[2] + KPI 峰值人数
       const peakFlowVal = peakFlowRes?.value ?? peakFlowRes;
       if (peakFlowVal != null) {
         const num = parseInt(peakFlowVal, 10) || 0;
         const displayVal = num.toLocaleString();
         rightPanels[VENUE_INDEX].metricRows[2].value = displayVal;
         venueModal.stats[2].value = displayVal;
+        // === 同步 KPI 峰值人数 ===
+        kpiData[KPI_PEAK_INDEX].number = num;
+        kpiKey.value++;
       }
       // 本月活动数 (metricRows[3]) → stats[3]
       const monthlyActivityVal = monthlyActivityRes?.value ?? monthlyActivityRes;
@@ -576,9 +691,9 @@ async function fetchInterfaceStatusList(): Promise<InterfaceInfo[]> {
 }
 
 async function handleOpenModal(key: string) {
-  // 点韧性安全面板时先请求设备状态统计再打开弹窗
+  // 点韧性安全面板时先请求设备状态统计和巡更计划列表再打开弹窗
   if (key === 'resilience') {
-    await fetchDeviceStatusStatistics();
+    await Promise.all([fetchDeviceStatusStatistics(), fetchPatrolPlanData()]);
     modalRef.value?.open(key, modalData);
   } else if (key === 'alarm') {
     // 点故障告警面板时先请求告警记录、统计数据和趋势再打开弹窗
@@ -607,18 +722,103 @@ async function handleOpenModal(key: string) {
       }
     }
     modalRef.value?.open(key, modalData, undefined, undefined, undefined, electricityData, energyStatsData, trendData, venueData);
+  } else if (key === 'kpiPeople') {
+    // 今日客流详情弹窗：请求汇总数据、今日时段分布、各场馆分布、近7日趋势
+    const [summaryData, todayTrendData, venueListData, weekTrendData] = await Promise.all([
+      getFlowSummary(),
+      getFlowTrend({ periodType: 0 }), // 今日
+      getFlowList({ date: new Date().toISOString().split('T')[0] }),
+      getFlowTrend({ periodType: 1 }), // 本周
+    ]);
+    // 填充汇总数据到 stats
+    if (Array.isArray(summaryData) && modalData.kpiPeople) {
+      summaryData.forEach((item: any, index: number) => {
+        if (modalData.kpiPeople!.stats[index]) {
+          modalData.kpiPeople!.stats[index].value = String(item.value || '--');
+        }
+      });
+    }
+    // 填充各时段客流分布到 leftPanel
+    if (todayTrendData && modalData.kpiPeople?.leftPanel?.type === 'table') {
+      const tableData = modalData.kpiPeople.leftPanel.data as ModalTableData;
+      const xAxisData = Array.isArray(todayTrendData.date) ? todayTrendData.date : [];
+      // 找到 total 数据作为各时段净增
+      if (Array.isArray(todayTrendData.total) && xAxisData.length > 0) {
+        tableData.rows = xAxisData.map((time: string, idx: number) => {
+          const total = todayTrendData.total[idx] || 0;
+          const prevTotal = idx > 0 ? todayTrendData.total[idx - 1] || 0 : 0;
+          const net = idx === 0 ? total : total - prevTotal;
+          return {
+            time,
+            in: String(total),
+            out: idx === 0 ? '0' : String(prevTotal),
+            net: { text: (net >= 0 ? '+' : '') + net, color: net >= 0 ? '#4ade80' : '#f87171' },
+          };
+        });
+      }
+    }
+    // 填充各场馆客流分布到 rightPanel
+    if (venueListData && modalData.kpiPeople?.rightPanel?.type === 'table') {
+      const tableData = modalData.kpiPeople.rightPanel.data as ModalTableData;
+      const records = Array.isArray(venueListData) ? venueListData : (venueListData?.records || []);
+      const totalCount = records.reduce((sum: number, item: any) => sum + (item.todayInCount || 0), 0);
+      tableData.rows = records.map((item: any) => {
+        const count = item.todayInCount || 0;
+        const ratio = totalCount > 0 ? ((count / totalCount) * 100).toFixed(1) : '0';
+        return {
+          name: item.venueName || '',
+          count: String(count),
+          ratio: ratio + '%',
+          peak: item.maxTime || '--',
+        };
+      });
+    }
+    // 填充近7日客流趋势到 trend
+    if (weekTrendData && modalData.kpiPeople?.trend) {
+      if (Array.isArray(weekTrendData.total) && Array.isArray(weekTrendData.date)) {
+        const values = weekTrendData.total as number[];
+        const labels = weekTrendData.date as string[];
+        const max = Math.max(...values, 1);
+        // 设置 xAxis 和 series（弹窗组件渲染图表使用）
+        modalData.kpiPeople.trend.xAxis = labels;
+        modalData.kpiPeople.trend.series = [{ name: '客流', color: '#4ade80', values }];
+        modalData.kpiPeople.trend.bars = values.map((v: number, i: number) => ({
+          height: Math.round((v / max) * 100),
+          color: '#4ade80',
+          label: labels[i] || `第${i + 1}天`,
+          value: v,
+        }));
+        // 动态计算 footer：本周累计和日均
+        const weekTotal = values.reduce((sum: number, v: number) => sum + v, 0);
+        const avgDaily = values.length > 0 ? Math.round(weekTotal / values.length) : 0;
+        modalData.kpiPeople.trend.footer = `日均: ${avgDaily.toLocaleString()} 人次 | 本周累计: ${weekTotal.toLocaleString()} 人次`;
+      }
+    }
+    modalRef.value?.open(key, modalData);
   } else if (key === 'energy') {
-    // 点节能低碳时请求近7日能耗趋势、各场馆用电（用于用能结构分析）、能耗统计
-    const [trendData, venueData, energyStatsData] = await Promise.all([
+    // 点节能低碳时请求近7日能耗趋势、各场馆用电（用于用能结构分析）、能耗统计、新风机组统计（平均PM2.5）、空调机组统计
+    const [trendData, venueData, energyStatsData, freshAirStats, acStats] = await Promise.all([
       fetchEnergyConsumptionPSDElectricityRaw(),
       fetchElectricityInVenueRaw(),
       fetchEnergyStatisticsRaw(),
+      getFreshAirStatistics(),
+      getAirConditioningUnitStatistics(),
     ]);
     // 能耗统计数据赋值给卡片
     if (energyStatsData && modalData.energy) {
       const stats = modalData.energy.stats;
       if (energyStatsData.electricCount != null) stats[0].value = String(energyStatsData.electricCount);
       if (energyStatsData.waterCount != null) stats[1].value = String(energyStatsData.waterCount);
+    }
+    // 新风机组统计：平均PM2.5 → stats[2]
+    if (freshAirStats && modalData.energy) {
+      const data = freshAirStats?.data || freshAirStats?.result || freshAirStats;
+      if (data?.avgPm25 != null) modalData.energy.stats[2].value = String(data.avgPm25);
+    }
+    // 空调机组统计：能耗 → stats[3]
+    if (acStats && modalData.energy) {
+      const data = acStats?.data || acStats?.result || acStats;
+      if (data?.energyConsumption != null) modalData.energy.stats[3].value = String(data.energyConsumption);
     }
     // 将各场馆用电数据重组成 { name: electricity } 对象后赋值给左面板 ⚡ 用能结构分析
     if (venueData && venueData.length > 0 && modalData?.energy?.leftPanel?.type === 'bar') {
@@ -650,6 +850,51 @@ async function handleOpenModal(key: string) {
       }));
     }
     modalRef.value?.open(key, modalData, undefined, undefined, undefined, undefined, undefined, trendData);
+  } else if (key === 'venue') {
+    // 场馆运营弹窗：请求本周活动排期和场馆信息列表
+    try {
+      const [exhibitionRes, venueRes] = await Promise.all([
+        getExhibitionList(),
+        getVenueInfoList({ pageNo: 1, pageSize: 50 }),
+      ]);
+      // 处理活动排期数据
+      const exhibitionData = Array.isArray(exhibitionRes) ? exhibitionRes : (exhibitionRes?.result || exhibitionRes?.data || exhibitionRes?.records || []);
+      if (modalData.venue?.leftPanel?.type === 'table') {
+        const tableData = modalData.venue.leftPanel.data as ModalTableData;
+        const rows: Record<string, any>[] = [];
+        (exhibitionData as DaySchedule[]).forEach((day) => {
+          const dateStr = day.date || '';
+          if (day.list && day.list.length > 0) {
+            day.list.forEach((activity) => {
+              const startTime = activity.startTime?.slice(0, 5) || '';
+              const endTime = activity.endTime?.slice(0, 5) || '';
+              rows.push({
+                date: dateStr,
+                activeName: activity.activeName || '--',
+                time: startTime && endTime ? `${startTime}-${endTime}` : (startTime || endTime || '--'),
+                venueName: activity.venueName || '--',
+              });
+            });
+          }
+        });
+        tableData.rows = rows;
+      }
+      // 处理场馆信息数据
+      if (modalData.venue?.rightPanel?.type === 'table') {
+        const venueTableData = modalData.venue.rightPanel.data as ModalTableData;
+        const venueList: VenueItem[] = Array.isArray(venueRes) ? venueRes : (venueRes?.records || venueRes?.data || []);
+        venueTableData.rows = venueList.map((item) => ({
+          venueName: item.venueName || '--',
+          location: item.location || '--',
+          area: item.area || '--',
+          floors: item.floors || '--',
+          ceilingH: item.ceilingH || '--',
+        }));
+      }
+    } catch (error) {
+      console.error('获取场馆运营数据失败:', error);
+    }
+    modalRef.value?.open(key, modalData);
   } else if (key === 'iot') {
     // 物联网弹窗：请求接口状态监控列表 + 协议类型列表，将 protocolTypeId 映射为名称
     const [interfaceList, protocolTypes] = await Promise.all([
@@ -1029,6 +1274,8 @@ const refreshFns: Array<() => Promise<any>> = [
   fetchCurrentEntryCount,
   fetchVehicleAndParking,
   fetchCameraStatus,
+  fetchResilienceSecurityData,
+  fetchPatrolPlanData,
   fetchAlarmStatistics,
   fetchIotAccessAndCollect,
   fetchOnlineRate,
@@ -1081,6 +1328,8 @@ onMounted(() => {
   fetchCurrentEntryCount();
   fetchVehicleAndParking();
   fetchCameraStatus();
+  fetchResilienceSecurityData();
+  fetchPatrolPlanData();
   // 请求告警统计数据
   fetchAlarmStatistics();
   // 请求物联网实时数据

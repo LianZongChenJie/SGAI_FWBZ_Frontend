@@ -111,6 +111,17 @@ enum Api {
 
     /** 照明tab下的点位信息 */
     lightingPointList = '/sgai-bqzm/bems/lighting/area/all',
+
+    /** 摄像头统计卡片汇总 */
+    securitySummary = '/sgai-fwbz-dev/fwbz/securityStatistics/summary',
+    /** 门禁汇总数据 */
+    accessControlSummary = '/sgai-fwbz-dev/fwbz/hikvision/doorStatistics/summary',
+    /** 巡更计划列表 */
+    patrolPlanList = '/sgai-fwbz-dev/fwbz/patrolPlan/list',
+    /** 本周活动排期 */
+    exhibitionList = '/sgai-fwbz-dev/fwbz/activeMeet/info/thisWeek',
+    /** 场馆信息列表 */
+    venueInfoList = '/sgai-fwbz-dev/fwbz/venueInfo/list',
 }
 
 /**
@@ -490,6 +501,71 @@ export const getProtocolTypeList = () => defHttp.get({ url: Api.protocolTypeList
 
 /** 照明tab下的点位信息 */
 export const getLightingPointList = () => defHttp.get({ url: Api.lightingPointList });
+
+/** 摄像头统计卡片汇总 */
+export const getSecuritySummary = (params?: any) => defHttp.get({ url: Api.securitySummary, params });
+
+/** 门禁汇总数据 */
+export const getAccessControlSummary = (params?: any) => defHttp.get({ url: Api.accessControlSummary, params });
+
+/** 巡更计划数据 */
+export interface PatrolPlan {
+  id: number
+  planName: string
+  patrolRoute: string
+  executionCycle: string
+  nextExecution: string
+  status: number
+}
+
+/** 获取巡更计划列表 */
+export const getPatrolPlanList = (params?: { pageNo?: number; pageSize?: number }) => defHttp.get({ url: Api.patrolPlanList, params });
+
+/**
+ * 活动信息（本周活动排期）
+ */
+export interface ActiveMeetInfo {
+  id?: number
+  activeName?: string
+  startTime?: string
+  endTime?: string
+  venueName?: string
+  peopleQuantity?: number
+  startDate?: string
+  [property: string]: any;
+}
+
+/**
+ * 每日活动排期
+ */
+export interface DaySchedule {
+  date?: string
+  list?: ActiveMeetInfo[]
+  [property: string]: any;
+}
+
+/** 获取本周活动排期列表 */
+export const getExhibitionList = () => defHttp.get({ url: Api.exhibitionList });
+
+/**
+ * 场馆信息
+ */
+export interface VenueItem {
+  id: number
+  venueName: string
+  location: string
+  orientation: string
+  area: string
+  ceilingH: string
+  lighting: string
+  basicFacility: string
+  buildable: number
+  floors: string
+  [property: string]: any;
+}
+
+/** 获取场馆信息列表 */
+export const getVenueInfoList = (params?: { pageNo?: number; pageSize?: number }) => defHttp.get({ url: Api.venueInfoList, params });
 
 /**
  * 接口信息
