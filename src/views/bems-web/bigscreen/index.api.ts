@@ -72,6 +72,16 @@ enum Api {
     parkingLotStatus = '/sgai-fwbz-dev/fwbz/parkingStatistics/parkingSpaceDistribution',
     /** 摄像头坐标分组分布 */
     cameraCoordinateGroup = '/sgai-fwbz-dev/fwbz/hikvision/camera/coordinateGroup',
+    /** 摄像头分组树（区域/分组通用，海康资源树） */
+    cameraPackageGroup = '/sgai-fwbz-dev/fwbz/hikvision/camera/packageGroup',
+    /** 门禁控制器设备列表 */
+    acsDeviceList = '/sgai-fwbz-dev/fwbz/hikvision/acsDevice/list',
+    /** 门禁地点列表 */
+    doorList = '/sgai-fwbz-dev/fwbz/hikvision/door/list',
+    /** 各场馆客流统计列表 */
+    venueVisitorFlowList = '/sgai-fwbz-dev/fwbz/venueVisitorFlow/venueList',
+    /** 今日客流趋势（各场馆逐时） */
+    venueVisitorFlowTrend = '/sgai-fwbz-dev/fwbz/venueVisitorFlow/hourly/todayTrend',
     /** 人员热力分布数据 */
     personHeatMap = '/sgai-fwbz-dev/fwbz/venueVisitorFlow/hourly/areaHeat',
     /** 待筹备会展 */
@@ -247,6 +257,138 @@ export interface CameraGroup {
     videos: VideoInfo[];
     /** 经度 */
     longitude: number;
+}
+
+/** 摄像头分组树 - 摄像头对象（海康资源树） */
+export interface CameraPackageVideo {
+    /** 摄像头唯一编码 */
+    indexCode?: string;
+    /** 摄像头名称 */
+    name?: string;
+    /** 摄像头类型：0-普通摄像头 1-半球摄像机 */
+    cameraType?: number;
+    /** 安装位置 */
+    installLocation?: string | null;
+    /** 所属区域编码 */
+    regionIndexCode?: string;
+    /** 在线状态：0-离线 1-在线 */
+    online?: number;
+    [property: string]: any;
+}
+
+/** 摄像头分组树 - 分组对象（区域/分组通用，海康资源树） */
+export interface CameraPackageGroup {
+    /** 区域唯一编码 */
+    indexCode?: string;
+    /** 区域名称 */
+    name?: string;
+    /** 区域路径 */
+    regionPath?: string;
+    /** 父区域编码 */
+    parentIndexCode?: string;
+    /** 是否叶子：1-是（含摄像头） 0-否 */
+    leaf?: number;
+    /** 目录类型 */
+    catalogType?: number;
+    /** 直接挂载的摄像头列表 */
+    videoList?: CameraPackageVideo[];
+    /** 子区域列表 */
+    children?: CameraPackageGroup[];
+    [property: string]: any;
+}
+
+/** 门禁控制器设备列表VO */
+export interface AcsDeviceListVO {
+    /** 创建时间（设备侧上报） */
+    createTime?: string;
+    /** 主动设备编号 */
+    deviceCode?: string;
+    /** 门禁设备类型编码 */
+    devTypeCode?: string;
+    /** 门禁设备类型型号 */
+    devTypeDesc?: string;
+    /** 资源唯一编码 */
+    indexCode?: string;
+    /** 门禁设备IP */
+    ip?: string;
+    /** 厂商 */
+    manufacturer?: string;
+    /** 资源名称（设备名称） */
+    name?: string;
+    /** 在线状态：0-离线 1-在线 */
+    online?: string;
+    /** 门禁设备端口 */
+    port?: string;
+    /** 所属区域编码 */
+    regionIndexCode?: string;
+    /** 区域名称 */
+    regionName?: string;
+    /** 接入协议 */
+    treatyType?: string;
+    /** 更新时间（设备侧上报） */
+    updateTime?: string;
+    [property: string]: any;
+}
+
+/** 门禁控制器设备分页返回 */
+export interface AcsDeviceListPageVO {
+    records?: AcsDeviceListVO[];
+    total?: number;
+    size?: number;
+    current?: number;
+    [property: string]: any;
+}
+
+/** 门禁地点列表VO */
+export interface DoorListVO {
+    /** 通道号 */
+    channelNo?: string;
+    /** 创建时间（设备侧上报） */
+    createTime?: string;
+    /** 门禁点编号 */
+    doorNo?: string;
+    /** 门状态：0-初始状态 1-开门状态 2-关门状态 3-离线状态 */
+    doorState?: string;
+    /** 资源唯一编码 */
+    indexCode?: string;
+    /** 安装位置 */
+    installLocation?: string;
+    /** 资源名称（门禁地点名称） */
+    name?: string;
+    /** 所属区域编码 */
+    regionIndexCode?: string;
+    /** 区域名称 */
+    regionName?: string;
+    /** 接入协议 */
+    treatyType?: string;
+    /** 更新时间（设备侧上报） */
+    updateTime?: string;
+    [property: string]: any;
+}
+
+/** 各场馆客流统计VO */
+export interface VenueFlowVO {
+    /** 平均停留时长 */
+    averageDuration?: number;
+    /** 较昨日增减率描述（如 ↑18.5%） */
+    compareRate?: string;
+    /** 峰值人数 */
+    maxCount?: number;
+    /** 峰值时间（HH:mm） */
+    maxTime?: string;
+    /** 状态码（1=正常，0=异常） */
+    status?: number;
+    /** 状态描述（如 正常 / 异常） */
+    statusLabel?: string;
+    /** 今日进场人数 */
+    todayInCount?: number;
+    /** 当前在场人数 */
+    todayNowCount?: number;
+    /** 场馆id */
+    venueId?: number;
+    /** 场馆名称 */
+    venueName?: string;
+    [property: string]: any;
 }
 
 
@@ -428,6 +570,24 @@ export const getParkingLotStatus = () => defHttp.get({ url: Api.parkingLotStatus
 
 /** 摄像头坐标分组分布 */
 export const getCameraCoordinateGroup = () => defHttp.get({ url: Api.cameraCoordinateGroup });
+
+/** 摄像头分组树（packageGroup） */
+export const getCameraPackageGroup = () => defHttp.get({ url: Api.cameraPackageGroup });
+
+/** 门禁控制器设备列表（分页） */
+export const getAcsDeviceList = (params?: { pageNo?: number; pageSize?: number }) =>
+  defHttp.get({ url: Api.acsDeviceList, params });
+
+/** 门禁地点列表（分页） */
+export const getDoorList = (params?: { pageNo?: number; pageSize?: number; name?: string; regionName?: string }) =>
+  defHttp.get({ url: Api.doorList, params });
+
+/** 各场馆客流统计列表 */
+export const getVenueVisitorFlowList = () => defHttp.get({ url: Api.venueVisitorFlowList });
+
+/** 今日客流趋势（periodType=0 今日；1 本周；2 本月） */
+export const getVenueVisitorFlowTrend = (params?: { periodType?: number }) =>
+  defHttp.get({ url: Api.venueVisitorFlowTrend, params });
 
 /** 人员热力分布数据 */
 export const getPersonHeatMap = () => defHttp.get({ url: `${Api.personHeatMap}?areaId=` });

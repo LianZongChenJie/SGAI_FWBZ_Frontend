@@ -10,7 +10,7 @@
     @cancel="handleClose"
   >
     <template v-if="modalContent">
-      <div class="modal-box" :style="{ '--modal-accent': modalContent.accent }">
+      <div ref="modalBoxRef" class="modal-box" :style="{ '--modal-accent': modalContent.accent }">
         <!-- 顶部装饰条 -->
         <div class="modal-box-top-bar"></div>
         <!-- 头部 -->
@@ -88,7 +88,7 @@
                 </tbody>
               </table>
               <!-- 条形图类型 -->
-              <div v-else class="modal-hbar">
+              <div v-else class="modal-hbar" :class="{ 'modal-hbar-scroll': leftBarScrollable }">
                 <div class="modal-hbar-item" v-for="(bar, i) in leftBarItems" :key="i">
                   <span class="modal-hbar-label">{{ bar.label }}</span>
                   <div class="modal-hbar-track">
@@ -135,69 +135,78 @@
             </div>
           </div>
 
-          <!-- 额外表格 -->
+          <!-- 额外表格（门禁地点列表等，可视高度为弹窗高度的80%，超高时纵向滚动） -->
           <div v-if="modalContent.extraTable" style="margin-top: 16px;">
             <div class="modal-panel-title">{{ modalContent.extraTable.title }}</div>
-            <table class="modal-table">
-              <thead>
-                <tr>
-                  <th v-for="(col, i) in extraTableCols" :key="i" :style="col.width ? { width: col.width + 'px' } : {}">{{ col.title }}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(row, ri) in modalContent.extraTable.rows" :key="ri">
-                  <td v-for="(col, ci) in extraTableCols" :key="ci">
-                    <template v-if="typeof row[col.key] === 'object'">
-                      <span :style="{ color: row[col.key].color, fontWeight: 600 }">{{ row[col.key].text }}</span>
-                    </template>
-                    <template v-else>{{ row[col.key] }}</template>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            <div class="modal-table-wrap is-scroll" :style="{ maxHeight: extraTableMaxHeight + 'px' }">
+              <table class="modal-table">
+                <thead>
+                  <tr>
+                    <th v-for="(col, i) in extraTableCols" :key="i" :style="col.width ? { width: col.width + 'px' } : {}">{{ col.title }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(row, ri) in modalContent.extraTable.rows" :key="ri">
+                    <td v-for="(col, ci) in extraTableCols" :key="ci">
+                      <template v-if="typeof row[col.key] === 'object'">
+                        <span :style="{ color: row[col.key].color, fontWeight: 600 }">{{ row[col.key].text }}</span>
+                      </template>
+                      <template v-else>{{ row[col.key] }}</template>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
 
-          <!-- 趋势柱状图 -->
+          <!-- 趋势图（会展服务：今日客流趋势 echarts 折线；其余弹窗：自绘多系列柱状图） -->
           <div v-if="modalContent.trend" class="trend-chart-section">
             <div class="modal-panel-title">{{ modalContent.trend.title }}</div>
-            <!-- 多系列图例 -->
-            <div v-if="modalContent.trend.series && modalContent.trend.series.length > 1" class="trend-legend">
-              <span v-for="(s, i) in modalContent.trend.series" :key="i" class="trend-legend-item">
-                <i :style="{ background: s.color }"></i>{{ s.name }}
-              </span>
-            </div>
-            <div class="trend-bar-chart">
-              <!-- y轴 -->
-              <div class="trend-y-axis">
-                <span v-for="v in yAxisTicks" :key="v">{{ v }}</span>
+            <!-- 会展服务：echarts 折线图 -->
+            <template v-if="currentModalKey === 'exhibition'">
+              <div ref="trendChartRef" class="exhibition-trend-chart"></div>
+              <div v-if="modalContent.trend.footer" class="trend-footer">{{ modalContent.trend.footer }}</div>
+            </template>
+            <!-- 其余弹窗：自绘多系列柱状图 -->
+            <template v-else>
+              <!-- 多系列图例 -->
+              <div v-if="modalContent.trend.series && modalContent.trend.series.length > 1" class="trend-legend">
+                <span v-for="(s, i) in modalContent.trend.series" :key="i" class="trend-legend-item">
+                  <i :style="{ background: s.color }"></i>{{ s.name }}
+                </span>
               </div>
-              <!-- 图表区域 -->
-              <div class="trend-chart-area">
-                <!-- 网格线 -->
-                <div class="trend-grid">
-                  <div v-for="(_, i) in yAxisTicks" :key="'g' + i" class="trend-grid-line"></div>
+              <div class="trend-bar-chart">
+                <!-- y轴 -->
+                <div class="trend-y-axis">
+                  <span v-for="v in yAxisTicks" :key="v">{{ v }}</span>
                 </div>
-                <!-- 分组柱子容器 -->
-                <div class="trend-bars-row">
-                  <div class="trend-bar-col" v-for="(xl, xi) in modalContent.trend.xAxis" :key="xi">
-                    <div class="trend-bar-group">
-                      <div class="trend-bar-group-item" v-for="(s, si) in modalContent.trend.series" :key="si">
-                        <span class="trend-bar-val">{{ s.values[xi] ?? '' }}</span>
-                        <div
-                          class="trend-bar-fill multi"
-                          :style="{
-                            height: trendMaxVal > 0 ? Math.round((s.values[xi] / trendMaxVal) * 100) + '%' : '0%',
-                            background: s.color,
-                          }"
-                        ></div>
+                <!-- 图表区域 -->
+                <div class="trend-chart-area">
+                  <!-- 网格线 -->
+                  <div class="trend-grid">
+                    <div v-for="(_, i) in yAxisTicks" :key="'g' + i" class="trend-grid-line"></div>
+                  </div>
+                  <!-- 分组柱子容器 -->
+                  <div class="trend-bars-row">
+                    <div class="trend-bar-col" v-for="(xl, xi) in modalContent.trend.xAxis" :key="xi">
+                      <div class="trend-bar-group">
+                        <div class="trend-bar-group-item" v-for="(s, si) in modalContent.trend.series" :key="si">
+                          <span class="trend-bar-val">{{ s.values[xi] ?? '' }}</span>
+                          <div
+                            class="trend-bar-fill multi"
+                            :style="{
+                              height: trendMaxVal > 0 ? Math.round((s.values[xi] / trendMaxVal) * 100) + '%' : '0%',
+                              background: s.color,
+                            }"
+                          ></div>
+                        </div>
                       </div>
+                      <span class="trend-bar-xlabel">{{ xl }}</span>
                     </div>
-                    <span class="trend-bar-xlabel">{{ xl }}</span>
                   </div>
                 </div>
               </div>
-            </div>
-            <!-- <div class="trend-footer">{{ modalContent.trend.footer }}</div> -->
+            </template>
           </div>
         </div>
       </div>
@@ -206,14 +215,152 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import type { ModalContent, ModalTableData, ModalBarData, ModalBarItem } from '../data/modalData';
+import { ref, computed, watch, nextTick, onMounted, onBeforeUnmount } from 'vue';
+import echarts from '/@/utils/lib/echarts';
+import type { EChartsOption } from 'echarts';
+import type { ModalContent, ModalTableData, ModalBarData, ModalBarItem, ModalTrend } from '../data/modalData';
 
 defineOptions({ name: 'DetailModal' });
 
 const visible = ref(false);
 const modalContent = ref<ModalContent | null>(null);
 const currentModalKey = ref('');
+
+/** 弹窗容器（用于测量弹窗实际高度） */
+const modalBoxRef = ref<HTMLElement | null>(null);
+/** 额外表格（门禁地点列表等）最大可视高度：弹窗高度的80%，超出纵向滚动 */
+const extraTableMaxHeight = ref(300);
+let extraTableObserver: ResizeObserver | null = null;
+
+/** 按弹窗实际高度计算额外表格可视高度（80%） */
+function updateExtraTableMaxHeight() {
+  const box = modalBoxRef.value;
+  // 弹窗未渲染（高度为0）时按最大弹窗高度 80vh 兜底
+  const boxHeight = box?.clientHeight || Math.round(window.innerHeight * 0.8);
+  extraTableMaxHeight.value = Math.max(160, Math.round(boxHeight * 0.8));
+}
+
+// 弹窗容器挂载/卸载时维护尺寸监听
+watch(
+  () => modalBoxRef.value,
+  (el) => {
+    extraTableObserver?.disconnect();
+    extraTableObserver = null;
+    if (el && typeof ResizeObserver !== 'undefined') {
+      extraTableObserver = new ResizeObserver(updateExtraTableMaxHeight);
+      extraTableObserver.observe(el);
+    }
+  },
+  { flush: 'post' },
+);
+
+// 弹窗内容变化（打开/切 key）后待布局完成重新计算
+watch(
+  () => modalContent.value,
+  () => {
+    if (!modalContent.value) return;
+    nextTick(updateExtraTableMaxHeight);
+    // 会展服务：等 a-modal 动画完成、容器具备尺寸后再初始化 echarts 折线图
+    if (currentModalKey.value === 'exhibition') {
+      nextTick(() => setTimeout(renderExhibitionTrend, 60));
+    }
+  },
+);
+
+/** 会展服务今日客流趋势 echarts 容器与实例 */
+const trendChartRef = ref<HTMLDivElement | null>(null);
+let trendChartInstance: echarts.ECharts | null = null;
+
+/** 释放趋势图实例 */
+function disposeTrendChart() {
+  trendChartInstance?.dispose();
+  trendChartInstance = null;
+}
+
+/** 构建会展服务今日客流趋势折线图配置 */
+function buildExhibitionTrendOption(trend: ModalTrend): EChartsOption {
+  const xData = trend.xAxis ?? [];
+  const rawSeries = trend.series ?? [];
+  // 多曲线时显示图例、不带面积渐变；单曲线保留面积渐变
+  const showLegend = rawSeries.length > 1;
+  const series = rawSeries.map((s, idx) => {
+    const isLast = idx === rawSeries.length - 1;
+    return {
+      name: s.name,
+      type: 'line' as const,
+      smooth: true,
+      symbol: 'circle' as const,
+      symbolSize: 3,
+      data: s.values,
+      lineStyle: { width: showLegend && isLast ? 3 : 2, color: s.color },
+      itemStyle: { color: s.color },
+      areaStyle: showLegend
+        ? undefined
+        : {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: 'rgba(56, 189, 248, 0.25)' },
+              { offset: 1, color: 'rgba(56, 189, 248, 0.02)' },
+            ]),
+          },
+    };
+  });
+  return {
+    backgroundColor: 'transparent',
+    grid: { left: 8, right: 16, top: showLegend ? 36 : 28, bottom: 22, containLabel: true },
+    tooltip: { trigger: 'axis' },
+    legend: showLegend
+      ? {
+          top: 0,
+          icon: 'circle',
+          itemWidth: 8,
+          itemHeight: 8,
+          textStyle: { color: '#94a3b8', fontSize: 11 },
+        }
+      : undefined,
+    xAxis: {
+      type: 'category',
+      boundaryGap: false,
+      data: xData,
+      axisLine: { lineStyle: { color: 'rgba(148, 163, 184, 0.35)' } },
+      axisTick: { show: false },
+      axisLabel: { color: '#94a3b8', fontSize: 11, interval: xData.length > 12 ? 2 : 0 },
+    },
+    yAxis: {
+      type: 'value',
+      splitLine: { lineStyle: { color: 'rgba(56, 189, 248, 0.08)', type: 'dashed' } },
+      axisLabel: { color: '#94a3b8', fontSize: 11 },
+    },
+    series,
+  };
+}
+
+/** 渲染会展服务今日客流趋势（echarts 折线） */
+function renderExhibitionTrend() {
+  if (currentModalKey.value !== 'exhibition') return;
+  const trend = modalContent.value?.trend;
+  const el = trendChartRef.value;
+  if (!trend || !el) return;
+  disposeTrendChart();
+  trendChartInstance = echarts.init(el);
+  trendChartInstance.setOption(buildExhibitionTrendOption(trend));
+  trendChartInstance.resize();
+}
+
+/** 窗口尺寸变化时自适应趋势图 */
+function onWindowResize() {
+  trendChartInstance?.resize();
+}
+
+onMounted(() => {
+  window.addEventListener('resize', onWindowResize);
+});
+
+onBeforeUnmount(() => {
+  extraTableObserver?.disconnect();
+  extraTableObserver = null;
+  window.removeEventListener('resize', onWindowResize);
+  disposeTrendChart();
+});
 /** 接口状态监控列表数据（物联网弹窗） */
 const interfaceStatusData = ref<any[]>([]);
 
@@ -539,8 +686,11 @@ const rightBarFooter = computed(() => (rightPanelData.value as ModalBarData)?.fo
 
 const extraTableCols = computed(() => modalContent.value?.extraTable?.columns || []);
 
-/** 右栏表格是否需要滚动（会展服务弹窗停车场状态表格） */
-const rightTableScrollable = computed(() => currentModalKey.value === 'exhibition');
+/** 右栏表格是否需要滚动（会展服务停车场状态、安全防范控制器列表等长列表表格） */
+const rightTableScrollable = computed(() => currentModalKey.value === 'exhibition' || currentModalKey.value === 'security');
+
+/** 左栏条形图是否需要限制高度滚动（会展服务各场馆客流分布，与右侧停车场状态表格展示高度对齐） */
+const leftBarScrollable = computed(() => currentModalKey.value === 'exhibition');
 
 /** y轴刻度（最大值的 0%/25%/50%/75%/100%） */
 const yAxisTicks = computed(() => {
@@ -732,6 +882,24 @@ const trendMaxVal = computed(() => {
   min-height: 0;
   justify-content: center;
 }
+/* 条形图高度对齐右侧可滚动表格（可视高度一致，超出内部滚动） */
+.modal-hbar.modal-hbar-scroll {
+  max-height: 220px;
+  overflow-y: auto;
+  justify-content: flex-start;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(56, 189, 248, 0.3) transparent;
+}
+.modal-hbar.modal-hbar-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.modal-hbar.modal-hbar-scroll::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.3);
+  border-radius: 2px;
+}
+.modal-hbar.modal-hbar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
 .modal-hbar-item {
   display: flex;
   align-items: center;
@@ -898,6 +1066,12 @@ const trendMaxVal = computed(() => {
   white-space: nowrap;
   transform: translateY(100%);
   padding-top: 4px;
+}
+/* echarts 折线图容器（会展服务今日客流趋势） */
+.exhibition-trend-chart {
+  width: 100%;
+  height: 180px;
+  margin-top: 8px;
 }
 .trend-footer {
   margin-top: 8px;
