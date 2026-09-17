@@ -615,6 +615,9 @@
   }
   .jeecg-basic-table {
     padding: 12px 6px !important;
+    :deep(.ant-table-wrapper) {
+      margin-top: -40px !important;
+    }
   }
   
 </style>

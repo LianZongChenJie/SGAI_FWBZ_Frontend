@@ -2,34 +2,10 @@
   <div class="dashboard-page">
     <!-- 统计卡片行 -->
     <div class="stats-row">
-      <StatCard
-        label="今日场馆客流"
-        :value="statData.todayVisitors"
-        trend="up"
-        color="blue"
-        :icon="CrowdIcon"
-      />
-      <StatCard
-        label="设备在线率"
-        :value="statData.deviceOnlineRate"
-        trend="up"
-        color="green"
-        :icon="ThunderIcon"
-      />
-      <StatCard
-        label="今日能耗 (kWh)"
-        :value="statData.todayEnergy"
-        trend="down"
-        color="orange"
-        :icon="EnergyIcon"
-      />
-      <StatCard
-        label="待处理告警"
-        :value="statData.pendingAlerts"
-        trend="down"
-        color="red"
-        :icon="AlertIcon"
-      />
+      <StatCard label="今日场馆客流" :value="statData.todayVisitors" trend="up" color="blue" :icon="CrowdIcon" />
+      <StatCard label="设备在线率" :value="statData.deviceOnlineRate" trend="up" color="green" :icon="ThunderIcon" />
+      <StatCard label="今日能耗 (kWh)" :value="statData.todayEnergy" trend="down" color="orange" :icon="EnergyIcon" />
+      <StatCard label="待处理告警" :value="statData.pendingAlerts" trend="down" color="red" :icon="AlertIcon" />
     </div>
 
     <!-- 快捷入口 -->
@@ -95,10 +71,7 @@
             <a-spin />
             <div class="chart-text">加载中...</div>
           </div>
-          <div
-            v-show="!structureLoading && structureChartData.length === 0"
-            class="chart-placeholder"
-          >
+          <div v-show="!structureLoading && structureChartData.length === 0" class="chart-placeholder">
             <div class="chart-icon"><PieChartOutlined /></div>
             <div class="chart-text">暂无数据</div>
           </div>
@@ -125,7 +98,10 @@
                   <AlertInfoIcon v-else />
                 </div>
                 <div class="alert-content">
-                  <div class="alert-title">{{ item.description }} <span class="category-tag">{{ item.alarmCategoryName }}</span> <span class="level-tag" :class="item.level">{{ item.levelLabel }}</span></div>
+                  <div class="alert-title"
+                    >{{ item.description }} <span class="category-tag">{{ item.alarmCategoryName }}</span>
+                    <span class="level-tag" :class="item.level">{{ item.levelLabel }}</span></div
+                  >
                   <div class="alert-desc">{{ item.title }}</div>
                   <div class="alert-time">{{ item.time }} | 持续 {{ item.duration }}</div>
                   <div class="alert-actions">
@@ -149,8 +125,10 @@
             <div class="timeline-item" v-for="event in todayEvents" :key="event.title">
               <div class="timeline-time">{{ event.time }}</div>
               <div class="timeline-content">
-                <strong>{{ event.title }}</strong><br />
-                {{ event.location }} | 预计客流 {{ event.visitors }}人 | 状态: <span class="status-text" :class="event.status">{{ event.statusLabel }}</span>
+                <strong>{{ event.title }}</strong
+                ><br />
+                {{ event.location }} | 预计客流 {{ event.visitors }}人 | 状态:
+                <span class="status-text" :class="event.status">{{ event.statusLabel }}</span>
               </div>
             </div>
           </div>
@@ -216,1022 +194,1042 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, h, nextTick } from 'vue'
-import { message } from 'ant-design-vue'
-import { useRouter } from 'vue-router'
-import dayjs from 'dayjs'
-import { StatCard, DeviceCard } from '/@/views/bems-web/components'
-import { getTodayExhibitionActivity, getTodayVisitorCount, getAlarmStatistics, getTodayStatistics, getDeviceCount } from './index.api'
-import type { ActiveMeetInfo } from './index.api'
-import { getDeviceStat } from '/@/views/bems-web/event/during/index.api'
-import type { SystemDeviceStatVO } from '/@/views/bems-web/event/during/index.api'
-import {
-  getAlarmRecordsListApi,
-  confirmAlarmRecordApi,
-  transferEventAlarmRecordApi,
-} from '/@/views/bems-web/alert/alarmManagement/Standardized.api'
-import { useECharts } from '/@/hooks/web/useECharts'
-import {
-  findDayByConfig,
-  findMonthByConfig,
-  findYearByConfig,
-} from '/@/views/bems-web/energy-management/metering/elements/overviewTab/index.api'
-import {
-  PieChartOutlined,
-  SearchOutlined,
-} from '@ant-design/icons-vue'
-import PointDataStatistics from '/@/views/bems-web/energy-management/metering/elements/analysisTab/pointDataStatistics/index.vue'
+  import { ref, reactive, computed, onMounted, h, nextTick } from 'vue';
+  import { message } from 'ant-design-vue';
+  import { useRouter } from 'vue-router';
+  import dayjs from 'dayjs';
+  import { StatCard, DeviceCard } from '/@/views/bems-web/components';
+  import { getTodayExhibitionActivity, getTodayVisitorCount, getAlarmStatistics, getTodayStatistics, getDeviceCount } from './index.api';
+  import type { ActiveMeetInfo } from './index.api';
+  import { getDeviceStat } from '/@/views/bems-web/event/during/index.api';
+  import type { SystemDeviceStatVO } from '/@/views/bems-web/event/during/index.api';
+  import {
+    getAlarmRecordsListApi,
+    confirmAlarmRecordApi,
+    transferEventAlarmRecordApi,
+  } from '/@/views/bems-web/alert/alarmManagement/Standardized.api';
+  import { useECharts } from '/@/hooks/web/useECharts';
+  import { findDayByConfig, findMonthByConfig, findYearByConfig } from '/@/views/bems-web/energy-management/metering/elements/overviewTab/index.api';
+  import { PieChartOutlined, SearchOutlined } from '@ant-design/icons-vue';
+  import PointDataStatistics from '/@/views/bems-web/energy-management/metering/elements/analysisTab/pointDataStatistics/index.vue';
 
-// 自定义 emoji 图标组件（统计卡片）
-const CrowdIcon = () => h('span', { style: 'font-size: 20px;' }, '👥')
-const ThunderIcon = () => h('span', { style: 'font-size: 20px;' }, '⚡')
-const EnergyIcon = () => h('span', { style: 'font-size: 20px;' }, '🔋')
-const AlertIcon = () => h('span', { style: 'font-size: 20px;' }, '🚨')
-// 自定义 emoji 图标组件（快捷入口）
-const ShieldIcon = () => h('span', { style: 'font-size: 20px;' }, '🛡️')
-const EcoIcon = () => h('span', { style: 'font-size: 20px;' }, '🌿')
-const AntennaIcon = () => h('span', { style: 'font-size: 20px;' }, '📡')
-const SirenIcon = () => h('span', { style: 'font-size: 20px;' }, '🔔')
-const StadiumIcon = () => h('span', { style: 'font-size: 20px;' }, '🏟️')
-const CircusIcon = () => h('span', { style: 'font-size: 20px;' }, '🎪')
+  // 自定义 emoji 图标组件（统计卡片）
+  const CrowdIcon = () => h('span', { style: 'font-size: 20px;' }, '👥');
+  const ThunderIcon = () => h('span', { style: 'font-size: 20px;' }, '⚡');
+  const EnergyIcon = () => h('span', { style: 'font-size: 20px;' }, '🔋');
+  const AlertIcon = () => h('span', { style: 'font-size: 20px;' }, '🚨');
+  // 自定义 emoji 图标组件（快捷入口）
+  const ShieldIcon = () => h('span', { style: 'font-size: 20px;' }, '🛡️');
+  const EcoIcon = () => h('span', { style: 'font-size: 20px;' }, '🌿');
+  const AntennaIcon = () => h('span', { style: 'font-size: 20px;' }, '📡');
+  const SirenIcon = () => h('span', { style: 'font-size: 20px;' }, '🔔');
+  const StadiumIcon = () => h('span', { style: 'font-size: 20px;' }, '🏟️');
+  const CircusIcon = () => h('span', { style: 'font-size: 20px;' }, '🎪');
 
-// 自定义 emoji 图标组件
-const HeatMeterIcon = () => h('span', { style: 'font-size: 20px;' }, '🌡️')
-const AirConditionerIcon = () => h('span', { style: 'font-size: 20px;' }, '❄️')
-const FreshAirUnitIcon = () => h('span', { style: 'font-size: 20px;' }, '🌀')
-const ElectricMeterIcon = () => h('span', { style: 'font-size: 20px;' }, '⚡')
-const PressureTransmitterIcon = () => h('span', { style: 'font-size: 20px;' }, '📊')
-const WaterMeterIcon = () => h('span', { style: 'font-size: 20px;' }, '💧')
-const SumpPitIcon = () => h('span', { style: 'font-size: 20px;' }, '🕳️')
-const FlowSensorIcon = () => h('span', { style: 'font-size: 20px;' }, '📏')
-const HeatRecoveryIcon = () => h('span', { style: 'font-size: 20px;' }, '🔄')
-const ExhaustFanIcon = () => h('span', { style: 'font-size: 20px;' }, '💨')
-const SupplyFanIcon = () => h('span', { style: 'font-size: 20px;' }, '🌬️')
-const FanCoilIcon = () => h('span', { style: 'font-size: 20px;' }, '🎛️')
-const TerminalElectricIcon = () => h('span', { style: 'font-size: 20px;' }, '🔌')
-const TerminalWaterIcon = () => h('span', { style: 'font-size: 20px;' }, '🚰')
+  // 自定义 emoji 图标组件
+  const HeatMeterIcon = () => h('span', { style: 'font-size: 20px;' }, '🌡️');
+  const AirConditionerIcon = () => h('span', { style: 'font-size: 20px;' }, '❄️');
+  const FreshAirUnitIcon = () => h('span', { style: 'font-size: 20px;' }, '🌀');
+  const ElectricMeterIcon = () => h('span', { style: 'font-size: 20px;' }, '⚡');
+  const PressureTransmitterIcon = () => h('span', { style: 'font-size: 20px;' }, '📊');
+  const WaterMeterIcon = () => h('span', { style: 'font-size: 20px;' }, '💧');
+  const SumpPitIcon = () => h('span', { style: 'font-size: 20px;' }, '🕳️');
+  const FlowSensorIcon = () => h('span', { style: 'font-size: 20px;' }, '📏');
+  const HeatRecoveryIcon = () => h('span', { style: 'font-size: 20px;' }, '🔄');
+  const ExhaustFanIcon = () => h('span', { style: 'font-size: 20px;' }, '💨');
+  const SupplyFanIcon = () => h('span', { style: 'font-size: 20px;' }, '🌬️');
+  const FanCoilIcon = () => h('span', { style: 'font-size: 20px;' }, '🎛️');
+  const TerminalElectricIcon = () => h('span', { style: 'font-size: 20px;' }, '🔌');
+  const TerminalWaterIcon = () => h('span', { style: 'font-size: 20px;' }, '🚰');
 
-// ===== 图标配置 =====
-const iconConfig: Record<string, { icon: any; iconBg: string; iconColor: string }> = {
-  '热量表': { icon: HeatMeterIcon, iconBg: '#fff2f0', iconColor: '#ff4d4f' },
-  '空调机组': { icon: AirConditionerIcon, iconBg: '#e6f4ff', iconColor: '#1677ff' },
-  '新风机组': { icon: FreshAirUnitIcon, iconBg: '#f9f0ff', iconColor: '#722ed1' },
-  '电表': { icon: ElectricMeterIcon, iconBg: '#fffbe6', iconColor: '#faad14' },
-  '压力变送器': { icon: PressureTransmitterIcon, iconBg: '#e6fffb', iconColor: '#13c2c2' },
-  '水表': { icon: WaterMeterIcon, iconBg: '#e6f7ff', iconColor: '#0099cc' },
-  '集水坑': { icon: SumpPitIcon, iconBg: '#f0f5ff', iconColor: '#2f54eb' },
-  '流量传感器': { icon: FlowSensorIcon, iconBg: '#f6ffed', iconColor: '#52c41a' },
-  '热回收机组': { icon: HeatRecoveryIcon, iconBg: '#fff7e6', iconColor: '#fa8c16' },
-  '排风机': { icon: ExhaustFanIcon, iconBg: '#f5f5f5', iconColor: '#595959' },
-  '送风机': { icon: SupplyFanIcon, iconBg: '#e6f7ff', iconColor: '#1890ff' },
-  '风机盘管': { icon: FanCoilIcon, iconBg: '#f9f0ff', iconColor: '#9254de' },
-  '末端电表': { icon: TerminalElectricIcon, iconBg: '#fff1f0', iconColor: '#cf1322' },
-  '末端水表': { icon: TerminalWaterIcon, iconBg: '#e6fffb', iconColor: '#006d75' },
-}
-defineOptions({ name: 'DashboardPage' })
+  // ===== 图标配置 =====
+  const iconConfig: Record<string, { icon: any; iconBg: string; iconColor: string }> = {
+    热量表: { icon: HeatMeterIcon, iconBg: '#fff2f0', iconColor: '#ff4d4f' },
+    空调机组: { icon: AirConditionerIcon, iconBg: '#e6f4ff', iconColor: '#1677ff' },
+    新风机组: { icon: FreshAirUnitIcon, iconBg: '#f9f0ff', iconColor: '#722ed1' },
+    电表: { icon: ElectricMeterIcon, iconBg: '#fffbe6', iconColor: '#faad14' },
+    压力变送器: { icon: PressureTransmitterIcon, iconBg: '#e6fffb', iconColor: '#13c2c2' },
+    水表: { icon: WaterMeterIcon, iconBg: '#e6f7ff', iconColor: '#0099cc' },
+    集水坑: { icon: SumpPitIcon, iconBg: '#f0f5ff', iconColor: '#2f54eb' },
+    流量传感器: { icon: FlowSensorIcon, iconBg: '#f6ffed', iconColor: '#52c41a' },
+    热回收机组: { icon: HeatRecoveryIcon, iconBg: '#fff7e6', iconColor: '#fa8c16' },
+    排风机: { icon: ExhaustFanIcon, iconBg: '#f5f5f5', iconColor: '#595959' },
+    送风机: { icon: SupplyFanIcon, iconBg: '#e6f7ff', iconColor: '#1890ff' },
+    风机盘管: { icon: FanCoilIcon, iconBg: '#f9f0ff', iconColor: '#9254de' },
+    末端电表: { icon: TerminalElectricIcon, iconBg: '#fff1f0', iconColor: '#cf1322' },
+    末端水表: { icon: TerminalWaterIcon, iconBg: '#e6fffb', iconColor: '#006d75' },
+  };
+  defineOptions({ name: 'DashboardPage' });
 
-const router = useRouter()
+  const router = useRouter();
 
-// ===== 统计数据 =====
-const statData = ref<{
-  todayVisitors: string | number
-  deviceOnlineRate: string | number
-  todayEnergy: string | number
-  pendingAlerts: string | number
-}>({
-  todayVisitors: '--',
-  deviceOnlineRate: '98.6%',
-  todayEnergy: '--',
-  pendingAlerts: '--',
-})
+  // ===== 统计数据 =====
+  const statData = ref<{
+    todayVisitors: string | number;
+    deviceOnlineRate: string | number;
+    todayEnergy: string | number;
+    pendingAlerts: string | number;
+  }>({
+    todayVisitors: '--',
+    deviceOnlineRate: '98.6%',
+    todayEnergy: '--',
+    pendingAlerts: '--',
+  });
 
-/** 加载统计数据（今日场馆客流 + 今日能耗 + 待处理告警） **/
-const fetchStatData = async () => {
-  try {
-    const [visitorRes, alarmRes, energyRes, deviceRes] = await Promise.all([
-      getTodayVisitorCount(),
-      getAlarmStatistics(),
-      getTodayStatistics(),
-      getDeviceCount(),
-    ])
-    // 今日场馆客流
-    const visitorVal = visitorRes?.value ?? visitorRes
-    if (visitorVal != null) {
-      const num = parseInt(visitorVal, 10) || 0
-      statData.value.todayVisitors = num.toLocaleString()
+  /** 加载统计数据（今日场馆客流 + 今日能耗 + 待处理告警） **/
+  const fetchStatData = async () => {
+    try {
+      const [visitorRes, alarmRes, energyRes, deviceRes] = await Promise.all([
+        getTodayVisitorCount(),
+        getAlarmStatistics(),
+        getTodayStatistics(),
+        getDeviceCount(),
+      ]);
+      // 今日场馆客流
+      const visitorVal = visitorRes?.value ?? visitorRes;
+      if (visitorVal != null) {
+        const num = parseInt(visitorVal, 10) || 0;
+        statData.value.todayVisitors = num.toLocaleString();
+      }
+      // 今日能耗（取 electricCount 字段）
+      if (energyRes != null && energyRes.electricCount != null) {
+        statData.value.todayEnergy = energyRes.electricCount;
+      }
+      // 待处理告警（取 untreatedCount 字段）
+      if (alarmRes != null) {
+        const num = alarmRes.untreatedCount ?? 0;
+        statData.value.pendingAlerts = num;
+      }
+      // 设备在线率（online/count，保留两位小数）
+      if (deviceRes != null && deviceRes.count != null && deviceRes.count > 0) {
+        const rate = (deviceRes.online / deviceRes.count) * 100;
+        statData.value.deviceOnlineRate = rate.toFixed(2) + '%';
+      } else {
+        statData.value.deviceOnlineRate = '0.00%';
+      }
+    } catch {
+      // 静默处理
     }
-    // 今日能耗（取 electricCount 字段）
-    if (energyRes != null && energyRes.electricCount != null) {
-      statData.value.todayEnergy = energyRes.electricCount
+  };
+
+  // ===== 快捷入口 =====
+  const quickLinks = [
+    { title: '韧性安全', icon: ShieldIcon, bgColor: '#ebf8ff', iconColor: '#3182ce', route: '/fwbz/safety/security' },
+    { title: '能源机电', icon: EcoIcon, bgColor: '#f0fff4', iconColor: '#38a169', route: '/fwbz/operational' },
+    { title: '物联网', icon: AntennaIcon, bgColor: '#fffaf0', iconColor: '#dd6b20', route: '/fwbz/iot/interface' },
+    { title: '故障告警', icon: SirenIcon, bgColor: '#fff5f5', iconColor: '#e53e3e', route: '/fwbz/alert/setting' },
+    { title: '场馆运营', icon: StadiumIcon, bgColor: '#faf5ff', iconColor: '#805ad5', route: '/fwbz/venue/flow' },
+    { title: '会展服务', icon: CircusIcon, bgColor: '#e6fffa', iconColor: '#00b5d8', route: '/fwbz/event/pre' },
+  ];
+
+  // ===== 能耗趋势分析 =====
+  const dateType = ref<string>('month');
+  const date = ref<string>();
+  const time = ref<string>();
+  const pointDataStatisticsRef = ref<InstanceType<typeof PointDataStatistics>>();
+
+  const handleQuery = () => {
+    pointDataStatisticsRef.value?.findData();
+  };
+
+  const handleExport = () => {
+    pointDataStatisticsRef.value?.handleExport();
+  };
+
+  // ===== 告警图标 =====
+  const AlertVeryDangerIcon = () => h('span', { style: 'font-size: 18px;' }, '🚨');
+  const AlertDangerIcon = () => h('span', { style: 'font-size: 18px;' }, '⚠️');
+  const AlertInfoIcon = () => h('span', { style: 'font-size: 18px;' }, '💡');
+
+  // ===== 告警列表 =====
+  interface AlertRecord {
+    id: string;
+    _record: any;
+    level: string;
+    levelLabel: string;
+    description: string;
+    title: string;
+    time: string;
+    duration: string;
+    alarmCategoryName: string;
+  }
+
+  const alertList = ref<AlertRecord[]>([]);
+  const alertLoading = ref(false);
+
+  // 报警等级文本 → level class 映射
+  const levelClassMap: Record<string, string> = { 非常紧急: 'veryDanger', 紧急: 'danger' };
+
+  // 计算持续时间
+  const getDuration = (alarmTime: string): string => {
+    if (!alarmTime) return '';
+    const diff = Date.now() - new Date(alarmTime).getTime();
+    const minutes = Math.floor(diff / 60000);
+    if (minutes < 1) return '刚刚';
+    if (minutes < 60) return `${minutes}分钟`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}小时${minutes % 60}分钟`;
+    const days = Math.floor(hours / 24);
+    return `${days}天${hours % 24}小时`;
+  };
+
+  // API 记录 → 卡片格式映射
+  const mapRecordToCard = (record: any): AlertRecord => {
+    const levelName: string = record.alarmLevelName || '';
+    return {
+      id: record.id,
+      _record: record,
+      level: levelClassMap[levelName] || 'info',
+      levelLabel: levelName,
+      title: record.alarmContent || '',
+      description: `设备: ${record.deviceName || '-'} | 位置: ${record.spaceName || '-'}`,
+      time: record.alarmTime || '',
+      duration: getDuration(record.alarmTime),
+      alarmCategoryName: record.alarmCategoryName || '-',
+    };
+  };
+
+  const fetchAlertList = async () => {
+    alertLoading.value = true;
+    try {
+      const res = await getAlarmRecordsListApi({ alarmStatus: '1', pageNo: 1, pageSize: 3 });
+      const records = res?.records || res?.data?.records || res?.data || [];
+      alertList.value = (Array.isArray(records) ? records : []).slice(0, 3).map(mapRecordToCard);
+    } catch {
+      // 静默处理
+    } finally {
+      alertLoading.value = false;
     }
-    // 待处理告警（取 untreatedCount 字段）
-    if (alarmRes != null) {
-      const num = alarmRes.untreatedCount ?? 0
-      statData.value.pendingAlerts = num
+  };
+
+  // 确认并处理
+  const handleConfirm = async (alert: AlertRecord) => {
+    try {
+      await confirmAlarmRecordApi({ id: alert.id });
+      message.success('确认成功');
+      // 刷新最新告警列表和统计数据
+      fetchAlertList();
+      // fetchStatData()
+    } catch {
+      // defHttp 已自动提示错误信息
     }
-    // 设备在线率（online/count，保留两位小数）
-    if (deviceRes != null && deviceRes.count != null && deviceRes.count > 0) {
-      const rate = (deviceRes.online / deviceRes.count) * 100
-      statData.value.deviceOnlineRate = rate.toFixed(2) + '%'
-    } else {
-      statData.value.deviceOnlineRate = '0.00%'
+  };
+
+  // 转工单弹窗
+  const transferVisible = ref(false);
+  const transferForm = reactive({
+    recordId: '',
+    spaceId: '',
+    address: '',
+    spaceName: '',
+    description: '',
+    contractPeople: '',
+    contractPhone: '',
+  });
+
+  // 打开转工单弹窗
+  const handleTransfer = (alert: AlertRecord) => {
+    const record = alert._record || {};
+    transferForm.recordId = alert.id;
+    transferForm.spaceId = record.spaceId ?? '';
+    transferForm.address = '';
+    transferForm.spaceName = record.spaceName ?? '';
+    transferForm.description = record.alarmContent ?? '';
+    transferForm.contractPeople = '';
+    transferForm.contractPhone = '';
+    transferVisible.value = true;
+  };
+
+  // 提交转工单
+  const handleTransferSave = async () => {
+    try {
+      await transferEventAlarmRecordApi({ ...transferForm });
+      message.success('转工单成功');
+      transferVisible.value = false;
+      // 刷新最新告警列表
+      fetchAlertList();
+    } catch {
+      // defHttp 已自动提示错误信息
     }
-  } catch {
-    // 静默处理
+  };
+
+  // ===== 今日会展活动 =====
+  interface TodayEvent {
+    id: number | string;
+    time: string;
+    title: string;
+    location: string;
+    visitors: string;
+    status: string;
+    statusLabel: string;
   }
-}
 
-// ===== 快捷入口 =====
-const quickLinks = [
-  { title: '韧性安全', icon: ShieldIcon, bgColor: '#ebf8ff', iconColor: '#3182ce', route: '/fwbz/safety/security' },
-  { title: '能源机电', icon: EcoIcon, bgColor: '#f0fff4', iconColor: '#38a169', route: '/fwbz/operational' },
-  { title: '物联网', icon: AntennaIcon, bgColor: '#fffaf0', iconColor: '#dd6b20', route: '/fwbz/iot/interface' },
-  { title: '故障告警', icon: SirenIcon, bgColor: '#fff5f5', iconColor: '#e53e3e', route: '/fwbz/alert/setting' },
-  { title: '场馆运营', icon: StadiumIcon, bgColor: '#faf5ff', iconColor: '#805ad5', route: '/fwbz/venue/flow' },
-  { title: '会展服务', icon: CircusIcon, bgColor: '#e6fffa', iconColor: '#00b5d8', route: '/fwbz/event/pre' },
-]
+  const todayEvents = ref<TodayEvent[]>([]);
 
-// ===== 能耗趋势分析 =====
-const dateType = ref<string>('month')
-const date = ref<string>()
-const time = ref<string>()
-const pointDataStatisticsRef = ref<InstanceType<typeof PointDataStatistics>>()
+  const fetchTodayEvents = async () => {
+    try {
+      const res = await getTodayExhibitionActivity({
+        startDate: dayjs().format('YYYY-MM-DD'),
+        endDate: dayjs().format('YYYY-MM-DD'),
+      });
+      const records = res?.records || [];
+      const now = dayjs();
+      todayEvents.value = records.map((item: ActiveMeetInfo) => {
+        const startStr = item.startTime ? item.startTime.substring(0, 5) : '';
+        const endStr = item.endTime ? item.endTime.substring(0, 5) : '';
+        const timeRange = startStr && endStr ? `${startStr} - ${endStr}` : startStr || endStr || '--';
 
-const handleQuery = () => {
-  pointDataStatisticsRef.value?.findData()
-}
-
-const handleExport = () => {
-  pointDataStatisticsRef.value?.handleExport()
-}
-
-// ===== 告警图标 =====
-const AlertVeryDangerIcon = () => h('span', { style: 'font-size: 18px;' }, '🚨')
-const AlertDangerIcon = () => h('span', { style: 'font-size: 18px;' }, '⚠️')
-const AlertInfoIcon = () => h('span', { style: 'font-size: 18px;' }, '💡')
-
-// ===== 告警列表 =====
-interface AlertRecord {
-  id: string
-  _record: any
-  level: string
-  levelLabel: string
-  description: string
-  title: string
-  time: string
-  duration: string
-  alarmCategoryName: string
-}
-
-const alertList = ref<AlertRecord[]>([])
-const alertLoading = ref(false)
-
-// 报警等级文本 → level class 映射
-const levelClassMap: Record<string, string> = { '非常紧急': 'veryDanger', '紧急': 'danger' }
-
-// 计算持续时间
-const getDuration = (alarmTime: string): string => {
-  if (!alarmTime) return ''
-  const diff = Date.now() - new Date(alarmTime).getTime()
-  const minutes = Math.floor(diff / 60000)
-  if (minutes < 1) return '刚刚'
-  if (minutes < 60) return `${minutes}分钟`
-  const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours}小时${minutes % 60}分钟`
-  const days = Math.floor(hours / 24)
-  return `${days}天${hours % 24}小时`
-}
-
-// API 记录 → 卡片格式映射
-const mapRecordToCard = (record: any): AlertRecord => {
-  const levelName: string = record.alarmLevelName || ''
-  return {
-    id: record.id,
-    _record: record,
-    level: levelClassMap[levelName] || 'info',
-    levelLabel: levelName,
-    title: record.alarmContent || '',
-    description: `设备: ${record.deviceName || '-'} | 位置: ${record.spaceName || '-'}`,
-    time: record.alarmTime || '',
-    duration: getDuration(record.alarmTime),
-    alarmCategoryName: record.alarmCategoryName || '-',
-  }
-}
-
-const fetchAlertList = async () => {
-  alertLoading.value = true
-  try {
-    const res = await getAlarmRecordsListApi({ alarmStatus: '1', pageNo: 1, pageSize: 3 })
-    const records = res?.records || res?.data?.records || res?.data || []
-    alertList.value = (Array.isArray(records) ? records : []).slice(0, 3).map(mapRecordToCard)
-  } catch {
-    // 静默处理
-  } finally {
-    alertLoading.value = false
-  }
-}
-
-// 确认并处理
-const handleConfirm = async (alert: AlertRecord) => {
-  try {
-    await confirmAlarmRecordApi({ id: alert.id })
-    message.success('确认成功')
-    // 刷新最新告警列表和统计数据
-    fetchAlertList()
-    // fetchStatData()
-  } catch {
-    // defHttp 已自动提示错误信息
-  }
-}
-
-// 转工单弹窗
-const transferVisible = ref(false)
-const transferForm = reactive({
-  recordId: '',
-  spaceId: '',
-  address: '',
-  spaceName: '',
-  description: '',
-  contractPeople: '',
-  contractPhone: '',
-})
-
-// 打开转工单弹窗
-const handleTransfer = (alert: AlertRecord) => {
-  const record = alert._record || {}
-  transferForm.recordId = alert.id
-  transferForm.spaceId = record.spaceId ?? ''
-  transferForm.address = ''
-  transferForm.spaceName = record.spaceName ?? ''
-  transferForm.description = record.alarmContent ?? ''
-  transferForm.contractPeople = ''
-  transferForm.contractPhone = ''
-  transferVisible.value = true
-}
-
-// 提交转工单
-const handleTransferSave = async () => {
-  try {
-    await transferEventAlarmRecordApi({ ...transferForm })
-    message.success('转工单成功')
-    transferVisible.value = false
-    // 刷新最新告警列表
-    fetchAlertList()
-  } catch {
-    // defHttp 已自动提示错误信息
-  }
-}
-
-// ===== 今日会展活动 =====
-interface TodayEvent {
-  id: number | string
-  time: string
-  title: string
-  location: string
-  visitors: string
-  status: string
-  statusLabel: string
-}
-
-const todayEvents = ref<TodayEvent[]>([])
-
-const fetchTodayEvents = async () => {
-  try {
-    const res = await getTodayExhibitionActivity({
-      startDate: dayjs().format('YYYY-MM-DD'),
-      endDate: dayjs().format('YYYY-MM-DD'),
-    })
-    const records = res?.records || []
-    const now = dayjs()
-    todayEvents.value = records.map((item: ActiveMeetInfo) => {
-      const startStr = item.startTime ? item.startTime.substring(0, 5) : ''
-      const endStr = item.endTime ? item.endTime.substring(0, 5) : ''
-      const timeRange = startStr && endStr ? `${startStr} - ${endStr}` : (startStr || endStr || '--')
-
-      // 根据当前时间与活动时间计算状态
-      let status = 'info'
-      let statusLabel = '待开始'
-      if (startStr && endStr) {
-        const todayDate = dayjs().format('YYYY-MM-DD')
-        const start = dayjs(`${todayDate} ${startStr}:00`)
-        const end = dayjs(`${todayDate} ${endStr}:00`)
-        if (now.isAfter(end)) {
-          status = 'info'
-          statusLabel = '已结束'
-        } else if (now.isAfter(start) && now.isBefore(end)) {
-          status = 'normal'
-          statusLabel = '进行中'
-        } else if (now.isBefore(start)) {
-          status = 'warning'
-          statusLabel = '筹备中'
+        // 根据当前时间与活动时间计算状态
+        let status = 'info';
+        let statusLabel = '待开始';
+        if (startStr && endStr) {
+          const todayDate = dayjs().format('YYYY-MM-DD');
+          const start = dayjs(`${todayDate} ${startStr}:00`);
+          const end = dayjs(`${todayDate} ${endStr}:00`);
+          if (now.isAfter(end)) {
+            status = 'info';
+            statusLabel = '已结束';
+          } else if (now.isAfter(start) && now.isBefore(end)) {
+            status = 'normal';
+            statusLabel = '进行中';
+          } else if (now.isBefore(start)) {
+            status = 'warning';
+            statusLabel = '筹备中';
+          }
         }
-      }
 
-      const location = [item.venueName, item.venueFloors].filter(Boolean).join(' ') || '--'
+        const location = [item.venueName, item.venueFloors].filter(Boolean).join(' ') || '--';
 
-      return {
-        id: item.id || item.activeName || '',
-        time: timeRange,
-        title: item.activeName || '--',
-        location,
-        visitors: item.peopleQuantity != null ? String(item.peopleQuantity) : '--',
-        status,
-        statusLabel,
-      }
-    })
-  } catch (error) {
-    console.error('获取今日会展活动失败:', error)
-  }
-}
-
-// ===== 设备总览（子系统对接状态） =====
-const allDeviceData = ref<any[]>([])
-const equipmentLoading = ref(false)
-
-/** 加载设备总览数据（调用 deviceStat 接口） */
-const loadEquipmentOverview = async () => {
-  equipmentLoading.value = true
-  try {
-    const res = await getDeviceStat()
-    const list: SystemDeviceStatVO[] = Array.isArray(res) ? res : (res?.data || res?.result || [])
-    allDeviceData.value = (list || []).map((item) => {
-      const offline = (item.deviceCount ?? 0) - (item.online ?? 0)
-      const systemName = item.systemName || ''
-      const cfg = iconConfig[systemName] || { icon: AirConditionerIcon, iconBg: '#e6f4ff', iconColor: '#1677ff' }
-      return {
-        title: systemName || '--',
-        meta: '设备状态',
-        icon: cfg.icon,
-        iconBg: cfg.iconBg,
-        iconColor: cfg.iconColor,
-        stats: [
-          { label: '设备总数', value: item.deviceCount ?? 0 },
-          { label: '在线', value: item.online ?? 0 },
-          { label: '离线', value: offline, highlight: offline > 0 },
-        ],
-        system: systemName,
-      }
-    })
-  } catch {
-    // 静默处理
-  } finally {
-    equipmentLoading.value = false
-  }
-}
-
-/** 设备数据 */
-const displayData = computed(() => allDeviceData.value)
-
-// ===== 能源结构占比饼图 =====
-const structureChartRef = ref<HTMLDivElement>()
-const structureChartData = ref<{ name: string; value: number }[]>([])
-const structureLoading = ref(false)
-const structureChartInstance = ref<any>(null)
-
-const structureTabs: { key: 'day' | 'month' | 'year'; label: string }[] = [
-  { key: 'day', label: '日' },
-  { key: 'month', label: '月' },
-  { key: 'year', label: '年' },
-]
-const structureActive = ref<'day' | 'month' | 'year'>('month')
-
-const handleStructureTabChange = (key: 'day' | 'month' | 'year') => {
-  structureActive.value = key
-  loadStructureData(key)
-}
-
-const PIE_COLORS = ['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de', '#3ba272', '#fc8452']
-
-/** 加载用能结构占比数据 */
-const loadStructureData = async (type: 'day' | 'month' | 'year' = 'month') => {
-  structureLoading.value = true
-  try {
-    const apiMap = {
-      day: findDayByConfig,
-      month: findMonthByConfig,
-      year: findYearByConfig,
+        return {
+          id: item.id || item.activeName || '',
+          time: timeRange,
+          title: item.activeName || '--',
+          location,
+          visitors: item.peopleQuantity != null ? String(item.peopleQuantity) : '--',
+          status,
+          statusLabel,
+        };
+      });
+    } catch (error) {
+      console.error('获取今日会展活动失败:', error);
     }
-    const res = await apiMap[type]()
-    const chatData = res?.chat || res?.result?.chat || res?.data?.chat || {}
-    const seriesList = (chatData.chatSeriesList || chatData.seriesList || []) as any[]
-    const filteredList = seriesList.filter((item: any) => item.name !== '合计')
-    const pieData = filteredList.map((item: any) => ({
-      name: item.name,
-      value: Array.isArray(item.data) && item.data.length > 0 ? Number(item.data[0]) || 0 : 0,
-    }))
-    structureChartData.value = pieData
-    structureLoading.value = false
-    await nextTick()
-    if (pieData.length > 0) {
-      renderStructureChart(pieData)
-    }
-  } catch (e) {
-    console.error('加载用能结构数据失败:', e)
-    structureLoading.value = false
-  }
-}
+  };
 
-/** 渲染用能结构饼图 */
-const renderStructureChart = (data: { name: string; value: number }[]) => {
-  if (!structureChartRef.value) return
-  try {
-    if (!structureChartInstance.value) {
-      const { setOptions } = useECharts(structureChartRef as any)
-      structureChartInstance.value = setOptions
+  // ===== 设备总览（子系统对接状态） =====
+  const allDeviceData = ref<any[]>([]);
+  const equipmentLoading = ref(false);
+
+  /** 加载设备总览数据（调用 deviceStat 接口） */
+  const loadEquipmentOverview = async () => {
+    equipmentLoading.value = true;
+    try {
+      const res = await getDeviceStat();
+      const list: SystemDeviceStatVO[] = Array.isArray(res) ? res : res?.data || res?.result || [];
+      allDeviceData.value = (list || []).map((item) => {
+        const offline = (item.deviceCount ?? 0) - (item.online ?? 0);
+        const systemName = item.systemName || '';
+        const cfg = iconConfig[systemName] || { icon: AirConditionerIcon, iconBg: '#e6f4ff', iconColor: '#1677ff' };
+        return {
+          title: systemName || '--',
+          meta: '设备状态',
+          icon: cfg.icon,
+          iconBg: cfg.iconBg,
+          iconColor: cfg.iconColor,
+          stats: [
+            { label: '设备总数', value: item.deviceCount ?? 0 },
+            { label: '在线', value: item.online ?? 0 },
+            { label: '离线', value: offline, highlight: offline > 0 },
+          ],
+          system: systemName,
+        };
+      });
+    } catch {
+      // 静默处理
+    } finally {
+      equipmentLoading.value = false;
     }
-    structureChartInstance.value({
-    tooltip: {
-      trigger: 'item',
-      formatter: (params: any) => {
-        return `<div style="font-weight:600;margin-bottom:4px;">${params.name}</div>
-          <div>占比：<span style="font-weight:600;">${params.percent}%</span></div>`
-      },
-    },
-    legend: {
-      orient: 'vertical',
-      right: '5%',
-      top: 'center',
-      textStyle: { color: '#666', fontSize:14 },
-      itemWidth: 12,
-      itemHeight: 12,
-      itemGap: 12,
-    },
-    series: [
-      {
-        type: 'pie',
-        radius: ['50%', '75%'],
-        center: ['38%', '50%'],
-        avoidLabelOverlap: false,
-        itemStyle: {
-          borderRadius: 4,
-          borderColor: '#fff',
-          borderWidth: 2,
-        },
-        label: { show: false },
-        emphasis: {
-          label: {
-            show: true,
-            fontSize: 16,
-            fontWeight: 'bold',
+  };
+
+  /** 设备数据 */
+  const displayData = computed(() => allDeviceData.value);
+
+  // ===== 能源结构占比饼图 =====
+  const structureChartRef = ref<HTMLDivElement>();
+  const structureChartData = ref<{ name: string; value: number }[]>([]);
+  const structureLoading = ref(false);
+  const structureChartInstance = ref<any>(null);
+
+  const structureTabs: { key: 'day' | 'month' | 'year'; label: string }[] = [
+    { key: 'day', label: '日' },
+    { key: 'month', label: '月' },
+    { key: 'year', label: '年' },
+  ];
+  const structureActive = ref<'day' | 'month' | 'year'>('month');
+
+  const handleStructureTabChange = (key: 'day' | 'month' | 'year') => {
+    structureActive.value = key;
+    loadStructureData(key);
+  };
+
+  const PIE_COLORS = ['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de', '#3ba272', '#fc8452'];
+
+  /** 加载用能结构占比数据 */
+  const loadStructureData = async (type: 'day' | 'month' | 'year' = 'month') => {
+    structureLoading.value = true;
+    try {
+      const apiMap = {
+        day: findDayByConfig,
+        month: findMonthByConfig,
+        year: findYearByConfig,
+      };
+      const res = await apiMap[type]();
+      const chatData = res?.chat || res?.result?.chat || res?.data?.chat || {};
+      const seriesList = (chatData.chatSeriesList || chatData.seriesList || []) as any[];
+      const filteredList = seriesList.filter((item: any) => item.name !== '合计');
+      const pieData = filteredList.map((item: any) => ({
+        name: item.name,
+        value: Array.isArray(item.data) && item.data.length > 0 ? Number(item.data[0]) || 0 : 0,
+      }));
+      structureChartData.value = pieData;
+      structureLoading.value = false;
+      await nextTick();
+      if (pieData.length > 0) {
+        renderStructureChart(pieData);
+      }
+    } catch (e) {
+      console.error('加载用能结构数据失败:', e);
+      structureLoading.value = false;
+    }
+  };
+
+  /** 渲染用能结构饼图 */
+  const renderStructureChart = (data: { name: string; value: number }[]) => {
+    if (!structureChartRef.value) return;
+    try {
+      if (!structureChartInstance.value) {
+        const { setOptions } = useECharts(structureChartRef as any);
+        structureChartInstance.value = setOptions;
+      }
+      structureChartInstance.value({
+        tooltip: {
+          trigger: 'item',
+          formatter: (params: any) => {
+            return `<div style="font-weight:600;margin-bottom:4px;">${params.name}</div>
+          <div>占比：<span style="font-weight:600;">${params.percent}%</span></div>`;
           },
-          scaleSize: 10,
         },
-        data: data.map((item, idx) => ({
-          ...item,
-          itemStyle: { color: PIE_COLORS[idx % PIE_COLORS.length] },
-        })),
-      },
-    ],
-    })
-  } catch (e) {
-    console.error('渲染用能结构饼图失败:', e)
-  }
-}
+        legend: {
+          orient: 'vertical',
+          right: '5%',
+          top: 'center',
+          textStyle: { color: '#666', fontSize: 14 },
+          itemWidth: 12,
+          itemHeight: 12,
+          itemGap: 12,
+        },
+        series: [
+          {
+            type: 'pie',
+            radius: ['50%', '75%'],
+            center: ['38%', '50%'],
+            avoidLabelOverlap: false,
+            itemStyle: {
+              borderRadius: 4,
+              borderColor: '#fff',
+              borderWidth: 2,
+            },
+            label: { show: false },
+            emphasis: {
+              label: {
+                show: true,
+                fontSize: 16,
+                fontWeight: 'bold',
+              },
+              scaleSize: 10,
+            },
+            data: data.map((item, idx) => ({
+              ...item,
+              itemStyle: { color: PIE_COLORS[idx % PIE_COLORS.length] },
+            })),
+          },
+        ],
+      });
+    } catch (e) {
+      console.error('渲染用能结构饼图失败:', e);
+    }
+  };
 
-const handleCardClick = (item: any) => {
-  console.log('点击卡片:', item.title)
-}
+  const handleCardClick = (item: any) => {
+    console.log('点击卡片:', item.title);
+  };
 
-// ===== 方法 =====
-const handleQuickLink = (link: { title: string; route: string }) => {
-  console.log('Navigate to:', link.route)
-  router.push({ path: link.route })
-}
+  // ===== 方法 =====
+  const handleQuickLink = (link: { title: string; route: string }) => {
+    console.log('Navigate to:', link.route);
+    router.push({ path: link.route });
+  };
 
-const handleViewAllAlerts = () => {
-  router.push({ path: '/fwbz/alert/handle' })
-}
+  const handleViewAllAlerts = () => {
+    router.push({ path: '/fwbz/alert/handle' });
+  };
 
-onMounted(() => {
-  fetchStatData()
-  fetchTodayEvents()
-  fetchAlertList()
-  loadEquipmentOverview()
-  loadStructureData('month')
-})
+  onMounted(() => {
+    fetchStatData();
+    fetchTodayEvents();
+    fetchAlertList();
+    loadEquipmentOverview();
+    loadStructureData('month');
+  });
 </script>
 
 <style scoped lang="less">
-.dashboard-page {
-  padding: 0;
-}
+  .dashboard-page {
+    padding: 0;
+  }
 
-// 统计卡片行
-.stats-row {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 18px;
-  margin-bottom: 20px;
-}
+  // 统计卡片行
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-bottom: 20px;
+  }
 
-// 快捷入口
-.quick-links {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 14px;
-  margin-bottom: 20px;
+  // 快捷入口
+  .quick-links {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 14px;
+    margin-bottom: 20px;
 
-  .quick-link {
+    .quick-link {
+      background: white;
+      border-radius: 12px;
+      padding: 20px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+
+      &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+      }
+
+      .quick-link-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        margin: 0 auto 12px;
+      }
+
+      .quick-link-title {
+        font-size: 16px;
+        font-weight: 500;
+        color: #2d3748;
+      }
+    }
+  }
+
+  // 图表区域
+  .dashboard-charts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  // 卡片
+  .card {
     background: white;
     border-radius: 12px;
-    padding: 20px 16px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    margin-bottom: 20px;
+    overflow: hidden;
 
-    &:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
-    }
-
-    .quick-link-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
+    .card-header {
+      padding: 18px 22px;
+      border-bottom: 1px solid #f0f0f0;
       display: flex;
       align-items: center;
-      justify-content: center;
-      font-size: 22px;
-      margin: 0 auto 12px;
+      justify-content: space-between;
+
+      h3 {
+        font-size: 20px;
+        font-weight: 600;
+        color: #2d3748;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0;
+      }
+
+      .tag {
+        font-size: 13px;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-weight: 500;
+      }
+
+      .tag-green {
+        background: #c6f6d5;
+        color: #22543d;
+      }
+      .tag-blue {
+        background: #bee3f8;
+        color: #2a4365;
+      }
+      .tag-orange {
+        background: #feebc8;
+        color: #744210;
+      }
+      .tag-red {
+        background: #fed7d7;
+        color: #742a2a;
+      }
+      .tag-purple {
+        background: #e9d8fd;
+        color: #553c9a;
+      }
+
+      .btn-group {
+        display: flex;
+        gap: 8px;
+      }
     }
 
-    .quick-link-title {
-      font-size:16px;
-      font-weight: 500;
-      color: #2d3748;
+    .card-body {
+      padding: 22px;
     }
   }
-}
 
-// 图表区域
-.dashboard-charts {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-}
+  // 两栏布局
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
 
-// 卡片
-.card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  margin-bottom: 20px;
-  overflow: hidden;
-
-  .card-header {
-    padding: 18px 22px;
-    border-bottom: 1px solid #f0f0f0;
+  // 图表占位
+  .chart-placeholder {
+    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+    border-radius: 10px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
+    flex-direction: column;
+    color: #a0aec0;
+    border: 2px dashed #e2e8f0;
+    min-height: 280px;
+    padding: 30px;
 
-    h3 {
-      font-size: 20px;
-      font-weight: 600;
-      color: #2d3748;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin: 0;
+    .chart-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
     }
 
-    .tag {
-      font-size:13px;
-      padding: 4px 10px;
-      border-radius: 6px;
+    .chart-text {
+      font-size: 16px;
+      color: #718096;
       font-weight: 500;
     }
 
-    .tag-green { background: #c6f6d5; color: #22543d; }
-    .tag-blue { background: #bee3f8; color: #2a4365; }
-    .tag-orange { background: #feebc8; color: #744210; }
-    .tag-red { background: #fed7d7; color: #742a2a; }
-    .tag-purple { background: #e9d8fd; color: #553c9a; }
-
-    .btn-group {
-      display: flex;
-      gap: 8px;
+    .chart-sub {
+      font-size: 14px;
+      color: #a0aec0;
+      margin-top: 8px;
     }
   }
 
-  .card-body {
-    padding: 22px;
-  }
-}
-
-// 两栏布局
-.two-col {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-}
-
-// 图表占位
-.chart-placeholder {
-  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  color: #a0aec0;
-  border: 2px dashed #e2e8f0;
-  min-height: 280px;
-  padding: 30px;
-
-  .chart-icon {
-    font-size: 48px;
-    margin-bottom: 12px;
-  }
-
-  .chart-text {
-    font-size:16px;
-    color: #718096;
-    font-weight: 500;
-  }
-
-  .chart-sub {
-    font-size:14px;
-    color: #a0aec0;
-    margin-top: 8px;
-  }
-}
-
-// 时间线
-.timeline {
-  position: relative;
-  padding-left: 24px;
-
-  &::before {
-    content: '';
-    position: absolute;
-    left: 6px;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background: #e2e8f0;
-  }
-
-  .timeline-item {
+  // 时间线
+  .timeline {
     position: relative;
-    padding-bottom: 20px;
-
-    &:last-child {
-      padding-bottom: 0;
-    }
+    padding-left: 24px;
 
     &::before {
       content: '';
       position: absolute;
-      left: -22px;
-      top: 4px;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: #3182ce;
-      border: 2px solid white;
-      box-shadow: 0 0 0 2px #3182ce;
+      left: 6px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: #e2e8f0;
     }
 
-    .timeline-time {
-      font-size:14px;
-      color: #a0aec0;
-      margin-bottom: 4px;
-    }
+    .timeline-item {
+      position: relative;
+      padding-bottom: 20px;
 
-    .timeline-content {
-      font-size:16px;
-      color: #2d3748;
-      line-height: 1.6;
+      &:last-child {
+        padding-bottom: 0;
+      }
 
-      .status-text {
-        display: inline-flex;
-        align-items: center;
-        padding: 2px 8px;
-        border-radius: 4px;
-        font-size:14px;
-        font-weight: 500;
+      &::before {
+        content: '';
+        position: absolute;
+        left: -22px;
+        top: 4px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #3182ce;
+        border: 2px solid white;
+        box-shadow: 0 0 0 2px #3182ce;
+      }
 
-        &.normal { background: #c6f6d5; color: #22543d; }
-        &.warning { background: #feebc8; color: #744210; }
-        &.danger { background: #fed7d7; color: #742a2a; }
-        &.info { background: #bee3f8; color: #2a4365; }
+      .timeline-time {
+        font-size: 14px;
+        color: #a0aec0;
+        margin-bottom: 4px;
+      }
+
+      .timeline-content {
+        font-size: 16px;
+        color: #2d3748;
+        line-height: 1.6;
+
+        .status-text {
+          display: inline-flex;
+          align-items: center;
+          padding: 2px 8px;
+          border-radius: 4px;
+          font-size: 14px;
+          font-weight: 500;
+
+          &.normal {
+            background: #c6f6d5;
+            color: #22543d;
+          }
+          &.warning {
+            background: #feebc8;
+            color: #744210;
+          }
+          &.danger {
+            background: #fed7d7;
+            color: #742a2a;
+          }
+          &.info {
+            background: #bee3f8;
+            color: #2a4365;
+          }
+        }
       }
     }
   }
-}
 
-// 设备总览头部 + 状态图
-.overview-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px;
-
-  .status-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 4px 12px;
-    font-size:16px;
-    font-weight: 500;
-    color: #52c41a;
-    background: #f6ffed;
-    border: 1px solid #b7eb8f;
-    border-radius: 9999px;
-  }
-}
-
-// 设备卡片网格
-.device-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-}
-
-// 告警列表卡片
-.empty-state {
-  text-align: center;
-  color: #a0aec0;
-  padding: 40px 0;
-  font-size:16px;
-}
-
-.alert-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.alert-card {
-  display: flex;
-  gap: 12px;
-  padding: 14px 16px;
-  border-radius: 10px;
-  background: #fafafa;
-  border-left: 4px solid #d9d9d9;
-  transition: all 0.3s;
-
-  &:hover {
-    background: #f0f0f0;
-  }
-
-  &.veryDanger {
-    border-left-color: #ff4d4f;
-    background: #fff2f0;
-  }
-
-  &.danger {
-    border-left-color: #fa8c16;
-    background: #fff7e6;
-  }
-
-  &.info {
-    border-left-color: #1677ff;
-    background: #e6f4ff;
-  }
-
-  .alert-icon {
-    flex-shrink: 0;
-    width: 28px;
-    height: 28px;
+  // 设备总览头部 + 状态图
+  .overview-header {
     display: flex;
     align-items: center;
-    justify-content: center;
-  }
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
 
-  .alert-content {
-    flex: 1;
-    min-width: 0;
-
-    .alert-title {
-      font-size:16px;
-      font-weight: 600;
-      color: #2d3748;
-      display: flex;
+    .status-badge {
+      display: inline-flex;
       align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 4px;
-
-      .category-tag {
-        font-size:13px;
-        padding: 2px 8px;
-        border-radius: 4px;
-        background: #e2e8f0;
-        color: #4a5568;
-        font-weight: 400;
-      }
-
-      .level-tag {
-        font-size:13px;
-        padding: 2px 8px;
-        border-radius: 4px;
-        font-weight: 400;
-
-        &.veryDanger {
-          background: #ffccc7;
-          color: #cf1322;
-        }
-
-        &.danger {
-          background: #ffe7ba;
-          color: #d46b08;
-        }
-
-        &.info {
-          background: #bae0ff;
-          color: #0958d9;
-        }
-      }
-    }
-
-    .alert-desc {
-      font-size:14px;
-      color: #718096;
-      margin-bottom: 4px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .alert-time {
-      font-size:13px;
-      color: #a0aec0;
-      margin-bottom: 10px;
-    }
-
-    .alert-actions {
-      display: flex;
-      gap: 8px;
-
-      .confirm-btn {
-        &.confirm-veryDanger {
-          background: #ff4d4f;
-          border-color: #ff4d4f;
-          color: #fff;
-
-          &:hover {
-            background: #ff7875;
-            border-color: #ff7875;
-          }
-        }
-
-        &.confirm-danger {
-          background: #fa8c16;
-          border-color: #fa8c16;
-          color: #fff;
-
-          &:hover {
-            background: #ffa940;
-            border-color: #ffa940;
-          }
-        }
-
-        &.confirm-info {
-          background: #1677ff;
-          border-color: #1677ff;
-          color: #fff;
-
-          &:hover {
-            background: #4096ff;
-            border-color: #4096ff;
-          }
-        }
-      }
+      justify-content: center;
+      padding: 4px 12px;
+      font-size: 16px;
+      font-weight: 500;
+      color: #52c41a;
+      background: #f6ffed;
+      border: 1px solid #b7eb8f;
+      border-radius: 9999px;
     }
   }
-}
 
-// 转工单填写区
-.transfer-actions {
-  display: flex;
-  align-items: center;
-  gap: 32px;
-  padding: 12px 16px;
-  background: #f7f9fc;
-  border: 1px solid #e5e6eb;
-  border-radius: 8px;
+  // 设备卡片网格
+  .device-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
 
-  &__item {
+  // 告警列表卡片
+  .empty-state {
+    text-align: center;
+    color: #a0aec0;
+    padding: 40px 0;
+    font-size: 16px;
+  }
+
+  .alert-list {
     display: flex;
-    align-items: center;
+    flex-direction: column;
     gap: 12px;
   }
 
-  &__label {
-    font-size:16px;
-    font-weight: 500;
-    color: #1d2129;
-    flex-shrink: 0;
-  }
-}
-
-// 能源结构占比卡片（饼图垂直居中）
-.structure-card {
-  .card-body {
+  .alert-card {
     display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    min-height: 380px;
-  }
-}
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    background: #fafafa;
+    border-left: 4px solid #d9d9d9;
+    transition: all 0.3s;
 
-// 能源结构占比饼图
-.structure-chart {
-  width: 100%;
-  height: 320px;
-}
-
-.venue-electricity-tabs {
-  display: inline-flex;
-  border: 1px solid #d9d9d9;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.venue-electricity-tab {
-  padding: 4px 14px;
-  font-size:16px;
-  color: rgba(0, 0, 0, 0.65);
-  background: #ffffff;
-  border: none;
-  outline: none;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &:hover {
-    color: #1890ff;
-  }
-
-  &.active {
-    color: #ffffff;
-    background: #1890ff;
-  }
-
-  &:not(:last-child) {
-    border-right: 1px solid #d9d9d9;
-  }
-}
-
-// 能耗趋势分析卡片（在 dashboard-charts 网格内）
-.trend-analysis-card {
-  .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 18px 22px;
-    border-bottom: 1px solid #f0f0f0;
-
-    .card-title-wrap {
-      display: flex;
-      align-items: center;
-
-      .card-title {
-        font-size: 20px;
-        font-weight: 600;
-        color: #262626;
-      }
+    &:hover {
+      background: #f0f0f0;
     }
 
-    .card-actions {
+    &.veryDanger {
+      border-left-color: #ff4d4f;
+      background: #fff2f0;
+    }
+
+    &.danger {
+      border-left-color: #fa8c16;
+      background: #fff7e6;
+    }
+
+    &.info {
+      border-left-color: #1677ff;
+      background: #e6f4ff;
+    }
+
+    .alert-icon {
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .alert-content {
+      flex: 1;
+      min-width: 0;
+
+      .alert-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #2d3748;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 4px;
+
+        .category-tag {
+          font-size: 13px;
+          padding: 2px 8px;
+          border-radius: 4px;
+          background: #e2e8f0;
+          color: #4a5568;
+          font-weight: 400;
+        }
+
+        .level-tag {
+          font-size: 13px;
+          padding: 2px 8px;
+          border-radius: 4px;
+          font-weight: 400;
+
+          &.veryDanger {
+            background: #ffccc7;
+            color: #cf1322;
+          }
+
+          &.danger {
+            background: #ffe7ba;
+            color: #d46b08;
+          }
+
+          &.info {
+            background: #bae0ff;
+            color: #0958d9;
+          }
+        }
+      }
+
+      .alert-desc {
+        font-size: 14px;
+        color: #718096;
+        margin-bottom: 4px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .alert-time {
+        font-size: 13px;
+        color: #a0aec0;
+        margin-bottom: 10px;
+      }
+
+      .alert-actions {
+        display: flex;
+        gap: 8px;
+
+        .confirm-btn {
+          &.confirm-veryDanger {
+            background: #ff4d4f;
+            border-color: #ff4d4f;
+            color: #fff;
+
+            &:hover {
+              background: #ff7875;
+              border-color: #ff7875;
+            }
+          }
+
+          &.confirm-danger {
+            background: #fa8c16;
+            border-color: #fa8c16;
+            color: #fff;
+
+            &:hover {
+              background: #ffa940;
+              border-color: #ffa940;
+            }
+          }
+
+          &.confirm-info {
+            background: #1677ff;
+            border-color: #1677ff;
+            color: #fff;
+
+            &:hover {
+              background: #4096ff;
+              border-color: #4096ff;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // 转工单填写区
+  .transfer-actions {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    padding: 12px 16px;
+    background: #f7f9fc;
+    border: 1px solid #e5e6eb;
+    border-radius: 8px;
+
+    &__item {
       display: flex;
       align-items: center;
       gap: 12px;
+    }
 
-      .date-label {
-        font-size:16px;
-        color: #595959;
-        margin-left: 8px;
-      }
-
-      :deep(.ant-radio-button-wrapper) {
-        color: #595959;
-      }
-
-      :deep(.ant-radio-button-wrapper-checked) {
-        color: #fff;
-        background-color: #1890ff;
-        border-color: #1890ff;
-      }
-
-      :deep(.ant-btn-primary) {
-        background-color: #1890ff;
-        border-color: #1890ff;
-      }
+    &__label {
+      font-size: 16px;
+      font-weight: 500;
+      color: #1d2129;
+      flex-shrink: 0;
     }
   }
 
-  .card-body {
-    min-height: 120px;
-    padding: 22px;
-
-:deep(.point-data-statistics) {
-height: calc(100vh - 550px);
-}
+  // 能源结构占比卡片（饼图垂直居中）
+  .structure-card {
+    .card-body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 380px;
+    }
   }
-}
+
+  // 能源结构占比饼图
+  .structure-chart {
+    width: 100%;
+    height: 320px;
+  }
+
+  .venue-electricity-tabs {
+    display: inline-flex;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .venue-electricity-tab {
+    padding: 4px 14px;
+    font-size: 16px;
+    color: rgba(0, 0, 0, 0.65);
+    background: #ffffff;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      color: #1890ff;
+    }
+
+    &.active {
+      color: #ffffff;
+      background: #1890ff;
+    }
+
+    &:not(:last-child) {
+      border-right: 1px solid #d9d9d9;
+    }
+  }
+
+  // 能耗趋势分析卡片（在 dashboard-charts 网格内）
+  .trend-analysis-card {
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 22px;
+      border-bottom: 1px solid #f0f0f0;
+
+      .card-title-wrap {
+        display: flex;
+        align-items: center;
+
+        .card-title {
+          font-size: 20px;
+          font-weight: 600;
+          color: #262626;
+        }
+      }
+
+      .card-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        .date-label {
+          font-size: 16px;
+          color: #595959;
+          margin-left: 8px;
+        }
+
+        :deep(.ant-radio-button-wrapper) {
+          color: #595959;
+        }
+
+        :deep(.ant-radio-button-wrapper-checked) {
+          color: #fff;
+          background-color: #1890ff;
+          border-color: #1890ff;
+        }
+
+        :deep(.ant-btn-primary) {
+          background-color: #1890ff;
+          border-color: #1890ff;
+        }
+      }
+    }
+
+    .card-body {
+      min-height: 120px;
+      padding: 22px;
+
+      :deep(.point-data-statistics) {
+        height: calc(100vh - 550px);
+      }
+    }
+  }
 </style>

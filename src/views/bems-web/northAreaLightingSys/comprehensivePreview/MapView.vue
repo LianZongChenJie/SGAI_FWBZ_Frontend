@@ -79,6 +79,9 @@ let openedMarkerEl: HTMLElement | null = null;
 let openedMarkerOriginalZ: string = '';
 // 展开列表的滚轮拦截处理函数（收起时移除）
 let openedListWheelHandler: ((e: WheelEvent) => void) | null = null;
+// 地图滚动捕获监听器数组（用于组件卸载时清理）
+const mapScrollListeners: Array<{ target: EventTarget; name: string; handler: EventListener }> = [];
+let mapScrollContainer: HTMLElement | null = null;
 
 /**
  * 关闭当前展开的成员列表
@@ -192,12 +195,60 @@ const mapConfig = {
   showOutDoorMap: false,
   mapDataPath: "/data/572d6c0c869b3e2ce85a63ab2a1d5a0a/{{bdid}}/",
 };
+/**
+ * 设置地图滚动捕获：防止地图容器内的滚动事件影响页面滚动
+ * 当地图加载完成后调用，确保切换到其他页面时页面可以正常滚动
+ */
+const setupMapScrollCapture = () => {
+  if (mapScrollListeners.length > 0) return;
+
+  mapScrollContainer = document.getElementById('mapContainer');
+  if (!mapScrollContainer) return;
+  mapScrollContainer.style.setProperty('touch-action', 'pan-y', 'important');
+  mapScrollContainer.style.setProperty('-webkit-touch-callout', 'none', 'important');
+
+  document.documentElement.style.setProperty('overflow', 'auto', 'important');
+  document.body.style.setProperty('overflow', 'auto', 'important');
+
+  const stopMapScroll = (event: Event) => {
+    if (!(event.target instanceof Node) || !mapScrollContainer?.contains(event.target)) return;
+    if (event.cancelable) {
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+    }
+  };
+
+  const targets: EventTarget[] = [mapScrollContainer, document.documentElement, document.body];
+  const eventNames = ['wheel', 'mousewheel', 'DOMMouseScroll', 'touchmove', 'touchstart'];
+
+  eventNames.forEach((name) => {
+    targets.forEach((target) => {
+      target.addEventListener(name, stopMapScroll, { capture: true, passive: false });
+      mapScrollListeners.push({ target, name, handler: stopMapScroll });
+    });
+  });
+};
+
+/**
+ * 移除地图滚动捕获监听器和样式
+ * 在组件卸载时调用，清理所有事件监听器
+ */
+const removeMapScrollCapture = () => {
+  mapScrollListeners.forEach(({ target, name, handler }) => {
+    target.removeEventListener(name, handler, { capture: true });
+  });
+  mapScrollListeners.length = 0;
+  mapScrollContainer = null;
+};
+
 // 初始化地图
 const initMap = async () => {
   try {
     map.value = await new DaxiMap.Map("mapContainer", mapConfig);
     map.value.on("loadComplete", async () => {
       console.log("地图加载完成");
+      // 设置滚动捕获，防止地图容器影响页面滚动
+      setupMapScrollCapture();
       // 设置缩放范围：最小10级，最大23级
       map.value.setZoomLevelRange(10, 23);
       buildingInfo.value = map.value.getBuildingInfo(buildingID);
@@ -1119,6 +1170,8 @@ onUnmounted(() => {
   if (map.value) {
     map.value = null
   }
+  // 移除地图滚动捕获监听器
+  removeMapScrollCapture();
   // 移除全局点击监听
   document.removeEventListener('click', handleDocumentClick, true);
   // 断开容器尺寸监听

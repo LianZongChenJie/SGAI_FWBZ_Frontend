@@ -480,4 +480,10 @@
     display: flex;
     align-items: center;
   }
+
+  .jeecg-basic-table {
+    :deep(.ant-table-wrapper) {
+      margin-top: -40px !important;
+    }
+  }
 </style>

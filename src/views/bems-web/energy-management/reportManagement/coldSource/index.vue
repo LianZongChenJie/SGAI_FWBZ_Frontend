@@ -238,4 +238,9 @@
       max-width: 100%;
     }
   }
+  .jeecg-basic-table {
+    :deep(.ant-table-wrapper) {
+      margin-top: -40px !important;
+    }
+  }
 </style>
