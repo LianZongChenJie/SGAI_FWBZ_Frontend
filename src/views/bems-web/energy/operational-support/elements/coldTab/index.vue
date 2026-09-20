@@ -2,30 +2,10 @@
   <div class="tab-page">
     <!-- 统计卡片 -->
     <div class="stat-cards">
-      <StatCard
-        label="冷源机组总数"
-        :value="statsData.count"
-        color="blue"
-        :icon="ColdSourceTotalIcon"
-      />
-      <StatCard
-        label="在线"
-        :value="statsData.online"
-        color="green"
-        :icon="RunningIcon"
-      />
-      <StatCard
-        label="今日制冷量"
-        :value="statsData.coolingCapacity"
-        color="orange"
-        :icon="TodayCoolingIcon"
-      />
-      <StatCard
-        label="平均COP"
-        :value="statsData.avgCop"
-        color="purple"
-        :icon="AvgCopIcon"
-      />
+      <StatCard label="冷源机组总数" :value="statsData.count" color="blue" :icon="ColdSourceTotalIcon" />
+      <StatCard label="在线" :value="statsData.online" color="green" :icon="RunningIcon" />
+      <StatCard label="今日制冷量" :value="statsData.coolingCapacity" color="orange" :icon="TodayCoolingIcon" />
+      <StatCard label="平均COP" :value="statsData.avgCop" color="purple" :icon="AvgCopIcon" />
     </div>
 
     <!-- 实时监测表格 -->
@@ -43,15 +23,9 @@
               <a-select-option :value="1">启用</a-select-option>
               <a-select-option :value="0">停用</a-select-option>
             </a-select>
-            <a-input
-              v-model:value="filterDeviceCode"
-              placeholder="搜索设备名称"
-              style="width: 200px"
-              allow-clear
-              @search="handleSearch"
-            />
+            <a-input v-model:value="filterDeviceCode" placeholder="搜索设备名称" style="width: 200px" allow-clear @search="handleSearch" />
             <a-button type="primary" @click="handleSearch"><SearchOutlined /> 查询</a-button>
-            <a-button type="primary" :loading="coldSourceExportLoading" @click="handleExport" style="margin-left: 8px;">
+            <a-button type="primary" :loading="coldSourceExportLoading" @click="handleExport" style="margin-left: 8px">
               <DownloadOutlined v-if="!coldSourceExportLoading" />
               导出
             </a-button>
@@ -160,7 +134,9 @@
         </a-descriptions-item>
         <a-descriptions-item label="备注" :span="2">{{ detailData.remark ?? '--' }}</a-descriptions-item>
         <template v-for="attr in detailAttributes" :key="attr.attrCode">
-          <a-descriptions-item :label="attr.attrName">{{ attr.value ?? '--' }}<span v-if="attr.unit">{{ attr.unit }}</span></a-descriptions-item>
+          <a-descriptions-item :label="attr.attrName"
+            >{{ attr.value ?? '--' }}<span v-if="attr.unit">{{ attr.unit }}</span></a-descriptions-item
+          >
         </template>
       </a-descriptions>
     </a-spin>
@@ -168,548 +144,535 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, h, onMounted, nextTick } from 'vue'
-import { CaretDownOutlined, CaretUpOutlined, DownloadOutlined, SearchOutlined } from '@ant-design/icons-vue'
-import { StatCard } from '/@/views/bems-web/components'
-import { useECharts } from '/@/hooks/web/useECharts'
-import { buildTrendOption } from '../chartOptions'
-import { getColdUnitList, getColdUnitDetail, getUnitTypeList, exportColdUnitList } from './index.api'
-import type { ColdSourceEquipmentCategory, ColdSourceDevicePageDto, ColdSourceDeviceDetailDto } from './index.api'
+  import { ref, reactive, h, onMounted, nextTick } from 'vue';
+  import { CaretDownOutlined, CaretUpOutlined, DownloadOutlined, SearchOutlined } from '@ant-design/icons-vue';
+  import { StatCard } from '/@/views/bems-web/components';
+  import { useECharts } from '/@/hooks/web/useECharts';
+  import { buildTrendOption } from '../chartOptions';
+  import { getColdUnitList, getColdUnitDetail, getUnitTypeList, exportColdUnitList, getColdUnitSummary } from './index.api';
+  import type { ColdSourceEquipmentCategory, ColdSourceDevicePageDto, ColdSourceDeviceDetailDto, ColdSourceDeviceStatsDto } from './index.api';
 
-// 自定义 emoji 图标组件
-const ColdSourceTotalIcon = () => h('span', { style: 'font-size: 20px;' }, '�️')
-const RunningIcon = () => h('span', { style: 'font-size: 20px;' }, '✅')
-const TodayCoolingIcon = () => h('span', { style: 'font-size: 20px;' }, '�')
-const AvgCopIcon = () => h('span', { style: 'font-size: 20px;' }, '📈')
+  // 自定义 emoji 图标组件
+  const ColdSourceTotalIcon = () => h('span', { style: 'font-size: 20px;' }, '�️');
+  const RunningIcon = () => h('span', { style: 'font-size: 20px;' }, '✅');
+  const TodayCoolingIcon = () => h('span', { style: 'font-size: 20px;' }, '�');
+  const AvgCopIcon = () => h('span', { style: 'font-size: 20px;' }, '📈');
 
-defineOptions({ name: 'ColdTab' })
+  defineOptions({ name: 'ColdTab' });
 
-// 折叠状态
-const collapsedTable = ref(false)
-const collapsedCharts = ref(false)
+  // 折叠状态
+  const collapsedTable = ref(false);
 
-// 统计数据
-const statsData = reactive({
-  count: '--',
-  online: '--',
-  coolingCapacity: '--',
-  avgCop: '--',
-})
+  // 统计数据
+  const statsData = reactive({
+    count: '--',
+    online: '--',
+    coolingCapacity: '--',
+    avgCop: '--',
+  });
 
-// 机组类型下拉
-const unitTypeList = ref<ColdSourceEquipmentCategory[]>([])
+  // 机组类型下拉
+  const unitTypeList = ref<ColdSourceEquipmentCategory[]>([]);
 
-// 筛选条件
-const filterCategoryId = ref<number | undefined>(undefined)
-const filterStatus = ref<number | undefined>(undefined)
-const filterDeviceCode = ref('')
+  // 筛选条件
+  const filterCategoryId = ref<number | undefined>(undefined);
+  const filterStatus = ref<number | undefined>(undefined);
+  const filterDeviceCode = ref('');
 
-// 导出 loading
-const coldSourceExportLoading = ref(false)
+  // 导出 loading
+  const coldSourceExportLoading = ref(false);
 
-// 表格
-const tableLoading = ref(false)
-const tableData = ref<ColdSourceDevicePageDto[]>([])
+  // 表格
+  const tableLoading = ref(false);
+  const tableData = ref<ColdSourceDevicePageDto[]>([]);
 
-const columns = [
-  {
-    title: '序号',
-    dataIndex: 'index',
-    key: 'index',
-    width: 70,
-    customRender: ({ index }: { index: number }) =>
-      (pagination.current - 1) * pagination.pageSize + index + 1,
-  },
-  { title: '设备编号', dataIndex: 'deviceCode', key: 'deviceCode', width: 120 },
-  { title: '设备名称', dataIndex: 'deviceName', key: 'deviceName', width: 150 },
-  { title: '设备类别', dataIndex: 'categoryName', key: 'categoryName', width: 120 },
-  { title: '所属系统', dataIndex: 'systemCode', key: 'systemCode', width: 120 },
-  { title: '状态', dataIndex: 'status', key: 'status', width: 80 },
-  { title: '备注', dataIndex: 'remark', key: 'remark', width: 150 },
-  { title: '操作', dataIndex: 'action', key: 'action', width: 80, fixed: 'right' },
-]
+  const columns = [
+    {
+      title: '序号',
+      dataIndex: 'index',
+      key: 'index',
+      width: 70,
+      customRender: ({ index }: { index: number }) => (pagination.current - 1) * pagination.pageSize + index + 1,
+    },
+    { title: '设备编号', dataIndex: 'deviceCode', key: 'deviceCode', width: 120 },
+    { title: '设备名称', dataIndex: 'deviceName', key: 'deviceName', width: 150 },
+    { title: '设备类别', dataIndex: 'categoryName', key: 'categoryName', width: 120 },
+    { title: '所属系统', dataIndex: 'systemCode', key: 'systemCode', width: 120 },
+    { title: '状态', dataIndex: 'status', key: 'status', width: 80 },
+    { title: '备注', dataIndex: 'remark', key: 'remark', width: 150 },
+    { title: '操作', dataIndex: 'action', key: 'action', width: 80, fixed: 'right' },
+  ];
 
-// 分页
-const pagination = reactive({
-  current: 1,
-  pageSize: 10,
-  total: 0,
-  showSizeChanger: true,
-  showQuickJumper: true,
-  showTotal: (total: number) => `共 ${total} 条数据`,
-  pageSizeOptions: ['10', '20', '50'],
-})
+  // 分页
+  const pagination = reactive({
+    current: 1,
+    pageSize: 10,
+    total: 0,
+    showSizeChanger: true,
+    showQuickJumper: true,
+    showTotal: (total: number) => `共 ${total} 条数据`,
+    pageSizeOptions: ['10', '20', '50'],
+  });
 
-/**
- * 加载机组类型下拉
- */
-const loadUnitTypeList = async () => {
-  try {
-    const res = await getUnitTypeList()
-    unitTypeList.value = Array.isArray(res) ? res : []
-  } catch (e) {
-    console.error('加载机组类型失败:', e)
-  }
-}
-
-/**
- * 加载统计数据
- */
-const loadStatistics = async () => {
-  try {
-    // 获取全部数据用于统计
-    const res = await getColdUnitList({ pageNo: 1, pageSize: 1 })
-    const total = res?.total ?? 0
-    statsData.count = total > 0 ? String(total) : '--'
-
-    // 统计启用数量
-    const enableRes = await getColdUnitList({ pageNo: 1, pageSize: 1, status: 1 })
-    const onlineCount = enableRes?.total ?? 0
-    statsData.online = onlineCount > 0 ? String(onlineCount) : '--'
-
-    // 制冷量和COP暂时使用占位数据，如需要可补充接口
-    statsData.coolingCapacity = '--'
-    statsData.avgCop = '--'
-  } catch (e) {
-    console.error('获取统计数据失败:', e)
-  }
-}
-
-/**
- * 加载表格数据
- */
-const loadTableData = async () => {
-  tableLoading.value = true
-  try {
-    const params: any = {
-      pageNo: pagination.current,
-      pageSize: pagination.pageSize,
+  /**
+   * 加载机组类型下拉
+   */
+  const loadUnitTypeList = async () => {
+    try {
+      const res = await getUnitTypeList();
+      unitTypeList.value = Array.isArray(res) ? res : [];
+    } catch (e) {
+      console.error('加载机组类型失败:', e);
     }
-    if (filterCategoryId.value) params.categoryId = filterCategoryId.value
-    if (filterStatus.value !== undefined) params.status = filterStatus.value
-    if (filterDeviceCode.value) {
-      params.deviceName = filterDeviceCode.value
+  };
+
+  /**
+   * 加载统计数据（调用 summary 接口获取真实数据）
+   */
+  const loadStatistics = async () => {
+    try {
+      const res = await getColdUnitSummary();
+      const data: ColdSourceDeviceStatsDto = res ?? {};
+
+      // 冷源机组总数
+      statsData.count = data.deviceTotal != null ? String(data.deviceTotal) : '--';
+
+      // 在线数量
+      statsData.online = data.onlineCount != null ? String(data.onlineCount) : '--';
+
+      // 今日制冷量
+      statsData.coolingCapacity = data.todayCoolingCapacity != null ? String(data.todayCoolingCapacity) : '--';
+
+      // 平均COP
+      statsData.avgCop = data.avgCop != null ? String(data.avgCop) : '--';
+    } catch (e) {
+      console.error('获取统计数据失败:', e);
     }
+  };
 
-    const res = await getColdUnitList(params)
-    tableData.value = res?.records ?? []
-    pagination.total = res?.total ?? 0
-  } catch (e) {
-    console.error('加载设备列表失败:', e)
-    tableData.value = []
-    pagination.total = 0
-  } finally {
-    tableLoading.value = false
-  }
-}
+  /**
+   * 加载表格数据
+   */
+  const loadTableData = async () => {
+    tableLoading.value = true;
+    try {
+      const params: any = {
+        pageNo: pagination.current,
+        pageSize: pagination.pageSize,
+      };
+      if (filterCategoryId.value) params.categoryId = filterCategoryId.value;
+      if (filterStatus.value !== undefined) params.status = filterStatus.value;
+      if (filterDeviceCode.value) {
+        params.deviceName = filterDeviceCode.value;
+      }
 
-/**
- * 查询
- */
-const handleSearch = () => {
-  pagination.current = 1
-  loadTableData()
-}
-
-/**
- * 导出
- */
-const handleExport = async () => {
-  coldSourceExportLoading.value = true
-  const params: any = {}
-  if (filterCategoryId.value) params.categoryId = filterCategoryId.value
-  if (filterStatus.value !== undefined) params.status = filterStatus.value
-  if (filterDeviceCode.value) params.deviceName = filterDeviceCode.value
-
-  try {
-    const res = await exportColdUnitList(params)
-    const blobOptions = { type: 'application/vnd.ms-excel' }
-    const fileSuffix = '.xlsx'
-    const url = window.URL.createObjectURL(new Blob([res], blobOptions))
-    const link = document.createElement('a')
-    link.style.display = 'none'
-    link.href = url
-    link.setAttribute('download', '冷源设备列表' + fileSuffix)
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    window.URL.revokeObjectURL(url)
-  } catch (e) {
-    console.error('导出失败:', e)
-  } finally {
-    coldSourceExportLoading.value = false
-  }
-}
-
-/**
- * 表格分页变化
- */
-const handleTableChange = (pag: any) => {
-  pagination.current = pag.current
-  pagination.pageSize = pag.pageSize
-  loadTableData()
-}
-
-// 详情弹窗
-const detailVisible = ref(false)
-const detailLoading = ref(false)
-const detailData = ref<ColdSourceDeviceDetailDto | null>(null)
-const detailAttributes = ref<any[]>([])
-
-// 属性表格列
-
-/**
- * 查看详情
- */
-const handleDetail = async (record: ColdSourceDevicePageDto) => {
-  detailData.value = null
-  detailAttributes.value = []
-  detailVisible.value = true
-  detailLoading.value = true
-
-  try {
-    if (record.id) {
-      const res = await getColdUnitDetail({ deviceId: record.id })
-      detailData.value = res ?? null
-      detailAttributes.value = res?.attributes ?? []
+      const res = await getColdUnitList(params);
+      tableData.value = res?.records ?? [];
+      pagination.total = res?.total ?? 0;
+    } catch (e) {
+      console.error('加载设备列表失败:', e);
+      tableData.value = [];
+      pagination.total = 0;
+    } finally {
+      tableLoading.value = false;
     }
-  } catch (e) {
-    console.error('获取设备详情失败:', e)
-  } finally {
-    detailLoading.value = false
-  }
-}
+  };
 
-// 图表区域设备选择
-const deviceLoading = ref(false)
-const deviceOptions = ref<{ label: string; value: string }[]>([])
-const selectedDeviceId = ref<string>('')
+  /**
+   * 查询
+   */
+  const handleSearch = () => {
+    pagination.current = 1;
+    loadTableData();
+  };
 
-/** 加载设备选项 */
-const loadDeviceOptions = async () => {
-  deviceLoading.value = true
-  try {
-    const res = await getColdUnitList({ pageNo: 1, pageSize: 999 })
-    const list = res?.records || []
-    deviceOptions.value = list.map((item: any) => ({
-      label: item.deviceName,
-      value: String(item.id),
-    }))
-    // 默认选中第一项，并渲染图表
-    if (deviceOptions.value.length > 0) {
-      selectedDeviceId.value = deviceOptions.value[0].value
-      await renderCopChart()
-      await renderCapacityChart()
+  /**
+   * 导出
+   */
+  const handleExport = async () => {
+    coldSourceExportLoading.value = true;
+    const params: any = {};
+    if (filterCategoryId.value) params.categoryId = filterCategoryId.value;
+    if (filterStatus.value !== undefined) params.status = filterStatus.value;
+    if (filterDeviceCode.value) params.deviceName = filterDeviceCode.value;
+
+    try {
+      const res = await exportColdUnitList(params);
+      const blobOptions = { type: 'application/vnd.ms-excel' };
+      const fileSuffix = '.xlsx';
+      const url = window.URL.createObjectURL(new Blob([res], blobOptions));
+      const link = document.createElement('a');
+      link.style.display = 'none';
+      link.href = url;
+      link.setAttribute('download', '冷源设备列表' + fileSuffix);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error('导出失败:', e);
+    } finally {
+      coldSourceExportLoading.value = false;
     }
-  } catch (error) {
-    console.error('加载设备选项失败:', error)
-    deviceOptions.value = []
-  } finally {
-    deviceLoading.value = false
-  }
-}
+  };
 
-/** 设备选择变化 */
-const handleDeviceChange = (deviceId: string) => {
-  selectedDeviceId.value = deviceId
-  renderCopChart()
-  renderCapacityChart()
-}
+  /**
+   * 表格分页变化
+   */
+  const handleTableChange = (pag: any) => {
+    pagination.current = pag.current;
+    pagination.pageSize = pag.pageSize;
+    loadTableData();
+  };
 
-/** 下拉筛选规则 */
-const filterOption = (input: string, option: any) => {
-  return option.label.toLowerCase().includes(input.toLowerCase())
-}
+  // 详情弹窗
+  const detailVisible = ref(false);
+  const detailLoading = ref(false);
+  const detailData = ref<ColdSourceDeviceDetailDto | null>(null);
+  const detailAttributes = ref<any[]>([]);
 
-// 冷源系统能效趋势(COP)图表
-const copChartRef = ref<HTMLDivElement>()
-const hasCopData = ref(false)
-const { setOptions: setCopChartOptions } = useECharts(copChartRef as any)
+  // 属性表格列
 
-// 制冷量图表
-const capacityChartRef = ref<HTMLDivElement>()
-const hasCapacityData = ref(false)
-const { setOptions: setCapacityChartOptions } = useECharts(capacityChartRef as any)
+  /**
+   * 查看详情
+   */
+  const handleDetail = async (record: ColdSourceDevicePageDto) => {
+    detailData.value = null;
+    detailAttributes.value = [];
+    detailVisible.value = true;
+    detailLoading.value = true;
 
-/** 渲染COP趋势图表 */
-const renderCopChart = async () => {
-  if (!selectedDeviceId.value) {
-    hasCopData.value = false
-    return
-  }
-  try {
-    const { iconAreaCommon } = await import('../../index.api')
-    const res = await iconAreaCommon({
-      deviceIds: selectedDeviceId.value,
-      attributeName: 'COP',
-    }) as any
-    const data = res?.data || res || {}
-    const xaxis = data.xaxis || data.xAxis || data.timeList || []
-    const series = (data.chatSeriesList || data.seriesList || data.series || []).filter((s: any) => s.name !== '合计')
-    if (!xaxis.length || !series.length) {
-      hasCopData.value = false
-      return
+    try {
+      if (record.id) {
+        const res = await getColdUnitDetail({ deviceId: record.id });
+        detailData.value = res ?? null;
+        detailAttributes.value = res?.attributes ?? [];
+      }
+    } catch (e) {
+      console.error('获取设备详情失败:', e);
+    } finally {
+      detailLoading.value = false;
     }
-    hasCopData.value = true
-    await nextTick()
-    setCopChartOptions(buildTrendOption(xaxis, series, 'COP', false, undefined, 2, 10))
-  } catch (error) {
-    console.error('加载COP数据失败:', error)
-    hasCopData.value = false
-  }
-}
+  };
 
-/** 渲染制冷量图表 */
-const renderCapacityChart = async () => {
-  if (!selectedDeviceId.value) {
-    hasCapacityData.value = false
-    return
-  }
-  try {
-    const { iconAreaCommon } = await import('../../index.api')
-    const res = await iconAreaCommon({
-      deviceIds: selectedDeviceId.value,
-      attributeName: '制冷量',
-    }) as any
-    const data = res?.data || res || {}
-    const xaxis = data.xaxis || data.xAxis || data.timeList || []
-    const series = (data.chatSeriesList || data.seriesList || data.series || []).filter((s: any) => s.name !== '合计')
-    if (!xaxis.length || !series.length) {
-      hasCapacityData.value = false
-      return
+  // 图表区域设备选择
+  const deviceLoading = ref(false);
+  const deviceOptions = ref<{ label: string; value: string }[]>([]);
+  const selectedDeviceId = ref<string>('');
+
+  /** 加载设备选项 */
+  const loadDeviceOptions = async () => {
+    deviceLoading.value = true;
+    try {
+      const res = await getColdUnitList({ pageNo: 1, pageSize: 999 });
+      const list = res?.records || [];
+      deviceOptions.value = list.map((item: any) => ({
+        label: item.deviceName,
+        value: String(item.id),
+      }));
+      // 默认选中第一项，并渲染图表
+      if (deviceOptions.value.length > 0) {
+        selectedDeviceId.value = deviceOptions.value[0].value;
+        await renderCopChart();
+        await renderCapacityChart();
+      }
+    } catch (error) {
+      console.error('加载设备选项失败:', error);
+      deviceOptions.value = [];
+    } finally {
+      deviceLoading.value = false;
     }
-    hasCapacityData.value = true
-    await nextTick()
-    setCapacityChartOptions(buildTrendOption(xaxis, series, 'kW'))
-  } catch (error) {
-    console.error('加载制冷量数据失败:', error)
-    hasCapacityData.value = false
-  }
-}
+  };
 
-onMounted(() => {
-  loadUnitTypeList()
-  loadStatistics()
-  loadTableData()
-  loadDeviceOptions()
-})
+  // 冷源系统能效趋势(COP)图表
+  const copChartRef = ref<HTMLDivElement>();
+  const hasCopData = ref(false);
+  const { setOptions: setCopChartOptions } = useECharts(copChartRef as any);
+
+  // 制冷量图表
+  const capacityChartRef = ref<HTMLDivElement>();
+  const hasCapacityData = ref(false);
+  const { setOptions: setCapacityChartOptions } = useECharts(capacityChartRef as any);
+
+  /** 渲染COP趋势图表 */
+  const renderCopChart = async () => {
+    if (!selectedDeviceId.value) {
+      hasCopData.value = false;
+      return;
+    }
+    try {
+      const { iconAreaCommon } = await import('../../index.api');
+      const res = (await iconAreaCommon({
+        deviceIds: selectedDeviceId.value,
+        attributeName: 'COP',
+      })) as any;
+      const data = res?.data || res || {};
+      const xaxis = data.xaxis || data.xAxis || data.timeList || [];
+      const series = (data.chatSeriesList || data.seriesList || data.series || []).filter((s: any) => s.name !== '合计');
+      if (!xaxis.length || !series.length) {
+        hasCopData.value = false;
+        return;
+      }
+      hasCopData.value = true;
+      await nextTick();
+      setCopChartOptions(buildTrendOption(xaxis, series, 'COP', false, undefined, 2, 10));
+    } catch (error) {
+      console.error('加载COP数据失败:', error);
+      hasCopData.value = false;
+    }
+  };
+
+  /** 渲染制冷量图表 */
+  const renderCapacityChart = async () => {
+    if (!selectedDeviceId.value) {
+      hasCapacityData.value = false;
+      return;
+    }
+    try {
+      const { iconAreaCommon } = await import('../../index.api');
+      const res = (await iconAreaCommon({
+        deviceIds: selectedDeviceId.value,
+        attributeName: '制冷量',
+      })) as any;
+      const data = res?.data || res || {};
+      const xaxis = data.xaxis || data.xAxis || data.timeList || [];
+      const series = (data.chatSeriesList || data.seriesList || data.series || []).filter((s: any) => s.name !== '合计');
+      if (!xaxis.length || !series.length) {
+        hasCapacityData.value = false;
+        return;
+      }
+      hasCapacityData.value = true;
+      await nextTick();
+      setCapacityChartOptions(buildTrendOption(xaxis, series, 'kW'));
+    } catch (error) {
+      console.error('加载制冷量数据失败:', error);
+      hasCapacityData.value = false;
+    }
+  };
+
+  onMounted(() => {
+    loadUnitTypeList();
+    loadStatistics();
+    loadTableData();
+    loadDeviceOptions();
+  });
 </script>
 
 <style scoped lang="less">
-.tab-page {
-  .stat-cards {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-    margin-bottom: 20px;
-  }
-
-  .card {
-    background: #fff;
-    border-radius: 12px;
-    padding: 20px 24px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-    margin-bottom: 20px;
-
-    .card-header {
+  .tab-page {
+    .stat-cards {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin: 0 -24px 16px;
-      padding: 0 24px 12px;
-      border-bottom: 1px solid #f0f0f0;
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
 
-      h3 {
-        margin: 0;
-        font-size: 16px;
-        font-weight: 600;
-        color: #1d2129;
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+      margin-bottom: 20px;
+
+      .card-header {
         display: flex;
         align-items: center;
-        gap: 6px;
+        justify-content: space-between;
+        margin: 0 -24px 16px;
+        padding: 0 24px 12px;
+        border-bottom: 1px solid #f0f0f0;
+        flex-wrap: wrap;
+        gap: 12px;
+
+        h3 {
+          margin: 0;
+          font-size: 16px;
+          font-weight: 600;
+          color: #1d2129;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+
+        .filter-bar {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          flex-wrap: wrap;
+        }
+
+        .header-right {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          flex-wrap: wrap;
+          margin-left: auto;
+        }
       }
 
-      .filter-bar {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        flex-wrap: wrap;
-      }
+      .card-body {
+        .chart-placeholder {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          min-height: 200px;
+          background: #fafbfc;
+          border: 1px dashed #e5e6e8;
+          border-radius: 8px;
+          padding: 24px;
 
-      .header-right {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        flex-wrap: wrap;
-        margin-left: auto;
+          .chart-icon {
+            font-size: 40px;
+            color: #1677ff;
+            margin-bottom: 12px;
+          }
+
+          .chart-text {
+            font-size: 16px;
+            color: #86909c;
+          }
+        }
       }
     }
 
-    .card-body {
+    .analysis-card {
+      flex: 1;
+      min-width: 300px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+
+      :deep(.ant-card-body) {
+        padding: 16px;
+      }
+
+      &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 0 -16px 16px;
+        padding: 0 16px 12px;
+        border-bottom: 1px solid #f0f0f0;
+      }
+
+      &__title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 15px;
+        font-weight: 600;
+        color: rgba(0, 0, 0, 0.85);
+      }
+
+      &__icon {
+        font-size: 18px;
+      }
+
+      &__icon2 {
+        font-size: 54px;
+      }
+
+      .card-note {
+        color: rgba(0, 0, 0, 0.45);
+        font-size: 14px;
+        text-align: right;
+      }
+
+      &__body {
+        height: 320px;
+        background: #f7f9fc;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
       .chart-placeholder {
+        height: 100%;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        min-height: 200px;
-        background: #fafbfc;
-        border: 1px dashed #e5e6e8;
-        border-radius: 8px;
-        padding: 24px;
+        gap: 12px;
 
-        .chart-icon {
-          font-size: 40px;
-          color: #1677ff;
-          margin-bottom: 12px;
-        }
-
-        .chart-text {
+        &__text {
           font-size: 16px;
-          color: #86909c;
+          color: rgba(0, 0, 0, 0.45);
         }
       }
-    }
-  }
 
-  .analysis-card {
-    flex: 1;
-    min-width: 300px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-
-    :deep(.ant-card-body) {
-      padding: 16px;
-    }
-
-    &__header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin: 0 -16px 16px;
-      padding: 0 16px 12px;
-      border-bottom: 1px solid #f0f0f0;
-    }
-
-    &__title {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 15px;
-      font-weight: 600;
-      color: rgba(0, 0, 0, 0.85);
-    }
-
-    &__icon {
-      font-size: 18px;
-    }
-
-    &__icon2 {
-      font-size: 54px;
-    }
-
-    .card-note {
-      color: rgba(0, 0, 0, 0.45);
-      font-size: 14px;
-      text-align: right;
-    }
-
-    &__body {
-      height: 320px;
-      background: #f7f9fc;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-
-    .chart-placeholder {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-
-      &__text {
-        font-size: 16px;
-        color: rgba(0, 0, 0, 0.45);
+      .venue-chart {
+        width: 100%;
+        height: 100%;
       }
     }
 
-    .venue-chart {
-      width: 100%;
-      height: 100%;
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
     }
-  }
 
-  .two-col {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    margin-bottom: 20px;
-  }
+    .collapse-row {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+      margin-bottom: 20px;
 
-  .collapse-row {
-    background: #fff;
-    border-radius: 12px;
-    padding: 20px 24px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-    margin-bottom: 20px;
-
-    &__header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin: 0 -24px 16px;
-      padding: 0 24px 12px;
-      border-bottom: 1px solid #f0f0f0;
-      flex-wrap: wrap;
-      gap: 12px;
-
-      h3 {
-        margin: 0;
-        font-size: 16px;
-        font-weight: 600;
-        color: #1d2129;
+      &__header {
         display: flex;
         align-items: center;
-        gap: 6px;
+        justify-content: space-between;
+        margin: 0 -24px 16px;
+        padding: 0 24px 12px;
+        border-bottom: 1px solid #f0f0f0;
+        flex-wrap: wrap;
+        gap: 12px;
+
+        h3 {
+          margin: 0;
+          font-size: 16px;
+          font-weight: 600;
+          color: #1d2129;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
       }
+    }
+
+    .chart-header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-left: auto;
     }
   }
 
-  .chart-header-right {
+  .collapse-btn {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    background: #fff;
+    cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-left: auto;
+    justify-content: center;
+    font-size: 14px;
+    color: #666;
+    transition: all 0.2s;
+    flex-shrink: 0;
+
+    &:hover {
+      color: #1677ff;
+      border-color: #1677ff;
+    }
   }
-}
 
-.collapse-btn {
-  width: 32px;
-  height: 32px;
-  border: 1px solid #d9d9d9;
-  border-radius: 4px;
-  background: #fff;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  color: #666;
-  transition: all 0.2s;
-  flex-shrink: 0;
-
-  &:hover {
-    color: #1677ff;
-    border-color: #1677ff;
+  // 描述列表label允许换行
+  :deep(.ant-descriptions-item-label) {
+    white-space: normal !important;
+    word-break: break-word;
   }
-}
-
-// 描述列表label允许换行
-:deep(.ant-descriptions-item-label) {
-  white-space: normal !important;
-  word-break: break-word;
-}
 </style>
