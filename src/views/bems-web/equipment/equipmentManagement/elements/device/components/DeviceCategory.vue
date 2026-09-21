@@ -33,15 +33,9 @@
                 <a-select-option :value="1">启用</a-select-option>
                 <a-select-option :value="0">停用</a-select-option>
               </a-select>
-              <a-input
-                v-model:value="filterDeviceCode"
-                placeholder="搜索设备名称"
-                style="width: 200px"
-                allow-clear
-                @search="handleSearch"
-              />
+              <a-input v-model:value="filterDeviceCode" placeholder="搜索设备名称" style="width: 200px" allow-clear @search="handleSearch" />
               <a-button type="primary" @click="handleSearch"><SearchOutlined /> 查询</a-button>
-              <a-button type="primary" :loading="coldSourceExportLoading" @click="handleExport" style="margin-left: 8px;">
+              <a-button type="primary" :loading="coldSourceExportLoading" @click="handleExport" style="margin-left: 8px">
                 <DownloadOutlined v-if="!coldSourceExportLoading" />
                 导出
               </a-button>
@@ -54,7 +48,7 @@
               :scroll="{ x: 1100 }"
               :loading="tableLoading"
               @change="handleTableChange"
-              style="margin-top: 8px;"
+              style="margin-top: 8px"
             >
               <template #bodyCell="{ column, record }">
                 <template v-if="column.key === 'status'">
@@ -85,163 +79,176 @@
           <a-tab-pane key="security" tab="安防">
             <!-- 安防子tab -->
             <div class="security-sub-tabs">
-            <a-tabs v-model:activeKey="securityActiveTab" size="small" :centered="true">
-              <a-tab-pane key="camera" tab="摄像头">
-                <div class="table-toolbar">
-                  <div class="header-actions">
-                    <a-input
-                      v-model:value="cameraSearchForm.regionName"
-                      placeholder="区域名称"
-                      allow-clear
-                      style="width: 160px; margin-right: 8px;"
-                      @pressEnter="handleCameraSearch"
-                    />
-                    <a-input
-                      v-model:value="cameraSearchForm.name"
-                      placeholder="摄像头名称"
-                      allow-clear
-                      style="width: 160px; margin-right: 8px;"
-                      @pressEnter="handleCameraSearch"
-                    />
-                    <a-button type="primary" @click="handleCameraSearch"><SearchOutlined /> 查询</a-button>
-                    <a-button type="primary" :loading="cameraExportLoading" @click="handleCameraExport" style="margin-left: 8px;">
-                      <DownloadOutlined v-if="!cameraExportLoading" />
-                      导出
-                    </a-button>
+              <a-tabs v-model:activeKey="securityActiveTab" size="small" :centered="true">
+                <a-tab-pane key="camera" tab="摄像头">
+                  <div class="table-toolbar">
+                    <div class="header-actions">
+                      <a-input
+                        v-model:value="cameraSearchForm.regionName"
+                        placeholder="区域名称"
+                        allow-clear
+                        style="width: 160px; margin-right: 8px"
+                        @pressEnter="handleCameraSearch"
+                      />
+                      <a-input
+                        v-model:value="cameraSearchForm.name"
+                        placeholder="摄像头名称"
+                        allow-clear
+                        style="width: 160px; margin-right: 8px"
+                        @pressEnter="handleCameraSearch"
+                      />
+                      <a-button type="primary" @click="handleCameraSearch"><SearchOutlined /> 查询</a-button>
+                      <a-button type="primary" :loading="cameraExportLoading" @click="handleCameraExport" style="margin-left: 8px">
+                        <DownloadOutlined v-if="!cameraExportLoading" />
+                        导出
+                      </a-button>
+                    </div>
                   </div>
-                </div>
-                <a-table
-                  :columns="cameraColumns"
-                  :data-source="cameraData"
-                  :pagination="cameraPagination"
-                  :loading="cameraLoading"
-                  row-key="indexCode"
-                  @change="handleCameraTableChange"
-                >
-                  <template #bodyCell="{ column, record, index }">
-                    <template v-if="column.key === 'index'">
-                      {{ (cameraPagination.current - 1) * cameraPagination.pageSize + index + 1 }}
-                    </template>
-                    <template v-if="column.key === 'cameraType'">
-                      <a-tag :color="cameraTypeMap[record.cameraType]?.color">
-                        {{ cameraTypeMap[record.cameraType]?.text }}
-                      </a-tag>
-                    </template>
-                    <template v-if="column.key === 'online'">
-                      <a-badge :status="Number(record.online) === 1 ? 'success' : 'default'" :text="Number(record.online) === 1 ? '在线' : '离线'" />
-                    </template>
-                  </template>
-                </a-table>
-              </a-tab-pane>
-
-              <a-tab-pane key="door" tab="门禁通道">
-                <div class="table-toolbar">
-                  <div class="header-actions">
-                    <a-input
-                      v-model:value="doorSearchForm.regionName"
-                      placeholder="区域名称"
-                      allow-clear
-                      style="width: 160px; margin-right: 8px;"
-                      @pressEnter="handleDoorSearch"
-                    />
-                    <a-input
-                      v-model:value="doorSearchForm.name"
-                      placeholder="门禁地点名称"
-                      allow-clear
-                      style="width: 160px; margin-right: 8px;"
-                      @pressEnter="handleDoorSearch"
-                    />
-                    <a-button type="primary" @click="handleDoorSearch"><SearchOutlined /> 查询</a-button>
-                    <a-button type="primary" :loading="syncLoading" @click="handleSyncAccessControlStatus" style="margin-left: 8px;">
-                      <SyncOutlined v-if="!syncLoading" />
-                      同步门禁状态
-                    </a-button>
-                    <a-button type="primary" :loading="doorExportLoading" @click="handleDoorExport" style="margin-left: 8px;">
-                      <DownloadOutlined v-if="!doorExportLoading" />
-                      导出
-                    </a-button>
-                  </div>
-                </div>
-                <a-table
-                  :columns="doorColumns"
-                  :data-source="doorData"
-                  :pagination="doorPagination"
-                  :loading="doorLoading"
-                  row-key="indexCode"
-                  @change="handleDoorTableChange"
-                >
-                  <template #bodyCell="{ column, record, index }">
-                    <template v-if="column.key === 'index'">
-                      {{ (doorPagination.current - 1) * doorPagination.pageSize + index + 1 }}
-                    </template>
-                    <template v-if="column.key === 'doorState'">
-                      <a-tag :color="doorStateMap[record.doorState]?.color">
-                        {{ doorStateMap[record.doorState]?.text }}
-                      </a-tag>
-                    </template>
-                    <template v-if="column.key === 'action'">
-                      <template v-if="record.doorState === '1'">
-                        <a-button type="link" size="small" :loading="switchLoadingMap[record.indexCode]" @click="handleDoorControl(record, 1)">关闭</a-button>
-                        <a-button type="link" size="small" :loading="switchLoadingMap[record.indexCode]" @click="handleDoorControl(record, 3)">常闭</a-button>
+                  <a-table
+                    :columns="cameraColumns"
+                    :data-source="cameraData"
+                    :pagination="cameraPagination"
+                    :loading="cameraLoading"
+                    row-key="indexCode"
+                    @change="handleCameraTableChange"
+                  >
+                    <template #bodyCell="{ column, record, index }">
+                      <template v-if="column.key === 'index'">
+                        {{ (cameraPagination.current - 1) * cameraPagination.pageSize + index + 1 }}
                       </template>
-                      <template v-else-if="record.doorState === '2'">
-                        <a-button type="link" size="small" :loading="switchLoadingMap[record.indexCode]" @click="handleDoorControl(record, 2)">开启</a-button>
-                        <a-button type="link" size="small" :loading="switchLoadingMap[record.indexCode]" @click="handleDoorControl(record, 0)">常开</a-button>
+                      <template v-if="column.key === 'cameraType'">
+                        <a-tag :color="cameraTypeMap[record.cameraType]?.color">
+                          {{ cameraTypeMap[record.cameraType]?.text }}
+                        </a-tag>
                       </template>
-                      <a-button type="link" size="small" @click="handleViewDoorDetail(record)">详情</a-button>
+                      <template v-if="column.key === 'online'">
+                        <a-badge
+                          :status="Number(record.online) === 1 ? 'success' : 'default'"
+                          :text="Number(record.online) === 1 ? '在线' : '离线'"
+                        />
+                      </template>
                     </template>
-                  </template>
-                </a-table>
-              </a-tab-pane>
+                  </a-table>
+                </a-tab-pane>
 
-              <a-tab-pane key="door-controller" tab="门禁控制器">
-                <div class="table-toolbar">
-                  <div class="header-actions">
-                    <a-input
-                      v-model:value="deviceSearchForm.regionName"
-                      placeholder="区域名称"
-                      allow-clear
-                      style="width: 160px; margin-right: 8px;"
-                      @pressEnter="handleDeviceSearch"
-                    />
-                    <a-input
-                      v-model:value="deviceSearchForm.name"
-                      placeholder="设备名称"
-                      allow-clear
-                      style="width: 160px; margin-right: 8px;"
-                      @pressEnter="handleDeviceSearch"
-                    />
-                    <a-button type="primary" @click="handleDeviceSearch"><SearchOutlined /> 查询</a-button>
-                    <a-button type="primary" :loading="deviceExportLoading" @click="handleDeviceExport" style="margin-left: 8px;">
-                      <DownloadOutlined v-if="!deviceExportLoading" />
-                      导出
-                    </a-button>
+                <a-tab-pane key="door" tab="门禁通道">
+                  <div class="table-toolbar">
+                    <div class="header-actions">
+                      <a-input
+                        v-model:value="doorSearchForm.regionName"
+                        placeholder="区域名称"
+                        allow-clear
+                        style="width: 160px; margin-right: 8px"
+                        @pressEnter="handleDoorSearch"
+                      />
+                      <a-input
+                        v-model:value="doorSearchForm.name"
+                        placeholder="门禁地点名称"
+                        allow-clear
+                        style="width: 160px; margin-right: 8px"
+                        @pressEnter="handleDoorSearch"
+                      />
+                      <a-button type="primary" @click="handleDoorSearch"><SearchOutlined /> 查询</a-button>
+                      <a-button type="primary" :loading="syncLoading" @click="handleSyncAccessControlStatus" style="margin-left: 8px">
+                        <SyncOutlined v-if="!syncLoading" />
+                        同步门禁状态
+                      </a-button>
+                      <a-button type="primary" :loading="doorExportLoading" @click="handleDoorExport" style="margin-left: 8px">
+                        <DownloadOutlined v-if="!doorExportLoading" />
+                        导出
+                      </a-button>
+                    </div>
                   </div>
-                </div>
-                <a-table
-                  :columns="deviceColumns"
-                  :data-source="deviceData"
-                  :pagination="devicePagination"
-                  :loading="deviceLoading"
-                  row-key="indexCode"
-                  @change="handleDeviceTableChange"
-                >
-                  <template #bodyCell="{ column, record, index }">
-                    <template v-if="column.key === 'index'">
-                      {{ (devicePagination.current - 1) * devicePagination.pageSize + index + 1 }}
+                  <a-table
+                    :columns="doorColumns"
+                    :data-source="doorData"
+                    :pagination="doorPagination"
+                    :loading="doorLoading"
+                    row-key="indexCode"
+                    @change="handleDoorTableChange"
+                  >
+                    <template #bodyCell="{ column, record, index }">
+                      <template v-if="column.key === 'index'">
+                        {{ (doorPagination.current - 1) * doorPagination.pageSize + index + 1 }}
+                      </template>
+                      <template v-if="column.key === 'doorState'">
+                        <a-tag :color="doorStateMap[record.doorState]?.color">
+                          {{ doorStateMap[record.doorState]?.text }}
+                        </a-tag>
+                      </template>
+                      <template v-if="column.key === 'action'">
+                        <template v-if="record.doorState === '1'">
+                          <a-button type="link" size="small" :loading="switchLoadingMap[record.indexCode]" @click="handleDoorControl(record, 1)"
+                            >关闭</a-button
+                          >
+                          <a-button type="link" size="small" :loading="switchLoadingMap[record.indexCode]" @click="handleDoorControl(record, 3)"
+                            >常闭</a-button
+                          >
+                        </template>
+                        <template v-else-if="record.doorState === '2'">
+                          <a-button type="link" size="small" :loading="switchLoadingMap[record.indexCode]" @click="handleDoorControl(record, 2)"
+                            >开启</a-button
+                          >
+                          <a-button type="link" size="small" :loading="switchLoadingMap[record.indexCode]" @click="handleDoorControl(record, 0)"
+                            >常开</a-button
+                          >
+                        </template>
+                        <a-button type="link" size="small" @click="handleViewDoorDetail(record)">详情</a-button>
+                      </template>
                     </template>
-                    <template v-if="column.key === 'online'">
-                      <a-badge :status="Number(record.online) === 1 ? 'success' : 'default'" :text="Number(record.online) === 1 ? '在线' : '离线'" />
+                  </a-table>
+                </a-tab-pane>
+
+                <a-tab-pane key="door-controller" tab="门禁控制器">
+                  <div class="table-toolbar">
+                    <div class="header-actions">
+                      <a-input
+                        v-model:value="deviceSearchForm.regionName"
+                        placeholder="区域名称"
+                        allow-clear
+                        style="width: 160px; margin-right: 8px"
+                        @pressEnter="handleDeviceSearch"
+                      />
+                      <a-input
+                        v-model:value="deviceSearchForm.name"
+                        placeholder="设备名称"
+                        allow-clear
+                        style="width: 160px; margin-right: 8px"
+                        @pressEnter="handleDeviceSearch"
+                      />
+                      <a-button type="primary" @click="handleDeviceSearch"><SearchOutlined /> 查询</a-button>
+                      <a-button type="primary" :loading="deviceExportLoading" @click="handleDeviceExport" style="margin-left: 8px">
+                        <DownloadOutlined v-if="!deviceExportLoading" />
+                        导出
+                      </a-button>
+                    </div>
+                  </div>
+                  <a-table
+                    :columns="deviceColumns"
+                    :data-source="deviceData"
+                    :pagination="devicePagination"
+                    :loading="deviceLoading"
+                    row-key="indexCode"
+                    @change="handleDeviceTableChange"
+                  >
+                    <template #bodyCell="{ column, record, index }">
+                      <template v-if="column.key === 'index'">
+                        {{ (devicePagination.current - 1) * devicePagination.pageSize + index + 1 }}
+                      </template>
+                      <template v-if="column.key === 'online'">
+                        <a-badge
+                          :status="Number(record.online) === 1 ? 'success' : 'default'"
+                          :text="Number(record.online) === 1 ? '在线' : '离线'"
+                        />
+                      </template>
                     </template>
-                  </template>
-                </a-table>
-              </a-tab-pane>
-            </a-tabs>
+                  </a-table>
+                </a-tab-pane>
+              </a-tabs>
             </div>
           </a-tab-pane>
         </a-tabs>
       </div>
-      
     </div>
     <DeviceModal @register="registerModal" @success="handleSuccess" />
     <DetailModal ref="detailModalRef" />
@@ -259,7 +266,9 @@
           </a-descriptions-item>
           <a-descriptions-item label="备注" :span="2">{{ detailData.remark ?? '--' }}</a-descriptions-item>
           <template v-for="attr in detailAttributes" :key="attr.attrCode">
-            <a-descriptions-item :label="attr.attrName">{{ attr.value ?? '--' }}<span v-if="attr.unit">{{ attr.unit }}</span></a-descriptions-item>
+            <a-descriptions-item :label="attr.attrName"
+              >{{ attr.value ?? '--' }}<span v-if="attr.unit">{{ attr.unit }}</span></a-descriptions-item
+            >
           </template>
         </a-descriptions>
       </a-spin>
@@ -292,8 +301,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, watch, computed, nextTick, onMounted } from 'vue';
-import BuildingControlTable from './BuildingControlTable.vue';
+  import { ref, reactive, watch, computed, nextTick, onMounted } from 'vue';
+  import BuildingControlTable from './BuildingControlTable.vue';
   import { useModal } from '@/components/Modal';
   import DeviceModal from './DeviceModal.vue';
   import DetailModal from './DetailModal.vue';
@@ -309,7 +318,12 @@ import BuildingControlTable from './BuildingControlTable.vue';
     getCameraPageList,
   } from '/@/views/bems-web/safety/security/index.api';
   import { SyncOutlined, LeftOutlined, RightOutlined, DownloadOutlined, SearchOutlined } from '@ant-design/icons-vue';
-import { getColdUnitList, getColdUnitDetail, getUnitTypeList, exportColdUnitList } from '/@/views/bems-web/energy/operational-support/elements/coldTab/index.api';
+  import {
+    getColdUnitList,
+    getColdUnitDetail,
+    getUnitTypeList,
+    exportColdUnitList,
+  } from '/@/views/bems-web/energy/operational-support/elements/coldTab/index.api';
 
   /** 通用导出方法 */
   const downloadBlob = (res: any, name: string) => {
@@ -328,14 +342,14 @@ import { getColdUnitList, getColdUnitDetail, getUnitTypeList, exportColdUnitList
 
   // 添加组件引用
   const detailModalRef = ref();
-const buildingControlRef = ref();
-const buildingControlTabRef = ref();
-const meteringTabRef = ref();
+  const buildingControlRef = ref();
+  const buildingControlTabRef = ref();
+  const meteringTabRef = ref();
 
   // ===== 楼控设备 - 动态设备类型 Tab =====
   const categoryTabList = ref<any[]>([]);
   const activeCategoryKey = ref<string>('');
-const activeTab = ref<string>('building-control');
+  const activeTab = ref<string>('building-control');
   const categoryTabScrollRef = ref<HTMLDivElement>();
   const canScrollLeft = ref(false);
   const canScrollRight = ref(false);
@@ -352,7 +366,7 @@ const activeTab = ref<string>('building-control');
     // 固定 tab 不需要设备列表接口，返回空数组避免触发 DeviceTable 的 watch
     if (FIXED_TAB_KEYS.includes(activeCategoryKey.value)) return [];
     const node = categoryTabList.value.find((n) => String(n.key) === String(activeCategoryKey.value));
-    console.log('node',node, categoryTabList.value);
+    console.log('node', node, categoryTabList.value);
     if (!node) return [activeCategoryKey.value];
     // 收集该节点及其所有子节点的 key
     const keys: string[] = [String(node.key)];
@@ -360,7 +374,7 @@ const activeTab = ref<string>('building-control');
       if (!children) return;
       children.forEach((child) => {
         keys.push(String(child.key));
-        console.log('child',child);
+        console.log('child', child);
         if (child.children && child.children.length > 0) {
           collectChildren(child.children);
         }
@@ -370,7 +384,7 @@ const activeTab = ref<string>('building-control');
       collectChildren(node.children);
     }
 
-    console.log('keys',keys);
+    console.log('keys', keys);
     return keys;
   });
 
@@ -394,7 +408,6 @@ const activeTab = ref<string>('building-control');
     canScrollLeft.value = el.scrollLeft > 0;
     canScrollRight.value = el.scrollLeft + el.clientWidth < el.scrollWidth - 1;
   };
-
 
   const props = defineProps<{
     treeData: any[]; // categoryTreeData
@@ -434,12 +447,7 @@ const activeTab = ref<string>('building-control');
    * @param normalList 不包含 25/43/62 key 的节点数组
    * @param parentKey 父节点的 key（用于判断子节点是否属于特殊分类）
    */
-  const classifyTreeNodes = (
-    nodes: any[],
-    specialList: any[],
-    normalList: any[],
-    parentKey?: string
-  ) => {
+  const classifyTreeNodes = (nodes: any[], specialList: any[], normalList: any[], parentKey?: string) => {
     if (!nodes || nodes.length === 0) return;
 
     nodes.forEach((node) => {
@@ -492,16 +500,22 @@ const activeTab = ref<string>('building-control');
       console.log('=== 设备分类树数据分类结果 ===');
       console.log('特殊分类 (25/43/62):', specialCategoryList.value);
       console.log('普通分类:', normalCategoryList.value);
-      console.log('特殊分类 keys:', specialCategoryList.value.map((item) => item.key));
-      console.log('普通分类 keys:', normalCategoryList.value.map((item) => item.key));
+      console.log(
+        '特殊分类 keys:',
+        specialCategoryList.value.map((item) => item.key)
+      );
+      console.log(
+        '普通分类 keys:',
+        normalCategoryList.value.map((item) => item.key)
+      );
 
       const flattenTree = (list: any[]): any[] => {
         return list.reduce((result, item) => {
           // 解构时排除children，只保留需要的三个字段
-          const { children, ...rest } = item
-          return result.concat(rest, flattenTree(children || []))
-        }, [])
-}
+          const { children, ...rest } = item;
+          return result.concat(rest, flattenTree(children || []));
+        }, []);
+      };
       // 用接口返回的顶层节点生成 tab 列表
       categoryTabList.value = (flattenTree(res) || []).map((item: any) => ({
         key: String(item.key),
@@ -528,17 +542,21 @@ const activeTab = ref<string>('building-control');
     loadTableData();
 
     // 打印 getPermissionTree 和 getEquipmentTree 接口返回值
-    getPermissionTree().then((res) => {
-      console.log('getPermissionTree 返回值:', res);
-    }).catch((err) => {
-      console.error('getPermissionTree 请求失败:', err);
-    });
+    getPermissionTree()
+      .then((res) => {
+        console.log('getPermissionTree 返回值:', res);
+      })
+      .catch((err) => {
+        console.error('getPermissionTree 请求失败:', err);
+      });
 
-    getEquipmentTree().then((res) => {
-      console.log('getEquipmentTree 返回值:', res);
-    }).catch((err) => {
-      console.error('getEquipmentTree 请求失败:', err);
-    });
+    getEquipmentTree()
+      .then((res) => {
+        console.log('getEquipmentTree 返回值:', res);
+      })
+      .catch((err) => {
+        console.error('getEquipmentTree 请求失败:', err);
+      });
   });
 
   /** ============ 冷源系统实时监测（冷源 Tab） ============ */
@@ -564,8 +582,7 @@ const activeTab = ref<string>('building-control');
       dataIndex: 'index',
       key: 'index',
       width: 70,
-      customRender: ({ index }: { index: number }) =>
-        (pagination.current - 1) * pagination.pageSize + index + 1,
+      customRender: ({ index }: { index: number }) => (pagination.current - 1) * pagination.pageSize + index + 1,
     },
     { title: '设备编号', dataIndex: 'deviceCode', key: 'deviceCode', width: 120 },
     { title: '设备名称', dataIndex: 'deviceName', key: 'deviceName', width: 150 },
@@ -769,14 +786,17 @@ const activeTab = ref<string>('building-control');
   const handleCameraExport = async () => {
     cameraExportLoading.value = true;
     try {
-      const res = await defHttp.get({
-        url: '/sgai-fwbz-dev/fwbz/hikvision/camera/export',
-        params: {
-          regionName: cameraSearchForm.regionName || undefined,
-          name: cameraSearchForm.name || undefined,
+      const res = await defHttp.get(
+        {
+          url: '/sgai-fwbz-dev/fwbz/hikvision/camera/export',
+          params: {
+            regionName: cameraSearchForm.regionName || undefined,
+            name: cameraSearchForm.name || undefined,
+          },
+          responseType: 'blob',
         },
-        responseType: 'blob',
-      }, { isTransformResponse: false });
+        { isTransformResponse: false }
+      );
       downloadBlob(res, '摄像头列表');
     } catch (error) {
       console.error('导出摄像头列表失败:', error);
@@ -851,14 +871,17 @@ const activeTab = ref<string>('building-control');
   const handleDeviceExport = async () => {
     deviceExportLoading.value = true;
     try {
-      const res = await defHttp.get({
-        url: '/sgai-fwbz-dev/fwbz/hikvision/acsDevice/export',
-        params: {
-          regionName: deviceSearchForm.regionName || undefined,
-          name: deviceSearchForm.name || undefined,
+      const res = await defHttp.get(
+        {
+          url: '/sgai-fwbz-dev/fwbz/hikvision/acsDevice/export',
+          params: {
+            regionName: deviceSearchForm.regionName || undefined,
+            name: deviceSearchForm.name || undefined,
+          },
+          responseType: 'blob',
         },
-        responseType: 'blob',
-      }, { isTransformResponse: false });
+        { isTransformResponse: false }
+      );
       downloadBlob(res, '门禁控制器列表');
     } catch (error) {
       console.error('导出门禁控制器列表失败:', error);
@@ -942,14 +965,17 @@ const activeTab = ref<string>('building-control');
   const handleDoorExport = async () => {
     doorExportLoading.value = true;
     try {
-      const res = await defHttp.get({
-        url: '/sgai-fwbz-dev/fwbz/hikvision/door/export',
-        params: {
-          regionName: doorSearchForm.regionName || undefined,
-          name: doorSearchForm.name || undefined,
+      const res = await defHttp.get(
+        {
+          url: '/sgai-fwbz-dev/fwbz/hikvision/door/export',
+          params: {
+            regionName: doorSearchForm.regionName || undefined,
+            name: doorSearchForm.name || undefined,
+          },
+          responseType: 'blob',
         },
-        responseType: 'blob',
-      }, { isTransformResponse: false });
+        { isTransformResponse: false }
+      );
       downloadBlob(res, '门禁通道列表');
     } catch (error) {
       console.error('导出门禁通道列表失败:', error);
@@ -1102,13 +1128,13 @@ const activeTab = ref<string>('building-control');
     });
   };
 
-// 表单提交成功后的回调
-function handleSuccess() {
-  props.getTreeData();
-  buildingControlRef.value?.reload();
-  buildingControlTabRef.value?.reload();
-  meteringTabRef.value?.reload();
-}
+  // 表单提交成功后的回调
+  function handleSuccess() {
+    props.getTreeData();
+    buildingControlRef.value?.reload();
+    buildingControlTabRef.value?.reload();
+    meteringTabRef.value?.reload();
+  }
 
   // 设备详情
   const handleDetail = (record: any) => {
@@ -1227,7 +1253,7 @@ function handleSuccess() {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size:14px;
+    font-size: 14px;
     color: #666;
     transition: all 0.2s;
 
@@ -1254,7 +1280,7 @@ function handleSuccess() {
   .category-tab-item {
     flex-shrink: 0;
     padding: 8px 16px;
-    font-size:16px;
+    font-size: 16px;
     color: rgba(0, 0, 0, 0.65);
     background: transparent;
     border: none;

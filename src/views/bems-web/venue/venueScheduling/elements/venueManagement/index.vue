@@ -2,17 +2,15 @@
   <div class="venue-management">
     <a-card :title="title" :bordered="false">
       <template #extra>
-        <a-button type="primary" @click="handleAdd">
-          + 新增场馆
-        </a-button>
+        <a-button type="primary" @click="handleAdd"> + 新增场馆 </a-button>
         <a-button class="collapse-btn" @click="venueCollapsed = !venueCollapsed">
-            <CaretDownOutlined v-if="!venueCollapsed" />
-            <CaretUpOutlined v-else />
+          <CaretDownOutlined v-if="!venueCollapsed" />
+          <CaretUpOutlined v-else />
         </a-button>
       </template>
 
       <a-table
-         v-show="!venueCollapsed"
+        v-show="!venueCollapsed"
         :columns="columns"
         :data-source="data"
         :pagination="pagination"
@@ -27,9 +25,7 @@
             </a-tag>
           </template>
           <template v-if="column.key === 'action'">
-            <a-button type="link" size="small" @click="handleDetail(record)">
-              详情
-            </a-button>
+            <a-button type="link" size="small" @click="handleDetail(record)"> 详情 </a-button>
           </template>
         </template>
       </a-table>
@@ -38,73 +34,65 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+  import { computed, ref } from 'vue';
 
-// 折叠状态
-const venueCollapsed = ref(false)
+  // 折叠状态
+  const venueCollapsed = ref(false);
 
-import {
-    CaretDownOutlined,
-    CaretUpOutlined,
-} from '@ant-design/icons-vue'
-import type { VenueItem } from './index.api'
+  import { CaretDownOutlined, CaretUpOutlined } from '@ant-design/icons-vue';
+  import type { VenueItem } from './index.api';
 
-// ===== Props =====
-const props = withDefaults(
-  defineProps<{
-    title?: string
-    data?: VenueItem[]
-    loading?: boolean
-    paginationTotal?: number
-  }>(),
-  {
-    title: '🏢 场馆信息管理',
-    data: () => [],
-    loading: false,
-    paginationTotal: 0
-  }
-)
+  // ===== Props =====
+  const props = withDefaults(
+    defineProps<{
+      title?: string;
+      data?: VenueItem[];
+      loading?: boolean;
+      paginationTotal?: number;
+    }>(),
+    {
+      title: '🏢 场馆信息管理',
+      data: () => [],
+      loading: false,
+      paginationTotal: 0,
+    }
+  );
 
-// ===== Emits =====
-const emit = defineEmits<{
-  add: []
-  detail: [record: VenueItem]
-  tableChange: [pagination: any]
-}>()
+  // ===== Emits =====
+  const emit = defineEmits<{
+    add: [];
+    detail: [record: VenueItem];
+    tableChange: [pagination: any];
+  }>();
 
+  // ===== 表格列定义 =====
+  const columns = [
+    { title: '序号', key: 'index', width: 70, customRender: ({ index }) => index + 1 },
+    { title: '场馆名称', dataIndex: 'venueName', key: 'venueName', width: 100 },
+    { title: '建筑面积', dataIndex: 'area', key: 'area', width: 120 },
+    { title: '采光条件', dataIndex: 'lighting', key: 'lighting', width: 180 },
+    { title: '基础条件', dataIndex: 'basicFacility', key: 'basicFacility', width: 180 },
+    { title: '可施工', key: 'buildable', width: 80 },
+    { title: '操作', key: 'action', width: 80, fixed: 'right' },
+  ];
 
-// ===== 表格列定义 =====
-const columns = [
-  { title: '序号', key: 'index', width: 70, customRender: ({ index }) => index + 1 },
-  { title: '场馆名称', dataIndex: 'venueName', key: 'venueName', width: 100 },
-  { title: '位置', dataIndex: 'location', key: 'location', width: 120 },
-  { title: '朝向', dataIndex: 'orientation', key: 'orientation', width: 100 },
-  { title: '建筑面积', dataIndex: 'area', key: 'area', width: 120 },
-  { title: '层高', dataIndex: 'ceilingH', key: 'ceilingH', width: 120 },
-  { title: '采光条件', dataIndex: 'lighting', key: 'lighting', width: 180 },
-  { title: '基础条件', dataIndex: 'basicFacility', key: 'basicFacility', width: 180 },
-  { title: '可施工', key: 'buildable', width: 80 },
-  { title: '操作', key: 'action', width: 80, fixed: 'right' }
-]
+  // ===== 分页配置 =====
+  const pagination = computed(() => ({
+    total: props?.paginationTotal || 0,
+    showSizeChanger: true,
+    showTotal: (total: number) => `共 ${total} 条`,
+  }));
 
-// ===== 分页配置 =====
-const pagination = computed(() => ({
-  total: props?.paginationTotal || 0,
-  showSizeChanger: true,
-  showTotal: (total: number) => `共 ${total} 条`
-}))
+  // ===== 事件处理 =====
+  const handleAdd = () => {
+    emit('add');
+  };
 
-// ===== 事件处理 =====
-const handleAdd = () => {
-  emit('add')
-}
+  const handleDetail = (record: VenueItem) => {
+    emit('detail', record);
+  };
 
-const handleDetail = (record: VenueItem) => {
-  emit('detail', record)
-}
-
-const handleTableChange = (paginationData: any) => {
-  emit('tableChange', paginationData)
-}
+  const handleTableChange = (paginationData: any) => {
+    emit('tableChange', paginationData);
+  };
 </script>
-

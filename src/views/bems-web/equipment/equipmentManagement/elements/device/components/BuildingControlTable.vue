@@ -48,7 +48,7 @@
         <DeviceTable
           ref="deviceTableRef"
           :categoryKeys="currentCategoryKeys"
-          :category-tree-data="treeData"
+          :category-tree-data="categoryTreeData"
           :space-tree-data="spaceTreeData"
           :search-params="searchForm"
           @edit="handleEdit"
