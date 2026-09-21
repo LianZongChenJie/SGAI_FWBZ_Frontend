@@ -14,13 +14,7 @@
             :icon="statCardConfigs[index]?.icon"
           />
           <!-- 后端返回不足4张时用占位补齐 -->
-          <StatCard
-            v-for="n in Math.max(0, 4 - statCards.length)"
-            :key="'placeholder-' + n"
-            label="--"
-            value="--"
-            color="blue"
-          />
+          <StatCard v-for="n in Math.max(0, 4 - statCards.length)" :key="'placeholder-' + n" label="--" value="--" color="blue" />
         </div>
       </a-spin>
     </div>
@@ -41,9 +35,7 @@
             @change="handleReportChange"
           />
           <a-button :loading="exportLoading" @click="handleExport"><DownloadOutlined /> 导出Excel</a-button>
-          <a-button :loading="saveLoading" type="primary" @click="handleSave">
-            <SaveOutlined /> 保存
-          </a-button>
+          <a-button :loading="saveLoading" type="primary" @click="handleSave"> <SaveOutlined /> 保存 </a-button>
         </div>
       </div>
       <div class="card-body">
@@ -108,7 +100,7 @@
                     <span class="info-label">峰值客流</span>
                     <span class="info-value">{{ formatNumber(currentReport.peakFlow) }}</span>
                   </div>
-                  <div class="info-item">
+                  <div class="info-item clickable" @click="handleExhibitorClick">
                     <span class="info-label">参展商数</span>
                     <span class="info-value">{{ formatNumber(currentReport.exhibitors) }} 家</span>
                   </div>
@@ -129,352 +121,427 @@
         </a-spin>
       </div>
     </div>
+
+    <!-- 参展商列表弹窗 -->
+    <a-modal
+      v-model:visible="exhibitorModalVisible"
+      title="参展商列表"
+      width="900px"
+      :footer="null"
+      :confirm-loading="exhibitorLoading"
+      :body-style="{ maxHeight: '80vh', overflowY: 'auto' }"
+      get-container=".event-page"
+    >
+      <a-table
+        :columns="exhibitorColumns"
+        :data-source="exhibitorList"
+        :loading="exhibitorLoading"
+        row-key="id"
+        :pagination="{
+          pageSize: 10,
+          showSizeChanger: true,
+          showTotal: (total: number) => `共 ${total} 条`,
+        }"
+      >
+        <template #bodyCell="{ column, index }">
+          <template v-if="column.key === 'index'">
+            {{ index + 1 }}
+          </template>
+        </template>
+      </a-table>
+    </a-modal>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { message } from 'ant-design-vue'
-import { StatCard } from '/@/views/bems-web/components'
-import {
-  ScheduleOutlined,
-  CheckCircleOutlined,
-  RobotOutlined,
-  BookOutlined,
-  BarChartOutlined,
-  InboxOutlined,
-  SaveOutlined,
-  DownloadOutlined,
-  ExperimentOutlined,
-} from '@ant-design/icons-vue'
-import {
-  getSummary,
-  getReportList,
-  exportReportExcel,
-  getReportStatistics,
-  saveReportStatistics,
-} from './index.api'
-import type { StatCardVO, ActiveMeetReport } from './index.api'
+  import { ref, computed, onMounted } from 'vue';
+  import { message } from 'ant-design-vue';
+  import { StatCard } from '/@/views/bems-web/components';
+  import {
+    ScheduleOutlined,
+    CheckCircleOutlined,
+    RobotOutlined,
+    BookOutlined,
+    BarChartOutlined,
+    InboxOutlined,
+    SaveOutlined,
+    DownloadOutlined,
+  } from '@ant-design/icons-vue';
+  import { getSummary, getReportList, exportReportExcel, getReportStatistics, saveReportStatistics, getExhibitorInfoList } from './index.api';
+  import type { StatCardVO, ActiveMeetReport, ExhibitorInfo } from './index.api';
 
-defineOptions({ name: 'EventPostPage' })
+  defineOptions({ name: 'EventPostPage' });
 
-// ===== 统计卡片配置（图标/颜色固定，数据来自后端） =====
-const statCardConfigs = [
-  { color: 'blue' as const, icon: ScheduleOutlined },
-  { color: 'green' as const, icon: CheckCircleOutlined },
-  { color: 'orange' as const, icon: RobotOutlined },
-  { color: 'purple' as const, icon: BookOutlined },
-]
+  // ===== 统计卡片配置（图标/颜色固定，数据来自后端） =====
+  const statCardConfigs = [
+    { color: 'blue' as const, icon: ScheduleOutlined },
+    { color: 'green' as const, icon: CheckCircleOutlined },
+    { color: 'orange' as const, icon: RobotOutlined },
+    { color: 'purple' as const, icon: BookOutlined },
+  ];
 
-const statCards = ref<StatCardVO[]>([])
-const statLoading = ref(false)
+  const statCards = ref<StatCardVO[]>([]);
+  const statLoading = ref(false);
 
-/** 后端返回的 value 可能是对象或基本类型，统一格式化 */
-function formatStatValue(val?: string | number | { [key: string]: any } | null): string | number {
-  if (val == null || val === '') return '--'
-  if (typeof val === 'string' || typeof val === 'number') return val
-  return (val as any).value ?? (val as any).num ?? (val as any).count ?? '--'
-}
-
-const fetchSummary = async () => {
-  statLoading.value = true
-  try {
-    const res = await getSummary()
-    statCards.value = Array.isArray(res) ? res : []
-  } catch (error) {
-    console.error('获取卡片汇总失败:', error)
-  } finally {
-    statLoading.value = false
+  /** 后端返回的 value 可能是对象或基本类型，统一格式化 */
+  function formatStatValue(val?: string | number | { [key: string]: any } | null): string | number {
+    if (val == null || val === '') return '--';
+    if (typeof val === 'string' || typeof val === 'number') return val;
+    return (val as any).value ?? (val as any).num ?? (val as any).count ?? '--';
   }
-}
 
-// ===== 展会总结报告 =====
-const reportList = ref<ActiveMeetReport[]>([])
-const reportListLoading = ref(false)
-const selectedReportId = ref<number | undefined>(undefined)
-const reportOptions = computed(() =>
-  reportList.value.map((item) => ({ ...item }))
-)
-const currentReport = ref<ActiveMeetReport | null>(null)
-const detailLoading = ref(false)
-const saveLoading = ref(false)
-
-const fetchReportList = async () => {
-  reportListLoading.value = true
-  try {
-    const res = await getReportList({ pageNo: 1, pageSize: 100 })
-    if (Array.isArray(res)) {
-      reportList.value = res
-    } else {
-      reportList.value = res?.records || []
+  const fetchSummary = async () => {
+    statLoading.value = true;
+    try {
+      const res = await getSummary();
+      statCards.value = Array.isArray(res) ? res : [];
+    } catch (error) {
+      console.error('获取卡片汇总失败:', error);
+    } finally {
+      statLoading.value = false;
     }
-    // 默认选择第一个
-    if (reportList.value.length > 0 && reportList.value[0].id != null) {
-      selectedReportId.value = reportList.value[0].id
-      await fetchReportStatistics(selectedReportId.value)
+  };
+
+  // ===== 展会总结报告 =====
+  const reportList = ref<ActiveMeetReport[]>([]);
+  const reportListLoading = ref(false);
+  const selectedReportId = ref<number | undefined>(undefined);
+  const reportOptions = computed(() => reportList.value.map((item) => ({ ...item })));
+  const currentReport = ref<ActiveMeetReport | null>(null);
+  const detailLoading = ref(false);
+  const saveLoading = ref(false);
+
+  const fetchReportList = async () => {
+    reportListLoading.value = true;
+    try {
+      const res = await getReportList({ pageNo: 1, pageSize: 100 });
+      if (Array.isArray(res)) {
+        reportList.value = res;
+      } else {
+        reportList.value = res?.records || [];
+      }
+      // 默认选择第一个
+      if (reportList.value.length > 0 && reportList.value[0].id != null) {
+        selectedReportId.value = reportList.value[0].id;
+        await fetchReportStatistics(selectedReportId.value);
+      }
+    } catch (error) {
+      console.error('获取展会总结报告列表失败:', error);
+    } finally {
+      reportListLoading.value = false;
     }
-  } catch (error) {
-    console.error('获取展会总结报告列表失败:', error)
-  } finally {
-    reportListLoading.value = false
-  }
-}
+  };
 
-/** 选择展会后调用 statistics 接口获取真实数据 */
-const handleReportChange = async (val: number | undefined) => {
-  if (val == null) {
-    currentReport.value = null
-    return
-  }
-  await fetchReportStatistics(val)
-}
-
-/** 调用 statistics 接口获取展会总结报告详情 */
-const fetchReportStatistics = async (id: number) => {
-  detailLoading.value = true
-  try {
-    const res = await getReportStatistics(id)
-    if (res) {
-      currentReport.value = res
-    } else {
-      currentReport.value = null
+  /** 选择展会后调用 statistics 接口获取真实数据 */
+  const handleReportChange = async (val: number | undefined) => {
+    if (val == null) {
+      currentReport.value = null;
+      return;
     }
-  } catch (error) {
-    console.error('获取展会总结报告详情失败:', error)
-    currentReport.value = null
-  } finally {
-    detailLoading.value = false
-  }
-}
+    await fetchReportStatistics(val);
+  };
 
-/** 保存展会总结报告（入参为 statistics 接口返回的数据） */
-const handleSave = async () => {
-  if (!currentReport.value) {
-    message.warning('暂无数据可保存')
-    return
-  }
-  saveLoading.value = true
-  try {
-    await saveReportStatistics(currentReport.value)
-  } catch (error) {
-    console.error('保存失败:', error)
-  } finally {
-    saveLoading.value = false
-  }
-}
-
-// ===== 导出 =====
-const exportLoading = ref(false)
-
-const handleExport = async () => {
-  if (!currentReport.value) {
-    message.warning('暂无数据可导出')
-    return
-  }
-  exportLoading.value = true
-  try {
-    const res = await exportReportExcel()
-    if (!res || res.size === 0) {
-      message.warning('文件下载失败')
-      return
+  /** 调用 statistics 接口获取展会总结报告详情 */
+  const fetchReportStatistics = async (id: number) => {
+    detailLoading.value = true;
+    try {
+      const res = await getReportStatistics(id);
+      if (res) {
+        currentReport.value = res;
+      } else {
+        currentReport.value = null;
+      }
+    } catch (error) {
+      console.error('获取展会总结报告详情失败:', error);
+      currentReport.value = null;
+    } finally {
+      detailLoading.value = false;
     }
-    const url = window.URL.createObjectURL(new Blob([res], { type: 'application/vnd.ms-excel' }))
-    const link = document.createElement('a')
-    link.style.display = 'none'
-    link.href = url
-    link.setAttribute('download', '展会总结报告.xlsx')
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    window.URL.revokeObjectURL(url)
-  } catch (error) {
-    console.error('导出失败:', error)
-  } finally {
-    exportLoading.value = false
+  };
+
+  /** 保存展会总结报告（入参为 statistics 接口返回的数据） */
+  const handleSave = async () => {
+    if (!currentReport.value) {
+      message.warning('暂无数据可保存');
+      return;
+    }
+    saveLoading.value = true;
+    try {
+      await saveReportStatistics(currentReport.value);
+    } catch (error) {
+      console.error('保存失败:', error);
+    } finally {
+      saveLoading.value = false;
+    }
+  };
+
+  // ===== 导出 =====
+  const exportLoading = ref(false);
+
+  const handleExport = async () => {
+    if (!currentReport.value) {
+      message.warning('暂无数据可导出');
+      return;
+    }
+    exportLoading.value = true;
+    try {
+      const res = await exportReportExcel();
+      if (!res || res.size === 0) {
+        message.warning('文件下载失败');
+        return;
+      }
+      const url = window.URL.createObjectURL(new Blob([res], { type: 'application/vnd.ms-excel' }));
+      const link = document.createElement('a');
+      link.style.display = 'none';
+      link.href = url;
+      link.setAttribute('download', '展会总结报告.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('导出失败:', error);
+    } finally {
+      exportLoading.value = false;
+    }
+  };
+
+  // ===== AI优化建议（静态，后续可接接口） =====
+  const suggestions = [
+    '建议A馆F2层空调提前30分钟预冷，可降低开展初期能耗峰值15%',
+    'B馆会议室音响设备建议增加日常巡检频次，减少展会期间故障',
+    'C馆室外广场建议增设临时遮阳设施，提升参展商满意度',
+    '安保人员部署建议根据客流预测动态调整，可优化人力成本10%',
+  ];
+
+  // ===== 工具函数 =====
+  function formatNumber(val?: number | string): string {
+    if (val == null || val === '') return '--';
+    const num = Number(val);
+    if (isNaN(num)) return String(val);
+    return num.toLocaleString();
   }
-}
 
-// ===== AI优化建议（静态，后续可接接口） =====
-const suggestions = [
-  '建议A馆F2层空调提前30分钟预冷，可降低开展初期能耗峰值15%',
-  'B馆会议室音响设备建议增加日常巡检频次，减少展会期间故障',
-  'C馆室外广场建议增设临时遮阳设施，提升参展商满意度',
-  '安保人员部署建议根据客流预测动态调整，可优化人力成本10%',
-]
+  // ===== 参展商列表弹窗 =====
+  const exhibitorModalVisible = ref(false);
+  const exhibitorLoading = ref(false);
+  const exhibitorList = ref<ExhibitorInfo[]>([]);
 
-// ===== 工具函数 =====
-function formatNumber(val?: number | string): string {
-  if (val == null || val === '') return '--'
-  const num = Number(val)
-  if (isNaN(num)) return String(val)
-  return num.toLocaleString()
-}
+  const exhibitorColumns = [
+    { title: '序号', key: 'index', width: 70 },
+    { title: '展位号', dataIndex: 'boothNumber', key: 'boothNumber', width: 120 },
+    { title: '展商名称（中文）', dataIndex: 'exhibitorNameCn', key: 'exhibitorNameCn', width: 200 },
+    { title: '展商名称（英文）', dataIndex: 'exhibitorNameEn', key: 'exhibitorNameEn', width: 200 },
+    { title: '专题展名称', dataIndex: 'thematicTxhibitionTitle', key: 'thematicTxhibitionTitle', width: 200 },
+  ];
 
-// ===== 初始化 =====
-onMounted(() => {
-  fetchSummary()
-  fetchReportList()
-})
+  const handleExhibitorClick = async () => {
+    if (!currentReport.value?.id) {
+      message.warning('请先选择展会');
+      return;
+    }
+    exhibitorModalVisible.value = true;
+    exhibitorLoading.value = true;
+    try {
+      const res = await getExhibitorInfoList(currentReport.value.id);
+      exhibitorList.value = Array.isArray(res) ? res : [];
+    } catch (error) {
+      console.error('获取参展商列表失败:', error);
+      exhibitorList.value = [];
+    } finally {
+      exhibitorLoading.value = false;
+    }
+  };
+
+  // ===== 初始化 =====
+  onMounted(() => {
+    fetchSummary();
+    fetchReportList();
+  });
 </script>
 
 <style scoped lang="less">
-.event-page { padding: 0; }
-
-.stats-row {
-  margin-bottom: 20px;
-
-  .stats-inner {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 18px;
+  .event-page {
+    padding: 0;
   }
-}
 
-.card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  margin-bottom: 20px;
-  overflow: hidden;
+  .stats-row {
+    margin-bottom: 20px;
 
-  .card-header {
-    padding: 18px 22px;
-    border-bottom: 1px solid #f0f0f0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 12px;
+    .stats-inner {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+    }
+  }
 
-    h3 {
+  .card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    margin-bottom: 20px;
+    overflow: hidden;
+
+    .card-header {
+      padding: 18px 22px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+
+      h3 {
+        font-size: 16px;
+        font-weight: 600;
+        color: #2d3748;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0;
+      }
+
+      .header-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+    }
+
+    .card-body {
+      padding: 22px;
+    }
+  }
+
+  .three-col {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .report-group {
+    background: #f9fafb;
+    border: 1px solid #eef0f3;
+    border-radius: 8px;
+    padding: 16px 14px;
+
+    .group-title {
       font-size: 16px;
       font-weight: 600;
       color: #2d3748;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin: 0;
-    }
-
-    .header-actions {
-      display: flex;
-      gap: 8px;
-      align-items: center;
+      margin-bottom: 14px;
     }
   }
 
-  .card-body { padding: 22px; }
-}
-
-.three-col {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-}
-
-.report-group {
-  background: #f9fafb;
-  border: 1px solid #eef0f3;
-  border-radius: 8px;
-  padding: 16px 14px;
-
-  .group-title {
-    font-size:16px;
-    font-weight: 600;
-    color: #2d3748;
-    margin-bottom: 14px;
-  }
-}
-
-.info-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-
-  .info-item {
+  .info-list {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 0;
-    border-bottom: 1px solid #f0f0f0;
+    flex-direction: column;
+    gap: 0;
 
-    &:last-child { border-bottom: none; }
+    .info-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #f0f0f0;
 
-    .info-label {
-      font-size:16px;
-      color: #718096;
+      &:last-child {
+        border-bottom: none;
+      }
+
+      .info-label {
+        font-size: 16px;
+        color: #718096;
+      }
+
+      .info-value {
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      &.clickable {
+        cursor: pointer;
+        transition: background-color 0.2s;
+
+        &:hover {
+          background-color: #f7fafc;
+          border-radius: 4px;
+        }
+
+        .info-value {
+          color: #1677ff;
+        }
+      }
     }
+  }
 
-    .info-value {
-      font-size:16px;
+  .suggestions-section {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #f0f0f0;
+
+    .group-title {
+      font-size: 16px;
       font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 12px;
     }
   }
-}
 
-.suggestions-section {
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: 1px solid #f0f0f0;
-
-  .group-title {
-    font-size:16px;
-    font-weight: 600;
-    color: #2d3748;
-    margin-bottom: 12px;
-  }
-}
-
-.suggestion-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-
-  .suggestion-item {
-    font-size:14px;
-    color: #5a6a8a;
-    padding: 10px 14px;
-    background: #f7fafc;
-    border-radius: 6px;
+  .suggestion-list {
     display: flex;
-    align-items: flex-start;
-    gap: 8px;
+    flex-direction: column;
+    gap: 10px;
 
-    &::before {
-      content: '✓';
-      color: #52c41a;
-      font-weight: 700;
-      flex-shrink: 0;
+    .suggestion-item {
+      font-size: 14px;
+      color: #5a6a8a;
+      padding: 10px 14px;
+      background: #f7fafc;
+      border-radius: 6px;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+
+      &::before {
+        content: '✓';
+        color: #52c41a;
+        font-weight: 700;
+        flex-shrink: 0;
+      }
     }
   }
-}
 
-.empty-placeholder {
-  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  color: #a0aec0;
-  border: 2px dashed #e2e8f0;
-  min-height: 260px;
-  padding: 30px;
+  .empty-placeholder {
+    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    color: #a0aec0;
+    border: 2px dashed #e2e8f0;
+    min-height: 260px;
+    padding: 30px;
 
-  .empty-icon {
-    font-size: 48px;
-    margin-bottom: 12px;
+    .empty-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+
+    .empty-text {
+      font-size: 16px;
+      color: #718096;
+      font-weight: 500;
+    }
   }
 
-  .empty-text {
-    font-size:16px;
-    color: #718096;
-    font-weight: 500;
+  @media (max-width: 1200px) {
+    .stats-row .stats-inner {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .three-col {
+      grid-template-columns: 1fr;
+    }
   }
-}
-
-@media (max-width: 1200px) {
-  .stats-row .stats-inner { grid-template-columns: repeat(2, 1fr); }
-  .three-col { grid-template-columns: 1fr; }
-}
 </style>
