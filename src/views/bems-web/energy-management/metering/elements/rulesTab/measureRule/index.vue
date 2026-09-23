@@ -1,5 +1,10 @@
 <template>
   <a-menu v-model:selectedKeys="current" mode="horizontal" :items="items" @click="menuClick" style="display: none" />
+  <div class="rule-toolbar">
+    <a-button type="primary" :icon="h(PlusOutlined)" @click="showAddModal()">新增</a-button>
+    <a-button @click="showEditModal()">编辑</a-button>
+    <a-button danger @click="handleDelete()">删除</a-button>
+  </div>
   <div class="rule-layout">
     <aside class="rule-sidebar">
       <a-input-search v-model:value="searchValue" placeholder="请输入关键字" allow-clear @search="handleSearch" @change="handleSearchChange" />
@@ -67,19 +72,32 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, ref, watch } from 'vue';
+  import { computed, ref, watch, onMounted, h } from 'vue';
   import type { MenuProps, TableColumnsType, TablePaginationConfig } from 'ant-design-vue';
-  import { energyFlowType, energyFlowTree, categoryTree, spaceTree, unitList as getUnitList, deleteMeasureRule, ruleList } from './index.api';
+  import { PlusOutlined } from '@ant-design/icons-vue';
+  import { energyFlowTree, categoryTree, spaceTree, unitList as getUnitList, deleteMeasureRule, ruleList } from './index.api';
   import { message, Modal } from 'ant-design-vue';
   import MeasureRuleModal from './components/MeasureRuleModal.vue';
   import FormulaModal from './components/FormulaModal.vue';
   import { debounce } from 'lodash-es';
   import { nodeDetail } from './index.api';
 
+  // 防抖版的 loadTableData，避免短时间内重复调用
+  const debouncedLoadTableData = debounce(() => {
+    loadTableData();
+  }, 50);
+
+  const props = defineProps<{
+    type: string;
+    categoryTree?: any[];
+    spaceTree?: any[];
+    unitList?: any[];
+  }>();
+
   const current = ref<string[]>([]);
   const items = ref<MenuProps['items']>([]);
   const energyFlowTreeType = ref<any>({
-    type: '',
+    type: props.type,
     name: '',
   });
 
@@ -169,15 +187,14 @@
 
   // 编辑弹窗
   const showEditModal = () => {
+    if (selectKeys.value.length === 0) {
+      message.warning('请选择要编辑的节点');
+      return;
+    }
     // 在treeData中查找选中的节点信息
     const selectedNode = findNodeInTree(treeData.value, selectKeys.value[0]);
     if (selectedNode.disableCheckbox) {
       message.warn('无该节点权限，不可编辑！');
-      return;
-    }
-    if (selectKeys.value.length === 0) {
-      // 弹窗提醒用户未选择节点
-      message.warning('请选择要编辑的节点');
       return;
     }
     nodeDetail({ id: selectKeys.value[0] }).then((res) => {
@@ -206,26 +223,35 @@
   };
   // 删除节点
   const handleDelete = () => {
-    // 这里添加删除逻辑
     if (selectKeys.value.length === 0) {
-      message.warning('请选择要编辑的节点');
+      message.warning('请选择要删除的节点');
+      return;
     }
-    const info = findNodeInTree(treeData.value, selectKeys.value[0]);
-    rowDelete({ id: selectKeys.value[0], nodeName: info.nodeName });
+    const selectedKey = selectKeys.value[0];
+    const info = findNodeInTree(treeData.value, selectedKey);
+    if (!info) {
+      message.warning('未找到节点信息');
+      return;
+    }
+    if (info.disableCheckbox) {
+      message.warn('无该节点权限，不可删除！');
+      return;
+    }
+    // 兼容多种字段名：原始数据可能是 name/title/nodeName
+    const nodeName = info.nodeName || info.name || info.title || '未知';
+    rowDelete({ id: selectedKey, nodeName });
   };
 
-  const rowDelete = (record: { id: number; nodeName: string }) => {
+  const rowDelete = (record: { id: number | string; nodeName: string }) => {
     Modal.confirm({
       title: '确认删除',
       content: '确定要删除节点【' + record.nodeName + '】吗？',
       okText: '确定',
       cancelText: '取消',
       onOk: async () => {
-        // 这里添加删除逻辑
         await deleteMeasureRule({ id: record.id }, findTreeData);
-        // 判断删除的节点是否为当前选中节点
-        if (selectKeys.value.includes(record.id)) {
-          // 如果是当前选中节点，则清空选中节点
+        // 判断删除的节点是否为当前选中节点（处理数字/字符串兼容）
+        if (selectKeys.value.map(String).includes(String(record.id))) {
           selectKeys.value = [];
         }
         loadTableData();
@@ -279,16 +305,19 @@
     }
   };
 
-  const findEnergyFlowType = async () => {
-    const result = await energyFlowType();
-    items.value = result.map((item) => ({
-      label: item.label,
-      key: item.value,
-    }));
-    energyFlowTreeType.value.type = result[0].value;
-    energyFlowTreeType.value.name = result[0].label;
-    current.value.push(result[0].value);
-  };
+  watch(
+    () => props.type,
+    (newType) => {
+      energyFlowTreeType.value.type = newType;
+      current.value = [newType];
+      // 切换类型时清空选中的节点和搜索
+      selectKeys.value = [];
+      searchValue.value = '';
+      expandedKeys.value = [];
+      pagination.value.current = 1;
+      // 触发内部 watch 进行数据加载
+    }
+  );
 
   // 获取所有下拉数据
   const fetchTreeData = async () => {
@@ -308,15 +337,22 @@
     energyFlowTreeType.value = { type: originItem.key, name: originItem.label };
     selectKeys.value = [];
   };
-  findEnergyFlowType();
   fetchTreeData();
+
+  // 由于 energyFlowTreeType.type 初始值已设为 props.type，内部 watch 不会自动触发，需要手动初始化数据
+  onMounted(() => {
+    if (energyFlowTreeType.value.type) {
+      findTreeData();
+      loadTableData();
+    }
+  });
 
   watch(
     () => energyFlowTreeType.value.type,
     () => {
       findTreeData();
       pagination.value.current = 1;
-      loadTableData();
+      debouncedLoadTableData();
     }
   );
 
@@ -324,7 +360,7 @@
     () => selectKeys.value,
     () => {
       pagination.value.current = 1;
-      loadTableData();
+      debouncedLoadTableData();
     }
   );
 
@@ -457,6 +493,13 @@
 </script>
 
 <style lang="less" scoped>
+  .rule-toolbar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    justify-content: flex-end;
+  }
+
   .rule-layout {
     display: flex;
     align-items: flex-start;

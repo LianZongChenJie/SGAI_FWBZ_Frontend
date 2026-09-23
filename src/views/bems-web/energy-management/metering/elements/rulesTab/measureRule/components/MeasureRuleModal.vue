@@ -99,10 +99,20 @@
 
   // 打开弹窗
   const openModal = (data?: any) => {
-    console.log(data,"data");
-    formData.type = props.type;
+    // 先重置表单数据，避免残留上次操作的记录
+    Object.assign(formData, {
+      id: undefined,
+      parentId: undefined,
+      type: props.type,
+      nodeCode: '',
+      nodeName: '',
+      categoryId: null,
+      spaceId: null,
+      meteringUnit: undefined,
+      sort: 0,
+    });
+    // 编辑时赋值
     if (data && data.id) {
-      // 使用解构赋值确保只复制需要的字段
       const { id, parentId, type, nodeCode, nodeName, categoryId, spaceId, meteringUnit, sort } = data;
       Object.assign(formData, {
         id,
@@ -125,11 +135,13 @@
     Object.assign(formData, {
       id: undefined,
       parentId: undefined,
-      nodeode: '',
+      type: props.type,
+      nodeCode: '',
       nodeName: '',
-      categoryId: undefined,
-      spaceId: undefined,
-      meteringUnit: '',
+      categoryId: null,
+      spaceId: null,
+      meteringUnit: undefined,
+      sort: 0,
     });
     visible.value = false;
   };
