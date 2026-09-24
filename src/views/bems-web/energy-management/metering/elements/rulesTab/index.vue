@@ -31,13 +31,15 @@
           </button>
         </div>
       </div>
-      <div class="tab-wrapper">
-        <a-tabs v-model:activeKey="activeType" @change="handleTabChange">
-          <a-tab-pane v-for="tab in typeTabs" :key="tab.key" :tab="tab.label" />
-        </a-tabs>
-      </div>
-      <div v-show="!ruleCollapsed" class="card-body">
-        <MeasureRule ref="measureRuleRef" :type="activeType" />
+      <div v-show="!ruleCollapsed">
+        <div class="tab-wrapper">
+          <a-tabs v-model:activeKey="activeType" @change="handleTabChange">
+            <a-tab-pane v-for="tab in typeTabs" :key="tab.key" :tab="tab.label" />
+          </a-tabs>
+        </div>
+        <div class="card-body">
+          <MeasureRule ref="measureRuleRef" :type="activeType" />
+        </div>
       </div>
     </a-card>
   </div>
@@ -49,6 +51,10 @@
   import { StatCard } from '/@/views/bems-web/components';
   import MeasureRule from './measureRule/index.vue';
   import { getRulesStatistics } from './index.api';
+
+  defineOptions({
+    name: 'RulesTab',
+  });
 
   // Tab 类型常量
   const typeTabs = [
