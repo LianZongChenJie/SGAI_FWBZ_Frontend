@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>冷源运行工艺监控</title>
+  <meta name="description" content="冷源与水蓄冷运行工艺监控。">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='9' fill='%230099ff'/%3E%3Cpath d='M10 12v18h20V12M13 23h14' fill='none' stroke='white' stroke-width='3'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="platform.css"><link rel="stylesheet" href="process.css"><script defer src="data.js"></script><script defer src="model.js"></script><script defer src="app.js"></script>
+</head>
+<body>
+  <aside class="sidebar" id="sidebar">
+    <div class="brand"><span class="brand-symbol">▰<br>▰▰</span><strong>智慧园区管理平台</strong></div>
+    <nav class="side-nav" aria-label="平台导航">
+      <div><i data-icon="layout"></i>工作台</div><div><i data-icon="building"></i>物业管理<span>⌄</span></div><div><i data-icon="shield"></i>安防管理<span>⌄</span></div><div><i data-icon="flag"></i>应急指挥<span>⌄</span></div><div><i data-icon="energy"></i>能源管理<span>⌄</span></div>
+      <div class="expanded"><i data-icon="device"></i>设备管理<span>⌄</span></div>
+      <div class="sub active" aria-current="page"><i data-icon="gauge"></i>机电设备</div><div class="sub"><i data-icon="shield"></i>安消防设备</div><div class="sub"><i data-icon="list"></i>设备台账</div><div class="sub"><i data-icon="clipboard"></i>设备巡检<span>⌄</span></div><div class="sub"><i data-icon="tool"></i>设备维保<span>⌄</span></div>
+      <div><i data-icon="user"></i>访客管理<span>⌄</span></div><div><i data-icon="calendar"></i>会议管理</div><div><i data-icon="users"></i>人员管理<span>⌄</span></div><div><i data-icon="settings"></i>系统管理<span>⌄</span></div>
+    </nav><div class="side-bottom"><span class="dot"></span>智慧运维 · 774地块</div>
+  </aside>
+  <div class="shell">
+    <header class="topbar"><button id="collapse" class="icon-button" aria-label="折叠侧边栏">☰</button><span>欢迎进入 智慧园区管理平台</span><div class="top-right"><span>774 地块</span><span class="top-divider"></span><span class="avatar">管</span><span>bems</span><i data-icon="settings"></i></div></header>
+    <div class="workspace-tabs"><span>工作台</span><span class="selected">机电设备</span></div>
+    <nav class="system-tabs" aria-label="机电设备分类"><span class="selected" aria-current="page">冷源监控与分析</span><span>空调机组</span><span>排风机</span><span>集水坑</span><span>热风幕</span><span>空气质量</span><span>风机盘管</span></nav>
+
+<main><section class="monitor">
+<header class="page-heading"><div><div class="eyebrow">设备管理 / 机电设备 / 冷源监控与分析</div><h1>冷源运行工艺监控<span class="project-badge">水蓄冷系统</span></h1></div><div class="heading-right"><span class="demo-label" id="source-status">PPT 参考数据 · 未接入设备</span><span class="readonly">监视 / 控制点位</span></div></header>
+<div class="process-tabs"><b>运行工艺</b><div class="right"><button id="system-settings">系统参数</button><button id="device-directory">设备目录</button><button id="source-toggle">切换实时接入</button></div></div>
+<div class="summary" id="summary"></div>
+<section id="diagram-section"><div class="toolbar"><div class="mediums" id="mediums"></div><div class="tool-buttons"><button id="zoom-out" aria-label="缩小">−</button><button id="fit">总览</button><button id="zoom-in" aria-label="放大">＋</button><button id="fullscreen">全屏</button></div></div>
+<div class="diagram-wrap" id="viewport"><div class="diagram-stage" id="stage"><svg id="process" viewBox="0 0 1830 1060" aria-label="冷源水蓄冷工艺图"></svg></div></div></section>
+<div class="process-note"><div class="status-legend"><span><i style="--s:#13b297"></i>运行</span><span><i style="--s:#a6b3be"></i>停止 / 未接入</span><span><i style="--s:#e65c67"></i>故障</span></div><span>实心点为连接 · 跨线留白为不连接 · 双向箭头为工况切换支路 · 点击设备查看点位</span></div>
+<div class="alarm-bar"><b id="alarm-title">参考数据提示</b><span id="alarm-text"></span><button id="source-info">查看说明 ›</button></div>
+</section></main></div>
+<dialog id="device-dialog" aria-labelledby="dialog-title"><header class="dialog-heading"><img class="dialog-device-icon" id="dialog-image" alt=""><div><h2 id="dialog-title"></h2><p id="dialog-id"></p></div><button class="dialog-close" id="close-dialog" aria-label="关闭">×</button></header><nav class="detail-tabs" id="detail-tabs"></nav><div class="detail-body" id="detail-body"></div><footer class="dialog-bottom"><span id="dialog-source">来源：HVAC拓扑图-new.pptx</span><span>控制点位展示 · 未开放现场写入</span></footer></dialog>
+</body></html>

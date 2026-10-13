@@ -1,0 +1,777 @@
+/* 冷源运行工艺监控页面样式 —— 移植自原型 platform.css / process.css（保持原级联顺序） */
+
+.cold-process-page {
+  font-family: 'Microsoft YaHei', 'PingFang SC', Arial, sans-serif;
+  color: #25374b;
+  font-size: 13px;
+  font-synthesis: none;
+  --blue: #0095ff;
+  --muted: #8694a5;
+  --border: #e8edf3;
+  --normal: #05a9d2;
+  --high: #eea024;
+  --critical: #eb5b65;
+  --fault: #eb5b65;
+  background: #f3f5f8;
+}
+.cold-process-page *,
+.cold-process-page *::before,
+.cold-process-page *::after {
+  box-sizing: border-box;
+}
+.cold-process-page button {
+  font: inherit;
+  cursor: pointer;
+}
+.cold-process-page button:focus-visible {
+  outline: 3px solid #80caff;
+  outline-offset: 3px;
+}
+.cold-process-page button {
+  transition:
+    background 0.16s,
+    color 0.16s,
+    box-shadow 0.16s;
+}
+.cold-process-page i {
+  display: inline-flex;
+  font-style: normal;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+.cold-process-page button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.cold-process-page .system-tabs {
+  background: #f8f9fa;
+  border-bottom: 1px solid #e7e9ec;
+  margin-bottom: 0;
+}
+.cold-process-page .system-tabs .ant-tabs-tab {
+  font-size: 12px;
+}
+.cold-process-page .system-tabs .ant-tabs-tab-active .ant-tabs-tab-btn {
+  font-weight: 600;
+}
+.cold-process-page main {
+  padding: 12px 12px 0;
+}
+.cold-process-page .monitor {
+  background: #fff;
+  border: 1px solid #edf0f4;
+  border-radius: 9px;
+  overflow: hidden;
+  min-height: calc(100vh - 145px);
+  display: flex;
+  flex-direction: column;
+}
+.cold-process-page .page-heading {
+  padding: 19px 23px 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.cold-process-page .eyebrow {
+  color: #919dab;
+  font-size: 10px;
+  letter-spacing: 0.35px;
+  margin-bottom: 8px;
+}
+.cold-process-page h1 {
+  font-size: 21px;
+  letter-spacing: 0.5px;
+  margin: 0;
+  display: flex;
+  gap: 13px;
+  align-items: center;
+  font-weight: 600;
+}
+.cold-process-page .project-badge {
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: #74869a;
+  background: #f1f5f8;
+  border: 1px solid #e8edf2;
+  border-radius: 4px;
+  padding: 3px 7px;
+}
+.cold-process-page .heading-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 11px;
+}
+.cold-process-page .demo-label {
+  color: #b47c21;
+  padding: 6px 9px;
+  background: #fff8e9;
+  border-radius: 4px;
+}
+.cold-process-page .readonly {
+  color: #9aa5b0;
+  border: 1px solid var(--border);
+  padding: 4px 7px;
+  border-radius: 3px;
+}
+.cold-process-page .dialog-heading {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+.cold-process-page .dialog-heading h2 {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 500;
+}
+.cold-process-page .dialog-heading p {
+  margin: 6px 0 0;
+  font: 10px Arial;
+  color: #9aa7b5;
+}
+@media (max-width: 640px) {
+  .cold-process-page main {
+    padding: 8px 6px;
+  }
+  .cold-process-page .monitor {
+    min-height: calc(100vh - 145px);
+  }
+  .cold-process-page .page-heading {
+    padding: 15px 13px;
+  }
+  .cold-process-page h1 {
+    font-size: 18px;
+    gap: 7px;
+  }
+  .cold-process-page .project-badge {
+    font-size: 9px;
+  }
+  .cold-process-page .readonly {
+    display: none;
+  }
+  .cold-process-page .demo-label {
+    font-size: 10px;
+  }
+  .cold-process-page .eyebrow {
+    font-size: 9px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cold-process-page *,
+  .cold-process-page *::before,
+  .cold-process-page *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+.cold-process-page .monitor {
+  min-height: calc(100vh - 149px);
+}
+.cold-process-page .page-heading {
+  padding: 16px 22px 12px;
+}
+.cold-process-page h1 {
+  font-size: 20px;
+}
+.cold-process-page .dialog-heading {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+.cold-process-page .ant-modal-content {
+  padding: 0;
+}
+.cold-process-page .ant-modal-header {
+  padding: 17px 56px 17px 24px;
+  border-bottom: 1px solid #e8edf3;
+  border-radius: 0;
+}
+.cold-process-page .ant-modal-body {
+  padding: 0;
+}
+.cold-process-page .ant-modal-footer {
+  padding: 0;
+  margin: 0;
+}
+.cold-process-page .dialog-heading h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 500;
+}
+.cold-process-page .dialog-heading p {
+  margin: 7px 0 0;
+  font: 11px Arial;
+  color: #899cac;
+}
+.cold-process-page .dialog-device-icon {
+  width: 75px;
+  height: 62px;
+  object-fit: contain;
+  margin-right: 14px;
+}
+@media (max-height: 780px) and (min-width: 641px) {
+  .cold-process-page .page-heading {
+    padding: 11px 20px 9px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cold-process-page *,
+  .cold-process-page *:before,
+  .cold-process-page *:after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ===== process.css ===== */
+.cold-process-page .monitor {
+  min-height: calc(100vh - 151px);
+}
+.cold-process-page .process-tabs {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  padding: 0 24px 13px;
+  border-bottom: 1px solid #edf0f4;
+}
+.cold-process-page .process-tabs b {
+  color: #0095ff;
+}
+.cold-process-page .process-tabs .right {
+  margin-left: auto;
+  display: flex;
+  gap: 9px;
+  align-items: center;
+}
+.cold-process-page .process-tabs button,
+.cold-process-page .toolbar button,
+.cold-process-page .toolbar select {
+  border: 1px solid #dce5ee;
+  background: #fff;
+  border-radius: 4px;
+  padding: 6px 10px;
+  color: #52718a;
+}
+.cold-process-page .process-tabs button:hover,
+.cold-process-page .toolbar button:hover {
+  background: #edf7ff;
+}
+.cold-process-page .summary {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  margin: 16px 24px;
+  border: 1px solid #e4edf4;
+  border-radius: 6px;
+  background: #fafcfe;
+}
+.cold-process-page .summary > div {
+  padding: 14px 20px;
+  border-right: 1px solid #e4edf4;
+}
+.cold-process-page .summary > div:last-child {
+  border: 0;
+}
+.cold-process-page .summary small {
+  display: block;
+  color: #8899a9;
+  margin-bottom: 7px;
+}
+.cold-process-page .summary strong {
+  font: 600 25px Arial;
+  color: #2e536e;
+}
+.cold-process-page .summary em {
+  font-size: 11px;
+  font-style: normal;
+  color: #8b9aa9;
+  margin-left: 5px;
+}
+.cold-process-page .summary .warn {
+  color: #d49839;
+}
+.cold-process-page .toolbar {
+  margin: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid #e0e8f0;
+  background: #f7fafd;
+  border-radius: 5px 5px 0 0;
+}
+.cold-process-page .mediums {
+  display: flex;
+  gap: 13px;
+  flex-wrap: wrap;
+}
+.cold-process-page .mediums button {
+  border: 0;
+  background: transparent;
+  padding: 4px;
+  font-size: 11px;
+}
+.cold-process-page .mediums i {
+  width: 20px;
+  height: 3px;
+  background: var(--m);
+  margin-right: 5px;
+}
+.cold-process-page .mediums button[aria-pressed='false'] {
+  opacity: 0.3;
+}
+.cold-process-page .tool-buttons {
+  display: flex;
+  gap: 5px;
+  white-space: nowrap;
+}
+.cold-process-page .diagram-wrap {
+  margin: 0 24px;
+  border: 1px solid #e0e8f0;
+  border-top: 0;
+  position: relative;
+  overflow: auto;
+  background: #fcfdff;
+  scrollbar-color: #c1d2e0 #f6f9fc;
+  max-height: calc(100vh - 387px);
+  min-height: 390px;
+  cursor: grab;
+  user-select: none;
+}
+.cold-process-page .diagram-wrap.dragging {
+  cursor: grabbing;
+}
+.cold-process-page .diagram-stage {
+  width: 100%;
+  min-width: 1080px;
+  position: relative;
+}
+.cold-process-page #process {
+  display: block;
+  width: 100%;
+  height: auto;
+  fill: none;
+  stroke: none;
+  /* 原型全局 svg 继承属性，仅作用于工艺图内部，避免影响 antd 图标 */
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  font-family: 'Microsoft YaHei', sans-serif;
+}
+.cold-process-page #process text {
+  stroke: none;
+  fill: #41596c;
+  font-size: 16px;
+}
+.cold-process-page #process .section-label {
+  font-size: 19px;
+  font-weight: 600;
+  fill: #718b9f;
+}
+.cold-process-page #process .section-no {
+  fill: #b5c8d8;
+  font: 600 13px Arial;
+}
+.cold-process-page #process .pipe {
+  fill: none;
+  stroke-width: 3;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.cold-process-page #process .pipe-back {
+  fill: none;
+  stroke: #fcfdff;
+  stroke-width: 9;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.cold-process-page #process .dev {
+  cursor: pointer;
+  outline: none;
+}
+.cold-process-page #process .device-hit {
+  fill: transparent;
+  stroke: transparent;
+  stroke-width: 1.5;
+  rx: 8;
+}
+.cold-process-page #process .dev:hover .device-hit,
+.cold-process-page #process .dev:focus .device-hit {
+  fill: #e4f3fc66;
+  stroke: #76bee8;
+}
+.cold-process-page #process .dev:hover image {
+  filter: drop-shadow(0 3px 5px #4484a040);
+}
+.cold-process-page #process .device-name {
+  font-size: 16px;
+  font-weight: 500;
+  fill: #334f67;
+}
+.cold-process-page #process .metric {
+  fill: #7c90a0;
+  font-size: 14px;
+}
+.cold-process-page #process .port {
+  fill: #fff;
+  stroke-width: 2;
+}
+.cold-process-page #process .state {
+  stroke: #fff;
+  stroke-width: 2;
+}
+.cold-process-page #process .unknown .state {
+  fill: #aab8c4;
+}
+.cold-process-page #process .stopped .state {
+  fill: #a6b3be;
+}
+.cold-process-page #process .running .state {
+  fill: #13b297;
+}
+.cold-process-page #process .fault .state {
+  fill: #e65c67;
+}
+.cold-process-page #process .fault .device-hit {
+  stroke: #e65c67;
+}
+.cold-process-page #process .flash .device-hit {
+  animation: cp-flash 0.8s 2;
+}
+.cold-process-page #process .flow {
+  stroke-dasharray: 3 17;
+  stroke-width: 2;
+  stroke: #fff;
+  animation: cp-flow 2s linear infinite;
+  fill: none;
+}
+.cold-process-page #process .dev.running .rotor {
+  animation: cp-spin 3s linear infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.cold-process-page #process .value {
+  font-family: Arial;
+  font-weight: 600;
+  fill: #1879ad;
+}
+.cold-process-page .process-note {
+  margin: 0 24px;
+  display: flex;
+  justify-content: space-between;
+  padding: 11px 0;
+  color: #8fa0ae;
+  font-size: 10px;
+  gap: 12px;
+}
+.cold-process-page .status-legend {
+  display: flex;
+  gap: 13px;
+  white-space: nowrap;
+}
+.cold-process-page .status-legend i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--s);
+  margin-right: 5px;
+}
+.cold-process-page .alarm-bar {
+  margin: 0 24px 15px;
+  padding: 10px 12px;
+  background: #fff8ed;
+  border: 1px solid #f0e4ca;
+  color: #aa8040;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 11px;
+}
+.cold-process-page .alarm-bar button {
+  margin-left: auto;
+  border: 0;
+  background: none;
+  color: #a17639;
+}
+.cold-process-page .subtle {
+  color: #8c9fae;
+}
+.cold-process-page .detail-body {
+  padding: 18px 24px;
+  max-height: 55vh;
+  overflow: auto;
+}
+.cold-process-page .detail-notice {
+  padding: 10px 12px;
+  background: #f4f8fc;
+  border: 1px solid #e3ecf4;
+  color: #7b8fa1;
+  font-size: 11px;
+  line-height: 1.7;
+  margin-bottom: 15px;
+}
+.cold-process-page .point-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.cold-process-page .point-item {
+  padding: 12px 14px;
+  border: 1px solid #e3eaf1;
+  border-radius: 5px;
+  background: #fff;
+}
+.cold-process-page .point-item header {
+  display: flex;
+  justify-content: space-between;
+  color: #7b8fa0;
+  font-size: 11px;
+}
+.cold-process-page .point-item strong {
+  font: 600 21px Arial;
+  display: inline-block;
+  margin: 12px 0 8px;
+}
+.cold-process-page .point-item em {
+  font-style: normal;
+  color: #93a5b3;
+  font-size: 11px;
+  margin-left: 5px;
+}
+.cold-process-page .point-item small {
+  display: block;
+  color: #9daebb;
+  font: 10px Arial;
+  overflow-wrap: anywhere;
+}
+.cold-process-page .point-item.warning {
+  background: #fffaf1;
+  border-color: #f0dba9;
+}
+.cold-process-page .quality {
+  font-size: 9px;
+  color: #b69a61;
+}
+.cold-process-page .point-item .point-source {
+  font-family: inherit;
+  margin-top: 7px;
+}
+.cold-process-page .control-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.cold-process-page .control-list .point-item strong {
+  font-size: 18px;
+}
+.cold-process-page .control-placeholder {
+  margin-top: 10px;
+  color: #9eacb8;
+  font-size: 10px;
+}
+.cold-process-page .dialog-bottom {
+  padding: 12px 24px;
+  background: #fafcfe;
+  border-top: 1px solid #e7edf3;
+  color: #94a6b4;
+  font-size: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+.cold-process-page .tank-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.cold-process-page .tank-table td,
+.cold-process-page .tank-table th {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid #e9eef3;
+}
+.cold-process-page .tank-table th {
+  color: #879aaa;
+  font-weight: 400;
+}
+.cold-process-page .directory {
+  width: 100%;
+  padding: 9px;
+  border: 1px solid #e3ebf2;
+  background: #fff;
+  color: #415e74;
+  border-radius: 4px;
+}
+.cold-process-page .inventory-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-top: 14px;
+}
+.cold-process-page .inventory-list button {
+  background: #f7fafd;
+  border: 1px solid #e0eaf2;
+  text-align: left;
+  padding: 10px 12px;
+  color: #46677d;
+  border-radius: 4px;
+}
+.cold-process-page .inventory-list small {
+  display: block;
+  color: #9aaab5;
+  margin-top: 4px;
+}
+.cold-process-page .process-fullscreen {
+  position: fixed !important;
+  inset: 0 !important;
+  /* 项目布局顶栏 z-index 505、侧边栏 510，全屏层需盖过两者（antd 弹窗默认约 1000 仍在其上） */
+  z-index: 520;
+  background: white;
+  overflow: auto;
+}
+.cold-process-page .process-fullscreen .diagram-wrap {
+  max-height: calc(100vh - 65px);
+}
+@keyframes cp-flow {
+  to {
+    stroke-dashoffset: -40;
+  }
+}
+@keyframes cp-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes cp-flash {
+  50% {
+    fill: #c7eaff;
+    stroke: #2e9edf;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cold-process-page #process * {
+    animation: none !important;
+  }
+}
+@media (max-width: 1300px) {
+  .cold-process-page .toolbar {
+    align-items: flex-start;
+  }
+  .cold-process-page .mediums {
+    gap: 4px;
+  }
+  .cold-process-page .summary > div {
+    padding: 12px;
+  }
+  .cold-process-page .diagram-wrap {
+    min-height: 390px;
+  }
+  .cold-process-page .tool-buttons button {
+    font-size: 11px;
+    padding: 5px 7px;
+  }
+}
+@media (max-width: 700px) {
+  .cold-process-page .summary {
+    margin: 12px;
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .cold-process-page .summary > div {
+    border-bottom: 1px solid #e4edf4;
+  }
+  .cold-process-page .summary strong {
+    font-size: 20px;
+  }
+  .cold-process-page .toolbar,
+  .cold-process-page .diagram-wrap,
+  .cold-process-page .process-note,
+  .cold-process-page .alarm-bar {
+    margin-left: 12px;
+    margin-right: 12px;
+  }
+  .cold-process-page .toolbar {
+    flex-direction: column;
+  }
+  .cold-process-page .point-grid,
+  .cold-process-page .control-list {
+    grid-template-columns: 1fr;
+  }
+  .cold-process-page .heading-right {
+    display: none;
+  }
+  .cold-process-page .process-tabs {
+    padding: 0 12px 12px;
+    gap: 15px;
+  }
+  .cold-process-page .process-note {
+    flex-direction: column;
+  }
+  .cold-process-page .diagram-wrap {
+    max-height: 540px;
+  }
+  .cold-process-page .process-tabs .right {
+    gap: 4px;
+  }
+  .cold-process-page .summary > div:nth-child(4),
+  .cold-process-page .summary > div:nth-child(5) {
+    border-bottom: 0;
+  }
+}
+.cold-process-page #process .pipe {
+  stroke-width: 6.5;
+}
+.cold-process-page #process .pipe-back {
+  stroke-width: 12;
+}
+.cold-process-page #process .pipe-shadow {
+  fill: none;
+  stroke: #527086;
+  stroke-width: 9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.11;
+}
+.cold-process-page #process .pipe-outline {
+  fill: none;
+  stroke: #3f6475;
+  stroke-width: 8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.75;
+}
+.cold-process-page #process .pipe-highlight {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.5;
+}
+.cold-process-page #process .equipment-model {
+  filter: drop-shadow(3px 5px 2px #47647726);
+}
+.cold-process-page #process .dev:hover .equipment-model {
+  filter: drop-shadow(2px 4px 4px #288cbd55);
+}
+.cold-process-page #process .port {
+  fill: #cfdfdf;
+  stroke: #6c9099;
+  stroke-width: 1.6;
+}
+.cold-process-page #process .value {
+  font-size: 15px;
+}
+.cold-process-page .diagram-wrap {
+  background: #f7fafc;
+}
+.cold-process-page #process .device-name {
+  fill: #2e5069;
+}
+.cold-process-page #process .metric {
+  fill: #607d91;
+}
+.cold-process-page .diagram-wrap {
+  scrollbar-width: thin;
+}
