@@ -43,7 +43,6 @@ export function formatSystemParam(item) {
   const raw = item?.value
   if (raw === null || raw === undefined || raw === '') return '--'
   const label = item?.label || ''
-  console.log('label1', label, raw)
   const str = String(raw)
 
   // 0/1 类型

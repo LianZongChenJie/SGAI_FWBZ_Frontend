@@ -2,32 +2,10 @@
   <div class="tab-page">
     <!-- 统计卡片 -->
     <div class="stat-cards">
-      <StatCard
-        label="排风机总数"
-        :value="statsData.count"
-        color="blue"
-        :icon="TotalIcon"
-      />
-      <StatCard
-        label="在线"
-        :value="statsData.online"
-        color="green"
-        :icon="RunningIcon"
-      />
-      <StatCard
-        label="今日能耗"
-        :value="statsData.energyConsumption"
-        unit="kWh"
-        color="orange"
-        :icon="EnergyIcon"
-      />
-      <StatCard
-        label="故障数"
-        :value="statsData.faultCount"
-        unit=""
-        color="purple"
-        :icon="FaultIcon"
-      />
+      <StatCard label="排风机总数" :value="statsData.count" color="blue" :icon="TotalIcon" />
+      <StatCard label="在线" :value="statsData.online" color="green" :icon="RunningIcon" />
+      <StatCard label="今日能耗" :value="statsData.energyConsumption" unit="kWh" color="orange" :icon="EnergyIcon" />
+      <StatCard label="故障数" :value="statsData.faultCount" unit="" color="purple" :icon="FaultIcon" />
     </div>
 
     <!-- 实时监测表格 -->
@@ -36,12 +14,12 @@
         <h3>🌬️排风机实时监测</h3>
         <div class="header-right">
           <div class="filter-bar">
-          <a-input v-model:value="searchForm.deviceName" placeholder="设备名称" allow-clear style="width: 160px" @pressEnter="handleSearch" />
-          <a-select v-model:value="searchForm.runState" placeholder="状态" allow-clear style="width: 120px" @change="handleSearch">
-            <a-select-option value="在线">在线</a-select-option>
-            <a-select-option value="离线">离线</a-select-option>
-          </a-select>
-          <a-button type="primary" @click="handleSearch"><SearchOutlined /> 查询</a-button>
+            <a-input v-model:value="searchForm.deviceName" placeholder="设备名称" allow-clear style="width: 160px" @press-enter="handleSearch" />
+            <a-select v-model:value="searchForm.runState" placeholder="状态" allow-clear style="width: 120px" @change="handleSearch">
+              <a-select-option value="在线">在线</a-select-option>
+              <a-select-option value="离线">离线</a-select-option>
+            </a-select>
+            <a-button type="primary" @click="handleSearch"><SearchOutlined /> 查询</a-button>
           </div>
           <a-button type="primary" :loading="exportLoading" @click="handleExport" class="export-btn">
             <DownloadOutlined v-if="!exportLoading" />
@@ -111,40 +89,40 @@
           </button>
         </div>
       </div>
-    <div class="two-col" v-show="!collapsedCharts">
-      <a-card class="analysis-card" :bordered="false">
-        <div class="analysis-card__header">
-          <div class="analysis-card__title">
-            <span class="analysis-card__icon">📈</span>
-            <span>排风系统能耗趋势</span>
+      <div class="two-col" v-show="!collapsedCharts">
+        <a-card class="analysis-card" :bordered="false">
+          <div class="analysis-card__header">
+            <div class="analysis-card__title">
+              <span class="analysis-card__icon">📈</span>
+              <span>排风系统能耗趋势</span>
+            </div>
+            <span class="card-note">今日 00:00–23:00 · 逐时 kWh</span>
           </div>
-          <span class="card-note">今日 00:00–23:00 · 逐时 kWh</span>
-        </div>
-        <div class="analysis-card__body">
-          <div v-show="hasEnergyData" ref="energyChartRef" class="venue-chart"></div>
-          <div v-show="!hasEnergyData" class="chart-placeholder">
-            <span class="analysis-card__icon2">📊</span>
-            <div class="chart-placeholder__text">暂无数据</div>
+          <div class="analysis-card__body">
+            <div v-show="hasEnergyData" ref="energyChartRef" class="venue-chart"></div>
+            <div v-show="!hasEnergyData" class="chart-placeholder">
+              <span class="analysis-card__icon2">📊</span>
+              <div class="chart-placeholder__text">暂无数据</div>
+            </div>
           </div>
-        </div>
-      </a-card>
-      <a-card class="analysis-card" :bordered="false">
-        <div class="analysis-card__header">
-          <div class="analysis-card__title">
-            <span class="analysis-card__icon">📊</span>
-            <span>排风启停</span>
+        </a-card>
+        <a-card class="analysis-card" :bordered="false">
+          <div class="analysis-card__header">
+            <div class="analysis-card__title">
+              <span class="analysis-card__icon">📊</span>
+              <span>排风启停</span>
+            </div>
+            <span class="card-note">排风启停</span>
           </div>
-          <span class="card-note">排风启停</span>
-        </div>
-        <div class="analysis-card__body">
-          <div v-show="hasPressureData" ref="pressureChartRef" class="venue-chart"></div>
-          <div v-show="!hasPressureData" class="chart-placeholder">
-            <span class="analysis-card__icon2">📊</span>
-            <div class="chart-placeholder__text">暂无数据</div>
+          <div class="analysis-card__body">
+            <div v-show="hasPressureData" ref="pressureChartRef" class="venue-chart"></div>
+            <div v-show="!hasPressureData" class="chart-placeholder">
+              <span class="analysis-card__icon2">📊</span>
+              <div class="chart-placeholder__text">暂无数据</div>
+            </div>
           </div>
-        </div>
-      </a-card>
-    </div>
+        </a-card>
+      </div>
     </div>
 
     <!-- 工艺图监控 - 排风系统 -->
@@ -173,17 +151,13 @@
               :tree-data="spaceTreeData"
               :field-names="{ children: 'children', label: 'title', value: 'key', key: 'key' }"
               default-expand-all
-              :style="{ maxHeight: '500px', overflow: 'auto' }"
+              :style="{ overflow: 'auto' }"
               @select="handleSpaceSelect"
             />
           </div>
           <!-- 右侧：工艺图 -->
           <div class="process-schematic">
-            <FanBox
-              :values="deviceValues"
-              :system-params="systemParams"
-              :device-name="selectedDeviceName"
-            />
+            <FanBox :values="deviceValues" :system-params="systemParams" :device-name="selectedDeviceName" />
           </div>
         </div>
       </div>
@@ -223,28 +197,13 @@
         <a-descriptions v-if="controlPointData.length > 0" bordered :column="2" size="small" :label-style="{ width: '146px' }">
           <a-descriptions-item v-for="item in controlPointData" :key="item.id" :label="item.attributeName || '--'">
             <template v-if="item.valueType === 'BOOL'">
-              <a-switch
-                :checked="item.value === '1'"
-                :loading="item._loading"
-                @change="(checked: boolean) => handleSwitchChange(item, checked)"
-              />
+              <a-switch :checked="item.value === '1'" :loading="item._loading" @change="(checked: boolean) => handleSwitchChange(item, checked)" />
             </template>
             <template v-else>
               <div class="input-with-btn">
-                <a-input
-                  v-model:value="item._editValue"
-                  :placeholder="item.value ?? '--'"
-                  style="width: 120px"
-                />
+                <a-input v-model:value="item._editValue" :placeholder="item.value ?? '--'" style="width: 120px" />
                 <span v-if="item.unit" style="margin-left: 4px">{{ item.unit }}</span>
-                <a-button
-                  type="primary"
-                  :loading="item._loading"
-                  style="margin-left: 8px"
-                  @click="handleInputConfirm(item)"
-                >
-                  确定
-                </a-button>
+                <a-button type="primary" :loading="item._loading" style="margin-left: 8px" @click="handleInputConfirm(item)"> 确定 </a-button>
               </div>
             </template>
           </a-descriptions-item>
@@ -256,907 +215,922 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, h, onMounted, nextTick } from 'vue'
-import { DatePicker, Modal, message } from 'ant-design-vue'
-import type { Dayjs } from 'dayjs'
-import { CaretDownOutlined, CaretUpOutlined, FullscreenOutlined, FullscreenExitOutlined, DownloadOutlined, SearchOutlined } from '@ant-design/icons-vue'
-import { StatCard } from '/@/views/bems-web/components'
-import { getSpaceTree, getDeviceAttrList, selectDevice, exportData, getExhaustFanStatistics, findDeviceControlPoint, realTimeData } from './index.api'
-import { getStatisticsByCategoryId } from '../../index.api'
-import FanBox from '../../building-automation/fan-box.vue'
-import { useECharts } from '/@/hooks/web/useECharts'
-import { buildTrendOption } from '../chartOptions'
+  import { ref, reactive, computed, h, onMounted, nextTick } from 'vue';
+  import { DatePicker, Modal, message } from 'ant-design-vue';
+  import type { Dayjs } from 'dayjs';
+  import {
+    CaretDownOutlined,
+    CaretUpOutlined,
+    FullscreenOutlined,
+    FullscreenExitOutlined,
+    DownloadOutlined,
+    SearchOutlined,
+  } from '@ant-design/icons-vue';
+  import { StatCard } from '/@/views/bems-web/components';
+  import {
+    getSpaceTree,
+    getDeviceAttrList,
+    selectDevice,
+    exportData,
+    getExhaustFanStatistics,
+    findDeviceControlPoint,
+    realTimeData,
+  } from './index.api';
+  import { getStatisticsByCategoryId } from '../../index.api';
+  import FanBox from '../../building-automation/fan-box.vue';
+  import { useECharts } from '/@/hooks/web/useECharts';
+  import { buildTrendOption } from '../chartOptions';
 
-// 自定义 emoji 图标组件
-const TotalIcon = () => h('span', { style: 'font-size: 20px;' }, '🌬️')
-const RunningIcon = () => h('span', { style: 'font-size: 20px;' }, '✅')
-const EnergyIcon = () => h('span', { style: 'font-size: 20px;' }, '⚡')
-const FaultIcon = () => h('span', { style: 'font-size: 20px;' }, '⚠️')
+  // 自定义 emoji 图标组件
+  const TotalIcon = () => h('span', { style: 'font-size: 20px;' }, '🌬️');
+  const RunningIcon = () => h('span', { style: 'font-size: 20px;' }, '✅');
+  const EnergyIcon = () => h('span', { style: 'font-size: 20px;' }, '⚡');
+  const FaultIcon = () => h('span', { style: 'font-size: 20px;' }, '⚠️');
 
-defineOptions({ name: 'SupplyFanTab' })
+  defineOptions({ name: 'SupplyFanTab' });
 
-// 折叠状态
-const collapsedTable = ref(false)
-const collapsedCharts = ref(false)
-const collapsedProcess = ref(false)
+  // 折叠状态
+  const collapsedTable = ref(false);
+  const collapsedCharts = ref(false);
+  const collapsedProcess = ref(false);
 
-// 工艺图全屏
-const processFullscreen = ref(false)
-const toggleProcessFullscreen = () => {
-  processFullscreen.value = !processFullscreen.value
-}
+  // 工艺图全屏
+  const processFullscreen = ref(false);
+  const toggleProcessFullscreen = () => {
+    processFullscreen.value = !processFullscreen.value;
+  };
 
-defineProps<{
-  data?: any
-}>()
+  defineProps<{
+    data?: any;
+  }>();
 
-// 日期区间选择
-const dateRange = ref<any>(null)
-const formatDateTime = (date: Dayjs | null | undefined): string => {
-  return date ? date.format('YYYY-MM-DD HH:mm:ss') : ''
-}
+  // 日期区间选择
+  const dateRange = ref<any>(null);
+  const formatDateTime = (date: Dayjs | null | undefined): string => {
+    return date ? date.format('YYYY-MM-DD HH:mm:ss') : '';
+  };
 
-/** 日期区间变化 */
-const handleDateRangeChange = () => {
-  renderEnergyChart()
-  renderPressureChart()
-}
+  /** 日期区间变化 */
+  const handleDateRangeChange = () => {
+    renderEnergyChart();
+    renderPressureChart();
+  };
 
-// 工艺图 - 左侧树 & 右侧FanBox组件
-const selectedSpaceKeys = ref<string[]>([])
-const spaceTreeData = ref<any[]>([])
-const deviceValues = ref<Record<string, any>>({})
-const systemParams = ref<any[]>([])
-const selectedDeviceName = ref<string>('')
+  // 工艺图 - 左侧树 & 右侧FanBox组件
+  const selectedSpaceKeys = ref<string[]>([]);
+  const spaceTreeData = ref<any[]>([]);
+  const deviceValues = ref<Record<string, any>>({});
+  const systemParams = ref<any[]>([]);
+  const selectedDeviceName = ref<string>('');
 
-/** 从树中根据 key 查找设备原始数据 */
-const findDeviceByKey = (nodes: any[], key: string): any | null => {
-  for (const node of nodes) {
-    if (String(node.key) === key) return node.rawDevice || null
-    if (node.children && node.children.length > 0) {
-      const found = findDeviceByKey(node.children, key)
-      if (found) return found
-    }
-  }
-  return null
-}
-
-/** 将接口返回的树数据转换为 a-tree 格式 */
-const transformTreeData = (nodes: any[]): any[] => {
-  if (!nodes || !Array.isArray(nodes)) return []
-  return nodes.map((node) => {
-    const children = [
-      ...(node.child ? transformTreeData(node.child) : []),
-      ...(node.device ? node.device.map((d: any) => ({
-        key: `device-${d.id}`,
-        title: d.deviceName,
-        isLeaf: true,
-        rawDevice: d,
-      })) : []),
-    ]
-    return {
-      key: `space-${node.spaceId}`,
-      title: node.spaceName,
-      children,
-      rawSpace: node,
-    }
-  })
-}
-
-/** 递归查找树中第一个设备节点 */
-const findFirstDeviceKey = (nodes: any[]): string | null => {
-  for (const node of nodes) {
-    if (node.isLeaf) return String(node.key)
-    if (node.children && node.children.length > 0) {
-      const deviceKey = findFirstDeviceKey(node.children)
-      if (deviceKey) return deviceKey
-    }
-  }
-  return null
-}
-
-/** 加载设备属性信息 */
-const loadDeviceAttrList = async (deviceKey: string) => {
-  const deviceId = deviceKey.replace('device-', '')
-  try {
-    const res = await getDeviceAttrList({ deviceId })
-    const list = res?.records || res?.data || res || []
-    systemParams.value = Array.isArray(list) ? list : []
-    // 同时构建 key-value 映射用于工艺图动效
-    const values: Record<string, any> = {}
-    if (Array.isArray(list)) {
-      list.forEach((item: any) => {
-        if (item.code) values[item.code] = item.value
-      })
-    }
-    deviceValues.value = values
-  } catch (e) {
-    console.error('加载设备属性失败:', e)
-    systemParams.value = []
-    deviceValues.value = {}
-  }
-}
-
-/** 加载设备列表 */
-const loadSpaceTree = async () => {
-  try {
-    const res = await getSpaceTree()
-    const rawList = Array.isArray(res) ? res : (res.data || res.records || [])
-    spaceTreeData.value = transformTreeData(rawList)
-    // 默认选中第一个设备节点
-    if (spaceTreeData.value.length > 0) {
-      const firstKey = findFirstDeviceKey(spaceTreeData.value)
-      if (firstKey) {
-        selectedSpaceKeys.value = [firstKey]
-        const device = findDeviceByKey(spaceTreeData.value, firstKey)
-        if (device) {
-          deviceValues.value = device
-          selectedDeviceName.value = device.deviceName || ''
-        }
-        loadDeviceAttrList(firstKey)
-      }
-    }
-  } catch (e) {
-    console.error('加载设备列表失败:', e)
-  }
-}
-
-/** 根据选中的节点切换（只有设备节点才传值） */
-const handleSpaceSelect = (keys: (string | number)[]) => {
-  if (!keys || keys.length === 0) return
-  const key = String(keys[0])
-  selectedSpaceKeys.value = [key]
-  // 只有点击设备节点时才传值
-  if (!key.startsWith('device-')) return
-  const device = findDeviceByKey(spaceTreeData.value, key)
-  if (device) {
-    deviceValues.value = device
-    selectedDeviceName.value = device.deviceName || ''
-  }
-  loadDeviceAttrList(key)
-}
-
-// 图表区域设备选择
-const deviceLoading = ref(false)
-const deviceOptions = ref<{ label: string; value: string }[]>([])
-const selectedDeviceId = ref<string>('')
-
-/** 加载设备选项 */
-const loadDeviceOptions = async () => {
-  deviceLoading.value = true
-  try {
-    const res = await selectDevice({ pageNo: 1, pageSize: 999, categoryIds: '38' })
-    const list = res?.records || []
-    deviceOptions.value = list.map((item: any) => ({
-      label: item.deviceName,
-      value: String(item.id),
-    }))
-    // 默认选中第一项，并渲染图表
-    if (deviceOptions.value.length > 0) {
-      selectedDeviceId.value = deviceOptions.value[0].value
-      await renderEnergyChart()
-      await renderPressureChart()
-    }
-  } catch (error) {
-    console.error('加载设备选项失败:', error)
-    deviceOptions.value = []
-  } finally {
-    deviceLoading.value = false
-  }
-}
-
-/** 设备选择变化 */
-const handleDeviceChange = (deviceId: string) => {
-  selectedDeviceId.value = deviceId
-  renderEnergyChart()
-  renderPressureChart()
-}
-
-/** 下拉筛选规则 */
-const filterOption = (input: string, option: any) => {
-  return option.label.toLowerCase().includes(input.toLowerCase())
-}
-
-// 排风系统能耗趋势图表
-const energyChartRef = ref<HTMLDivElement>()
-const hasEnergyData = ref(false)
-const { setOptions: setEnergyChartOptions } = useECharts(energyChartRef as any)
-
-// 排风启停图表
-const pressureChartRef = ref<HTMLDivElement>()
-const hasPressureData = ref(false)
-const { setOptions: setPressureChartOptions } = useECharts(pressureChartRef as any)
-
-/** 渲染排风系统能耗趋势 */
-const renderEnergyChart = async () => {
-  if (!selectedDeviceId.value) {
-    hasEnergyData.value = false
-    return
-  }
-  try {
-    const { iconAreaCommon } = await import('../../index.api')
-    const params: any = {
-      deviceIds: selectedDeviceId.value,
-      attributeName: '排风能耗',
-    }
-    if (dateRange.value) {
-      params.startTime = formatDateTime(dateRange.value[0])
-      params.endTime = formatDateTime(dateRange.value[1])
-    }
-    const res = await iconAreaCommon(params) as any
-    const data = res?.data || res || {}
-    const xaxis = data.xaxis || data.xAxis || data.timeList || []
-    const series = (data.chatSeriesList || data.seriesList || data.series || []).filter((s: any) => s.name !== '合计')
-    if (!xaxis.length || !series.length) {
-      hasEnergyData.value = false
-      return
-    }
-    hasEnergyData.value = true
-    await nextTick()
-    setEnergyChartOptions(buildTrendOption(xaxis, series, 'kWh'))
-  } catch (error) {
-    console.error('加载排风能耗数据失败:', error)
-    hasEnergyData.value = false
-  }
-}
-
-/** 渲染排风启停 */
-const renderPressureChart = async () => {
-  if (!selectedDeviceId.value) {
-    hasPressureData.value = false
-    return
-  }
-  try {
-    const { iconAreaCommon } = await import('../../index.api')
-    const params: any = {
-      deviceIds: selectedDeviceId.value,
-      attributeName: '排风启停',
-    }
-    if (dateRange.value) {
-      params.startTime = formatDateTime(dateRange.value[0])
-      params.endTime = formatDateTime(dateRange.value[1])
-    }
-    const res = await iconAreaCommon(params) as any
-    const data = res?.data || res || {}
-    const xaxis = data.xaxis || data.xAxis || data.timeList || []
-    const series = (data.chatSeriesList || data.seriesList || data.series || []).filter((s: any) => s.name !== '合计')
-    if (!xaxis.length || !series.length) {
-      hasPressureData.value = false
-      return
-    }
-    hasPressureData.value = true
-    await nextTick()
-    setPressureChartOptions(buildTrendOption(xaxis, series, 'Pa'))
-  } catch (error) {
-    console.error('加载排风压差数据失败:', error)
-    hasPressureData.value = false
-  }
-}
-
-onMounted(() => {
-  loadSpaceTree()
-  // loadDeviceOptions 内部会在设备加载完成后自动渲染图表
-  loadDeviceOptions()
-  loadTableData()
-  loadStatistics()
-})
-
-// 加载统计数据
-const loadStatistics = async () => {
-  try {
-    const res = await getStatisticsByCategoryId(38)
-    const data = res?.data ?? res ?? {}
-    statsData.value.count = data.count ?? 0
-    statsData.value.online = data.online ?? 0
-  } catch (e) {
-    console.error('获取排风机统计数据失败', e)
-  }
-
-  try {
-    const statisticsRes = await getExhaustFanStatistics()
-    const statisticsData = statisticsRes?.data ?? statisticsRes ?? {}
-    statsData.value.energyConsumption = statisticsData.energyConsumption ?? '--'
-    statsData.value.faultCount = statisticsData.faultCount ?? 0
-  } catch (e) {
-    console.error('获取排风机汇总数据失败', e)
-  }
-}
-
-// 统计数据
-const statsData = ref({
-  count: 0,
-  online: 0,
-  energyConsumption: '--',
-  faultCount: 0,
-})
-
-// 搜索表单
-const searchForm = reactive({
-  deviceName: '',
-  runState: undefined as string | undefined,
-})
-
-const findSpaceTitleById = (spaceId: string | number): string => {
-  if (!spaceId && spaceId !== 0) return ''
-  const findTitle = (nodes: any[]): string => {
+  /** 从树中根据 key 查找设备原始数据 */
+  const findDeviceByKey = (nodes: any[], key: string): any | null => {
     for (const node of nodes) {
-      const nodeKey = String(node.key)
-      const searchKey = String(spaceId)
-      if (nodeKey === searchKey || nodeKey === `space-${searchKey}` || nodeKey.endsWith(`-${searchKey}`)) {
-        return node.title || node.value || node.label || ''
-      }
-      if (node.children && Array.isArray(node.children)) {
-        const title = findTitle(node.children)
-        if (title) return title
+      if (String(node.key) === key) return node.rawDevice || null;
+      if (node.children && node.children.length > 0) {
+        const found = findDeviceByKey(node.children, key);
+        if (found) return found;
       }
     }
-    return ''
-  }
-  return findTitle(spaceTreeData.value)
-}
+    return null;
+  };
 
-// 表格列定义
-const columns = [
-  {
-    title: '序号',
-    dataIndex: 'index',
-    key: 'index',
-    width: 60,
-    customRender: ({ index }: { index: number }) =>
-      (currentPage.value - 1) * pageSize.value + index + 1,
-  },
-  { title: '设备名称', dataIndex: 'deviceName', key: 'deviceName', width: 120 },
-  { title: '设备编号', dataIndex: 'deviceCode', key: 'deviceCode', width: 120 },
-  {
-    title: '设备位置',
-    dataIndex: 'spaceId',
-    key: 'spaceId',
-    width: 140,
-    customRender: ({ text, record }) => {
-      if (record.spaceName) return record.spaceName
-      if (!text && text !== 0) return ''
-      return findSpaceTitleById(text) || text
-    },
-  },
-  { title: '备注', dataIndex: 'remark', key: 'remark', width: 100 },
-  { title: '状态', dataIndex: 'runState', key: 'runState', width: 90 },
-  { title: '最后通讯时间', dataIndex: 'lastGatherTime', key: 'lastGatherTime', width: 160 },
-  { title: '操作', key: 'action', width: 80, fixed: 'right' as const },
-]
+  /** 将接口返回的树数据转换为 a-tree 格式 */
+  const transformTreeData = (nodes: any[]): any[] => {
+    if (!nodes || !Array.isArray(nodes)) return [];
+    return nodes.map((node) => {
+      const children = [
+        ...(node.child ? transformTreeData(node.child) : []),
+        ...(node.device
+          ? node.device.map((d: any) => ({
+              key: `device-${d.id}`,
+              title: d.deviceName,
+              isLeaf: true,
+              rawDevice: d,
+            }))
+          : []),
+      ];
+      return {
+        key: `space-${node.spaceId}`,
+        title: node.spaceName,
+        children,
+        rawSpace: node,
+      };
+    });
+  };
 
-// 表格数据
-const tableData = ref<any[]>([])
-const tableLoading = ref(false)
-const currentPage = ref(1)
-const pageSize = ref(10)
-const tableTotal = ref(0)
-
-const pagination = computed(() => ({
-  current: currentPage.value,
-  pageSize: pageSize.value,
-  total: tableTotal.value,
-  showSizeChanger: true,
-  showTotal: (total: number) => `共 ${total} 条`,
-}))
-
-/** 加载表格数据 */
-const loadTableData = async () => {
-  tableLoading.value = true
-  try {
-    const res = await selectDevice({
-      pageNo: currentPage.value,
-      pageSize: pageSize.value,
-      categoryIds: '38',
-      deviceName: searchForm.deviceName || undefined,
-      runState: searchForm.runState || undefined,
-    })
-    const list = res?.records || []
-    tableData.value = list
-    tableTotal.value = res?.total || 0
-  } catch (error) {
-    console.error('加载排风机列表失败:', error)
-    tableData.value = []
-    tableTotal.value = 0
-  } finally {
-    tableLoading.value = false
-  }
-}
-
-// 导出loading
-const exportLoading = ref(false)
-
-/** 导出设备列表 */
-const handleExport = async () => {
-  exportLoading.value = true
-  try {
-    const res = await exportData({
-      categoryIds: '38',
-      deviceName: searchForm.deviceName || undefined,
-      runState: searchForm.runState || undefined,
-    })
-    const blobOptions = { type: 'application/vnd.ms-excel' }
-    const fileSuffix = '.xlsx'
-    const url = window.URL.createObjectURL(new Blob([res], blobOptions))
-    const link = document.createElement('a')
-    link.style.display = 'none'
-    link.href = url
-    link.setAttribute('download', '排风机列表' + fileSuffix)
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    window.URL.revokeObjectURL(url)
-  } catch (e) {
-    console.error('导出失败:', e)
-  } finally {
-    exportLoading.value = false
-  }
-}
-
-const handleSearch = () => {
-  currentPage.value = 1
-  loadTableData()
-}
-
-const handleTableChange = (pag: any) => {
-  currentPage.value = pag.current
-  pageSize.value = pag.pageSize
-  loadTableData()
-}
-
-// 详情弹窗
-const detailVisible = ref(false)
-const detailLoading = ref(false)
-const detailRecord = ref<any>(null)
-const detailAttributes = ref<any[]>([])
-const handleDetail = async (record: any) => {
-  detailRecord.value = record
-  detailVisible.value = true
-  detailLoading.value = true
-  try {
-    const res = await getDeviceAttrList({ deviceId: record.id || record.deviceId })
-    detailAttributes.value = res?.records || res?.data || res || []
-  } catch (e) {
-    console.error('查询设备属性失败:', e)
-    detailAttributes.value = []
-  } finally {
-    detailLoading.value = false
-  }
-}
-
-// 控制弹窗
-const controlVisible = ref(false)
-const controlPointLoading = ref(false)
-const controlPointData = ref<any[]>([])
-
-/** 打开控制弹窗 */
-const handleControl = async (record: any) => {
-  controlVisible.value = true
-  controlPointLoading.value = true
-  controlPointData.value = []
-  try {
-    const res = await findDeviceControlPoint({ deviceId: record.id || record.deviceId })
-    const list = res?.records || res?.data || res || []
-    controlPointData.value = (Array.isArray(list) ? list : []).map((item: any) => ({
-      ...item,
-      _loading: false,
-      _editValue: item.value,
-    }))
-  } catch (e) {
-    console.error('查询控制点位失败:', e)
-    controlPointData.value = []
-  } finally {
-    controlPointLoading.value = false
-  }
-}
-
-/** 开关切换确认 */
-const handleSwitchChange = (item: any, checked: boolean) => {
-  Modal.confirm({
-    title: '确认操作',
-    content: `确定要${checked ? '开启' : '关闭'}「${item.attributeName}」吗？`,
-    okText: '确认',
-    cancelText: '取消',
-    onOk: async () => {
-      item._loading = true
-      try {
-        await realTimeData({
-          tagid: item.acquisitionCoding,
-          pv: checked ? '1' : '0',
-        })
-        item.value = checked ? '1' : '0'
-      } catch (e) {
-        message.error('操作失败')
-      } finally {
-        item._loading = false
+  /** 递归查找树中第一个设备节点 */
+  const findFirstDeviceKey = (nodes: any[]): string | null => {
+    for (const node of nodes) {
+      if (node.isLeaf) return String(node.key);
+      if (node.children && node.children.length > 0) {
+        const deviceKey = findFirstDeviceKey(node.children);
+        if (deviceKey) return deviceKey;
       }
-    },
-  })
-}
+    }
+    return null;
+  };
 
-/** 输入框确认 */
-const handleInputConfirm = (item: any) => {
-  Modal.confirm({
-    title: '确认操作',
-    content: `确定要将「${item.attributeName}」的值修改为「${item._editValue}」吗？`,
-    okText: '确认',
-    cancelText: '取消',
-    onOk: async () => {
-      item._loading = true
-      try {
-        await realTimeData({
-          tagid: item.acquisitionCoding,
-          pv: item._editValue,
-        })
-        item.value = item._editValue
-      } catch (e) {
-        message.error('操作失败')
-      } finally {
-        item._loading = false
+  /** 加载设备属性信息 */
+  const loadDeviceAttrList = async (deviceKey: string) => {
+    const deviceId = deviceKey.replace('device-', '');
+    try {
+      const res = await getDeviceAttrList({ deviceId });
+      const list = res?.records || res?.data || res || [];
+      systemParams.value = Array.isArray(list) ? list : [];
+      // 同时构建 key-value 映射用于工艺图动效
+      const values: Record<string, any> = {};
+      if (Array.isArray(list)) {
+        list.forEach((item: any) => {
+          if (item.code) values[item.code] = item.value;
+        });
       }
+      deviceValues.value = values;
+    } catch (e) {
+      console.error('加载设备属性失败:', e);
+      systemParams.value = [];
+      deviceValues.value = {};
+    }
+  };
+
+  /** 加载设备列表 */
+  const loadSpaceTree = async () => {
+    try {
+      const res = await getSpaceTree();
+      const rawList = Array.isArray(res) ? res : res.data || res.records || [];
+      spaceTreeData.value = transformTreeData(rawList);
+      // 默认选中第一个设备节点
+      if (spaceTreeData.value.length > 0) {
+        const firstKey = findFirstDeviceKey(spaceTreeData.value);
+        if (firstKey) {
+          selectedSpaceKeys.value = [firstKey];
+          const device = findDeviceByKey(spaceTreeData.value, firstKey);
+          if (device) {
+            deviceValues.value = device;
+            selectedDeviceName.value = device.deviceName || '';
+          }
+          loadDeviceAttrList(firstKey);
+        }
+      }
+    } catch (e) {
+      console.error('加载设备列表失败:', e);
+    }
+  };
+
+  /** 根据选中的节点切换（只有设备节点才传值） */
+  const handleSpaceSelect = (keys: (string | number)[]) => {
+    if (!keys || keys.length === 0) return;
+    const key = String(keys[0]);
+    selectedSpaceKeys.value = [key];
+    // 只有点击设备节点时才传值
+    if (!key.startsWith('device-')) return;
+    const device = findDeviceByKey(spaceTreeData.value, key);
+    if (device) {
+      deviceValues.value = device;
+      selectedDeviceName.value = device.deviceName || '';
+    }
+    loadDeviceAttrList(key);
+  };
+
+  // 图表区域设备选择
+  const deviceLoading = ref(false);
+  const deviceOptions = ref<{ label: string; value: string }[]>([]);
+  const selectedDeviceId = ref<string>('');
+
+  /** 加载设备选项 */
+  const loadDeviceOptions = async () => {
+    deviceLoading.value = true;
+    try {
+      const res = await selectDevice({ pageNo: 1, pageSize: 999, categoryIds: '38' });
+      const list = res?.records || [];
+      deviceOptions.value = list.map((item: any) => ({
+        label: item.deviceName,
+        value: String(item.id),
+      }));
+      // 默认选中第一项，并渲染图表
+      if (deviceOptions.value.length > 0) {
+        selectedDeviceId.value = deviceOptions.value[0].value;
+        await renderEnergyChart();
+        await renderPressureChart();
+      }
+    } catch (error) {
+      console.error('加载设备选项失败:', error);
+      deviceOptions.value = [];
+    } finally {
+      deviceLoading.value = false;
+    }
+  };
+
+  /** 设备选择变化 */
+  const handleDeviceChange = (deviceId: string) => {
+    selectedDeviceId.value = deviceId;
+    renderEnergyChart();
+    renderPressureChart();
+  };
+
+  /** 下拉筛选规则 */
+  const filterOption = (input: string, option: any) => {
+    return option.label.toLowerCase().includes(input.toLowerCase());
+  };
+
+  // 排风系统能耗趋势图表
+  const energyChartRef = ref<HTMLDivElement>();
+  const hasEnergyData = ref(false);
+  const { setOptions: setEnergyChartOptions } = useECharts(energyChartRef as any);
+
+  // 排风启停图表
+  const pressureChartRef = ref<HTMLDivElement>();
+  const hasPressureData = ref(false);
+  const { setOptions: setPressureChartOptions } = useECharts(pressureChartRef as any);
+
+  /** 渲染排风系统能耗趋势 */
+  const renderEnergyChart = async () => {
+    if (!selectedDeviceId.value) {
+      hasEnergyData.value = false;
+      return;
+    }
+    try {
+      const { iconAreaCommon } = await import('../../index.api');
+      const params: any = {
+        deviceIds: selectedDeviceId.value,
+        attributeName: '排风能耗',
+      };
+      if (dateRange.value) {
+        params.startTime = formatDateTime(dateRange.value[0]);
+        params.endTime = formatDateTime(dateRange.value[1]);
+      }
+      const res = (await iconAreaCommon(params)) as any;
+      const data = res?.data || res || {};
+      const xaxis = data.xaxis || data.xAxis || data.timeList || [];
+      const series = (data.chatSeriesList || data.seriesList || data.series || []).filter((s: any) => s.name !== '合计');
+      if (!xaxis.length || !series.length) {
+        hasEnergyData.value = false;
+        return;
+      }
+      hasEnergyData.value = true;
+      await nextTick();
+      setEnergyChartOptions(buildTrendOption(xaxis, series, 'kWh'));
+    } catch (error) {
+      console.error('加载排风能耗数据失败:', error);
+      hasEnergyData.value = false;
+    }
+  };
+
+  /** 渲染排风启停 */
+  const renderPressureChart = async () => {
+    if (!selectedDeviceId.value) {
+      hasPressureData.value = false;
+      return;
+    }
+    try {
+      const { iconAreaCommon } = await import('../../index.api');
+      const params: any = {
+        deviceIds: selectedDeviceId.value,
+        attributeName: '排风启停',
+      };
+      if (dateRange.value) {
+        params.startTime = formatDateTime(dateRange.value[0]);
+        params.endTime = formatDateTime(dateRange.value[1]);
+      }
+      const res = (await iconAreaCommon(params)) as any;
+      const data = res?.data || res || {};
+      const xaxis = data.xaxis || data.xAxis || data.timeList || [];
+      const series = (data.chatSeriesList || data.seriesList || data.series || []).filter((s: any) => s.name !== '合计');
+      if (!xaxis.length || !series.length) {
+        hasPressureData.value = false;
+        return;
+      }
+      hasPressureData.value = true;
+      await nextTick();
+      setPressureChartOptions(buildTrendOption(xaxis, series, 'Pa'));
+    } catch (error) {
+      console.error('加载排风压差数据失败:', error);
+      hasPressureData.value = false;
+    }
+  };
+
+  onMounted(() => {
+    loadSpaceTree();
+    // loadDeviceOptions 内部会在设备加载完成后自动渲染图表
+    loadDeviceOptions();
+    loadTableData();
+    loadStatistics();
+  });
+
+  // 加载统计数据
+  const loadStatistics = async () => {
+    try {
+      const res = await getStatisticsByCategoryId(38);
+      const data = res?.data ?? res ?? {};
+      statsData.value.count = data.count ?? 0;
+      statsData.value.online = data.online ?? 0;
+    } catch (e) {
+      console.error('获取排风机统计数据失败', e);
+    }
+
+    try {
+      const statisticsRes = await getExhaustFanStatistics();
+      const statisticsData = statisticsRes?.data ?? statisticsRes ?? {};
+      statsData.value.energyConsumption = statisticsData.energyConsumption ?? '--';
+      statsData.value.faultCount = statisticsData.faultCount ?? 0;
+    } catch (e) {
+      console.error('获取排风机汇总数据失败', e);
+    }
+  };
+
+  // 统计数据
+  const statsData = ref({
+    count: 0,
+    online: 0,
+    energyConsumption: '--',
+    faultCount: 0,
+  });
+
+  // 搜索表单
+  const searchForm = reactive({
+    deviceName: '',
+    runState: undefined as string | undefined,
+  });
+
+  const findSpaceTitleById = (spaceId: string | number): string => {
+    if (!spaceId && spaceId !== 0) return '';
+    const findTitle = (nodes: any[]): string => {
+      for (const node of nodes) {
+        const nodeKey = String(node.key);
+        const searchKey = String(spaceId);
+        if (nodeKey === searchKey || nodeKey === `space-${searchKey}` || nodeKey.endsWith(`-${searchKey}`)) {
+          return node.title || node.value || node.label || '';
+        }
+        if (node.children && Array.isArray(node.children)) {
+          const title = findTitle(node.children);
+          if (title) return title;
+        }
+      }
+      return '';
+    };
+    return findTitle(spaceTreeData.value);
+  };
+
+  // 表格列定义
+  const columns = [
+    {
+      title: '序号',
+      dataIndex: 'index',
+      key: 'index',
+      width: 60,
+      customRender: ({ index }: { index: number }) => (currentPage.value - 1) * pageSize.value + index + 1,
     },
-  })
-}
+    { title: '设备名称', dataIndex: 'deviceName', key: 'deviceName', width: 120 },
+    { title: '设备编号', dataIndex: 'deviceCode', key: 'deviceCode', width: 120 },
+    {
+      title: '设备位置',
+      dataIndex: 'spaceId',
+      key: 'spaceId',
+      width: 140,
+      customRender: ({ text, record }) => {
+        if (record.spaceName) return record.spaceName;
+        if (!text && text !== 0) return '';
+        return findSpaceTitleById(text) || text;
+      },
+    },
+    { title: '备注', dataIndex: 'remark', key: 'remark', width: 100 },
+    { title: '状态', dataIndex: 'runState', key: 'runState', width: 90 },
+    { title: '最后通讯时间', dataIndex: 'lastGatherTime', key: 'lastGatherTime', width: 160 },
+    { title: '操作', key: 'action', width: 80, fixed: 'right' as const },
+  ];
+
+  // 表格数据
+  const tableData = ref<any[]>([]);
+  const tableLoading = ref(false);
+  const currentPage = ref(1);
+  const pageSize = ref(10);
+  const tableTotal = ref(0);
+
+  const pagination = computed(() => ({
+    current: currentPage.value,
+    pageSize: pageSize.value,
+    total: tableTotal.value,
+    showSizeChanger: true,
+    showTotal: (total: number) => `共 ${total} 条`,
+  }));
+
+  /** 加载表格数据 */
+  const loadTableData = async () => {
+    tableLoading.value = true;
+    try {
+      const res = await selectDevice({
+        pageNo: currentPage.value,
+        pageSize: pageSize.value,
+        categoryIds: '38',
+        deviceName: searchForm.deviceName || undefined,
+        runState: searchForm.runState || undefined,
+      });
+      const list = res?.records || [];
+      tableData.value = list;
+      tableTotal.value = res?.total || 0;
+    } catch (error) {
+      console.error('加载排风机列表失败:', error);
+      tableData.value = [];
+      tableTotal.value = 0;
+    } finally {
+      tableLoading.value = false;
+    }
+  };
+
+  // 导出loading
+  const exportLoading = ref(false);
+
+  /** 导出设备列表 */
+  const handleExport = async () => {
+    exportLoading.value = true;
+    try {
+      const res = await exportData({
+        categoryIds: '38',
+        deviceName: searchForm.deviceName || undefined,
+        runState: searchForm.runState || undefined,
+      });
+      const blobOptions = { type: 'application/vnd.ms-excel' };
+      const fileSuffix = '.xlsx';
+      const url = window.URL.createObjectURL(new Blob([res], blobOptions));
+      const link = document.createElement('a');
+      link.style.display = 'none';
+      link.href = url;
+      link.setAttribute('download', '排风机列表' + fileSuffix);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error('导出失败:', e);
+    } finally {
+      exportLoading.value = false;
+    }
+  };
+
+  const handleSearch = () => {
+    currentPage.value = 1;
+    loadTableData();
+  };
+
+  const handleTableChange = (pag: any) => {
+    currentPage.value = pag.current;
+    pageSize.value = pag.pageSize;
+    loadTableData();
+  };
+
+  // 详情弹窗
+  const detailVisible = ref(false);
+  const detailLoading = ref(false);
+  const detailRecord = ref<any>(null);
+  const detailAttributes = ref<any[]>([]);
+  const handleDetail = async (record: any) => {
+    detailRecord.value = record;
+    detailVisible.value = true;
+    detailLoading.value = true;
+    try {
+      const res = await getDeviceAttrList({ deviceId: record.id || record.deviceId });
+      detailAttributes.value = res?.records || res?.data || res || [];
+    } catch (e) {
+      console.error('查询设备属性失败:', e);
+      detailAttributes.value = [];
+    } finally {
+      detailLoading.value = false;
+    }
+  };
+
+  // 控制弹窗
+  const controlVisible = ref(false);
+  const controlPointLoading = ref(false);
+  const controlPointData = ref<any[]>([]);
+
+  /** 打开控制弹窗 */
+  const handleControl = async (record: any) => {
+    controlVisible.value = true;
+    controlPointLoading.value = true;
+    controlPointData.value = [];
+    try {
+      const res = await findDeviceControlPoint({ deviceId: record.id || record.deviceId });
+      const list = res?.records || res?.data || res || [];
+      controlPointData.value = (Array.isArray(list) ? list : []).map((item: any) => ({
+        ...item,
+        _loading: false,
+        _editValue: item.value,
+      }));
+    } catch (e) {
+      console.error('查询控制点位失败:', e);
+      controlPointData.value = [];
+    } finally {
+      controlPointLoading.value = false;
+    }
+  };
+
+  /** 开关切换确认 */
+  const handleSwitchChange = (item: any, checked: boolean) => {
+    Modal.confirm({
+      title: '确认操作',
+      content: `确定要${checked ? '开启' : '关闭'}「${item.attributeName}」吗？`,
+      okText: '确认',
+      cancelText: '取消',
+      onOk: async () => {
+        item._loading = true;
+        try {
+          await realTimeData({
+            tagid: item.acquisitionCoding,
+            pv: checked ? '1' : '0',
+          });
+          item.value = checked ? '1' : '0';
+        } catch (e) {
+          message.error('操作失败');
+        } finally {
+          item._loading = false;
+        }
+      },
+    });
+  };
+
+  /** 输入框确认 */
+  const handleInputConfirm = (item: any) => {
+    Modal.confirm({
+      title: '确认操作',
+      content: `确定要将「${item.attributeName}」的值修改为「${item._editValue}」吗？`,
+      okText: '确认',
+      cancelText: '取消',
+      onOk: async () => {
+        item._loading = true;
+        try {
+          await realTimeData({
+            tagid: item.acquisitionCoding,
+            pv: item._editValue,
+          });
+          item.value = item._editValue;
+        } catch (e) {
+          message.error('操作失败');
+        } finally {
+          item._loading = false;
+        }
+      },
+    });
+  };
 </script>
 
 <style scoped lang="less">
-.tab-page {
-
-  .stat-cards {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-    margin-bottom: 20px;
-  }
-
-  .card {
-    background: #fff;
-    border-radius: 12px;
-    padding: 20px 24px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-    margin-bottom: 20px;
-
-    .card-header {
+  .tab-page {
+    .stat-cards {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin: 0 -24px 16px;
-      padding: 0 24px 12px;
-      border-bottom: 1px solid #f0f0f0;
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
 
-      h3 {
-        margin: 0;
-        font-size: 16px;
-        font-weight: 600;
-        color: #1d2129;
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+      margin-bottom: 20px;
+
+      .card-header {
         display: flex;
         align-items: center;
-        gap: 6px;
+        justify-content: space-between;
+        margin: 0 -24px 16px;
+        padding: 0 24px 12px;
+        border-bottom: 1px solid #f0f0f0;
+        flex-wrap: wrap;
+        gap: 12px;
+
+        h3 {
+          margin: 0;
+          font-size: 16px;
+          font-weight: 600;
+          color: #1d2129;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+
+        .filter-bar {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          flex-wrap: wrap;
+        }
+
+        .header-right {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          flex-wrap: wrap;
+          margin-left: auto;
+        }
       }
 
-      .filter-bar {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        flex-wrap: wrap;
-      }
+      .card-body {
+        .chart-placeholder {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          min-height: 200px;
+          background: #fafbfc;
+          border: 1px dashed #e5e6e8;
+          border-radius: 8px;
+          padding: 24px;
 
-      .header-right {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        flex-wrap: wrap;
-        margin-left: auto;
+          .chart-icon {
+            font-size: 40px;
+            color: #1677ff;
+            margin-bottom: 12px;
+          }
+
+          .chart-text {
+            font-size: 16px;
+            color: #86909c;
+          }
+        }
       }
     }
 
-    .card-body {
+    .analysis-card {
+      flex: 1;
+      min-width: 300px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+
+      :deep(.ant-card-body) {
+        padding: 16px;
+      }
+
+      &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 0 -16px 16px;
+        padding: 0 16px 12px;
+        border-bottom: 1px solid #f0f0f0;
+      }
+
+      &__title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 15px;
+        font-weight: 600;
+        color: rgba(0, 0, 0, 0.85);
+      }
+
+      &__icon {
+        font-size: 18px;
+      }
+
+      &__icon2 {
+        font-size: 54px;
+      }
+
+      .card-note {
+        color: rgba(0, 0, 0, 0.45);
+        font-size: 14px;
+        text-align: right;
+      }
+
+      &__body {
+        height: 320px;
+        background: #f7f9fc;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      .temp-tabs {
+        display: inline-flex;
+        border: 1px solid #d9d9d9;
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+      .temp-tab {
+        padding: 4px 14px;
+        font-size: 16px;
+        color: rgba(0, 0, 0, 0.65);
+        background: #ffffff;
+        border: none;
+        outline: none;
+        cursor: pointer;
+        transition: all 0.2s;
+
+        &:hover {
+          color: #1890ff;
+        }
+
+        &.active {
+          color: #ffffff;
+          background: #1890ff;
+        }
+
+        &:not(:last-child) {
+          border-right: 1px solid #d9d9d9;
+        }
+      }
+
       .chart-placeholder {
+        height: 100%;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        min-height: 200px;
-        background: #fafbfc;
-        border: 1px dashed #e5e6e8;
-        border-radius: 8px;
-        padding: 24px;
+        gap: 12px;
 
-        .chart-icon {
-          font-size: 40px;
-          color: #1677ff;
-          margin-bottom: 12px;
-        }
-
-        .chart-text {
-          font-size:16px;
-          color: #86909c;
+        &__text {
+          font-size: 16px;
+          color: rgba(0, 0, 0, 0.45);
         }
       }
+
+      .venue-chart {
+        width: 100%;
+        height: 100%;
+      }
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .collapse-row {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+      margin-bottom: 20px;
+
+      &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 0 -24px 16px;
+        padding: 0 24px 12px;
+        border-bottom: 1px solid #f0f0f0;
+        flex-wrap: wrap;
+        gap: 12px;
+
+        h3 {
+          margin: 0;
+          font-size: 16px;
+          font-weight: 600;
+          color: #1d2129;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+      }
     }
   }
 
-  
-  .analysis-card {
-    flex: 1;
-    min-width: 300px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-
-    :deep(.ant-card-body) {
-      padding: 16px;
-    }
-
-    &__header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin: 0 -16px 16px;
-      padding: 0 16px 12px;
-      border-bottom: 1px solid #f0f0f0;
-    }
-
-    &__title {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 15px;
-      font-weight: 600;
-      color: rgba(0, 0, 0, 0.85);
-    }
-
-    &__icon {
-      font-size: 18px;
-    }
-
-    &__icon2 {
-      font-size: 54px;
-    }
-
-    .card-note {
-      color: rgba(0, 0, 0, 0.45);
-      font-size:14px;
-      text-align: right;
-    }
-
-    &__body {
-      height: 320px;
-      background: #f7f9fc;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-
-    .temp-tabs {
-      display: inline-flex;
-      border: 1px solid #d9d9d9;
-      border-radius: 4px;
-      overflow: hidden;
-    }
-
-    .temp-tab {
-      padding: 4px 14px;
-      font-size:16px;
-      color: rgba(0, 0, 0, 0.65);
-      background: #ffffff;
-      border: none;
-      outline: none;
-      cursor: pointer;
-      transition: all 0.2s;
-
-      &:hover {
-        color: #1890ff;
-      }
-
-      &.active {
-        color: #ffffff;
-        background: #1890ff;
-      }
-
-      &:not(:last-child) {
-        border-right: 1px solid #d9d9d9;
-      }
-    }
-
-    .chart-placeholder {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-
-      &__text {
-        font-size:16px;
-        color: rgba(0, 0, 0, 0.45);
-      }
-    }
-
-    .venue-chart {
-      width: 100%;
-      height: 100%;
-    }
-  }
-
-.two-col {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    margin-bottom: 20px;
-  }
-
-  .collapse-row {
+  .collapse-btn {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
     background: #fff;
-    border-radius: 12px;
-    padding: 20px 24px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-    margin-bottom: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: #666;
+    transition: all 0.2s;
+    flex-shrink: 0;
 
-    &__header {
+    &:hover {
+      color: #1677ff;
+      border-color: #1677ff;
+    }
+  }
+
+  .chart-header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: auto;
+  }
+
+  .process-fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    border-radius: 0;
+    margin: 0;
+    padding: 20px;
+    overflow: auto;
+    background: #fff;
+
+    .process-body {
+      height: 100%;
+
+      .process-layout {
+        height: 100%;
+        min-height: 0;
+      }
+
+      .process-schematic {
+        height: 100%;
+        min-height: 0;
+      }
+    }
+  }
+
+  .process-body {
+    .process-layout {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin: 0 -24px 16px;
-      padding: 0 24px 12px;
-      border-bottom: 1px solid #f0f0f0;
-      flex-wrap: wrap;
-      gap: 12px;
+      gap: 16px;
+      height: calc(100vh - 400px);
+      min-height: 800px;
+    }
 
-      h3 {
-        margin: 0;
+    .process-tree {
+      flex-shrink: 0;
+      width: 240px;
+      height: 100%;
+      border: 1px solid #f0f0f0;
+      border-radius: 8px;
+      overflow: auto;
+
+      &__header {
+        padding: 10px 16px;
         font-size: 16px;
         font-weight: 600;
         color: #1d2129;
-        display: flex;
-        align-items: center;
-        gap: 6px;
+        background: #fafafa;
+        border-bottom: 1px solid #f0f0f0;
       }
-    }
-  }
-}
 
-.collapse-btn {
-  width: 32px;
-  height: 32px;
-  border: 1px solid #d9d9d9;
-  border-radius: 4px;
-  background: #fff;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size:14px;
-  color: #666;
-  transition: all 0.2s;
-  flex-shrink: 0;
-
-  &:hover {
-    color: #1677ff;
-    border-color: #1677ff;
-  }
-}
-
-.chart-header-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-left: auto;
-}
-
-.process-fullscreen {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1000;
-  border-radius: 0;
-  margin: 0;
-  padding: 20px;
-  overflow: auto;
-  background: #fff;
-
-  .process-body {
-    height: 100%;
-
-    .process-layout {
-      height: 100%;
-      min-height: 0;
+      :deep(.ant-tree) {
+        padding: 8px;
+      }
     }
 
     .process-schematic {
-      height: 100%;
-      min-height: 0;
-    }
-  }
-}
+      flex: 1;
+      position: relative;
+      border: 1px solid #e5e6e8;
+      border-radius: 8px;
+      overflow: auto;
+      background-color: #06131d;
+      height: calc(100vh - 400px);
+      min-height: 800px;
 
-.process-body {
-  .process-layout {
-    display: flex;
-    gap: 16px;
-    height: calc(100vh - 400px);
-    min-height: 800px;
-  }
-
-  .process-tree {
-    flex-shrink: 0;
-    width: 240px;
-    border: 1px solid #f0f0f0;
-    border-radius: 8px;
-    overflow: hidden;
-
-    &__header {
-      padding: 10px 16px;
-      font-size:16px;
-      font-weight: 600;
-      color: #1d2129;
-      background: #fafafa;
-      border-bottom: 1px solid #f0f0f0;
-    }
-
-    :deep(.ant-tree) {
-      padding: 8px;
+      &__controls {
+        position: sticky;
+        bottom: 0;
+        right: 0;
+        align-self: flex-end;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 6px 12px;
+        background: rgba(8, 35, 50, 0.95);
+        border: 1px solid rgba(78, 141, 167, 0.25);
+        border-radius: 6px 6px 0 0;
+        z-index: 10;
+        margin-left: auto;
+        width: fit-content;
+      }
     }
   }
 
-  .process-schematic {
-    flex: 1;
-    position: relative;
-    border: 1px solid #e5e6e8;
-    border-radius: 8px;
-    overflow: auto;
-    background-color: #06131d;
-    height: calc(100vh - 400px);
-    min-height: 800px;
+  .zoom-btn {
+    border: 1px solid #3d8197;
+    background: rgba(13, 48, 65, 0.8);
+    color: #80c7d1;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    padding: 5px 10px;
+    transition: all 0.2s;
 
-    &__controls {
-      position: sticky;
-      bottom: 0;
-      right: 0;
-      align-self: flex-end;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      padding: 6px 12px;
-      background: rgba(8, 35, 50, 0.95);
-      border: 1px solid rgba(78, 141, 167, 0.25);
-      border-radius: 6px 6px 0 0;
-      z-index: 10;
-      margin-left: auto;
-      width: fit-content;
+    &:hover {
+      color: #48dfa8;
+      border-color: #48dfa8;
+      background: rgba(72, 223, 168, 0.1);
     }
   }
-}
 
-.zoom-btn {
-  border: 1px solid #3d8197;
-  background: rgba(13, 48, 65, 0.8);
-  color: #80c7d1;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size:14px;
-  line-height: 1;
-  padding: 5px 10px;
-  transition: all 0.2s;
-
-  &:hover {
-    color: #48dfa8;
-    border-color: #48dfa8;
-    background: rgba(72, 223, 168, 0.1);
+  .zoom-label {
+    font-size: 14px;
+    color: #80c7d1;
+    min-width: 40px;
+    text-align: center;
   }
-}
 
-.zoom-label {
-  font-size:14px;
-  color: #80c7d1;
-  min-width: 40px;
-  text-align: center;
-}
-
-// 描述列表label允许换行
-:deep(.ant-descriptions-item-label) {
-  white-space: normal !important;
-  word-break: break-word;
-}
+  // 描述列表label允许换行
+  :deep(.ant-descriptions-item-label) {
+    white-space: normal !important;
+    word-break: break-word;
+  }
 </style>
